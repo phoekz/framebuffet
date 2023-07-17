@@ -3,8 +3,10 @@
 #include <SDL2/SDL_syswm.h>
 
 #define WIN32_LEAN_AND_MEAN
+#include <directx/d3d12sdklayers.h>
 #include <directx/d3dx12.h>
 #include <dxgi1_6.h>
+#include <dxgidebug.h>
 
 #include <D3D12MemAlloc.h>
 
@@ -90,17 +92,41 @@ int main() {
     }
 
     // Create D3D12 debug controller.
-    ID3D12Debug* d3d12Debug = nullptr;
+    ID3D12Debug6* d3d12Debug = nullptr;
     {
         AssertHresult(D3D12GetDebugInterface(IID_PPV_ARGS(&d3d12Debug)), "D3D12GetDebugInterface");
         d3d12Debug->EnableDebugLayer();
+        d3d12Debug->SetEnableSynchronizedCommandQueueValidation(true);
         printf("ID3D12Debug: %p\n", (void*)d3d12Debug);
+    }
+
+    // Create DXGI info queue.
+    IDXGIInfoQueue* dxgiInfoQueue = nullptr;
+    {
+        AssertHresult(
+            DXGIGetDebugInterface1(0, IID_PPV_ARGS(&dxgiInfoQueue)),
+            "DXGIGetDebugInterface1");
+        dxgiInfoQueue->SetBreakOnSeverity(
+            DXGI_DEBUG_ALL,
+            DXGI_INFO_QUEUE_MESSAGE_SEVERITY_WARNING,
+            true);
+        dxgiInfoQueue->SetBreakOnSeverity(
+            DXGI_DEBUG_ALL,
+            DXGI_INFO_QUEUE_MESSAGE_SEVERITY_ERROR,
+            true);
+        dxgiInfoQueue->SetBreakOnSeverity(
+            DXGI_DEBUG_ALL,
+            DXGI_INFO_QUEUE_MESSAGE_SEVERITY_CORRUPTION,
+            true);
+        printf("IDXGIInfoQueue: %p\n", (void*)dxgiInfoQueue);
     }
 
     // Create DXGI factory.
     IDXGIFactory4* dxgiFactory = nullptr;
     {
-        AssertHresult(CreateDXGIFactory2(0, IID_PPV_ARGS(&dxgiFactory)), "CreateDXGIFactory2");
+        AssertHresult(
+            CreateDXGIFactory2(DXGI_CREATE_FACTORY_DEBUG, IID_PPV_ARGS(&dxgiFactory)),
+            "CreateDXGIFactory2");
         printf("IDXGIFactory4: %p\n", (void*)dxgiFactory);
     }
 
@@ -139,11 +165,14 @@ int main() {
 
     // Create D3D12 device.
     ID3D12Device* d3d12Device = nullptr;
+    ID3D12Device9* d3d12Device9 = nullptr;
     {
         AssertHresult(
             D3D12CreateDevice(dxgiAdapter, FEATURE_LEVEL, IID_PPV_ARGS(&d3d12Device)),
             "D3D12CreateDevice");
+        d3d12Device->QueryInterface(IID_PPV_ARGS(&d3d12Device9));
         printf("ID3D12Device: %p\n", (void*)d3d12Device);
+        printf("ID3D12Device9: %p\n", (void*)d3d12Device9);
     }
 
     // Create D3D12MA allocator.
@@ -160,6 +189,51 @@ int main() {
         printf("D3D12MA::Allocator: %p\n", (void*)d3d12Allocator);
     }
 
+    // Create D3D12 command queue.
+    ID3D12CommandQueue* d3d12CommandQueue = nullptr;
+    {
+        D3D12_COMMAND_QUEUE_DESC commandQueueDesc = {};
+        commandQueueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
+        commandQueueDesc.Priority = D3D12_COMMAND_QUEUE_PRIORITY_NORMAL;
+        commandQueueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
+        commandQueueDesc.NodeMask = 0;
+        AssertHresult(
+            d3d12Device->CreateCommandQueue(&commandQueueDesc, IID_PPV_ARGS(&d3d12CommandQueue)),
+            "ID3D12Device::CreateCommandQueue");
+        printf("ID3D12CommandQueue: %p\n", (void*)d3d12CommandQueue);
+    }
+
+    // Create DXGI swap chain.
+    IDXGISwapChain4* dxgiSwapChain = nullptr;
+    {
+        DXGI_SWAP_CHAIN_DESC1 swapChainDesc = {};
+        swapChainDesc.Width = WINDOW_WIDTH;
+        swapChainDesc.Height = WINDOW_HEIGHT;
+        swapChainDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+        swapChainDesc.Stereo = FALSE;
+        swapChainDesc.SampleDesc.Count = 1;
+        swapChainDesc.SampleDesc.Quality = 0;
+        swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+        swapChainDesc.BufferCount = 2;
+        swapChainDesc.Scaling = DXGI_SCALING_STRETCH;
+        swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
+        swapChainDesc.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
+        swapChainDesc.Flags = 0;
+        IDXGISwapChain1* swapChain = nullptr;
+        AssertHresult(
+            dxgiFactory->CreateSwapChainForHwnd(
+                d3d12CommandQueue,
+                hwnd,
+                &swapChainDesc,
+                nullptr,
+                nullptr,
+                &swapChain),
+            "IDXGIFactory4::CreateSwapChainForHwnd");
+        swapChain->QueryInterface(IID_PPV_ARGS(&dxgiSwapChain));
+        SafeRelease(swapChain);
+        printf("IDXGISwapChain4: %p\n", (void*)dxgiSwapChain);
+    }
+
     // Main loop.
     bool done = false;
     while (!done) {
@@ -174,9 +248,13 @@ int main() {
     }
 
     // Cleanup.
+    SafeRelease(dxgiSwapChain);
+    SafeRelease(d3d12CommandQueue);
     SafeRelease(d3d12Allocator);
+    SafeRelease(d3d12Device9);
     SafeRelease(d3d12Device);
     SafeRelease(dxgiAdapter);
+    SafeRelease(dxgiInfoQueue);
     SafeRelease(dxgiFactory);
     SDL_DestroyWindow(window);
     SDL_Quit();
