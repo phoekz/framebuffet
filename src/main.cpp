@@ -24,7 +24,16 @@ void SafeRelease(T*& ptr) {
 
 void AssertHresult(HRESULT hr, const char* msg) {
     if (FAILED(hr)) {
-        printf("error(%lx): %s\n", hr, msg);
+        wchar_t wsz[1024];
+        FormatMessageW(
+            FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+            nullptr,
+            hr,
+            0,
+            wsz,
+            sizeof(wsz) / sizeof(wsz[0]),
+            nullptr);
+        printf("error: %s failed with HRESULT 0x%08lx\nmessage: %ws\n", msg, hr, wsz);
         exit(1);
     }
 }
