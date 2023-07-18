@@ -1,5 +1,4 @@
 // Windows Implementation Library (WIL).
-#define UNICODE
 #define WIL_SUPPRESS_EXCEPTIONS
 #include <wil/com.h>
 #include <wil/resource.h>
@@ -26,8 +25,7 @@ __declspec(dllexport) extern const char* D3D12SDKPath = ".\\";
 #include <cstdio>
 
 // Constants.
-constexpr const char* WINDOW_TITLE = "framebuffet";
-constexpr const wchar_t* WINDOW_LTITLE = L"framebuffet";
+constexpr const char* WINDOW_TITLE = "framebuffet 😎";
 constexpr int WINDOW_WIDTH = 640;
 constexpr int WINDOW_HEIGHT = 480;
 constexpr uint32_t MAX_FRAMES_IN_FLIGHT = 2;
@@ -52,7 +50,7 @@ win32_window_proc(HWND window, UINT message, WPARAM w_param, LPARAM l_param) {
             PostQuitMessage(0);
             return 0;
     }
-    return DefWindowProcW(window, message, w_param, l_param);
+    return DefWindowProcA(window, message, w_param, l_param);
 }
 
 // Utilities.
@@ -107,29 +105,40 @@ int main() {
     ComPtr<ID3D12InfoQueue1> d3d12_info_queue;
     ComPtr<ID3D12DebugDevice2> d3d12_debug_device;
     ComPtr<ID3D12CommandQueue> d3d12_command_queue;
-    ComPtr<ID3D12CommandAllocator> d3d12_command_allocator;
     ComPtr<ID3D12GraphicsCommandList9> d3d12_command_list;
     ComPtr<D3D12MA::Allocator> d3d12_allocator;
     ComPtr<IDXGISwapChain4> dxgi_swap_chain;
+    HANDLE dxgi_swap_chain_waitable_object = nullptr;
     ComPtr<ID3D12DescriptorHeap> d3d12_rtv_heap;
     std::array<D3D12_CPU_DESCRIPTOR_HANDLE, MAX_FRAMES_IN_FLIGHT> d3d12_rtv_descriptors;
     std::array<ID3D12Resource*, MAX_FRAMES_IN_FLIGHT> d3d12_rtvs;
     ComPtr<ID3D12Fence1> d3d12_fence;
     wil::unique_handle fence_event;
+    uint64_t fence_last_signaled_value = 0;
+    struct Frame {
+        ComPtr<ID3D12CommandAllocator> command_allocator;
+        uint64_t fence_value = 0;
+    };
+    std::array<Frame, MAX_FRAMES_IN_FLIGHT> frames;
+    uint64_t frame_index = 0;
 
+    // D3D12 - DebugInterface.
     {
         d3d12_call(D3D12GetDebugInterface(IID_PPV_ARGS(&d3d12_debug)), "D3D12GetDebugInterface");
         d3d12_debug->EnableDebugLayer();
     }
 
+    // D3D12 - DXGIFactory.
     {
         d3d12_call(
             CreateDXGIFactory2(DXGI_CREATE_FACTORY_DEBUG, IID_PPV_ARGS(&dxgi_factory)),
             "CreateDXGIFactory2");
     }
 
+    // D3D12 - DXGIAdapter.
     dxgi_adapter = d3d12_dxgi_adapter(dxgi_factory.get());
 
+    // D3D12 - D3D12Device12.
     {
         d3d12_call(
             D3D12CreateDevice(dxgi_adapter.get(), MIN_FEATURE_LEVEL, IID_PPV_ARGS(&d3d12_device)),
@@ -137,6 +146,7 @@ int main() {
         d3d12_device->SetName(L"Device");
     }
 
+    // D3D12 - D3D12InfoQueue.
     {
         d3d12_device.query_to(&d3d12_info_queue);
         d3d12_info_queue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_CORRUPTION, true);
@@ -145,8 +155,10 @@ int main() {
         d3d12_info_queue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_INFO, true);
     }
 
+    // D3D12 - D3D12DebugDevice2.
     d3d12_device.query_to(&d3d12_debug_device);
 
+    // D3D12 - D3D12CommandQueue.
     {
         D3D12_COMMAND_QUEUE_DESC desc = {
             .Type = D3D12_COMMAND_LIST_TYPE_DIRECT,
@@ -160,15 +172,21 @@ int main() {
         d3d12_command_queue->SetName(L"Command Queue");
     }
 
-    {
+    // D3D12 - D3D12CommandAllocator.
+    for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+        ID3D12CommandAllocator* d3d12_command_allocator = nullptr;
         d3d12_call(
             d3d12_device->CreateCommandAllocator(
                 D3D12_COMMAND_LIST_TYPE_DIRECT,
                 IID_PPV_ARGS(&d3d12_command_allocator)),
             "CreateCommandAllocator");
-        d3d12_command_allocator->SetName(L"Command Allocator");
+        wchar_t name[32];
+        swprintf_s(name, L"Command Allocator %u", i);
+        d3d12_command_allocator->SetName(name);
+        frames[i].command_allocator = d3d12_command_allocator;
     }
 
+    // D3D12 - D3D12GraphicsCommandList.
     {
         d3d12_call(
             d3d12_device->CreateCommandList1(
@@ -180,6 +198,7 @@ int main() {
         d3d12_command_list->SetName(L"Command List");
     }
 
+    // D3D12MA - Allocator.
     {
         D3D12MA::ALLOCATOR_DESC desc = {
             .Flags = D3D12MA::ALLOCATOR_FLAG_NONE,
@@ -191,22 +210,23 @@ int main() {
         d3d12_call(D3D12MA::CreateAllocator(&desc, &d3d12_allocator), "D3D12MA::CreateAllocator");
     }
 
+    // Win32 - Window.
     {
-        HINSTANCE module_handle = GetModuleHandle(nullptr);
+        HINSTANCE module_handle = GetModuleHandleA(nullptr);
 
-        WNDCLASSEX window_class = {
-            .cbSize = sizeof(WNDCLASSEX),
+        WNDCLASSEXA window_class = {
+            .cbSize = sizeof(WNDCLASSEXA),
             .style = CS_HREDRAW | CS_VREDRAW,
             .lpfnWndProc = win32_window_proc,
             .hInstance = module_handle,
-            .hIcon = LoadIcon(nullptr, IDI_WINLOGO),
-            .hCursor = LoadCursor(nullptr, IDC_ARROW),
+            .hIcon = LoadIconA(nullptr, IDI_WINLOGO),
+            .hCursor = LoadCursorA(nullptr, IDC_ARROW),
             .hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH),
             .lpszMenuName = nullptr,
-            .lpszClassName = WINDOW_LTITLE,
+            .lpszClassName = WINDOW_TITLE,
             .hIconSm = window_class.hIcon,
         };
-        RegisterClassEx(&window_class);
+        RegisterClassExA(&window_class);
 
         RECT window_rect = {
             .left = 0,
@@ -217,10 +237,10 @@ int main() {
         DWORD window_style = WS_OVERLAPPEDWINDOW;
         AdjustWindowRect(&window_rect, window_style, FALSE);
 
-        HWND window = CreateWindowEx(
+        HWND window = CreateWindowExA(
             WS_EX_APPWINDOW,
-            WINDOW_LTITLE,
-            WINDOW_LTITLE,
+            WINDOW_TITLE,
+            WINDOW_TITLE,
             window_style,
             (GetSystemMetrics(SM_CXSCREEN) - WINDOW_WIDTH) / 2,
             (GetSystemMetrics(SM_CYSCREEN) - WINDOW_HEIGHT) / 2,
@@ -230,6 +250,10 @@ int main() {
             nullptr,
             module_handle,
             nullptr);
+        if (!window) {
+            printf("Failed to create window.\n");
+            exit(1);
+        }
         ShowWindow(window, SW_SHOW);
         SetForegroundWindow(window);
         SetFocus(window);
@@ -237,24 +261,25 @@ int main() {
         window_handle = wil::unique_hwnd(window);
     }
 
+    // D3D12 - DXGISwapChain.
     {
         ComPtr<IDXGISwapChain1> dxgi_swap_chain_1;
-        DXGI_SAMPLE_DESC sample_desc = {
-            .Count = 1,
-            .Quality = 0,
-        };
         DXGI_SWAP_CHAIN_DESC1 desc = {
             .Width = WINDOW_WIDTH,
             .Height = WINDOW_HEIGHT,
             .Format = DXGI_FORMAT_R8G8B8A8_UNORM,
             .Stereo = FALSE,
-            .SampleDesc = sample_desc,
+            .SampleDesc =
+                {
+                    .Count = 1,
+                    .Quality = 0,
+                },
             .BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT,
             .BufferCount = MAX_FRAMES_IN_FLIGHT,
             .Scaling = DXGI_SCALING_STRETCH,
             .SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD,
             .AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED,
-            .Flags = 0,
+            .Flags = DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT,
         };
         d3d12_call(
             dxgi_factory->CreateSwapChainForHwnd(
@@ -266,8 +291,10 @@ int main() {
                 &dxgi_swap_chain_1),
             "CreateSwapChainForHwnd");
         dxgi_swap_chain_1.query_to(&dxgi_swap_chain);
+        dxgi_swap_chain_waitable_object = dxgi_swap_chain->GetFrameLatencyWaitableObject();
     }
 
+    // D3D12 - Render target views.
     {
         D3D12_DESCRIPTOR_HEAP_DESC desc = {
             .Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV,
@@ -292,21 +319,25 @@ int main() {
             ID3D12Resource* d3d12_rtv = nullptr;
             d3d12_call(dxgi_swap_chain->GetBuffer(i, IID_PPV_ARGS(&d3d12_rtv)), "GetBuffer");
             d3d12_device->CreateRenderTargetView(d3d12_rtv, nullptr, d3d12_rtv_descriptors[i]);
+            wchar_t name[32];
+            swprintf_s(name, L"Swap Chain RTV %u", i);
+            d3d12_rtv->SetName(name);
             d3d12_rtvs[i] = d3d12_rtv;
         }
     }
 
+    // D3D12 - Fences.
     {
         d3d12_call(
             d3d12_device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&d3d12_fence)),
             "CreateFence");
+        d3d12_fence->SetName(L"Fence");
         fence_event = wil::unique_handle(CreateEvent(nullptr, FALSE, FALSE, nullptr));
     }
 
     // Main loop.
-    bool shouldExit = false;
-    uint32_t frame_index = 0;
-    while (!shouldExit) {
+    bool should_exit = false;
+    while (!should_exit) {
         MSG msg = {};
         if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
             TranslateMessage(&msg);
@@ -314,18 +345,65 @@ int main() {
         }
 
         if (msg.message == WM_QUIT) {
-            shouldExit = true;
+            should_exit = true;
         }
 
-        float clear_color[4] = {0.0f, 0.2f, 0.4f, 1.0f};
+        Frame* current_frame = nullptr;
+        {
+            HANDLE waitable_objects[] = {
+                dxgi_swap_chain_waitable_object,
+                nullptr,
+            };
+            int waitable_object_count = 1;
+            uint32_t next_frame_index = frame_index + 1;
+            current_frame = &frames[next_frame_index % MAX_FRAMES_IN_FLIGHT];
+            uint64_t fence_value = current_frame->fence_value;
+            if (fence_value != 0) {
+                current_frame->fence_value = 0;
+                d3d12_fence->SetEventOnCompletion(fence_value, fence_event.get());
+                waitable_objects[1] = fence_event.get();
+                waitable_object_count = 2;
+            }
+            WaitForMultipleObjects(waitable_object_count, waitable_objects, TRUE, INFINITE);
+            frame_index = next_frame_index;
+        }
 
-        d3d12_command_allocator->Reset();
-        d3d12_command_list->Reset(d3d12_command_allocator.get(), nullptr);
-        d3d12_command_list
-            ->ClearRenderTargetView(d3d12_rtv_descriptors[frame_index], clear_color, 0, nullptr);
+        uint32_t back_buffer_index = dxgi_swap_chain->GetCurrentBackBufferIndex();
+
+        current_frame->command_allocator->Reset();
+        d3d12_command_list->Reset(current_frame->command_allocator.get(), nullptr);
+
+        {
+            auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(
+                d3d12_rtvs[back_buffer_index],
+                D3D12_RESOURCE_STATE_PRESENT,
+                D3D12_RESOURCE_STATE_RENDER_TARGET);
+            d3d12_command_list->ResourceBarrier(1, &barrier);
+        }
+        float clear_color[4] = {1.0f, 0.3f, 0.3f, 1.0f};
+        d3d12_command_list->ClearRenderTargetView(
+            d3d12_rtv_descriptors[back_buffer_index],
+            clear_color,
+            0,
+            nullptr);
+        {
+            auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(
+                d3d12_rtvs[back_buffer_index],
+                D3D12_RESOURCE_STATE_RENDER_TARGET,
+                D3D12_RESOURCE_STATE_PRESENT);
+            d3d12_command_list->ResourceBarrier(1, &barrier);
+        }
         d3d12_command_list->Close();
 
-        frame_index = (frame_index + 1) % MAX_FRAMES_IN_FLIGHT;
+        ID3D12CommandList* command_lists[] = {(ID3D12CommandList*)d3d12_command_list.get()};
+        d3d12_command_queue->ExecuteCommandLists(_countof(command_lists), command_lists);
+
+        uint64_t fence_value = fence_last_signaled_value + 1;
+        d3d12_command_queue->Signal(d3d12_fence.get(), fence_value);
+        fence_last_signaled_value = fence_value;
+        current_frame->fence_value = fence_value;
+
+        dxgi_swap_chain->Present(1, 0);
     }
 
     // Clean up.

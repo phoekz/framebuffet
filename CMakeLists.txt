@@ -13,7 +13,7 @@ include_directories(${D3D12MemoryAllocator_SOURCE_DIR}/include)
 include_directories(${DXAGILITYSDK_SOURCE_DIR}/include)
 
 # Framebuffet.
-add_executable(${PROJECT_NAME} src/main.cpp)
+add_executable(${PROJECT_NAME} src/main.cpp src/app.manifest)
 target_link_libraries(${PROJECT_NAME} PRIVATE
     d3d12.lib
     dxgi.lib
