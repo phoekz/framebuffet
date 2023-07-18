@@ -1,9 +1,0 @@
-{
-    "name": "framebuffet",
-    "version-string": "0.1.0",
-    "dependencies": [
-        "sdl2",
-        "directx-headers",
-        "d3d12-memory-allocator"
-    ]
-}

@@ -1,33 +1,60 @@
-#define SDL_MAIN_HANDLED
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_syswm.h>
+// Windows Implementation Library (WIL).
+#define UNICODE
+#define WIL_SUPPRESS_EXCEPTIONS
+#include <wil/com.h>
+#include <wil/resource.h>
+template<typename T>
+using ComPtr = wil::com_ptr_nothrow<T>;
 
-#define WIN32_LEAN_AND_MEAN
-#include <directx/d3d12sdklayers.h>
-#include <directx/d3dx12.h>
+// DirectX.
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wswitch"
+#include <d3dx12/d3dx12.h>
 #include <dxgi1_6.h>
 #include <dxgidebug.h>
+#pragma clang diagnostic pop
+extern "C" {
+__declspec(dllexport) extern const uint32_t D3D12SDKVersion = 610;
+__declspec(dllexport) extern const char* D3D12SDKPath = ".\\";
+}
 
+// D3D12 memory allocator.
 #include <D3D12MemAlloc.h>
 
+// Standard libraries.
 #include <cstdio>
 
 // Constants.
 constexpr const char* WINDOW_TITLE = "framebuffet";
+constexpr const wchar_t* WINDOW_LTITLE = L"framebuffet";
 constexpr int WINDOW_WIDTH = 640;
 constexpr int WINDOW_HEIGHT = 480;
-constexpr D3D_FEATURE_LEVEL FEATURE_LEVEL = D3D_FEATURE_LEVEL_12_2;
+constexpr D3D_FEATURE_LEVEL MIN_FEATURE_LEVEL = D3D_FEATURE_LEVEL_12_2;
 
-// Utility functions.
-template<typename T>
-void SafeRelease(T*& ptr) {
-    if (ptr != nullptr) {
-        ptr->Release();
-        ptr = nullptr;
+// Win32.
+static LRESULT CALLBACK
+win32_window_proc(HWND window, UINT message, WPARAM w_param, LPARAM l_param) {
+    switch (message) {
+        case WM_KEYDOWN:
+            if (w_param == VK_ESCAPE) {
+                PostQuitMessage(0);
+                return 0;
+            }
+            break;
+
+        case WM_DESTROY:
+            PostQuitMessage(0);
+            return 0;
+
+        case WM_CLOSE:
+            PostQuitMessage(0);
+            return 0;
     }
+    return DefWindowProcW(window, message, w_param, l_param);
 }
 
-void AssertHresult(HRESULT hr, const char* msg) {
+// Utilities.
+static void d3d12_call(HRESULT hr, const char* msg) {
     if (FAILED(hr)) {
         wchar_t wsz[1024];
         FormatMessageW(
@@ -43,221 +70,184 @@ void AssertHresult(HRESULT hr, const char* msg) {
     }
 }
 
-bool CheckHResult(HRESULT hr, const char* msg) {
-    if (FAILED(hr)) {
-        wchar_t wsz[1024];
-        FormatMessageW(
-            FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-            nullptr,
-            hr,
-            0,
-            wsz,
-            sizeof(wsz) / sizeof(wsz[0]),
-            nullptr);
-        printf("error: %s failed with HRESULT 0x%08lx\nmessage: %ws\n", msg, hr, wsz);
-        return false;
-    }
-    return true;
+static bool d3d12_success(HRESULT hr) {
+    return SUCCEEDED(hr);
 }
 
-// Main function.
+static IDXGIAdapter4* d3d12_dxgi_adapter(IDXGIFactory7* factory) {
+    IDXGIAdapter4* adapter = nullptr;
+    uint32_t adapter_index = 0;
+    while (factory->EnumAdapterByGpuPreference(
+               adapter_index,
+               DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE,
+               IID_PPV_ARGS(&adapter))
+           != DXGI_ERROR_NOT_FOUND) {
+        if (d3d12_success(
+                D3D12CreateDevice(adapter, MIN_FEATURE_LEVEL, __uuidof(ID3D12Device), nullptr))) {
+            DXGI_ADAPTER_DESC3 desc;
+            adapter->GetDesc3(&desc);
+            printf("info: using adapter %u: %ws\n", adapter_index, desc.Description);
+            return adapter;
+        }
+        adapter_index += 1;
+    }
+    return adapter;
+}
+
+// Main.
 int main() {
-    // Initialize SDL.
-    if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
-        printf("error initializing SDL: %s\n", SDL_GetError());
-        return 1;
-    }
+    // Initialize.
+    wil::unique_hwnd window_handle;
+    ComPtr<ID3D12Debug6> d3d12_debug;
+    ComPtr<IDXGIFactory7> dxgi_factory;
+    ComPtr<IDXGIAdapter4> dxgi_adapter;
+    ComPtr<ID3D12Device12> d3d12_device;
+    ComPtr<ID3D12InfoQueue1> d3d12_info_queue;
+    ComPtr<ID3D12DebugDevice2> d3d12_debug_device;
+    ComPtr<ID3D12CommandQueue> d3d12_command_queue;
+    ComPtr<D3D12MA::Allocator> d3d12_allocator;
+    ComPtr<IDXGISwapChain4> dxgi_swap_chain;
 
-    // Create a window.
-    SDL_Window* window = SDL_CreateWindow(
-        WINDOW_TITLE,
-        SDL_WINDOWPOS_CENTERED,
-        SDL_WINDOWPOS_CENTERED,
-        WINDOW_WIDTH,
-        WINDOW_HEIGHT,
-        0);
-    if (window == NULL) {
-        printf("error creating window: %s\n", SDL_GetError());
-        return 1;
-    }
-
-    // Get HWND from SDL_Window.
-    HWND hwnd = nullptr;
     {
-        SDL_SysWMinfo info;
-        SDL_VERSION(&info.version);
-        SDL_GetWindowWMInfo(window, &info);
-        hwnd = info.info.win.window;
-        printf("HWND: %p\n", (void*)hwnd);
+        HINSTANCE module_handle = GetModuleHandle(nullptr);
+
+        WNDCLASSEX window_class = {};
+        window_class.cbSize = sizeof(WNDCLASSEX);
+        window_class.style = CS_HREDRAW | CS_VREDRAW;
+        window_class.lpfnWndProc = win32_window_proc;
+        window_class.hInstance = module_handle;
+        window_class.hIcon = LoadIcon(nullptr, IDI_WINLOGO);
+        window_class.hIconSm = window_class.hIcon;
+        window_class.hCursor = LoadCursor(nullptr, IDC_ARROW);
+        window_class.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
+        window_class.lpszMenuName = nullptr;
+        window_class.lpszClassName = WINDOW_LTITLE;
+        window_class.cbSize = sizeof(WNDCLASSEX);
+        RegisterClassEx(&window_class);
+
+        RECT window_rect = {0, 0, (LONG)WINDOW_WIDTH, (LONG)WINDOW_HEIGHT};
+        DWORD window_style = WS_OVERLAPPEDWINDOW;
+        AdjustWindowRect(&window_rect, window_style, FALSE);
+
+        HWND window = CreateWindowEx(
+            WS_EX_APPWINDOW,
+            WINDOW_LTITLE,
+            WINDOW_LTITLE,
+            window_style,
+            (GetSystemMetrics(SM_CXSCREEN) - WINDOW_WIDTH) / 2,
+            (GetSystemMetrics(SM_CYSCREEN) - WINDOW_HEIGHT) / 2,
+            WINDOW_WIDTH,
+            WINDOW_HEIGHT,
+            nullptr,
+            nullptr,
+            module_handle,
+            nullptr);
+        ShowWindow(window, SW_SHOW);
+        SetForegroundWindow(window);
+        SetFocus(window);
+        ShowCursor(true);
+        window_handle = wil::unique_hwnd(window);
     }
 
-    // Create D3D12 debug controller.
-    ID3D12Debug6* d3d12Debug = nullptr;
     {
-        AssertHresult(D3D12GetDebugInterface(IID_PPV_ARGS(&d3d12Debug)), "D3D12GetDebugInterface");
-        d3d12Debug->EnableDebugLayer();
-        d3d12Debug->SetEnableSynchronizedCommandQueueValidation(true);
-        printf("ID3D12Debug: %p\n", (void*)d3d12Debug);
+        d3d12_call(D3D12GetDebugInterface(IID_PPV_ARGS(&d3d12_debug)), "D3D12GetDebugInterface");
+        d3d12_debug->EnableDebugLayer();
     }
 
-    // Create DXGI info queue.
-    IDXGIInfoQueue* dxgiInfoQueue = nullptr;
     {
-        AssertHresult(
-            DXGIGetDebugInterface1(0, IID_PPV_ARGS(&dxgiInfoQueue)),
-            "DXGIGetDebugInterface1");
-        dxgiInfoQueue->SetBreakOnSeverity(
-            DXGI_DEBUG_ALL,
-            DXGI_INFO_QUEUE_MESSAGE_SEVERITY_WARNING,
-            true);
-        dxgiInfoQueue->SetBreakOnSeverity(
-            DXGI_DEBUG_ALL,
-            DXGI_INFO_QUEUE_MESSAGE_SEVERITY_ERROR,
-            true);
-        dxgiInfoQueue->SetBreakOnSeverity(
-            DXGI_DEBUG_ALL,
-            DXGI_INFO_QUEUE_MESSAGE_SEVERITY_CORRUPTION,
-            true);
-        printf("IDXGIInfoQueue: %p\n", (void*)dxgiInfoQueue);
-    }
-
-    // Create DXGI factory.
-    IDXGIFactory4* dxgiFactory = nullptr;
-    {
-        AssertHresult(
-            CreateDXGIFactory2(DXGI_CREATE_FACTORY_DEBUG, IID_PPV_ARGS(&dxgiFactory)),
+        d3d12_call(
+            CreateDXGIFactory2(DXGI_CREATE_FACTORY_DEBUG, IID_PPV_ARGS(&dxgi_factory)),
             "CreateDXGIFactory2");
-        printf("IDXGIFactory4: %p\n", (void*)dxgiFactory);
     }
 
-    // Find the best DXGI adapter.
-    IDXGIAdapter1* dxgiAdapter = nullptr;
+    dxgi_adapter = d3d12_dxgi_adapter(dxgi_factory.get());
+
     {
-        uint32_t bestAdapterIndex = UINT32_MAX;
-        for (uint32_t adapterIndex = 0;
-             dxgiFactory->EnumAdapters1(adapterIndex, &dxgiAdapter) != DXGI_ERROR_NOT_FOUND;
-             ++adapterIndex) {
-            DXGI_ADAPTER_DESC1 adapterDesc = {};
-            AssertHresult(dxgiAdapter->GetDesc1(&adapterDesc), "IDXGIAdapter1::GetDesc1");
-
-            // Ignore software adapters.
-            if (adapterDesc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE) {
-                continue;
-            }
-
-            // Check for support.
-            if (CheckHResult(
-                    D3D12CreateDevice(dxgiAdapter, FEATURE_LEVEL, __uuidof(ID3D12Device), nullptr),
-                    "D3D12CreateDevice")) {
-                printf("Found adapter %u: %ws\n", adapterIndex, adapterDesc.Description);
-                bestAdapterIndex = adapterIndex;
-                SafeRelease(dxgiAdapter);
-                break;
-            }
-        }
-        if (bestAdapterIndex == UINT32_MAX) {
-            printf("error: no suitable adapter found\n");
-            return 1;
-        }
-        dxgiFactory->EnumAdapters1(bestAdapterIndex, &dxgiAdapter);
-        printf("IDXGIAdapter1: %p\n", (void*)dxgiAdapter);
-    }
-
-    // Create D3D12 device.
-    ID3D12Device* d3d12Device = nullptr;
-    ID3D12Device9* d3d12Device9 = nullptr;
-    {
-        AssertHresult(
-            D3D12CreateDevice(dxgiAdapter, FEATURE_LEVEL, IID_PPV_ARGS(&d3d12Device)),
+        d3d12_call(
+            D3D12CreateDevice(dxgi_adapter.get(), MIN_FEATURE_LEVEL, IID_PPV_ARGS(&d3d12_device)),
             "D3D12CreateDevice");
-        d3d12Device->QueryInterface(IID_PPV_ARGS(&d3d12Device9));
-        printf("ID3D12Device: %p\n", (void*)d3d12Device);
-        printf("ID3D12Device9: %p\n", (void*)d3d12Device9);
+        d3d12_device->SetName(L"Device");
     }
 
-    // Create D3D12MA allocator.
-    D3D12MA::Allocator* d3d12Allocator = nullptr;
+    {
+        d3d12_call(d3d12_device->QueryInterface(IID_PPV_ARGS(&d3d12_info_queue)), "QueryInterface");
+        d3d12_info_queue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_CORRUPTION, true);
+        d3d12_info_queue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, true);
+        d3d12_info_queue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, true);
+        d3d12_info_queue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_INFO, true);
+    }
+
+    d3d12_call(d3d12_device->QueryInterface(IID_PPV_ARGS(&d3d12_debug_device)), "QueryInterface");
+
+    {
+        D3D12_COMMAND_QUEUE_DESC desc = {};
+        desc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
+        d3d12_call(
+            d3d12_device->CreateCommandQueue(&desc, IID_PPV_ARGS(&d3d12_command_queue)),
+            "CreateCommandQueue");
+        d3d12_command_queue->SetName(L"Command Queue");
+    }
+
     {
         D3D12MA::ALLOCATOR_DESC allocatorDesc = {};
-        allocatorDesc.pDevice = d3d12Device;
-        allocatorDesc.pAdapter = dxgiAdapter;
+        allocatorDesc.pDevice = d3d12_device.get();
+        allocatorDesc.pAdapter = dxgi_adapter.get();
         allocatorDesc.pAllocationCallbacks = nullptr;
         allocatorDesc.Flags = D3D12MA::ALLOCATOR_FLAG_NONE;
-        AssertHresult(
-            D3D12MA::CreateAllocator(&allocatorDesc, &d3d12Allocator),
+        d3d12_call(
+            D3D12MA::CreateAllocator(&allocatorDesc, &d3d12_allocator),
             "D3D12MA::CreateAllocator");
-        printf("D3D12MA::Allocator: %p\n", (void*)d3d12Allocator);
     }
 
-    // Create D3D12 command queue.
-    ID3D12CommandQueue* d3d12CommandQueue = nullptr;
     {
-        D3D12_COMMAND_QUEUE_DESC commandQueueDesc = {};
-        commandQueueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
-        commandQueueDesc.Priority = D3D12_COMMAND_QUEUE_PRIORITY_NORMAL;
-        commandQueueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
-        commandQueueDesc.NodeMask = 0;
-        AssertHresult(
-            d3d12Device->CreateCommandQueue(&commandQueueDesc, IID_PPV_ARGS(&d3d12CommandQueue)),
-            "ID3D12Device::CreateCommandQueue");
-        printf("ID3D12CommandQueue: %p\n", (void*)d3d12CommandQueue);
-    }
-
-    // Create DXGI swap chain.
-    IDXGISwapChain4* dxgiSwapChain = nullptr;
-    {
-        DXGI_SWAP_CHAIN_DESC1 swapChainDesc = {};
-        swapChainDesc.Width = WINDOW_WIDTH;
-        swapChainDesc.Height = WINDOW_HEIGHT;
-        swapChainDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-        swapChainDesc.Stereo = FALSE;
-        swapChainDesc.SampleDesc.Count = 1;
-        swapChainDesc.SampleDesc.Quality = 0;
-        swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-        swapChainDesc.BufferCount = 2;
-        swapChainDesc.Scaling = DXGI_SCALING_STRETCH;
-        swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
-        swapChainDesc.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
-        swapChainDesc.Flags = 0;
-        IDXGISwapChain1* swapChain = nullptr;
-        AssertHresult(
-            dxgiFactory->CreateSwapChainForHwnd(
-                d3d12CommandQueue,
-                hwnd,
-                &swapChainDesc,
+        ComPtr<IDXGISwapChain1> dxgi_swap_chain_1;
+        DXGI_SWAP_CHAIN_DESC1 desc = {};
+        desc.Width = WINDOW_WIDTH;
+        desc.Height = WINDOW_HEIGHT;
+        desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+        desc.Stereo = FALSE;
+        desc.SampleDesc.Count = 1;
+        desc.SampleDesc.Quality = 0;
+        desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+        desc.BufferCount = 2;
+        desc.Scaling = DXGI_SCALING_STRETCH;
+        desc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
+        desc.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
+        desc.Flags = 0;
+        d3d12_call(
+            dxgi_factory->CreateSwapChainForHwnd(
+                d3d12_command_queue.get(),
+                window_handle.get(),
+                &desc,
                 nullptr,
                 nullptr,
-                &swapChain),
-            "IDXGIFactory4::CreateSwapChainForHwnd");
-        swapChain->QueryInterface(IID_PPV_ARGS(&dxgiSwapChain));
-        SafeRelease(swapChain);
-        printf("IDXGISwapChain4: %p\n", (void*)dxgiSwapChain);
+                &dxgi_swap_chain_1),
+            "CreateSwapChainForHwnd");
+        dxgi_swap_chain_1->QueryInterface(IID_PPV_ARGS(&dxgi_swap_chain));
     }
 
     // Main loop.
-    bool done = false;
-    while (!done) {
-        SDL_Event event;
-        while (SDL_PollEvent(&event)) {
-            if (event.type == SDL_QUIT) {
-                done = true;
-            } else if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE) {
-                done = true;
-            }
+    bool shouldExit = false;
+    while (!shouldExit) {
+        MSG msg = {};
+        if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
+            TranslateMessage(&msg);
+            DispatchMessage(&msg);
+        }
+
+        if (msg.message == WM_QUIT) {
+            shouldExit = true;
         }
     }
 
-    // Cleanup.
-    SafeRelease(dxgiSwapChain);
-    SafeRelease(d3d12CommandQueue);
-    SafeRelease(d3d12Allocator);
-    SafeRelease(d3d12Device9);
-    SafeRelease(d3d12Device);
-    SafeRelease(dxgiAdapter);
-    SafeRelease(dxgiInfoQueue);
-    SafeRelease(dxgiFactory);
-    SDL_DestroyWindow(window);
-    SDL_Quit();
+    // Clean up.
+    d3d12_info_queue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_CORRUPTION, false);
+    d3d12_info_queue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, false);
+    d3d12_info_queue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, false);
+    d3d12_info_queue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_INFO, false);
+    d3d12_call(
+        d3d12_debug_device->ReportLiveDeviceObjects(D3D12_RLDO_SUMMARY | D3D12_RLDO_DETAIL),
+        "ReportLiveDeviceObjects");
 
     return 0;
 }
