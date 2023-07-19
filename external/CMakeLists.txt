@@ -50,7 +50,6 @@ target_include_directories(dxagilitysdk PRIVATE
     ${DXAGILITYSDK_SOURCE_DIR}/include/d3dx12
 )
 target_compile_definitions(dxagilitysdk PRIVATE WIN32)
-target_compile_options(dxagilitysdk PRIVATE -w)
 
 #
 # DirectX Shader Compiler.
