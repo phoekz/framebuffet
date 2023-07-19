@@ -11,6 +11,7 @@ add_subdirectory(external)
 
 # Framebuffet.
 add_executable(${PROJECT_NAME} src/main.cpp src/app.manifest)
+target_compile_options(${PROJECT_NAME} PRIVATE /W4 /WX /MP)
 set_property(DIRECTORY ${PROJECT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${PROJECT_NAME})
 set_target_properties(${PROJECT_NAME} PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "$<TARGET_FILE_DIR:${PROJECT_NAME}>")
 target_include_directories(${PROJECT_NAME} PRIVATE
@@ -39,7 +40,6 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     DirectXMesh.lib
     DirectXTex.lib
 )
-target_compile_options(${PROJECT_NAME} PRIVATE /W4 /WX)
 
 # Copy shaders to output directory.
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E make_directory
