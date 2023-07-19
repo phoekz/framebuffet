@@ -24,13 +24,6 @@ target_include_directories(
     ${DIRECTXMESH_INCLUDE_DIR}
     ${DIRECTXTEX_INCLUDE_DIR}
 )
-target_link_directories(
-    ${PROJECT_NAME} PRIVATE
-    ${DXCOMPILER_LINK_DIR}
-    ${DIRECTXTK12_LINK_DIR}
-    ${DIRECTXMESH_LINK_DIR}
-    ${DIRECTXTEX_LINK_DIR}
-)
 target_link_libraries(
     ${PROJECT_NAME} PRIVATE
     d3d12.lib
@@ -38,10 +31,10 @@ target_link_libraries(
     dxguid.lib
     D3D12MemoryAllocator
     dxagilitysdk
-    dxcompiler.lib
-    DirectXTK12.lib
-    DirectXMesh.lib
-    DirectXTex.lib
+    ${DXCOMPILER_LINK_DIR}/dxcompiler.lib
+    ${DIRECTXTK12_LINK_DIR}/DirectXTK12.lib
+    ${DIRECTXMESH_LINK_DIR}/DirectXMesh.lib
+    ${DIRECTXTEX_LINK_DIR}/DirectXTex.lib
 )
 
 # Copy assets to target directory.
