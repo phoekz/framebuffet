@@ -6,12 +6,9 @@ template<typename T>
 using ComPtr = wil::com_ptr_nothrow<T>;
 
 // DirectX.
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wswitch"
 #include <d3dx12/d3dx12.h>
 #include <dxgi1_6.h>
 #include <dxgidebug.h>
-#pragma clang diagnostic pop
 extern "C" {
 __declspec(dllexport) extern const uint32_t D3D12SDKVersion = 610;
 __declspec(dllexport) extern const char* D3D12SDKPath = ".\\";
@@ -477,7 +474,7 @@ int main() {
                 nullptr,
             };
             int waitable_object_count = 1;
-            uint32_t next_frame_index = frame_index + 1;
+            uint64_t next_frame_index = frame_index + 1;
             current_frame = &frames[next_frame_index % MAX_FRAMES_IN_FLIGHT];
             uint64_t fence_value = current_frame->fence_value;
             if (fence_value != 0) {

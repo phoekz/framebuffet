@@ -37,21 +37,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     DirectXMesh.lib
     DirectXTex.lib
 )
-target_compile_options(${PROJECT_NAME} PRIVATE
-    # Enable all warnings..
-    -Wall
-    -Werror
-    -Wextra
-    -Wpedantic
-    # ..except for these.
-    -Wno-gnu-zero-variadic-macro-arguments
-    -Wno-language-extension-token
-    -Wno-microsoft-enum-value
-    -Wno-nested-anon-types
-    -Wno-unused-function
-    -Wno-unused-parameter
-    -Wno-unused-variable
-)
+target_compile_options(${PROJECT_NAME} PRIVATE /W4 /WX)
 
 # Copy shaders to output directory.
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E make_directory
