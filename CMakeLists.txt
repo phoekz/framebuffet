@@ -8,14 +8,24 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 # External dependencies.
 add_subdirectory(external)
-include_directories(${WIL_SOURCE_DIR}/include)
-include_directories(${D3D12MemoryAllocator_SOURCE_DIR}/include)
-include_directories(${DXAGILITYSDK_SOURCE_DIR}/include)
-include_directories(${DXCOMPILER_SOURCE_DIR}/include)
 
 # Framebuffet.
 add_executable(${PROJECT_NAME} src/main.cpp src/app.manifest)
-link_directories(${DXCOMPILER_SOURCE_DIR}/lib/x64)
+target_include_directories(${PROJECT_NAME} PRIVATE
+    ${WIL_INCLUDE_DIR}
+    ${D3D12MEMALLOC_INCLUDE_DIR}
+    ${DXAGILITYSDK_INCLUDE_DIR}
+    ${DXCOMPILER_INCLUDE_DIR}
+    ${DIRECTXTK12_INCLUDE_DIR}
+    ${DIRECTXMESH_INCLUDE_DIR}
+    ${DIRECTXTEX_INCLUDE_DIR}
+)
+target_link_directories(${PROJECT_NAME} PRIVATE
+    ${DXCOMPILER_LINK_DIR}
+    ${DIRECTXTK12_LINK_DIR}
+    ${DIRECTXMESH_LINK_DIR}
+    ${DIRECTXTEX_LINK_DIR}
+)
 target_link_libraries(${PROJECT_NAME} PRIVATE
     d3d12.lib
     dxgi.lib
@@ -23,6 +33,9 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     D3D12MemoryAllocator
     dxagilitysdk
     dxcompiler.lib
+    DirectXTK12.lib
+    DirectXMesh.lib
+    DirectXTex.lib
 )
 target_compile_options(${PROJECT_NAME} PRIVATE
     # Enable all warnings..

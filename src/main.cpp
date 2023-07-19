@@ -23,6 +23,9 @@ __declspec(dllexport) extern const char* D3D12SDKPath = ".\\";
 // DirectX Shader Compiler (DXC).
 #include <dxcapi.h>
 
+// DirectXTK12.
+#include <directxtk12/SimpleMath.h>
+
 // Standard libraries.
 #include <array>
 #include <cstdio>
