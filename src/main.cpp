@@ -20,6 +20,9 @@ __declspec(dllexport) extern const char* D3D12SDKPath = ".\\";
 // D3D12 memory allocator.
 #include <D3D12MemAlloc.h>
 
+// DirectX Shader Compiler (DXC).
+#include <dxcapi.h>
+
 // Standard libraries.
 #include <array>
 #include <cstdio>
@@ -31,7 +34,10 @@ constexpr int WINDOW_HEIGHT = 480;
 constexpr uint32_t MAX_FRAMES_IN_FLIGHT = 2;
 constexpr D3D_FEATURE_LEVEL MIN_FEATURE_LEVEL = D3D_FEATURE_LEVEL_12_2;
 
+//
 // Win32.
+//
+
 static LRESULT CALLBACK
 win32_window_proc(HWND window, UINT message, WPARAM w_param, LPARAM l_param) {
     switch (message) {
@@ -53,7 +59,10 @@ win32_window_proc(HWND window, UINT message, WPARAM w_param, LPARAM l_param) {
     return DefWindowProcA(window, message, w_param, l_param);
 }
 
-// Utilities.
+//
+// D3D12 - Utilities.
+//
+
 static void d3d12_call(HRESULT hr, const char* msg) {
     if (FAILED(hr)) {
         wchar_t wsz[1024];
@@ -94,7 +103,107 @@ static IDXGIAdapter4* d3d12_dxgi_adapter(IDXGIFactory7* factory) {
     return adapter;
 }
 
+//
+// DXC.
+//
+
+struct Dxc {
+    ComPtr<IDxcCompiler3> compiler;
+    ComPtr<IDxcUtils> utils;
+    ComPtr<IDxcIncludeHandler> include_handler;
+};
+
+static void dxc_init(Dxc& dxc) {
+    DxcCreateInstance(CLSID_DxcCompiler, IID_PPV_ARGS(&dxc.compiler));
+    DxcCreateInstance(CLSID_DxcUtils, IID_PPV_ARGS(&dxc.utils));
+    dxc.utils->CreateDefaultIncludeHandler(&dxc.include_handler);
+}
+
+enum class ShaderType {
+    Vertex,
+    Pixel,
+};
+
+struct ShaderResult {
+    ComPtr<IDxcBlob> binary;
+    ComPtr<IDxcBlob> pdb;
+    ComPtr<IDxcBlobUtf16> pdb_name;
+    ComPtr<IDxcBlob> reflection;
+};
+
+static void dxc_compile(
+    Dxc& dxc,
+    LPCWSTR shader_name,
+    ShaderType shader_type,
+    LPCWSTR shader_entry,
+    ShaderResult& result) {
+    // Shader profile.
+    LPCWSTR shader_profile = nullptr;
+    switch (shader_type) {
+        case ShaderType::Vertex:
+            shader_profile = L"vs_6_7";
+            break;
+        case ShaderType::Pixel:
+            shader_profile = L"ps_6_7";
+            break;
+    }
+
+    // Shader arguments.
+    LPCWSTR shader_args[] = {
+        // clang-format off
+        shader_name,
+        L"-E", shader_entry,
+        L"-T", shader_profile,
+        L"-HV", L"2021",
+        L"-Zi",
+        L"-Fd", L".\\shaders\\",
+        L"-Qstrip_reflect",
+        // clang-format on
+    };
+
+    // Shader blob.
+    wchar_t shader_path[256];
+    wsprintfW(shader_path, L"shaders\\%ws", shader_name);
+    ComPtr<IDxcBlobEncoding> shader_blob;
+    dxc.utils->LoadFile(shader_path, nullptr, &shader_blob);
+    if (!shader_blob) {
+        fprintf(stderr, "error: failed to load shader file\n");
+        exit(1);
+    }
+    DxcBuffer shader_buffer = {
+        .Ptr = shader_blob->GetBufferPointer(),
+        .Size = shader_blob->GetBufferSize(),
+        .Encoding = DXC_CP_ACP,
+    };
+
+    // Compile.
+    ComPtr<IDxcResult> dxc_result;
+    ComPtr<IDxcBlobUtf8> dxc_errors;
+    d3d12_call(
+        dxc.compiler->Compile(
+            &shader_buffer,
+            shader_args,
+            _countof(shader_args),
+            dxc.include_handler.get(),
+            IID_PPV_ARGS(&dxc_result)),
+        "Compile");
+    dxc_result->GetOutput(DXC_OUT_ERRORS, IID_PPV_ARGS(&dxc_errors), nullptr);
+    if (dxc_errors && dxc_errors->GetStringLength() != 0) {
+        fprintf(stderr, "error: failed to compile %ws\n", shader_name);
+        fprintf(stderr, "%s\n", dxc_errors->GetStringPointer());
+        exit(1);
+    }
+
+    // Results.
+    dxc_result->GetOutput(DXC_OUT_OBJECT, IID_PPV_ARGS(&result.binary), nullptr);
+    dxc_result->GetOutput(DXC_OUT_PDB, IID_PPV_ARGS(&result.pdb), &result.pdb_name);
+    dxc_result->GetOutput(DXC_OUT_REFLECTION, IID_PPV_ARGS(&result.reflection), nullptr);
+}
+
+//
 // Main.
+//
+
 int main() {
     // Initialize.
     wil::unique_hwnd window_handle;
@@ -335,13 +444,23 @@ int main() {
         fence_event = wil::unique_handle(CreateEvent(nullptr, FALSE, FALSE, nullptr));
     }
 
+    // DXC - Shaders.
+    ShaderResult vertex_shader;
+    ShaderResult pixel_shader;
+    {
+        Dxc dxc;
+        dxc_init(dxc);
+        dxc_compile(dxc, L"triangle.hlsl", ShaderType::Vertex, L"vertex_shader", vertex_shader);
+        dxc_compile(dxc, L"triangle.hlsl", ShaderType::Pixel, L"pixel_shader", pixel_shader);
+    }
+
     // Main loop.
     bool should_exit = false;
     while (!should_exit) {
         MSG msg = {};
-        if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
+        if (PeekMessageA(&msg, nullptr, 0, 0, PM_REMOVE)) {
             TranslateMessage(&msg);
-            DispatchMessage(&msg);
+            DispatchMessageA(&msg);
         }
 
         if (msg.message == WM_QUIT) {
