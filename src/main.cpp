@@ -68,26 +68,6 @@ win32_window_proc(HWND window, UINT message, WPARAM w_param, LPARAM l_param) {
 // D3D12 - Utilities.
 //
 
-static void d3d12_call(HRESULT hr, const char* msg) {
-    if (FAILED(hr)) {
-        CHAR message[1024];
-        FormatMessageA(
-            FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-            nullptr,
-            hr,
-            0,
-            message,
-            _countof(message),
-            nullptr);
-        fprintf(stderr, "error: %s failed with HRESULT 0x%08lx\nmessage: %s\n", msg, hr, message);
-        exit(1);
-    }
-}
-
-static bool d3d12_success(HRESULT hr) {
-    return SUCCEEDED(hr);
-}
-
 static IDXGIAdapter4* d3d12_dxgi_adapter(IDXGIFactory7* factory) {
     IDXGIAdapter4* adapter = nullptr;
     uint32_t adapter_index = 0;
@@ -96,7 +76,7 @@ static IDXGIAdapter4* d3d12_dxgi_adapter(IDXGIFactory7* factory) {
                DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE,
                IID_PPV_ARGS(&adapter))
            != DXGI_ERROR_NOT_FOUND) {
-        if (d3d12_success(
+        if (SUCCEEDED(
                 D3D12CreateDevice(adapter, MIN_FEATURE_LEVEL, __uuidof(ID3D12Device), nullptr))) {
             DXGI_ADAPTER_DESC3 desc;
             adapter->GetDesc3(&desc);
@@ -224,7 +204,7 @@ static void dxc_compile(
     wchar_t shader_path[256];
     wsprintfW(shader_path, L"shaders\\%ws", shader_name);
     ComPtr<IDxcBlobEncoding> shader_blob;
-    dxc.utils->LoadFile(shader_path, nullptr, &shader_blob);
+    FAIL_FAST_IF_FAILED(dxc.utils->LoadFile(shader_path, nullptr, &shader_blob));
     if (!shader_blob) {
         fprintf(stderr, "error: failed to load shader file\n");
         exit(1);
@@ -238,15 +218,13 @@ static void dxc_compile(
     // Compile.
     ComPtr<IDxcResult> dxc_result;
     ComPtr<IDxcBlobUtf8> dxc_errors;
-    d3d12_call(
-        dxc.compiler->Compile(
-            &shader_buffer,
-            shader_args,
-            _countof(shader_args),
-            dxc.include_handler.get(),
-            IID_PPV_ARGS(&dxc_result)),
-        "Compile");
-    dxc_result->GetOutput(DXC_OUT_ERRORS, IID_PPV_ARGS(&dxc_errors), nullptr);
+    FAIL_FAST_IF_FAILED(dxc.compiler->Compile(
+        &shader_buffer,
+        shader_args,
+        _countof(shader_args),
+        dxc.include_handler.get(),
+        IID_PPV_ARGS(&dxc_result)));
+    FAIL_FAST_IF_FAILED(dxc_result->GetOutput(DXC_OUT_ERRORS, IID_PPV_ARGS(&dxc_errors), nullptr));
     if (dxc_errors && dxc_errors->GetStringLength() != 0) {
         fprintf(stderr, "error: failed to compile %ws\n", shader_name);
         fprintf(stderr, "%s\n", dxc_errors->GetStringPointer());
@@ -254,9 +232,12 @@ static void dxc_compile(
     }
 
     // Results.
-    dxc_result->GetOutput(DXC_OUT_OBJECT, IID_PPV_ARGS(&result.binary), nullptr);
-    dxc_result->GetOutput(DXC_OUT_PDB, IID_PPV_ARGS(&result.pdb), &result.pdb_name);
-    dxc_result->GetOutput(DXC_OUT_REFLECTION, IID_PPV_ARGS(&result.reflection), nullptr);
+    FAIL_FAST_IF_FAILED(
+        dxc_result->GetOutput(DXC_OUT_OBJECT, IID_PPV_ARGS(&result.binary), nullptr));
+    FAIL_FAST_IF_FAILED(
+        dxc_result->GetOutput(DXC_OUT_PDB, IID_PPV_ARGS(&result.pdb), &result.pdb_name));
+    FAIL_FAST_IF_FAILED(
+        dxc_result->GetOutput(DXC_OUT_REFLECTION, IID_PPV_ARGS(&result.reflection), nullptr));
 }
 
 //
@@ -296,27 +277,22 @@ int main() {
 #if defined(_DEBUG)
     {
         ComPtr<ID3D12Debug6> debug;
-        d3d12_call(D3D12GetDebugInterface(IID_PPV_ARGS(&debug)), "D3D12GetDebugInterface");
+        FAIL_FAST_IF_FAILED(D3D12GetDebugInterface(IID_PPV_ARGS(&debug)));
         debug->EnableDebugLayer();
         dxgi_factory_flags = DXGI_CREATE_FACTORY_DEBUG;
     }
 #endif
 
     // D3D12 - DXGIFactory.
-    {
-        d3d12_call(
-            CreateDXGIFactory2(dxgi_factory_flags, IID_PPV_ARGS(&dxgi_factory)),
-            "CreateDXGIFactory2");
-    }
+    FAIL_FAST_IF_FAILED(CreateDXGIFactory2(dxgi_factory_flags, IID_PPV_ARGS(&dxgi_factory)));
 
     // D3D12 - DXGIAdapter.
     dxgi_adapter = d3d12_dxgi_adapter(dxgi_factory.get());
 
     // D3D12 - D3D12Device12.
     {
-        d3d12_call(
-            D3D12CreateDevice(dxgi_adapter.get(), MIN_FEATURE_LEVEL, IID_PPV_ARGS(&d3d12_device)),
-            "D3D12CreateDevice");
+        FAIL_FAST_IF_FAILED(
+            D3D12CreateDevice(dxgi_adapter.get(), MIN_FEATURE_LEVEL, IID_PPV_ARGS(&d3d12_device)));
         d3d12_set_name(d3d12_device.get(), L"Device");
     }
 
@@ -343,31 +319,26 @@ int main() {
             .Flags = D3D12_COMMAND_QUEUE_FLAG_NONE,
             .NodeMask = 0,
         };
-        d3d12_call(
-            d3d12_device->CreateCommandQueue(&desc, IID_PPV_ARGS(&d3d12_command_queue)),
-            "CreateCommandQueue");
+        FAIL_FAST_IF_FAILED(
+            d3d12_device->CreateCommandQueue(&desc, IID_PPV_ARGS(&d3d12_command_queue)));
         d3d12_set_name(d3d12_command_queue.get(), L"Command Queue");
     }
 
     // D3D12 - D3D12CommandAllocator.
     for (uint32_t i = 0; i < FRAME_COUNT; i++) {
-        d3d12_call(
-            d3d12_device->CreateCommandAllocator(
-                D3D12_COMMAND_LIST_TYPE_DIRECT,
-                IID_PPV_ARGS(&d3d12_command_allocators[i])),
-            "CreateCommandAllocator");
+        FAIL_FAST_IF_FAILED(d3d12_device->CreateCommandAllocator(
+            D3D12_COMMAND_LIST_TYPE_DIRECT,
+            IID_PPV_ARGS(&d3d12_command_allocators[i])));
         d3d12_set_indexed_name(d3d12_command_allocators[i].get(), L"Command Allocator", i);
     }
 
     // D3D12 - D3D12GraphicsCommandList.
     {
-        d3d12_call(
-            d3d12_device->CreateCommandList1(
-                0,
-                D3D12_COMMAND_LIST_TYPE_DIRECT,
-                D3D12_COMMAND_LIST_FLAG_NONE,
-                IID_PPV_ARGS(&d3d12_command_list)),
-            "CreateCommandList1");
+        FAIL_FAST_IF_FAILED(d3d12_device->CreateCommandList1(
+            0,
+            D3D12_COMMAND_LIST_TYPE_DIRECT,
+            D3D12_COMMAND_LIST_FLAG_NONE,
+            IID_PPV_ARGS(&d3d12_command_list)));
         d3d12_set_name(d3d12_command_list.get(), L"Command List");
     }
 
@@ -380,7 +351,7 @@ int main() {
             .pAllocationCallbacks = nullptr,
             .pAdapter = dxgi_adapter.get(),
         };
-        d3d12_call(D3D12MA::CreateAllocator(&desc, &d3d12_allocator), "D3D12MA::CreateAllocator");
+        FAIL_FAST_IF_FAILED(D3D12MA::CreateAllocator(&desc, &d3d12_allocator));
     }
 
     // Win32 - Window.
@@ -454,15 +425,13 @@ int main() {
             .AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED,
             .Flags = DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT,
         };
-        d3d12_call(
-            dxgi_factory->CreateSwapChainForHwnd(
-                d3d12_command_queue.get(),
-                window_handle.get(),
-                &desc,
-                nullptr,
-                nullptr,
-                &dxgi_swap_chain_1),
-            "CreateSwapChainForHwnd");
+        FAIL_FAST_IF_FAILED(dxgi_factory->CreateSwapChainForHwnd(
+            d3d12_command_queue.get(),
+            window_handle.get(),
+            &desc,
+            nullptr,
+            nullptr,
+            &dxgi_swap_chain_1));
         dxgi_swap_chain_1.query_to(&dxgi_swap_chain);
 
         viewport = CD3DX12_VIEWPORT(0.0f, 0.0f, (float)WINDOW_WIDTH, (float)WINDOW_HEIGHT);
@@ -479,9 +448,8 @@ int main() {
             .Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE,
             .NodeMask = 0,
         };
-        d3d12_call(
-            d3d12_device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&d3d12_rtv_heap)),
-            "CreateDescriptorHeap");
+        FAIL_FAST_IF_FAILED(
+            d3d12_device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&d3d12_rtv_heap)));
 
         uint32_t rtv_descriptor_size =
             d3d12_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
@@ -493,7 +461,7 @@ int main() {
         }
 
         for (uint32_t i = 0; i < FRAME_COUNT; i++) {
-            d3d12_call(dxgi_swap_chain->GetBuffer(i, IID_PPV_ARGS(&d3d12_rtvs[i])), "GetBuffer");
+            FAIL_FAST_IF_FAILED(dxgi_swap_chain->GetBuffer(i, IID_PPV_ARGS(&d3d12_rtvs[i])));
             d3d12_device->CreateRenderTargetView(d3d12_rtvs[i], nullptr, d3d12_rtv_descriptors[i]);
             d3d12_set_indexed_name(d3d12_rtvs[i], L"Swap Chain RTV", i);
         }
@@ -501,9 +469,8 @@ int main() {
 
     // D3D12 - Fences.
     {
-        d3d12_call(
-            d3d12_device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&d3d12_fence)),
-            "CreateFence");
+        FAIL_FAST_IF_FAILED(
+            d3d12_device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&d3d12_fence)));
         d3d12_set_name(d3d12_fence.get(), L"Fence");
         fence_event = wil::unique_handle(CreateEvent(nullptr, FALSE, FALSE, nullptr));
         if (!fence_event) {
@@ -526,13 +493,11 @@ int main() {
         ComPtr<ID3DBlob> signature;
         ComPtr<ID3DBlob> error;
         D3D12SerializeRootSignature(&desc, D3D_ROOT_SIGNATURE_VERSION_1, &signature, &error);
-        d3d12_call(
-            d3d12_device->CreateRootSignature(
-                0,
-                signature->GetBufferPointer(),
-                signature->GetBufferSize(),
-                IID_PPV_ARGS(&d3d12_root_signature)),
-            "CreateRootSignature");
+        FAIL_FAST_IF_FAILED(d3d12_device->CreateRootSignature(
+            0,
+            signature->GetBufferPointer(),
+            signature->GetBufferSize(),
+            IID_PPV_ARGS(&d3d12_root_signature)));
         d3d12_set_name(d3d12_root_signature.get(), L"Root Signature");
     }
 
@@ -574,9 +539,8 @@ int main() {
                     .Quality = 0,
                 },
         };
-        d3d12_call(
-            d3d12_device->CreateGraphicsPipelineState(&desc, IID_PPV_ARGS(&d3d12_pipeline_state)),
-            "CreateGraphicsPipelineState");
+        FAIL_FAST_IF_FAILED(
+            d3d12_device->CreateGraphicsPipelineState(&desc, IID_PPV_ARGS(&d3d12_pipeline_state)));
         d3d12_set_name(d3d12_pipeline_state.get(), L"Pipeline State");
     }
 
@@ -598,20 +562,18 @@ int main() {
 
         auto heap_properties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
         auto buffer_desc = CD3DX12_RESOURCE_DESC::Buffer(vertex_buffer_size);
-        d3d12_call(
-            d3d12_device->CreateCommittedResource(
-                &heap_properties,
-                D3D12_HEAP_FLAG_NONE,
-                &buffer_desc,
-                D3D12_RESOURCE_STATE_GENERIC_READ,
-                nullptr,
-                IID_PPV_ARGS(&vertex_buffer)),
-            "CreateCommittedResource");
+        FAIL_FAST_IF_FAILED(d3d12_device->CreateCommittedResource(
+            &heap_properties,
+            D3D12_HEAP_FLAG_NONE,
+            &buffer_desc,
+            D3D12_RESOURCE_STATE_GENERIC_READ,
+            nullptr,
+            IID_PPV_ARGS(&vertex_buffer)));
         d3d12_set_name(vertex_buffer.get(), L"Vertex Buffer");
 
         UINT8* vertex_data;
         auto read_range = CD3DX12_RANGE(0, 0);
-        d3d12_call(vertex_buffer->Map(0, &read_range, (void**)&vertex_data), "Map");
+        FAIL_FAST_IF_FAILED(vertex_buffer->Map(0, &read_range, (void**)&vertex_data));
         memcpy(vertex_data, triangle_vertices, sizeof(triangle_vertices));
         vertex_buffer->Unmap(0, nullptr);
 
@@ -625,14 +587,12 @@ int main() {
     // Wait for pending GPU work to complete.
     {
         // Schedule a Signal command in the queue.
-        d3d12_call(
-            d3d12_command_queue->Signal(d3d12_fence.get(), fence_values[frame_index]),
-            "Signal");
+        FAIL_FAST_IF_FAILED(
+            d3d12_command_queue->Signal(d3d12_fence.get(), fence_values[frame_index]));
 
         // Wait until the fence has been processed.
-        d3d12_call(
-            d3d12_fence->SetEventOnCompletion(fence_values[frame_index], fence_event.get()),
-            "SetEventOnCompletion");
+        FAIL_FAST_IF_FAILED(
+            d3d12_fence->SetEventOnCompletion(fence_values[frame_index], fence_event.get()));
         WaitForSingleObjectEx(fence_event.get(), INFINITE, FALSE);
 
         // Increment the fence value for the current frame.
@@ -703,18 +663,17 @@ int main() {
         {
             // Schedule a Signal command in the queue.
             uint64_t current_fence_value = fence_values[frame_index];
-            d3d12_call(
-                d3d12_command_queue->Signal(d3d12_fence.get(), current_fence_value),
-                "Signal");
+            FAIL_FAST_IF_FAILED(
+                d3d12_command_queue->Signal(d3d12_fence.get(), current_fence_value));
 
             // Update the frame index.
             frame_index = dxgi_swap_chain->GetCurrentBackBufferIndex();
 
             // If the next frame is not ready to be rendered yet, wait until it is ready.
             if (d3d12_fence->GetCompletedValue() < fence_values[frame_index]) {
-                d3d12_call(
-                    d3d12_fence->SetEventOnCompletion(fence_values[frame_index], fence_event.get()),
-                    "SetEventOnCompletion");
+                FAIL_FAST_IF_FAILED(d3d12_fence->SetEventOnCompletion(
+                    fence_values[frame_index],
+                    fence_event.get()));
                 WaitForSingleObjectEx(fence_event.get(), INFINITE, FALSE);
             }
 
@@ -726,14 +685,12 @@ int main() {
     // Wait for pending GPU work to complete.
     {
         // Schedule a Signal command in the queue.
-        d3d12_call(
-            d3d12_command_queue->Signal(d3d12_fence.get(), fence_values[frame_index]),
-            "Signal");
+        FAIL_FAST_IF_FAILED(
+            d3d12_command_queue->Signal(d3d12_fence.get(), fence_values[frame_index]));
 
         // Wait until the fence has been processed.
-        d3d12_call(
-            d3d12_fence->SetEventOnCompletion(fence_values[frame_index], fence_event.get()),
-            "SetEventOnCompletion");
+        FAIL_FAST_IF_FAILED(
+            d3d12_fence->SetEventOnCompletion(fence_values[frame_index], fence_event.get()));
         WaitForSingleObjectEx(fence_event.get(), INFINITE, FALSE);
     }
 
@@ -742,9 +699,8 @@ int main() {
     {
         ComPtr<ID3D12DebugDevice2> debug_device;
         d3d12_device.query_to(&debug_device);
-        d3d12_call(
-            debug_device->ReportLiveDeviceObjects(D3D12_RLDO_SUMMARY | D3D12_RLDO_DETAIL),
-            "ReportLiveDeviceObjects");
+        FAIL_FAST_IF_FAILED(
+            debug_device->ReportLiveDeviceObjects(D3D12_RLDO_SUMMARY | D3D12_RLDO_DETAIL));
     }
 #endif
 
