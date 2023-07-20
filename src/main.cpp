@@ -250,16 +250,14 @@ static void dxc_compile(
 
 int main() {
     // Initialize.
-    wil::unique_hwnd window_handle;
-    ComPtr<ID3D12Debug6> d3d12_debug;
     ComPtr<IDXGIFactory7> dxgi_factory;
+    uint32_t dxgi_factory_flags = 0;
     ComPtr<IDXGIAdapter4> dxgi_adapter;
     ComPtr<ID3D12Device12> d3d12_device;
-    ComPtr<ID3D12InfoQueue1> d3d12_info_queue;
-    ComPtr<ID3D12DebugDevice2> d3d12_debug_device;
     ComPtr<ID3D12CommandQueue> d3d12_command_queue;
     ComPtr<ID3D12GraphicsCommandList9> d3d12_command_list;
     ComPtr<D3D12MA::Allocator> d3d12_allocator;
+    wil::unique_hwnd window_handle;
     ComPtr<IDXGISwapChain4> dxgi_swap_chain;
     CD3DX12_VIEWPORT viewport;
     CD3DX12_RECT scissor_rect;
@@ -281,15 +279,19 @@ int main() {
     D3D12_VERTEX_BUFFER_VIEW vertex_buffer_view;
 
     // D3D12 - DebugInterface.
+#if defined(_DEBUG)
     {
-        d3d12_call(D3D12GetDebugInterface(IID_PPV_ARGS(&d3d12_debug)), "D3D12GetDebugInterface");
-        d3d12_debug->EnableDebugLayer();
+        ComPtr<ID3D12Debug6> debug;
+        d3d12_call(D3D12GetDebugInterface(IID_PPV_ARGS(&debug)), "D3D12GetDebugInterface");
+        debug->EnableDebugLayer();
+        dxgi_factory_flags = DXGI_CREATE_FACTORY_DEBUG;
     }
+#endif
 
     // D3D12 - DXGIFactory.
     {
         d3d12_call(
-            CreateDXGIFactory2(DXGI_CREATE_FACTORY_DEBUG, IID_PPV_ARGS(&dxgi_factory)),
+            CreateDXGIFactory2(dxgi_factory_flags, IID_PPV_ARGS(&dxgi_factory)),
             "CreateDXGIFactory2");
     }
 
@@ -306,20 +308,18 @@ int main() {
 
     // D3D12 - D3D12InfoQueue.
     {
-        d3d12_device.query_to(&d3d12_info_queue);
-        d3d12_info_queue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_CORRUPTION, true);
-        d3d12_info_queue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, true);
-        d3d12_info_queue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, true);
-        d3d12_info_queue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_INFO, true);
-        d3d12_info_queue->RegisterMessageCallback(
+        ComPtr<ID3D12InfoQueue1> info_queue;
+        d3d12_device.query_to(&info_queue);
+        info_queue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_CORRUPTION, true);
+        info_queue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, true);
+        info_queue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, true);
+        info_queue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_INFO, true);
+        info_queue->RegisterMessageCallback(
             d3d12_message_func,
             D3D12_MESSAGE_CALLBACK_FLAG_NONE,
             nullptr,
             nullptr);
     }
-
-    // D3D12 - D3D12DebugDevice2.
-    d3d12_device.query_to(&d3d12_debug_device);
 
     // D3D12 - D3D12CommandQueue.
     {
@@ -732,14 +732,16 @@ int main() {
         WaitForSingleObjectEx(fence_event.get(), INFINITE, FALSE);
     }
 
-    // Clean up.
-    d3d12_info_queue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_CORRUPTION, false);
-    d3d12_info_queue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, false);
-    d3d12_info_queue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, false);
-    d3d12_info_queue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_INFO, false);
-    d3d12_call(
-        d3d12_debug_device->ReportLiveDeviceObjects(D3D12_RLDO_SUMMARY | D3D12_RLDO_DETAIL),
-        "ReportLiveDeviceObjects");
+    // Detect resource leaks.
+#if defined(_DEBUG)
+    {
+        ComPtr<ID3D12DebugDevice2> debug_device;
+        d3d12_device.query_to(&debug_device);
+        d3d12_call(
+            debug_device->ReportLiveDeviceObjects(D3D12_RLDO_SUMMARY | D3D12_RLDO_DETAIL),
+            "ReportLiveDeviceObjects");
+    }
+#endif
 
     return 0;
 }
