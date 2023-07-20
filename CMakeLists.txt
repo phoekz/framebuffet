@@ -23,6 +23,7 @@ target_include_directories(
     ${DIRECTXTK12_INCLUDE_DIR}
     ${DIRECTXMESH_INCLUDE_DIR}
     ${DIRECTXTEX_INCLUDE_DIR}
+    ${WINPIXEVENTRUNTIME_INCLUDE_DIR}
 )
 target_link_libraries(
     ${PROJECT_NAME} PRIVATE
@@ -35,6 +36,7 @@ target_link_libraries(
     ${DIRECTXTK12_LINK_DIR}/DirectXTK12.lib
     ${DIRECTXMESH_LINK_DIR}/DirectXMesh.lib
     ${DIRECTXTEX_LINK_DIR}/DirectXTex.lib
+    ${WINPIXEVENTRUNTIME_LINK_DIR}/WinPixEventRuntime.lib
 )
 
 # Copy assets to target directory.
@@ -51,4 +53,5 @@ add_custom_command(
     COMMAND ${CMAKE_COMMAND} -E copy ${DXCOMPILER_SOURCE_DIR}/bin/x64/dxcompiler.pdb ${PROJECT_TARGET_DIRECTORY}
     COMMAND ${CMAKE_COMMAND} -E copy ${DXCOMPILER_SOURCE_DIR}/bin/x64/dxil.dll ${PROJECT_TARGET_DIRECTORY}
     COMMAND ${CMAKE_COMMAND} -E copy ${DXCOMPILER_SOURCE_DIR}/bin/x64/dxil.pdb ${PROJECT_TARGET_DIRECTORY}
+    COMMAND ${CMAKE_COMMAND} -E copy ${WINPIXEVENTRUNTIME_BIN_DIR}/WinPixEventRuntime.dll ${PROJECT_TARGET_DIRECTORY}
 )

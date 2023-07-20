@@ -23,6 +23,10 @@ __declspec(dllexport) extern const char* D3D12SDKPath = ".\\";
 // DirectXTK12.
 #include <directxtk12/SimpleMath.h>
 
+// WinPixEventRuntime.
+#define USE_PIX
+#include <WinPixEventRuntime/pix3.h>
+
 // Standard libraries.
 #include <array>
 #include <cstdio>
@@ -606,6 +610,7 @@ int main() {
         d3d12_command_list->Reset(
             d3d12_command_allocators[frame_index].get(),
             d3d12_pipeline_state.get());
+        PIXBeginEvent(d3d12_command_list.get(), PIX_COLOR_DEFAULT, "Render");
 
         d3d12_command_list->SetGraphicsRootSignature(d3d12_root_signature.get());
         d3d12_command_list->RSSetViewports(1, &viewport);
@@ -635,6 +640,7 @@ int main() {
             d3d12_command_list->ResourceBarrier(1, &barrier);
         }
 
+        PIXEndEvent(d3d12_command_list.get());
         d3d12_command_list->Close();
 
         // Execute command list.
