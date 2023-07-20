@@ -70,16 +70,16 @@ win32_window_proc(HWND window, UINT message, WPARAM w_param, LPARAM l_param) {
 
 static void d3d12_call(HRESULT hr, const char* msg) {
     if (FAILED(hr)) {
-        wchar_t wsz[1024];
-        FormatMessageW(
+        CHAR message[1024];
+        FormatMessageA(
             FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
             nullptr,
             hr,
             0,
-            wsz,
-            sizeof(wsz) / sizeof(wsz[0]),
+            message,
+            _countof(message),
             nullptr);
-        fprintf(stderr, "error: %s failed with HRESULT 0x%08lx\nmessage: %ws\n", msg, hr, wsz);
+        fprintf(stderr, "error: %s failed with HRESULT 0x%08lx\nmessage: %s\n", msg, hr, message);
         exit(1);
     }
 }
