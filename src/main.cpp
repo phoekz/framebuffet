@@ -33,6 +33,7 @@ constexpr int WINDOW_WIDTH = 640;
 constexpr int WINDOW_HEIGHT = 480;
 constexpr uint32_t FRAME_COUNT = 2;
 constexpr D3D_FEATURE_LEVEL MIN_FEATURE_LEVEL = D3D_FEATURE_LEVEL_12_2;
+constexpr float CLEAR_COLOR[4] = {0.1f, 0.1f, 0.1f, 1.0f};
 
 //
 // Win32.
@@ -217,6 +218,8 @@ int main() {
     ComPtr<ID3D12GraphicsCommandList9> d3d12_command_list;
     ComPtr<D3D12MA::Allocator> d3d12_allocator;
     ComPtr<IDXGISwapChain4> dxgi_swap_chain;
+    CD3DX12_VIEWPORT viewport;
+    CD3DX12_RECT scissor_rect;
     HANDLE dxgi_swap_chain_waitable_object = nullptr;
     ComPtr<ID3D12DescriptorHeap> d3d12_rtv_heap;
     std::array<D3D12_CPU_DESCRIPTOR_HANDLE, FRAME_COUNT> d3d12_rtv_descriptors;
@@ -226,6 +229,13 @@ int main() {
     uint32_t frame_index = 0;
     wil::unique_handle fence_event;
     std::array<uint64_t, FRAME_COUNT> fence_values = {};
+
+    ComPtr<ID3D12RootSignature> d3d12_root_signature;
+    ComPtr<ID3D12PipelineState> d3d12_pipeline_state;
+    ShaderResult vertex_shader;
+    ShaderResult pixel_shader;
+    ComPtr<ID3D12Resource> vertex_buffer;
+    D3D12_VERTEX_BUFFER_VIEW vertex_buffer_view;
 
     // D3D12 - DebugInterface.
     {
@@ -397,6 +407,10 @@ int main() {
             "CreateSwapChainForHwnd");
         dxgi_swap_chain_1.query_to(&dxgi_swap_chain);
         dxgi_swap_chain_waitable_object = dxgi_swap_chain->GetFrameLatencyWaitableObject();
+
+        viewport = CD3DX12_VIEWPORT(0.0f, 0.0f, (float)WINDOW_WIDTH, (float)WINDOW_HEIGHT);
+        scissor_rect = CD3DX12_RECT(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+
         frame_index = dxgi_swap_chain->GetCurrentBackBufferIndex();
     }
 
@@ -446,14 +460,113 @@ int main() {
         fence_values[frame_index]++;
     }
 
+    // D3D12 - Root signature.
+    {
+        CD3DX12_ROOT_SIGNATURE_DESC desc;
+        desc.Init(
+            0,
+            nullptr,
+            0,
+            nullptr,
+            D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
+
+        ComPtr<ID3DBlob> signature;
+        ComPtr<ID3DBlob> error;
+        D3D12SerializeRootSignature(&desc, D3D_ROOT_SIGNATURE_VERSION_1, &signature, &error);
+        d3d12_call(
+            d3d12_device->CreateRootSignature(
+                0,
+                signature->GetBufferPointer(),
+                signature->GetBufferSize(),
+                IID_PPV_ARGS(&d3d12_root_signature)),
+            "CreateRootSignature");
+        d3d12_root_signature->SetName(L"Root Signature");
+    }
+
     // DXC - Shaders.
-    ShaderResult vertex_shader;
-    ShaderResult pixel_shader;
     {
         Dxc dxc;
         dxc_init(dxc);
         dxc_compile(dxc, L"triangle.hlsl", ShaderType::Vertex, L"vertex_shader", vertex_shader);
         dxc_compile(dxc, L"triangle.hlsl", ShaderType::Pixel, L"pixel_shader", pixel_shader);
+    }
+
+    // D3D12 - Pipeline state.
+    {
+        D3D12_INPUT_ELEMENT_DESC input_element_descs[] = {
+            // clang-format off
+            { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+            { "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
+            // clang-format on
+        };
+        D3D12_GRAPHICS_PIPELINE_STATE_DESC desc = {
+            .pRootSignature = d3d12_root_signature.get(),
+            .VS = CD3DX12_SHADER_BYTECODE(
+                vertex_shader.binary->GetBufferPointer(),
+                vertex_shader.binary->GetBufferSize()),
+            .PS = CD3DX12_SHADER_BYTECODE(
+                pixel_shader.binary->GetBufferPointer(),
+                pixel_shader.binary->GetBufferSize()),
+            .BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT),
+            .SampleMask = UINT_MAX,
+            .RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT),
+            .DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(),
+            .InputLayout = {input_element_descs, _countof(input_element_descs)},
+            .PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE,
+            .NumRenderTargets = 1,
+            .RTVFormats = {DXGI_FORMAT_R8G8B8A8_UNORM},
+            .SampleDesc =
+                {
+                    .Count = 1,
+                    .Quality = 0,
+                },
+        };
+        d3d12_call(
+            d3d12_device->CreateGraphicsPipelineState(&desc, IID_PPV_ARGS(&d3d12_pipeline_state)),
+            "CreateGraphicsPipelineState");
+        d3d12_pipeline_state->SetName(L"Pipeline State");
+    }
+
+    // D3D12 - Triangle.
+    {
+        using namespace DirectX::SimpleMath;
+
+        struct Vertex {
+            Vector3 position;
+            Vector4 color;
+        };
+
+        Vertex triangle_vertices[] = {
+            {{0.0f, 0.5f, 0.0f}, {1.0f, 0.0f, 0.0f, 1.0f}},
+            {{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f, 1.0f}},
+            {{-0.5f, -0.5f, 0.0f}, {0.0f, 0.0f, 1.0f, 1.0f}}};
+
+        uint32_t vertex_buffer_size = (uint32_t)sizeof(triangle_vertices);
+
+        auto heap_properties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
+        auto buffer_desc = CD3DX12_RESOURCE_DESC::Buffer(vertex_buffer_size);
+        d3d12_call(
+            d3d12_device->CreateCommittedResource(
+                &heap_properties,
+                D3D12_HEAP_FLAG_NONE,
+                &buffer_desc,
+                D3D12_RESOURCE_STATE_GENERIC_READ,
+                nullptr,
+                IID_PPV_ARGS(&vertex_buffer)),
+            "CreateCommittedResource");
+        vertex_buffer->SetName(L"Vertex Buffer");
+
+        UINT8* vertex_data;
+        auto read_range = CD3DX12_RANGE(0, 0);
+        d3d12_call(vertex_buffer->Map(0, &read_range, (void**)&vertex_data), "Map");
+        memcpy(vertex_data, triangle_vertices, sizeof(triangle_vertices));
+        vertex_buffer->Unmap(0, nullptr);
+
+        vertex_buffer_view = {
+            .BufferLocation = vertex_buffer->GetGPUVirtualAddress(),
+            .SizeInBytes = vertex_buffer_size,
+            .StrideInBytes = sizeof(Vertex),
+        };
     }
 
     // Wait for pending GPU work to complete.
@@ -488,8 +601,17 @@ int main() {
             }
         }
 
+        // Populate command list.
         d3d12_command_allocators[frame_index]->Reset();
-        d3d12_command_list->Reset(d3d12_command_allocators[frame_index].get(), nullptr);
+        d3d12_command_list->Reset(
+            d3d12_command_allocators[frame_index].get(),
+            d3d12_pipeline_state.get());
+
+        d3d12_command_list->SetGraphicsRootSignature(d3d12_root_signature.get());
+        d3d12_command_list->RSSetViewports(1, &viewport);
+        d3d12_command_list->RSSetScissorRects(1, &scissor_rect);
+        d3d12_command_list
+            ->OMSetRenderTargets(1, &d3d12_rtv_descriptors[frame_index], FALSE, nullptr);
 
         {
             auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(
@@ -498,9 +620,13 @@ int main() {
                 D3D12_RESOURCE_STATE_RENDER_TARGET);
             d3d12_command_list->ResourceBarrier(1, &barrier);
         }
-        float clear_color[4] = {1.0f, 0.3f, 0.3f, 1.0f};
+
         d3d12_command_list
-            ->ClearRenderTargetView(d3d12_rtv_descriptors[frame_index], clear_color, 0, nullptr);
+            ->ClearRenderTargetView(d3d12_rtv_descriptors[frame_index], CLEAR_COLOR, 0, nullptr);
+        d3d12_command_list->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+        d3d12_command_list->IASetVertexBuffers(0, 1, &vertex_buffer_view);
+        d3d12_command_list->DrawInstanced(3, 1, 0, 0);
+
         {
             auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(
                 d3d12_rtvs[frame_index],
@@ -508,11 +634,14 @@ int main() {
                 D3D12_RESOURCE_STATE_PRESENT);
             d3d12_command_list->ResourceBarrier(1, &barrier);
         }
+
         d3d12_command_list->Close();
 
+        // Execute command list.
         ID3D12CommandList* command_lists[] = {(ID3D12CommandList*)d3d12_command_list.get()};
         d3d12_command_queue->ExecuteCommandLists(_countof(command_lists), command_lists);
 
+        // Present.
         dxgi_swap_chain->Present(1, 0);
 
         // Move to next frame.
@@ -537,6 +666,20 @@ int main() {
             // Set the fence value for the next frame.
             fence_values[frame_index] = current_fence_value + 1;
         }
+    }
+
+    // Wait for pending GPU work to complete.
+    {
+        // Schedule a Signal command in the queue.
+        d3d12_call(
+            d3d12_command_queue->Signal(d3d12_fence.get(), fence_values[frame_index]),
+            "Signal");
+
+        // Wait until the fence has been processed.
+        d3d12_call(
+            d3d12_fence->SetEventOnCompletion(fence_values[frame_index], fence_event.get()),
+            "SetEventOnCompletion");
+        WaitForSingleObjectEx(fence_event.get(), INFINITE, FALSE);
     }
 
     // Clean up.
