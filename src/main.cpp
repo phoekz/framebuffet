@@ -108,6 +108,45 @@ static IDXGIAdapter4* d3d12_dxgi_adapter(IDXGIFactory7* factory) {
     return adapter;
 }
 
+static void d3d12_message_func(
+    D3D12_MESSAGE_CATEGORY category,
+    D3D12_MESSAGE_SEVERITY severity,
+    D3D12_MESSAGE_ID /*id*/,
+    LPCSTR description,
+    void* /*context*/) {
+    // clang-format off
+
+    // Message category.
+    const char* category_name = "unknown";
+    switch (category) {
+        case D3D12_MESSAGE_CATEGORY_APPLICATION_DEFINED: category_name = "APPLICATION_DEFINED"; break;
+        case D3D12_MESSAGE_CATEGORY_MISCELLANEOUS: category_name = "MISCELLANEOUS"; break;
+        case D3D12_MESSAGE_CATEGORY_INITIALIZATION: category_name = "INITIALIZATION"; break;
+        case D3D12_MESSAGE_CATEGORY_CLEANUP: category_name = "CLEANUP"; break;
+        case D3D12_MESSAGE_CATEGORY_COMPILATION: category_name = "COMPILATION"; break;
+        case D3D12_MESSAGE_CATEGORY_STATE_CREATION: category_name = "STATE_CREATION"; break;
+        case D3D12_MESSAGE_CATEGORY_STATE_SETTING: category_name = "STATE_SETTING"; break;
+        case D3D12_MESSAGE_CATEGORY_STATE_GETTING: category_name = "STATE_GETTING"; break;
+        case D3D12_MESSAGE_CATEGORY_RESOURCE_MANIPULATION: category_name = "RESOURCE_MANIPULATION"; break;
+        case D3D12_MESSAGE_CATEGORY_EXECUTION: category_name = "EXECUTION"; break;
+        case D3D12_MESSAGE_CATEGORY_SHADER: category_name = "SHADER"; break;
+    }
+
+    // Message severity.
+    const char* severity_name = "unknown";
+    switch (severity) {
+        case D3D12_MESSAGE_SEVERITY_CORRUPTION: severity_name = "CORRUPTION"; break;
+        case D3D12_MESSAGE_SEVERITY_ERROR: severity_name = "ERROR"; break;
+        case D3D12_MESSAGE_SEVERITY_WARNING: severity_name = "WARNING"; break;
+        case D3D12_MESSAGE_SEVERITY_INFO: severity_name = "INFO"; break;
+        case D3D12_MESSAGE_SEVERITY_MESSAGE: severity_name = "MESSAGE"; break;
+    }
+
+    // clang-format on
+
+    fprintf(stderr, "[%s] %s: %s\n", category_name, severity_name, description);
+}
+
 //
 // DXC.
 //
@@ -272,6 +311,11 @@ int main() {
         d3d12_info_queue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, true);
         d3d12_info_queue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, true);
         d3d12_info_queue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_INFO, true);
+        d3d12_info_queue->RegisterMessageCallback(
+            d3d12_message_func,
+            D3D12_MESSAGE_CALLBACK_FLAG_NONE,
+            nullptr,
+            nullptr);
     }
 
     // D3D12 - D3D12DebugDevice2.
