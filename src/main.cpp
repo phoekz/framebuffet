@@ -147,6 +147,21 @@ static void d3d12_message_func(
     fprintf(stderr, "[%s] %s: %s\n", category_name, severity_name, description);
 }
 
+#if defined(_DEBUG) || defined(DBG)
+inline void d3d12_set_name(ID3D12Object* object, LPCWSTR name) {
+    object->SetName(name);
+}
+inline void d3d12_set_indexed_name(ID3D12Object* object, LPCWSTR name, UINT index) {
+    WCHAR indexed_name[256];
+    if (swprintf_s(indexed_name, L"%s[%u]", name, index) > 0) {
+        object->SetName(indexed_name);
+    }
+}
+#else
+inline void d3d12_set_name(ID3D12Object*, LPCWSTR) {}
+inline void d3d12_set_name_indexed(ID3D12Object*, LPCWSTR, UINT) {}
+#endif
+
 //
 // DXC.
 //
@@ -302,7 +317,7 @@ int main() {
         d3d12_call(
             D3D12CreateDevice(dxgi_adapter.get(), MIN_FEATURE_LEVEL, IID_PPV_ARGS(&d3d12_device)),
             "D3D12CreateDevice");
-        d3d12_device->SetName(L"Device");
+        d3d12_set_name(d3d12_device.get(), L"Device");
     }
 
     // D3D12 - D3D12InfoQueue.
@@ -331,21 +346,17 @@ int main() {
         d3d12_call(
             d3d12_device->CreateCommandQueue(&desc, IID_PPV_ARGS(&d3d12_command_queue)),
             "CreateCommandQueue");
-        d3d12_command_queue->SetName(L"Command Queue");
+        d3d12_set_name(d3d12_command_queue.get(), L"Command Queue");
     }
 
     // D3D12 - D3D12CommandAllocator.
     for (uint32_t i = 0; i < FRAME_COUNT; i++) {
-        ID3D12CommandAllocator* d3d12_command_allocator = nullptr;
         d3d12_call(
             d3d12_device->CreateCommandAllocator(
                 D3D12_COMMAND_LIST_TYPE_DIRECT,
-                IID_PPV_ARGS(&d3d12_command_allocator)),
+                IID_PPV_ARGS(&d3d12_command_allocators[i])),
             "CreateCommandAllocator");
-        wchar_t name[32];
-        swprintf_s(name, L"Command Allocator %u", i);
-        d3d12_command_allocator->SetName(name);
-        d3d12_command_allocators[i] = d3d12_command_allocator;
+        d3d12_set_indexed_name(d3d12_command_allocators[i].get(), L"Command Allocator", i);
     }
 
     // D3D12 - D3D12GraphicsCommandList.
@@ -357,7 +368,7 @@ int main() {
                 D3D12_COMMAND_LIST_FLAG_NONE,
                 IID_PPV_ARGS(&d3d12_command_list)),
             "CreateCommandList1");
-        d3d12_command_list->SetName(L"Command List");
+        d3d12_set_name(d3d12_command_list.get(), L"Command List");
     }
 
     // D3D12MA - Allocator.
@@ -482,13 +493,9 @@ int main() {
         }
 
         for (uint32_t i = 0; i < FRAME_COUNT; i++) {
-            ID3D12Resource* d3d12_rtv = nullptr;
-            d3d12_call(dxgi_swap_chain->GetBuffer(i, IID_PPV_ARGS(&d3d12_rtv)), "GetBuffer");
-            d3d12_device->CreateRenderTargetView(d3d12_rtv, nullptr, d3d12_rtv_descriptors[i]);
-            wchar_t name[32];
-            swprintf_s(name, L"Swap Chain RTV %u", i);
-            d3d12_rtv->SetName(name);
-            d3d12_rtvs[i] = d3d12_rtv;
+            d3d12_call(dxgi_swap_chain->GetBuffer(i, IID_PPV_ARGS(&d3d12_rtvs[i])), "GetBuffer");
+            d3d12_device->CreateRenderTargetView(d3d12_rtvs[i], nullptr, d3d12_rtv_descriptors[i]);
+            d3d12_set_indexed_name(d3d12_rtvs[i], L"Swap Chain RTV", i);
         }
     }
 
@@ -497,7 +504,7 @@ int main() {
         d3d12_call(
             d3d12_device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&d3d12_fence)),
             "CreateFence");
-        d3d12_fence->SetName(L"Fence");
+        d3d12_set_name(d3d12_fence.get(), L"Fence");
         fence_event = wil::unique_handle(CreateEvent(nullptr, FALSE, FALSE, nullptr));
         if (!fence_event) {
             fprintf(stderr, "Failed to create fence event.\n");
@@ -526,7 +533,7 @@ int main() {
                 signature->GetBufferSize(),
                 IID_PPV_ARGS(&d3d12_root_signature)),
             "CreateRootSignature");
-        d3d12_root_signature->SetName(L"Root Signature");
+        d3d12_set_name(d3d12_root_signature.get(), L"Root Signature");
     }
 
     // DXC - Shaders.
@@ -570,7 +577,7 @@ int main() {
         d3d12_call(
             d3d12_device->CreateGraphicsPipelineState(&desc, IID_PPV_ARGS(&d3d12_pipeline_state)),
             "CreateGraphicsPipelineState");
-        d3d12_pipeline_state->SetName(L"Pipeline State");
+        d3d12_set_name(d3d12_pipeline_state.get(), L"Pipeline State");
     }
 
     // D3D12 - Triangle.
@@ -600,7 +607,7 @@ int main() {
                 nullptr,
                 IID_PPV_ARGS(&vertex_buffer)),
             "CreateCommittedResource");
-        vertex_buffer->SetName(L"Vertex Buffer");
+        d3d12_set_name(vertex_buffer.get(), L"Vertex Buffer");
 
         UINT8* vertex_data;
         auto read_range = CD3DX12_RANGE(0, 0);
