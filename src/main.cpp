@@ -31,7 +31,7 @@ __declspec(dllexport) extern const char* D3D12SDKPath = ".\\";
 constexpr const char* WINDOW_TITLE = "framebuffet 😎";
 constexpr int WINDOW_WIDTH = 640;
 constexpr int WINDOW_HEIGHT = 480;
-constexpr uint32_t MAX_FRAMES_IN_FLIGHT = 2;
+constexpr uint32_t FRAME_COUNT = 2;
 constexpr D3D_FEATURE_LEVEL MIN_FEATURE_LEVEL = D3D_FEATURE_LEVEL_12_2;
 
 //
@@ -74,7 +74,7 @@ static void d3d12_call(HRESULT hr, const char* msg) {
             wsz,
             sizeof(wsz) / sizeof(wsz[0]),
             nullptr);
-        printf("error: %s failed with HRESULT 0x%08lx\nmessage: %ws\n", msg, hr, wsz);
+        fprintf(stderr, "error: %s failed with HRESULT 0x%08lx\nmessage: %ws\n", msg, hr, wsz);
         exit(1);
     }
 }
@@ -95,7 +95,7 @@ static IDXGIAdapter4* d3d12_dxgi_adapter(IDXGIFactory7* factory) {
                 D3D12CreateDevice(adapter, MIN_FEATURE_LEVEL, __uuidof(ID3D12Device), nullptr))) {
             DXGI_ADAPTER_DESC3 desc;
             adapter->GetDesc3(&desc);
-            printf("info: using adapter %u: %ws\n", adapter_index, desc.Description);
+            fprintf(stderr, "info: using adapter %u: %ws\n", adapter_index, desc.Description);
             return adapter;
         }
         adapter_index += 1;
@@ -219,17 +219,13 @@ int main() {
     ComPtr<IDXGISwapChain4> dxgi_swap_chain;
     HANDLE dxgi_swap_chain_waitable_object = nullptr;
     ComPtr<ID3D12DescriptorHeap> d3d12_rtv_heap;
-    std::array<D3D12_CPU_DESCRIPTOR_HANDLE, MAX_FRAMES_IN_FLIGHT> d3d12_rtv_descriptors;
-    std::array<ID3D12Resource*, MAX_FRAMES_IN_FLIGHT> d3d12_rtvs;
+    std::array<D3D12_CPU_DESCRIPTOR_HANDLE, FRAME_COUNT> d3d12_rtv_descriptors;
+    std::array<ID3D12Resource*, FRAME_COUNT> d3d12_rtvs;
+    std::array<ComPtr<ID3D12CommandAllocator>, FRAME_COUNT> d3d12_command_allocators;
     ComPtr<ID3D12Fence1> d3d12_fence;
+    uint32_t frame_index = 0;
     wil::unique_handle fence_event;
-    uint64_t fence_last_signaled_value = 0;
-    struct Frame {
-        ComPtr<ID3D12CommandAllocator> command_allocator;
-        uint64_t fence_value = 0;
-    };
-    std::array<Frame, MAX_FRAMES_IN_FLIGHT> frames;
-    uint64_t frame_index = 0;
+    std::array<uint64_t, FRAME_COUNT> fence_values = {};
 
     // D3D12 - DebugInterface.
     {
@@ -282,7 +278,7 @@ int main() {
     }
 
     // D3D12 - D3D12CommandAllocator.
-    for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+    for (uint32_t i = 0; i < FRAME_COUNT; i++) {
         ID3D12CommandAllocator* d3d12_command_allocator = nullptr;
         d3d12_call(
             d3d12_device->CreateCommandAllocator(
@@ -292,7 +288,7 @@ int main() {
         wchar_t name[32];
         swprintf_s(name, L"Command Allocator %u", i);
         d3d12_command_allocator->SetName(name);
-        frames[i].command_allocator = d3d12_command_allocator;
+        d3d12_command_allocators[i] = d3d12_command_allocator;
     }
 
     // D3D12 - D3D12GraphicsCommandList.
@@ -360,7 +356,7 @@ int main() {
             module_handle,
             nullptr);
         if (!window) {
-            printf("Failed to create window.\n");
+            fprintf(stderr, "Failed to create window.\n");
             exit(1);
         }
         ShowWindow(window, SW_SHOW);
@@ -384,7 +380,7 @@ int main() {
                     .Quality = 0,
                 },
             .BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT,
-            .BufferCount = MAX_FRAMES_IN_FLIGHT,
+            .BufferCount = FRAME_COUNT,
             .Scaling = DXGI_SCALING_STRETCH,
             .SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD,
             .AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED,
@@ -401,13 +397,14 @@ int main() {
             "CreateSwapChainForHwnd");
         dxgi_swap_chain_1.query_to(&dxgi_swap_chain);
         dxgi_swap_chain_waitable_object = dxgi_swap_chain->GetFrameLatencyWaitableObject();
+        frame_index = dxgi_swap_chain->GetCurrentBackBufferIndex();
     }
 
     // D3D12 - Render target views.
     {
         D3D12_DESCRIPTOR_HEAP_DESC desc = {
             .Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV,
-            .NumDescriptors = MAX_FRAMES_IN_FLIGHT,
+            .NumDescriptors = FRAME_COUNT,
             .Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE,
             .NodeMask = 0,
         };
@@ -419,12 +416,12 @@ int main() {
             d3d12_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
         D3D12_CPU_DESCRIPTOR_HANDLE rtv_handle =
             d3d12_rtv_heap->GetCPUDescriptorHandleForHeapStart();
-        for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+        for (uint32_t i = 0; i < FRAME_COUNT; i++) {
             d3d12_rtv_descriptors[i] = rtv_handle;
             rtv_handle.ptr += rtv_descriptor_size;
         }
 
-        for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+        for (uint32_t i = 0; i < FRAME_COUNT; i++) {
             ID3D12Resource* d3d12_rtv = nullptr;
             d3d12_call(dxgi_swap_chain->GetBuffer(i, IID_PPV_ARGS(&d3d12_rtv)), "GetBuffer");
             d3d12_device->CreateRenderTargetView(d3d12_rtv, nullptr, d3d12_rtv_descriptors[i]);
@@ -442,6 +439,11 @@ int main() {
             "CreateFence");
         d3d12_fence->SetName(L"Fence");
         fence_event = wil::unique_handle(CreateEvent(nullptr, FALSE, FALSE, nullptr));
+        if (!fence_event) {
+            fprintf(stderr, "Failed to create fence event.\n");
+            exit(1);
+        }
+        fence_values[frame_index]++;
     }
 
     // DXC - Shaders.
@@ -454,60 +456,54 @@ int main() {
         dxc_compile(dxc, L"triangle.hlsl", ShaderType::Pixel, L"pixel_shader", pixel_shader);
     }
 
+    // Wait for pending GPU work to complete.
+    {
+        // Schedule a Signal command in the queue.
+        d3d12_call(
+            d3d12_command_queue->Signal(d3d12_fence.get(), fence_values[frame_index]),
+            "Signal");
+
+        // Wait until the fence has been processed.
+        d3d12_call(
+            d3d12_fence->SetEventOnCompletion(fence_values[frame_index], fence_event.get()),
+            "SetEventOnCompletion");
+        WaitForSingleObjectEx(fence_event.get(), INFINITE, FALSE);
+
+        // Increment the fence value for the current frame.
+        fence_values[frame_index]++;
+    }
+
     // Main loop.
-    bool should_exit = false;
-    while (!should_exit) {
-        MSG msg = {};
-        if (PeekMessageA(&msg, nullptr, 0, 0, PM_REMOVE)) {
-            TranslateMessage(&msg);
-            DispatchMessageA(&msg);
-        }
-
-        if (msg.message == WM_QUIT) {
-            should_exit = true;
-        }
-
-        Frame* current_frame = nullptr;
+    bool running = true;
+    while (running) {
+        // Handle window messages.
         {
-            HANDLE waitable_objects[] = {
-                dxgi_swap_chain_waitable_object,
-                nullptr,
-            };
-            int waitable_object_count = 1;
-            uint64_t next_frame_index = frame_index + 1;
-            current_frame = &frames[next_frame_index % MAX_FRAMES_IN_FLIGHT];
-            uint64_t fence_value = current_frame->fence_value;
-            if (fence_value != 0) {
-                current_frame->fence_value = 0;
-                d3d12_fence->SetEventOnCompletion(fence_value, fence_event.get());
-                waitable_objects[1] = fence_event.get();
-                waitable_object_count = 2;
+            MSG msg = {};
+            if (PeekMessageA(&msg, nullptr, 0, 0, PM_REMOVE)) {
+                TranslateMessage(&msg);
+                DispatchMessageA(&msg);
             }
-            WaitForMultipleObjects(waitable_object_count, waitable_objects, TRUE, INFINITE);
-            frame_index = next_frame_index;
+            if (msg.message == WM_QUIT) {
+                running = false;
+            }
         }
 
-        uint32_t back_buffer_index = dxgi_swap_chain->GetCurrentBackBufferIndex();
-
-        current_frame->command_allocator->Reset();
-        d3d12_command_list->Reset(current_frame->command_allocator.get(), nullptr);
+        d3d12_command_allocators[frame_index]->Reset();
+        d3d12_command_list->Reset(d3d12_command_allocators[frame_index].get(), nullptr);
 
         {
             auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(
-                d3d12_rtvs[back_buffer_index],
+                d3d12_rtvs[frame_index],
                 D3D12_RESOURCE_STATE_PRESENT,
                 D3D12_RESOURCE_STATE_RENDER_TARGET);
             d3d12_command_list->ResourceBarrier(1, &barrier);
         }
         float clear_color[4] = {1.0f, 0.3f, 0.3f, 1.0f};
-        d3d12_command_list->ClearRenderTargetView(
-            d3d12_rtv_descriptors[back_buffer_index],
-            clear_color,
-            0,
-            nullptr);
+        d3d12_command_list
+            ->ClearRenderTargetView(d3d12_rtv_descriptors[frame_index], clear_color, 0, nullptr);
         {
             auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(
-                d3d12_rtvs[back_buffer_index],
+                d3d12_rtvs[frame_index],
                 D3D12_RESOURCE_STATE_RENDER_TARGET,
                 D3D12_RESOURCE_STATE_PRESENT);
             d3d12_command_list->ResourceBarrier(1, &barrier);
@@ -517,12 +513,30 @@ int main() {
         ID3D12CommandList* command_lists[] = {(ID3D12CommandList*)d3d12_command_list.get()};
         d3d12_command_queue->ExecuteCommandLists(_countof(command_lists), command_lists);
 
-        uint64_t fence_value = fence_last_signaled_value + 1;
-        d3d12_command_queue->Signal(d3d12_fence.get(), fence_value);
-        fence_last_signaled_value = fence_value;
-        current_frame->fence_value = fence_value;
-
         dxgi_swap_chain->Present(1, 0);
+
+        // Move to next frame.
+        {
+            // Schedule a Signal command in the queue.
+            uint64_t current_fence_value = fence_values[frame_index];
+            d3d12_call(
+                d3d12_command_queue->Signal(d3d12_fence.get(), current_fence_value),
+                "Signal");
+
+            // Update the frame index.
+            frame_index = dxgi_swap_chain->GetCurrentBackBufferIndex();
+
+            // If the next frame is not ready to be rendered yet, wait until it is ready.
+            if (d3d12_fence->GetCompletedValue() < fence_values[frame_index]) {
+                d3d12_call(
+                    d3d12_fence->SetEventOnCompletion(fence_values[frame_index], fence_event.get()),
+                    "SetEventOnCompletion");
+                WaitForSingleObjectEx(fence_event.get(), INFINITE, FALSE);
+            }
+
+            // Set the fence value for the next frame.
+            fence_values[frame_index] = current_fence_value + 1;
+        }
     }
 
     // Clean up.
