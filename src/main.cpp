@@ -261,7 +261,6 @@ int main() {
     ComPtr<IDXGISwapChain4> dxgi_swap_chain;
     CD3DX12_VIEWPORT viewport;
     CD3DX12_RECT scissor_rect;
-    HANDLE dxgi_swap_chain_waitable_object = nullptr;
     ComPtr<ID3D12DescriptorHeap> d3d12_rtv_heap;
     std::array<D3D12_CPU_DESCRIPTOR_HANDLE, FRAME_COUNT> d3d12_rtv_descriptors;
     std::array<ID3D12Resource*, FRAME_COUNT> d3d12_rtvs;
@@ -454,7 +453,6 @@ int main() {
                 &dxgi_swap_chain_1),
             "CreateSwapChainForHwnd");
         dxgi_swap_chain_1.query_to(&dxgi_swap_chain);
-        dxgi_swap_chain_waitable_object = dxgi_swap_chain->GetFrameLatencyWaitableObject();
 
         viewport = CD3DX12_VIEWPORT(0.0f, 0.0f, (float)WINDOW_WIDTH, (float)WINDOW_HEIGHT);
         scissor_rect = CD3DX12_RECT(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
