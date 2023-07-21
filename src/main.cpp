@@ -285,6 +285,30 @@ int main() {
     // D3D12 - DXGIAdapter.
     dxgi_adapter = d3d12_dxgi_adapter(dxgi_factory.get());
 
+    // D3D12 - DXGIOutput.
+    {
+        UINT i = 0;
+        ComPtr<IDXGIOutput> output;
+        while (dxgi_adapter->EnumOutputs(i, &output) != DXGI_ERROR_NOT_FOUND) {
+            ComPtr<IDXGIOutput6> output6;
+            output.query_to(&output6);
+
+            DXGI_OUTPUT_DESC1 desc;
+            output6->GetDesc1(&desc);
+
+            fb::Rect desktop_rect(desc.DesktopCoordinates);
+            log_info(
+                "display: {} x {} @ {}bpp, luminance: {} to {}",
+                desktop_rect.width,
+                desktop_rect.height,
+                desc.BitsPerColor,
+                desc.MinLuminance,
+                desc.MaxLuminance);
+
+            ++i;
+        }
+    }
+
     // D3D12 - D3D12Device12.
     {
         FAIL_FAST_IF_FAILED(
