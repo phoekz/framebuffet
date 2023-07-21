@@ -205,10 +205,7 @@ static void dxc_compile(
     wsprintfW(shader_path, L"shaders\\%ws", shader_name);
     ComPtr<IDxcBlobEncoding> shader_blob;
     FAIL_FAST_IF_FAILED(dxc.utils->LoadFile(shader_path, nullptr, &shader_blob));
-    if (!shader_blob) {
-        fprintf(stderr, "error: failed to load shader file\n");
-        exit(1);
-    }
+    FAIL_FAST_IF_NULL_MSG(shader_blob, "Failed to load shader file");
     DxcBuffer shader_buffer = {
         .Ptr = shader_blob->GetBufferPointer(),
         .Size = shader_blob->GetBufferSize(),
@@ -226,9 +223,7 @@ static void dxc_compile(
         IID_PPV_ARGS(&dxc_result)));
     FAIL_FAST_IF_FAILED(dxc_result->GetOutput(DXC_OUT_ERRORS, IID_PPV_ARGS(&dxc_errors), nullptr));
     if (dxc_errors && dxc_errors->GetStringLength() != 0) {
-        fprintf(stderr, "error: failed to compile %ws\n", shader_name);
-        fprintf(stderr, "%s\n", dxc_errors->GetStringPointer());
-        exit(1);
+        FAIL_FAST_MSG("Failed to compile %ws\n%s", dxc_errors->GetStringPointer());
     }
 
     // Results.
@@ -381,7 +376,7 @@ int main() {
         DWORD window_style = WS_OVERLAPPEDWINDOW;
         AdjustWindowRect(&window_rect, window_style, FALSE);
 
-        HWND window = CreateWindowExA(
+        window_handle = wil::unique_hwnd(CreateWindowExA(
             WS_EX_APPWINDOW,
             WINDOW_TITLE,
             WINDOW_TITLE,
@@ -393,16 +388,12 @@ int main() {
             nullptr,
             nullptr,
             module_handle,
-            nullptr);
-        if (!window) {
-            fprintf(stderr, "Failed to create window.\n");
-            exit(1);
-        }
-        ShowWindow(window, SW_SHOW);
-        SetForegroundWindow(window);
-        SetFocus(window);
+            nullptr));
+        FAIL_FAST_IF_NULL_MSG(window_handle, "Failed to create window.");
+        ShowWindow(window_handle.get(), SW_SHOW);
+        SetForegroundWindow(window_handle.get());
+        SetFocus(window_handle.get());
         ShowCursor(true);
-        window_handle = wil::unique_hwnd(window);
     }
 
     // D3D12 - DXGISwapChain.
@@ -473,10 +464,7 @@ int main() {
             d3d12_device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&d3d12_fence)));
         d3d12_set_name(d3d12_fence.get(), L"Fence");
         fence_event = wil::unique_handle(CreateEvent(nullptr, FALSE, FALSE, nullptr));
-        if (!fence_event) {
-            fprintf(stderr, "Failed to create fence event.\n");
-            exit(1);
-        }
+        FAIL_FAST_IF_NULL_MSG(fence_event, "Failed to create fence event.\n");
         fence_values[frame_index]++;
     }
 
