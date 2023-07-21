@@ -138,7 +138,7 @@ inline void d3d12_set_indexed_name(ID3D12Object* object, LPCWSTR name, UINT inde
 }
 #else
 inline void d3d12_set_name(ID3D12Object*, LPCWSTR) {}
-inline void d3d12_set_name_indexed(ID3D12Object*, LPCWSTR, UINT) {}
+inline void d3d12_set_indexed_name(ID3D12Object*, LPCWSTR, UINT) {}
 #endif
 
 //
