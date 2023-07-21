@@ -1,3 +1,6 @@
+// Framebuffet
+#include "utils.hpp"
+
 // Windows Implementation Library (WIL).
 #define WIL_SUPPRESS_EXCEPTIONS
 #include <wil/com.h>
@@ -29,7 +32,6 @@ __declspec(dllexport) extern const char* D3D12SDKPath = ".\\";
 
 // Standard libraries.
 #include <array>
-#include <cstdio>
 
 // Constants.
 constexpr const char* WINDOW_TITLE = "framebuffet 😎";
@@ -80,7 +82,7 @@ static IDXGIAdapter4* d3d12_dxgi_adapter(IDXGIFactory7* factory) {
                 D3D12CreateDevice(adapter, MIN_FEATURE_LEVEL, __uuidof(ID3D12Device), nullptr))) {
             DXGI_ADAPTER_DESC3 desc;
             adapter->GetDesc3(&desc);
-            fprintf(stderr, "info: using adapter %u: %ws\n", adapter_index, desc.Description);
+            log_info("Using adapter {}: {}", adapter_index, fb::from_wstr(desc.Description));
             return adapter;
         }
         adapter_index += 1;
@@ -124,7 +126,7 @@ static void d3d12_message_func(
 
     // clang-format on
 
-    fprintf(stderr, "[%s] %s: %s\n", category_name, severity_name, description);
+    log_info("[{}] {}: {}", category_name, severity_name, description);
 }
 
 #if defined(_DEBUG) || defined(DBG)
@@ -222,7 +224,7 @@ static void dxc_compile(
         IID_PPV_ARGS(&dxc_result)));
     FAIL_FAST_IF_FAILED(dxc_result->GetOutput(DXC_OUT_ERRORS, IID_PPV_ARGS(&dxc_errors), nullptr));
     if (dxc_errors && dxc_errors->GetStringLength() != 0) {
-        FAIL_FAST_MSG("Failed to compile %ws\n%s", dxc_errors->GetStringPointer());
+        FAIL_FAST_MSG("Failed to compile %ws\n%s", shader_name, dxc_errors->GetStringPointer());
     }
 
     // Results.
