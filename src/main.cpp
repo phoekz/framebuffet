@@ -13,7 +13,7 @@ using ComPtr = wil::com_ptr_nothrow<T>;
 #include <dxgi1_6.h>
 #include <dxgidebug.h>
 extern "C" {
-__declspec(dllexport) extern const uint32_t D3D12SDKVersion = 610;
+__declspec(dllexport) extern const UINT D3D12SDKVersion = 610;
 __declspec(dllexport) extern const char* D3D12SDKPath = ".\\";
 }
 
@@ -243,7 +243,7 @@ static void dxc_compile(
 int main() {
     // Initialize.
     ComPtr<IDXGIFactory7> dxgi_factory;
-    uint32_t dxgi_factory_flags = 0;
+    UINT dxgi_factory_flags = 0;
     ComPtr<IDXGIAdapter4> dxgi_adapter;
     ComPtr<ID3D12Device12> d3d12_device;
     ComPtr<ID3D12CommandQueue> d3d12_command_queue;
@@ -443,7 +443,7 @@ int main() {
         FAIL_FAST_IF_FAILED(
             d3d12_device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&d3d12_rtv_heap)));
 
-        uint32_t rtv_descriptor_size =
+        UINT rtv_descriptor_size =
             d3d12_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
         D3D12_CPU_DESCRIPTOR_HANDLE rtv_handle =
             d3d12_rtv_heap->GetCPUDescriptorHandleForHeapStart();
