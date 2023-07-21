@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.26)
+cmake_minimum_required(VERSION 3.27)
 
 # Project.
 project(framebuffet)
@@ -10,10 +10,13 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 add_subdirectory(external)
 
 # Framebuffet.
-add_executable(${PROJECT_NAME} src/main.cpp src/utils.cpp src/utils.hpp src/app.manifest)
+file(GLOB_RECURSE CPP_FILES CONFIGURE_DEPENDS src/*.cpp)
+file(GLOB_RECURSE HPP_FILES CONFIGURE_DEPENDS src/*.hpp)
+file(GLOB_RECURSE HLSL_FILES CONFIGURE_DEPENDS src/*.hlsl)
+file(GLOB_RECURSE MANIFEST_FILES CONFIGURE_DEPENDS src/*.manifest)
+add_executable(${PROJECT_NAME} ${CPP_FILES} ${MANIFEST_FILES})
+target_sources(${PROJECT_NAME} PRIVATE ${HPP_FILES} ${HLSL_FILES})
 target_compile_options(${PROJECT_NAME} PRIVATE /W4 /WX /MP)
-set_property(DIRECTORY ${PROJECT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${PROJECT_NAME})
-set_target_properties(${PROJECT_NAME} PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "$<TARGET_FILE_DIR:${PROJECT_NAME}>")
 target_include_directories(
     ${PROJECT_NAME} PRIVATE
     ${WIL_INCLUDE_DIR}
@@ -38,6 +41,10 @@ target_link_libraries(
     ${DIRECTXTEX_LINK_DIR}/DirectXTex.lib
     ${WINPIXEVENTRUNTIME_LINK_DIR}/WinPixEventRuntime.lib
 )
+target_link_options(${PROJECT_NAME} PRIVATE /entry:mainCRTStartup /SUBSYSTEM:WINDOWS)
+set_property(DIRECTORY ${PROJECT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${PROJECT_NAME})
+set_target_properties(${PROJECT_NAME} PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY $<TARGET_FILE_DIR:${PROJECT_NAME}>)
+set_source_files_properties(${HLSL_FILES} PROPERTIES VS_TOOL_OVERRIDE None)
 
 # Copy assets to target directory.
 set(PROJECT_TARGET_DIRECTORY $<TARGET_FILE_DIR:${PROJECT_NAME}>)
