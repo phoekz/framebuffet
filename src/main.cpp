@@ -132,10 +132,9 @@ inline void d3d12_set_name(ID3D12Object* object, LPCWSTR name) {
     object->SetName(name);
 }
 inline void d3d12_set_indexed_name(ID3D12Object* object, LPCWSTR name, UINT index) {
-    WCHAR indexed_name[256];
-    if (swprintf_s(indexed_name, L"%s[%u]", name, index) > 0) {
-        object->SetName(indexed_name);
-    }
+    WCHAR indexed_name[256] = {};
+    swprintf_s(indexed_name, L"%s[%u]", name, index);
+    object->SetName(indexed_name);
 }
 #else
 inline void d3d12_set_name(ID3D12Object*, LPCWSTR) {}
