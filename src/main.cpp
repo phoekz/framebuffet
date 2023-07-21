@@ -1,4 +1,5 @@
 // Framebuffet
+#include "maths.hpp"
 #include "utils.hpp"
 
 // Windows Implementation Library (WIL).
@@ -22,9 +23,6 @@ __declspec(dllexport) extern const char* D3D12SDKPath = ".\\";
 
 // DirectX Shader Compiler (DXC).
 #include <dxcapi.h>
-
-// DirectXTK12.
-#include <directxtk12/SimpleMath.h>
 
 // WinPixEventRuntime.
 #define USE_PIX
@@ -559,11 +557,9 @@ int main() {
 
     // D3D12 - Triangle.
     {
-        using namespace DirectX::SimpleMath;
-
         struct Vertex {
-            Vector3 position;
-            Vector4 color;
+            fb::Vec3 position;
+            fb::Vec4 color;
         };
 
         Vertex triangle_vertices[] = {
