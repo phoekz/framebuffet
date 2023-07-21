@@ -16,7 +16,9 @@ file(GLOB_RECURSE HLSL_FILES CONFIGURE_DEPENDS src/*.hlsl)
 file(GLOB_RECURSE MANIFEST_FILES CONFIGURE_DEPENDS src/*.manifest)
 add_executable(${PROJECT_NAME} ${CPP_FILES} ${MANIFEST_FILES})
 target_sources(${PROJECT_NAME} PRIVATE ${HPP_FILES} ${HLSL_FILES})
-target_compile_options(${PROJECT_NAME} PRIVATE /W4 /WX /MP)
+target_compile_options(${PROJECT_NAME} PRIVATE /W4 /WX /MP /EHs-c- /GR-)
+string(REGEX REPLACE "/EH[a-z]+" "" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
+target_compile_definitions(${PROJECT_NAME} PRIVATE _HAS_EXCEPTIONS=0)
 target_include_directories(
     ${PROJECT_NAME} PRIVATE
     ${WIL_INCLUDE_DIR}
