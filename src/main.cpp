@@ -267,6 +267,9 @@ int main() {
     ComPtr<ID3D12Resource> vertex_buffer;
     D3D12_VERTEX_BUFFER_VIEW vertex_buffer_view;
 
+    ComPtr<ID3D12DescriptorHeap> d3d12_srv_heap;
+    ComPtr<ID3D12Resource> texture;
+
     // D3D12 - DebugInterface.
 #if defined(_DEBUG)
     {
@@ -493,17 +496,62 @@ int main() {
 
     // D3D12 - Root signature.
     {
-        CD3DX12_ROOT_SIGNATURE_DESC desc;
-        desc.Init(
-            0,
-            nullptr,
-            0,
-            nullptr,
-            D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
+        // Check support.
+        constexpr D3D_ROOT_SIGNATURE_VERSION ROOT_SIGNATURE_VERSION =
+            D3D_ROOT_SIGNATURE_VERSION_1_2;
+        D3D12_FEATURE_DATA_ROOT_SIGNATURE feature_data = {.HighestVersion = ROOT_SIGNATURE_VERSION};
+        FAIL_FAST_IF_FAILED(d3d12_device->CheckFeatureSupport(
+            D3D12_FEATURE_ROOT_SIGNATURE,
+            &feature_data,
+            sizeof(feature_data)));
+
+        CD3DX12_DESCRIPTOR_RANGE1 ranges[1];
+        ranges[0].Init(
+            /* rangeType */ D3D12_DESCRIPTOR_RANGE_TYPE_SRV,
+            /* numDescriptors */ 1,
+            /* baseShaderRegister */ 0,
+            /* registerSpace */ 0,
+            /* flags */ D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC);
+
+        CD3DX12_ROOT_PARAMETER1 root_parameters[1];
+        root_parameters[0].InitAsDescriptorTable(
+            /* numDescriptorRanges */ 1,
+            /* pDescriptorRanges */ &ranges[0],
+            /* visibility */ D3D12_SHADER_VISIBILITY_PIXEL);
+
+        D3D12_STATIC_SAMPLER_DESC1 sampler = {
+            .Filter = D3D12_FILTER_MIN_MAG_MIP_POINT,
+            .AddressU = D3D12_TEXTURE_ADDRESS_MODE_CLAMP,
+            .AddressV = D3D12_TEXTURE_ADDRESS_MODE_CLAMP,
+            .AddressW = D3D12_TEXTURE_ADDRESS_MODE_CLAMP,
+            .MipLODBias = 0.0f,
+            .MaxAnisotropy = 0,
+            .ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER,
+            .BorderColor = D3D12_STATIC_BORDER_COLOR_TRANSPARENT_BLACK,
+            .MinLOD = 0.0f,
+            .MaxLOD = D3D12_FLOAT32_MAX,
+            .ShaderRegister = 0,
+            .RegisterSpace = 0,
+            .ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL,
+            .Flags = D3D12_SAMPLER_FLAG_NONE,
+        };
+
+        CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC desc;
+        decltype(desc)::Init_1_2(
+            desc,
+            /* numParameters */ _countof(root_parameters),
+            /* _pParameters */ root_parameters,
+            /* numStaticSamplers */ 1,
+            /* _pStaticSamplers */ &sampler,
+            /* flags */ D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
 
         ComPtr<ID3DBlob> signature;
         ComPtr<ID3DBlob> error;
-        D3D12SerializeRootSignature(&desc, D3D_ROOT_SIGNATURE_VERSION_1, &signature, &error);
+        FAIL_FAST_IF_FAILED(D3DX12SerializeVersionedRootSignature(
+            &desc,
+            ROOT_SIGNATURE_VERSION,
+            &signature,
+            &error));
         FAIL_FAST_IF_FAILED(d3d12_device->CreateRootSignature(
             0,
             signature->GetBufferPointer(),
@@ -525,7 +573,8 @@ int main() {
         D3D12_INPUT_ELEMENT_DESC input_element_descs[] = {
             // clang-format off
             { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-            { "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
+            { "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+            { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 28, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
             // clang-format on
         };
         D3D12_GRAPHICS_PIPELINE_STATE_DESC desc = {
@@ -560,12 +609,15 @@ int main() {
         struct Vertex {
             fb::Vec3 position;
             fb::Vec4 color;
+            fb::Vec2 texcoord;
         };
 
+        // clang-format off
         Vertex triangle_vertices[] = {
-            {{0.0f, 0.5f, 0.0f}, {1.0f, 0.0f, 0.0f, 1.0f}},
-            {{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f, 1.0f}},
-            {{-0.5f, -0.5f, 0.0f}, {0.0f, 0.0f, 1.0f, 1.0f}}};
+            {{0.0f, 0.5f, 0.0f}, {1.0f, 0.0f, 0.0f, 1.0f}, {0.5f, 0.0f}},
+            {{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},
+            {{-0.5f, -0.5f, 0.0f}, {0.0f, 0.0f, 1.0f, 1.0f}, {0.0f, 1.0f}}};
+        // clang-format on
 
         uint32_t vertex_buffer_size = (uint32_t)sizeof(triangle_vertices);
 
@@ -593,8 +645,109 @@ int main() {
         };
     }
 
+    // D3D12 - Texture - Descriptor.
+    {
+        D3D12_DESCRIPTOR_HEAP_DESC srv_heap_desc = {
+            .Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV,
+            .NumDescriptors = 1,
+            .Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE,
+            .NodeMask = 0,
+        };
+        FAIL_FAST_IF_FAILED(
+            d3d12_device->CreateDescriptorHeap(&srv_heap_desc, IID_PPV_ARGS(&d3d12_srv_heap)));
+        d3d12_set_name(d3d12_srv_heap.get(), L"SRV Heap");
+    }
+
+    // D3D12 - Texture - Resource.
+    ComPtr<ID3D12Resource> texture_upload_heap;
+    {
+        constexpr UINT TEXTURE_WIDTH = 64;
+        constexpr UINT TEXTURE_HEIGHT = 64;
+        constexpr UINT TEXTURE_PIXEL_SIZE = 4;
+        constexpr LONG_PTR TEXTURE_ROW_PITCH = TEXTURE_WIDTH * TEXTURE_PIXEL_SIZE;
+        constexpr LONG_PTR TEXTURE_SLICE_PITCH = TEXTURE_HEIGHT * TEXTURE_ROW_PITCH;
+        constexpr DXGI_FORMAT TEXTURE_FORMAT = DXGI_FORMAT_R8G8B8A8_UNORM;
+
+        auto texture_desc = CD3DX12_RESOURCE_DESC::Tex2D(
+            /* format */ TEXTURE_FORMAT,
+            /* width */ TEXTURE_WIDTH,
+            /* height */ TEXTURE_HEIGHT,
+            /* arraySize */ 1,
+            /* mipLevels */ 1);
+        CD3DX12_HEAP_PROPERTIES default_heap(D3D12_HEAP_TYPE_DEFAULT);
+        FAIL_FAST_IF_FAILED(d3d12_device->CreateCommittedResource(
+            /* pHeapProperties */ &default_heap,
+            /* HeapFlags */ D3D12_HEAP_FLAG_NONE,
+            /* pDesc */ &texture_desc,
+            /* InitialResourceState */ D3D12_RESOURCE_STATE_COPY_DEST,
+            /* pOptimizedClearValue */ nullptr,
+            /* riidResource */ IID_PPV_ARGS(&texture)));
+        d3d12_set_name(texture.get(), L"Texture");
+
+        UINT64 upload_buffer_size = GetRequiredIntermediateSize(texture.get(), 0, 1);
+        auto buffer_desc = CD3DX12_RESOURCE_DESC::Buffer(upload_buffer_size);
+        CD3DX12_HEAP_PROPERTIES upload_heap(D3D12_HEAP_TYPE_UPLOAD);
+        FAIL_FAST_IF_FAILED(d3d12_device->CreateCommittedResource(
+            /* pHeapProperties */ &upload_heap,
+            /* HeapFlags */ D3D12_HEAP_FLAG_NONE,
+            /* pDesc */ &buffer_desc,
+            /* InitialResourceState */ D3D12_RESOURCE_STATE_GENERIC_READ,
+            /* pOptimizedClearValue */ nullptr,
+            /* riidResource */ IID_PPV_ARGS(&texture_upload_heap)));
+
+        std::vector<uint8_t> texture_data;
+        texture_data.resize(TEXTURE_SLICE_PITCH);
+        for (uint32_t y = 0; y < TEXTURE_HEIGHT; y++) {
+            for (uint32_t x = 0; x < TEXTURE_WIDTH; x++) {
+                uint32_t* p =
+                    (uint32_t*)&texture_data[TEXTURE_PIXEL_SIZE * (x + y * TEXTURE_WIDTH)];
+                *p = ((x ^ y) & 1) == 0 ? 0xffffffff : 0xff000000;
+            }
+        }
+        D3D12_SUBRESOURCE_DATA subresource_data = {
+            .pData = texture_data.data(),
+            .RowPitch = TEXTURE_ROW_PITCH,
+            .SlicePitch = TEXTURE_SLICE_PITCH,
+        };
+        d3d12_command_allocators[frame_index]->Reset();
+        d3d12_command_list->Reset(d3d12_command_allocators[frame_index].get(), nullptr);
+        FAIL_FAST_IF(
+            UpdateSubresources(
+                /* pCmdList */ d3d12_command_list.get(),
+                /* pDestinationResource */ texture.get(),
+                /* pIntermediate */ texture_upload_heap.get(),
+                /* IntermediateOffset */ 0,
+                /* FirstSubresource */ 0,
+                /* NumSubresources */ 1,
+                /* pSrcData */ &subresource_data)
+            == 0);
+        auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(
+            texture.get(),
+            D3D12_RESOURCE_STATE_COPY_DEST,
+            D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+        d3d12_command_list->ResourceBarrier(1, &barrier);
+
+        D3D12_SHADER_RESOURCE_VIEW_DESC srv_desc = {
+            .Format = TEXTURE_FORMAT,
+            .ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D,
+            .Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING,
+            .Texture2D =
+                D3D12_TEX2D_SRV {
+                    .MipLevels = 1,
+                },
+        };
+        d3d12_device->CreateShaderResourceView(
+            texture.get(),
+            &srv_desc,
+            d3d12_srv_heap->GetCPUDescriptorHandleForHeapStart());
+    }
+
     // Wait for pending GPU work to complete.
     {
+        d3d12_command_list->Close();
+        ID3D12CommandList* command_lists[] = {(ID3D12CommandList*)d3d12_command_list.get()};
+        d3d12_command_queue->ExecuteCommandLists(_countof(command_lists), command_lists);
+
         // Schedule a Signal command in the queue.
         FAIL_FAST_IF_FAILED(
             d3d12_command_queue->Signal(d3d12_fence.get(), fence_values[frame_index]));
@@ -631,6 +784,11 @@ int main() {
         PIXBeginEvent(d3d12_command_list.get(), PIX_COLOR_DEFAULT, "Render");
 
         d3d12_command_list->SetGraphicsRootSignature(d3d12_root_signature.get());
+        ID3D12DescriptorHeap* descriptor_heaps[] = {d3d12_srv_heap.get()};
+        d3d12_command_list->SetDescriptorHeaps(_countof(descriptor_heaps), descriptor_heaps);
+        d3d12_command_list->SetGraphicsRootDescriptorTable(
+            0,
+            d3d12_srv_heap->GetGPUDescriptorHandleForHeapStart());
         d3d12_command_list->RSSetViewports(1, &viewport);
         d3d12_command_list->RSSetScissorRects(1, &scissor_rect);
         d3d12_command_list
