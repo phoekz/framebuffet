@@ -265,12 +265,17 @@ int main() {
     ComPtr<ID3D12PipelineState> d3d12_pipeline_state;
     ShaderResult vertex_shader;
     ShaderResult pixel_shader;
+
+    ComPtr<ID3D12DescriptorHeap> d3d12_cbv_srv_uav_heap;
+
+    ComPtr<ID3D12Resource> constant_buffer;
+    UINT8* cbv_data_begin = nullptr;
+
     ComPtr<ID3D12Resource> vertex_buffer;
     ComPtr<ID3D12Resource> index_buffer;
     D3D12_VERTEX_BUFFER_VIEW vertex_buffer_view;
     D3D12_INDEX_BUFFER_VIEW index_buffer_view;
 
-    ComPtr<ID3D12DescriptorHeap> d3d12_srv_heap;
     ComPtr<ID3D12Resource> texture;
 
     // D3D12 - DebugInterface.
@@ -508,18 +513,30 @@ int main() {
             &feature_data,
             sizeof(feature_data)));
 
-        CD3DX12_DESCRIPTOR_RANGE1 ranges[1];
-        ranges[0].Init(
+        CD3DX12_DESCRIPTOR_RANGE1 cbv_range;
+        cbv_range.Init(
+            /* rangeType */ D3D12_DESCRIPTOR_RANGE_TYPE_CBV,
+            /* numDescriptors */ 1,
+            /* baseShaderRegister */ 0,
+            /* registerSpace */ 0,
+            /* flags */ D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC);
+
+        CD3DX12_DESCRIPTOR_RANGE1 srv_range;
+        srv_range.Init(
             /* rangeType */ D3D12_DESCRIPTOR_RANGE_TYPE_SRV,
             /* numDescriptors */ 1,
             /* baseShaderRegister */ 0,
             /* registerSpace */ 0,
             /* flags */ D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC);
 
-        CD3DX12_ROOT_PARAMETER1 root_parameters[1];
+        CD3DX12_ROOT_PARAMETER1 root_parameters[2];
         root_parameters[0].InitAsDescriptorTable(
             /* numDescriptorRanges */ 1,
-            /* pDescriptorRanges */ &ranges[0],
+            /* pDescriptorRanges */ &cbv_range,
+            /* visibility */ D3D12_SHADER_VISIBILITY_VERTEX);
+        root_parameters[1].InitAsDescriptorTable(
+            /* numDescriptorRanges */ 1,
+            /* pDescriptorRanges */ &srv_range,
             /* visibility */ D3D12_SHADER_VISIBILITY_PIXEL);
 
         D3D12_STATIC_SAMPLER_DESC1 sampler = {
@@ -596,15 +613,69 @@ int main() {
             .PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE,
             .NumRenderTargets = 1,
             .RTVFormats = {DXGI_FORMAT_R8G8B8A8_UNORM},
-            .SampleDesc =
-                {
-                    .Count = 1,
-                    .Quality = 0,
-                },
+            .SampleDesc = {.Count = 1, .Quality = 0},
         };
         FAIL_FAST_IF_FAILED(
             d3d12_device->CreateGraphicsPipelineState(&desc, IID_PPV_ARGS(&d3d12_pipeline_state)));
         d3d12_set_name(d3d12_pipeline_state.get(), L"Pipeline State");
+    }
+
+    // D3D12 - CBV_SRV_UAV Heap.
+    D3D12_GPU_DESCRIPTOR_HANDLE cbv_gpu_descriptor_handle;
+    D3D12_GPU_DESCRIPTOR_HANDLE srv_gpu_descriptor_handle;
+    {
+        D3D12_DESCRIPTOR_HEAP_DESC desc = {
+            .Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV,
+            .NumDescriptors = 2,
+            .Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE,
+            .NodeMask = 0,
+        };
+        FAIL_FAST_IF_FAILED(
+            d3d12_device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&d3d12_cbv_srv_uav_heap)));
+        d3d12_set_name(d3d12_cbv_srv_uav_heap.get(), L"CBV_SRV_UAV Heap");
+
+        uint32_t increment_size =
+            d3d12_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+
+        cbv_gpu_descriptor_handle = d3d12_cbv_srv_uav_heap->GetGPUDescriptorHandleForHeapStart();
+        srv_gpu_descriptor_handle = d3d12_cbv_srv_uav_heap->GetGPUDescriptorHandleForHeapStart();
+        srv_gpu_descriptor_handle.ptr += increment_size;
+    }
+
+    // D3D12 - Constants.
+    struct ConstantBuffer {
+        fb::Mat4x4 transform;
+        float padding[48];
+    } constant_buffer_data = {
+        .transform = fb::Mat4x4::Identity,
+    };
+    static_assert(
+        (sizeof(ConstantBuffer) % 256) == 0,
+        "Constant Buffer size must be 256-byte aligned");
+
+    {
+        uint32_t constant_buffer_size = (uint32_t)sizeof(ConstantBuffer);
+        auto heap_properties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
+        auto buffer_desc = CD3DX12_RESOURCE_DESC::Buffer(constant_buffer_size);
+        FAIL_FAST_IF_FAILED(d3d12_device->CreateCommittedResource(
+            &heap_properties,
+            D3D12_HEAP_FLAG_NONE,
+            &buffer_desc,
+            D3D12_RESOURCE_STATE_GENERIC_READ,
+            nullptr,
+            IID_PPV_ARGS(&constant_buffer)));
+
+        D3D12_CONSTANT_BUFFER_VIEW_DESC cbv_desc = {
+            .BufferLocation = constant_buffer->GetGPUVirtualAddress(),
+            .SizeInBytes = constant_buffer_size,
+        };
+        d3d12_device->CreateConstantBufferView(
+            &cbv_desc,
+            d3d12_cbv_srv_uav_heap->GetCPUDescriptorHandleForHeapStart());
+
+        auto read_range = CD3DX12_RANGE(0, 0);
+        FAIL_FAST_IF_FAILED(constant_buffer->Map(0, &read_range, (void**)&cbv_data_begin));
+        memcpy(cbv_data_begin, &constant_buffer_data, sizeof(constant_buffer_data));
     }
 
     // D3D12 - Geometry.
@@ -677,19 +748,6 @@ int main() {
             .SizeInBytes = index_buffer_size,
             .Format = DXGI_FORMAT_R32_UINT,
         };
-    }
-
-    // D3D12 - Texture - Descriptor.
-    {
-        D3D12_DESCRIPTOR_HEAP_DESC srv_heap_desc = {
-            .Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV,
-            .NumDescriptors = 1,
-            .Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE,
-            .NodeMask = 0,
-        };
-        FAIL_FAST_IF_FAILED(
-            d3d12_device->CreateDescriptorHeap(&srv_heap_desc, IID_PPV_ARGS(&d3d12_srv_heap)));
-        d3d12_set_name(d3d12_srv_heap.get(), L"SRV Heap");
     }
 
     // D3D12 - Texture - Resource.
@@ -771,10 +829,10 @@ int main() {
                     .MipLevels = 1,
                 },
         };
-        d3d12_device->CreateShaderResourceView(
-            texture.get(),
-            &srv_desc,
-            d3d12_srv_heap->GetCPUDescriptorHandleForHeapStart());
+        auto k = d3d12_cbv_srv_uav_heap->GetCPUDescriptorHandleForHeapStart();
+        k.ptr +=
+            d3d12_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+        d3d12_device->CreateShaderResourceView(texture.get(), &srv_desc, k);
     }
 
     // Wait for pending GPU work to complete.
@@ -798,6 +856,7 @@ int main() {
 
     // Main loop.
     bool running = true;
+    fb::FrameTiming ft = {};
     while (running) {
         // Handle window messages.
         {
@@ -811,6 +870,16 @@ int main() {
             }
         }
 
+        // Update frame timing.
+        ft.update();
+
+        // Update.
+        {
+            auto mat = fb::Mat4x4::CreateRotationZ(ft.elapsed_time());
+            constant_buffer_data.transform = mat;
+            memcpy(cbv_data_begin, &constant_buffer_data, sizeof(constant_buffer_data));
+        }
+
         // Populate command list.
         d3d12_command_allocators[frame_index]->Reset();
         d3d12_command_list->Reset(
@@ -819,11 +888,10 @@ int main() {
         PIXBeginEvent(d3d12_command_list.get(), PIX_COLOR_DEFAULT, "Render");
 
         d3d12_command_list->SetGraphicsRootSignature(d3d12_root_signature.get());
-        ID3D12DescriptorHeap* descriptor_heaps[] = {d3d12_srv_heap.get()};
+        ID3D12DescriptorHeap* descriptor_heaps[] = {d3d12_cbv_srv_uav_heap.get()};
         d3d12_command_list->SetDescriptorHeaps(_countof(descriptor_heaps), descriptor_heaps);
-        d3d12_command_list->SetGraphicsRootDescriptorTable(
-            0,
-            d3d12_srv_heap->GetGPUDescriptorHandleForHeapStart());
+        d3d12_command_list->SetGraphicsRootDescriptorTable(0, cbv_gpu_descriptor_handle);
+        d3d12_command_list->SetGraphicsRootDescriptorTable(1, srv_gpu_descriptor_handle);
         d3d12_command_list->RSSetViewports(1, &viewport);
         d3d12_command_list->RSSetScissorRects(1, &scissor_rect);
         d3d12_command_list
