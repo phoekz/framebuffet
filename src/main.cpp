@@ -35,6 +35,7 @@ __declspec(dllexport) extern const char* D3D12SDKPath = ".\\";
 constexpr const char* WINDOW_TITLE = "framebuffet 😎";
 constexpr int WINDOW_WIDTH = 640;
 constexpr int WINDOW_HEIGHT = 480;
+constexpr float WINDOW_ASPECT_RATIO = (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT;
 constexpr uint32_t FRAME_COUNT = 2;
 constexpr D3D_FEATURE_LEVEL MIN_FEATURE_LEVEL = D3D_FEATURE_LEVEL_12_2;
 constexpr float CLEAR_COLOR[4] = {0.1f, 0.1f, 0.1f, 1.0f};
@@ -265,7 +266,9 @@ int main() {
     ShaderResult vertex_shader;
     ShaderResult pixel_shader;
     ComPtr<ID3D12Resource> vertex_buffer;
+    ComPtr<ID3D12Resource> index_buffer;
     D3D12_VERTEX_BUFFER_VIEW vertex_buffer_view;
+    D3D12_INDEX_BUFFER_VIEW index_buffer_view;
 
     ComPtr<ID3D12DescriptorHeap> d3d12_srv_heap;
     ComPtr<ID3D12Resource> texture;
@@ -604,7 +607,8 @@ int main() {
         d3d12_set_name(d3d12_pipeline_state.get(), L"Pipeline State");
     }
 
-    // D3D12 - Triangle.
+    // D3D12 - Geometry.
+    uint32_t index_count = 0;
     {
         struct Vertex {
             fb::Vec3 position;
@@ -613,35 +617,65 @@ int main() {
         };
 
         // clang-format off
-        Vertex triangle_vertices[] = {
-            {{0.0f, 0.5f, 0.0f}, {1.0f, 0.0f, 0.0f, 1.0f}, {0.5f, 0.0f}},
-            {{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},
-            {{-0.5f, -0.5f, 0.0f}, {0.0f, 0.0f, 1.0f, 1.0f}, {0.0f, 1.0f}}};
+        float aspect = WINDOW_ASPECT_RATIO;
+        Vertex vertices[] = {
+            {{-0.5f, aspect*0.5f, 0.0f}, {1.0f, 0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}},
+            {{0.5f, aspect*0.5f, 0.0f}, {0.0f, 1.0f, 0.0f, 1.0f}, {1.0f, 0.0f}},
+            {{0.5f, aspect*-0.5f, 0.0f}, {0.0f, 0.0f, 1.0f, 1.0f}, {1.0f, 1.0f}},
+            {{-0.5f, aspect*-0.5f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}},
+        };
         // clang-format on
+        uint32_t indices[] = {0, 1, 2, 0, 2, 3};
 
-        uint32_t vertex_buffer_size = (uint32_t)sizeof(triangle_vertices);
+        uint32_t vertex_buffer_size = (uint32_t)sizeof(vertices);
+        uint32_t index_buffer_size = (uint32_t)sizeof(indices);
+        index_count = (uint32_t)_countof(indices);
 
         auto heap_properties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
-        auto buffer_desc = CD3DX12_RESOURCE_DESC::Buffer(vertex_buffer_size);
-        FAIL_FAST_IF_FAILED(d3d12_device->CreateCommittedResource(
-            &heap_properties,
-            D3D12_HEAP_FLAG_NONE,
-            &buffer_desc,
-            D3D12_RESOURCE_STATE_GENERIC_READ,
-            nullptr,
-            IID_PPV_ARGS(&vertex_buffer)));
-        d3d12_set_name(vertex_buffer.get(), L"Vertex Buffer");
 
-        UINT8* vertex_data;
-        auto read_range = CD3DX12_RANGE(0, 0);
-        FAIL_FAST_IF_FAILED(vertex_buffer->Map(0, &read_range, (void**)&vertex_data));
-        memcpy(vertex_data, triangle_vertices, sizeof(triangle_vertices));
-        vertex_buffer->Unmap(0, nullptr);
+        {
+            auto vertex_buffer_desc = CD3DX12_RESOURCE_DESC::Buffer(vertex_buffer_size);
+            FAIL_FAST_IF_FAILED(d3d12_device->CreateCommittedResource(
+                &heap_properties,
+                D3D12_HEAP_FLAG_NONE,
+                &vertex_buffer_desc,
+                D3D12_RESOURCE_STATE_GENERIC_READ,
+                nullptr,
+                IID_PPV_ARGS(&vertex_buffer)));
+            d3d12_set_name(vertex_buffer.get(), L"Vertex Buffer");
+            UINT8* vertex_data;
+            auto read_range = CD3DX12_RANGE(0, 0);
+            FAIL_FAST_IF_FAILED(vertex_buffer->Map(0, &read_range, (void**)&vertex_data));
+            memcpy(vertex_data, vertices, sizeof(vertices));
+            vertex_buffer->Unmap(0, nullptr);
+        }
+
+        {
+            auto index_buffer_desc = CD3DX12_RESOURCE_DESC::Buffer(index_buffer_size);
+            FAIL_FAST_IF_FAILED(d3d12_device->CreateCommittedResource(
+                &heap_properties,
+                D3D12_HEAP_FLAG_NONE,
+                &index_buffer_desc,
+                D3D12_RESOURCE_STATE_GENERIC_READ,
+                nullptr,
+                IID_PPV_ARGS(&index_buffer)));
+            d3d12_set_name(index_buffer.get(), L"Index Buffer");
+            UINT8* index_data;
+            auto read_range = CD3DX12_RANGE(0, 0);
+            FAIL_FAST_IF_FAILED(index_buffer->Map(0, &read_range, (void**)&index_data));
+            memcpy(index_data, indices, sizeof(indices));
+            index_buffer->Unmap(0, nullptr);
+        }
 
         vertex_buffer_view = {
             .BufferLocation = vertex_buffer->GetGPUVirtualAddress(),
             .SizeInBytes = vertex_buffer_size,
             .StrideInBytes = sizeof(Vertex),
+        };
+        index_buffer_view = {
+            .BufferLocation = index_buffer->GetGPUVirtualAddress(),
+            .SizeInBytes = index_buffer_size,
+            .Format = DXGI_FORMAT_R32_UINT,
         };
     }
 
@@ -661,8 +695,8 @@ int main() {
     // D3D12 - Texture - Resource.
     ComPtr<ID3D12Resource> texture_upload_heap;
     {
-        constexpr UINT TEXTURE_WIDTH = 64;
-        constexpr UINT TEXTURE_HEIGHT = 64;
+        constexpr UINT TEXTURE_WIDTH = 32;
+        constexpr UINT TEXTURE_HEIGHT = 32;
         constexpr UINT TEXTURE_PIXEL_SIZE = 4;
         constexpr LONG_PTR TEXTURE_ROW_PITCH = TEXTURE_WIDTH * TEXTURE_PIXEL_SIZE;
         constexpr LONG_PTR TEXTURE_SLICE_PITCH = TEXTURE_HEIGHT * TEXTURE_ROW_PITCH;
@@ -694,6 +728,7 @@ int main() {
             /* InitialResourceState */ D3D12_RESOURCE_STATE_GENERIC_READ,
             /* pOptimizedClearValue */ nullptr,
             /* riidResource */ IID_PPV_ARGS(&texture_upload_heap)));
+        d3d12_set_name(texture_upload_heap.get(), L"Texture Upload Heap");
 
         std::vector<uint8_t> texture_data;
         texture_data.resize(TEXTURE_SLICE_PITCH);
@@ -701,7 +736,7 @@ int main() {
             for (uint32_t x = 0; x < TEXTURE_WIDTH; x++) {
                 uint32_t* p =
                     (uint32_t*)&texture_data[TEXTURE_PIXEL_SIZE * (x + y * TEXTURE_WIDTH)];
-                *p = ((x ^ y) & 1) == 0 ? 0xffffffff : 0xff000000;
+                *p = ((x ^ y) & 1) == 0 ? 0xffffffff : 0xffaaaaaa;
             }
         }
         D3D12_SUBRESOURCE_DATA subresource_data = {
@@ -806,7 +841,8 @@ int main() {
             ->ClearRenderTargetView(d3d12_rtv_descriptors[frame_index], CLEAR_COLOR, 0, nullptr);
         d3d12_command_list->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
         d3d12_command_list->IASetVertexBuffers(0, 1, &vertex_buffer_view);
-        d3d12_command_list->DrawInstanced(3, 1, 0, 0);
+        d3d12_command_list->IASetIndexBuffer(&index_buffer_view);
+        d3d12_command_list->DrawIndexedInstanced(index_count, 1, 0, 0, 0);
 
         {
             auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(
