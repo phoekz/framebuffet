@@ -1,0 +1,11 @@
+{
+    "files.associations": {
+        "xstring": "cpp",
+        "string": "cpp",
+        "string_view": "cpp",
+        "format": "cpp",
+        "source_location": "cpp",
+        "array": "cpp",
+        "vector": "cpp"
+    }
+}

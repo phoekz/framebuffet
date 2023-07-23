@@ -30,6 +30,7 @@ __declspec(dllexport) extern const char* D3D12SDKPath = ".\\";
 
 // Standard libraries.
 #include <array>
+#include <vector>
 
 // Constants.
 constexpr const char* WINDOW_TITLE = "framebuffet 😎";
