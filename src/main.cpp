@@ -330,10 +330,6 @@ int main() {
     {
         ComPtr<ID3D12InfoQueue1> info_queue;
         d3d12_device.query_to(&info_queue);
-        info_queue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_CORRUPTION, true);
-        info_queue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, true);
-        info_queue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, true);
-        info_queue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_INFO, true);
         info_queue->RegisterMessageCallback(
             d3d12_message_func,
             D3D12_MESSAGE_CALLBACK_FLAG_NONE,
@@ -971,8 +967,7 @@ int main() {
     {
         ComPtr<ID3D12DebugDevice2> debug_device;
         d3d12_device.query_to(&debug_device);
-        FAIL_FAST_IF_FAILED(
-            debug_device->ReportLiveDeviceObjects(D3D12_RLDO_SUMMARY | D3D12_RLDO_DETAIL));
+        debug_device->ReportLiveDeviceObjects(D3D12_RLDO_SUMMARY | D3D12_RLDO_DETAIL);
     }
 #endif
 
