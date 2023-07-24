@@ -1,5 +1,8 @@
 cmake_minimum_required(VERSION 3.27)
 
+# Globals.
+set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "Configurations" FORCE)
+
 # Project.
 project(framebuffet)
 set(CMAKE_CXX_STANDARD 20)
