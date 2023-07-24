@@ -15,4 +15,12 @@ using Color = DirectX::SimpleMath::Color;
 using Ray = DirectX::SimpleMath::Ray;
 using Viewport = DirectX::SimpleMath::Viewport;
 
+constexpr float PI = DirectX::XM_PI;
+constexpr float rad_from_deg(float deg) {
+    return deg * PI / 180.0f;
+}
+constexpr float deg_from_rad(float rad) {
+    return rad * 180.0f / PI;
+}
+
 }  // namespace fb

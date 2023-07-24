@@ -4,8 +4,8 @@ cbuffer ConstantBuffer: register(b0) {
 };
 
 struct VertexInput {
-    float4 position: POSITION;
-    float4 color: COLOR;
+    float3 position: POSITION;
+    float3 normal: NORMAL;
     float2 texcoord: TEXCOORD;
 };
 
@@ -17,8 +17,8 @@ struct VertexOutput {
 
 VertexOutput vertex_shader(VertexInput input) {
     VertexOutput output;
-    output.position = mul(transform, input.position);
-    output.color = input.color;
+    output.position = mul(transform, float4(input.position, 1.0));
+    output.color = float4(input.normal * 0.5 + 0.5, 1.0);
     output.texcoord = input.texcoord;
     return output;
 }

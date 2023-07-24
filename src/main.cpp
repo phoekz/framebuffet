@@ -24,6 +24,9 @@ __declspec(dllexport) extern const char* D3D12SDKPath = ".\\";
 // DirectX Shader Compiler (DXC).
 #include <dxcapi.h>
 
+// DirectXTK12.
+#include <DirectXTK12/GeometricPrimitive.h>
+
 // WinPixEventRuntime.
 #define USE_PIX
 #include <WinPixEventRuntime/pix3.h>
@@ -590,8 +593,8 @@ int main() {
         D3D12_INPUT_ELEMENT_DESC input_element_descs[] = {
             // clang-format off
             { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-            { "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-            { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 28, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+            { "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+            { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 24, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
             // clang-format on
         };
         D3D12_GRAPHICS_PIPELINE_STATE_DESC desc = {
@@ -643,13 +646,10 @@ int main() {
     struct ConstantBuffer {
         fb::Mat4x4 transform;
         float padding[48];
-    } constant_buffer_data = {
-        .transform = fb::Mat4x4::Identity,
-    };
+    } constant_buffer_data;
     static_assert(
         (sizeof(ConstantBuffer) % 256) == 0,
         "Constant Buffer size must be 256-byte aligned");
-
     {
         uint32_t constant_buffer_size = (uint32_t)sizeof(ConstantBuffer);
         auto heap_properties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
@@ -678,31 +678,19 @@ int main() {
     // D3D12 - Geometry.
     uint32_t index_count = 0;
     {
-        struct Vertex {
-            fb::Vec3 position;
-            fb::Vec4 color;
-            fb::Vec2 texcoord;
-        };
+        DirectX::DX12::GeometricPrimitive::VertexCollection vertices;
+        DirectX::DX12::GeometricPrimitive::IndexCollection indices;
+        DirectX::DX12::GeometricPrimitive::CreateCube(vertices, indices);
 
-        // clang-format off
-        float aspect = WINDOW_ASPECT_RATIO;
-        Vertex vertices[] = {
-            {{-0.5f, aspect*0.5f, 0.0f}, {1.0f, 0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}},
-            {{0.5f, aspect*0.5f, 0.0f}, {0.0f, 1.0f, 0.0f, 1.0f}, {1.0f, 0.0f}},
-            {{0.5f, aspect*-0.5f, 0.0f}, {0.0f, 0.0f, 1.0f, 1.0f}, {1.0f, 1.0f}},
-            {{-0.5f, aspect*-0.5f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}},
-        };
-        // clang-format on
-        uint32_t indices[] = {0, 1, 2, 0, 2, 3};
-
-        uint32_t vertex_buffer_size = (uint32_t)sizeof(vertices);
-        uint32_t index_buffer_size = (uint32_t)sizeof(indices);
-        index_count = (uint32_t)_countof(indices);
+        uint32_t vertices_size = (uint32_t)vertices.size() * sizeof(vertices[0]);
+        uint32_t indices_size = (uint32_t)indices.size() * sizeof(indices[0]);
+        uint32_t vertex_size = (uint32_t)sizeof(vertices[0]);
+        index_count = (uint32_t)indices.size();
 
         auto heap_properties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
 
         {
-            auto vertex_buffer_desc = CD3DX12_RESOURCE_DESC::Buffer(vertex_buffer_size);
+            auto vertex_buffer_desc = CD3DX12_RESOURCE_DESC::Buffer(vertices_size);
             FAIL_FAST_IF_FAILED(d3d12_device->CreateCommittedResource(
                 &heap_properties,
                 D3D12_HEAP_FLAG_NONE,
@@ -714,12 +702,12 @@ int main() {
             UINT8* vertex_data;
             auto read_range = CD3DX12_RANGE(0, 0);
             FAIL_FAST_IF_FAILED(vertex_buffer->Map(0, &read_range, (void**)&vertex_data));
-            memcpy(vertex_data, vertices, sizeof(vertices));
+            memcpy(vertex_data, vertices.data(), vertices_size);
             vertex_buffer->Unmap(0, nullptr);
         }
 
         {
-            auto index_buffer_desc = CD3DX12_RESOURCE_DESC::Buffer(index_buffer_size);
+            auto index_buffer_desc = CD3DX12_RESOURCE_DESC::Buffer(indices_size);
             FAIL_FAST_IF_FAILED(d3d12_device->CreateCommittedResource(
                 &heap_properties,
                 D3D12_HEAP_FLAG_NONE,
@@ -731,19 +719,19 @@ int main() {
             UINT8* index_data;
             auto read_range = CD3DX12_RANGE(0, 0);
             FAIL_FAST_IF_FAILED(index_buffer->Map(0, &read_range, (void**)&index_data));
-            memcpy(index_data, indices, sizeof(indices));
+            memcpy(index_data, indices.data(), indices_size);
             index_buffer->Unmap(0, nullptr);
         }
 
         vertex_buffer_view = {
             .BufferLocation = vertex_buffer->GetGPUVirtualAddress(),
-            .SizeInBytes = vertex_buffer_size,
-            .StrideInBytes = sizeof(Vertex),
+            .SizeInBytes = vertices_size,
+            .StrideInBytes = vertex_size,
         };
         index_buffer_view = {
             .BufferLocation = index_buffer->GetGPUVirtualAddress(),
-            .SizeInBytes = index_buffer_size,
-            .Format = DXGI_FORMAT_R32_UINT,
+            .SizeInBytes = indices_size,
+            .Format = DXGI_FORMAT_R16_UINT,
         };
     }
 
@@ -872,8 +860,20 @@ int main() {
 
         // Update.
         {
-            auto mat = fb::Mat4x4::CreateRotationZ(ft.elapsed_time());
-            constant_buffer_data.transform = mat;
+            fb::Mat4x4 perspective = fb::Mat4x4::CreatePerspectiveFieldOfView(
+                fb::rad_from_deg(45.0f),
+                WINDOW_ASPECT_RATIO,
+                0.1f,
+                100.0f);
+            fb::Vec3 eye = fb::Vec3(
+                2.5f * std::sin(ft.elapsed_time()),
+                1.5f,
+                2.5f * std::cos(ft.elapsed_time()));
+            fb::Mat4x4 view = fb::Mat4x4::CreateLookAt(
+                eye,
+                fb::Vec3(0.0f, 0.0f, 0.0f),
+                fb::Vec3(0.0f, 1.0f, 0.0f));
+            constant_buffer_data.transform = view * perspective;
             memcpy(cbv_data_begin, &constant_buffer_data, sizeof(constant_buffer_data));
         }
 
