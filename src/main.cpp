@@ -33,6 +33,8 @@ __declspec(dllexport) extern const char* D3D12SDKPath = ".\\";
 
 // Dear ImGui.
 #include <imgui.h>
+#include <backends/imgui_impl_win32.h>
+#include <backends/imgui_impl_dx12.h>
 
 // Standard libraries.
 #include <array>
@@ -40,8 +42,8 @@ __declspec(dllexport) extern const char* D3D12SDKPath = ".\\";
 
 // Constants.
 constexpr const char* WINDOW_TITLE = "framebuffet 😎";
-constexpr int WINDOW_WIDTH = 640;
-constexpr int WINDOW_HEIGHT = 480;
+constexpr int WINDOW_WIDTH = 1280;
+constexpr int WINDOW_HEIGHT = 800;
 constexpr float WINDOW_ASPECT_RATIO = (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT;
 constexpr uint32_t FRAME_COUNT = 2;
 constexpr D3D_FEATURE_LEVEL MIN_FEATURE_LEVEL = D3D_FEATURE_LEVEL_12_2;
@@ -51,8 +53,13 @@ constexpr float CLEAR_COLOR[4] = {0.1f, 0.1f, 0.1f, 1.0f};
 // Win32.
 //
 
+extern IMGUI_IMPL_API LRESULT
+ImGui_ImplWin32_WndProcHandler(HWND window, UINT message, WPARAM w_param, LPARAM l_param);
 static LRESULT CALLBACK
 win32_window_proc(HWND window, UINT message, WPARAM w_param, LPARAM l_param) {
+    if (ImGui_ImplWin32_WndProcHandler(window, message, w_param, l_param))
+        return true;
+
     switch (message) {
         case WM_KEYDOWN:
             if (w_param == VK_ESCAPE) {
@@ -285,6 +292,8 @@ int main() {
 
     ComPtr<ID3D12Resource> texture;
 
+    ComPtr<ID3D12DescriptorHeap> d3d12_imgui_heap;
+
     // D3D12 - DebugInterface.
 #if defined(_DEBUG)
     {
@@ -392,7 +401,7 @@ int main() {
 
         WNDCLASSEXA window_class = {
             .cbSize = sizeof(WNDCLASSEXA),
-            .style = CS_HREDRAW | CS_VREDRAW,
+            .style = CS_CLASSDC | CS_HREDRAW | CS_VREDRAW,
             .lpfnWndProc = win32_window_proc,
             .hInstance = module_handle,
             .hIcon = LoadIconA(nullptr, IDI_WINLOGO),
@@ -412,33 +421,41 @@ int main() {
         };
         DWORD window_style = WS_OVERLAPPEDWINDOW;
         AdjustWindowRect(&window_rect, window_style, FALSE);
+        int window_adjusted_width = window_rect.right - window_rect.left;
+        int window_adjusted_height = window_rect.bottom - window_rect.top;
+
+        int screen_width = GetSystemMetrics(SM_CXSCREEN);
+        int screen_height = GetSystemMetrics(SM_CYSCREEN);
+        int window_x = (screen_width - window_adjusted_width) / 2;
+        int window_h = (screen_height - window_adjusted_height) / 2;
 
         window_handle = wil::unique_hwnd(CreateWindowExA(
             WS_EX_APPWINDOW,
             WINDOW_TITLE,
             WINDOW_TITLE,
             window_style,
-            (GetSystemMetrics(SM_CXSCREEN) - WINDOW_WIDTH) / 2,
-            (GetSystemMetrics(SM_CYSCREEN) - WINDOW_HEIGHT) / 2,
-            WINDOW_WIDTH,
-            WINDOW_HEIGHT,
+            window_x,
+            window_h,
+            window_adjusted_width,
+            window_adjusted_height,
             nullptr,
             nullptr,
             module_handle,
             nullptr));
         FAIL_FAST_IF_NULL_MSG(window_handle, "Failed to create window.");
-        ShowWindow(window_handle.get(), SW_SHOW);
+        ShowWindow(window_handle.get(), SW_SHOWDEFAULT);
         SetForegroundWindow(window_handle.get());
         SetFocus(window_handle.get());
         ShowCursor(true);
+        UpdateWindow(window_handle.get());
     }
 
     // D3D12 - DXGISwapChain.
     {
         ComPtr<IDXGISwapChain1> dxgi_swap_chain_1;
         DXGI_SWAP_CHAIN_DESC1 desc = {
-            .Width = WINDOW_WIDTH,
-            .Height = WINDOW_HEIGHT,
+            .Width = 0,  // Get from output window
+            .Height = 0,  // Get from output window
             .Format = DXGI_FORMAT_R8G8B8A8_UNORM,
             .Stereo = FALSE,
             .SampleDesc =
@@ -741,8 +758,8 @@ int main() {
     // D3D12 - Texture - Resource.
     ComPtr<ID3D12Resource> texture_upload_heap;
     {
-        constexpr UINT TEXTURE_WIDTH = 32;
-        constexpr UINT TEXTURE_HEIGHT = 32;
+        constexpr UINT TEXTURE_WIDTH = 16;
+        constexpr UINT TEXTURE_HEIGHT = 16;
         constexpr UINT TEXTURE_PIXEL_SIZE = 4;
         constexpr LONG_PTR TEXTURE_ROW_PITCH = TEXTURE_WIDTH * TEXTURE_PIXEL_SIZE;
         constexpr LONG_PTR TEXTURE_SLICE_PITCH = TEXTURE_HEIGHT * TEXTURE_ROW_PITCH;
@@ -824,6 +841,34 @@ int main() {
         d3d12_device->CreateShaderResourceView(texture.get(), &srv_desc, heap_start);
     }
 
+    // Dear ImGui.
+    {
+        D3D12_DESCRIPTOR_HEAP_DESC desc = {
+            .Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV,
+            .NumDescriptors = 1,
+            .Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE,
+            .NodeMask = 0,
+        };
+        FAIL_FAST_IF_FAILED(
+            d3d12_device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&d3d12_imgui_heap)));
+        d3d12_set_name(d3d12_imgui_heap.get(), L"ImGui Heap");
+
+        IMGUI_CHECKVERSION();
+        ImGui::CreateContext();
+        ImGuiIO& io = ImGui::GetIO();
+        io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+        io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
+        ImGui::StyleColorsDark();
+        ImGui_ImplWin32_Init(window_handle.get());
+        ImGui_ImplDX12_Init(
+            d3d12_device.get(),
+            FRAME_COUNT,
+            DXGI_FORMAT_R8G8B8A8_UNORM,
+            d3d12_imgui_heap.get(),
+            d3d12_imgui_heap->GetCPUDescriptorHandleForHeapStart(),
+            d3d12_imgui_heap->GetGPUDescriptorHandleForHeapStart());
+    }
+
     // Wait for pending GPU work to complete.
     {
         d3d12_command_list->Close();
@@ -862,6 +907,15 @@ int main() {
         // Update frame timing.
         ft.update();
 
+        // Update Dear ImGui.
+        {
+            ImGui_ImplDX12_NewFrame();
+            ImGui_ImplWin32_NewFrame();
+            ImGui::NewFrame();
+            ImGui::ShowDemoWindow();
+            ImGui::Render();
+        }
+
         // Update.
         {
             fb::Mat4x4 perspective = fb::Mat4x4::CreatePerspectiveFieldOfView(
@@ -886,7 +940,6 @@ int main() {
         d3d12_command_list->Reset(
             d3d12_command_allocators[frame_index].get(),
             d3d12_pipeline_state.get());
-        PIXBeginEvent(d3d12_command_list.get(), PIX_COLOR_DEFAULT, "Render");
 
         d3d12_command_list->SetGraphicsRootSignature(d3d12_root_signature.get());
         ID3D12DescriptorHeap* descriptor_heaps[] = {d3d12_cbv_srv_uav_heap.get()};
@@ -908,10 +961,22 @@ int main() {
 
         d3d12_command_list
             ->ClearRenderTargetView(d3d12_rtv_descriptors[frame_index], CLEAR_COLOR, 0, nullptr);
-        d3d12_command_list->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-        d3d12_command_list->IASetVertexBuffers(0, 1, &vertex_buffer_view);
-        d3d12_command_list->IASetIndexBuffer(&index_buffer_view);
-        d3d12_command_list->DrawIndexedInstanced(index_count, 1, 0, 0, 0);
+
+        {
+            PIXBeginEvent(d3d12_command_list.get(), PIX_COLOR_DEFAULT, "Cube");
+            d3d12_command_list->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+            d3d12_command_list->IASetVertexBuffers(0, 1, &vertex_buffer_view);
+            d3d12_command_list->IASetIndexBuffer(&index_buffer_view);
+            d3d12_command_list->DrawIndexedInstanced(index_count, 1, 0, 0, 0);
+            PIXEndEvent(d3d12_command_list.get());
+        }
+
+        {
+            PIXBeginEvent(d3d12_command_list.get(), PIX_COLOR_DEFAULT, "Gui");
+            d3d12_command_list->SetDescriptorHeaps(1, d3d12_imgui_heap.addressof());
+            ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), d3d12_command_list.get());
+            PIXEndEvent(d3d12_command_list.get());
+        }
 
         {
             auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(
@@ -921,7 +986,6 @@ int main() {
             d3d12_command_list->ResourceBarrier(1, &barrier);
         }
 
-        PIXEndEvent(d3d12_command_list.get());
         d3d12_command_list->Close();
 
         // Execute command list.
