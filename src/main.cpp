@@ -1,6 +1,7 @@
 // Framebuffet
 #include "maths.hpp"
 #include "utils.hpp"
+#include "win32.hpp"
 
 // Windows Implementation Library (WIL).
 #define WIL_SUPPRESS_EXCEPTIONS
@@ -48,36 +49,6 @@ constexpr float WINDOW_ASPECT_RATIO = (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT
 constexpr uint32_t FRAME_COUNT = 2;
 constexpr D3D_FEATURE_LEVEL MIN_FEATURE_LEVEL = D3D_FEATURE_LEVEL_12_2;
 constexpr float CLEAR_COLOR[4] = {0.1f, 0.1f, 0.1f, 1.0f};
-
-//
-// Win32.
-//
-
-extern IMGUI_IMPL_API LRESULT
-ImGui_ImplWin32_WndProcHandler(HWND window, UINT message, WPARAM w_param, LPARAM l_param);
-static LRESULT CALLBACK
-win32_window_proc(HWND window, UINT message, WPARAM w_param, LPARAM l_param) {
-    if (ImGui_ImplWin32_WndProcHandler(window, message, w_param, l_param))
-        return true;
-
-    switch (message) {
-        case WM_KEYDOWN:
-            if (w_param == VK_ESCAPE) {
-                PostQuitMessage(0);
-                return 0;
-            }
-            break;
-
-        case WM_DESTROY:
-            PostQuitMessage(0);
-            return 0;
-
-        case WM_CLOSE:
-            PostQuitMessage(0);
-            return 0;
-    }
-    return DefWindowProcA(window, message, w_param, l_param);
-}
 
 //
 // D3D12 - Utilities.
@@ -262,7 +233,6 @@ int main() {
     ComPtr<ID3D12CommandQueue> d3d12_command_queue;
     ComPtr<ID3D12GraphicsCommandList9> d3d12_command_list;
     ComPtr<D3D12MA::Allocator> d3d12_allocator;
-    wil::unique_hwnd window_handle;
     ComPtr<IDXGISwapChain4> dxgi_swap_chain;
     CD3DX12_VIEWPORT viewport;
     CD3DX12_RECT scissor_rect;
@@ -293,6 +263,13 @@ int main() {
     ComPtr<ID3D12Resource> texture;
 
     ComPtr<ID3D12DescriptorHeap> d3d12_imgui_heap;
+
+    // Win32 - Window.
+    fb::Window window = fb::window_create({
+        .title = WINDOW_TITLE,
+        .width = WINDOW_WIDTH,
+        .height = WINDOW_HEIGHT,
+    });
 
     // D3D12 - DebugInterface.
 #if defined(_DEBUG)
@@ -395,66 +372,11 @@ int main() {
         FAIL_FAST_IF_FAILED(D3D12MA::CreateAllocator(&desc, &d3d12_allocator));
     }
 
-    // Win32 - Window.
-    {
-        HINSTANCE module_handle = GetModuleHandleA(nullptr);
-
-        WNDCLASSEXA window_class = {
-            .cbSize = sizeof(WNDCLASSEXA),
-            .style = CS_CLASSDC | CS_HREDRAW | CS_VREDRAW,
-            .lpfnWndProc = win32_window_proc,
-            .hInstance = module_handle,
-            .hIcon = LoadIconA(nullptr, IDI_WINLOGO),
-            .hCursor = LoadCursorA(nullptr, IDC_ARROW),
-            .hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH),
-            .lpszMenuName = nullptr,
-            .lpszClassName = WINDOW_TITLE,
-            .hIconSm = window_class.hIcon,
-        };
-        RegisterClassExA(&window_class);
-
-        RECT window_rect = {
-            .left = 0,
-            .top = 0,
-            .right = (LONG)WINDOW_WIDTH,
-            .bottom = (LONG)WINDOW_HEIGHT,
-        };
-        DWORD window_style = WS_OVERLAPPEDWINDOW;
-        AdjustWindowRect(&window_rect, window_style, FALSE);
-        int window_adjusted_width = window_rect.right - window_rect.left;
-        int window_adjusted_height = window_rect.bottom - window_rect.top;
-
-        int screen_width = GetSystemMetrics(SM_CXSCREEN);
-        int screen_height = GetSystemMetrics(SM_CYSCREEN);
-        int window_x = (screen_width - window_adjusted_width) / 2;
-        int window_h = (screen_height - window_adjusted_height) / 2;
-
-        window_handle = wil::unique_hwnd(CreateWindowExA(
-            WS_EX_APPWINDOW,
-            WINDOW_TITLE,
-            WINDOW_TITLE,
-            window_style,
-            window_x,
-            window_h,
-            window_adjusted_width,
-            window_adjusted_height,
-            nullptr,
-            nullptr,
-            module_handle,
-            nullptr));
-        FAIL_FAST_IF_NULL_MSG(window_handle, "Failed to create window.");
-        ShowWindow(window_handle.get(), SW_SHOWDEFAULT);
-        SetForegroundWindow(window_handle.get());
-        SetFocus(window_handle.get());
-        ShowCursor(true);
-        UpdateWindow(window_handle.get());
-    }
-
     // D3D12 - DXGISwapChain.
     {
         ComPtr<IDXGISwapChain1> dxgi_swap_chain_1;
         DXGI_SWAP_CHAIN_DESC1 desc = {
-            .Width = 0,  // Get from output window
+            .Width = 0,   // Get from output window
             .Height = 0,  // Get from output window
             .Format = DXGI_FORMAT_R8G8B8A8_UNORM,
             .Stereo = FALSE,
@@ -472,7 +394,7 @@ int main() {
         };
         FAIL_FAST_IF_FAILED(dxgi_factory->CreateSwapChainForHwnd(
             d3d12_command_queue.get(),
-            window_handle.get(),
+            (HWND)window,
             &desc,
             nullptr,
             nullptr,
@@ -859,7 +781,7 @@ int main() {
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
         ImGui::StyleColorsDark();
-        ImGui_ImplWin32_Init(window_handle.get());
+        ImGui_ImplWin32_Init((HWND)window);
         ImGui_ImplDX12_Init(
             d3d12_device.get(),
             FRAME_COUNT,
@@ -1038,6 +960,9 @@ int main() {
         debug_device->ReportLiveDeviceObjects(D3D12_RLDO_SUMMARY | D3D12_RLDO_DETAIL);
     }
 #endif
+
+    // Cleanup.
+    fb::window_destroy(window);
 
     return 0;
 }
