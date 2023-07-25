@@ -120,6 +120,8 @@ static void dxc_compile(
     ShaderType shader_type,
     LPCWSTR shader_entry,
     ShaderResult& result) {
+    // Note: remember to set PIX PDB search path correctly for shader debugging to work.
+
     // Shader profile.
     LPCWSTR shader_profile = nullptr;
     switch (shader_type) {
@@ -177,6 +179,21 @@ static void dxc_compile(
         dxc_result->GetOutput(DXC_OUT_PDB, IID_PPV_ARGS(&result.pdb), &result.pdb_name));
     FAIL_FAST_IF_FAILED(
         dxc_result->GetOutput(DXC_OUT_REFLECTION, IID_PPV_ARGS(&result.reflection), nullptr));
+
+    // Write PDB.
+    {
+        std::wstring s;
+        s.append(L"shaders\\");
+        s.append(result.pdb_name->GetStringPointer());
+
+        FILE* file = nullptr;
+        _wfopen_s(&file, s.c_str(), L"wb");
+        FAIL_FAST_IF_NULL_MSG(file, "Failed to create file %ws", s.c_str());
+
+        fwrite(result.pdb->GetBufferPointer(), result.pdb->GetBufferSize(), 1, file);
+
+        fclose(file);
+    }
 }
 
 //
