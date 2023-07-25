@@ -18,6 +18,7 @@
         "type_traits": "cpp",
         "xhash": "cpp",
         "xtree": "cpp",
-        "xutility": "cpp"
+        "xutility": "cpp",
+        "cstdint": "cpp"
     }
 }
