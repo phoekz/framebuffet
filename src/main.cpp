@@ -3,12 +3,6 @@
 #include "utils.hpp"
 #include "win32.hpp"
 
-// Windows Implementation Library (WIL).
-#define WIL_SUPPRESS_EXCEPTIONS
-#include <wil/com.h>
-#include <wil/resource.h>
-template<typename T>
-using ComPtr = wil::com_ptr_nothrow<T>;
 
 // DirectX.
 #include <d3dx12/d3dx12.h>
@@ -132,9 +126,9 @@ inline void d3d12_set_indexed_name(ID3D12Object*, LPCWSTR, UINT) {}
 //
 
 struct Dxc {
-    ComPtr<IDxcCompiler3> compiler;
-    ComPtr<IDxcUtils> utils;
-    ComPtr<IDxcIncludeHandler> include_handler;
+    fb::ComPtr<IDxcCompiler3> compiler;
+    fb::ComPtr<IDxcUtils> utils;
+    fb::ComPtr<IDxcIncludeHandler> include_handler;
 };
 
 static void dxc_init(Dxc& dxc) {
@@ -149,10 +143,10 @@ enum class ShaderType {
 };
 
 struct ShaderResult {
-    ComPtr<IDxcBlob> binary;
-    ComPtr<IDxcBlob> pdb;
-    ComPtr<IDxcBlobUtf16> pdb_name;
-    ComPtr<IDxcBlob> reflection;
+    fb::ComPtr<IDxcBlob> binary;
+    fb::ComPtr<IDxcBlob> pdb;
+    fb::ComPtr<IDxcBlobUtf16> pdb_name;
+    fb::ComPtr<IDxcBlob> reflection;
 };
 
 static void dxc_compile(
@@ -188,7 +182,7 @@ static void dxc_compile(
     // Shader blob.
     wchar_t shader_path[256];
     wsprintfW(shader_path, L"shaders\\%ws", shader_name);
-    ComPtr<IDxcBlobEncoding> shader_blob;
+    fb::ComPtr<IDxcBlobEncoding> shader_blob;
     FAIL_FAST_IF_FAILED(dxc.utils->LoadFile(shader_path, nullptr, &shader_blob));
     FAIL_FAST_IF_NULL_MSG(shader_blob, "Failed to load shader file");
     DxcBuffer shader_buffer = {
@@ -198,8 +192,8 @@ static void dxc_compile(
     };
 
     // Compile.
-    ComPtr<IDxcResult> dxc_result;
-    ComPtr<IDxcBlobUtf8> dxc_errors;
+    fb::ComPtr<IDxcResult> dxc_result;
+    fb::ComPtr<IDxcBlobUtf8> dxc_errors;
     FAIL_FAST_IF_FAILED(dxc.compiler->Compile(
         &shader_buffer,
         shader_args,
@@ -226,43 +220,43 @@ static void dxc_compile(
 
 int main() {
     // Initialize.
-    ComPtr<IDXGIFactory7> dxgi_factory;
+    fb::ComPtr<IDXGIFactory7> dxgi_factory;
     UINT dxgi_factory_flags = 0;
-    ComPtr<IDXGIAdapter4> dxgi_adapter;
-    ComPtr<ID3D12Device12> d3d12_device;
-    ComPtr<ID3D12CommandQueue> d3d12_command_queue;
-    ComPtr<ID3D12GraphicsCommandList9> d3d12_command_list;
-    ComPtr<D3D12MA::Allocator> d3d12_allocator;
-    ComPtr<IDXGISwapChain4> dxgi_swap_chain;
+    fb::ComPtr<IDXGIAdapter4> dxgi_adapter;
+    fb::ComPtr<ID3D12Device12> d3d12_device;
+    fb::ComPtr<ID3D12CommandQueue> d3d12_command_queue;
+    fb::ComPtr<ID3D12GraphicsCommandList9> d3d12_command_list;
+    fb::ComPtr<D3D12MA::Allocator> d3d12_allocator;
+    fb::ComPtr<IDXGISwapChain4> dxgi_swap_chain;
     CD3DX12_VIEWPORT viewport;
     CD3DX12_RECT scissor_rect;
-    ComPtr<ID3D12DescriptorHeap> d3d12_rtv_heap;
+    fb::ComPtr<ID3D12DescriptorHeap> d3d12_rtv_heap;
     std::array<D3D12_CPU_DESCRIPTOR_HANDLE, FRAME_COUNT> d3d12_rtv_descriptors;
     std::array<ID3D12Resource*, FRAME_COUNT> d3d12_rtvs;
-    std::array<ComPtr<ID3D12CommandAllocator>, FRAME_COUNT> d3d12_command_allocators;
-    ComPtr<ID3D12Fence1> d3d12_fence;
+    std::array<fb::ComPtr<ID3D12CommandAllocator>, FRAME_COUNT> d3d12_command_allocators;
+    fb::ComPtr<ID3D12Fence1> d3d12_fence;
     uint32_t frame_index = 0;
     wil::unique_handle fence_event;
     std::array<uint64_t, FRAME_COUNT> fence_values = {};
 
-    ComPtr<ID3D12RootSignature> d3d12_root_signature;
-    ComPtr<ID3D12PipelineState> d3d12_pipeline_state;
+    fb::ComPtr<ID3D12RootSignature> d3d12_root_signature;
+    fb::ComPtr<ID3D12PipelineState> d3d12_pipeline_state;
     ShaderResult vertex_shader;
     ShaderResult pixel_shader;
 
-    ComPtr<ID3D12DescriptorHeap> d3d12_cbv_srv_uav_heap;
+    fb::ComPtr<ID3D12DescriptorHeap> d3d12_cbv_srv_uav_heap;
 
-    ComPtr<ID3D12Resource> constant_buffer;
+    fb::ComPtr<ID3D12Resource> constant_buffer;
     UINT8* cbv_data_begin = nullptr;
 
-    ComPtr<ID3D12Resource> vertex_buffer;
-    ComPtr<ID3D12Resource> index_buffer;
+    fb::ComPtr<ID3D12Resource> vertex_buffer;
+    fb::ComPtr<ID3D12Resource> index_buffer;
     D3D12_VERTEX_BUFFER_VIEW vertex_buffer_view;
     D3D12_INDEX_BUFFER_VIEW index_buffer_view;
 
-    ComPtr<ID3D12Resource> texture;
+    fb::ComPtr<ID3D12Resource> texture;
 
-    ComPtr<ID3D12DescriptorHeap> d3d12_imgui_heap;
+    fb::ComPtr<ID3D12DescriptorHeap> d3d12_imgui_heap;
 
     // Win32 - Window.
     fb::Window window = fb::window_create({
@@ -274,7 +268,7 @@ int main() {
     // D3D12 - DebugInterface.
 #if defined(_DEBUG)
     {
-        ComPtr<ID3D12Debug6> debug;
+        fb::ComPtr<ID3D12Debug6> debug;
         FAIL_FAST_IF_FAILED(D3D12GetDebugInterface(IID_PPV_ARGS(&debug)));
         debug->EnableDebugLayer();
         dxgi_factory_flags = DXGI_CREATE_FACTORY_DEBUG;
@@ -290,9 +284,9 @@ int main() {
     // D3D12 - DXGIOutput.
     {
         UINT i = 0;
-        ComPtr<IDXGIOutput> output;
+        fb::ComPtr<IDXGIOutput> output;
         while (dxgi_adapter->EnumOutputs(i, &output) != DXGI_ERROR_NOT_FOUND) {
-            ComPtr<IDXGIOutput6> output6;
+            fb::ComPtr<IDXGIOutput6> output6;
             output.query_to(&output6);
 
             DXGI_OUTPUT_DESC1 desc;
@@ -320,7 +314,7 @@ int main() {
 
     // D3D12 - D3D12InfoQueue.
     {
-        ComPtr<ID3D12InfoQueue1> info_queue;
+        fb::ComPtr<ID3D12InfoQueue1> info_queue;
         d3d12_device.query_to(&info_queue);
         info_queue->RegisterMessageCallback(
             d3d12_message_func,
@@ -374,7 +368,7 @@ int main() {
 
     // D3D12 - DXGISwapChain.
     {
-        ComPtr<IDXGISwapChain1> dxgi_swap_chain_1;
+        fb::ComPtr<IDXGISwapChain1> dxgi_swap_chain_1;
         DXGI_SWAP_CHAIN_DESC1 desc = {
             .Width = 0,   // Get from output window
             .Height = 0,  // Get from output window
@@ -507,8 +501,8 @@ int main() {
             /* _pStaticSamplers */ &sampler,
             /* flags */ D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
 
-        ComPtr<ID3DBlob> signature;
-        ComPtr<ID3DBlob> error;
+        fb::ComPtr<ID3DBlob> signature;
+        fb::ComPtr<ID3DBlob> error;
         FAIL_FAST_IF_FAILED(D3DX12SerializeVersionedRootSignature(
             &desc,
             ROOT_SIGNATURE_VERSION,
@@ -678,7 +672,7 @@ int main() {
     }
 
     // D3D12 - Texture - Resource.
-    ComPtr<ID3D12Resource> texture_upload_heap;
+    fb::ComPtr<ID3D12Resource> texture_upload_heap;
     {
         constexpr UINT TEXTURE_WIDTH = 16;
         constexpr UINT TEXTURE_HEIGHT = 16;
@@ -955,7 +949,7 @@ int main() {
     // Detect resource leaks.
 #if defined(_DEBUG)
     {
-        ComPtr<ID3D12DebugDevice2> debug_device;
+        fb::ComPtr<ID3D12DebugDevice2> debug_device;
         d3d12_device.query_to(&debug_device);
         debug_device->ReportLiveDeviceObjects(D3D12_RLDO_SUMMARY | D3D12_RLDO_DETAIL);
     }

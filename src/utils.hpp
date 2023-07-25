@@ -5,6 +5,10 @@
 #include <string_view>
 #include <string>
 
+#define WIL_SUPPRESS_EXCEPTIONS
+#include <wil/com.h>
+#include <wil/resource.h>
+
 namespace fb {
 
 //
@@ -59,6 +63,13 @@ class FrameTiming {
     float m_delta_time_sec;
     float m_elapsed_time_sec;
 };
+
+//
+// COM helpers.
+//
+
+template<typename T>
+using ComPtr = wil::com_ptr_nothrow<T>;
 
 }  // namespace fb
 
