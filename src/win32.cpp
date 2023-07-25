@@ -40,7 +40,7 @@ win32_window_proc(HWND window, UINT message, WPARAM w_param, LPARAM l_param) {
     return DefWindowProcA(window, message, w_param, l_param);
 }
 
-Window window_create(const WindowDesc& desc) noexcept {
+Window* window_create(const WindowDesc& desc) noexcept {
     // Module handle.
     HMODULE module_handle = GetModuleHandleA(nullptr);
 
@@ -110,10 +110,10 @@ Window window_create(const WindowDesc& desc) noexcept {
     // Logging.
     log_info("Created window: {}", desc.title);
 
-    return (Window)window_handle;
+    return (Window*)window_handle;
 }
 
-void window_destroy(Window window) noexcept {
+void window_destroy(Window* window) noexcept {
     // Destroy window.
     HWND window_handle = (HWND)window;
     DestroyWindow(window_handle);

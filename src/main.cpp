@@ -2,19 +2,12 @@
 #include "maths.hpp"
 #include "utils.hpp"
 #include "win32.hpp"
-
+#include "dx12.hpp"
 
 // DirectX.
 #include <d3dx12/d3dx12.h>
 #include <dxgi1_6.h>
 #include <dxgidebug.h>
-extern "C" {
-__declspec(dllexport) extern const UINT D3D12SDKVersion = 610;
-__declspec(dllexport) extern const char* D3D12SDKPath = ".\\";
-}
-
-// D3D12 memory allocator.
-#include <D3D12MemAlloc.h>
 
 // DirectX Shader Compiler (DXC).
 #include <dxcapi.h>
@@ -40,33 +33,11 @@ constexpr const char* WINDOW_TITLE = "framebuffet 😎";
 constexpr int WINDOW_WIDTH = 1280;
 constexpr int WINDOW_HEIGHT = 800;
 constexpr float WINDOW_ASPECT_RATIO = (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT;
-constexpr uint32_t FRAME_COUNT = 2;
-constexpr D3D_FEATURE_LEVEL MIN_FEATURE_LEVEL = D3D_FEATURE_LEVEL_12_2;
 constexpr float CLEAR_COLOR[4] = {0.1f, 0.1f, 0.1f, 1.0f};
 
 //
 // D3D12 - Utilities.
 //
-
-static IDXGIAdapter4* d3d12_dxgi_adapter(IDXGIFactory7* factory) {
-    IDXGIAdapter4* adapter = nullptr;
-    uint32_t adapter_index = 0;
-    while (factory->EnumAdapterByGpuPreference(
-               adapter_index,
-               DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE,
-               IID_PPV_ARGS(&adapter))
-           != DXGI_ERROR_NOT_FOUND) {
-        if (SUCCEEDED(
-                D3D12CreateDevice(adapter, MIN_FEATURE_LEVEL, __uuidof(ID3D12Device), nullptr))) {
-            DXGI_ADAPTER_DESC3 desc;
-            adapter->GetDesc3(&desc);
-            log_info("Using adapter {}: {}", adapter_index, fb::from_wstr(desc.Description));
-            return adapter;
-        }
-        adapter_index += 1;
-    }
-    return adapter;
-}
 
 static void d3d12_message_func(
     D3D12_MESSAGE_CATEGORY category,
@@ -111,14 +82,8 @@ static void d3d12_message_func(
 inline void d3d12_set_name(ID3D12Object* object, LPCWSTR name) {
     object->SetName(name);
 }
-inline void d3d12_set_indexed_name(ID3D12Object* object, LPCWSTR name, UINT index) {
-    WCHAR indexed_name[256] = {};
-    swprintf_s(indexed_name, L"%s[%u]", name, index);
-    object->SetName(indexed_name);
-}
 #else
 inline void d3d12_set_name(ID3D12Object*, LPCWSTR) {}
-inline void d3d12_set_indexed_name(ID3D12Object*, LPCWSTR, UINT) {}
 #endif
 
 //
@@ -220,25 +185,6 @@ static void dxc_compile(
 
 int main() {
     // Initialize.
-    fb::ComPtr<IDXGIFactory7> dxgi_factory;
-    UINT dxgi_factory_flags = 0;
-    fb::ComPtr<IDXGIAdapter4> dxgi_adapter;
-    fb::ComPtr<ID3D12Device12> d3d12_device;
-    fb::ComPtr<ID3D12CommandQueue> d3d12_command_queue;
-    fb::ComPtr<ID3D12GraphicsCommandList9> d3d12_command_list;
-    fb::ComPtr<D3D12MA::Allocator> d3d12_allocator;
-    fb::ComPtr<IDXGISwapChain4> dxgi_swap_chain;
-    CD3DX12_VIEWPORT viewport;
-    CD3DX12_RECT scissor_rect;
-    fb::ComPtr<ID3D12DescriptorHeap> d3d12_rtv_heap;
-    std::array<D3D12_CPU_DESCRIPTOR_HANDLE, FRAME_COUNT> d3d12_rtv_descriptors;
-    std::array<ID3D12Resource*, FRAME_COUNT> d3d12_rtvs;
-    std::array<fb::ComPtr<ID3D12CommandAllocator>, FRAME_COUNT> d3d12_command_allocators;
-    fb::ComPtr<ID3D12Fence1> d3d12_fence;
-    uint32_t frame_index = 0;
-    wil::unique_handle fence_event;
-    std::array<uint64_t, FRAME_COUNT> fence_values = {};
-
     fb::ComPtr<ID3D12RootSignature> d3d12_root_signature;
     fb::ComPtr<ID3D12PipelineState> d3d12_pipeline_state;
     ShaderResult vertex_shader;
@@ -258,185 +204,16 @@ int main() {
 
     fb::ComPtr<ID3D12DescriptorHeap> d3d12_imgui_heap;
 
-    // Win32 - Window.
-    fb::Window window = fb::window_create({
+    // Window.
+    fb::Window* window = fb::window_create({
         .title = WINDOW_TITLE,
         .width = WINDOW_WIDTH,
         .height = WINDOW_HEIGHT,
     });
 
-    // D3D12 - DebugInterface.
-#if defined(_DEBUG)
-    {
-        fb::ComPtr<ID3D12Debug6> debug;
-        FAIL_FAST_IF_FAILED(D3D12GetDebugInterface(IID_PPV_ARGS(&debug)));
-        debug->EnableDebugLayer();
-        dxgi_factory_flags = DXGI_CREATE_FACTORY_DEBUG;
-    }
-#endif
-
-    // D3D12 - DXGIFactory.
-    FAIL_FAST_IF_FAILED(CreateDXGIFactory2(dxgi_factory_flags, IID_PPV_ARGS(&dxgi_factory)));
-
-    // D3D12 - DXGIAdapter.
-    dxgi_adapter = d3d12_dxgi_adapter(dxgi_factory.get());
-
-    // D3D12 - DXGIOutput.
-    {
-        UINT i = 0;
-        fb::ComPtr<IDXGIOutput> output;
-        while (dxgi_adapter->EnumOutputs(i, &output) != DXGI_ERROR_NOT_FOUND) {
-            fb::ComPtr<IDXGIOutput6> output6;
-            output.query_to(&output6);
-
-            DXGI_OUTPUT_DESC1 desc;
-            output6->GetDesc1(&desc);
-
-            fb::Rect desktop_rect(desc.DesktopCoordinates);
-            log_info(
-                "display: {} x {} @ {}bpp, luminance: {} to {}",
-                desktop_rect.width,
-                desktop_rect.height,
-                desc.BitsPerColor,
-                desc.MinLuminance,
-                desc.MaxLuminance);
-
-            ++i;
-        }
-    }
-
-    // D3D12 - D3D12Device12.
-    {
-        FAIL_FAST_IF_FAILED(
-            D3D12CreateDevice(dxgi_adapter.get(), MIN_FEATURE_LEVEL, IID_PPV_ARGS(&d3d12_device)));
-        d3d12_set_name(d3d12_device.get(), L"Device");
-    }
-
-    // D3D12 - D3D12InfoQueue.
-    {
-        fb::ComPtr<ID3D12InfoQueue1> info_queue;
-        d3d12_device.query_to(&info_queue);
-        info_queue->RegisterMessageCallback(
-            d3d12_message_func,
-            D3D12_MESSAGE_CALLBACK_FLAG_NONE,
-            nullptr,
-            nullptr);
-    }
-
-    // D3D12 - D3D12CommandQueue.
-    {
-        D3D12_COMMAND_QUEUE_DESC desc = {
-            .Type = D3D12_COMMAND_LIST_TYPE_DIRECT,
-            .Priority = D3D12_COMMAND_QUEUE_PRIORITY_NORMAL,
-            .Flags = D3D12_COMMAND_QUEUE_FLAG_NONE,
-            .NodeMask = 0,
-        };
-        FAIL_FAST_IF_FAILED(
-            d3d12_device->CreateCommandQueue(&desc, IID_PPV_ARGS(&d3d12_command_queue)));
-        d3d12_set_name(d3d12_command_queue.get(), L"Command Queue");
-    }
-
-    // D3D12 - D3D12CommandAllocator.
-    for (uint32_t i = 0; i < FRAME_COUNT; i++) {
-        FAIL_FAST_IF_FAILED(d3d12_device->CreateCommandAllocator(
-            D3D12_COMMAND_LIST_TYPE_DIRECT,
-            IID_PPV_ARGS(&d3d12_command_allocators[i])));
-        d3d12_set_indexed_name(d3d12_command_allocators[i].get(), L"Command Allocator", i);
-    }
-
-    // D3D12 - D3D12GraphicsCommandList.
-    {
-        FAIL_FAST_IF_FAILED(d3d12_device->CreateCommandList1(
-            0,
-            D3D12_COMMAND_LIST_TYPE_DIRECT,
-            D3D12_COMMAND_LIST_FLAG_NONE,
-            IID_PPV_ARGS(&d3d12_command_list)));
-        d3d12_set_name(d3d12_command_list.get(), L"Command List");
-    }
-
-    // D3D12MA - Allocator.
-    {
-        D3D12MA::ALLOCATOR_DESC desc = {
-            .Flags = D3D12MA::ALLOCATOR_FLAG_NONE,
-            .pDevice = d3d12_device.get(),
-            .PreferredBlockSize = 0,
-            .pAllocationCallbacks = nullptr,
-            .pAdapter = dxgi_adapter.get(),
-        };
-        FAIL_FAST_IF_FAILED(D3D12MA::CreateAllocator(&desc, &d3d12_allocator));
-    }
-
-    // D3D12 - DXGISwapChain.
-    {
-        fb::ComPtr<IDXGISwapChain1> dxgi_swap_chain_1;
-        DXGI_SWAP_CHAIN_DESC1 desc = {
-            .Width = 0,   // Get from output window
-            .Height = 0,  // Get from output window
-            .Format = DXGI_FORMAT_R8G8B8A8_UNORM,
-            .Stereo = FALSE,
-            .SampleDesc =
-                {
-                    .Count = 1,
-                    .Quality = 0,
-                },
-            .BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT,
-            .BufferCount = FRAME_COUNT,
-            .Scaling = DXGI_SCALING_STRETCH,
-            .SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD,
-            .AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED,
-            .Flags = DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT,
-        };
-        FAIL_FAST_IF_FAILED(dxgi_factory->CreateSwapChainForHwnd(
-            d3d12_command_queue.get(),
-            (HWND)window,
-            &desc,
-            nullptr,
-            nullptr,
-            &dxgi_swap_chain_1));
-        dxgi_swap_chain_1.query_to(&dxgi_swap_chain);
-
-        viewport = CD3DX12_VIEWPORT(0.0f, 0.0f, (float)WINDOW_WIDTH, (float)WINDOW_HEIGHT);
-        scissor_rect = CD3DX12_RECT(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
-
-        frame_index = dxgi_swap_chain->GetCurrentBackBufferIndex();
-    }
-
-    // D3D12 - Render target views.
-    {
-        D3D12_DESCRIPTOR_HEAP_DESC desc = {
-            .Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV,
-            .NumDescriptors = FRAME_COUNT,
-            .Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE,
-            .NodeMask = 0,
-        };
-        FAIL_FAST_IF_FAILED(
-            d3d12_device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&d3d12_rtv_heap)));
-
-        UINT rtv_descriptor_size =
-            d3d12_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
-        D3D12_CPU_DESCRIPTOR_HANDLE rtv_handle =
-            d3d12_rtv_heap->GetCPUDescriptorHandleForHeapStart();
-        for (uint32_t i = 0; i < FRAME_COUNT; i++) {
-            d3d12_rtv_descriptors[i] = rtv_handle;
-            rtv_handle.ptr += rtv_descriptor_size;
-        }
-
-        for (uint32_t i = 0; i < FRAME_COUNT; i++) {
-            FAIL_FAST_IF_FAILED(dxgi_swap_chain->GetBuffer(i, IID_PPV_ARGS(&d3d12_rtvs[i])));
-            d3d12_device->CreateRenderTargetView(d3d12_rtvs[i], nullptr, d3d12_rtv_descriptors[i]);
-            d3d12_set_indexed_name(d3d12_rtvs[i], L"Swap Chain RTV", i);
-        }
-    }
-
-    // D3D12 - Fences.
-    {
-        FAIL_FAST_IF_FAILED(
-            d3d12_device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&d3d12_fence)));
-        d3d12_set_name(d3d12_fence.get(), L"Fence");
-        fence_event = wil::unique_handle(CreateEvent(nullptr, FALSE, FALSE, nullptr));
-        FAIL_FAST_IF_NULL_MSG(fence_event, "Failed to create fence event.\n");
-        fence_values[frame_index]++;
-    }
+    // D3D12 - Context.
+    fb::Dx dx;
+    fb::dx_create(&dx, window);
 
     // D3D12 - Root signature.
     {
@@ -444,7 +221,7 @@ int main() {
         constexpr D3D_ROOT_SIGNATURE_VERSION ROOT_SIGNATURE_VERSION =
             D3D_ROOT_SIGNATURE_VERSION_1_2;
         D3D12_FEATURE_DATA_ROOT_SIGNATURE feature_data = {.HighestVersion = ROOT_SIGNATURE_VERSION};
-        FAIL_FAST_IF_FAILED(d3d12_device->CheckFeatureSupport(
+        FAIL_FAST_IF_FAILED(dx.device->CheckFeatureSupport(
             D3D12_FEATURE_ROOT_SIGNATURE,
             &feature_data,
             sizeof(feature_data)));
@@ -508,7 +285,7 @@ int main() {
             ROOT_SIGNATURE_VERSION,
             &signature,
             &error));
-        FAIL_FAST_IF_FAILED(d3d12_device->CreateRootSignature(
+        FAIL_FAST_IF_FAILED(dx.device->CreateRootSignature(
             0,
             signature->GetBufferPointer(),
             signature->GetBufferSize(),
@@ -552,7 +329,7 @@ int main() {
             .SampleDesc = {.Count = 1, .Quality = 0},
         };
         FAIL_FAST_IF_FAILED(
-            d3d12_device->CreateGraphicsPipelineState(&desc, IID_PPV_ARGS(&d3d12_pipeline_state)));
+            dx.device->CreateGraphicsPipelineState(&desc, IID_PPV_ARGS(&d3d12_pipeline_state)));
         d3d12_set_name(d3d12_pipeline_state.get(), L"Pipeline State");
     }
 
@@ -567,11 +344,11 @@ int main() {
             .NodeMask = 0,
         };
         FAIL_FAST_IF_FAILED(
-            d3d12_device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&d3d12_cbv_srv_uav_heap)));
+            dx.device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&d3d12_cbv_srv_uav_heap)));
         d3d12_set_name(d3d12_cbv_srv_uav_heap.get(), L"CBV_SRV_UAV Heap");
 
         uint32_t increment_size =
-            d3d12_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+            dx.device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 
         cbv_gpu_descriptor_handle = d3d12_cbv_srv_uav_heap->GetGPUDescriptorHandleForHeapStart();
         srv_gpu_descriptor_handle = d3d12_cbv_srv_uav_heap->GetGPUDescriptorHandleForHeapStart();
@@ -590,7 +367,7 @@ int main() {
         uint32_t constant_buffer_size = (uint32_t)sizeof(ConstantBuffer);
         auto heap_properties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
         auto buffer_desc = CD3DX12_RESOURCE_DESC::Buffer(constant_buffer_size);
-        FAIL_FAST_IF_FAILED(d3d12_device->CreateCommittedResource(
+        FAIL_FAST_IF_FAILED(dx.device->CreateCommittedResource(
             &heap_properties,
             D3D12_HEAP_FLAG_NONE,
             &buffer_desc,
@@ -602,7 +379,7 @@ int main() {
             .BufferLocation = constant_buffer->GetGPUVirtualAddress(),
             .SizeInBytes = constant_buffer_size,
         };
-        d3d12_device->CreateConstantBufferView(
+        dx.device->CreateConstantBufferView(
             &cbv_desc,
             d3d12_cbv_srv_uav_heap->GetCPUDescriptorHandleForHeapStart());
 
@@ -627,7 +404,7 @@ int main() {
 
         {
             auto vertex_buffer_desc = CD3DX12_RESOURCE_DESC::Buffer(vertices_size);
-            FAIL_FAST_IF_FAILED(d3d12_device->CreateCommittedResource(
+            FAIL_FAST_IF_FAILED(dx.device->CreateCommittedResource(
                 &heap_properties,
                 D3D12_HEAP_FLAG_NONE,
                 &vertex_buffer_desc,
@@ -644,7 +421,7 @@ int main() {
 
         {
             auto index_buffer_desc = CD3DX12_RESOURCE_DESC::Buffer(indices_size);
-            FAIL_FAST_IF_FAILED(d3d12_device->CreateCommittedResource(
+            FAIL_FAST_IF_FAILED(dx.device->CreateCommittedResource(
                 &heap_properties,
                 D3D12_HEAP_FLAG_NONE,
                 &index_buffer_desc,
@@ -688,7 +465,7 @@ int main() {
             /* arraySize */ 1,
             /* mipLevels */ 1);
         CD3DX12_HEAP_PROPERTIES default_heap(D3D12_HEAP_TYPE_DEFAULT);
-        FAIL_FAST_IF_FAILED(d3d12_device->CreateCommittedResource(
+        FAIL_FAST_IF_FAILED(dx.device->CreateCommittedResource(
             /* pHeapProperties */ &default_heap,
             /* HeapFlags */ D3D12_HEAP_FLAG_NONE,
             /* pDesc */ &texture_desc,
@@ -700,7 +477,7 @@ int main() {
         UINT64 upload_buffer_size = GetRequiredIntermediateSize(texture.get(), 0, 1);
         auto buffer_desc = CD3DX12_RESOURCE_DESC::Buffer(upload_buffer_size);
         CD3DX12_HEAP_PROPERTIES upload_heap(D3D12_HEAP_TYPE_UPLOAD);
-        FAIL_FAST_IF_FAILED(d3d12_device->CreateCommittedResource(
+        FAIL_FAST_IF_FAILED(dx.device->CreateCommittedResource(
             /* pHeapProperties */ &upload_heap,
             /* HeapFlags */ D3D12_HEAP_FLAG_NONE,
             /* pDesc */ &buffer_desc,
@@ -723,11 +500,11 @@ int main() {
             .RowPitch = TEXTURE_ROW_PITCH,
             .SlicePitch = TEXTURE_SLICE_PITCH,
         };
-        d3d12_command_allocators[frame_index]->Reset();
-        d3d12_command_list->Reset(d3d12_command_allocators[frame_index].get(), nullptr);
+        dx.command_allocators[dx.frame_index]->Reset();
+        dx.command_list->Reset(dx.command_allocators[dx.frame_index], nullptr);
         FAIL_FAST_IF(
             UpdateSubresources(
-                /* pCmdList */ d3d12_command_list.get(),
+                /* pCmdList */ dx.command_list,
                 /* pDestinationResource */ texture.get(),
                 /* pIntermediate */ texture_upload_heap.get(),
                 /* IntermediateOffset */ 0,
@@ -739,7 +516,7 @@ int main() {
             texture.get(),
             D3D12_RESOURCE_STATE_COPY_DEST,
             D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-        d3d12_command_list->ResourceBarrier(1, &barrier);
+        dx.command_list->ResourceBarrier(1, &barrier);
 
         D3D12_SHADER_RESOURCE_VIEW_DESC srv_desc = {
             .Format = TEXTURE_FORMAT,
@@ -753,8 +530,8 @@ int main() {
         D3D12_CPU_DESCRIPTOR_HANDLE heap_start =
             d3d12_cbv_srv_uav_heap->GetCPUDescriptorHandleForHeapStart();
         heap_start.ptr +=
-            d3d12_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-        d3d12_device->CreateShaderResourceView(texture.get(), &srv_desc, heap_start);
+            dx.device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+        dx.device->CreateShaderResourceView(texture.get(), &srv_desc, heap_start);
     }
 
     // Dear ImGui.
@@ -766,7 +543,7 @@ int main() {
             .NodeMask = 0,
         };
         FAIL_FAST_IF_FAILED(
-            d3d12_device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&d3d12_imgui_heap)));
+            dx.device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&d3d12_imgui_heap)));
         d3d12_set_name(d3d12_imgui_heap.get(), L"ImGui Heap");
 
         IMGUI_CHECKVERSION();
@@ -777,8 +554,8 @@ int main() {
         ImGui::StyleColorsDark();
         ImGui_ImplWin32_Init((HWND)window);
         ImGui_ImplDX12_Init(
-            d3d12_device.get(),
-            FRAME_COUNT,
+            dx.device,
+            fb::FRAME_COUNT,
             DXGI_FORMAT_R8G8B8A8_UNORM,
             d3d12_imgui_heap.get(),
             d3d12_imgui_heap->GetCPUDescriptorHandleForHeapStart(),
@@ -787,21 +564,20 @@ int main() {
 
     // Wait for pending GPU work to complete.
     {
-        d3d12_command_list->Close();
-        ID3D12CommandList* command_lists[] = {(ID3D12CommandList*)d3d12_command_list.get()};
-        d3d12_command_queue->ExecuteCommandLists(_countof(command_lists), command_lists);
+        dx.command_list->Close();
+        ID3D12CommandList* command_lists[] = {(ID3D12CommandList*)dx.command_list};
+        dx.command_queue->ExecuteCommandLists(_countof(command_lists), command_lists);
 
         // Schedule a Signal command in the queue.
-        FAIL_FAST_IF_FAILED(
-            d3d12_command_queue->Signal(d3d12_fence.get(), fence_values[frame_index]));
+        uint64_t* fence_value = &dx.fence_values[dx.frame_index];
+        FAIL_FAST_IF_FAILED(dx.command_queue->Signal(dx.fence, *fence_value));
 
         // Wait until the fence has been processed.
-        FAIL_FAST_IF_FAILED(
-            d3d12_fence->SetEventOnCompletion(fence_values[frame_index], fence_event.get()));
-        WaitForSingleObjectEx(fence_event.get(), INFINITE, FALSE);
+        FAIL_FAST_IF_FAILED(dx.fence->SetEventOnCompletion(*fence_value, dx.fence_event));
+        WaitForSingleObjectEx(dx.fence_event, INFINITE, FALSE);
 
         // Increment the fence value for the current frame.
-        fence_values[frame_index]++;
+        fence_value++;
     }
 
     // Main loop.
@@ -852,110 +628,99 @@ int main() {
         }
 
         // Populate command list.
-        d3d12_command_allocators[frame_index]->Reset();
-        d3d12_command_list->Reset(
-            d3d12_command_allocators[frame_index].get(),
-            d3d12_pipeline_state.get());
+        dx.command_allocators[dx.frame_index]->Reset();
+        dx.command_list->Reset(dx.command_allocators[dx.frame_index], d3d12_pipeline_state.get());
 
-        d3d12_command_list->SetGraphicsRootSignature(d3d12_root_signature.get());
+        dx.command_list->SetGraphicsRootSignature(d3d12_root_signature.get());
         ID3D12DescriptorHeap* descriptor_heaps[] = {d3d12_cbv_srv_uav_heap.get()};
-        d3d12_command_list->SetDescriptorHeaps(_countof(descriptor_heaps), descriptor_heaps);
-        d3d12_command_list->SetGraphicsRootDescriptorTable(0, cbv_gpu_descriptor_handle);
-        d3d12_command_list->SetGraphicsRootDescriptorTable(1, srv_gpu_descriptor_handle);
-        d3d12_command_list->RSSetViewports(1, &viewport);
-        d3d12_command_list->RSSetScissorRects(1, &scissor_rect);
-        d3d12_command_list
-            ->OMSetRenderTargets(1, &d3d12_rtv_descriptors[frame_index], FALSE, nullptr);
+        dx.command_list->SetDescriptorHeaps(_countof(descriptor_heaps), descriptor_heaps);
+        dx.command_list->SetGraphicsRootDescriptorTable(0, cbv_gpu_descriptor_handle);
+        dx.command_list->SetGraphicsRootDescriptorTable(1, srv_gpu_descriptor_handle);
+        CD3DX12_VIEWPORT viewport(0.0f, 0.0f, (float)WINDOW_WIDTH, (float)WINDOW_HEIGHT);
+        dx.command_list->RSSetViewports(1, &viewport);
+        CD3DX12_RECT scissor_rect(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+        dx.command_list->RSSetScissorRects(1, &scissor_rect);
+        dx.command_list->OMSetRenderTargets(1, &dx.rtv_descriptors[dx.frame_index], FALSE, nullptr);
 
         {
             auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(
-                d3d12_rtvs[frame_index],
+                dx.rtvs[dx.frame_index],
                 D3D12_RESOURCE_STATE_PRESENT,
                 D3D12_RESOURCE_STATE_RENDER_TARGET);
-            d3d12_command_list->ResourceBarrier(1, &barrier);
+            dx.command_list->ResourceBarrier(1, &barrier);
         }
 
-        d3d12_command_list
-            ->ClearRenderTargetView(d3d12_rtv_descriptors[frame_index], CLEAR_COLOR, 0, nullptr);
+        dx.command_list
+            ->ClearRenderTargetView(dx.rtv_descriptors[dx.frame_index], CLEAR_COLOR, 0, nullptr);
 
         {
-            PIXBeginEvent(d3d12_command_list.get(), PIX_COLOR_DEFAULT, "Cube");
-            d3d12_command_list->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-            d3d12_command_list->IASetVertexBuffers(0, 1, &vertex_buffer_view);
-            d3d12_command_list->IASetIndexBuffer(&index_buffer_view);
-            d3d12_command_list->DrawIndexedInstanced(index_count, 1, 0, 0, 0);
-            PIXEndEvent(d3d12_command_list.get());
+            PIXBeginEvent(dx.command_list, PIX_COLOR_DEFAULT, "Cube");
+            dx.command_list->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+            dx.command_list->IASetVertexBuffers(0, 1, &vertex_buffer_view);
+            dx.command_list->IASetIndexBuffer(&index_buffer_view);
+            dx.command_list->DrawIndexedInstanced(index_count, 1, 0, 0, 0);
+            PIXEndEvent(dx.command_list);
         }
 
         {
-            PIXBeginEvent(d3d12_command_list.get(), PIX_COLOR_DEFAULT, "Gui");
-            d3d12_command_list->SetDescriptorHeaps(1, d3d12_imgui_heap.addressof());
-            ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), d3d12_command_list.get());
-            PIXEndEvent(d3d12_command_list.get());
+            PIXBeginEvent(dx.command_list, PIX_COLOR_DEFAULT, "Gui");
+            dx.command_list->SetDescriptorHeaps(1, d3d12_imgui_heap.addressof());
+            ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), dx.command_list);
+            PIXEndEvent(dx.command_list);
         }
 
         {
             auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(
-                d3d12_rtvs[frame_index],
+                dx.rtvs[dx.frame_index],
                 D3D12_RESOURCE_STATE_RENDER_TARGET,
                 D3D12_RESOURCE_STATE_PRESENT);
-            d3d12_command_list->ResourceBarrier(1, &barrier);
+            dx.command_list->ResourceBarrier(1, &barrier);
         }
 
-        d3d12_command_list->Close();
+        dx.command_list->Close();
 
         // Execute command list.
-        ID3D12CommandList* command_lists[] = {(ID3D12CommandList*)d3d12_command_list.get()};
-        d3d12_command_queue->ExecuteCommandLists(_countof(command_lists), command_lists);
+        ID3D12CommandList* command_lists[] = {(ID3D12CommandList*)dx.command_list};
+        dx.command_queue->ExecuteCommandLists(_countof(command_lists), command_lists);
 
         // Present.
-        dxgi_swap_chain->Present(1, 0);
+        dx.swapchain->Present(1, 0);
 
         // Move to next frame.
         {
             // Schedule a Signal command in the queue.
-            uint64_t current_fence_value = fence_values[frame_index];
+            uint64_t current_fence_value = dx.fence_values[dx.frame_index];
             FAIL_FAST_IF_FAILED(
-                d3d12_command_queue->Signal(d3d12_fence.get(), current_fence_value));
+                dx.command_queue->Signal(dx.fence, dx.fence_values[dx.frame_index]));
 
             // Update the frame index.
-            frame_index = dxgi_swap_chain->GetCurrentBackBufferIndex();
+            dx.frame_index = dx.swapchain->GetCurrentBackBufferIndex();
+            uint64_t* fence_value = &dx.fence_values[dx.frame_index];
 
             // If the next frame is not ready to be rendered yet, wait until it is ready.
-            if (d3d12_fence->GetCompletedValue() < fence_values[frame_index]) {
-                FAIL_FAST_IF_FAILED(d3d12_fence->SetEventOnCompletion(
-                    fence_values[frame_index],
-                    fence_event.get()));
-                WaitForSingleObjectEx(fence_event.get(), INFINITE, FALSE);
+            if (dx.fence->GetCompletedValue() < *fence_value) {
+                FAIL_FAST_IF_FAILED(dx.fence->SetEventOnCompletion(*fence_value, dx.fence_event));
+                WaitForSingleObjectEx(dx.fence_event, INFINITE, FALSE);
             }
 
             // Set the fence value for the next frame.
-            fence_values[frame_index] = current_fence_value + 1;
+            *fence_value = current_fence_value + 1;
         }
     }
 
     // Wait for pending GPU work to complete.
     {
         // Schedule a Signal command in the queue.
-        FAIL_FAST_IF_FAILED(
-            d3d12_command_queue->Signal(d3d12_fence.get(), fence_values[frame_index]));
+        FAIL_FAST_IF_FAILED(dx.command_queue->Signal(dx.fence, dx.fence_values[dx.frame_index]));
 
         // Wait until the fence has been processed.
         FAIL_FAST_IF_FAILED(
-            d3d12_fence->SetEventOnCompletion(fence_values[frame_index], fence_event.get()));
-        WaitForSingleObjectEx(fence_event.get(), INFINITE, FALSE);
+            dx.fence->SetEventOnCompletion(dx.fence_values[dx.frame_index], dx.fence_event));
+        WaitForSingleObjectEx(dx.fence_event, INFINITE, FALSE);
     }
-
-    // Detect resource leaks.
-#if defined(_DEBUG)
-    {
-        fb::ComPtr<ID3D12DebugDevice2> debug_device;
-        d3d12_device.query_to(&debug_device);
-        debug_device->ReportLiveDeviceObjects(D3D12_RLDO_SUMMARY | D3D12_RLDO_DETAIL);
-    }
-#endif
 
     // Cleanup.
+    fb::dx_destroy(&dx);
     fb::window_destroy(window);
 
     return 0;
