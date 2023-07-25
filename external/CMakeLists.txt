@@ -1,6 +1,35 @@
 include(FetchContent)
 
 #
+# Dear ImGui.
+#
+
+message(STATUS "Fetching Dear ImGui...")
+FetchContent_Declare(
+    dearimgui
+    GIT_REPOSITORY https://github.com/ocornut/imgui
+    GIT_TAG d4ddc46e7773e9a9b68f965d007968f35ca4e09a # 1.89.7
+)
+FetchContent_MakeAvailable(dearimgui)
+SET(DEARIMGUI_SOURCE_DIR ${dearimgui_SOURCE_DIR} CACHE INTERNAL "Dear ImGui Source Directory")
+add_library(dearimgui STATIC
+    ${DEARIMGUI_SOURCE_DIR}/imgui.cpp
+    ${DEARIMGUI_SOURCE_DIR}/imgui_demo.cpp
+    ${DEARIMGUI_SOURCE_DIR}/imgui_draw.cpp
+    ${DEARIMGUI_SOURCE_DIR}/imgui_widgets.cpp
+    ${DEARIMGUI_SOURCE_DIR}/imgui_tables.cpp
+    ${DEARIMGUI_SOURCE_DIR}/backends/imgui_impl_win32.cpp
+    ${DEARIMGUI_SOURCE_DIR}/backends/imgui_impl_dx12.cpp
+)
+target_include_directories(dearimgui PRIVATE
+    ${DEARIMGUI_SOURCE_DIR}
+    ${DEARIMGUI_SOURCE_DIR}/backends
+)
+file(GLOB_RECURSE DEARIMGUI_INCLUDE_FILES CONFIGURE_DEPENDS ${DEARIMGUI_SOURCE_DIR}/*.h ${DEARIMGUI_SOURCE_DIR}/*.inl)
+target_sources(dearimgui PRIVATE ${DEARIMGUI_INCLUDE_FILES})
+set(DEARIMGUI_INCLUDE_DIR ${DEARIMGUI_SOURCE_DIR} CACHE INTERNAL "Dear ImGui Include Directory")
+
+#
 # Windows Implementation Library (WIL).
 #
 

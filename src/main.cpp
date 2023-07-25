@@ -31,6 +31,9 @@ __declspec(dllexport) extern const char* D3D12SDKPath = ".\\";
 #define USE_PIX
 #include <WinPixEventRuntime/pix3.h>
 
+// Dear ImGui.
+#include <imgui.h>
+
 // Standard libraries.
 #include <array>
 #include <vector>

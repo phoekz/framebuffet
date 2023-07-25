@@ -24,6 +24,7 @@ string(REGEX REPLACE "/EH[a-z]+" "" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
 target_compile_definitions(${PROJECT_NAME} PRIVATE _HAS_EXCEPTIONS=0)
 target_include_directories(
     ${PROJECT_NAME} PRIVATE
+    ${DEARIMGUI_INCLUDE_DIR}
     ${WIL_INCLUDE_DIR}
     ${D3D12MEMALLOC_INCLUDE_DIR}
     ${DXAGILITYSDK_INCLUDE_DIR}
@@ -35,6 +36,7 @@ target_include_directories(
 )
 target_link_libraries(
     ${PROJECT_NAME} PRIVATE
+    dearimgui
     d3d12.lib
     dxgi.lib
     dxguid.lib
