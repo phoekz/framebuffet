@@ -8,6 +8,7 @@ message(STATUS "Fetching WIL...")
 FetchContent_Declare(
     wil
     GIT_REPOSITORY https://github.com/microsoft/wil
+    GIT_TAG 55f373e164d3f092dd6c7a56e3de6f90c4c6f3dc # v1.0.230629.1
 )
 option(WIL_BUILD_PACKAGING OFF)
 option(WIL_BUILD_TESTS OFF)
@@ -24,6 +25,7 @@ set(CMAKE_MESSAGE_LOG_LEVEL NOTICE)
 FetchContent_Declare(
     d3d12memalloc
     GIT_REPOSITORY https://github.com/GPUOpen-LibrariesAndSDKs/D3D12MemoryAllocator
+    GIT_TAG 8dc7b31598d5c89331475be1364f407ddf604f47 # Jul 11, 2023
 )
 FetchContent_MakeAvailable(d3d12memalloc)
 set(CMAKE_MESSAGE_LOG_LEVEL ${_saved_CMAKE_MESSAGE_LOG_LEVEL})
