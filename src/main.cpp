@@ -817,10 +817,11 @@ int main() {
                     .MipLevels = 1,
                 },
         };
-        auto k = d3d12_cbv_srv_uav_heap->GetCPUDescriptorHandleForHeapStart();
-        k.ptr +=
+        D3D12_CPU_DESCRIPTOR_HANDLE heap_start =
+            d3d12_cbv_srv_uav_heap->GetCPUDescriptorHandleForHeapStart();
+        heap_start.ptr +=
             d3d12_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-        d3d12_device->CreateShaderResourceView(texture.get(), &srv_desc, k);
+        d3d12_device->CreateShaderResourceView(texture.get(), &srv_desc, heap_start);
     }
 
     // Wait for pending GPU work to complete.
