@@ -51,6 +51,8 @@ target_include_directories(dxagilitysdk PRIVATE
     ${DXAGILITYSDK_SOURCE_DIR}/include
     ${DXAGILITYSDK_SOURCE_DIR}/include/d3dx12
 )
+file(GLOB_RECURSE DXAGILITYSDK_INCLUDE_FILES CONFIGURE_DEPENDS ${DXAGILITYSDK_SOURCE_DIR}/include/*.h)
+target_sources(dxagilitysdk PRIVATE ${DXAGILITYSDK_INCLUDE_FILES})
 target_compile_definitions(dxagilitysdk PRIVATE WIN32)
 
 #
