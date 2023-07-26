@@ -26,7 +26,7 @@ struct Dx {
 };
 void dx_create(Dx* dx, Window* window);
 void dx_destroy(Dx* dx);
-void dx_set_name(ID3D12Object*, const char*);
-void dx_set_indexed_name(ID3D12Object*, const char*, UINT);
+void dx_set_name(ID3D12Object* object, const char* name);
+void dx_set_indexed_name(ID3D12Object* object, const char* name, uint32_t index);
 
 }  // namespace fb

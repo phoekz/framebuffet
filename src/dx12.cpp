@@ -16,21 +16,6 @@ constexpr D3D_FEATURE_LEVEL MIN_FEATURE_LEVEL = D3D_FEATURE_LEVEL_12_2;
 
 namespace fb {
 
-#if defined(_DEBUG)
-void dx_set_name(ID3D12Object* object, const char* name) {
-    std::wstring wname = fb::to_wstr(name);
-    object->SetName(wname.c_str());
-}
-void dx_set_indexed_name(ID3D12Object* object, const char* name, UINT index) {
-    std::wstring wname = fb::to_wstr(name);
-    std::wstring windexed_name = std::format(L"{}[{}]", wname, index);
-    object->SetName(windexed_name.c_str());
-}
-#else
-void dx_set_name(ID3D12Object*, const char*) {}
-void dx_set_indexed_name(ID3D12Object*, const char*, UINT) {}
-#endif
-
 void dx_create(Dx* dx, Window* window) {
     // Debug layer.
     UINT factory_flags = 0;
@@ -243,6 +228,28 @@ void dx_destroy(Dx* dx) {
     }
     dx->command_queue->Release();
     dx->device->Release();
+}
+
+void dx_set_name(ID3D12Object* object, const char* name) {
+#if defined(_DEBUG)
+    std::wstring wname = fb::to_wstr(name);
+    object->SetName(wname.c_str());
+#else
+    (void)object;
+    (void)name;
+#endif
+}
+
+void dx_set_indexed_name(ID3D12Object* object, const char* name, uint32_t index) {
+#if defined(_DEBUG)
+    std::wstring wname = fb::to_wstr(name);
+    std::wstring windexed_name = std::format(L"{}[{}]", wname, index);
+    object->SetName(windexed_name.c_str());
+#else
+    (void)object;
+    (void)name;
+    (void)index;
+#endif
 }
 
 }  // namespace fb
