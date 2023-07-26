@@ -244,29 +244,23 @@ int main() {
 
         CD3DX12_DESCRIPTOR_RANGE1 cbv_range;
         cbv_range.Init(
-            /* rangeType */ D3D12_DESCRIPTOR_RANGE_TYPE_CBV,
-            /* numDescriptors */ 1,
-            /* baseShaderRegister */ 0,
-            /* registerSpace */ 0,
-            /* flags */ D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC);
+            D3D12_DESCRIPTOR_RANGE_TYPE_CBV,
+            1,
+            0,
+            0,
+            D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC);
 
         CD3DX12_DESCRIPTOR_RANGE1 srv_range;
         srv_range.Init(
-            /* rangeType */ D3D12_DESCRIPTOR_RANGE_TYPE_SRV,
-            /* numDescriptors */ 1,
-            /* baseShaderRegister */ 0,
-            /* registerSpace */ 0,
-            /* flags */ D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC);
+            D3D12_DESCRIPTOR_RANGE_TYPE_SRV,
+            1,
+            0,
+            0,
+            D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC);
 
         CD3DX12_ROOT_PARAMETER1 root_parameters[2];
-        root_parameters[0].InitAsDescriptorTable(
-            /* numDescriptorRanges */ 1,
-            /* pDescriptorRanges */ &cbv_range,
-            /* visibility */ D3D12_SHADER_VISIBILITY_VERTEX);
-        root_parameters[1].InitAsDescriptorTable(
-            /* numDescriptorRanges */ 1,
-            /* pDescriptorRanges */ &srv_range,
-            /* visibility */ D3D12_SHADER_VISIBILITY_PIXEL);
+        root_parameters[0].InitAsDescriptorTable(1, &cbv_range, D3D12_SHADER_VISIBILITY_VERTEX);
+        root_parameters[1].InitAsDescriptorTable(1, &srv_range, D3D12_SHADER_VISIBILITY_PIXEL);
 
         D3D12_STATIC_SAMPLER_DESC1 sampler = {
             .Filter = D3D12_FILTER_MIN_MAG_MIP_POINT,
@@ -288,11 +282,11 @@ int main() {
         CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC desc;
         decltype(desc)::Init_1_2(
             desc,
-            /* numParameters */ _countof(root_parameters),
-            /* _pParameters */ root_parameters,
-            /* numStaticSamplers */ 1,
-            /* _pStaticSamplers */ &sampler,
-            /* flags */ D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
+            _countof(root_parameters),
+            root_parameters,
+            1,
+            &sampler,
+            D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
 
         fb::ComPtr<ID3DBlob> signature;
         fb::ComPtr<ID3DBlob> error;
@@ -474,32 +468,28 @@ int main() {
         constexpr LONG_PTR TEXTURE_SLICE_PITCH = TEXTURE_HEIGHT * TEXTURE_ROW_PITCH;
         constexpr DXGI_FORMAT TEXTURE_FORMAT = DXGI_FORMAT_R8G8B8A8_UNORM;
 
-        auto texture_desc = CD3DX12_RESOURCE_DESC::Tex2D(
-            /* format */ TEXTURE_FORMAT,
-            /* width */ TEXTURE_WIDTH,
-            /* height */ TEXTURE_HEIGHT,
-            /* arraySize */ 1,
-            /* mipLevels */ 1);
+        auto texture_desc =
+            CD3DX12_RESOURCE_DESC::Tex2D(TEXTURE_FORMAT, TEXTURE_WIDTH, TEXTURE_HEIGHT, 1, 1);
         CD3DX12_HEAP_PROPERTIES default_heap(D3D12_HEAP_TYPE_DEFAULT);
         FAIL_FAST_IF_FAILED(dx.device->CreateCommittedResource(
-            /* pHeapProperties */ &default_heap,
-            /* HeapFlags */ D3D12_HEAP_FLAG_NONE,
-            /* pDesc */ &texture_desc,
-            /* InitialResourceState */ D3D12_RESOURCE_STATE_COPY_DEST,
-            /* pOptimizedClearValue */ nullptr,
-            /* riidResource */ IID_PPV_ARGS(&texture)));
+            &default_heap,
+            D3D12_HEAP_FLAG_NONE,
+            &texture_desc,
+            D3D12_RESOURCE_STATE_COPY_DEST,
+            nullptr,
+            IID_PPV_ARGS(&texture)));
         d3d12_set_name(texture.get(), L"Texture");
 
         UINT64 upload_buffer_size = GetRequiredIntermediateSize(texture.get(), 0, 1);
         auto buffer_desc = CD3DX12_RESOURCE_DESC::Buffer(upload_buffer_size);
         CD3DX12_HEAP_PROPERTIES upload_heap(D3D12_HEAP_TYPE_UPLOAD);
         FAIL_FAST_IF_FAILED(dx.device->CreateCommittedResource(
-            /* pHeapProperties */ &upload_heap,
-            /* HeapFlags */ D3D12_HEAP_FLAG_NONE,
-            /* pDesc */ &buffer_desc,
-            /* InitialResourceState */ D3D12_RESOURCE_STATE_GENERIC_READ,
-            /* pOptimizedClearValue */ nullptr,
-            /* riidResource */ IID_PPV_ARGS(&texture_upload_heap)));
+            &upload_heap,
+            D3D12_HEAP_FLAG_NONE,
+            &buffer_desc,
+            D3D12_RESOURCE_STATE_GENERIC_READ,
+            nullptr,
+            IID_PPV_ARGS(&texture_upload_heap)));
         d3d12_set_name(texture_upload_heap.get(), L"Texture Upload Heap");
 
         std::vector<uint8_t> texture_data;
@@ -520,13 +510,13 @@ int main() {
         dx.command_list->Reset(dx.command_allocators[dx.frame_index], nullptr);
         FAIL_FAST_IF(
             UpdateSubresources(
-                /* pCmdList */ dx.command_list,
-                /* pDestinationResource */ texture.get(),
-                /* pIntermediate */ texture_upload_heap.get(),
-                /* IntermediateOffset */ 0,
-                /* FirstSubresource */ 0,
-                /* NumSubresources */ 1,
-                /* pSrcData */ &subresource_data)
+                dx.command_list,
+                texture.get(),
+                texture_upload_heap.get(),
+                0,
+                0,
+                1,
+                &subresource_data)
             == 0);
         auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(
             texture.get(),
