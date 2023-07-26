@@ -58,17 +58,16 @@ Window* window_create(const WindowDesc& desc) noexcept {
     HCURSOR cursor = LoadCursorA(nullptr, IDC_ARROW);
     HBRUSH background_brush = (HBRUSH)GetStockObject(BLACK_BRUSH);
     WNDCLASSEXA window_class = {
-        .cbSize = sizeof(WNDCLASSEXA),      // Size of this structure in bytes.
-        .style = class_style,               // Class style.
-        .lpfnWndProc = win32_window_proc,   // Pointer to the window procedure.
-        .hInstance = module_handle,         // Handle to the instance of the module.
-        .hIcon = icon,                      // Handle to the class icon.
-        .hCursor = cursor,                  // Handle to the class cursor.
-        .hbrBackground = background_brush,  // Handle to the class background brush.
-        .lpszMenuName = nullptr,            // No default menu.
-        .lpszClassName = desc.title,        // Class name.
-        .hIconSm = window_class.hIcon       // Handle to the small icon.
-    };
+        .cbSize = sizeof(WNDCLASSEXA),
+        .style = class_style,
+        .lpfnWndProc = win32_window_proc,
+        .hInstance = module_handle,
+        .hIcon = icon,
+        .hCursor = cursor,
+        .hbrBackground = background_brush,
+        .lpszMenuName = nullptr,
+        .lpszClassName = desc.title,
+        .hIconSm = window_class.hIcon};
     RegisterClassExA(&window_class);
 
     // Adjust window size such that the client area is the requested size.
@@ -93,19 +92,18 @@ Window* window_create(const WindowDesc& desc) noexcept {
 
     // Create window.
     HWND window_handle = CreateWindowExA(
-        WS_EX_APPWINDOW,  // Extended window style.
-        desc.title,       // Class name.
-        desc.title,       // Window name.
-        window_style,     // Window style.
-        window_x,         // Window horizontal position.
-        window_h,         // Window vertical position.
-        window_width,     // Window width.
-        window_height,    // Window height.
-        nullptr,          // Parent window.
-        nullptr,          // Menu handle.
-        module_handle,    // Handle to the instance of the module.
-        nullptr           // Pointer to be passed through the CREATESTRUCT structure.
-    );
+        WS_EX_APPWINDOW,
+        desc.title,
+        desc.title,
+        window_style,
+        window_x,
+        window_h,
+        window_width,
+        window_height,
+        nullptr,
+        nullptr,
+        module_handle,
+        nullptr);
     FAIL_FAST_IF_NULL_MSG(window_handle, "Failed to create window.");
 
     // Show window.
