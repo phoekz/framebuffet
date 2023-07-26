@@ -16,6 +16,93 @@ constexpr D3D_FEATURE_LEVEL MIN_FEATURE_LEVEL = D3D_FEATURE_LEVEL_12_2;
 
 namespace fb {
 
+void dx_shader_destroy(DxShader* shader) {
+    shader->binary->Release();
+}
+
+void dxc_create(Dxc* dxc) {
+    DxcCreateInstance(CLSID_DxcCompiler, IID_PPV_ARGS(&dxc->compiler));
+    DxcCreateInstance(CLSID_DxcUtils, IID_PPV_ARGS(&dxc->utils));
+    dxc->utils->CreateDefaultIncludeHandler(&dxc->include_handler);
+}
+
+void dxc_destroy(Dxc* dxc) {
+    dxc->include_handler->Release();
+    dxc->utils->Release();
+    dxc->compiler->Release();
+}
+
+void dxc_shader_compile(Dxc* dxc, const DxShaderDesc& desc, DxShader* shader) {
+    // Note: remember to set PIX PDB search path correctly for shader debugging to work.
+
+    // Shader profile.
+    LPCWSTR shader_profile = nullptr;
+    // clang-format off
+    switch (desc.type) {
+        case DxShaderType::Compute: shader_profile = L"cs_6_7"; break;
+        case DxShaderType::Vertex: shader_profile = L"vs_6_7"; break;
+        case DxShaderType::Pixel: shader_profile = L"ps_6_7"; break;
+    }
+    // clang-format on
+
+    // Shader arguments.
+    std::wstring shader_name = fb::to_wstr(desc.name);
+    std::wstring shader_entry = fb::to_wstr(desc.entry_point);
+    LPCWSTR shader_args[] = {
+        // clang-format off
+        shader_name.c_str(),
+        L"-E", shader_entry.c_str(),
+        L"-T", shader_profile,
+        L"-HV", L"2021",
+        L"-Zi",
+        L"-Fd", L".\\shaders\\",
+        L"-Qstrip_reflect",
+        // clang-format on
+    };
+
+    // Compile.
+    DxcBuffer source_buffer = {
+        .Ptr = desc.source.data(),
+        .Size = desc.source.size(),
+        .Encoding = DXC_CP_ACP,
+    };
+    fb::ComPtr<IDxcResult> result;
+    fb::ComPtr<IDxcBlobUtf8> errors;
+    IDxcBlob* binary = nullptr;
+    fb::ComPtr<IDxcBlob> pdb;
+    fb::ComPtr<IDxcBlobUtf16> pdb_name;
+    FAIL_FAST_IF_FAILED(dxc->compiler->Compile(
+        &source_buffer,
+        shader_args,
+        _countof(shader_args),
+        dxc->include_handler,
+        IID_PPV_ARGS(&result)));
+    FAIL_FAST_IF_FAILED(result->GetOutput(DXC_OUT_ERRORS, IID_PPV_ARGS(&errors), nullptr));
+    if (errors && errors->GetStringLength() != 0) {
+        FAIL_FAST_MSG("Failed to compile %ws\n%s", shader_name.c_str(), errors->GetStringPointer());
+    }
+    FAIL_FAST_IF_FAILED(result->GetOutput(DXC_OUT_OBJECT, IID_PPV_ARGS(&binary), nullptr));
+    FAIL_FAST_IF_FAILED(result->GetOutput(DXC_OUT_PDB, IID_PPV_ARGS(&pdb), &pdb_name));
+
+    // Write PDB.
+    {
+        std::wstring path;
+        path.append(L"shaders\\");
+        path.append(pdb_name->GetStringPointer());
+
+        FILE* file = nullptr;
+        _wfopen_s(&file, path.c_str(), L"wb");
+        FAIL_FAST_IF_NULL_MSG(file, "Failed to create file %ws", path.c_str());
+
+        fwrite(pdb->GetBufferPointer(), pdb->GetBufferSize(), 1, file);
+
+        fclose(file);
+    }
+
+    // Result.
+    shader->binary = binary;
+}
+
 void dx_create(Dx* dx, Window* window) {
     // Debug layer.
     UINT factory_flags = 0;
@@ -70,7 +157,7 @@ void dx_create(Dx* dx, Window* window) {
 
             fb::Rect desktop_rect(desc.DesktopCoordinates);
             log_info(
-                "display: {} x {} @ {}bpp, luminance: {} to {}",
+                "Display: {} x {} @ {}bpp, luminance: {} to {}",
                 desktop_rect.width,
                 desktop_rect.height,
                 desc.BitsPerColor,

@@ -4,12 +4,19 @@
 #include <format>
 #include <string_view>
 #include <string>
+#include <vector>
 
 #define WIL_SUPPRESS_EXCEPTIONS
 #include <wil/com.h>
 #include <wil/resource.h>
 
 namespace fb {
+
+//
+// File I/O.
+//
+
+std::vector<std::byte> read_whole_file(const char* path);
 
 //
 // Logging.

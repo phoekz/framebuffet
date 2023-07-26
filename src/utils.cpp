@@ -6,6 +6,35 @@
 namespace fb {
 
 //
+// File I/O.
+//
+
+std::vector<std::byte> read_whole_file(const char* path) {
+    wil::unique_hfile file(CreateFileA(
+        path,
+        GENERIC_READ,
+        FILE_SHARE_READ,
+        nullptr,
+        OPEN_EXISTING,
+        FILE_ATTRIBUTE_NORMAL,
+        nullptr));
+    FAIL_FAST_IF_NULL_MSG(file.get(), "Failed to open file.");
+
+    LARGE_INTEGER file_size;
+    FAIL_FAST_IF_WIN32_BOOL_FALSE_MSG(
+        GetFileSizeEx(file.get(), &file_size),
+        "Failed to get file size.");
+
+    std::vector<std::byte> buffer(file_size.QuadPart);
+    DWORD bytes_read;
+    FAIL_FAST_IF_WIN32_BOOL_FALSE_MSG(
+        ReadFile(file.get(), buffer.data(), (DWORD)buffer.size(), &bytes_read, nullptr),
+        "Failed to read file.");
+
+    return buffer;
+}
+
+//
 // Logging.
 //
 

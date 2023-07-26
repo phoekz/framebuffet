@@ -10,9 +10,6 @@
 #include <dxgi1_6.h>
 #include <dxgidebug.h>
 
-// DirectX Shader Compiler (DXC).
-#include <dxcapi.h>
-
 // DirectXTK12.
 #include <DirectXTK12/GeometricPrimitive.h>
 
@@ -74,124 +71,6 @@ static void d3d12_message_func(
     log_info("[{}] {}: {}", category_name, severity_name, description);
 }
 
-#if defined(_DEBUG) || defined(DBG)
-inline void d3d12_set_name(ID3D12Object* object, LPCWSTR name) {
-    object->SetName(name);
-}
-#else
-inline void d3d12_set_name(ID3D12Object*, LPCWSTR) {}
-#endif
-
-//
-// DXC.
-//
-
-struct Dxc {
-    fb::ComPtr<IDxcCompiler3> compiler;
-    fb::ComPtr<IDxcUtils> utils;
-    fb::ComPtr<IDxcIncludeHandler> include_handler;
-};
-
-static void dxc_init(Dxc& dxc) {
-    DxcCreateInstance(CLSID_DxcCompiler, IID_PPV_ARGS(&dxc.compiler));
-    DxcCreateInstance(CLSID_DxcUtils, IID_PPV_ARGS(&dxc.utils));
-    dxc.utils->CreateDefaultIncludeHandler(&dxc.include_handler);
-}
-
-enum class ShaderType {
-    Vertex,
-    Pixel,
-};
-
-struct ShaderResult {
-    fb::ComPtr<IDxcBlob> binary;
-    fb::ComPtr<IDxcBlob> pdb;
-    fb::ComPtr<IDxcBlobUtf16> pdb_name;
-    fb::ComPtr<IDxcBlob> reflection;
-};
-
-static void dxc_compile(
-    Dxc& dxc,
-    LPCWSTR shader_name,
-    ShaderType shader_type,
-    LPCWSTR shader_entry,
-    ShaderResult& result) {
-    // Note: remember to set PIX PDB search path correctly for shader debugging to work.
-
-    // Shader profile.
-    LPCWSTR shader_profile = nullptr;
-    switch (shader_type) {
-        case ShaderType::Vertex:
-            shader_profile = L"vs_6_7";
-            break;
-        case ShaderType::Pixel:
-            shader_profile = L"ps_6_7";
-            break;
-    }
-
-    // Shader arguments.
-    LPCWSTR shader_args[] = {
-        // clang-format off
-        shader_name,
-        L"-E", shader_entry,
-        L"-T", shader_profile,
-        L"-HV", L"2021",
-        L"-Zi",
-        L"-Fd", L".\\shaders\\",
-        L"-Qstrip_reflect",
-        // clang-format on
-    };
-
-    // Shader blob.
-    wchar_t shader_path[256];
-    wsprintfW(shader_path, L"shaders\\%ws", shader_name);
-    fb::ComPtr<IDxcBlobEncoding> shader_blob;
-    FAIL_FAST_IF_FAILED(dxc.utils->LoadFile(shader_path, nullptr, &shader_blob));
-    FAIL_FAST_IF_NULL_MSG(shader_blob, "Failed to load shader file");
-    DxcBuffer shader_buffer = {
-        .Ptr = shader_blob->GetBufferPointer(),
-        .Size = shader_blob->GetBufferSize(),
-        .Encoding = DXC_CP_ACP,
-    };
-
-    // Compile.
-    fb::ComPtr<IDxcResult> dxc_result;
-    fb::ComPtr<IDxcBlobUtf8> dxc_errors;
-    FAIL_FAST_IF_FAILED(dxc.compiler->Compile(
-        &shader_buffer,
-        shader_args,
-        _countof(shader_args),
-        dxc.include_handler.get(),
-        IID_PPV_ARGS(&dxc_result)));
-    FAIL_FAST_IF_FAILED(dxc_result->GetOutput(DXC_OUT_ERRORS, IID_PPV_ARGS(&dxc_errors), nullptr));
-    if (dxc_errors && dxc_errors->GetStringLength() != 0) {
-        FAIL_FAST_MSG("Failed to compile %ws\n%s", shader_name, dxc_errors->GetStringPointer());
-    }
-
-    // Results.
-    FAIL_FAST_IF_FAILED(
-        dxc_result->GetOutput(DXC_OUT_OBJECT, IID_PPV_ARGS(&result.binary), nullptr));
-    FAIL_FAST_IF_FAILED(
-        dxc_result->GetOutput(DXC_OUT_PDB, IID_PPV_ARGS(&result.pdb), &result.pdb_name));
-    FAIL_FAST_IF_FAILED(
-        dxc_result->GetOutput(DXC_OUT_REFLECTION, IID_PPV_ARGS(&result.reflection), nullptr));
-
-    // Write PDB.
-    {
-        std::wstring s;
-        s.append(L"shaders\\");
-        s.append(result.pdb_name->GetStringPointer());
-
-        FILE* file = nullptr;
-        _wfopen_s(&file, s.c_str(), L"wb");
-        FAIL_FAST_IF_NULL_MSG(file, "Failed to create file %ws", s.c_str());
-
-        fwrite(result.pdb->GetBufferPointer(), result.pdb->GetBufferSize(), 1, file);
-
-        fclose(file);
-    }
-}
-
 //
 // Main.
 //
@@ -200,8 +79,8 @@ int main() {
     // Initialize.
     fb::ComPtr<ID3D12RootSignature> d3d12_root_signature;
     fb::ComPtr<ID3D12PipelineState> d3d12_pipeline_state;
-    ShaderResult vertex_shader;
-    ShaderResult pixel_shader;
+    fb::DxShader vertex_shader;
+    fb::DxShader pixel_shader;
 
     fb::ComPtr<ID3D12DescriptorHeap> d3d12_cbv_srv_uav_heap;
 
@@ -300,15 +179,37 @@ int main() {
             signature->GetBufferPointer(),
             signature->GetBufferSize(),
             IID_PPV_ARGS(&d3d12_root_signature)));
-        d3d12_set_name(d3d12_root_signature.get(), L"Root Signature");
+        fb::dx_set_name(d3d12_root_signature.get(), "Root Signature");
     }
 
     // DXC - Shaders.
     {
-        Dxc dxc;
-        dxc_init(dxc);
-        dxc_compile(dxc, L"triangle.hlsl", ShaderType::Vertex, L"vertex_shader", vertex_shader);
-        dxc_compile(dxc, L"triangle.hlsl", ShaderType::Pixel, L"pixel_shader", pixel_shader);
+        fb::Dxc dxc;
+        fb::dxc_create(&dxc);
+
+        auto source = fb::read_whole_file("shaders/triangle.hlsl");
+
+        fb::dxc_shader_compile(
+            &dxc,
+            {
+                .name = "triangle",
+                .type = fb::DxShaderType::Vertex,
+                .entry_point = "vertex_shader",
+                .source = source,
+            },
+            &vertex_shader);
+
+        fb::dxc_shader_compile(
+            &dxc,
+            {
+                .name = "triangle",
+                .type = fb::DxShaderType::Pixel,
+                .entry_point = "pixel_shader",
+                .source = source,
+            },
+            &pixel_shader);
+
+        fb::dxc_destroy(&dxc);
     }
 
     // D3D12 - Pipeline state.
@@ -340,7 +241,7 @@ int main() {
         };
         FAIL_FAST_IF_FAILED(
             dx.device->CreateGraphicsPipelineState(&desc, IID_PPV_ARGS(&d3d12_pipeline_state)));
-        d3d12_set_name(d3d12_pipeline_state.get(), L"Pipeline State");
+        fb::dx_set_name(d3d12_pipeline_state.get(), "Pipeline State");
     }
 
     // D3D12 - CBV_SRV_UAV Heap.
@@ -355,7 +256,7 @@ int main() {
         };
         FAIL_FAST_IF_FAILED(
             dx.device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&d3d12_cbv_srv_uav_heap)));
-        d3d12_set_name(d3d12_cbv_srv_uav_heap.get(), L"CBV_SRV_UAV Heap");
+        fb::dx_set_name(d3d12_cbv_srv_uav_heap.get(), "CBV_SRV_UAV Heap");
 
         uint32_t increment_size =
             dx.device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
@@ -421,7 +322,7 @@ int main() {
                 D3D12_RESOURCE_STATE_GENERIC_READ,
                 nullptr,
                 IID_PPV_ARGS(&vertex_buffer)));
-            d3d12_set_name(vertex_buffer.get(), L"Vertex Buffer");
+            fb::dx_set_name(vertex_buffer.get(), "Vertex Buffer");
             UINT8* vertex_data;
             auto read_range = CD3DX12_RANGE(0, 0);
             FAIL_FAST_IF_FAILED(vertex_buffer->Map(0, &read_range, (void**)&vertex_data));
@@ -438,7 +339,7 @@ int main() {
                 D3D12_RESOURCE_STATE_GENERIC_READ,
                 nullptr,
                 IID_PPV_ARGS(&index_buffer)));
-            d3d12_set_name(index_buffer.get(), L"Index Buffer");
+            fb::dx_set_name(index_buffer.get(), "Index Buffer");
             UINT8* index_data;
             auto read_range = CD3DX12_RANGE(0, 0);
             FAIL_FAST_IF_FAILED(index_buffer->Map(0, &read_range, (void**)&index_data));
@@ -478,7 +379,7 @@ int main() {
             D3D12_RESOURCE_STATE_COPY_DEST,
             nullptr,
             IID_PPV_ARGS(&texture)));
-        d3d12_set_name(texture.get(), L"Texture");
+        fb::dx_set_name(texture.get(), "Texture");
 
         UINT64 upload_buffer_size = GetRequiredIntermediateSize(texture.get(), 0, 1);
         auto buffer_desc = CD3DX12_RESOURCE_DESC::Buffer(upload_buffer_size);
@@ -490,7 +391,7 @@ int main() {
             D3D12_RESOURCE_STATE_GENERIC_READ,
             nullptr,
             IID_PPV_ARGS(&texture_upload_heap)));
-        d3d12_set_name(texture_upload_heap.get(), L"Texture Upload Heap");
+        fb::dx_set_name(texture_upload_heap.get(), "Texture Upload Heap");
 
         std::vector<uint8_t> texture_data;
         texture_data.resize(TEXTURE_SLICE_PITCH);
@@ -550,7 +451,7 @@ int main() {
         };
         FAIL_FAST_IF_FAILED(
             dx.device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&d3d12_imgui_heap)));
-        d3d12_set_name(d3d12_imgui_heap.get(), L"ImGui Heap");
+        fb::dx_set_name(d3d12_imgui_heap.get(), "ImGui Heap");
     }
 
     // Wait for pending GPU work to complete.
@@ -704,6 +605,9 @@ int main() {
     }
 
     // Cleanup.
+    fb::dx_shader_destroy(&vertex_shader);
+    fb::dx_shader_destroy(&pixel_shader);
+
     fb::gui_destroy(gui);
     fb::dx_destroy(&dx);
     fb::window_destroy(window);
