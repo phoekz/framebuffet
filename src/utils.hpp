@@ -42,6 +42,7 @@ void log_internal(
 //
 
 std::string from_wstr(std::wstring_view wstr) noexcept;
+std::wstring to_wstr(std::string_view str) noexcept;
 
 //
 // Frame timing.

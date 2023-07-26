@@ -3,6 +3,7 @@
 #include "utils.hpp"
 #include "win32.hpp"
 #include "dx12.hpp"
+#include "gui.hpp"
 
 // DirectX.
 #include <d3dx12/d3dx12.h>
@@ -18,11 +19,6 @@
 // WinPixEventRuntime.
 #define USE_PIX
 #include <WinPixEventRuntime/pix3.h>
-
-// Dear ImGui.
-#include <imgui.h>
-#include <backends/imgui_impl_win32.h>
-#include <backends/imgui_impl_dx12.h>
 
 // Standard libraries.
 #include <array>
@@ -228,9 +224,12 @@ int main() {
         .height = WINDOW_HEIGHT,
     });
 
-    // D3D12 - Context.
+    // D3D12.
     fb::Dx dx;
     fb::dx_create(&dx, window);
+
+    // Gui.
+    fb::Gui* gui = fb::gui_create(window, &dx);
 
     // D3D12 - Root signature.
     {
@@ -562,21 +561,6 @@ int main() {
         FAIL_FAST_IF_FAILED(
             dx.device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&d3d12_imgui_heap)));
         d3d12_set_name(d3d12_imgui_heap.get(), L"ImGui Heap");
-
-        IMGUI_CHECKVERSION();
-        ImGui::CreateContext();
-        ImGuiIO& io = ImGui::GetIO();
-        io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-        io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
-        ImGui::StyleColorsDark();
-        ImGui_ImplWin32_Init((HWND)window);
-        ImGui_ImplDX12_Init(
-            dx.device,
-            fb::FRAME_COUNT,
-            DXGI_FORMAT_R8G8B8A8_UNORM,
-            d3d12_imgui_heap.get(),
-            d3d12_imgui_heap->GetCPUDescriptorHandleForHeapStart(),
-            d3d12_imgui_heap->GetGPUDescriptorHandleForHeapStart());
     }
 
     // Wait for pending GPU work to complete.
@@ -617,13 +601,7 @@ int main() {
         ft.update();
 
         // Update Dear ImGui.
-        {
-            ImGui_ImplDX12_NewFrame();
-            ImGui_ImplWin32_NewFrame();
-            ImGui::NewFrame();
-            ImGui::ShowDemoWindow();
-            ImGui::Render();
-        }
+        fb::gui_update(gui);
 
         // Update.
         {
@@ -681,8 +659,7 @@ int main() {
 
         {
             PIXBeginEvent(dx.command_list, PIX_COLOR_DEFAULT, "Gui");
-            dx.command_list->SetDescriptorHeaps(1, d3d12_imgui_heap.addressof());
-            ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), dx.command_list);
+            fb::gui_render(gui, &dx);
             PIXEndEvent(dx.command_list);
         }
 
@@ -737,6 +714,7 @@ int main() {
     }
 
     // Cleanup.
+    fb::gui_destroy(gui);
     fb::dx_destroy(&dx);
     fb::window_destroy(window);
 

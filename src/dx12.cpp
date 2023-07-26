@@ -11,20 +11,24 @@ __declspec(dllexport) extern const UINT D3D12SDKVersion = 610;
 __declspec(dllexport) extern const char* D3D12SDKPath = ".\\";
 }
 
+// Constants.
+constexpr D3D_FEATURE_LEVEL MIN_FEATURE_LEVEL = D3D_FEATURE_LEVEL_12_2;
+
 namespace fb {
 
 #if defined(_DEBUG)
-static void dx_set_name(ID3D12Object* object, LPCWSTR name) {
-    object->SetName(name);
+void dx_set_name(ID3D12Object* object, const char* name) {
+    std::wstring wname = fb::to_wstr(name);
+    object->SetName(wname.c_str());
 }
-static void dx_set_indexed_name(ID3D12Object* object, LPCWSTR name, UINT index) {
-    WCHAR indexed_name[256] = {};
-    swprintf_s(indexed_name, L"%s[%u]", name, index);
-    object->SetName(indexed_name);
+void dx_set_indexed_name(ID3D12Object* object, const char* name, UINT index) {
+    std::wstring wname = fb::to_wstr(name);
+    std::wstring windexed_name = std::format(L"{}[{}]", wname, index);
+    object->SetName(windexed_name.c_str());
 }
 #else
-static void dx_set_name(ID3D12Object*, LPCWSTR) {}
-static void dx_set_indexed_name(ID3D12Object*, LPCWSTR, UINT) {}
+void dx_set_name(ID3D12Object*, const char*) {}
+void dx_set_indexed_name(ID3D12Object*, const char*, UINT) {}
 #endif
 
 void dx_create(Dx* dx, Window* window) {
@@ -95,7 +99,7 @@ void dx_create(Dx* dx, Window* window) {
     // Device.
     ID3D12Device12* device = nullptr;
     FAIL_FAST_IF_FAILED(D3D12CreateDevice(adapter.get(), MIN_FEATURE_LEVEL, IID_PPV_ARGS(&device)));
-    dx_set_name(device, L"Device");
+    dx_set_name(device, "Device");
 
     // Command queue.
     ID3D12CommandQueue* command_queue = nullptr;
@@ -107,7 +111,7 @@ void dx_create(Dx* dx, Window* window) {
             .NodeMask = 0,
         };
         FAIL_FAST_IF_FAILED(device->CreateCommandQueue(&desc, IID_PPV_ARGS(&command_queue)));
-        dx_set_name(command_queue, L"Command Queue");
+        dx_set_name(command_queue, "Command Queue");
     }
 
     // Command allocators.
@@ -116,7 +120,7 @@ void dx_create(Dx* dx, Window* window) {
         FAIL_FAST_IF_FAILED(device->CreateCommandAllocator(
             D3D12_COMMAND_LIST_TYPE_DIRECT,
             IID_PPV_ARGS(&command_allocators[i])));
-        dx_set_indexed_name(command_allocators[i], L"Command Allocator", i);
+        dx_set_indexed_name(command_allocators[i], "Command Allocator", i);
     }
 
     // Command list.
@@ -126,7 +130,7 @@ void dx_create(Dx* dx, Window* window) {
         D3D12_COMMAND_LIST_TYPE_DIRECT,
         D3D12_COMMAND_LIST_FLAG_NONE,
         IID_PPV_ARGS(&command_list)));
-    dx_set_name(command_list, L"Command List");
+    dx_set_name(command_list, "Command List");
 
     // Swapchain.
     IDXGISwapChain4* swapchain = nullptr;
@@ -151,7 +155,7 @@ void dx_create(Dx* dx, Window* window) {
         };
         FAIL_FAST_IF_FAILED(factory->CreateSwapChainForHwnd(
             command_queue,
-            (HWND)window,
+            (HWND)window_handle(window),
             &desc,
             nullptr,
             nullptr,
@@ -172,7 +176,7 @@ void dx_create(Dx* dx, Window* window) {
         };
         FAIL_FAST_IF_FAILED(
             device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&rtv_descriptor_heap)));
-        dx_set_name(rtv_descriptor_heap, L"RTV Descriptor Heap");
+        dx_set_name(rtv_descriptor_heap, "RTV Descriptor Heap");
 
         uint32_t rtv_descriptor_size =
             device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
@@ -180,7 +184,7 @@ void dx_create(Dx* dx, Window* window) {
             rtv_descriptor_heap->GetCPUDescriptorHandleForHeapStart();
         for (uint32_t i = 0; i < fb::FRAME_COUNT; i++) {
             FAIL_FAST_IF_FAILED(swapchain->GetBuffer(i, IID_PPV_ARGS(&rtvs[i])));
-            dx_set_indexed_name(rtvs[i], L"RTV", i);
+            dx_set_indexed_name(rtvs[i], "RTV", i);
 
             device->CreateRenderTargetView(rtvs[i], nullptr, rtv_descriptor_handle);
             rtv_descriptors[i] = rtv_descriptor_handle;
@@ -196,7 +200,7 @@ void dx_create(Dx* dx, Window* window) {
     {
         frame_index = swapchain->GetCurrentBackBufferIndex();
         FAIL_FAST_IF_FAILED(device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence)));
-        dx_set_name(fence, L"Fence");
+        dx_set_name(fence, "Fence");
         fence_event = CreateEvent(nullptr, FALSE, FALSE, nullptr);
         FAIL_FAST_IF_NULL_MSG(fence_event, "Failed to create fence event.");
     }

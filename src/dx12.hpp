@@ -7,7 +7,6 @@
 
 namespace fb {
 
-constexpr D3D_FEATURE_LEVEL MIN_FEATURE_LEVEL = D3D_FEATURE_LEVEL_12_2;
 constexpr uint32_t FRAME_COUNT = 2;
 
 struct Dx {
@@ -27,5 +26,7 @@ struct Dx {
 };
 void dx_create(Dx* dx, Window* window);
 void dx_destroy(Dx* dx);
+void dx_set_name(ID3D12Object*, const char*);
+void dx_set_indexed_name(ID3D12Object*, const char*, UINT);
 
 }  // namespace fb

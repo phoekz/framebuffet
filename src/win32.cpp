@@ -40,6 +40,11 @@ win32_window_proc(HWND window, UINT message, WPARAM w_param, LPARAM l_param) {
     return DefWindowProcA(window, message, w_param, l_param);
 }
 
+// Window structure.
+struct Window {
+    HWND handle = nullptr;
+};
+
 Window* window_create(const WindowDesc& desc) noexcept {
     // Module handle.
     HMODULE module_handle = GetModuleHandleA(nullptr);
@@ -110,13 +115,18 @@ Window* window_create(const WindowDesc& desc) noexcept {
     // Logging.
     log_info("Created window: {}", desc.title);
 
-    return (Window*)window_handle;
+    // Result.
+    Window* window = new Window();
+    window->handle = window_handle;
+    return window;
 }
 
 void window_destroy(Window* window) noexcept {
-    // Destroy window.
-    HWND window_handle = (HWND)window;
-    DestroyWindow(window_handle);
+    DestroyWindow(window->handle);
+}
+
+WindowHandle* window_handle(Window* window) noexcept {
+    return (WindowHandle*)window->handle;
 }
 
 }  // namespace fb

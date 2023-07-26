@@ -37,6 +37,14 @@ std::string from_wstr(std::wstring_view wstr) noexcept {
     return str;
 }
 
+std::wstring to_wstr(std::string_view str) noexcept {
+    const int size = MultiByteToWideChar(CP_UTF8, 0, str.data(), -1, nullptr, 0);
+    std::wstring wstr(size, 0);
+    MultiByteToWideChar(CP_UTF8, 0, str.data(), -1, &wstr[0], size);
+    wstr.pop_back();
+    return wstr;
+}
+
 //
 // Frame timing.
 //
