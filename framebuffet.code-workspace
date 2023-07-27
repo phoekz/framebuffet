@@ -95,16 +95,17 @@
 			"xstddef": "cpp",
 			"xtr1common": "cpp"
 		},
+		"C_Cpp.inlayHints.autoDeclarationTypes.enabled": true,
+		"C_Cpp.inlayHints.parameterNames.enabled": true,
+		"C_Cpp.inlayHints.referenceOperator.enabled": true,
+		"clang-format.executable": "c:/Users/truon/code/framebuffet/external/clang-format.exe",
 		"cmake.configureOnOpen": true,
 		"editor.fontLigatures": true,
 		"editor.formatOnSave": true,
 		"editor.minimap.enabled": false,
+		"editor.stickyScroll.enabled": true,
 		"files.insertFinalNewline": true,
 		"files.trimTrailingWhitespace": true,
-		"C_Cpp.inlayHints.autoDeclarationTypes.enabled": true,
-		"clang-format.executable": "c:/Users/truon/code/framebuffet/external/clang-format.exe",
-		"C_Cpp.inlayHints.parameterNames.enabled": true,
-		"C_Cpp.inlayHints.referenceOperator.enabled": true,
 	},
 	"extensions": {
 		"recommendations": [
