@@ -86,6 +86,16 @@ void dx_create(Dx* dx, Window* window) {
     FAIL_FAST_IF_FAILED(D3D12CreateDevice(adapter.get(), MIN_FEATURE_LEVEL, IID_PPV_ARGS(&device)));
     dx_set_name(device, "Device");
 
+    // Root signature support.
+    {
+        D3D12_FEATURE_DATA_ROOT_SIGNATURE feature_data = {
+            .HighestVersion = D3D_ROOT_SIGNATURE_VERSION_1_2};
+        FAIL_FAST_IF_FAILED(device->CheckFeatureSupport(
+            D3D12_FEATURE_ROOT_SIGNATURE,
+            &feature_data,
+            sizeof(feature_data)));
+    }
+
     // Command queue.
     ID3D12CommandQueue* command_queue = nullptr;
     {
