@@ -12,6 +12,7 @@
 
 // DirectXTK12.
 #include <DirectXTK12/GeometricPrimitive.h>
+#include <DirectXTK12/ResourceUploadBatch.h>
 
 // WinPixEventRuntime.
 #define USE_PIX
@@ -94,8 +95,6 @@ int main() {
 
     fb::ComPtr<ID3D12Resource> texture;
 
-    fb::ComPtr<ID3D12DescriptorHeap> d3d12_imgui_heap;
-
     // Window.
     fb::Window* window = fb::window_create({
         .title = WINDOW_TITLE,
@@ -121,7 +120,7 @@ int main() {
             &feature_data,
             sizeof(feature_data)));
 
-        CD3DX12_DESCRIPTOR_RANGE1 cbv_range;
+        CD3DX12_DESCRIPTOR_RANGE1 cbv_range = {};
         cbv_range.Init(
             D3D12_DESCRIPTOR_RANGE_TYPE_CBV,
             1,
@@ -129,7 +128,7 @@ int main() {
             0,
             D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC);
 
-        CD3DX12_DESCRIPTOR_RANGE1 srv_range;
+        CD3DX12_DESCRIPTOR_RANGE1 srv_range = {};
         srv_range.Init(
             D3D12_DESCRIPTOR_RANGE_TYPE_SRV,
             1,
@@ -137,7 +136,7 @@ int main() {
             0,
             D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC);
 
-        CD3DX12_ROOT_PARAMETER1 root_parameters[2];
+        CD3DX12_ROOT_PARAMETER1 root_parameters[2] = {};
         root_parameters[0].InitAsDescriptorTable(1, &cbv_range, D3D12_SHADER_VISIBILITY_VERTEX);
         root_parameters[1].InitAsDescriptorTable(1, &srv_range, D3D12_SHADER_VISIBILITY_PIXEL);
 
@@ -179,7 +178,7 @@ int main() {
             signature->GetBufferPointer(),
             signature->GetBufferSize(),
             IID_PPV_ARGS(&d3d12_root_signature)));
-        fb::dx_set_name(d3d12_root_signature.get(), "Root Signature");
+        fb::dx_set_name(d3d12_root_signature.get(), "Cube Root Signature");
     }
 
     // DXC - Shaders.
@@ -216,19 +215,15 @@ int main() {
     {
         D3D12_INPUT_ELEMENT_DESC input_element_descs[] = {
             // clang-format off
-            { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-            { "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-            { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 24, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+            {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
+            {"NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
+            {"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 24, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
             // clang-format on
         };
         D3D12_GRAPHICS_PIPELINE_STATE_DESC desc = {
             .pRootSignature = d3d12_root_signature.get(),
-            .VS = CD3DX12_SHADER_BYTECODE(
-                vertex_shader.binary->GetBufferPointer(),
-                vertex_shader.binary->GetBufferSize()),
-            .PS = CD3DX12_SHADER_BYTECODE(
-                pixel_shader.binary->GetBufferPointer(),
-                pixel_shader.binary->GetBufferSize()),
+            .VS = fb::dx_shader_bytecode(&vertex_shader),
+            .PS = fb::dx_shader_bytecode(&pixel_shader),
             .BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT),
             .SampleMask = UINT_MAX,
             .RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT),
@@ -241,7 +236,7 @@ int main() {
         };
         FAIL_FAST_IF_FAILED(
             dx.device->CreateGraphicsPipelineState(&desc, IID_PPV_ARGS(&d3d12_pipeline_state)));
-        fb::dx_set_name(d3d12_pipeline_state.get(), "Pipeline State");
+        fb::dx_set_name(d3d12_pipeline_state.get(), "Cube Pipeline State");
     }
 
     // D3D12 - CBV_SRV_UAV Heap.
@@ -256,7 +251,7 @@ int main() {
         };
         FAIL_FAST_IF_FAILED(
             dx.device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&d3d12_cbv_srv_uav_heap)));
-        fb::dx_set_name(d3d12_cbv_srv_uav_heap.get(), "CBV_SRV_UAV Heap");
+        fb::dx_set_name(d3d12_cbv_srv_uav_heap.get(), "Cube Descriptor Heap");
 
         uint32_t increment_size =
             dx.device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
@@ -270,7 +265,7 @@ int main() {
     struct ConstantBuffer {
         fb::Mat4x4 transform;
         float padding[48];
-    } constant_buffer_data;
+    } constant_buffer_data = {};
     static_assert(
         (sizeof(ConstantBuffer) % 256) == 0,
         "Constant Buffer size must be 256-byte aligned");
@@ -285,6 +280,7 @@ int main() {
             D3D12_RESOURCE_STATE_GENERIC_READ,
             nullptr,
             IID_PPV_ARGS(&constant_buffer)));
+        fb::dx_set_name(constant_buffer.get(), "Cube Constant Buffer");
 
         D3D12_CONSTANT_BUFFER_VIEW_DESC cbv_desc = {
             .BufferLocation = constant_buffer->GetGPUVirtualAddress(),
@@ -322,7 +318,7 @@ int main() {
                 D3D12_RESOURCE_STATE_GENERIC_READ,
                 nullptr,
                 IID_PPV_ARGS(&vertex_buffer)));
-            fb::dx_set_name(vertex_buffer.get(), "Vertex Buffer");
+            fb::dx_set_name(vertex_buffer.get(), "Cube Vertex Buffer");
             UINT8* vertex_data;
             auto read_range = CD3DX12_RANGE(0, 0);
             FAIL_FAST_IF_FAILED(vertex_buffer->Map(0, &read_range, (void**)&vertex_data));
@@ -339,7 +335,7 @@ int main() {
                 D3D12_RESOURCE_STATE_GENERIC_READ,
                 nullptr,
                 IID_PPV_ARGS(&index_buffer)));
-            fb::dx_set_name(index_buffer.get(), "Index Buffer");
+            fb::dx_set_name(index_buffer.get(), "Cube Index Buffer");
             UINT8* index_data;
             auto read_range = CD3DX12_RANGE(0, 0);
             FAIL_FAST_IF_FAILED(index_buffer->Map(0, &read_range, (void**)&index_data));
@@ -360,7 +356,6 @@ int main() {
     }
 
     // D3D12 - Texture - Resource.
-    fb::ComPtr<ID3D12Resource> texture_upload_heap;
     {
         constexpr UINT TEXTURE_WIDTH = 16;
         constexpr UINT TEXTURE_HEIGHT = 16;
@@ -371,27 +366,15 @@ int main() {
 
         auto texture_desc =
             CD3DX12_RESOURCE_DESC::Tex2D(TEXTURE_FORMAT, TEXTURE_WIDTH, TEXTURE_HEIGHT, 1, 1);
-        CD3DX12_HEAP_PROPERTIES default_heap(D3D12_HEAP_TYPE_DEFAULT);
+        CD3DX12_HEAP_PROPERTIES texture_heap(D3D12_HEAP_TYPE_DEFAULT);
         FAIL_FAST_IF_FAILED(dx.device->CreateCommittedResource(
-            &default_heap,
+            &texture_heap,
             D3D12_HEAP_FLAG_NONE,
             &texture_desc,
             D3D12_RESOURCE_STATE_COPY_DEST,
             nullptr,
             IID_PPV_ARGS(&texture)));
-        fb::dx_set_name(texture.get(), "Texture");
-
-        UINT64 upload_buffer_size = GetRequiredIntermediateSize(texture.get(), 0, 1);
-        auto buffer_desc = CD3DX12_RESOURCE_DESC::Buffer(upload_buffer_size);
-        CD3DX12_HEAP_PROPERTIES upload_heap(D3D12_HEAP_TYPE_UPLOAD);
-        FAIL_FAST_IF_FAILED(dx.device->CreateCommittedResource(
-            &upload_heap,
-            D3D12_HEAP_FLAG_NONE,
-            &buffer_desc,
-            D3D12_RESOURCE_STATE_GENERIC_READ,
-            nullptr,
-            IID_PPV_ARGS(&texture_upload_heap)));
-        fb::dx_set_name(texture_upload_heap.get(), "Texture Upload Heap");
+        fb::dx_set_name(texture.get(), "Cube Texture");
 
         std::vector<uint8_t> texture_data;
         texture_data.resize(TEXTURE_SLICE_PITCH);
@@ -407,23 +390,15 @@ int main() {
             .RowPitch = TEXTURE_ROW_PITCH,
             .SlicePitch = TEXTURE_SLICE_PITCH,
         };
-        dx.command_allocators[dx.frame_index]->Reset();
-        dx.command_list->Reset(dx.command_allocators[dx.frame_index], nullptr);
-        FAIL_FAST_IF(
-            UpdateSubresources(
-                dx.command_list,
-                texture.get(),
-                texture_upload_heap.get(),
-                0,
-                0,
-                1,
-                &subresource_data)
-            == 0);
-        auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(
+        DirectX::ResourceUploadBatch rub(dx.device);
+        rub.Begin();
+        rub.Upload(texture.get(), 0, &subresource_data, 1);
+        rub.Transition(
             texture.get(),
             D3D12_RESOURCE_STATE_COPY_DEST,
             D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-        dx.command_list->ResourceBarrier(1, &barrier);
+        auto finish = rub.End(dx.command_queue);
+        finish.wait();
 
         D3D12_SHADER_RESOURCE_VIEW_DESC srv_desc = {
             .Format = TEXTURE_FORMAT,
@@ -439,37 +414,6 @@ int main() {
         heap_start.ptr +=
             dx.device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
         dx.device->CreateShaderResourceView(texture.get(), &srv_desc, heap_start);
-    }
-
-    // Dear ImGui.
-    {
-        D3D12_DESCRIPTOR_HEAP_DESC desc = {
-            .Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV,
-            .NumDescriptors = 1,
-            .Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE,
-            .NodeMask = 0,
-        };
-        FAIL_FAST_IF_FAILED(
-            dx.device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&d3d12_imgui_heap)));
-        fb::dx_set_name(d3d12_imgui_heap.get(), "ImGui Heap");
-    }
-
-    // Wait for pending GPU work to complete.
-    {
-        dx.command_list->Close();
-        ID3D12CommandList* command_lists[] = {(ID3D12CommandList*)dx.command_list};
-        dx.command_queue->ExecuteCommandLists(_countof(command_lists), command_lists);
-
-        // Schedule a Signal command in the queue.
-        uint64_t* fence_value = &dx.fence_values[dx.frame_index];
-        FAIL_FAST_IF_FAILED(dx.command_queue->Signal(dx.fence, *fence_value));
-
-        // Wait until the fence has been processed.
-        FAIL_FAST_IF_FAILED(dx.fence->SetEventOnCompletion(*fence_value, dx.fence_event));
-        WaitForSingleObjectEx(dx.fence_event, INFINITE, FALSE);
-
-        // Increment the fence value for the current frame.
-        fence_value++;
     }
 
     // Main loop.

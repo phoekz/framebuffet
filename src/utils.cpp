@@ -94,7 +94,10 @@ FrameTiming::FrameTiming() noexcept {
     m_frequency = win32_get_frequency();
     m_curr_time = win32_get_performance_counter();
     m_prev_time = m_curr_time;
+    m_delta_time = 0;
     m_elapsed_time = 0;
+    m_delta_time_sec = 0.0f;
+    m_elapsed_time_sec = 0.0f;
 }
 
 void FrameTiming::update() noexcept {

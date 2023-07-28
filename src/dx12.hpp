@@ -15,6 +15,7 @@ constexpr uint32_t FRAME_COUNT = 2;
 struct DxShader {
     IDxcBlob* binary = nullptr;
 };
+D3D12_SHADER_BYTECODE dx_shader_bytecode(const DxShader* shader);
 void dx_shader_destroy(DxShader* shader);
 
 struct Dxc {

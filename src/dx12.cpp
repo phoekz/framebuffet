@@ -16,6 +16,13 @@ constexpr D3D_FEATURE_LEVEL MIN_FEATURE_LEVEL = D3D_FEATURE_LEVEL_12_2;
 
 namespace fb {
 
+D3D12_SHADER_BYTECODE dx_shader_bytecode(const DxShader* shader) {
+    return {
+        .pShaderBytecode = shader->binary->GetBufferPointer(),
+        .BytecodeLength = shader->binary->GetBufferSize(),
+    };
+}
+
 void dx_shader_destroy(DxShader* shader) {
     shader->binary->Release();
 }
@@ -47,6 +54,7 @@ void dxc_shader_compile(Dxc* dxc, const DxShaderDesc& desc, DxShader* shader) {
 
     // Shader arguments.
     std::wstring shader_name = fb::to_wstr(desc.name);
+    std::wstring shader_bin = std::format(L"{}.bin", shader_name);
     std::wstring shader_entry = fb::to_wstr(desc.entry_point);
     LPCWSTR shader_args[] = {
         // clang-format off
@@ -55,6 +63,7 @@ void dxc_shader_compile(Dxc* dxc, const DxShaderDesc& desc, DxShader* shader) {
         L"-T", shader_profile,
         L"-HV", L"2021",
         L"-Zi",
+        L"-Fo", shader_bin.c_str(),
         L"-Fd", L".\\shaders\\",
         L"-Qstrip_reflect",
         // clang-format on
