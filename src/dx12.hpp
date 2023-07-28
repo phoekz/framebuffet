@@ -12,33 +12,6 @@ namespace fb {
 
 constexpr uint32_t FRAME_COUNT = 2;
 
-struct DxShader {
-    IDxcBlob* binary = nullptr;
-};
-D3D12_SHADER_BYTECODE dx_shader_bytecode(const DxShader* shader);
-void dx_shader_destroy(DxShader* shader);
-
-struct Dxc {
-    IDxcCompiler3* compiler = nullptr;
-    IDxcUtils* utils = nullptr;
-    IDxcIncludeHandler* include_handler = nullptr;
-};
-void dxc_create(Dxc* dxc);
-void dxc_destroy(Dxc* dxc);
-
-enum class DxShaderType {
-    Compute,
-    Vertex,
-    Pixel,
-};
-struct DxShaderDesc {
-    std::string_view name;
-    DxShaderType type;
-    std::string_view entry_point;
-    std::span<std::byte> source;
-};
-void dxc_shader_compile(Dxc* dxc, const DxShaderDesc& desc, DxShader* shader);
-
 struct Dx {
     ID3D12Device12* device = nullptr;
     ID3D12CommandQueue* command_queue = nullptr;

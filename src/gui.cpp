@@ -3,6 +3,7 @@
 #include "win32.hpp"
 #include "dx12.hpp"
 #include "maths.hpp"
+#include "shaders.hpp"
 
 #include <backends/imgui_impl_win32.h>
 
@@ -12,8 +13,8 @@ namespace fb {
 
 struct Gui {
     ImGuiContext* ctx = nullptr;
-    fb::DxShader vertex_shader;
-    fb::DxShader pixel_shader;
+    fb::Shader vertex_shader;
+    fb::Shader pixel_shader;
     ID3D12RootSignature* root_signature = nullptr;
     ID3D12PipelineState* pipeline_state = nullptr;
     ID3D12Resource* font_texture_resource = nullptr;
@@ -42,31 +43,14 @@ Gui* gui_create(Window* window, Dx* dx) {
     }
 
     // Shaders.
-    fb::DxShader vertex_shader;
-    fb::DxShader pixel_shader;
+    fb::Shader vertex_shader;
+    fb::Shader pixel_shader;
     {
-        fb::Dxc dxc;
-        fb::dxc_create(&dxc);
+        fb::ShaderCompiler sc;
         auto source = fb::read_whole_file("shaders/gui.hlsl");
-        fb::dxc_shader_compile(
-            &dxc,
-            {
-                .name = "gui",
-                .type = fb::DxShaderType::Vertex,
-                .entry_point = "vertex_shader",
-                .source = source,
-            },
-            &vertex_shader);
-        fb::dxc_shader_compile(
-            &dxc,
-            {
-                .name = "gui",
-                .type = fb::DxShaderType::Pixel,
-                .entry_point = "pixel_shader",
-                .source = source,
-            },
-            &pixel_shader);
-        fb::dxc_destroy(&dxc);
+        const char* name = "gui";
+        vertex_shader = sc.compile(name, fb::ShaderType::Vertex, "vs_main", source);
+        pixel_shader = sc.compile(name, fb::ShaderType::Pixel, "ps_main", source);
     }
 
     // Root signature.
@@ -138,8 +122,8 @@ Gui* gui_create(Window* window, Dx* dx) {
 
         D3D12_GRAPHICS_PIPELINE_STATE_DESC desc = {
             .pRootSignature = root_signature,
-            .VS = fb::dx_shader_bytecode(&vertex_shader),
-            .PS = fb::dx_shader_bytecode(&pixel_shader),
+            .VS = vertex_shader.bytecode(),
+            .PS = pixel_shader.bytecode(),
             .BlendState =
                 {
                     .AlphaToCoverageEnable = false,
@@ -342,8 +326,8 @@ void gui_destroy(Gui* gui) {
     gui->font_texture_resource->Release();
     gui->pipeline_state->Release();
     gui->root_signature->Release();
-    dx_shader_destroy(&gui->pixel_shader);
-    dx_shader_destroy(&gui->vertex_shader);
+    gui->pixel_shader.release();
+    gui->vertex_shader.release();
 
     delete gui;
 }

@@ -3,6 +3,7 @@
 #include "utils.hpp"
 #include "win32.hpp"
 #include "dx12.hpp"
+#include "shaders.hpp"
 #include "gui.hpp"
 
 // DirectX.
@@ -80,8 +81,8 @@ int main() {
     // Initialize.
     fb::ComPtr<ID3D12RootSignature> d3d12_root_signature;
     fb::ComPtr<ID3D12PipelineState> d3d12_pipeline_state;
-    fb::DxShader vertex_shader;
-    fb::DxShader pixel_shader;
+    fb::Shader vertex_shader;
+    fb::Shader pixel_shader;
 
     fb::ComPtr<ID3D12DescriptorHeap> d3d12_cbv_srv_uav_heap;
 
@@ -181,34 +182,13 @@ int main() {
         fb::dx_set_name(d3d12_root_signature.get(), "Cube Root Signature");
     }
 
-    // DXC - Shaders.
+    // Shaders.
     {
-        fb::Dxc dxc;
-        fb::dxc_create(&dxc);
-
+        fb::ShaderCompiler sc;
         auto source = fb::read_whole_file("shaders/triangle.hlsl");
-
-        fb::dxc_shader_compile(
-            &dxc,
-            {
-                .name = "triangle",
-                .type = fb::DxShaderType::Vertex,
-                .entry_point = "vertex_shader",
-                .source = source,
-            },
-            &vertex_shader);
-
-        fb::dxc_shader_compile(
-            &dxc,
-            {
-                .name = "triangle",
-                .type = fb::DxShaderType::Pixel,
-                .entry_point = "pixel_shader",
-                .source = source,
-            },
-            &pixel_shader);
-
-        fb::dxc_destroy(&dxc);
+        const char* name = "triangle";
+        vertex_shader = sc.compile(name, fb::ShaderType::Vertex, "vs_main", source);
+        pixel_shader = sc.compile(name, fb::ShaderType::Pixel, "ps_main", source);
     }
 
     // D3D12 - Pipeline state.
@@ -222,8 +202,8 @@ int main() {
         };
         D3D12_GRAPHICS_PIPELINE_STATE_DESC desc = {
             .pRootSignature = d3d12_root_signature.get(),
-            .VS = fb::dx_shader_bytecode(&vertex_shader),
-            .PS = fb::dx_shader_bytecode(&pixel_shader),
+            .VS = vertex_shader.bytecode(),
+            .PS = pixel_shader.bytecode(),
             .BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT),
             .SampleMask = UINT_MAX,
             .RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT),
@@ -549,9 +529,8 @@ int main() {
     }
 
     // Cleanup.
-    fb::dx_shader_destroy(&vertex_shader);
-    fb::dx_shader_destroy(&pixel_shader);
-
+    vertex_shader.release();
+    pixel_shader.release();
     fb::gui_destroy(gui);
     fb::dx_destroy(&dx);
     fb::window_destroy(window);

@@ -15,7 +15,7 @@ struct VertexOutput {
     float2 texcoord: TEXCOORD;
 };
 
-VertexOutput vertex_shader(VertexInput input) {
+VertexOutput vs_main(VertexInput input) {
     VertexOutput output;
     output.position = mul(transform, float4(input.position, 1.0f));
     output.color = float4(input.normal * 0.5f + 0.5f, 1.0f);
@@ -30,7 +30,7 @@ struct PixelOutput {
 Texture2D g_texture: register(t0);
 SamplerState g_sampler: register(s0);
 
-PixelOutput pixel_shader(VertexOutput input) {
+PixelOutput ps_main(VertexOutput input) {
     PixelOutput output;
     output.color = input.color * g_texture.Sample(g_sampler, input.texcoord);
     return output;
