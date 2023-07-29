@@ -46,7 +46,7 @@ int main() {
     fb::dx_create(&dx, window);
 
     // Gui.
-    fb::Gui* gui = fb::gui_create(window, &dx);
+    auto gui = std::make_unique<fb::Gui>(window, dx);
 
     // Demos.
     auto cube_demo = std::make_unique<fb::cube::Demo>(dx);
@@ -71,7 +71,7 @@ int main() {
         ft.update();
 
         // Update Dear ImGui.
-        fb::gui_update(gui);
+        gui->update();
 
         // Update demos.
         cube_demo->update({
@@ -115,7 +115,7 @@ int main() {
 
         {
             PIXBeginEvent(dx.command_list, PIX_COLOR_DEFAULT, "Gui");
-            fb::gui_render(gui, &dx);
+            gui->render(dx);
             PIXEndEvent(dx.command_list);
         }
 
@@ -171,7 +171,7 @@ int main() {
 
     // Cleanup.
     cube_demo = nullptr;
-    fb::gui_destroy(gui);
+    gui = nullptr;
     fb::dx_destroy(&dx);
     fb::window_destroy(window);
 

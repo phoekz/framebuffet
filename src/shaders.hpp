@@ -10,7 +10,6 @@ namespace fb {
 
 struct Shader {
     D3D12_SHADER_BYTECODE bytecode();
-    void release();
 
     ComPtr<IDxcBlob> blob;
 };

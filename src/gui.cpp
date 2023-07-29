@@ -11,30 +11,12 @@
 
 namespace fb {
 
-struct Gui {
-    ImGuiContext* ctx = nullptr;
-    fb::Shader vertex_shader;
-    fb::Shader pixel_shader;
-    ID3D12RootSignature* root_signature = nullptr;
-    ID3D12PipelineState* pipeline_state = nullptr;
-    ID3D12Resource* font_texture_resource = nullptr;
-    ID3D12DescriptorHeap* cbv_srv_heap = nullptr;
-    struct Geometry {
-        ID3D12Resource* vertex_buffer = nullptr;
-        ID3D12Resource* index_buffer = nullptr;
-        size_t vertex_buffer_size = sizeof(ImDrawVert) * 1024 * 1024;
-        size_t index_buffer_size = sizeof(ImDrawIdx) * 1024 * 1024;
-    };
-    std::array<Geometry, fb::FRAME_COUNT> geometries;
-};
-
-Gui* gui_create(Window* window, Dx* dx) {
+Gui::Gui(Window* window, Dx& dx) {
     // ImGui.
-    ImGuiContext* imgui_ctx = nullptr;
     {
         IMGUI_CHECKVERSION();
         imgui_ctx = ImGui::CreateContext();
-        ImGuiIO& io = ImGui::GetIO();
+        auto& io = ImGui::GetIO();
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
         io.BackendRendererName = "framebuffet";
@@ -43,18 +25,15 @@ Gui* gui_create(Window* window, Dx* dx) {
     }
 
     // Shaders.
-    fb::Shader vertex_shader;
-    fb::Shader pixel_shader;
     {
         fb::ShaderCompiler sc;
         auto source = fb::read_whole_file("shaders/gui.hlsl");
-        const char* name = "gui";
+        auto name = "gui";
         vertex_shader = sc.compile(name, fb::ShaderType::Vertex, "vs_main", source);
         pixel_shader = sc.compile(name, fb::ShaderType::Pixel, "ps_main", source);
     }
 
     // Root signature.
-    ID3D12RootSignature* root_signature = nullptr;
     {
         CD3DX12_DESCRIPTOR_RANGE1 srv_range = {};
         srv_range.Init(
@@ -101,7 +80,7 @@ Gui* gui_create(Window* window, Dx* dx) {
             D3D_ROOT_SIGNATURE_VERSION_1_2,
             &signature,
             &error));
-        FAIL_FAST_IF_FAILED(dx->device->CreateRootSignature(
+        FAIL_FAST_IF_FAILED(dx.device->CreateRootSignature(
             0,
             signature->GetBufferPointer(),
             signature->GetBufferSize(),
@@ -110,7 +89,6 @@ Gui* gui_create(Window* window, Dx* dx) {
     }
 
     // Pipeline state.
-    ID3D12PipelineState* pipeline_state = nullptr;
     {
         D3D12_INPUT_ELEMENT_DESC input_element_descs[] = {
             // clang-format off
@@ -121,7 +99,7 @@ Gui* gui_create(Window* window, Dx* dx) {
         };
 
         D3D12_GRAPHICS_PIPELINE_STATE_DESC desc = {
-            .pRootSignature = root_signature,
+            .pRootSignature = root_signature.get(),
             .VS = vertex_shader.bytecode(),
             .PS = pixel_shader.bytecode(),
             .BlendState =
@@ -198,15 +176,14 @@ Gui* gui_create(Window* window, Dx* dx) {
                 },
         };
         FAIL_FAST_IF_FAILED(
-            dx->device->CreateGraphicsPipelineState(&desc, IID_PPV_ARGS(&pipeline_state)));
+            dx.device->CreateGraphicsPipelineState(&desc, IID_PPV_ARGS(&pipeline_state)));
         fb::dx_set_name(pipeline_state, "Gui Pipeline State");
     }
 
     // Font texture.
-    ID3D12Resource* font_texture_resource = nullptr;
     {
         // Raw data.
-        ImGuiIO& io = ImGui::GetIO();
+        auto& io = ImGui::GetIO();
         uint8_t* pixels;
         int width, height;
         io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);
@@ -215,7 +192,7 @@ Gui* gui_create(Window* window, Dx* dx) {
         auto texture_desc =
             CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R8G8B8A8_UNORM, width, height, 1, 1);
         CD3DX12_HEAP_PROPERTIES texture_heap(D3D12_HEAP_TYPE_DEFAULT);
-        FAIL_FAST_IF_FAILED(dx->device->CreateCommittedResource(
+        FAIL_FAST_IF_FAILED(dx.device->CreateCommittedResource(
             &texture_heap,
             D3D12_HEAP_FLAG_NONE,
             &texture_desc,
@@ -230,19 +207,18 @@ Gui* gui_create(Window* window, Dx* dx) {
             .RowPitch = width * 4,
             .SlicePitch = width * height * 4,
         };
-        DirectX::ResourceUploadBatch rub(dx->device);
+        DirectX::ResourceUploadBatch rub(dx.device);
         rub.Begin();
-        rub.Upload(font_texture_resource, 0, &subresource_data, 1);
+        rub.Upload(font_texture_resource.get(), 0, &subresource_data, 1);
         rub.Transition(
-            font_texture_resource,
+            font_texture_resource.get(),
             D3D12_RESOURCE_STATE_COPY_DEST,
             D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-        auto finish = rub.End(dx->command_queue);
+        auto finish = rub.End(dx.command_queue);
         finish.wait();
     }
 
     // Descriptors.
-    ID3D12DescriptorHeap* cbv_srv_heap = nullptr;
     {
         D3D12_DESCRIPTOR_HEAP_DESC heap_desc = {
             .Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV,
@@ -251,11 +227,13 @@ Gui* gui_create(Window* window, Dx* dx) {
             .NodeMask = 0,
         };
         FAIL_FAST_IF_FAILED(
-            dx->device->CreateDescriptorHeap(&heap_desc, IID_PPV_ARGS(&cbv_srv_heap)));
-        dx_set_name(cbv_srv_heap, "Gui Heap");
+            dx.device->CreateDescriptorHeap(&heap_desc, IID_PPV_ARGS(&descriptor_heap)));
+        dx_set_name(descriptor_heap, "Gui Heap");
 
-        D3D12_CPU_DESCRIPTOR_HANDLE cpu_desc = cbv_srv_heap->GetCPUDescriptorHandleForHeapStart();
-        D3D12_GPU_DESCRIPTOR_HANDLE gpu_desc = cbv_srv_heap->GetGPUDescriptorHandleForHeapStart();
+        D3D12_CPU_DESCRIPTOR_HANDLE cpu_desc =
+            descriptor_heap->GetCPUDescriptorHandleForHeapStart();
+        D3D12_GPU_DESCRIPTOR_HANDLE gpu_desc =
+            descriptor_heap->GetGPUDescriptorHandleForHeapStart();
 
         D3D12_SHADER_RESOURCE_VIEW_DESC srv_desc = {
             .Format = DXGI_FORMAT_R8G8B8A8_UNORM,
@@ -266,13 +244,12 @@ Gui* gui_create(Window* window, Dx* dx) {
                     .MipLevels = 1,
                 },
         };
-        dx->device->CreateShaderResourceView(font_texture_resource, &srv_desc, cpu_desc);
-        ImGuiIO& io = ImGui::GetIO();
+        dx.device->CreateShaderResourceView(font_texture_resource.get(), &srv_desc, cpu_desc);
+        auto& io = ImGui::GetIO();
         io.Fonts->SetTexID((ImTextureID)gpu_desc.ptr);
     }
 
     // Geometry.
-    std::array<Gui::Geometry, fb::FRAME_COUNT> geometries;
     for (uint32_t i = 0; i < fb::FRAME_COUNT; i++) {
         Gui::Geometry& geometry = geometries[i];
         CD3DX12_HEAP_PROPERTIES geometry_buffer_heap(D3D12_HEAP_TYPE_UPLOAD);
@@ -280,14 +257,14 @@ Gui* gui_create(Window* window, Dx* dx) {
             CD3DX12_RESOURCE_DESC::Buffer(geometry.vertex_buffer_size, D3D12_RESOURCE_FLAG_NONE);
         CD3DX12_RESOURCE_DESC index_buffer_desc =
             CD3DX12_RESOURCE_DESC::Buffer(geometry.index_buffer_size, D3D12_RESOURCE_FLAG_NONE);
-        FAIL_FAST_IF_FAILED(dx->device->CreateCommittedResource(
+        FAIL_FAST_IF_FAILED(dx.device->CreateCommittedResource(
             &geometry_buffer_heap,
             D3D12_HEAP_FLAG_NONE,
             &vertex_buffer_desc,
             D3D12_RESOURCE_STATE_GENERIC_READ,
             nullptr,
             IID_PPV_ARGS(&geometry.vertex_buffer)));
-        FAIL_FAST_IF_FAILED(dx->device->CreateCommittedResource(
+        FAIL_FAST_IF_FAILED(dx.device->CreateCommittedResource(
             &geometry_buffer_heap,
             D3D12_HEAP_FLAG_NONE,
             &index_buffer_desc,
@@ -300,47 +277,22 @@ Gui* gui_create(Window* window, Dx* dx) {
 
     // ImGui continued.
     ImGui_ImplWin32_Init((HWND)window_handle(window));
-
-    // Result.
-    Gui* gui = new Gui();
-    gui->ctx = imgui_ctx;
-    gui->vertex_shader = vertex_shader;
-    gui->pixel_shader = pixel_shader;
-    gui->root_signature = root_signature;
-    gui->pipeline_state = pipeline_state;
-    gui->font_texture_resource = font_texture_resource;
-    gui->cbv_srv_heap = cbv_srv_heap;
-    gui->geometries = geometries;
-    return gui;
 }
 
-void gui_destroy(Gui* gui) {
+Gui::~Gui() {
     ImGui_ImplWin32_Shutdown();
-    ImGui::DestroyContext(gui->ctx);
-
-    for (const auto& geometry : gui->geometries) {
-        geometry.vertex_buffer->Release();
-        geometry.index_buffer->Release();
-    }
-    gui->cbv_srv_heap->Release();
-    gui->font_texture_resource->Release();
-    gui->pipeline_state->Release();
-    gui->root_signature->Release();
-    gui->pixel_shader.release();
-    gui->vertex_shader.release();
-
-    delete gui;
+    ImGui::DestroyContext(imgui_ctx);
 }
 
-void gui_update(Gui*) {
+void Gui::update() {
     ImGui_ImplWin32_NewFrame();
     ImGui::NewFrame();
     ImGui::ShowDemoWindow();
     ImGui::Render();
 }
 
-void gui_render(Gui* gui, Dx* dx) {
-    ImDrawData* draw_data = ImGui::GetDrawData();
+void Gui::render(const Dx& dx) {
+    auto* draw_data = ImGui::GetDrawData();
 
     // Avoid rendering when minimized.
     if (draw_data->DisplaySize.x <= 0.0f || draw_data->DisplaySize.y <= 0.0f) {
@@ -348,7 +300,7 @@ void gui_render(Gui* gui, Dx* dx) {
     }
 
     // Update geometries.
-    Gui::Geometry& geometry = gui->geometries[dx->frame_index];
+    auto& geometry = geometries[dx.frame_index];
     {
         ImDrawVert* vertices = nullptr;
         ImDrawIdx* indices = nullptr;
@@ -356,7 +308,7 @@ void gui_render(Gui* gui, Dx* dx) {
         FAIL_FAST_IF_FAILED(geometry.vertex_buffer->Map(0, &whole_range, (void**)&vertices));
         FAIL_FAST_IF_FAILED(geometry.index_buffer->Map(0, &whole_range, (void**)&indices));
         for (int i = 0; i < draw_data->CmdListsCount; i++) {
-            ImDrawList* cmd_list = draw_data->CmdLists[i];
+            auto* cmd_list = draw_data->CmdLists[i];
             memcpy(
                 vertices,
                 cmd_list->VtxBuffer.Data,
@@ -387,7 +339,7 @@ void gui_render(Gui* gui, Dx* dx) {
 
     // Render.
     {
-        ID3D12GraphicsCommandList9* cmd = dx->command_list;
+        auto* cmd = dx.command_list;
 
         CD3DX12_VIEWPORT viewport(0.0f, 0.0f, draw_data->DisplaySize.x, draw_data->DisplaySize.y);
         D3D12_VERTEX_BUFFER_VIEW vertex_buffer_view = {
@@ -406,19 +358,19 @@ void gui_render(Gui* gui, Dx* dx) {
         cmd->IASetVertexBuffers(0, 1, &vertex_buffer_view);
         cmd->IASetIndexBuffer(&index_buffer_view);
         cmd->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-        cmd->SetPipelineState(gui->pipeline_state);
-        cmd->SetGraphicsRootSignature(gui->root_signature);
+        cmd->SetPipelineState(pipeline_state.get());
+        cmd->SetGraphicsRootSignature(root_signature.get());
         cmd->SetGraphicsRoot32BitConstants(0, 16, &transform, 0);
-        cmd->SetDescriptorHeaps(1, &gui->cbv_srv_heap);
+        cmd->SetDescriptorHeaps(1, descriptor_heap.addressof());
         cmd->OMSetBlendFactor(blend_factor);
 
         int global_vtx_offset = 0;
         int global_idx_offset = 0;
-        ImVec2 clip_off = draw_data->DisplayPos;
+        auto clip_off = draw_data->DisplayPos;
         for (int i = 0; i < draw_data->CmdListsCount; i++) {
-            ImDrawList* cmd_list = draw_data->CmdLists[i];
+            auto* cmd_list = draw_data->CmdLists[i];
             for (int j = 0; j < cmd_list->CmdBuffer.Size; j++) {
-                ImDrawCmd* pcmd = &cmd_list->CmdBuffer[j];
+                auto* pcmd = &cmd_list->CmdBuffer[j];
                 if (pcmd->UserCallback != nullptr) {
                     pcmd->UserCallback(cmd_list, pcmd);
                 } else {
@@ -430,7 +382,7 @@ void gui_render(Gui* gui, Dx* dx) {
                     };
                     cmd->SetGraphicsRootDescriptorTable(
                         1,
-                        gui->cbv_srv_heap->GetGPUDescriptorHandleForHeapStart());
+                        descriptor_heap->GetGPUDescriptorHandleForHeapStart());
                     cmd->RSSetScissorRects(1, &scissor_rect);
                     cmd->DrawIndexedInstanced(
                         pcmd->ElemCount,

@@ -9,10 +9,6 @@ D3D12_SHADER_BYTECODE Shader::bytecode() {
     };
 }
 
-void Shader::release() {
-    blob = nullptr;
-}
-
 ShaderCompiler::ShaderCompiler() {
     DxcCreateInstance(CLSID_DxcCompiler, IID_PPV_ARGS(&compiler));
     DxcCreateInstance(CLSID_DxcUtils, IID_PPV_ARGS(&utils));
