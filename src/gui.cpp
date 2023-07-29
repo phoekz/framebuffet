@@ -263,10 +263,10 @@ void Gui::update() {
     ImGui_ImplWin32_NewFrame();
     ImGui::NewFrame();
     ImGui::ShowDemoWindow();
-    ImGui::Render();
 }
 
 void Gui::render(const Dx& dx) {
+    ImGui::Render();
     auto* draw_data = ImGui::GetDrawData();
 
     // Avoid rendering when minimized.
