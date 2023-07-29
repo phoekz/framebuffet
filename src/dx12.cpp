@@ -16,7 +16,15 @@ constexpr D3D_FEATURE_LEVEL MIN_FEATURE_LEVEL = D3D_FEATURE_LEVEL_12_2;
 
 namespace fb {
 
-void dx_create(Dx* dx, Window* window) {
+DxLeakTracker::~DxLeakTracker() {
+#if defined(_DEBUG)
+    if (debug_device) {
+        debug_device->ReportLiveDeviceObjects(D3D12_RLDO_DETAIL | D3D12_RLDO_IGNORE_INTERNAL);
+    }
+#endif
+}
+
+Dx::Dx(Window* window) {
     // Debug layer.
     UINT factory_flags = 0;
     {
@@ -82,9 +90,11 @@ void dx_create(Dx* dx, Window* window) {
     }
 
     // Device.
-    ID3D12Device12* device = nullptr;
     FAIL_FAST_IF_FAILED(D3D12CreateDevice(adapter.get(), MIN_FEATURE_LEVEL, IID_PPV_ARGS(&device)));
     dx_set_name(device, "Device");
+
+    // Debug device.
+    device->QueryInterface(IID_PPV_ARGS(&leak_tracker.debug_device));
 
     // Root signature support.
     {
@@ -97,7 +107,6 @@ void dx_create(Dx* dx, Window* window) {
     }
 
     // Command queue.
-    ID3D12CommandQueue* command_queue = nullptr;
     {
         D3D12_COMMAND_QUEUE_DESC desc = {
             .Type = D3D12_COMMAND_LIST_TYPE_DIRECT,
@@ -110,7 +119,6 @@ void dx_create(Dx* dx, Window* window) {
     }
 
     // Command allocators.
-    std::array<ID3D12CommandAllocator*, FRAME_COUNT> command_allocators = {};
     for (uint32_t i = 0; i < fb::FRAME_COUNT; i++) {
         FAIL_FAST_IF_FAILED(device->CreateCommandAllocator(
             D3D12_COMMAND_LIST_TYPE_DIRECT,
@@ -119,7 +127,6 @@ void dx_create(Dx* dx, Window* window) {
     }
 
     // Command list.
-    ID3D12GraphicsCommandList9* command_list = nullptr;
     FAIL_FAST_IF_FAILED(device->CreateCommandList1(
         0,
         D3D12_COMMAND_LIST_TYPE_DIRECT,
@@ -128,7 +135,6 @@ void dx_create(Dx* dx, Window* window) {
     dx_set_name(command_list, "Command List");
 
     // Swapchain.
-    IDXGISwapChain4* swapchain = nullptr;
     {
         fb::ComPtr<IDXGISwapChain1> swapchain1;
         DXGI_SWAP_CHAIN_DESC1 desc = {
@@ -149,7 +155,7 @@ void dx_create(Dx* dx, Window* window) {
             .Flags = DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT,
         };
         FAIL_FAST_IF_FAILED(factory->CreateSwapChainForHwnd(
-            command_queue,
+            command_queue.get(),
             (HWND)window_handle(window),
             &desc,
             nullptr,
@@ -159,9 +165,6 @@ void dx_create(Dx* dx, Window* window) {
     }
 
     // Render target views.
-    ID3D12DescriptorHeap* rtv_descriptor_heap = nullptr;
-    std::array<D3D12_CPU_DESCRIPTOR_HANDLE, FRAME_COUNT> rtv_descriptors = {};
-    std::array<ID3D12Resource*, fb::FRAME_COUNT> rtvs = {};
     {
         D3D12_DESCRIPTOR_HEAP_DESC desc = {
             .Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV,
@@ -181,63 +184,20 @@ void dx_create(Dx* dx, Window* window) {
             FAIL_FAST_IF_FAILED(swapchain->GetBuffer(i, IID_PPV_ARGS(&rtvs[i])));
             dx_set_indexed_name(rtvs[i], "RTV", i);
 
-            device->CreateRenderTargetView(rtvs[i], nullptr, rtv_descriptor_handle);
+            device->CreateRenderTargetView(rtvs[i].get(), nullptr, rtv_descriptor_handle);
             rtv_descriptors[i] = rtv_descriptor_handle;
             rtv_descriptor_handle.ptr += rtv_descriptor_size;
         }
     }
 
     // Synchronization.
-    uint32_t frame_index = 0;
-    ID3D12Fence1* fence = nullptr;
-    HANDLE fence_event = nullptr;
-    std::array<uint64_t, FRAME_COUNT> fence_values = {};
     {
         frame_index = swapchain->GetCurrentBackBufferIndex();
         FAIL_FAST_IF_FAILED(device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence)));
         dx_set_name(fence, "Fence");
-        fence_event = CreateEvent(nullptr, FALSE, FALSE, nullptr);
+        fence_event = wil::unique_handle(CreateEvent(nullptr, FALSE, FALSE, nullptr));
         FAIL_FAST_IF_NULL_MSG(fence_event, "Failed to create fence event.");
     }
-
-    // Result.
-    dx->device = device;
-    dx->command_queue = command_queue;
-    dx->command_allocators = command_allocators;
-    dx->command_list = command_list;
-    dx->swapchain = swapchain;
-    dx->rtv_descriptor_heap = rtv_descriptor_heap;
-    dx->rtv_descriptors = rtv_descriptors;
-    dx->rtvs = rtvs;
-    dx->frame_index = frame_index;
-    dx->fence = fence;
-    dx->fence_event = fence_event;
-    dx->fence_values = fence_values;
-}
-
-void dx_destroy(Dx* dx) {
-    // Detect resource leaks.
-#if defined(_DEBUG)
-    {
-        fb::ComPtr<ID3D12DebugDevice2> debug_device;
-        dx->device->QueryInterface(IID_PPV_ARGS(&debug_device));
-        debug_device->ReportLiveDeviceObjects(D3D12_RLDO_SUMMARY | D3D12_RLDO_DETAIL);
-    }
-#endif
-
-    // Release resources.
-    CloseHandle(dx->fence_event);
-    for (auto rtv : dx->rtvs) {
-        rtv->Release();
-    }
-    dx->rtv_descriptor_heap->Release();
-    dx->swapchain->Release();
-    dx->command_list->Release();
-    for (auto allocator : dx->command_allocators) {
-        allocator->Release();
-    }
-    dx->command_queue->Release();
-    dx->device->Release();
 }
 
 void dx_set_name(ID3D12Object* object, const char* name) {

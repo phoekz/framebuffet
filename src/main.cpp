@@ -34,22 +34,15 @@ constexpr float CLEAR_COLOR[4] = {0.1f, 0.1f, 0.1f, 1.0f};
 //
 
 int main() {
-    // Window.
+    // Init.
     fb::Window* window = fb::window_create({
         .title = WINDOW_TITLE,
         .width = WINDOW_WIDTH,
         .height = WINDOW_HEIGHT,
     });
-
-    // D3D12.
-    fb::Dx dx;
-    fb::dx_create(&dx, window);
-
-    // Gui.
-    auto gui = std::make_unique<fb::Gui>(window, dx);
-
-    // Demos.
-    auto cube_demo = std::make_unique<fb::cube::Demo>(dx);
+    auto dx = std::make_unique<fb::Dx>(window);
+    auto gui = std::make_unique<fb::Gui>(window, *dx);
+    auto cube_demo = std::make_unique<fb::cube::Demo>(*dx);
 
     // Main loop.
     bool running = true;
@@ -80,77 +73,78 @@ int main() {
         });
 
         // Populate command list.
-        dx.command_allocators[dx.frame_index]->Reset();
-        dx.command_list->Reset(dx.command_allocators[dx.frame_index], nullptr);
+        dx->command_allocators[dx->frame_index]->Reset();
+        dx->command_list->Reset(dx->command_allocators[dx->frame_index].get(), nullptr);
 
         {
             auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(
-                dx.rtvs[dx.frame_index],
+                dx->rtvs[dx->frame_index].get(),
                 D3D12_RESOURCE_STATE_PRESENT,
                 D3D12_RESOURCE_STATE_RENDER_TARGET);
-            dx.command_list->ResourceBarrier(1, &barrier);
+            dx->command_list->ResourceBarrier(1, &barrier);
         }
 
         {
-            PIXBeginEvent(dx.command_list, PIX_COLOR_DEFAULT, "Setup");
-            dx.command_list->ClearRenderTargetView(
-                dx.rtv_descriptors[dx.frame_index],
+            PIXBeginEvent(dx->command_list.get(), PIX_COLOR_DEFAULT, "Setup");
+            dx->command_list->ClearRenderTargetView(
+                dx->rtv_descriptors[dx->frame_index],
                 CLEAR_COLOR,
                 0,
                 nullptr);
             CD3DX12_VIEWPORT viewport(0.0f, 0.0f, (float)WINDOW_WIDTH, (float)WINDOW_HEIGHT);
-            dx.command_list->RSSetViewports(1, &viewport);
+            dx->command_list->RSSetViewports(1, &viewport);
             CD3DX12_RECT scissor_rect(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
-            dx.command_list->RSSetScissorRects(1, &scissor_rect);
-            dx.command_list
-                ->OMSetRenderTargets(1, &dx.rtv_descriptors[dx.frame_index], FALSE, nullptr);
-            PIXEndEvent(dx.command_list);
+            dx->command_list->RSSetScissorRects(1, &scissor_rect);
+            dx->command_list
+                ->OMSetRenderTargets(1, &dx->rtv_descriptors[dx->frame_index], FALSE, nullptr);
+            PIXEndEvent(dx->command_list.get());
         }
 
         {
-            PIXBeginEvent(dx.command_list, PIX_COLOR_DEFAULT, "Cube");
-            cube_demo->render(dx.command_list);
-            PIXEndEvent(dx.command_list);
+            PIXBeginEvent(dx->command_list.get(), PIX_COLOR_DEFAULT, "Cube");
+            cube_demo->render(dx->command_list.get());
+            PIXEndEvent(dx->command_list.get());
         }
 
         {
-            PIXBeginEvent(dx.command_list, PIX_COLOR_DEFAULT, "Gui");
-            gui->render(dx);
-            PIXEndEvent(dx.command_list);
+            PIXBeginEvent(dx->command_list.get(), PIX_COLOR_DEFAULT, "Gui");
+            gui->render(*dx);
+            PIXEndEvent(dx->command_list.get());
         }
 
         {
             auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(
-                dx.rtvs[dx.frame_index],
+                dx->rtvs[dx->frame_index].get(),
                 D3D12_RESOURCE_STATE_RENDER_TARGET,
                 D3D12_RESOURCE_STATE_PRESENT);
-            dx.command_list->ResourceBarrier(1, &barrier);
+            dx->command_list->ResourceBarrier(1, &barrier);
         }
 
-        dx.command_list->Close();
+        dx->command_list->Close();
 
         // Execute command list.
-        ID3D12CommandList* command_lists[] = {(ID3D12CommandList*)dx.command_list};
-        dx.command_queue->ExecuteCommandLists(_countof(command_lists), command_lists);
+        ID3D12CommandList* command_lists[] = {(ID3D12CommandList*)dx->command_list.get()};
+        dx->command_queue->ExecuteCommandLists(_countof(command_lists), command_lists);
 
         // Present.
-        dx.swapchain->Present(1, 0);
+        dx->swapchain->Present(1, 0);
 
         // Move to next frame.
         {
             // Schedule a Signal command in the queue.
-            uint64_t current_fence_value = dx.fence_values[dx.frame_index];
+            uint64_t current_fence_value = dx->fence_values[dx->frame_index];
             FAIL_FAST_IF_FAILED(
-                dx.command_queue->Signal(dx.fence, dx.fence_values[dx.frame_index]));
+                dx->command_queue->Signal(dx->fence.get(), dx->fence_values[dx->frame_index]));
 
             // Update the frame index.
-            dx.frame_index = dx.swapchain->GetCurrentBackBufferIndex();
-            uint64_t* fence_value = &dx.fence_values[dx.frame_index];
+            dx->frame_index = dx->swapchain->GetCurrentBackBufferIndex();
+            uint64_t* fence_value = &dx->fence_values[dx->frame_index];
 
             // If the next frame is not ready to be rendered yet, wait until it is ready.
-            if (dx.fence->GetCompletedValue() < *fence_value) {
-                FAIL_FAST_IF_FAILED(dx.fence->SetEventOnCompletion(*fence_value, dx.fence_event));
-                WaitForSingleObjectEx(dx.fence_event, INFINITE, FALSE);
+            if (dx->fence->GetCompletedValue() < *fence_value) {
+                FAIL_FAST_IF_FAILED(
+                    dx->fence->SetEventOnCompletion(*fence_value, dx->fence_event.get()));
+                WaitForSingleObjectEx(dx->fence_event.get(), INFINITE, FALSE);
             }
 
             // Set the fence value for the next frame.
@@ -161,18 +155,20 @@ int main() {
     // Wait for pending GPU work to complete.
     {
         // Schedule a Signal command in the queue.
-        FAIL_FAST_IF_FAILED(dx.command_queue->Signal(dx.fence, dx.fence_values[dx.frame_index]));
+        FAIL_FAST_IF_FAILED(
+            dx->command_queue->Signal(dx->fence.get(), dx->fence_values[dx->frame_index]));
 
         // Wait until the fence has been processed.
-        FAIL_FAST_IF_FAILED(
-            dx.fence->SetEventOnCompletion(dx.fence_values[dx.frame_index], dx.fence_event));
-        WaitForSingleObjectEx(dx.fence_event, INFINITE, FALSE);
+        FAIL_FAST_IF_FAILED(dx->fence->SetEventOnCompletion(
+            dx->fence_values[dx->frame_index],
+            dx->fence_event.get()));
+        WaitForSingleObjectEx(dx->fence_event.get(), INFINITE, FALSE);
     }
 
     // Cleanup.
     cube_demo = nullptr;
     gui = nullptr;
-    fb::dx_destroy(&dx);
+    dx = nullptr;
     fb::window_destroy(window);
 
     return 0;

@@ -207,14 +207,14 @@ Gui::Gui(Window* window, Dx& dx) {
             .RowPitch = width * 4,
             .SlicePitch = width * height * 4,
         };
-        DirectX::ResourceUploadBatch rub(dx.device);
+        DirectX::ResourceUploadBatch rub(dx.device.get());
         rub.Begin();
         rub.Upload(font_texture_resource.get(), 0, &subresource_data, 1);
         rub.Transition(
             font_texture_resource.get(),
             D3D12_RESOURCE_STATE_COPY_DEST,
             D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-        auto finish = rub.End(dx.command_queue);
+        auto finish = rub.End(dx.command_queue.get());
         finish.wait();
     }
 
@@ -339,7 +339,7 @@ void Gui::render(const Dx& dx) {
 
     // Render.
     {
-        auto* cmd = dx.command_list;
+        auto* cmd = dx.command_list.get();
 
         CD3DX12_VIEWPORT viewport(0.0f, 0.0f, draw_data->DisplaySize.x, draw_data->DisplaySize.y);
         D3D12_VERTEX_BUFFER_VIEW vertex_buffer_view = {

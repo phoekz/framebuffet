@@ -252,14 +252,14 @@ Demo::Demo(Dx& dx) {
             .RowPitch = TEXTURE_ROW_PITCH,
             .SlicePitch = TEXTURE_SLICE_PITCH,
         };
-        DirectX::ResourceUploadBatch rub(dx.device);
+        DirectX::ResourceUploadBatch rub(dx.device.get());
         rub.Begin();
         rub.Upload(texture.get(), 0, &subresource_data, 1);
         rub.Transition(
             texture.get(),
             D3D12_RESOURCE_STATE_COPY_DEST,
             D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-        auto finish = rub.End(dx.command_queue);
+        auto finish = rub.End(dx.command_queue.get());
         finish.wait();
 
         // Descriptor.
