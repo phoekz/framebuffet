@@ -21,7 +21,12 @@ add_executable(${PROJECT_NAME} ${CPP_FILES} ${MANIFEST_FILES})
 target_sources(${PROJECT_NAME} PRIVATE ${HPP_FILES} ${HLSL_FILES})
 target_compile_options(${PROJECT_NAME} PRIVATE /W4 /WX /MP /EHs-c- /GR- /ZI)
 string(REGEX REPLACE "/EH[a-z]+" "" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
-target_compile_definitions(${PROJECT_NAME} PRIVATE _HAS_EXCEPTIONS=0)
+target_compile_definitions(
+    ${PROJECT_NAME} PRIVATE
+    _HAS_EXCEPTIONS=0
+    WIN32_LEAN_AND_MEAN
+    NOMINMAX
+)
 target_include_directories(
     ${PROJECT_NAME} PRIVATE
     ${DEARIMGUI_INCLUDE_DIR}
