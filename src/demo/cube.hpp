@@ -14,7 +14,6 @@ struct UpdateParams {
 
 struct Demo {
     Demo(Dx& dx);
-    ~Demo();
     void update(const UpdateParams& params);
     void render(ID3D12GraphicsCommandList9* cmd);
 
