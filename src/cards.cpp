@@ -143,10 +143,10 @@ fb::Cards::Cards(Dx& dx, const CardsParams& params) {
             fb::Vec2 texcoord;
         };
         Vertex vertices[] = {
-            {{0.0f, 0.0f}, {0.0f, 1.0f}},
-            {{0.0f, 1.0f}, {0.0f, 0.0f}},
-            {{1.0f, 1.0f}, {1.0f, 0.0f}},
-            {{1.0f, 0.0f}, {1.0f, 1.0f}},
+            {{0.0f, 0.0f}, {0.0f, 0.0f}},
+            {{1.0f, 0.0f}, {1.0f, 0.0f}},
+            {{1.0f, 1.0f}, {1.0f, 1.0f}},
+            {{0.0f, 1.0f}, {0.0f, 1.0f}},
         };
         uint16_t indices[] = {0, 1, 2, 0, 2, 3};
 
@@ -237,7 +237,8 @@ void fb::Cards::update(const Dx& dx) {
         ImGui::End();
     }
 
-    constant_buffer_data.transform = fb::Mat4x4::CreateOrthographic(width, height, 0.0f, 1.0f);
+    constant_buffer_data.transform =
+        fb::Mat4x4::CreateOrthographicOffCenter(0.0f, width, height, 0.0f, 0.0f, 1.0f);
     memcpy(constant_buffer_ptr, &constant_buffer_data, sizeof(constant_buffer_data));
 }
 
