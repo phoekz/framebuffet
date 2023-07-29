@@ -45,7 +45,6 @@ Shader ShaderCompiler::compile(
         L"-Zi",
         L"-Fo", shader_bin.c_str(),
         L"-Fd", L".\\shaders\\",
-        L"-Qstrip_reflect",
         // clang-format on
     };
 
