@@ -250,6 +250,10 @@ void dx_set_name(ID3D12Object* object, const char* name) {
 #endif
 }
 
+void dx_set_name(const ComPtr<ID3D12Object>& object, const char* name) {
+    dx_set_name(object.get(), name);
+}
+
 void dx_set_indexed_name(ID3D12Object* object, const char* name, uint32_t index) {
 #if defined(_DEBUG)
     std::wstring wname = fb::to_wstr(name);
@@ -260,6 +264,10 @@ void dx_set_indexed_name(ID3D12Object* object, const char* name, uint32_t index)
     (void)name;
     (void)index;
 #endif
+}
+
+void dx_set_indexed_name(const ComPtr<ID3D12Object>& object, const char* name, uint32_t index) {
+    dx_set_indexed_name(object.get(), name, index);
 }
 
 }  // namespace fb

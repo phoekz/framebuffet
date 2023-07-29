@@ -1,6 +1,7 @@
 #pragma once
 
 #include "win32.hpp"
+#include "utils.hpp"
 #include <d3dx12/d3dx12.h>
 #include <dxgi1_6.h>
 #include <dxcapi.h>
@@ -30,6 +31,8 @@ struct Dx {
 void dx_create(Dx* dx, Window* window);
 void dx_destroy(Dx* dx);
 void dx_set_name(ID3D12Object* object, const char* name);
+void dx_set_name(const ComPtr<ID3D12Object>& object, const char* name);
 void dx_set_indexed_name(ID3D12Object* object, const char* name, uint32_t index);
+void dx_set_indexed_name(const ComPtr<ID3D12Object>& object, const char* name, uint32_t index);
 
 }  // namespace fb
