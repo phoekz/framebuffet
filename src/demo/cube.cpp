@@ -74,8 +74,8 @@ Demo::Demo(Dx& dx) {
     fb::Shader pixel_shader;
     {
         fb::ShaderCompiler sc;
-        auto source = fb::read_whole_file("shaders/triangle.hlsl");
-        const char* name = "triangle";
+        auto source = fb::read_whole_file("shaders/cube.hlsl");
+        const char* name = "cube";
         vertex_shader = sc.compile(name, fb::ShaderType::Vertex, "vs_main", source);
         pixel_shader = sc.compile(name, fb::ShaderType::Pixel, "ps_main", source);
     }
