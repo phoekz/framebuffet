@@ -15,7 +15,7 @@ struct UpdateParams {
 struct Demo {
     Demo(Dx& dx);
     void update(const UpdateParams& params);
-    void render(ID3D12GraphicsCommandList9* cmd);
+    void render(Dx& dx);
 
     ComPtr<ID3D12RootSignature> root_signature;
     ComPtr<ID3D12PipelineState> pipeline_state;
@@ -41,6 +41,14 @@ struct Demo {
 
     ComPtr<ID3D12Resource> texture;
     D3D12_GPU_DESCRIPTOR_HANDLE texture_descriptor;
+
+    ComPtr<ID3D12Resource> color_target;
+    ComPtr<ID3D12DescriptorHeap> color_target_descriptors;
+    D3D12_CPU_DESCRIPTOR_HANDLE color_target_descriptor;
+
+    ComPtr<ID3D12Resource> depth_target;
+    ComPtr<ID3D12DescriptorHeap> depth_target_descriptors;
+    D3D12_CPU_DESCRIPTOR_HANDLE depth_target_descriptor;
 };
 
 }  // namespace fb::cube

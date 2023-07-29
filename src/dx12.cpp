@@ -164,6 +164,14 @@ Dx::Dx(Window* window) {
         swapchain1.query_to(&swapchain);
     }
 
+    // Swapchain size.
+    {
+        DXGI_SWAP_CHAIN_DESC1 desc;
+        swapchain->GetDesc1(&desc);
+        swapchain_width = desc.Width;
+        swapchain_height = desc.Height;
+    }
+
     // Render target views.
     {
         D3D12_DESCRIPTOR_HEAP_DESC desc = {
@@ -198,6 +206,14 @@ Dx::Dx(Window* window) {
         fence_event = wil::unique_handle(CreateEvent(nullptr, FALSE, FALSE, nullptr));
         FAIL_FAST_IF_NULL_MSG(fence_event, "Failed to create fence event.");
     }
+}
+
+void Dx::transition(
+    const ComPtr<ID3D12Resource>& resource,
+    D3D12_RESOURCE_STATES before,
+    D3D12_RESOURCE_STATES after) {
+    auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(resource.get(), before, after);
+    command_list->ResourceBarrier(1, &barrier);
 }
 
 void dx_set_name(ID3D12Object* object, const char* name) {

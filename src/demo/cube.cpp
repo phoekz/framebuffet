@@ -96,11 +96,12 @@ Demo::Demo(Dx& dx) {
             .BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT),
             .SampleMask = UINT_MAX,
             .RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT),
-            .DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(),
+            .DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT),
             .InputLayout = {input_element_descs, _countof(input_element_descs)},
             .PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE,
             .NumRenderTargets = 1,
             .RTVFormats = {DXGI_FORMAT_R8G8B8A8_UNORM},
+            .DSVFormat = DXGI_FORMAT_D32_FLOAT,
             .SampleDesc = {.Count = 1, .Quality = 0},
         };
         FAIL_FAST_IF_FAILED(
@@ -275,6 +276,79 @@ Demo::Demo(Dx& dx) {
             dx.device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
         dx.device->CreateShaderResourceView(texture.get(), &srv_desc, heap_start);
     }
+
+    // Color target.
+    {
+        CD3DX12_HEAP_PROPERTIES color_target_heap(D3D12_HEAP_TYPE_DEFAULT);
+        CD3DX12_RESOURCE_DESC color_target_desc = CD3DX12_RESOURCE_DESC::Tex2D(
+            DXGI_FORMAT_R8G8B8A8_UNORM,
+            dx.swapchain_width,
+            dx.swapchain_height,
+            1,
+            1,
+            1,
+            0,
+            D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET);
+        D3D12_CLEAR_VALUE color_clear_value = {
+            .Format = DXGI_FORMAT_R8G8B8A8_UNORM,
+            .Color = {0.0f, 0.0f, 0.0f, 1.0f},
+        };
+        FAIL_FAST_IF_FAILED(dx.device->CreateCommittedResource(
+            &color_target_heap,
+            D3D12_HEAP_FLAG_NONE,
+            &color_target_desc,
+            D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
+            &color_clear_value,
+            IID_PPV_ARGS(&color_target)));
+        fb::dx_set_name(color_target, "Cube Color Target");
+
+        D3D12_DESCRIPTOR_HEAP_DESC descriptors_desc = {
+            .Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV,
+            .NumDescriptors = 1,
+        };
+        FAIL_FAST_IF_FAILED(dx.device->CreateDescriptorHeap(
+            &descriptors_desc,
+            IID_PPV_ARGS(&color_target_descriptors)));
+        fb::dx_set_name(color_target_descriptors, "Cube Color Target Descriptors");
+        color_target_descriptor = color_target_descriptors->GetCPUDescriptorHandleForHeapStart();
+        dx.device->CreateRenderTargetView(color_target.get(), nullptr, color_target_descriptor);
+    }
+
+    // Depth target.
+    {
+        CD3DX12_HEAP_PROPERTIES depth_target_heap(D3D12_HEAP_TYPE_DEFAULT);
+        CD3DX12_RESOURCE_DESC depth_target_desc = CD3DX12_RESOURCE_DESC::Tex2D(
+            DXGI_FORMAT_D32_FLOAT,
+            dx.swapchain_width,
+            dx.swapchain_height,
+            1,
+            1,
+            1,
+            0,
+            D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL);
+        D3D12_CLEAR_VALUE depth_clear_value = {
+            .Format = DXGI_FORMAT_D32_FLOAT,
+            .DepthStencil = {.Depth = 1.0f, .Stencil = 0}};
+        FAIL_FAST_IF_FAILED(dx.device->CreateCommittedResource(
+            &depth_target_heap,
+            D3D12_HEAP_FLAG_NONE,
+            &depth_target_desc,
+            D3D12_RESOURCE_STATE_DEPTH_WRITE,
+            &depth_clear_value,
+            IID_PPV_ARGS(&depth_target)));
+        fb::dx_set_name(depth_target, "Cube Depth Target");
+
+        D3D12_DESCRIPTOR_HEAP_DESC descriptors_desc = {
+            .Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV,
+            .NumDescriptors = 1,
+        };
+        FAIL_FAST_IF_FAILED(dx.device->CreateDescriptorHeap(
+            &descriptors_desc,
+            IID_PPV_ARGS(&depth_target_descriptors)));
+        fb::dx_set_name(depth_target_descriptors, "Cube Depth Target Descriptors");
+        depth_target_descriptor = depth_target_descriptors->GetCPUDescriptorHandleForHeapStart();
+        dx.device->CreateDepthStencilView(depth_target.get(), nullptr, depth_target_descriptor);
+    }
 }
 
 void Demo::update(const UpdateParams& params) {
@@ -292,7 +366,39 @@ void Demo::update(const UpdateParams& params) {
     memcpy(constant_buffer_ptr, &constant_buffer_data, sizeof(constant_buffer_data));
 }
 
-void Demo::render(ID3D12GraphicsCommandList9* cmd) {
+void Demo::render(Dx& dx) {
+    constexpr float CLEAR_COLOR[4] = {0.0f, 0.0f, 0.0f, 1.0f};
+    D3D12_VIEWPORT viewport = {
+        .TopLeftX = 0.0f,
+        .TopLeftY = 0.0f,
+        .Width = (float)dx.swapchain_width,
+        .Height = (float)dx.swapchain_height,
+        .MinDepth = 0.0f,
+        .MaxDepth = 1.0f,
+    };
+    D3D12_RECT scissor = {
+        .left = 0,
+        .top = 0,
+        .right = (LONG)dx.swapchain_width,
+        .bottom = (LONG)dx.swapchain_height,
+    };
+
+    auto* cmd = dx.command_list.get();
+    dx.transition(
+        color_target,
+        D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
+        D3D12_RESOURCE_STATE_RENDER_TARGET);
+    cmd->RSSetViewports(1, &viewport);
+    cmd->RSSetScissorRects(1, &scissor);
+    cmd->OMSetRenderTargets(1, &color_target_descriptor, FALSE, &depth_target_descriptor);
+    cmd->ClearRenderTargetView(color_target_descriptor, CLEAR_COLOR, 0, nullptr);
+    cmd->ClearDepthStencilView(
+        depth_target_descriptor,
+        D3D12_CLEAR_FLAG_DEPTH,
+        1.0f,
+        0,
+        0,
+        nullptr);
     cmd->SetGraphicsRootSignature(root_signature.get());
     cmd->SetDescriptorHeaps(1, descriptor_heap.addressof());
     cmd->SetGraphicsRootDescriptorTable(0, constant_buffer_descriptor);
@@ -302,6 +408,10 @@ void Demo::render(ID3D12GraphicsCommandList9* cmd) {
     cmd->IASetVertexBuffers(0, 1, &vertex_buffer_view);
     cmd->IASetIndexBuffer(&index_buffer_view);
     cmd->DrawIndexedInstanced(index_count, 1, 0, 0, 0);
+    dx.transition(
+        color_target,
+        D3D12_RESOURCE_STATE_RENDER_TARGET,
+        D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 }
 
 }  // namespace fb::cube

@@ -27,6 +27,8 @@ struct Dx {
     std::array<ComPtr<ID3D12CommandAllocator>, FRAME_COUNT> command_allocators;
     ComPtr<ID3D12GraphicsCommandList9> command_list;
     ComPtr<IDXGISwapChain4> swapchain;
+    uint32_t swapchain_width = 0;
+    uint32_t swapchain_height = 0;
     ComPtr<ID3D12DescriptorHeap> rtv_descriptor_heap;
     std::array<D3D12_CPU_DESCRIPTOR_HANDLE, FRAME_COUNT> rtv_descriptors = {};
     std::array<ComPtr<ID3D12Resource>, fb::FRAME_COUNT> rtvs = {};
@@ -35,6 +37,11 @@ struct Dx {
     ComPtr<ID3D12Fence1> fence;
     wil::unique_handle fence_event;
     std::array<uint64_t, FRAME_COUNT> fence_values = {};
+
+    void transition(
+        const ComPtr<ID3D12Resource>& resource,
+        D3D12_RESOURCE_STATES before,
+        D3D12_RESOURCE_STATES after);
 };
 
 void dx_set_name(ID3D12Object* object, const char* name);

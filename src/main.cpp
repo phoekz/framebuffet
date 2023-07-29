@@ -7,6 +7,7 @@
 #include "gui.hpp"
 
 // Framebuffet - demos
+#include "cards.hpp"
 #include "demo/cube.hpp"
 
 // DirectX.
@@ -43,9 +44,12 @@ int main() {
     auto dx = std::make_unique<fb::Dx>(window);
     auto gui = std::make_unique<fb::Gui>(window, *dx);
     auto cube_demo = std::make_unique<fb::cube::Demo>(*dx);
+    auto cards =
+        std::make_unique<fb::Cards>(*dx, fb::CardsParams {.texture = cube_demo->color_target});
 
     // Main loop.
     bool running = true;
+    uint64_t frame_count = 0;
     fb::FrameTiming ft = {};
     while (running) {
         // Handle window messages.
@@ -71,59 +75,66 @@ int main() {
             .aspect_ratio = WINDOW_ASPECT_RATIO,
             .elapsed_time = ft.elapsed_time(),
         });
+        cards->update(*dx);
 
         // Populate command list.
-        dx->command_allocators[dx->frame_index]->Reset();
-        dx->command_list->Reset(dx->command_allocators[dx->frame_index].get(), nullptr);
+        auto* cmd_alloc = dx->command_allocators[dx->frame_index].get();
+        auto* cmd = dx->command_list.get();
+        cmd_alloc->Reset();
+        cmd->Reset(cmd_alloc, nullptr);
 
+        // Begin render frame.
+        PIXBeginEvent(cmd, PIX_COLOR_DEFAULT, std::format("Frame {}", frame_count).c_str());
+
+        // Render demos.
         {
-            auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(
-                dx->rtvs[dx->frame_index].get(),
-                D3D12_RESOURCE_STATE_PRESENT,
-                D3D12_RESOURCE_STATE_RENDER_TARGET);
-            dx->command_list->ResourceBarrier(1, &barrier);
+            PIXBeginEvent(cmd, PIX_COLOR_DEFAULT, "Cube");
+            cube_demo->render(*dx);
+            PIXEndEvent(cmd);
         }
 
+        // Clear.
         {
-            PIXBeginEvent(dx->command_list.get(), PIX_COLOR_DEFAULT, "Setup");
-            dx->command_list->ClearRenderTargetView(
+            PIXBeginEvent(cmd, PIX_COLOR_DEFAULT, "Clear");
+            dx->transition(
+                dx->rtvs[dx->frame_index],
+                D3D12_RESOURCE_STATE_PRESENT,
+                D3D12_RESOURCE_STATE_RENDER_TARGET);
+            cmd->ClearRenderTargetView(
                 dx->rtv_descriptors[dx->frame_index],
                 CLEAR_COLOR,
                 0,
                 nullptr);
-            CD3DX12_VIEWPORT viewport(0.0f, 0.0f, (float)WINDOW_WIDTH, (float)WINDOW_HEIGHT);
-            dx->command_list->RSSetViewports(1, &viewport);
-            CD3DX12_RECT scissor_rect(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
-            dx->command_list->RSSetScissorRects(1, &scissor_rect);
-            dx->command_list
-                ->OMSetRenderTargets(1, &dx->rtv_descriptors[dx->frame_index], FALSE, nullptr);
-            PIXEndEvent(dx->command_list.get());
+            cmd->OMSetRenderTargets(1, &dx->rtv_descriptors[dx->frame_index], FALSE, nullptr);
+            PIXEndEvent(cmd);
         }
 
+        // Render cards.
         {
-            PIXBeginEvent(dx->command_list.get(), PIX_COLOR_DEFAULT, "Cube");
-            cube_demo->render(dx->command_list.get());
-            PIXEndEvent(dx->command_list.get());
+            PIXBeginEvent(cmd, PIX_COLOR_DEFAULT, "Cards");
+            cards->render(*dx);
+            PIXEndEvent(cmd);
         }
 
+        // Render Gui.
         {
-            PIXBeginEvent(dx->command_list.get(), PIX_COLOR_DEFAULT, "Gui");
+            PIXBeginEvent(cmd, PIX_COLOR_DEFAULT, "Gui");
             gui->render(*dx);
-            PIXEndEvent(dx->command_list.get());
+            PIXEndEvent(cmd);
         }
 
+        // End render frame.
         {
-            auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(
-                dx->rtvs[dx->frame_index].get(),
+            dx->transition(
+                dx->rtvs[dx->frame_index],
                 D3D12_RESOURCE_STATE_RENDER_TARGET,
                 D3D12_RESOURCE_STATE_PRESENT);
-            dx->command_list->ResourceBarrier(1, &barrier);
+            PIXEndEvent(cmd);
+            cmd->Close();
         }
 
-        dx->command_list->Close();
-
         // Execute command list.
-        ID3D12CommandList* command_lists[] = {(ID3D12CommandList*)dx->command_list.get()};
+        ID3D12CommandList* command_lists[] = {(ID3D12CommandList*)cmd};
         dx->command_queue->ExecuteCommandLists(_countof(command_lists), command_lists);
 
         // Present.
@@ -150,6 +161,9 @@ int main() {
             // Set the fence value for the next frame.
             *fence_value = current_fence_value + 1;
         }
+
+        // Update frame count.
+        frame_count++;
     }
 
     // Wait for pending GPU work to complete.
@@ -167,6 +181,7 @@ int main() {
 
     // Cleanup.
     cube_demo = nullptr;
+    cards = nullptr;
     gui = nullptr;
     dx = nullptr;
     fb::window_destroy(window);
