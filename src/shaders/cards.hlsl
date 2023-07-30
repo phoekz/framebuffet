@@ -36,6 +36,5 @@ SamplerState g_sampler: register(s0);
 PixelOutput ps_main(VertexOutput input) {
     PixelOutput output;
     output.color = g_texture.Sample(g_sampler, input.texcoord);
-    // output.color = float4(1.0f, 0.0f, 0.0f, 1.0f);
     return output;
 }
