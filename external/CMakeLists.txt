@@ -42,6 +42,19 @@ set(CGLTF_SOURCE_DIR ${cgltf_SOURCE_DIR})
 set(CGLTF_INCLUDE_DIR ${CGLTF_SOURCE_DIR} CACHE INTERNAL "cgltf Include Directory")
 
 #
+# stb.
+#
+message(STATUS "Fetching stb...")
+FetchContent_Declare(
+    stb
+    GIT_REPOSITORY https://github.com/nothings/stb
+    GIT_TAG 5736b15f7ea0ffb08dd38af21067c314d6a3aae9 # Jan 29, 2023
+)
+FetchContent_MakeAvailable(stb)
+set(STB_SOURCE_DIR ${stb_SOURCE_DIR})
+set(STB_INCLUDE_DIR ${STB_SOURCE_DIR} CACHE INTERNAL "stb Include Directory")
+
+#
 # Windows Implementation Library (WIL).
 #
 message(STATUS "Fetching WIL...")
