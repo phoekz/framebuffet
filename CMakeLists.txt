@@ -31,6 +31,7 @@ target_compile_definitions(
 target_include_directories(
     ${PROJECT_NAME} PRIVATE
     ${DEARIMGUI_INCLUDE_DIR}
+    ${CGLTF_INCLUDE_DIR}
     ${WIL_INCLUDE_DIR}
     ${D3D12MEMALLOC_INCLUDE_DIR}
     ${DXAGILITYSDK_INCLUDE_DIR}

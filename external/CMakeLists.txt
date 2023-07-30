@@ -3,7 +3,6 @@ include(FetchContent)
 #
 # Dear ImGui.
 #
-
 message(STATUS "Fetching Dear ImGui...")
 FetchContent_Declare(
     dearimgui
@@ -30,9 +29,21 @@ target_sources(dearimgui PRIVATE ${DEARIMGUI_INCLUDE_FILES})
 set(DEARIMGUI_INCLUDE_DIR ${DEARIMGUI_SOURCE_DIR} CACHE INTERNAL "Dear ImGui Include Directory")
 
 #
+# cgltf.
+#
+message(STATUS "Fetching cgltf...")
+FetchContent_Declare(
+    cgltf
+    GIT_REPOSITORY https://github.com/jkuhlmann/cgltf
+    GIT_TAG 271614ce5fa8bed6daf3bc824d12a3a652ebdb15 # Jun 15, 2023
+)
+FetchContent_MakeAvailable(cgltf)
+set(CGLTF_SOURCE_DIR ${cgltf_SOURCE_DIR})
+set(CGLTF_INCLUDE_DIR ${CGLTF_SOURCE_DIR} CACHE INTERNAL "cgltf Include Directory")
+
+#
 # Windows Implementation Library (WIL).
 #
-
 message(STATUS "Fetching WIL...")
 FetchContent_Declare(
     wil
@@ -47,7 +58,6 @@ set(WIL_INCLUDE_DIR ${WIL_SOURCE_DIR}/include CACHE INTERNAL "WIL Include Direct
 #
 # D3D12 Memory Allocator.
 #
-
 message(STATUS "Fetching D3D12MemoryAllocator...")
 set(_saved_CMAKE_MESSAGE_LOG_LEVEL ${CMAKE_MESSAGE_LOG_LEVEL})
 set(CMAKE_MESSAGE_LOG_LEVEL NOTICE)
@@ -63,7 +73,6 @@ set(D3D12MEMALLOC_INCLUDE_DIR ${D3D12MemoryAllocator_SOURCE_DIR}/include CACHE I
 #
 # DirectX Agility SDK.
 #
-
 message(STATUS "Fetching DirectX Agility SDK...")
 FetchContent_Declare(
     dxagilitysdk
@@ -87,7 +96,6 @@ target_compile_definitions(dxagilitysdk PRIVATE WIN32)
 #
 # DirectX Shader Compiler.
 #
-
 message(STATUS "Fetching DirectX Shader Compiler...")
 FetchContent_Declare(
     dxcompiler
@@ -102,7 +110,6 @@ set(DXCOMPILER_LINK_DIR ${DXCOMPILER_SOURCE_DIR}/lib/x64 CACHE INTERNAL "DirectX
 #
 # DirectXTK12.
 #
-
 message(STATUS "Fetching DirectXTK12...")
 FetchContent_Declare(
     directxtk12
@@ -123,7 +130,6 @@ set(DIRECTXTK12_RELEASE_LINK_DIR ${DIRECTXTK12_SOURCE_DIR}/native/lib/x64/Releas
 #
 # DirectXMesh.
 #
-
 message(STATUS "Fetching DirectXMesh...")
 FetchContent_Declare(
     directxmesh
@@ -144,7 +150,6 @@ set(DIRECTXMESH_RELEASE_LINK_DIR ${DIRECTXMESH_SOURCE_DIR}/native/lib/x64/Releas
 #
 # DirectXTex.
 #
-
 message(STATUS "Fetching DirectXTex...")
 FetchContent_Declare(
     directxtex
@@ -165,7 +170,6 @@ set(DIRECTXTEX_RELEASE_LINK_DIR ${DIRECTXTEX_SOURCE_DIR}/native/lib/x64/Release 
 #
 # WinPixEventRuntime.
 #
-
 message(STATUS "Fetching WinPixEventRuntime...")
 FetchContent_Declare(
     winpixeventruntime
