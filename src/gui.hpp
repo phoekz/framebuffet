@@ -4,9 +4,13 @@
 #include "win32.hpp"
 #include "shaders.hpp"
 #include "utils.hpp"
+#include "buffers.hpp"
 #include <imgui.h>
 
 namespace fb {
+
+constexpr uint32_t MAX_VERTEX_COUNT = 1024 * 1024;
+constexpr uint32_t MAX_INDEX_COUNT = 1024 * 1024;
 
 struct Gui {
     Gui(Window* window, Dx& dx);
@@ -22,10 +26,8 @@ struct Gui {
     ComPtr<ID3D12Resource> font_texture_resource;
     ComPtr<ID3D12DescriptorHeap> descriptor_heap;
     struct Geometry {
-        ComPtr<ID3D12Resource> vertex_buffer;
-        ComPtr<ID3D12Resource> index_buffer;
-        size_t vertex_buffer_size = sizeof(ImDrawVert) * 1024 * 1024;
-        size_t index_buffer_size = sizeof(ImDrawIdx) * 1024 * 1024;
+        GpuBuffer<ImDrawVert> vertex_buffer;
+        GpuBuffer<ImDrawIdx> index_buffer;
     };
     std::array<Geometry, fb::FRAME_COUNT> geometries;
 };

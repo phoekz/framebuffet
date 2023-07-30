@@ -1,9 +1,11 @@
 #include "cards.hpp"
-#include "shaders.hpp"
+#include "../shaders.hpp"
 #include <directxtk12/CommonStates.h>
 #include <imgui.h>
 
-fb::Cards::Cards(Dx& dx, const CardsParams& params) {
+namespace fb::cards {
+
+Cards::Cards(Dx& dx, const Params& params) {
     // Root signature.
     {
         CD3DX12_ROOT_PARAMETER1 root_parameters[3] = {};
@@ -56,7 +58,7 @@ fb::Cards::Cards(Dx& dx, const CardsParams& params) {
             signature->GetBufferPointer(),
             signature->GetBufferSize(),
             IID_PPV_ARGS(&root_signature)));
-        fb::dx_set_name(root_signature, "Cards Root Signature");
+        fb::dx_set_name(root_signature, "Cards - Root Signature");
     }
 
     // Shaders.
@@ -94,10 +96,10 @@ fb::Cards::Cards(Dx& dx, const CardsParams& params) {
         };
         FAIL_FAST_IF_FAILED(
             dx.device->CreateGraphicsPipelineState(&desc, IID_PPV_ARGS(&pipeline_state)));
-        fb::dx_set_name(pipeline_state, "Cards Pipeline State");
+        fb::dx_set_name(pipeline_state, "Cards - Pipeline State");
     }
 
-    // Descriptors.
+    // Descriptor heap.
     {
         D3D12_DESCRIPTOR_HEAP_DESC descriptor_heap_desc = {
             .Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV,
@@ -105,43 +107,28 @@ fb::Cards::Cards(Dx& dx, const CardsParams& params) {
             .Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE,
         };
         FAIL_FAST_IF_FAILED(
-            dx.device->CreateDescriptorHeap(&descriptor_heap_desc, IID_PPV_ARGS(&descriptors)));
-        fb::dx_set_name(descriptors, "Cards Descriptors");
+            dx.device->CreateDescriptorHeap(&descriptor_heap_desc, IID_PPV_ARGS(&descriptor_heap)));
+        fb::dx_set_name(descriptor_heap, "Cards - Descriptor Heap");
     }
 
     // Constant buffer.
     {
-        uint32_t constant_buffer_size = (uint32_t)sizeof(ConstantBuffer);
-        auto heap_properties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
-        auto buffer_desc = CD3DX12_RESOURCE_DESC::Buffer(constant_buffer_size);
-        FAIL_FAST_IF_FAILED(dx.device->CreateCommittedResource(
-            &heap_properties,
-            D3D12_HEAP_FLAG_NONE,
-            &buffer_desc,
+        constant_buffer.create_cb(
+            dx,
+            D3D12_HEAP_TYPE_UPLOAD,
             D3D12_RESOURCE_STATE_GENERIC_READ,
-            nullptr,
-            IID_PPV_ARGS(&constant_buffer)));
-        fb::dx_set_name(constant_buffer, "Cards Constant Buffer");
+            "Cards",
+            "Constant Buffer");
+        memcpy(constant_buffer.ptr, &constants, sizeof(constants));
 
-        D3D12_CONSTANT_BUFFER_VIEW_DESC cbv_desc = {
-            .BufferLocation = constant_buffer->GetGPUVirtualAddress(),
-            .SizeInBytes = constant_buffer_size,
-        };
+        auto cbv_desc = constant_buffer.constant_buffer_view_desc();
         dx.device->CreateConstantBufferView(
             &cbv_desc,
-            descriptors->GetCPUDescriptorHandleForHeapStart());
-
-        CD3DX12_RANGE read_range(0, 0);
-        FAIL_FAST_IF_FAILED(constant_buffer->Map(0, &read_range, (void**)&constant_buffer_ptr));
-        memcpy(constant_buffer_ptr, &constant_buffer_data, sizeof(constant_buffer_data));
+            descriptor_heap->GetCPUDescriptorHandleForHeapStart());
     }
 
     // Geometry.
     {
-        struct Vertex {
-            fb::Vec2 position;
-            fb::Vec2 texcoord;
-        };
         Vertex vertices[] = {
             {{0.0f, 0.0f}, {0.0f, 0.0f}},
             {{1.0f, 0.0f}, {1.0f, 0.0f}},
@@ -150,60 +137,23 @@ fb::Cards::Cards(Dx& dx, const CardsParams& params) {
         };
         uint16_t indices[] = {0, 1, 2, 0, 2, 3};
 
-        uint32_t vertices_size = (uint32_t)_countof(vertices) * sizeof(vertices[0]);
-        uint32_t indices_size = (uint32_t)_countof(indices) * sizeof(indices[0]);
-        uint32_t vertex_size = (uint32_t)sizeof(vertices[0]);
-        index_count = (uint32_t)_countof(indices);
+        vertex_buffer.create_vb(
+            dx,
+            (uint32_t)_countof(vertices),
+            D3D12_HEAP_TYPE_UPLOAD,
+            D3D12_RESOURCE_STATE_GENERIC_READ,
+            "Cards",
+            "Vertex Buffer");
+        index_buffer.create_ib(
+            dx,
+            (uint32_t)_countof(indices),
+            D3D12_HEAP_TYPE_UPLOAD,
+            D3D12_RESOURCE_STATE_GENERIC_READ,
+            "Cards",
+            "Index Buffer");
 
-        {
-            auto heap_properties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
-            auto resource_desc = CD3DX12_RESOURCE_DESC::Buffer(vertices_size);
-            FAIL_FAST_IF_FAILED(dx.device->CreateCommittedResource(
-                &heap_properties,
-                D3D12_HEAP_FLAG_NONE,
-                &resource_desc,
-                D3D12_RESOURCE_STATE_GENERIC_READ,
-                nullptr,
-                IID_PPV_ARGS(&vertex_buffer)));
-            fb::dx_set_name(vertex_buffer, "Cards Vertex Buffer");
-
-            UINT8* vertex_data;
-            auto read_range = CD3DX12_RANGE(0, 0);
-            FAIL_FAST_IF_FAILED(vertex_buffer->Map(0, &read_range, (void**)&vertex_data));
-            memcpy(vertex_data, vertices, vertices_size);
-            vertex_buffer->Unmap(0, nullptr);
-
-            vertex_buffer_view = D3D12_VERTEX_BUFFER_VIEW {
-                .BufferLocation = vertex_buffer->GetGPUVirtualAddress(),
-                .SizeInBytes = vertices_size,
-                .StrideInBytes = vertex_size,
-            };
-        }
-
-        {
-            auto heap_properties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
-            auto resource_desc = CD3DX12_RESOURCE_DESC::Buffer(indices_size);
-            FAIL_FAST_IF_FAILED(dx.device->CreateCommittedResource(
-                &heap_properties,
-                D3D12_HEAP_FLAG_NONE,
-                &resource_desc,
-                D3D12_RESOURCE_STATE_GENERIC_READ,
-                nullptr,
-                IID_PPV_ARGS(&index_buffer)));
-            fb::dx_set_name(index_buffer, "Cards Index Buffer");
-
-            UINT8* index_data;
-            auto read_range = CD3DX12_RANGE(0, 0);
-            FAIL_FAST_IF_FAILED(index_buffer->Map(0, &read_range, (void**)&index_data));
-            memcpy(index_data, indices, indices_size);
-            index_buffer->Unmap(0, nullptr);
-
-            index_buffer_view = D3D12_INDEX_BUFFER_VIEW {
-                .BufferLocation = index_buffer->GetGPUVirtualAddress(),
-                .SizeInBytes = indices_size,
-                .Format = DXGI_FORMAT_R16_UINT,
-            };
-        }
+        memcpy(vertex_buffer.ptr, vertices, sizeof(vertices));
+        memcpy(index_buffer.ptr, indices, sizeof(indices));
     }
 
     // Textures.
@@ -217,13 +167,13 @@ fb::Cards::Cards(Dx& dx, const CardsParams& params) {
         auto descriptor_heap_type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
         auto increment_size = dx.device->GetDescriptorHandleIncrementSize(descriptor_heap_type);
 
-        auto cpu_descriptor = descriptors->GetCPUDescriptorHandleForHeapStart();
+        auto cpu_descriptor = descriptor_heap->GetCPUDescriptorHandleForHeapStart();
         cpu_descriptor.ptr += increment_size;
         dx.device->CreateShaderResourceView(params.cube_texture.get(), &src_desc, cpu_descriptor);
         cpu_descriptor.ptr += increment_size;
         dx.device->CreateShaderResourceView(params.rain_texture.get(), &src_desc, cpu_descriptor);
 
-        auto gpu_descriptor = descriptors->GetGPUDescriptorHandleForHeapStart();
+        auto gpu_descriptor = descriptor_heap->GetGPUDescriptorHandleForHeapStart();
         gpu_descriptor.ptr += increment_size;
         cube_texture_descriptor = gpu_descriptor;
         gpu_descriptor.ptr += increment_size;
@@ -231,7 +181,7 @@ fb::Cards::Cards(Dx& dx, const CardsParams& params) {
     }
 }
 
-void fb::Cards::update(const Dx& dx) {
+void Cards::update(const Dx& dx) {
     float width = (float)dx.swapchain_width;
     float height = (float)dx.swapchain_height;
     float max_extent = std::max(width, height);
@@ -247,12 +197,12 @@ void fb::Cards::update(const Dx& dx) {
         ImGui::End();
     }
 
-    constant_buffer_data.transform =
+    constants.transform =
         fb::Mat4x4::CreateOrthographicOffCenter(0.0f, width, height, 0.0f, 0.0f, 1.0f);
-    memcpy(constant_buffer_ptr, &constant_buffer_data, sizeof(constant_buffer_data));
+    memcpy(constant_buffer.ptr, &constants, sizeof(constants));
 }
 
-void fb::Cards::render(Dx& dx) {
+void Cards::render(Dx& dx) {
     D3D12_VIEWPORT viewport = {
         .TopLeftX = 0.0f,
         .TopLeftY = 0.0f,
@@ -267,17 +217,20 @@ void fb::Cards::render(Dx& dx) {
         .right = (LONG)dx.swapchain_width,
         .bottom = (LONG)dx.swapchain_height,
     };
+    auto vbv = vertex_buffer.vertex_buffer_view();
+    auto ibv = index_buffer.index_buffer_view();
+    auto index_count = index_buffer.element_size;
 
     auto* cmd = dx.command_list.get();
     cmd->RSSetViewports(1, &viewport);
     cmd->RSSetScissorRects(1, &scissor);
     cmd->SetGraphicsRootSignature(root_signature.get());
-    cmd->SetDescriptorHeaps(1, descriptors.addressof());
-    cmd->SetGraphicsRootConstantBufferView(1, constant_buffer->GetGPUVirtualAddress());
+    cmd->SetDescriptorHeaps(1, descriptor_heap.addressof());
+    cmd->SetGraphicsRootConstantBufferView(1, constant_buffer.resource->GetGPUVirtualAddress());
     cmd->SetPipelineState(pipeline_state.get());
     cmd->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-    cmd->IASetVertexBuffers(0, 1, &vertex_buffer_view);
-    cmd->IASetIndexBuffer(&index_buffer_view);
+    cmd->IASetVertexBuffers(0, 1, &vbv);
+    cmd->IASetIndexBuffer(&ibv);
 
     cmd->SetGraphicsRoot32BitConstants(0, NUM_32BIT_VALUES, &card_constants[0], 0);
     cmd->SetGraphicsRootDescriptorTable(2, cube_texture_descriptor);
@@ -287,3 +240,5 @@ void fb::Cards::render(Dx& dx) {
     cmd->SetGraphicsRootDescriptorTable(2, rain_texture_descriptor);
     cmd->DrawIndexedInstanced(index_count, 1, 0, 0, 0);
 }
+
+}  // namespace fb::cards

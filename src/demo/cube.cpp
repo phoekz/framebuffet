@@ -66,7 +66,7 @@ Demo::Demo(Dx& dx) {
             signature->GetBufferPointer(),
             signature->GetBufferSize(),
             IID_PPV_ARGS(&root_signature)));
-        fb::dx_set_name(root_signature, "Cube Root Signature");
+        fb::dx_set_name(root_signature, "Cube - Root Signature");
     }
 
     // Shaders.
@@ -106,7 +106,7 @@ Demo::Demo(Dx& dx) {
         };
         FAIL_FAST_IF_FAILED(
             dx.device->CreateGraphicsPipelineState(&desc, IID_PPV_ARGS(&pipeline_state)));
-        fb::dx_set_name(pipeline_state, "Cube Pipeline State");
+        fb::dx_set_name(pipeline_state, "Cube - Pipeline State");
     }
 
     // Descriptor heap.
@@ -118,7 +118,7 @@ Demo::Demo(Dx& dx) {
             .NodeMask = 0,
         };
         FAIL_FAST_IF_FAILED(dx.device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&descriptor_heap)));
-        fb::dx_set_name(descriptor_heap, "Cube Descriptor Heap");
+        fb::dx_set_name(descriptor_heap, "Cube - Descriptor Heap");
 
         uint32_t increment_size =
             dx.device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
@@ -130,29 +130,18 @@ Demo::Demo(Dx& dx) {
 
     // Constant buffer.
     {
-        uint32_t constant_buffer_size = (uint32_t)sizeof(ConstantBuffer);
-        auto heap_properties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
-        auto buffer_desc = CD3DX12_RESOURCE_DESC::Buffer(constant_buffer_size);
-        FAIL_FAST_IF_FAILED(dx.device->CreateCommittedResource(
-            &heap_properties,
-            D3D12_HEAP_FLAG_NONE,
-            &buffer_desc,
+        constant_buffer.create_cb(
+            dx,
+            D3D12_HEAP_TYPE_UPLOAD,
             D3D12_RESOURCE_STATE_GENERIC_READ,
-            nullptr,
-            IID_PPV_ARGS(&constant_buffer)));
-        fb::dx_set_name(constant_buffer, "Cube Constant Buffer");
+            "Cube",
+            "Constant Buffer");
+        memcpy(constant_buffer.ptr, &constants, sizeof(constants));
 
-        D3D12_CONSTANT_BUFFER_VIEW_DESC cbv_desc = {
-            .BufferLocation = constant_buffer->GetGPUVirtualAddress(),
-            .SizeInBytes = constant_buffer_size,
-        };
+        auto cbv_desc = constant_buffer.constant_buffer_view_desc();
         dx.device->CreateConstantBufferView(
             &cbv_desc,
             descriptor_heap->GetCPUDescriptorHandleForHeapStart());
-
-        CD3DX12_RANGE read_range(0, 0);
-        FAIL_FAST_IF_FAILED(constant_buffer->Map(0, &read_range, (void**)&constant_buffer_ptr));
-        memcpy(constant_buffer_ptr, &constant_buffer_data, sizeof(constant_buffer_data));
     }
 
     // Geometry.
@@ -161,57 +150,23 @@ Demo::Demo(Dx& dx) {
         DirectX::DX12::GeometricPrimitive::IndexCollection indices;
         DirectX::DX12::GeometricPrimitive::CreateCube(vertices, indices);
 
-        uint32_t vertices_size = (uint32_t)vertices.size() * sizeof(vertices[0]);
-        uint32_t indices_size = (uint32_t)indices.size() * sizeof(indices[0]);
-        uint32_t vertex_size = (uint32_t)sizeof(vertices[0]);
-        index_count = (uint32_t)indices.size();
+        vertex_buffer.create_vb(
+            dx,
+            (uint32_t)vertices.size(),
+            D3D12_HEAP_TYPE_UPLOAD,
+            D3D12_RESOURCE_STATE_GENERIC_READ,
+            "Cube",
+            "Vertex Buffer");
+        index_buffer.create_ib(
+            dx,
+            (uint32_t)indices.size(),
+            D3D12_HEAP_TYPE_UPLOAD,
+            D3D12_RESOURCE_STATE_GENERIC_READ,
+            "Cube",
+            "Index Buffer");
 
-        auto heap_properties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
-
-        {
-            auto vertex_buffer_desc = CD3DX12_RESOURCE_DESC::Buffer(vertices_size);
-            FAIL_FAST_IF_FAILED(dx.device->CreateCommittedResource(
-                &heap_properties,
-                D3D12_HEAP_FLAG_NONE,
-                &vertex_buffer_desc,
-                D3D12_RESOURCE_STATE_GENERIC_READ,
-                nullptr,
-                IID_PPV_ARGS(&vertex_buffer)));
-            fb::dx_set_name(vertex_buffer, "Cube Vertex Buffer");
-            UINT8* vertex_data;
-            auto read_range = CD3DX12_RANGE(0, 0);
-            FAIL_FAST_IF_FAILED(vertex_buffer->Map(0, &read_range, (void**)&vertex_data));
-            memcpy(vertex_data, vertices.data(), vertices_size);
-            vertex_buffer->Unmap(0, nullptr);
-        }
-
-        {
-            auto index_buffer_desc = CD3DX12_RESOURCE_DESC::Buffer(indices_size);
-            FAIL_FAST_IF_FAILED(dx.device->CreateCommittedResource(
-                &heap_properties,
-                D3D12_HEAP_FLAG_NONE,
-                &index_buffer_desc,
-                D3D12_RESOURCE_STATE_GENERIC_READ,
-                nullptr,
-                IID_PPV_ARGS(&index_buffer)));
-            fb::dx_set_name(index_buffer, "Cube Index Buffer");
-            UINT8* index_data;
-            auto read_range = CD3DX12_RANGE(0, 0);
-            FAIL_FAST_IF_FAILED(index_buffer->Map(0, &read_range, (void**)&index_data));
-            memcpy(index_data, indices.data(), indices_size);
-            index_buffer->Unmap(0, nullptr);
-        }
-
-        vertex_buffer_view = {
-            .BufferLocation = vertex_buffer->GetGPUVirtualAddress(),
-            .SizeInBytes = vertices_size,
-            .StrideInBytes = vertex_size,
-        };
-        index_buffer_view = {
-            .BufferLocation = index_buffer->GetGPUVirtualAddress(),
-            .SizeInBytes = indices_size,
-            .Format = DXGI_FORMAT_R16_UINT,
-        };
+        memcpy(vertex_buffer.ptr, vertices.data(), vertices.size() * sizeof(vertices[0]));
+        memcpy(index_buffer.ptr, indices.data(), indices.size() * sizeof(indices[0]));
     }
 
     // Texture.
@@ -234,7 +189,7 @@ Demo::Demo(Dx& dx) {
             D3D12_RESOURCE_STATE_COPY_DEST,
             nullptr,
             IID_PPV_ARGS(&texture)));
-        fb::dx_set_name(texture, "Cube Texture");
+        fb::dx_set_name(texture, "Cube - Texture");
 
         // Texels.
         std::vector<uint8_t> texture_data;
@@ -300,7 +255,7 @@ Demo::Demo(Dx& dx) {
             D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
             &color_clear_value,
             IID_PPV_ARGS(&color_target)));
-        fb::dx_set_name(color_target, "Cube Color Target");
+        fb::dx_set_name(color_target, "Cube - Color Target");
 
         D3D12_DESCRIPTOR_HEAP_DESC descriptors_desc = {
             .Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV,
@@ -309,7 +264,7 @@ Demo::Demo(Dx& dx) {
         FAIL_FAST_IF_FAILED(dx.device->CreateDescriptorHeap(
             &descriptors_desc,
             IID_PPV_ARGS(&color_target_descriptor_heap)));
-        fb::dx_set_name(color_target_descriptor_heap, "Cube Color Target Descriptors");
+        fb::dx_set_name(color_target_descriptor_heap, "Cube - Color Target Descriptor Heap");
         color_target_descriptor =
             color_target_descriptor_heap->GetCPUDescriptorHandleForHeapStart();
         dx.device->CreateRenderTargetView(color_target.get(), nullptr, color_target_descriptor);
@@ -337,7 +292,7 @@ Demo::Demo(Dx& dx) {
             D3D12_RESOURCE_STATE_DEPTH_WRITE,
             &depth_clear_value,
             IID_PPV_ARGS(&depth_target)));
-        fb::dx_set_name(depth_target, "Cube Depth Target");
+        fb::dx_set_name(depth_target, "Cube - Depth Target");
 
         D3D12_DESCRIPTOR_HEAP_DESC descriptors_desc = {
             .Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV,
@@ -346,7 +301,7 @@ Demo::Demo(Dx& dx) {
         FAIL_FAST_IF_FAILED(dx.device->CreateDescriptorHeap(
             &descriptors_desc,
             IID_PPV_ARGS(&depth_target_descriptor_heap)));
-        fb::dx_set_name(depth_target_descriptor_heap, "Cube Depth Target Descriptors");
+        fb::dx_set_name(depth_target_descriptor_heap, "Cube - Depth Target Descriptor Heap");
         depth_target_descriptor =
             depth_target_descriptor_heap->GetCPUDescriptorHandleForHeapStart();
         dx.device->CreateDepthStencilView(depth_target.get(), nullptr, depth_target_descriptor);
@@ -364,8 +319,8 @@ void Demo::update(const UpdateParams& params) {
     fb::Vec3 eye = fb::Vec3(2.5f * std::sin(elapsed_time), 1.5f, 2.5f * std::cos(elapsed_time));
     fb::Mat4x4 view =
         fb::Mat4x4::CreateLookAt(eye, fb::Vec3(0.0f, 0.0f, 0.0f), fb::Vec3(0.0f, 1.0f, 0.0f));
-    constant_buffer_data.transform = view * perspective;
-    memcpy(constant_buffer_ptr, &constant_buffer_data, sizeof(constant_buffer_data));
+    constants.transform = view * perspective;
+    memcpy(constant_buffer.ptr, &constants, sizeof(constants));
 }
 
 void Demo::render(Dx& dx) {
@@ -384,6 +339,9 @@ void Demo::render(Dx& dx) {
         .right = (LONG)dx.swapchain_width,
         .bottom = (LONG)dx.swapchain_height,
     };
+    auto vbv = vertex_buffer.vertex_buffer_view();
+    auto ibv = index_buffer.index_buffer_view();
+    auto index_count = index_buffer.element_size;
 
     auto* cmd = dx.command_list.get();
     dx.transition(
@@ -407,8 +365,8 @@ void Demo::render(Dx& dx) {
     cmd->SetGraphicsRootDescriptorTable(1, texture_descriptor);
     cmd->SetPipelineState(pipeline_state.get());
     cmd->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-    cmd->IASetVertexBuffers(0, 1, &vertex_buffer_view);
-    cmd->IASetIndexBuffer(&index_buffer_view);
+    cmd->IASetVertexBuffers(0, 1, &vbv);
+    cmd->IASetIndexBuffer(&ibv);
     cmd->DrawIndexedInstanced(index_count, 1, 0, 0, 0);
     dx.transition(
         color_target,

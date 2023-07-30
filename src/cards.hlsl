@@ -5,7 +5,7 @@ cbuffer CardConstants: register(b0) {
 
 cbuffer ConstantBuffer: register(b1) {
     float4x4 transform;
-    float padding[48];
+    float pad[48];
 };
 
 struct VertexInput {

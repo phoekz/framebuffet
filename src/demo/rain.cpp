@@ -10,22 +10,20 @@ namespace fb::rain {
 Demo::Demo(Dx& dx) {
     // Particles.
     {
-        auto heap_properties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
-        auto buffer_size = (uint32_t)sizeof(Particle) * PARTICLE_COUNT;
-        auto buffer_desc =
-            CD3DX12_RESOURCE_DESC::Buffer(buffer_size, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
-        FAIL_FAST_IF_FAILED(dx.device->CreateCommittedResource(
-            &heap_properties,
-            D3D12_HEAP_FLAG_NONE,
-            &buffer_desc,
-            D3D12_RESOURCE_STATE_COPY_DEST,
-            nullptr,
-            IID_PPV_ARGS(&particle_buffer)));
-        fb::dx_set_name(particle_buffer, "Rain - Particle Buffer");
+        // Buffer.
+        particle_buffer.create_uav(
+            dx,
+            PARTICLE_COUNT,
+            D3D12_HEAP_TYPE_DEFAULT,
+            D3D12_RESOURCE_STATE_COMMON,
+            "Rain",
+            "Particle Buffer");
+        draw.vertex_buffer_view = particle_buffer.vertex_buffer_view();
+        auto buffer = particle_buffer.resource.get();
 
-        CD3DX12_RANGE read_range(0, 0);
-        std::vector<Particle> particles(PARTICLE_COUNT);
+        // Data.
         pcg rand;
+        std::vector<Particle> particles(PARTICLE_COUNT);
         for (uint32_t i = 0; i < PARTICLE_COUNT; i++) {
             Particle& particle = particles[i];
             particle.position.x = 2.0f * rand.random_float() - 1.0f;
@@ -33,26 +31,22 @@ Demo::Demo(Dx& dx) {
             particle.position.z = 2.0f * rand.random_float() - 1.0f;
         }
 
+        // Upload.
         D3D12_SUBRESOURCE_DATA subresource_data = {
             .pData = particles.data(),
-            .RowPitch = buffer_size,
-            .SlicePitch = buffer_size,
+            .RowPitch = particle_buffer.byte_size,
+            .SlicePitch = particle_buffer.byte_size,
         };
         DirectX::ResourceUploadBatch rub(dx.device.get());
         rub.Begin();
-        rub.Upload(particle_buffer.get(), 0, &subresource_data, 1);
+        rub.Transition(buffer, D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_COPY_DEST);
+        rub.Upload(buffer, 0, &subresource_data, 1);
         rub.Transition(
-            particle_buffer.get(),
+            buffer,
             D3D12_RESOURCE_STATE_COPY_DEST,
             D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
         auto finish = rub.End(dx.command_queue.get());
         finish.wait();
-
-        draw.vertex_buffer_view = {
-            .BufferLocation = particle_buffer->GetGPUVirtualAddress(),
-            .SizeInBytes = buffer_size,
-            .StrideInBytes = sizeof(Particle),
-        };
     }
 
     // Shaders.
@@ -219,7 +213,7 @@ Demo::Demo(Dx& dx) {
         FAIL_FAST_IF_FAILED(dx.device->CreateDescriptorHeap(
             &descriptors_desc,
             IID_PPV_ARGS(&color_target_descriptor_heap)));
-        fb::dx_set_name(color_target_descriptor_heap, "Rain - Color Target Descriptors");
+        fb::dx_set_name(color_target_descriptor_heap, "Rain - Color Target Descriptor Heap");
         color_target_descriptor =
             color_target_descriptor_heap->GetCPUDescriptorHandleForHeapStart();
         dx.device->CreateRenderTargetView(color_target.get(), nullptr, color_target_descriptor);
@@ -256,7 +250,7 @@ Demo::Demo(Dx& dx) {
         FAIL_FAST_IF_FAILED(dx.device->CreateDescriptorHeap(
             &descriptors_desc,
             IID_PPV_ARGS(&depth_target_descriptor_heap)));
-        fb::dx_set_name(depth_target_descriptor_heap, "Rain - Depth Target Descriptors");
+        fb::dx_set_name(depth_target_descriptor_heap, "Rain - Depth Target Descriptor Heap");
         depth_target_descriptor =
             depth_target_descriptor_heap->GetCPUDescriptorHandleForHeapStart();
         dx.device->CreateDepthStencilView(depth_target.get(), nullptr, depth_target_descriptor);
@@ -302,16 +296,16 @@ void Demo::render(Dx& dx) {
 
     auto* cmd = dx.command_list.get();
     dx.transition(
-        particle_buffer,
+        particle_buffer.resource,
         D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER,
         D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
     cmd->SetComputeRootSignature(compute.root_signature.get());
     cmd->SetComputeRoot32BitConstants(0, 2, &compute.constants, 0);
-    cmd->SetComputeRootUnorderedAccessView(1, particle_buffer->GetGPUVirtualAddress());
+    cmd->SetComputeRootUnorderedAccessView(1, particle_buffer.resource->GetGPUVirtualAddress());
     cmd->SetPipelineState(compute.pipeline_state.get());
     cmd->Dispatch(DISPATCH_COUNT, 1, 1);
     dx.transition(
-        particle_buffer,
+        particle_buffer.resource,
         D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
         D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
 

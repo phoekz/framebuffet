@@ -3,6 +3,7 @@
 #include "../utils.hpp"
 #include "../maths.hpp"
 #include "../dx12.hpp"
+#include "../buffers.hpp"
 #include <d3dx12/d3dx12.h>
 
 namespace fb::rain {
@@ -25,7 +26,7 @@ struct Demo {
         Vec3 position;
     };
     static_assert(sizeof(Particle) == 12);
-    ComPtr<ID3D12Resource> particle_buffer;
+    GpuBuffer<Particle> particle_buffer;
 
     struct {
         ComPtr<ID3D12RootSignature> root_signature;

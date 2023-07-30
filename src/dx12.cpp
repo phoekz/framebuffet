@@ -182,7 +182,7 @@ Dx::Dx(Window* window) {
         };
         FAIL_FAST_IF_FAILED(
             device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&rtv_descriptor_heap)));
-        dx_set_name(rtv_descriptor_heap, "RTV Descriptor Heap");
+        dx_set_name(rtv_descriptor_heap, "Render Target View Descriptor Heap");
 
         uint32_t rtv_descriptor_size =
             device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
@@ -190,7 +190,7 @@ Dx::Dx(Window* window) {
             rtv_descriptor_heap->GetCPUDescriptorHandleForHeapStart();
         for (uint32_t i = 0; i < fb::FRAME_COUNT; i++) {
             FAIL_FAST_IF_FAILED(swapchain->GetBuffer(i, IID_PPV_ARGS(&rtvs[i])));
-            dx_set_indexed_name(rtvs[i], "RTV", i);
+            dx_set_indexed_name(rtvs[i], "Render Target View", i);
 
             device->CreateRenderTargetView(rtvs[i].get(), nullptr, rtv_descriptor_handle);
             rtv_descriptors[i] = rtv_descriptor_handle;
@@ -216,7 +216,7 @@ void Dx::transition(
     command_list->ResourceBarrier(1, &barrier);
 }
 
-void dx_set_name(ID3D12Object* object, const char* name) {
+void dx_set_name(ID3D12Object* object, std::string_view name) {
 #if defined(_DEBUG)
     std::wstring wname = fb::to_wstr(name);
     object->SetName(wname.c_str());
@@ -226,14 +226,14 @@ void dx_set_name(ID3D12Object* object, const char* name) {
 #endif
 }
 
-void dx_set_name(const ComPtr<ID3D12Object>& object, const char* name) {
+void dx_set_name(const ComPtr<ID3D12Object>& object, std::string_view name) {
     dx_set_name(object.get(), name);
 }
 
-void dx_set_indexed_name(ID3D12Object* object, const char* name, uint32_t index) {
+void dx_set_indexed_name(ID3D12Object* object, std::string_view name, uint32_t index) {
 #if defined(_DEBUG)
     std::wstring wname = fb::to_wstr(name);
-    std::wstring windexed_name = std::format(L"{}[{}]", wname, index);
+    std::wstring windexed_name = std::format(L"{} {}", wname, index);
     object->SetName(windexed_name.c_str());
 #else
     (void)object;
@@ -242,7 +242,10 @@ void dx_set_indexed_name(ID3D12Object* object, const char* name, uint32_t index)
 #endif
 }
 
-void dx_set_indexed_name(const ComPtr<ID3D12Object>& object, const char* name, uint32_t index) {
+void dx_set_indexed_name(
+    const ComPtr<ID3D12Object>& object,
+    std::string_view name,
+    uint32_t index) {
     dx_set_indexed_name(object.get(), name, index);
 }
 

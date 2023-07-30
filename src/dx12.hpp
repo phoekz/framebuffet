@@ -44,9 +44,9 @@ struct Dx {
         D3D12_RESOURCE_STATES after);
 };
 
-void dx_set_name(ID3D12Object* object, const char* name);
-void dx_set_name(const ComPtr<ID3D12Object>& object, const char* name);
-void dx_set_indexed_name(ID3D12Object* object, const char* name, uint32_t index);
-void dx_set_indexed_name(const ComPtr<ID3D12Object>& object, const char* name, uint32_t index);
+void dx_set_name(ID3D12Object* object, std::string_view name);
+void dx_set_name(const ComPtr<ID3D12Object>& object, std::string_view name);
+void dx_set_indexed_name(ID3D12Object* object, std::string_view name, uint32_t index);
+void dx_set_indexed_name(const ComPtr<ID3D12Object>& object, std::string_view name, uint32_t index);
 
 }  // namespace fb

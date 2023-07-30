@@ -1,6 +1,6 @@
 cbuffer ConstantBuffer: register(b0) {
     float4x4 transform;
-    float padding[48];
+    float pad[48];
 };
 
 struct VertexInput {

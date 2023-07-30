@@ -85,7 +85,7 @@ Gui::Gui(Window* window, Dx& dx) {
             signature->GetBufferPointer(),
             signature->GetBufferSize(),
             IID_PPV_ARGS(&root_signature)));
-        fb::dx_set_name(root_signature, "Gui Root Signature");
+        fb::dx_set_name(root_signature, "Gui - Root Signature");
     }
 
     // Pipeline state.
@@ -152,7 +152,7 @@ Gui::Gui(Window* window, Dx& dx) {
         };
         FAIL_FAST_IF_FAILED(
             dx.device->CreateGraphicsPipelineState(&desc, IID_PPV_ARGS(&pipeline_state)));
-        fb::dx_set_name(pipeline_state, "Gui Pipeline State");
+        fb::dx_set_name(pipeline_state, "Gui - Pipeline State");
     }
 
     // Font texture.
@@ -174,7 +174,7 @@ Gui::Gui(Window* window, Dx& dx) {
             D3D12_RESOURCE_STATE_COPY_DEST,
             nullptr,
             IID_PPV_ARGS(&font_texture_resource)));
-        fb::dx_set_name(font_texture_resource, "Gui Font Texture");
+        fb::dx_set_name(font_texture_resource, "Gui - Font Texture");
 
         // Upload.
         D3D12_SUBRESOURCE_DATA subresource_data = {
@@ -193,7 +193,7 @@ Gui::Gui(Window* window, Dx& dx) {
         finish.wait();
     }
 
-    // Descriptors.
+    // Descriptor heap.
     {
         D3D12_DESCRIPTOR_HEAP_DESC heap_desc = {
             .Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV,
@@ -203,7 +203,7 @@ Gui::Gui(Window* window, Dx& dx) {
         };
         FAIL_FAST_IF_FAILED(
             dx.device->CreateDescriptorHeap(&heap_desc, IID_PPV_ARGS(&descriptor_heap)));
-        dx_set_name(descriptor_heap, "Gui Heap");
+        dx_set_name(descriptor_heap, "Gui - Descriptor Heap");
 
         D3D12_CPU_DESCRIPTOR_HANDLE cpu_desc =
             descriptor_heap->GetCPUDescriptorHandleForHeapStart();
@@ -227,27 +227,20 @@ Gui::Gui(Window* window, Dx& dx) {
     // Geometry.
     for (uint32_t i = 0; i < fb::FRAME_COUNT; i++) {
         Gui::Geometry& geometry = geometries[i];
-        CD3DX12_HEAP_PROPERTIES geometry_buffer_heap(D3D12_HEAP_TYPE_UPLOAD);
-        CD3DX12_RESOURCE_DESC vertex_buffer_desc =
-            CD3DX12_RESOURCE_DESC::Buffer(geometry.vertex_buffer_size, D3D12_RESOURCE_FLAG_NONE);
-        CD3DX12_RESOURCE_DESC index_buffer_desc =
-            CD3DX12_RESOURCE_DESC::Buffer(geometry.index_buffer_size, D3D12_RESOURCE_FLAG_NONE);
-        FAIL_FAST_IF_FAILED(dx.device->CreateCommittedResource(
-            &geometry_buffer_heap,
-            D3D12_HEAP_FLAG_NONE,
-            &vertex_buffer_desc,
+        geometry.vertex_buffer.create_vb(
+            dx,
+            MAX_VERTEX_COUNT,
+            D3D12_HEAP_TYPE_UPLOAD,
             D3D12_RESOURCE_STATE_GENERIC_READ,
-            nullptr,
-            IID_PPV_ARGS(&geometry.vertex_buffer)));
-        FAIL_FAST_IF_FAILED(dx.device->CreateCommittedResource(
-            &geometry_buffer_heap,
-            D3D12_HEAP_FLAG_NONE,
-            &index_buffer_desc,
+            "Gui",
+            std::format("Vertex Buffer {}", i));
+        geometry.index_buffer.create_ib(
+            dx,
+            MAX_INDEX_COUNT,
+            D3D12_HEAP_TYPE_UPLOAD,
             D3D12_RESOURCE_STATE_GENERIC_READ,
-            nullptr,
-            IID_PPV_ARGS(&geometry.index_buffer)));
-        fb::dx_set_indexed_name(geometry.vertex_buffer, "Gui Vertex Buffer", i);
-        fb::dx_set_indexed_name(geometry.index_buffer, "Gui Index Buffer", i);
+            "Gui",
+            std::format("Index Buffer {}", i));
     }
 
     // ImGui continued.
@@ -277,11 +270,8 @@ void Gui::render(const Dx& dx) {
     // Update geometries.
     auto& geometry = geometries[dx.frame_index];
     {
-        ImDrawVert* vertices = nullptr;
-        ImDrawIdx* indices = nullptr;
-        D3D12_RANGE whole_range = {0, 0};
-        FAIL_FAST_IF_FAILED(geometry.vertex_buffer->Map(0, &whole_range, (void**)&vertices));
-        FAIL_FAST_IF_FAILED(geometry.index_buffer->Map(0, &whole_range, (void**)&indices));
+        ImDrawVert* vertices = (ImDrawVert*)geometry.vertex_buffer.ptr;
+        ImDrawIdx* indices = (ImDrawIdx*)geometry.index_buffer.ptr;
         for (int i = 0; i < draw_data->CmdListsCount; i++) {
             auto* cmd_list = draw_data->CmdLists[i];
             memcpy(
@@ -292,8 +282,6 @@ void Gui::render(const Dx& dx) {
             vertices += cmd_list->VtxBuffer.Size;
             indices += cmd_list->IdxBuffer.Size;
         }
-        geometry.vertex_buffer->Unmap(0, nullptr);
-        geometry.index_buffer->Unmap(0, nullptr);
     }
 
     // Update transform.
@@ -317,21 +305,13 @@ void Gui::render(const Dx& dx) {
         auto* cmd = dx.command_list.get();
 
         CD3DX12_VIEWPORT viewport(0.0f, 0.0f, draw_data->DisplaySize.x, draw_data->DisplaySize.y);
-        D3D12_VERTEX_BUFFER_VIEW vertex_buffer_view = {
-            .BufferLocation = geometry.vertex_buffer->GetGPUVirtualAddress(),
-            .SizeInBytes = (UINT)geometry.vertex_buffer->GetDesc().Width,
-            .StrideInBytes = (UINT)sizeof(ImDrawVert),
-        };
-        D3D12_INDEX_BUFFER_VIEW index_buffer_view = {
-            .BufferLocation = geometry.index_buffer->GetGPUVirtualAddress(),
-            .SizeInBytes = (UINT)geometry.index_buffer->GetDesc().Width,
-            .Format = sizeof(ImDrawIdx) == 2 ? DXGI_FORMAT_R16_UINT : DXGI_FORMAT_R32_UINT,
-        };
+        auto vbv = geometry.vertex_buffer.vertex_buffer_view();
+        auto ibv = geometry.index_buffer.index_buffer_view();
         const float blend_factor[4] = {0.f, 0.f, 0.f, 0.f};
 
         cmd->RSSetViewports(1, &viewport);
-        cmd->IASetVertexBuffers(0, 1, &vertex_buffer_view);
-        cmd->IASetIndexBuffer(&index_buffer_view);
+        cmd->IASetVertexBuffers(0, 1, &vbv);
+        cmd->IASetIndexBuffer(&ibv);
         cmd->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
         cmd->SetPipelineState(pipeline_state.get());
         cmd->SetGraphicsRootSignature(root_signature.get());

@@ -3,9 +3,21 @@
 #include "../utils.hpp"
 #include "../maths.hpp"
 #include "../dx12.hpp"
+#include "../buffers.hpp"
 #include <d3dx12/d3dx12.h>
 
 namespace fb::cube {
+
+struct VertexType {
+    Vec3 position;
+    Vec3 normal;
+    Vec2 texcoord;
+};
+
+struct Constants {
+    Mat4x4 transform;
+    float pad[48];
+};
 
 struct UpdateParams {
     float aspect_ratio;
@@ -21,23 +33,11 @@ struct Demo {
     ComPtr<ID3D12PipelineState> pipeline_state;
     ComPtr<ID3D12DescriptorHeap> descriptor_heap;
 
-    struct ConstantBuffer {
-        fb::Mat4x4 transform;
-        float padding[48];
-    } constant_buffer_data = {};
-    static_assert(
-        (sizeof(ConstantBuffer) % 256) == 0,
-        "Constant Buffer size must be 256-byte aligned");
-    ConstantBuffer* constant_buffer_ptr = nullptr;
-    ComPtr<ID3D12Resource> constant_buffer;
+    Constants constants;
+    GpuBuffer<Constants> constant_buffer;
     D3D12_GPU_DESCRIPTOR_HANDLE constant_buffer_descriptor;
-
-    ComPtr<ID3D12Resource> vertex_buffer;
-    D3D12_VERTEX_BUFFER_VIEW vertex_buffer_view;
-
-    uint32_t index_count = 0;
-    ComPtr<ID3D12Resource> index_buffer;
-    D3D12_INDEX_BUFFER_VIEW index_buffer_view;
+    GpuBuffer<VertexType> vertex_buffer;
+    GpuBuffer<uint16_t> index_buffer;
 
     ComPtr<ID3D12Resource> texture;
     D3D12_GPU_DESCRIPTOR_HANDLE texture_descriptor;

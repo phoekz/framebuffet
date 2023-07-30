@@ -8,7 +8,7 @@
 #include "gui.hpp"
 
 // Framebuffet - demos
-#include "cards.hpp"
+#include "demo/cards.hpp"
 #include "demo/cube.hpp"
 #include "demo/rain.hpp"
 
@@ -47,9 +47,9 @@ int main() {
     auto gui = std::make_unique<fb::Gui>(window, *dx);
     auto cube_demo = std::make_unique<fb::cube::Demo>(*dx);
     auto rain_demo = std::make_unique<fb::rain::Demo>(*dx);
-    auto cards = std::make_unique<fb::Cards>(
+    auto cards = std::make_unique<fb::cards::Cards>(
         *dx,
-        fb::CardsParams {
+        fb::cards::Params {
             .cube_texture = cube_demo->color_target,
             .rain_texture = rain_demo->color_target,
         });
