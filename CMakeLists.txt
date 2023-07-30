@@ -26,6 +26,7 @@ target_compile_definitions(
     _HAS_EXCEPTIONS=0
     WIN32_LEAN_AND_MEAN
     NOMINMAX
+    _CRT_SECURE_NO_WARNINGS
 )
 target_include_directories(
     ${PROJECT_NAME} PRIVATE
