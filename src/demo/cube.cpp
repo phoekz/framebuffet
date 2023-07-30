@@ -1,6 +1,6 @@
 #include "cube.hpp"
 #include "../shaders.hpp"
-#include <DirectXTK12/GeometricPrimitive.h>
+#include "../gltf.hpp"
 #include <DirectXTK12/ResourceUploadBatch.h>
 
 namespace fb::cube {
@@ -144,43 +144,37 @@ Demo::Demo(Dx& dx) {
             descriptor_heap->GetCPUDescriptorHandleForHeapStart());
     }
 
+    // Model.
+    auto gltf_mesh = fb::GltfModel::load("models/stylized_crate.glb");
+
     // Geometry.
     {
-        DirectX::DX12::GeometricPrimitive::VertexCollection vertices;
-        DirectX::DX12::GeometricPrimitive::IndexCollection indices;
-        DirectX::DX12::GeometricPrimitive::CreateCube(vertices, indices);
-
         vertex_buffer.create_vb(
             dx,
-            (uint32_t)vertices.size(),
+            gltf_mesh.vertex_count(),
             D3D12_HEAP_TYPE_UPLOAD,
             D3D12_RESOURCE_STATE_GENERIC_READ,
             "Cube",
             "Vertex Buffer");
         index_buffer.create_ib(
             dx,
-            (uint32_t)indices.size(),
+            gltf_mesh.index_count(),
             D3D12_HEAP_TYPE_UPLOAD,
             D3D12_RESOURCE_STATE_GENERIC_READ,
             "Cube",
             "Index Buffer");
 
-        memcpy(vertex_buffer.ptr, vertices.data(), vertices.size() * sizeof(vertices[0]));
-        memcpy(index_buffer.ptr, indices.data(), indices.size() * sizeof(indices[0]));
+        memcpy(vertex_buffer.ptr, gltf_mesh.vertex_data(), gltf_mesh.vertex_buffer_size());
+        memcpy(index_buffer.ptr, gltf_mesh.index_data(), gltf_mesh.index_buffer_size());
     }
 
     // Texture.
     {
-        constexpr UINT TEXTURE_WIDTH = 16;
-        constexpr UINT TEXTURE_HEIGHT = 16;
-        constexpr UINT TEXTURE_PIXEL_SIZE = 4;
-        constexpr LONG_PTR TEXTURE_ROW_PITCH = TEXTURE_WIDTH * TEXTURE_PIXEL_SIZE;
-        constexpr LONG_PTR TEXTURE_SLICE_PITCH = TEXTURE_HEIGHT * TEXTURE_ROW_PITCH;
-        constexpr DXGI_FORMAT TEXTURE_FORMAT = DXGI_FORMAT_R8G8B8A8_UNORM;
-
         // Create.
+        const auto& image = gltf_mesh.base_color_texture;
+        auto texture_format = DXGI_FORMAT_R8G8B8A8_UNORM;
         auto texture_desc =
-            CD3DX12_RESOURCE_DESC::Tex2D(TEXTURE_FORMAT, TEXTURE_WIDTH, TEXTURE_HEIGHT, 1, 1);
+            CD3DX12_RESOURCE_DESC::Tex2D(texture_format, image.width, image.height, 1, 1);
         CD3DX12_HEAP_PROPERTIES texture_heap(D3D12_HEAP_TYPE_DEFAULT);
         FAIL_FAST_IF_FAILED(dx.device->CreateCommittedResource(
             &texture_heap,
@@ -191,22 +185,11 @@ Demo::Demo(Dx& dx) {
             IID_PPV_ARGS(&texture)));
         fb::dx_set_name(texture, "Cube - Texture");
 
-        // Texels.
-        std::vector<uint8_t> texture_data;
-        texture_data.resize(TEXTURE_SLICE_PITCH);
-        for (uint32_t y = 0; y < TEXTURE_HEIGHT; y++) {
-            for (uint32_t x = 0; x < TEXTURE_WIDTH; x++) {
-                uint32_t* p =
-                    (uint32_t*)&texture_data[TEXTURE_PIXEL_SIZE * (x + y * TEXTURE_WIDTH)];
-                *p = ((x ^ y) & 1) == 0 ? 0xffffffff : 0xffaaaaaa;
-            }
-        }
-
         // Upload.
         D3D12_SUBRESOURCE_DATA subresource_data = {
-            .pData = texture_data.data(),
-            .RowPitch = TEXTURE_ROW_PITCH,
-            .SlicePitch = TEXTURE_SLICE_PITCH,
+            .pData = image.data(),
+            .RowPitch = image.row_pitch(),
+            .SlicePitch = image.slice_pitch(),
         };
         DirectX::ResourceUploadBatch rub(dx.device.get());
         rub.Begin();
@@ -220,7 +203,7 @@ Demo::Demo(Dx& dx) {
 
         // Descriptor.
         D3D12_SHADER_RESOURCE_VIEW_DESC srv_desc = {
-            .Format = TEXTURE_FORMAT,
+            .Format = texture_format,
             .ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D,
             .Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING,
             .Texture2D = D3D12_TEX2D_SRV {.MipLevels = 1},
@@ -316,7 +299,7 @@ void Demo::update(const UpdateParams& params) {
         aspect_ratio,
         0.1f,
         100.0f);
-    fb::Vec3 eye = fb::Vec3(2.5f * std::sin(elapsed_time), 1.5f, 2.5f * std::cos(elapsed_time));
+    fb::Vec3 eye = fb::Vec3(4.0f * std::sin(elapsed_time), 3.0f, 4.0f * std::cos(elapsed_time));
     fb::Mat4x4 view =
         fb::Mat4x4::CreateLookAt(eye, fb::Vec3(0.0f, 0.0f, 0.0f), fb::Vec3(0.0f, 1.0f, 0.0f));
     constants.transform = view * perspective;

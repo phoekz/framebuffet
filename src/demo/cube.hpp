@@ -4,15 +4,10 @@
 #include "../maths.hpp"
 #include "../dx12.hpp"
 #include "../buffers.hpp"
+#include "../gltf.hpp"
 #include <d3dx12/d3dx12.h>
 
 namespace fb::cube {
-
-struct VertexType {
-    Vec3 position;
-    Vec3 normal;
-    Vec2 texcoord;
-};
 
 struct Constants {
     Mat4x4 transform;
@@ -36,8 +31,8 @@ struct Demo {
     Constants constants;
     GpuBuffer<Constants> constant_buffer;
     D3D12_GPU_DESCRIPTOR_HANDLE constant_buffer_descriptor;
-    GpuBuffer<VertexType> vertex_buffer;
-    GpuBuffer<uint16_t> index_buffer;
+    GpuBuffer<GltfVertex> vertex_buffer;
+    GpuBuffer<GltfIndex> index_buffer;
 
     ComPtr<ID3D12Resource> texture;
     D3D12_GPU_DESCRIPTOR_HANDLE texture_descriptor;
