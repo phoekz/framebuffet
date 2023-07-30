@@ -67,7 +67,8 @@ Shader ShaderCompiler::compile(
         IID_PPV_ARGS(&result)));
     FAIL_FAST_IF_FAILED(result->GetOutput(DXC_OUT_ERRORS, IID_PPV_ARGS(&errors), nullptr));
     if (errors && errors->GetStringLength() != 0) {
-        FAIL_FAST_MSG("Failed to compile %ws\n%s", shader_name.c_str(), errors->GetStringPointer());
+        log_error("Failed to compile {}", errors->GetStringPointer());
+        FAIL_FAST();
     }
     FAIL_FAST_IF_FAILED(result->GetOutput(DXC_OUT_OBJECT, IID_PPV_ARGS(&blob), nullptr));
     FAIL_FAST_IF_FAILED(result->GetOutput(DXC_OUT_PDB, IID_PPV_ARGS(&pdb), &pdb_name));
