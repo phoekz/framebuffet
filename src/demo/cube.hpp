@@ -43,11 +43,11 @@ struct Demo {
     D3D12_GPU_DESCRIPTOR_HANDLE texture_descriptor;
 
     ComPtr<ID3D12Resource> color_target;
-    ComPtr<ID3D12DescriptorHeap> color_target_descriptors;
+    ComPtr<ID3D12DescriptorHeap> color_target_descriptor_heap;
     D3D12_CPU_DESCRIPTOR_HANDLE color_target_descriptor;
 
     ComPtr<ID3D12Resource> depth_target;
-    ComPtr<ID3D12DescriptorHeap> depth_target_descriptors;
+    ComPtr<ID3D12DescriptorHeap> depth_target_descriptor_heap;
     D3D12_CPU_DESCRIPTOR_HANDLE depth_target_descriptor;
 };
 

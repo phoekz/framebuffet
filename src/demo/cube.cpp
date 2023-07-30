@@ -74,8 +74,8 @@ Demo::Demo(Dx& dx) {
     fb::Shader pixel_shader;
     {
         fb::ShaderCompiler sc;
+        auto name = "cube";
         auto source = fb::read_whole_file("shaders/cube.hlsl");
-        const char* name = "cube";
         vertex_shader = sc.compile(name, fb::ShaderType::Vertex, "vs_main", source);
         pixel_shader = sc.compile(name, fb::ShaderType::Pixel, "ps_main", source);
     }
@@ -308,9 +308,10 @@ Demo::Demo(Dx& dx) {
         };
         FAIL_FAST_IF_FAILED(dx.device->CreateDescriptorHeap(
             &descriptors_desc,
-            IID_PPV_ARGS(&color_target_descriptors)));
-        fb::dx_set_name(color_target_descriptors, "Cube Color Target Descriptors");
-        color_target_descriptor = color_target_descriptors->GetCPUDescriptorHandleForHeapStart();
+            IID_PPV_ARGS(&color_target_descriptor_heap)));
+        fb::dx_set_name(color_target_descriptor_heap, "Cube Color Target Descriptors");
+        color_target_descriptor =
+            color_target_descriptor_heap->GetCPUDescriptorHandleForHeapStart();
         dx.device->CreateRenderTargetView(color_target.get(), nullptr, color_target_descriptor);
     }
 
@@ -344,9 +345,10 @@ Demo::Demo(Dx& dx) {
         };
         FAIL_FAST_IF_FAILED(dx.device->CreateDescriptorHeap(
             &descriptors_desc,
-            IID_PPV_ARGS(&depth_target_descriptors)));
-        fb::dx_set_name(depth_target_descriptors, "Cube Depth Target Descriptors");
-        depth_target_descriptor = depth_target_descriptors->GetCPUDescriptorHandleForHeapStart();
+            IID_PPV_ARGS(&depth_target_descriptor_heap)));
+        fb::dx_set_name(depth_target_descriptor_heap, "Cube Depth Target Descriptors");
+        depth_target_descriptor =
+            depth_target_descriptor_heap->GetCPUDescriptorHandleForHeapStart();
         dx.device->CreateDepthStencilView(depth_target.get(), nullptr, depth_target_descriptor);
     }
 }
