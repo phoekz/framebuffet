@@ -145,33 +145,33 @@ Demo::Demo(Dx& dx) {
     }
 
     // Model.
-    auto gltf_mesh = fb::GltfModel::load("models/stylized_crate.glb");
+    auto model = fb::GltfModel::load("models/stylized_crate.glb");
 
     // Geometry.
     {
         vertex_buffer.create_vb(
             dx,
-            gltf_mesh.vertex_count(),
+            model.vertex_count(),
             D3D12_HEAP_TYPE_UPLOAD,
             D3D12_RESOURCE_STATE_GENERIC_READ,
             "Cube",
             "Vertex Buffer");
         index_buffer.create_ib(
             dx,
-            gltf_mesh.index_count(),
+            model.index_count(),
             D3D12_HEAP_TYPE_UPLOAD,
             D3D12_RESOURCE_STATE_GENERIC_READ,
             "Cube",
             "Index Buffer");
 
-        memcpy(vertex_buffer.ptr, gltf_mesh.vertex_data(), gltf_mesh.vertex_buffer_size());
-        memcpy(index_buffer.ptr, gltf_mesh.index_data(), gltf_mesh.index_buffer_size());
+        memcpy(vertex_buffer.ptr, model.vertex_data(), model.vertex_buffer_size());
+        memcpy(index_buffer.ptr, model.index_data(), model.index_buffer_size());
     }
 
     // Texture.
     {
         // Create.
-        const auto& image = gltf_mesh.base_color_texture;
+        const auto& image = model.base_color_texture;
         auto texture_format = DXGI_FORMAT_R8G8B8A8_UNORM;
         auto texture_desc =
             CD3DX12_RESOURCE_DESC::Tex2D(texture_format, image.width, image.height, 1, 1);
