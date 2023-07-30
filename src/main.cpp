@@ -1,6 +1,7 @@
 // Framebuffet
 #include "maths.hpp"
 #include "utils.hpp"
+#include "pcg.hpp"
 #include "win32.hpp"
 #include "dx12.hpp"
 #include "shaders.hpp"
@@ -9,6 +10,7 @@
 // Framebuffet - demos
 #include "cards.hpp"
 #include "demo/cube.hpp"
+#include "demo/rain.hpp"
 
 // DirectX.
 #include <d3dx12/d3dx12.h>
@@ -44,8 +46,13 @@ int main() {
     auto dx = std::make_unique<fb::Dx>(window);
     auto gui = std::make_unique<fb::Gui>(window, *dx);
     auto cube_demo = std::make_unique<fb::cube::Demo>(*dx);
-    auto cards =
-        std::make_unique<fb::Cards>(*dx, fb::CardsParams {.texture = cube_demo->color_target});
+    auto rain_demo = std::make_unique<fb::rain::Demo>(*dx);
+    auto cards = std::make_unique<fb::Cards>(
+        *dx,
+        fb::CardsParams {
+            .cube_texture = cube_demo->color_target,
+            .rain_texture = rain_demo->color_target,
+        });
 
     // Main loop.
     bool running = true;
@@ -75,6 +82,10 @@ int main() {
             .aspect_ratio = WINDOW_ASPECT_RATIO,
             .elapsed_time = ft.elapsed_time(),
         });
+        rain_demo->update({
+            .aspect_ratio = WINDOW_ASPECT_RATIO,
+            .delta_time = ft.delta_time(),
+        });
         cards->update(*dx);
 
         // Populate command list.
@@ -90,6 +101,11 @@ int main() {
         {
             PIXBeginEvent(cmd, PIX_COLOR_DEFAULT, "Cube");
             cube_demo->render(*dx);
+            PIXEndEvent(cmd);
+        }
+        {
+            PIXBeginEvent(cmd, PIX_COLOR_DEFAULT, "Rain");
+            rain_demo->render(*dx);
             PIXEndEvent(cmd);
         }
 
@@ -180,8 +196,9 @@ int main() {
     }
 
     // Cleanup.
-    cube_demo = nullptr;
     cards = nullptr;
+    rain_demo = nullptr;
+    cube_demo = nullptr;
     gui = nullptr;
     dx = nullptr;
     fb::window_destroy(window);

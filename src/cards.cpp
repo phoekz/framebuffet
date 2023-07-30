@@ -101,7 +101,7 @@ fb::Cards::Cards(Dx& dx, const CardsParams& params) {
     {
         D3D12_DESCRIPTOR_HEAP_DESC descriptor_heap_desc = {
             .Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV,
-            .NumDescriptors = 2,
+            .NumDescriptors = 3,
             .Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE,
         };
         FAIL_FAST_IF_FAILED(
@@ -216,13 +216,18 @@ fb::Cards::Cards(Dx& dx, const CardsParams& params) {
         };
         auto descriptor_heap_type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
         auto increment_size = dx.device->GetDescriptorHandleIncrementSize(descriptor_heap_type);
+
         auto cpu_descriptor = descriptors->GetCPUDescriptorHandleForHeapStart();
         cpu_descriptor.ptr += increment_size;
-        dx.device->CreateShaderResourceView(params.texture.get(), &src_desc, cpu_descriptor);
+        dx.device->CreateShaderResourceView(params.cube_texture.get(), &src_desc, cpu_descriptor);
+        cpu_descriptor.ptr += increment_size;
+        dx.device->CreateShaderResourceView(params.rain_texture.get(), &src_desc, cpu_descriptor);
 
         auto gpu_descriptor = descriptors->GetGPUDescriptorHandleForHeapStart();
         gpu_descriptor.ptr += increment_size;
-        texture_descriptor = gpu_descriptor;
+        cube_texture_descriptor = gpu_descriptor;
+        gpu_descriptor.ptr += increment_size;
+        rain_texture_descriptor = gpu_descriptor;
     }
 }
 
@@ -232,8 +237,13 @@ void fb::Cards::update(const Dx& dx) {
     float max_extent = std::max(width, height);
 
     if (ImGui::Begin("Cards")) {
-        ImGui::SliderFloat2("Position", (float*)&card_constants.position, -max_extent, max_extent);
-        ImGui::SliderFloat2("Size", (float*)&card_constants.size, 0.0f, max_extent);
+        for (int i = 0; i < 2; i++) {
+            auto& cc = card_constants[i];
+            ImGui::PushID(i);
+            ImGui::SliderFloat2("Position", (float*)&cc.position, -max_extent, max_extent);
+            ImGui::SliderFloat2("Size", (float*)&cc.size, 0.0f, max_extent);
+            ImGui::PopID();
+        }
         ImGui::End();
     }
 
@@ -263,12 +273,17 @@ void fb::Cards::render(Dx& dx) {
     cmd->RSSetScissorRects(1, &scissor);
     cmd->SetGraphicsRootSignature(root_signature.get());
     cmd->SetDescriptorHeaps(1, descriptors.addressof());
-    cmd->SetGraphicsRoot32BitConstants(0, NUM_32BIT_VALUES, &card_constants, 0);
     cmd->SetGraphicsRootConstantBufferView(1, constant_buffer->GetGPUVirtualAddress());
-    cmd->SetGraphicsRootDescriptorTable(2, texture_descriptor);
     cmd->SetPipelineState(pipeline_state.get());
     cmd->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
     cmd->IASetVertexBuffers(0, 1, &vertex_buffer_view);
     cmd->IASetIndexBuffer(&index_buffer_view);
+
+    cmd->SetGraphicsRoot32BitConstants(0, NUM_32BIT_VALUES, &card_constants[0], 0);
+    cmd->SetGraphicsRootDescriptorTable(2, cube_texture_descriptor);
+    cmd->DrawIndexedInstanced(index_count, 1, 0, 0, 0);
+
+    cmd->SetGraphicsRoot32BitConstants(0, NUM_32BIT_VALUES, &card_constants[1], 0);
+    cmd->SetGraphicsRootDescriptorTable(2, rain_texture_descriptor);
     cmd->DrawIndexedInstanced(index_count, 1, 0, 0, 0);
 }
