@@ -7,11 +7,11 @@
 
 #include <backends/imgui_impl_win32.h>
 
-#include <DirectXTK12/ResourceUploadBatch.h>
+#include <directxtk12/ResourceUploadBatch.h>
 
 namespace fb {
 
-Gui::Gui(Window* window, Dx& dx) {
+Gui::Gui(const Window& window, Dx& dx) {
     // ImGui.
     {
         IMGUI_CHECKVERSION();
@@ -26,11 +26,11 @@ Gui::Gui(Window* window, Dx& dx) {
 
     // Shaders.
     {
-        fb::ShaderCompiler sc;
-        auto source = fb::read_whole_file("shaders/gui.hlsl");
+        ShaderCompiler sc;
+        auto source = read_whole_file("shaders/gui.hlsl");
         auto name = "gui";
-        vertex_shader = sc.compile(name, fb::ShaderType::Vertex, "vs_main", source);
-        pixel_shader = sc.compile(name, fb::ShaderType::Pixel, "ps_main", source);
+        vertex_shader = sc.compile(name, ShaderType::Vertex, "vs_main", source);
+        pixel_shader = sc.compile(name, ShaderType::Pixel, "ps_main", source);
     }
 
     // Root signature.
@@ -73,8 +73,8 @@ Gui::Gui(Window* window, Dx& dx) {
             &sampler,
             D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
 
-        fb::ComPtr<ID3DBlob> signature;
-        fb::ComPtr<ID3DBlob> error;
+        ComPtr<ID3DBlob> signature;
+        ComPtr<ID3DBlob> error;
         FAIL_FAST_IF_FAILED(D3DX12SerializeVersionedRootSignature(
             &desc,
             D3D_ROOT_SIGNATURE_VERSION_1_2,
@@ -85,7 +85,7 @@ Gui::Gui(Window* window, Dx& dx) {
             signature->GetBufferPointer(),
             signature->GetBufferSize(),
             IID_PPV_ARGS(&root_signature)));
-        fb::dx_set_name(root_signature, "Gui - Root Signature");
+        dx_set_name(root_signature, "Gui - Root Signature");
     }
 
     // Pipeline state.
@@ -152,7 +152,7 @@ Gui::Gui(Window* window, Dx& dx) {
         };
         FAIL_FAST_IF_FAILED(
             dx.device->CreateGraphicsPipelineState(&desc, IID_PPV_ARGS(&pipeline_state)));
-        fb::dx_set_name(pipeline_state, "Gui - Pipeline State");
+        dx_set_name(pipeline_state, "Gui - Pipeline State");
     }
 
     // Font texture.
@@ -174,7 +174,7 @@ Gui::Gui(Window* window, Dx& dx) {
             D3D12_RESOURCE_STATE_COPY_DEST,
             nullptr,
             IID_PPV_ARGS(&font_texture_resource)));
-        fb::dx_set_name(font_texture_resource, "Gui - Font Texture");
+        dx_set_name(font_texture_resource, "Gui - Font Texture");
 
         // Upload.
         D3D12_SUBRESOURCE_DATA subresource_data = {
@@ -225,7 +225,7 @@ Gui::Gui(Window* window, Dx& dx) {
     }
 
     // Geometry.
-    for (uint32_t i = 0; i < fb::FRAME_COUNT; i++) {
+    for (uint32_t i = 0; i < FRAME_COUNT; i++) {
         Gui::Geometry& geometry = geometries[i];
         geometry.vertex_buffer
             .create_vb(dx, MAX_VERTEX_COUNT, true, dx_name("Gui", "Vertex Buffer", i));
@@ -234,7 +234,7 @@ Gui::Gui(Window* window, Dx& dx) {
     }
 
     // ImGui continued.
-    ImGui_ImplWin32_Init((HWND)window_handle(window));
+    ImGui_ImplWin32_Init(window.hwnd());
 }
 
 Gui::~Gui() {
@@ -275,7 +275,7 @@ void Gui::render(const Dx& dx) {
     }
 
     // Update transform.
-    fb::Mat4x4 transform;
+    Matrix transform;
     {
         float l = ImGui::GetDrawData()->DisplayPos.x;
         float r = ImGui::GetDrawData()->DisplayPos.x + ImGui::GetDrawData()->DisplaySize.x;

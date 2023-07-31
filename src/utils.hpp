@@ -17,7 +17,7 @@ namespace fb {
 // File I/O.
 //
 
-std::vector<std::byte> read_whole_file(const char* path);
+auto read_whole_file(std::string_view path) -> std::vector<std::byte>;
 
 //
 // Logging.
@@ -28,17 +28,14 @@ enum class LogLevel {
     Warn,
     Error,
 };
-
-const char* log_level_name(LogLevel level);
-
-void log_output_debug_string(std::string_view str) noexcept;
-
+auto log_level_name(LogLevel level) -> std::string_view;
+auto log_output_debug_string(std::string_view str) -> void;
 template<typename... Args>
-void log_internal(
+auto log_internal(
     LogLevel level,
     const std::source_location& loc,
     std::string_view fmt,
-    Args&&... args) noexcept {
+    Args&&... args) -> void {
     std::string str = std::vformat(fmt, std::make_format_args(args...));
     std::string dbg_str =
         std::format("[{}]: {}({}): {}\n", log_level_name(level), loc.file_name(), loc.line(), str);
@@ -49,8 +46,8 @@ void log_internal(
 // String conversions.
 //
 
-std::string from_wstr(std::wstring_view wstr) noexcept;
-std::wstring to_wstr(std::string_view str) noexcept;
+auto from_wstr(std::wstring_view wstr) -> std::string;
+auto to_wstr(std::string_view str) -> std::wstring;
 
 //
 // Frame timing.
@@ -58,10 +55,11 @@ std::wstring to_wstr(std::string_view str) noexcept;
 
 class FrameTiming {
   public:
-    FrameTiming() noexcept;
-    void update() noexcept;
-    float delta_time() const noexcept;
-    float elapsed_time() const noexcept;
+    FrameTiming();
+
+    auto update() -> void;
+    auto delta_time() const -> float;
+    auto elapsed_time() const -> float;
 
   private:
     uint64_t m_frequency;

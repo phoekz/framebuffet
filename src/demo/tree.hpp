@@ -12,14 +12,14 @@ namespace fb::tree {
 constexpr uint32_t SHADOW_MAP_SIZE = 1024;
 
 struct ShadowConstants {
-    Mat4x4 transform;
+    Matrix transform;
     float pad[48];
 };
 
 struct MainConstants {
-    Mat4x4 transform;
-    Mat4x4 light_transform;
-    Vec3 light_direction;
+    Matrix transform;
+    Matrix light_transform;
+    Vector3 light_direction;
     float ambient_light;
     float pad[28];
 };
@@ -30,7 +30,7 @@ struct UpdateParams {
 };
 
 struct Demo {
-    inline static const char* NAME = "Tree";
+    static constexpr const char* NAME = "Tree";
 
     Demo(Dx& dx);
     void update(const UpdateParams& params);
@@ -49,7 +49,7 @@ struct Demo {
     } scene;
 
     struct ShadowPass {
-        inline static const char* NAME = "Shadow";
+        static constexpr const char* NAME = "Shadow";
 
         ComPtr<ID3D12RootSignature> root_signature;
         ComPtr<ID3D12PipelineState> pipeline_state;
@@ -67,7 +67,7 @@ struct Demo {
     } shadow_pass;
 
     struct MainPass {
-        inline static const char* NAME = "Main";
+        static constexpr const char* NAME = "Main";
 
         ComPtr<ID3D12RootSignature> root_signature;
         ComPtr<ID3D12PipelineState> pipeline_state;

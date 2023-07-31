@@ -14,13 +14,13 @@ struct Params {
 };
 
 struct Constants {
-    Mat4x4 transform;
+    Matrix transform;
     float pad[48];
 };
 
 struct Vertex {
-    Vec2 position;
-    Vec2 texcoord;
+    Vector2 position;
+    Vector2 texcoord;
 };
 
 struct Cards {
@@ -34,8 +34,8 @@ struct Cards {
 
     static constexpr uint32_t NUM_32BIT_VALUES = 4;
     struct CardConstants {
-        fb::Vec2 position;
-        fb::Vec2 size;
+        Vector2 position;
+        Vector2 size;
     } card_constants[3] = {
         {{0.0f, 0.0f}, {640.0f, 400.0f}},
         {{640.0f, 0.0f}, {640.0f, 400.0f}},

@@ -15,11 +15,11 @@ constexpr uint32_t FRAME_COUNT = 2;
 
 struct DxLeakTracker {
     ~DxLeakTracker();
-    fb::ComPtr<ID3D12DebugDevice2> debug_device;
+    ComPtr<ID3D12DebugDevice2> debug_device;
 };
 
 struct Dx {
-    Dx(Window* window);
+    Dx(const Window& window);
 
     ComPtr<ID3D12Device12> device;
     DxLeakTracker leak_tracker;
@@ -31,7 +31,7 @@ struct Dx {
     uint32_t swapchain_height = 0;
     ComPtr<ID3D12DescriptorHeap> rtv_descriptor_heap;
     std::array<D3D12_CPU_DESCRIPTOR_HANDLE, FRAME_COUNT> rtv_descriptors = {};
-    std::array<ComPtr<ID3D12Resource>, fb::FRAME_COUNT> rtvs = {};
+    std::array<ComPtr<ID3D12Resource>, FRAME_COUNT> rtvs = {};
 
     uint32_t frame_index = 0;
     ComPtr<ID3D12Fence1> fence;
@@ -45,7 +45,7 @@ struct Dx {
 };
 
 template<typename... Args>
-std::string dx_name(Args&&... args) noexcept {
+std::string dx_name(Args&&... args) {
     constexpr std::string_view DELIMITER = " - ";
     std::ostringstream oss;
     ((oss << args << DELIMITER), ...);

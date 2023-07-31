@@ -4,26 +4,28 @@
 #include <cstddef>
 #include <vector>
 #include <span>
+#include <dxgiformat.h>
 
 namespace fb {
 
-struct Image {
-    static Image load(const std::span<std::byte> image_data);
+class Image {
+  public:
+    Image(std::span<const std::byte> image_data);
 
-    inline uint32_t row_pitch() const {
-        return width * channels;
-    }
-    inline uint32_t slice_pitch() const {
-        return row_pitch() * height;
-    }
-    inline const std::byte* data() const {
-        return pixels.data();
-    }
+    auto format() const -> DXGI_FORMAT { return _format; }
+    auto width() const -> uint32_t { return _width; }
+    auto height() const -> uint32_t { return _height; }
+    auto channels() const -> uint32_t { return _channels; }
+    auto row_pitch() const -> uint32_t { return width() * channels(); }
+    auto slice_pitch() const -> uint32_t { return row_pitch() * height(); }
+    auto data() const -> const std::byte* { return _pixels.data(); }
 
-    uint32_t width;
-    uint32_t height;
-    uint32_t channels;
-    std::vector<std::byte> pixels;
+  private:
+    DXGI_FORMAT _format;
+    uint32_t _width;
+    uint32_t _height;
+    uint32_t _channels;
+    std::vector<std::byte> _pixels;
 };
 
 }  // namespace fb

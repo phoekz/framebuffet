@@ -1,18 +1,19 @@
 #include "win32.hpp"
 #include "utils.hpp"
+#include <wil/resource.h>
 #include <wil/result_macros.h>
 #include <imgui.h>
-#include <windows.h>
 
 // ImGui input handler.
-extern IMGUI_IMPL_API LRESULT
-ImGui_ImplWin32_WndProcHandler(HWND window, UINT message, WPARAM w_param, LPARAM l_param);
+extern auto IMGUI_IMPL_API
+ImGui_ImplWin32_WndProcHandler(HWND window, UINT message, WPARAM w_param, LPARAM l_param)
+    -> LRESULT;
 
 namespace fb {
 
 // Window procedure.
-static LRESULT CALLBACK
-win32_window_proc(HWND window, UINT message, WPARAM w_param, LPARAM l_param) {
+static auto CALLBACK win32_window_proc(HWND window, UINT message, WPARAM w_param, LPARAM l_param)
+    -> LRESULT {
     // ImGui input handling.
     if (ImGui_ImplWin32_WndProcHandler(window, message, w_param, l_param))
         return true;
@@ -39,12 +40,12 @@ win32_window_proc(HWND window, UINT message, WPARAM w_param, LPARAM l_param) {
     return DefWindowProcA(window, message, w_param, l_param);
 }
 
-// Window structure.
-struct Window {
-    HWND handle = nullptr;
+class WindowImpl {
+  public:
+    wil::unique_hwnd handle;
 };
 
-Window* window_create(const WindowDesc& desc) noexcept {
+Window::Window(const Desc& desc) {
     // Module handle.
     HMODULE module_handle = GetModuleHandleA(nullptr);
 
@@ -65,7 +66,7 @@ Window* window_create(const WindowDesc& desc) noexcept {
         .hCursor = cursor,
         .hbrBackground = background_brush,
         .lpszMenuName = nullptr,
-        .lpszClassName = desc.title,
+        .lpszClassName = desc.title.data(),
         .hIconSm = window_class.hIcon};
     RegisterClassExA(&window_class);
 
@@ -92,8 +93,8 @@ Window* window_create(const WindowDesc& desc) noexcept {
     // Create window.
     HWND window_handle = CreateWindowExA(
         WS_EX_APPWINDOW,
-        desc.title,
-        desc.title,
+        desc.title.data(),
+        desc.title.data(),
         window_style,
         window_x,
         window_h,
@@ -112,18 +113,17 @@ Window* window_create(const WindowDesc& desc) noexcept {
     // Logging.
     log_info("Created window: {}", desc.title);
 
-    // Result.
-    Window* window = new Window();
-    window->handle = window_handle;
-    return window;
+    // Create window implementation.
+    impl = std::make_unique<WindowImpl>();
+    impl->handle.reset(window_handle);
 }
 
-void window_destroy(Window* window) noexcept {
-    DestroyWindow(window->handle);
+Window::~Window() {
+    impl = nullptr;
 }
 
-WindowHandle* window_handle(Window* window) noexcept {
-    return (WindowHandle*)window->handle;
+auto Window::hwnd() const -> HWND {
+    return impl->handle.get();
 }
 
 }  // namespace fb

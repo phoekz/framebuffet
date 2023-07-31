@@ -10,7 +10,7 @@
 namespace fb::cube {
 
 struct Constants {
-    Mat4x4 transform;
+    Matrix transform;
     float pad[48];
 };
 

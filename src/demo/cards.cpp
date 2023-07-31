@@ -46,8 +46,8 @@ Cards::Cards(Dx& dx, const Params& params) {
             &sampler_desc,
             D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
 
-        fb::ComPtr<ID3DBlob> signature;
-        fb::ComPtr<ID3DBlob> error;
+        ComPtr<ID3DBlob> signature;
+        ComPtr<ID3DBlob> error;
         FAIL_FAST_IF_FAILED(D3DX12SerializeVersionedRootSignature(
             &root_signature_desc,
             D3D_ROOT_SIGNATURE_VERSION_1_2,
@@ -58,18 +58,18 @@ Cards::Cards(Dx& dx, const Params& params) {
             signature->GetBufferPointer(),
             signature->GetBufferSize(),
             IID_PPV_ARGS(&root_signature)));
-        fb::dx_set_name(root_signature, "Cards - Root Signature");
+        dx_set_name(root_signature, "Cards - Root Signature");
     }
 
     // Shaders.
-    fb::Shader vertex_shader;
-    fb::Shader pixel_shader;
+    Shader vertex_shader;
+    Shader pixel_shader;
     {
-        fb::ShaderCompiler sc;
-        auto source = fb::read_whole_file("shaders/cards.hlsl");
+        ShaderCompiler sc;
+        auto source = read_whole_file("shaders/cards.hlsl");
         auto name = "cards";
-        vertex_shader = sc.compile(name, fb::ShaderType::Vertex, "vs_main", source);
-        pixel_shader = sc.compile(name, fb::ShaderType::Pixel, "ps_main", source);
+        vertex_shader = sc.compile(name, ShaderType::Vertex, "vs_main", source);
+        pixel_shader = sc.compile(name, ShaderType::Pixel, "ps_main", source);
     }
 
     // Pipeline state.
@@ -96,7 +96,7 @@ Cards::Cards(Dx& dx, const Params& params) {
         };
         FAIL_FAST_IF_FAILED(
             dx.device->CreateGraphicsPipelineState(&desc, IID_PPV_ARGS(&pipeline_state)));
-        fb::dx_set_name(pipeline_state, "Cards - Pipeline State");
+        dx_set_name(pipeline_state, "Cards - Pipeline State");
     }
 
     // Descriptor heap.
@@ -108,7 +108,7 @@ Cards::Cards(Dx& dx, const Params& params) {
         };
         FAIL_FAST_IF_FAILED(
             dx.device->CreateDescriptorHeap(&descriptor_heap_desc, IID_PPV_ARGS(&descriptor_heap)));
-        fb::dx_set_name(descriptor_heap, "Cards - Descriptor Heap");
+        dx_set_name(descriptor_heap, "Cards - Descriptor Heap");
     }
 
     // Constant buffer.
@@ -187,7 +187,7 @@ void Cards::update(const Dx& dx) {
     ImGui::End();
 
     constants.transform =
-        fb::Mat4x4::CreateOrthographicOffCenter(0.0f, width, height, 0.0f, 0.0f, 1.0f);
+        Matrix::CreateOrthographicOffCenter(0.0f, width, height, 0.0f, 0.0f, 1.0f);
     memcpy(constant_buffer.ptr(), &constants, sizeof(constants));
 }
 

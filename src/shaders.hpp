@@ -8,29 +8,38 @@
 
 namespace fb {
 
-struct Shader {
-    D3D12_SHADER_BYTECODE bytecode();
-
-    ComPtr<IDxcBlob> blob;
-};
-
 enum class ShaderType {
     Compute,
     Vertex,
     Pixel,
 };
 
-struct ShaderCompiler {
+class Shader {
+  public:
+    auto blob() const -> IDxcBlob* { return _blob.get(); }
+    auto type() const -> ShaderType { return _type; }
+    auto bytecode() const -> D3D12_SHADER_BYTECODE;
+
+  private:
+    friend class ShaderCompiler;
+    ComPtr<IDxcBlob> _blob;
+    ShaderType _type;
+};
+
+class ShaderCompiler {
+  public:
     ShaderCompiler();
-    Shader compile(
+
+    auto compile(
         std::string_view name,
         ShaderType type,
         std::string_view entry_point,
-        std::span<std::byte> source);
+        std::span<std::byte> source) -> Shader;
 
-    ComPtr<IDxcCompiler3> compiler;
-    ComPtr<IDxcUtils> utils;
-    ComPtr<IDxcIncludeHandler> include_handler;
+  private:
+    ComPtr<IDxcCompiler3> _compiler;
+    ComPtr<IDxcUtils> _utils;
+    ComPtr<IDxcIncludeHandler> _include_handler;
 };
 
 }  // namespace fb

@@ -37,15 +37,12 @@ constexpr float CLEAR_COLOR[4] = {0.1f, 0.1f, 0.1f, 1.0f};
 // Main.
 //
 
-int main() {
+auto main() -> int {
     // Init.
-    fb::Window* window = fb::window_create({
-        .title = WINDOW_TITLE,
-        .width = WINDOW_WIDTH,
-        .height = WINDOW_HEIGHT,
-    });
-    auto dx = std::make_unique<fb::Dx>(window);
-    auto gui = std::make_unique<fb::Gui>(window, *dx);
+    auto window =
+        std::make_unique<fb::Window>(fb::Window::Desc {WINDOW_TITLE, WINDOW_WIDTH, WINDOW_HEIGHT});
+    auto dx = std::make_unique<fb::Dx>(*window);
+    auto gui = std::make_unique<fb::Gui>(*window, *dx);
     auto cube_demo = std::make_unique<fb::cube::Demo>(*dx);
     auto rain_demo = std::make_unique<fb::rain::Demo>(*dx);
     auto tree_demo = std::make_unique<fb::tree::Demo>(*dx);
@@ -214,7 +211,7 @@ int main() {
     cube_demo = nullptr;
     gui = nullptr;
     dx = nullptr;
-    fb::window_destroy(window);
+    window = nullptr;
 
     return 0;
 }

@@ -1,7 +1,7 @@
 #include "tree.hpp"
 #include "../shaders.hpp"
 #include "../gltf.hpp"
-#include <DirectXTK12/ResourceUploadBatch.h>
+#include <directxtk12/ResourceUploadBatch.h>
 #include <imgui.h>
 
 #pragma warning(push)
@@ -37,13 +37,12 @@ static void init_scene_model(
     // Texture.
     {
         // Resource.
-        constexpr auto TEXTURE_FORMAT = DXGI_FORMAT_R8G8B8A8_UNORM;
-        const auto& gltf_texture = gltf_model.base_color_texture;
+        const auto& gltf_texture = gltf_model.base_color_texture();
         auto& texture = model.texture;
         auto texture_desc = CD3DX12_RESOURCE_DESC::Tex2D(
-            TEXTURE_FORMAT,
-            gltf_texture.width,
-            gltf_texture.height,
+            gltf_texture.format(),
+            gltf_texture.width(),
+            gltf_texture.height(),
             1,
             1);
         CD3DX12_HEAP_PROPERTIES texture_heap(D3D12_HEAP_TYPE_DEFAULT);
@@ -75,8 +74,8 @@ static void init_scene_model(
 }
 
 static void init_scene(Dx& dx, Demo::Scene& scene) {
-    init_scene_model(dx, GltfModel::load("models/coconut_tree.glb"), "Tree", scene.tree);
-    init_scene_model(dx, GltfModel::load("models/sand_plane.glb"), "Plane", scene.plane);
+    init_scene_model(dx, GltfModel("models/coconut_tree.glb"), "Tree", scene.tree);
+    init_scene_model(dx, GltfModel("models/sand_plane.glb"), "Plane", scene.plane);
 }
 
 static void init_shadow_pass(Dx& dx, Demo::ShadowPass& pass) {
@@ -356,7 +355,7 @@ static void init_main_pass(Dx& dx, Demo::MainPass& pass) {
         pass.constants.create_cb(dx, true, dx_name(Demo::NAME, Demo::MainPass::NAME, "Constants"));
         memset(pass.constants.ptr(), 0, sizeof(MainConstants));
         auto& constants = *pass.constants.ptr();
-        constants.light_direction = Vec3(1.0f, 1.0f, 1.0f);
+        constants.light_direction = Vector3(1.0f, 1.0f, 1.0f);
         constants.light_direction.Normalize();
         constants.ambient_light = 0.25f;
     }
@@ -568,15 +567,15 @@ void Demo::update(const UpdateParams& params) {
 
     // Shadow pass - constants.
     {
-        auto projection = Mat4x4::CreateOrthographic(
+        auto projection = Matrix::CreateOrthographic(
             light_projection_size,
             light_projection_size,
             shadow_near_plane,
             shadow_far_plane);
         auto eye = light_distance * main_constants.light_direction;
-        auto at = Vec3(0.0f, 0.0f, 0.0f);
-        auto up = Vec3(0.0f, 1.0f, 0.0f);
-        auto view = Mat4x4::CreateLookAt(eye, at, up);
+        auto at = Vector3(0.0f, 0.0f, 0.0f);
+        auto up = Vector3(0.0f, 1.0f, 0.0f);
+        auto view = Matrix::CreateLookAt(eye, at, up);
 
         shadow_constants.transform = view * projection;
     }
@@ -585,11 +584,11 @@ void Demo::update(const UpdateParams& params) {
     {
         auto fov = rad_from_deg(45.0f);
         auto aspect_ratio = params.aspect_ratio;
-        auto projection = Mat4x4::CreatePerspectiveFieldOfView(fov, aspect_ratio, 0.1f, 100.0f);
-        auto eye = Vec3(7.0f * std::sin(camera_angle), 8.0f, 7.0f * std::cos(camera_angle));
-        auto at = Vec3(0.0f, 3.0f, 0.0f);
-        auto up = Vec3(0.0f, 1.0f, 0.0f);
-        auto view = Mat4x4::CreateLookAt(eye, at, up);
+        auto projection = Matrix::CreatePerspectiveFieldOfView(fov, aspect_ratio, 0.1f, 100.0f);
+        auto eye = Vector3(7.0f * std::sin(camera_angle), 8.0f, 7.0f * std::cos(camera_angle));
+        auto at = Vector3(0.0f, 3.0f, 0.0f);
+        auto up = Vector3(0.0f, 1.0f, 0.0f);
+        auto view = Matrix::CreateLookAt(eye, at, up);
 
         main_constants.transform = view * projection;
         main_constants.light_transform = shadow_constants.transform;

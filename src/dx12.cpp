@@ -24,12 +24,12 @@ DxLeakTracker::~DxLeakTracker() {
 #endif
 }
 
-Dx::Dx(Window* window) {
+Dx::Dx(const Window& window) {
     // Debug layer.
     UINT factory_flags = 0;
     {
 #if defined(_DEBUG)
-        fb::ComPtr<ID3D12Debug6> debug;
+        ComPtr<ID3D12Debug6> debug;
         FAIL_FAST_IF_FAILED(D3D12GetDebugInterface(IID_PPV_ARGS(&debug)));
         debug->EnableDebugLayer();
         factory_flags = DXGI_CREATE_FACTORY_DEBUG;
@@ -37,11 +37,11 @@ Dx::Dx(Window* window) {
     }
 
     // Factory.
-    fb::ComPtr<IDXGIFactory7> factory;
+    ComPtr<IDXGIFactory7> factory;
     FAIL_FAST_IF_FAILED(CreateDXGIFactory2(factory_flags, IID_PPV_ARGS(&factory)));
 
     // Adapter.
-    fb::ComPtr<IDXGIAdapter4> adapter;
+    ComPtr<IDXGIAdapter4> adapter;
     {
         IDXGIAdapter4* temp_adapter = nullptr;
         uint32_t adapter_index = 0;
@@ -68,15 +68,15 @@ Dx::Dx(Window* window) {
     // Output.
     {
         UINT i = 0;
-        fb::ComPtr<IDXGIOutput> output;
+        ComPtr<IDXGIOutput> output;
         while (adapter->EnumOutputs(i, &output) != DXGI_ERROR_NOT_FOUND) {
-            fb::ComPtr<IDXGIOutput6> output6;
+            ComPtr<IDXGIOutput6> output6;
             output.query_to(&output6);
 
             DXGI_OUTPUT_DESC1 desc;
             output6->GetDesc1(&desc);
 
-            fb::Rect desktop_rect(desc.DesktopCoordinates);
+            Rectangle desktop_rect(desc.DesktopCoordinates);
             log_info(
                 "Display: {} x {} @ {}bpp, luminance: {} to {}",
                 desktop_rect.width,
@@ -119,7 +119,7 @@ Dx::Dx(Window* window) {
     }
 
     // Command allocators.
-    for (uint32_t i = 0; i < fb::FRAME_COUNT; i++) {
+    for (uint32_t i = 0; i < FRAME_COUNT; i++) {
         FAIL_FAST_IF_FAILED(device->CreateCommandAllocator(
             D3D12_COMMAND_LIST_TYPE_DIRECT,
             IID_PPV_ARGS(&command_allocators[i])));
@@ -136,7 +136,7 @@ Dx::Dx(Window* window) {
 
     // Swapchain.
     {
-        fb::ComPtr<IDXGISwapChain1> swapchain1;
+        ComPtr<IDXGISwapChain1> swapchain1;
         DXGI_SWAP_CHAIN_DESC1 desc = {
             .Width = 0,
             .Height = 0,
@@ -156,7 +156,7 @@ Dx::Dx(Window* window) {
         };
         FAIL_FAST_IF_FAILED(factory->CreateSwapChainForHwnd(
             command_queue.get(),
-            (HWND)window_handle(window),
+            window.hwnd(),
             &desc,
             nullptr,
             nullptr,
@@ -188,7 +188,7 @@ Dx::Dx(Window* window) {
             device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
         D3D12_CPU_DESCRIPTOR_HANDLE rtv_descriptor_handle =
             rtv_descriptor_heap->GetCPUDescriptorHandleForHeapStart();
-        for (uint32_t i = 0; i < fb::FRAME_COUNT; i++) {
+        for (uint32_t i = 0; i < FRAME_COUNT; i++) {
             FAIL_FAST_IF_FAILED(swapchain->GetBuffer(i, IID_PPV_ARGS(&rtvs[i])));
             dx_set_name(rtvs[i], dx_name("Render Target", i));
 

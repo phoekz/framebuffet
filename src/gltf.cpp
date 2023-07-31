@@ -6,7 +6,7 @@
 
 namespace fb {
 
-GltfModel GltfModel::load(std::string_view path) {
+GltfModel::GltfModel(std::string_view path) {
     // Load GLTF.
     cgltf_options options = {};
     cgltf_data* data = nullptr;
@@ -24,7 +24,7 @@ GltfModel GltfModel::load(std::string_view path) {
     cgltf_accessor* normal_accessor = nullptr;
     cgltf_accessor* texcoord_accessor = nullptr;
     cgltf_accessor* index_accessor = primitive.indices;
-    for (int i = 0; i < primitive.attributes_count; i++) {
+    for (size_t i = 0; i < primitive.attributes_count; i++) {
         cgltf_attribute& attribute = primitive.attributes[i];
         if (attribute.type == cgltf_attribute_type_position) {
             position_accessor = attribute.data;
@@ -45,26 +45,23 @@ GltfModel GltfModel::load(std::string_view path) {
     FAIL_FAST_IF(texcoord_accessor->count != vertex_count);
     size_t index_count = index_accessor->count;
 
-    // Result.
-    GltfModel result;
-
     // Read geometries.
-    result.vertices.resize(vertex_count);
-    result.indices.resize(index_count);
+    _vertices.resize(vertex_count);
+    _indices.resize(index_count);
     for (size_t i = 0; i < vertex_count; i++) {
-        GltfVertex& v = result.vertices[i];
+        GltfVertex& v = _vertices[i];
         FAIL_FAST_IF(!cgltf_accessor_read_float(position_accessor, i, v.position, 3));
         FAIL_FAST_IF(!cgltf_accessor_read_float(normal_accessor, i, v.normal, 3));
         FAIL_FAST_IF(!cgltf_accessor_read_float(texcoord_accessor, i, v.texcoord, 2));
     }
     for (size_t i = 0; i < index_count; i++) {
-        uint32_t& index = result.indices[i];
+        uint32_t& index = _indices[i];
         FAIL_FAST_IF(!cgltf_accessor_read_uint(index_accessor, i, &index, 1));
     }
 
     // Swap indices.
     for (size_t i = 0; i < index_count; i += 3) {
-        std::swap(result.indices[i + 0], result.indices[i + 2]);
+        std::swap(_indices[i + 0], _indices[i + 2]);
     }
 
     // Read material.
@@ -79,14 +76,11 @@ GltfModel GltfModel::load(std::string_view path) {
         auto image_view = image.buffer_view;
         auto image_data = (std::byte*)cgltf_buffer_view_data(image_view);
         auto image_span = std::span(image_data, image_view->size);
-        result.base_color_texture = Image::load(image_span);
+        _base_color_texture = std::make_unique<Image>(image_span);
     }
 
     // Cleanup.
     cgltf_free(data);
-
-    // Return.
-    return result;
 }
 
 }  // namespace fb

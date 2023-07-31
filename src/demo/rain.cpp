@@ -2,7 +2,7 @@
 #include "../shaders.hpp"
 #include "../pcg.hpp"
 #include <directxtk12/CommonStates.h>
-#include <DirectXTK12/ResourceUploadBatch.h>
+#include <directxtk12/ResourceUploadBatch.h>
 #include <imgui.h>
 
 namespace fb::rain {
@@ -44,19 +44,18 @@ Demo::Demo(Dx& dx) {
     }
 
     // Shaders.
-    fb::Shader compute_shader;
-    fb::Shader vertex_shader;
-    fb::Shader pixel_shader;
+    Shader compute_shader;
+    Shader vertex_shader;
+    Shader pixel_shader;
     {
-        fb::ShaderCompiler sc;
+        ShaderCompiler sc;
         auto compute_name = "rain-compute";
         auto draw_name = "rain-draw";
-        auto compute_source = fb::read_whole_file("shaders/rain.compute.hlsl");
-        auto draw_source = fb::read_whole_file("shaders/rain.draw.hlsl");
-        compute_shader =
-            sc.compile(compute_name, fb::ShaderType::Compute, "cs_main", compute_source);
-        vertex_shader = sc.compile(draw_name, fb::ShaderType::Vertex, "vs_main", draw_source);
-        pixel_shader = sc.compile(draw_name, fb::ShaderType::Pixel, "ps_main", draw_source);
+        auto compute_source = read_whole_file("shaders/rain.compute.hlsl");
+        auto draw_source = read_whole_file("shaders/rain.draw.hlsl");
+        compute_shader = sc.compile(compute_name, ShaderType::Compute, "cs_main", compute_source);
+        vertex_shader = sc.compile(draw_name, ShaderType::Vertex, "vs_main", draw_source);
+        pixel_shader = sc.compile(draw_name, ShaderType::Pixel, "ps_main", draw_source);
     }
 
     // Compute - Root signature.
@@ -77,8 +76,8 @@ Demo::Demo(Dx& dx) {
             nullptr,
             D3D12_ROOT_SIGNATURE_FLAG_NONE);
 
-        fb::ComPtr<ID3DBlob> signature;
-        fb::ComPtr<ID3DBlob> error;
+        ComPtr<ID3DBlob> signature;
+        ComPtr<ID3DBlob> error;
         FAIL_FAST_IF_FAILED(D3DX12SerializeVersionedRootSignature(
             &desc,
             D3D_ROOT_SIGNATURE_VERSION_1_2,
@@ -89,7 +88,7 @@ Demo::Demo(Dx& dx) {
             signature->GetBufferPointer(),
             signature->GetBufferSize(),
             IID_PPV_ARGS(&compute.root_signature)));
-        fb::dx_set_name(compute.root_signature, "Rain - Compute - Root Signature");
+        dx_set_name(compute.root_signature, "Rain - Compute - Root Signature");
     }
 
     // Compute - Pipeline state.
@@ -100,7 +99,7 @@ Demo::Demo(Dx& dx) {
         };
         FAIL_FAST_IF_FAILED(
             dx.device->CreateComputePipelineState(&desc, IID_PPV_ARGS(&compute.pipeline_state)));
-        fb::dx_set_name(compute.pipeline_state, "Rain - Compute - Pipeline State");
+        dx_set_name(compute.pipeline_state, "Rain - Compute - Pipeline State");
     }
 
     // Compute - Descriptor heap.
@@ -112,7 +111,7 @@ Demo::Demo(Dx& dx) {
         };
         FAIL_FAST_IF_FAILED(
             dx.device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&compute.descriptor_heap)));
-        fb::dx_set_name(compute.descriptor_heap, "Rain - Compute - Descriptor Heap");
+        dx_set_name(compute.descriptor_heap, "Rain - Compute - Descriptor Heap");
     }
 
     // Draw - Root signature.
@@ -129,8 +128,8 @@ Demo::Demo(Dx& dx) {
             nullptr,
             D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
 
-        fb::ComPtr<ID3DBlob> signature;
-        fb::ComPtr<ID3DBlob> error;
+        ComPtr<ID3DBlob> signature;
+        ComPtr<ID3DBlob> error;
         FAIL_FAST_IF_FAILED(D3DX12SerializeVersionedRootSignature(
             &desc,
             D3D_ROOT_SIGNATURE_VERSION_1_2,
@@ -141,7 +140,7 @@ Demo::Demo(Dx& dx) {
             signature->GetBufferPointer(),
             signature->GetBufferSize(),
             IID_PPV_ARGS(&draw.root_signature)));
-        fb::dx_set_name(draw.root_signature, "Rain - Draw - Root Signature");
+        dx_set_name(draw.root_signature, "Rain - Draw - Root Signature");
     }
 
     // Draw - Pipeline state.
@@ -172,7 +171,7 @@ Demo::Demo(Dx& dx) {
         };
         FAIL_FAST_IF_FAILED(
             dx.device->CreateGraphicsPipelineState(&desc, IID_PPV_ARGS(&draw.pipeline_state)));
-        fb::dx_set_name(draw.pipeline_state, "Rain - Draw - Pipeline State");
+        dx_set_name(draw.pipeline_state, "Rain - Draw - Pipeline State");
     }
 
     // Color target.
@@ -198,7 +197,7 @@ Demo::Demo(Dx& dx) {
             D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
             &color_clear_value,
             IID_PPV_ARGS(&color_target)));
-        fb::dx_set_name(color_target, "Rain - Color Target");
+        dx_set_name(color_target, "Rain - Color Target");
 
         D3D12_DESCRIPTOR_HEAP_DESC descriptors_desc = {
             .Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV,
@@ -207,7 +206,7 @@ Demo::Demo(Dx& dx) {
         FAIL_FAST_IF_FAILED(dx.device->CreateDescriptorHeap(
             &descriptors_desc,
             IID_PPV_ARGS(&color_target_descriptor_heap)));
-        fb::dx_set_name(color_target_descriptor_heap, "Rain - Color Target Descriptor Heap");
+        dx_set_name(color_target_descriptor_heap, "Rain - Color Target Descriptor Heap");
         color_target_descriptor =
             color_target_descriptor_heap->GetCPUDescriptorHandleForHeapStart();
         dx.device->CreateRenderTargetView(color_target.get(), nullptr, color_target_descriptor);
@@ -235,7 +234,7 @@ Demo::Demo(Dx& dx) {
             D3D12_RESOURCE_STATE_DEPTH_WRITE,
             &depth_clear_value,
             IID_PPV_ARGS(&depth_target)));
-        fb::dx_set_name(depth_target, "Rain - Depth Target");
+        dx_set_name(depth_target, "Rain - Depth Target");
 
         D3D12_DESCRIPTOR_HEAP_DESC descriptors_desc = {
             .Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV,
@@ -244,7 +243,7 @@ Demo::Demo(Dx& dx) {
         FAIL_FAST_IF_FAILED(dx.device->CreateDescriptorHeap(
             &descriptors_desc,
             IID_PPV_ARGS(&depth_target_descriptor_heap)));
-        fb::dx_set_name(depth_target_descriptor_heap, "Rain - Depth Target Descriptor Heap");
+        dx_set_name(depth_target_descriptor_heap, "Rain - Depth Target Descriptor Heap");
         depth_target_descriptor =
             depth_target_descriptor_heap->GetCPUDescriptorHandleForHeapStart();
         dx.device->CreateDepthStencilView(depth_target.get(), nullptr, depth_target_descriptor);
@@ -260,14 +259,10 @@ void Demo::update(const UpdateParams& params) {
     ImGui::End();
 
     float aspect_ratio = params.aspect_ratio;
-    fb::Mat4x4 perspective = fb::Mat4x4::CreatePerspectiveFieldOfView(
-        fb::rad_from_deg(45.0f),
-        aspect_ratio,
-        0.1f,
-        100.0f);
-    fb::Vec3 eye = fb::Vec3(1.0f, 0.5f, 1.0f);
-    fb::Mat4x4 view =
-        fb::Mat4x4::CreateLookAt(eye, fb::Vec3(0.0f, 0.0f, 0.0f), fb::Vec3(0.0f, 1.0f, 0.0f));
+    Matrix perspective =
+        Matrix::CreatePerspectiveFieldOfView(rad_from_deg(45.0f), aspect_ratio, 0.1f, 100.0f);
+    Vector3 eye = Vector3(1.0f, 0.5f, 1.0f);
+    Matrix view = Matrix::CreateLookAt(eye, Vector3(0.0f, 0.0f, 0.0f), Vector3(0.0f, 1.0f, 0.0f));
     draw.transform = view * perspective;
 }
 

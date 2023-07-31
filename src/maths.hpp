@@ -4,22 +4,22 @@
 
 namespace fb {
 
-using Rect = DirectX::SimpleMath::Rectangle;
-using Vec2 = DirectX::SimpleMath::Vector2;
-using Vec3 = DirectX::SimpleMath::Vector3;
-using Vec4 = DirectX::SimpleMath::Vector4;
-using Mat4x4 = DirectX::SimpleMath::Matrix;
+using Rectangle = DirectX::SimpleMath::Rectangle;
+using Vector2 = DirectX::SimpleMath::Vector2;
+using Vector3 = DirectX::SimpleMath::Vector3;
+using Vector4 = DirectX::SimpleMath::Vector4;
+using Matrix = DirectX::SimpleMath::Matrix;
 using Plane = DirectX::SimpleMath::Plane;
-using Quat = DirectX::SimpleMath::Quaternion;
+using Quaternion = DirectX::SimpleMath::Quaternion;
 using Color = DirectX::SimpleMath::Color;
 using Ray = DirectX::SimpleMath::Ray;
 using Viewport = DirectX::SimpleMath::Viewport;
 
 constexpr float PI = DirectX::XM_PI;
-constexpr float rad_from_deg(float deg) {
+constexpr auto rad_from_deg(float deg) -> float {
     return deg * PI / 180.0f;
 }
-constexpr float deg_from_rad(float rad) {
+constexpr auto deg_from_rad(float rad) -> float {
     return rad * 180.0f / PI;
 }
 

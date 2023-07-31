@@ -1,7 +1,7 @@
 #include "cube.hpp"
 #include "../shaders.hpp"
 #include "../gltf.hpp"
-#include <DirectXTK12/ResourceUploadBatch.h>
+#include <directxtk12/ResourceUploadBatch.h>
 
 namespace fb::cube {
 
@@ -54,8 +54,8 @@ Demo::Demo(Dx& dx) {
             &sampler,
             D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
 
-        fb::ComPtr<ID3DBlob> signature;
-        fb::ComPtr<ID3DBlob> error;
+        ComPtr<ID3DBlob> signature;
+        ComPtr<ID3DBlob> error;
         FAIL_FAST_IF_FAILED(D3DX12SerializeVersionedRootSignature(
             &desc,
             D3D_ROOT_SIGNATURE_VERSION_1_2,
@@ -66,18 +66,18 @@ Demo::Demo(Dx& dx) {
             signature->GetBufferPointer(),
             signature->GetBufferSize(),
             IID_PPV_ARGS(&root_signature)));
-        fb::dx_set_name(root_signature, "Cube - Root Signature");
+        dx_set_name(root_signature, "Cube - Root Signature");
     }
 
     // Shaders.
-    fb::Shader vertex_shader;
-    fb::Shader pixel_shader;
+    Shader vertex_shader;
+    Shader pixel_shader;
     {
-        fb::ShaderCompiler sc;
+        ShaderCompiler sc;
         auto name = "cube";
-        auto source = fb::read_whole_file("shaders/cube.hlsl");
-        vertex_shader = sc.compile(name, fb::ShaderType::Vertex, "vs_main", source);
-        pixel_shader = sc.compile(name, fb::ShaderType::Pixel, "ps_main", source);
+        auto source = read_whole_file("shaders/cube.hlsl");
+        vertex_shader = sc.compile(name, ShaderType::Vertex, "vs_main", source);
+        pixel_shader = sc.compile(name, ShaderType::Pixel, "ps_main", source);
     }
 
     // Pipeline state.
@@ -106,7 +106,7 @@ Demo::Demo(Dx& dx) {
         };
         FAIL_FAST_IF_FAILED(
             dx.device->CreateGraphicsPipelineState(&desc, IID_PPV_ARGS(&pipeline_state)));
-        fb::dx_set_name(pipeline_state, "Cube - Pipeline State");
+        dx_set_name(pipeline_state, "Cube - Pipeline State");
     }
 
     // Descriptor heap.
@@ -118,7 +118,7 @@ Demo::Demo(Dx& dx) {
             .NodeMask = 0,
         };
         FAIL_FAST_IF_FAILED(dx.device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&descriptor_heap)));
-        fb::dx_set_name(descriptor_heap, "Cube - Descriptor Heap");
+        dx_set_name(descriptor_heap, "Cube - Descriptor Heap");
 
         uint32_t increment_size =
             dx.device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
@@ -140,7 +140,7 @@ Demo::Demo(Dx& dx) {
     }
 
     // Model.
-    auto model = fb::GltfModel::load("models/stylized_crate.glb");
+    auto model = GltfModel("models/stylized_crate.glb");
 
     // Geometry.
     {
@@ -154,10 +154,9 @@ Demo::Demo(Dx& dx) {
     // Texture.
     {
         // Create.
-        const auto& image = model.base_color_texture;
-        auto texture_format = DXGI_FORMAT_R8G8B8A8_UNORM;
+        const auto& image = model.base_color_texture();
         auto texture_desc =
-            CD3DX12_RESOURCE_DESC::Tex2D(texture_format, image.width, image.height, 1, 1);
+            CD3DX12_RESOURCE_DESC::Tex2D(image.format(), image.width(), image.height(), 1, 1);
         CD3DX12_HEAP_PROPERTIES texture_heap(D3D12_HEAP_TYPE_DEFAULT);
         FAIL_FAST_IF_FAILED(dx.device->CreateCommittedResource(
             &texture_heap,
@@ -166,7 +165,7 @@ Demo::Demo(Dx& dx) {
             D3D12_RESOURCE_STATE_COPY_DEST,
             nullptr,
             IID_PPV_ARGS(&texture)));
-        fb::dx_set_name(texture, "Cube - Texture");
+        dx_set_name(texture, "Cube - Texture");
 
         // Upload.
         D3D12_SUBRESOURCE_DATA subresource_data = {
@@ -186,7 +185,7 @@ Demo::Demo(Dx& dx) {
 
         // Descriptor.
         D3D12_SHADER_RESOURCE_VIEW_DESC srv_desc = {
-            .Format = texture_format,
+            .Format = image.format(),
             .ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D,
             .Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING,
             .Texture2D = D3D12_TEX2D_SRV {.MipLevels = 1},
@@ -221,7 +220,7 @@ Demo::Demo(Dx& dx) {
             D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
             &color_clear_value,
             IID_PPV_ARGS(&color_target)));
-        fb::dx_set_name(color_target, "Cube - Color Target");
+        dx_set_name(color_target, "Cube - Color Target");
 
         D3D12_DESCRIPTOR_HEAP_DESC descriptors_desc = {
             .Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV,
@@ -230,7 +229,7 @@ Demo::Demo(Dx& dx) {
         FAIL_FAST_IF_FAILED(dx.device->CreateDescriptorHeap(
             &descriptors_desc,
             IID_PPV_ARGS(&color_target_descriptor_heap)));
-        fb::dx_set_name(color_target_descriptor_heap, "Cube - Color Target Descriptor Heap");
+        dx_set_name(color_target_descriptor_heap, "Cube - Color Target Descriptor Heap");
         color_target_descriptor =
             color_target_descriptor_heap->GetCPUDescriptorHandleForHeapStart();
         dx.device->CreateRenderTargetView(color_target.get(), nullptr, color_target_descriptor);
@@ -258,7 +257,7 @@ Demo::Demo(Dx& dx) {
             D3D12_RESOURCE_STATE_DEPTH_WRITE,
             &depth_clear_value,
             IID_PPV_ARGS(&depth_target)));
-        fb::dx_set_name(depth_target, "Cube - Depth Target");
+        dx_set_name(depth_target, "Cube - Depth Target");
 
         D3D12_DESCRIPTOR_HEAP_DESC descriptors_desc = {
             .Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV,
@@ -267,7 +266,7 @@ Demo::Demo(Dx& dx) {
         FAIL_FAST_IF_FAILED(dx.device->CreateDescriptorHeap(
             &descriptors_desc,
             IID_PPV_ARGS(&depth_target_descriptor_heap)));
-        fb::dx_set_name(depth_target_descriptor_heap, "Cube - Depth Target Descriptor Heap");
+        dx_set_name(depth_target_descriptor_heap, "Cube - Depth Target Descriptor Heap");
         depth_target_descriptor =
             depth_target_descriptor_heap->GetCPUDescriptorHandleForHeapStart();
         dx.device->CreateDepthStencilView(depth_target.get(), nullptr, depth_target_descriptor);
@@ -277,14 +276,10 @@ Demo::Demo(Dx& dx) {
 void Demo::update(const UpdateParams& params) {
     float aspect_ratio = params.aspect_ratio;
     float elapsed_time = params.elapsed_time;
-    fb::Mat4x4 perspective = fb::Mat4x4::CreatePerspectiveFieldOfView(
-        fb::rad_from_deg(45.0f),
-        aspect_ratio,
-        0.1f,
-        100.0f);
-    fb::Vec3 eye = fb::Vec3(4.0f * std::sin(elapsed_time), 3.0f, 4.0f * std::cos(elapsed_time));
-    fb::Mat4x4 view =
-        fb::Mat4x4::CreateLookAt(eye, fb::Vec3(0.0f, 0.0f, 0.0f), fb::Vec3(0.0f, 1.0f, 0.0f));
+    Matrix perspective =
+        Matrix::CreatePerspectiveFieldOfView(rad_from_deg(45.0f), aspect_ratio, 0.1f, 100.0f);
+    Vector3 eye = Vector3(4.0f * std::sin(elapsed_time), 3.0f, 4.0f * std::cos(elapsed_time));
+    Matrix view = Matrix::CreateLookAt(eye, Vector3(0.0f, 0.0f, 0.0f), Vector3(0.0f, 1.0f, 0.0f));
     constants.transform = view * perspective;
     memcpy(constant_buffer.ptr(), &constants, sizeof(constants));
 }

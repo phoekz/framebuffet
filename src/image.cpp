@@ -9,22 +9,22 @@
 
 namespace fb {
 
-Image Image::load(const std::span<std::byte> image_data) {
-    Image image;
+Image::Image(std::span<const std::byte> image_data) {
+    // Force all images to be R8G8B8A8_UNORM.
+    _format = DXGI_FORMAT_R8G8B8A8_UNORM;
     int channels;
-    image.channels = 4;
+    _channels = 4;
     auto pixels = stbi_load_from_memory(
         (const stbi_uc*)image_data.data(),
         (int)image_data.size(),
-        (int*)&image.width,
-        (int*)&image.height,
+        (int*)&_width,
+        (int*)&_height,
         &channels,
-        image.channels);
+        _channels);
     FAIL_FAST_IF(pixels == nullptr);
-    image.pixels.resize(image.width * image.height * image.channels);
-    memcpy(image.pixels.data(), pixels, image.pixels.size());
+    _pixels.resize(_width * _height * _channels);
+    memcpy(_pixels.data(), pixels, _pixels.size());
     stbi_image_free(pixels);
-    return image;
 }
 
 }  // namespace fb

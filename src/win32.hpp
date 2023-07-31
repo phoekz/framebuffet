@@ -1,18 +1,29 @@
 #pragma once
 
 #include <cstdint>
+#include <memory>
+#include <string_view>
+#include <windows.h>
 
 namespace fb {
 
-struct Window;
-struct WindowHandle;
-struct WindowDesc {
-    const char* title;
-    uint32_t width;
-    uint32_t height;
+class WindowImpl;
+
+class Window final {
+  public:
+    struct Desc {
+        std::string_view title;
+        uint32_t width;
+        uint32_t height;
+    };
+
+    Window(const Desc& desc);
+    ~Window();
+
+    auto hwnd() const -> HWND;
+
+  private:
+    std::unique_ptr<WindowImpl> impl;
 };
-Window* window_create(const WindowDesc& desc) noexcept;
-void window_destroy(Window* window) noexcept;
-WindowHandle* window_handle(Window* window) noexcept;
 
 }  // namespace fb

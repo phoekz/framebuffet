@@ -2,24 +2,24 @@
 
 namespace fb {
 
-D3D12_SHADER_BYTECODE Shader::bytecode() {
+auto Shader::bytecode() const -> D3D12_SHADER_BYTECODE {
     return {
-        .pShaderBytecode = blob->GetBufferPointer(),
-        .BytecodeLength = blob->GetBufferSize(),
+        .pShaderBytecode = _blob->GetBufferPointer(),
+        .BytecodeLength = _blob->GetBufferSize(),
     };
 }
 
 ShaderCompiler::ShaderCompiler() {
-    DxcCreateInstance(CLSID_DxcCompiler, IID_PPV_ARGS(&compiler));
-    DxcCreateInstance(CLSID_DxcUtils, IID_PPV_ARGS(&utils));
-    utils->CreateDefaultIncludeHandler(&include_handler);
+    DxcCreateInstance(CLSID_DxcCompiler, IID_PPV_ARGS(&_compiler));
+    DxcCreateInstance(CLSID_DxcUtils, IID_PPV_ARGS(&_utils));
+    _utils->CreateDefaultIncludeHandler(&_include_handler);
 }
 
-Shader ShaderCompiler::compile(
+auto ShaderCompiler::compile(
     std::string_view name,
     ShaderType type,
     std::string_view entry_point,
-    std::span<std::byte> source) {
+    std::span<std::byte> source) -> Shader {
     // Note: remember to set PIX PDB search path correctly for shader debugging to work.
 
     // Shader profile.
@@ -54,16 +54,16 @@ Shader ShaderCompiler::compile(
         .Size = source.size(),
         .Encoding = DXC_CP_ACP,
     };
-    fb::ComPtr<IDxcResult> result;
-    fb::ComPtr<IDxcBlobUtf8> errors;
+    ComPtr<IDxcResult> result;
+    ComPtr<IDxcBlobUtf8> errors;
     IDxcBlob* blob = nullptr;
-    fb::ComPtr<IDxcBlob> pdb;
-    fb::ComPtr<IDxcBlobUtf16> pdb_name;
-    FAIL_FAST_IF_FAILED(compiler->Compile(
+    ComPtr<IDxcBlob> pdb;
+    ComPtr<IDxcBlobUtf16> pdb_name;
+    FAIL_FAST_IF_FAILED(_compiler->Compile(
         &source_buffer,
         shader_args,
         _countof(shader_args),
-        include_handler.get(),
+        _include_handler.get(),
         IID_PPV_ARGS(&result)));
     FAIL_FAST_IF_FAILED(result->GetOutput(DXC_OUT_ERRORS, IID_PPV_ARGS(&errors), nullptr));
     if (errors && errors->GetStringLength() != 0) {
@@ -89,7 +89,10 @@ Shader ShaderCompiler::compile(
     }
 
     // Result.
-    return Shader {blob};
+    Shader shader;
+    shader._blob = blob;
+    shader._type = type;
+    return shader;
 }
 
 }  // namespace fb

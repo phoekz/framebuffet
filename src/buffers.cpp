@@ -5,7 +5,7 @@
 
 namespace fb {
 
-void GpuRawBuffer::create_raw(
+auto GpuRawBuffer::create_raw(
     Dx& dx,
     uint32_t element_byte_size,
     uint32_t element_size,
@@ -14,7 +14,7 @@ void GpuRawBuffer::create_raw(
     DXGI_FORMAT format,
     bool host_visible,
     D3D12_RESOURCE_FLAGS resource_flags,
-    std::string_view name) {
+    std::string_view name) -> void {
     // Resource.
     auto heap_type = host_visible ? D3D12_HEAP_TYPE_UPLOAD : D3D12_HEAP_TYPE_DEFAULT;
     auto resource_state =

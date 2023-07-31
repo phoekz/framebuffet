@@ -23,17 +23,17 @@ class GpuRawBuffer {
         D3D12_RESOURCE_FLAGS resource_flags,
         std::string_view name) -> void;
 
-    [[nodiscard]] auto vertex_buffer_view() const -> D3D12_VERTEX_BUFFER_VIEW;
-    [[nodiscard]] auto index_buffer_view() const -> D3D12_INDEX_BUFFER_VIEW;
-    [[nodiscard]] auto constant_buffer_view_desc() const -> D3D12_CONSTANT_BUFFER_VIEW_DESC;
-    [[nodiscard]] auto element_byte_size() const -> uint32_t { return _element_byte_size; }
-    [[nodiscard]] auto element_size() const -> uint32_t { return _element_size; }
-    [[nodiscard]] auto byte_size() const -> uint32_t { return _byte_size; }
-    [[nodiscard]] auto format() const -> DXGI_FORMAT { return _format; }
-    [[nodiscard]] auto resource() const -> ID3D12Resource* { return _resource.get(); }
-    [[nodiscard]] auto resource_state() const -> D3D12_RESOURCE_STATES { return _resource_state; }
-    [[nodiscard]] auto raw() const -> void* { return _raw; }
-    [[nodiscard]] auto gpu_address() const -> D3D12_GPU_VIRTUAL_ADDRESS { return _gpu_address; }
+    auto vertex_buffer_view() const -> D3D12_VERTEX_BUFFER_VIEW;
+    auto index_buffer_view() const -> D3D12_INDEX_BUFFER_VIEW;
+    auto constant_buffer_view_desc() const -> D3D12_CONSTANT_BUFFER_VIEW_DESC;
+    auto element_byte_size() const -> uint32_t { return _element_byte_size; }
+    auto element_size() const -> uint32_t { return _element_size; }
+    auto byte_size() const -> uint32_t { return _byte_size; }
+    auto format() const -> DXGI_FORMAT { return _format; }
+    auto resource() const -> ID3D12Resource* { return _resource.get(); }
+    auto resource_state() const -> D3D12_RESOURCE_STATES { return _resource_state; }
+    auto raw() const -> void* { return _raw; }
+    auto gpu_address() const -> D3D12_GPU_VIRTUAL_ADDRESS { return _gpu_address; }
 
   private:
     uint32_t _element_byte_size = 0;

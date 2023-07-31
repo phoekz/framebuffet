@@ -23,7 +23,7 @@ struct Demo {
     void render(Dx& dx);
 
     struct Particle {
-        Vec3 position;
+        Vector3 position;
     };
     static_assert(sizeof(Particle) == 12);
     GpuBuffer<Particle> particle_buffer;
@@ -44,7 +44,7 @@ struct Demo {
         ComPtr<ID3D12PipelineState> pipeline_state;
         D3D12_VERTEX_BUFFER_VIEW vertex_buffer_view;
 
-        Mat4x4 transform;
+        Matrix transform;
     } draw;
 
     ComPtr<ID3D12Resource> color_target;
