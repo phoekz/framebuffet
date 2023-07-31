@@ -10,6 +10,7 @@ namespace fb::cards {
 struct Params {
     const ComPtr<ID3D12Resource>& cube_texture;
     const ComPtr<ID3D12Resource>& rain_texture;
+    const ComPtr<ID3D12Resource>& tree_texture;
 };
 
 struct Constants {
@@ -35,9 +36,10 @@ struct Cards {
     struct CardConstants {
         fb::Vec2 position;
         fb::Vec2 size;
-    } card_constants[2] = {
+    } card_constants[3] = {
         {{0.0f, 0.0f}, {640.0f, 400.0f}},
         {{640.0f, 0.0f}, {640.0f, 400.0f}},
+        {{0.0f, 400.0f}, {640.0f, 400.0f}},
     };
     static_assert(sizeof(CardConstants) == (NUM_32BIT_VALUES * sizeof(uint32_t)));
 
@@ -48,6 +50,7 @@ struct Cards {
 
     D3D12_GPU_DESCRIPTOR_HANDLE cube_texture_descriptor;
     D3D12_GPU_DESCRIPTOR_HANDLE rain_texture_descriptor;
+    D3D12_GPU_DESCRIPTOR_HANDLE tree_texture_descriptor;
 };
 
 }  // namespace fb::cards

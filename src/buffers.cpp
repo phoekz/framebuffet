@@ -15,7 +15,6 @@ void GpuRawBuffer::create_raw(
     D3D12_HEAP_TYPE heap_type,
     D3D12_RESOURCE_FLAGS resource_flags,
     D3D12_RESOURCE_STATES resource_state,
-    std::string_view group,
     std::string_view name) {
     auto heap_properties = CD3DX12_HEAP_PROPERTIES(heap_type);
     resource_desc = CD3DX12_RESOURCE_DESC::Buffer(byte_size, resource_flags, alignment);
@@ -26,7 +25,7 @@ void GpuRawBuffer::create_raw(
         resource_state,
         nullptr,
         IID_PPV_ARGS(&resource)));
-    fb::dx_set_name(resource, std::format("{} - {}", group, name));
+    fb::dx_set_name(resource, name);
 
     if (heap_type == D3D12_HEAP_TYPE_UPLOAD) {
         CD3DX12_RANGE read_range(0, 0);

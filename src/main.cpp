@@ -11,6 +11,7 @@
 #include "demo/cards.hpp"
 #include "demo/cube.hpp"
 #include "demo/rain.hpp"
+#include "demo/tree.hpp"
 
 // DirectX.
 #include <d3dx12/d3dx12.h>
@@ -47,11 +48,13 @@ int main() {
     auto gui = std::make_unique<fb::Gui>(window, *dx);
     auto cube_demo = std::make_unique<fb::cube::Demo>(*dx);
     auto rain_demo = std::make_unique<fb::rain::Demo>(*dx);
+    auto tree_demo = std::make_unique<fb::tree::Demo>(*dx);
     auto cards = std::make_unique<fb::cards::Cards>(
         *dx,
         fb::cards::Params {
             .cube_texture = cube_demo->color_target,
             .rain_texture = rain_demo->color_target,
+            .tree_texture = tree_demo->target.color,
         });
 
     // Main loop.
@@ -86,6 +89,10 @@ int main() {
             .aspect_ratio = WINDOW_ASPECT_RATIO,
             .delta_time = ft.delta_time(),
         });
+        tree_demo->update({
+            .aspect_ratio = WINDOW_ASPECT_RATIO,
+            .elapsed_time = ft.elapsed_time(),
+        });
         cards->update(*dx);
 
         // Populate command list.
@@ -106,6 +113,11 @@ int main() {
         {
             PIXBeginEvent(cmd, PIX_COLOR_DEFAULT, "Rain");
             rain_demo->render(*dx);
+            PIXEndEvent(cmd);
+        }
+        {
+            PIXBeginEvent(cmd, PIX_COLOR_DEFAULT, "Tree");
+            tree_demo->render(*dx);
             PIXEndEvent(cmd);
         }
 
@@ -197,6 +209,7 @@ int main() {
 
     // Cleanup.
     cards = nullptr;
+    tree_demo = nullptr;
     rain_demo = nullptr;
     cube_demo = nullptr;
     gui = nullptr;

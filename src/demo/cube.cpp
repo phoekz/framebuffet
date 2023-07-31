@@ -134,8 +134,7 @@ Demo::Demo(Dx& dx) {
             dx,
             D3D12_HEAP_TYPE_UPLOAD,
             D3D12_RESOURCE_STATE_GENERIC_READ,
-            "Cube",
-            "Constant Buffer");
+            dx_name("Cube", "Constant Buffer"));
         memcpy(constant_buffer.ptr, &constants, sizeof(constants));
 
         auto cbv_desc = constant_buffer.constant_buffer_view_desc();
@@ -154,15 +153,13 @@ Demo::Demo(Dx& dx) {
             model.vertex_count(),
             D3D12_HEAP_TYPE_UPLOAD,
             D3D12_RESOURCE_STATE_GENERIC_READ,
-            "Cube",
-            "Vertex Buffer");
+            dx_name("Cube", "Vertex Buffer"));
         index_buffer.create_ib(
             dx,
             model.index_count(),
             D3D12_HEAP_TYPE_UPLOAD,
             D3D12_RESOURCE_STATE_GENERIC_READ,
-            "Cube",
-            "Index Buffer");
+            dx_name("Cube", "Index Buffer"));
 
         memcpy(vertex_buffer.ptr, model.vertex_data(), model.vertex_buffer_size());
         memcpy(index_buffer.ptr, model.index_data(), model.index_buffer_size());

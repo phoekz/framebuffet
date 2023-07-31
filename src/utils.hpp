@@ -5,6 +5,7 @@
 #include <string_view>
 #include <string>
 #include <vector>
+#include <sstream>
 
 #define WIL_SUPPRESS_EXCEPTIONS
 #include <wil/com.h>

@@ -21,7 +21,6 @@ struct GpuRawBuffer {
         D3D12_HEAP_TYPE heap_type,
         D3D12_RESOURCE_FLAGS resource_flags,
         D3D12_RESOURCE_STATES resource_state,
-        std::string_view group,
         std::string_view name);
     D3D12_VERTEX_BUFFER_VIEW vertex_buffer_view() const;
     D3D12_INDEX_BUFFER_VIEW index_buffer_view() const;
@@ -45,7 +44,6 @@ struct GpuBuffer: public GpuRawBuffer {
         uint32_t element_size,
         D3D12_HEAP_TYPE heap_type,
         D3D12_RESOURCE_STATES resource_state,
-        std::string_view group,
         std::string_view name) {
         create_raw(
             dx,
@@ -57,7 +55,6 @@ struct GpuBuffer: public GpuRawBuffer {
             heap_type,
             D3D12_RESOURCE_FLAG_NONE,
             resource_state,
-            group,
             name);
     }
 
@@ -66,7 +63,6 @@ struct GpuBuffer: public GpuRawBuffer {
         uint32_t element_size,
         D3D12_HEAP_TYPE heap_type,
         D3D12_RESOURCE_STATES resource_state,
-        std::string_view group,
         std::string_view name) {
         static_assert(
             sizeof(T) == 2 || sizeof(T) == 4,
@@ -90,7 +86,6 @@ struct GpuBuffer: public GpuRawBuffer {
             heap_type,
             D3D12_RESOURCE_FLAG_NONE,
             resource_state,
-            group,
             name);
     }
 
@@ -98,7 +93,6 @@ struct GpuBuffer: public GpuRawBuffer {
         Dx& dx,
         D3D12_HEAP_TYPE heap_type,
         D3D12_RESOURCE_STATES resource_state,
-        std::string_view group,
         std::string_view name) {
         static_assert(
             sizeof(T) % size_t(256) == 0,
@@ -113,7 +107,6 @@ struct GpuBuffer: public GpuRawBuffer {
             heap_type,
             D3D12_RESOURCE_FLAG_NONE,
             resource_state,
-            group,
             name);
     }
 
@@ -122,7 +115,6 @@ struct GpuBuffer: public GpuRawBuffer {
         uint32_t element_size,
         D3D12_HEAP_TYPE heap_type,
         D3D12_RESOURCE_STATES resource_state,
-        std::string_view group,
         std::string_view name) {
         create_raw(
             dx,
@@ -134,8 +126,11 @@ struct GpuBuffer: public GpuRawBuffer {
             heap_type,
             D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
             resource_state,
-            group,
             name);
+    }
+
+    T* data() const {
+        return reinterpret_cast<T*>(ptr);
     }
 };
 

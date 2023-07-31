@@ -16,8 +16,7 @@ Demo::Demo(Dx& dx) {
             PARTICLE_COUNT,
             D3D12_HEAP_TYPE_DEFAULT,
             D3D12_RESOURCE_STATE_COMMON,
-            "Rain",
-            "Particle Buffer");
+            dx_name("Rain", "Particle Buffer"));
         draw.vertex_buffer_view = particle_buffer.vertex_buffer_view();
         auto buffer = particle_buffer.resource.get();
 
@@ -262,8 +261,8 @@ void Demo::update(const UpdateParams& params) {
 
     if (ImGui::Begin("Rain")) {
         ImGui::SliderFloat("Speed", &compute.constants.speed, 0.0f, 2.0f);
-        ImGui::End();
     }
+    ImGui::End();
 
     float aspect_ratio = params.aspect_ratio;
     fb::Mat4x4 perspective = fb::Mat4x4::CreatePerspectiveFieldOfView(

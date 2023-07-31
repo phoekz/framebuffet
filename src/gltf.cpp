@@ -37,7 +37,9 @@ GltfModel GltfModel::load(std::string_view path) {
     FAIL_FAST_IF(position_accessor->type != cgltf_type_vec3);
     FAIL_FAST_IF(normal_accessor->type != cgltf_type_vec3);
     FAIL_FAST_IF(texcoord_accessor->type != cgltf_type_vec2);
-    FAIL_FAST_IF(index_accessor->component_type != cgltf_component_type_r_32u);
+    FAIL_FAST_IF(
+        index_accessor->component_type != cgltf_component_type_r_16u
+        && index_accessor->component_type != cgltf_component_type_r_32u);
     size_t vertex_count = position_accessor->count;
     FAIL_FAST_IF(normal_accessor->count != vertex_count);
     FAIL_FAST_IF(texcoord_accessor->count != vertex_count);

@@ -103,7 +103,7 @@ Cards::Cards(Dx& dx, const Params& params) {
     {
         D3D12_DESCRIPTOR_HEAP_DESC descriptor_heap_desc = {
             .Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV,
-            .NumDescriptors = 3,
+            .NumDescriptors = 4,
             .Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE,
         };
         FAIL_FAST_IF_FAILED(
@@ -117,8 +117,7 @@ Cards::Cards(Dx& dx, const Params& params) {
             dx,
             D3D12_HEAP_TYPE_UPLOAD,
             D3D12_RESOURCE_STATE_GENERIC_READ,
-            "Cards",
-            "Constant Buffer");
+            dx_name("Cards", "Constant Buffer"));
         memcpy(constant_buffer.ptr, &constants, sizeof(constants));
 
         auto cbv_desc = constant_buffer.constant_buffer_view_desc();
@@ -142,15 +141,13 @@ Cards::Cards(Dx& dx, const Params& params) {
             (uint32_t)_countof(vertices),
             D3D12_HEAP_TYPE_UPLOAD,
             D3D12_RESOURCE_STATE_GENERIC_READ,
-            "Cards",
-            "Vertex Buffer");
+            dx_name("Cards", "Vertex Buffer"));
         index_buffer.create_ib(
             dx,
             (uint32_t)_countof(indices),
             D3D12_HEAP_TYPE_UPLOAD,
             D3D12_RESOURCE_STATE_GENERIC_READ,
-            "Cards",
-            "Index Buffer");
+            dx_name("Cards", "Index Buffer"));
 
         memcpy(vertex_buffer.ptr, vertices, sizeof(vertices));
         memcpy(index_buffer.ptr, indices, sizeof(indices));
@@ -172,12 +169,16 @@ Cards::Cards(Dx& dx, const Params& params) {
         dx.device->CreateShaderResourceView(params.cube_texture.get(), &src_desc, cpu_descriptor);
         cpu_descriptor.ptr += increment_size;
         dx.device->CreateShaderResourceView(params.rain_texture.get(), &src_desc, cpu_descriptor);
+        cpu_descriptor.ptr += increment_size;
+        dx.device->CreateShaderResourceView(params.tree_texture.get(), &src_desc, cpu_descriptor);
 
         auto gpu_descriptor = descriptor_heap->GetGPUDescriptorHandleForHeapStart();
         gpu_descriptor.ptr += increment_size;
         cube_texture_descriptor = gpu_descriptor;
         gpu_descriptor.ptr += increment_size;
         rain_texture_descriptor = gpu_descriptor;
+        gpu_descriptor.ptr += increment_size;
+        tree_texture_descriptor = gpu_descriptor;
     }
 }
 
@@ -187,15 +188,15 @@ void Cards::update(const Dx& dx) {
     float max_extent = std::max(width, height);
 
     if (ImGui::Begin("Cards")) {
-        for (int i = 0; i < 2; i++) {
+        for (int i = 0; i < 3; i++) {
             auto& cc = card_constants[i];
             ImGui::PushID(i);
             ImGui::SliderFloat2("Position", (float*)&cc.position, -max_extent, max_extent);
             ImGui::SliderFloat2("Size", (float*)&cc.size, 0.0f, max_extent);
             ImGui::PopID();
         }
-        ImGui::End();
     }
+    ImGui::End();
 
     constants.transform =
         fb::Mat4x4::CreateOrthographicOffCenter(0.0f, width, height, 0.0f, 0.0f, 1.0f);
@@ -238,6 +239,10 @@ void Cards::render(Dx& dx) {
 
     cmd->SetGraphicsRoot32BitConstants(0, NUM_32BIT_VALUES, &card_constants[1], 0);
     cmd->SetGraphicsRootDescriptorTable(2, rain_texture_descriptor);
+    cmd->DrawIndexedInstanced(index_count, 1, 0, 0, 0);
+
+    cmd->SetGraphicsRoot32BitConstants(0, NUM_32BIT_VALUES, &card_constants[2], 0);
+    cmd->SetGraphicsRootDescriptorTable(2, tree_texture_descriptor);
     cmd->DrawIndexedInstanced(index_count, 1, 0, 0, 0);
 }
 
