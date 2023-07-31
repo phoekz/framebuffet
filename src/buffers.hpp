@@ -18,7 +18,7 @@ struct GpuRawBuffer {
         uint32_t byte_size,
         uint32_t alignment,
         DXGI_FORMAT format,
-        D3D12_HEAP_TYPE heap_type,
+        bool host_visible,
         D3D12_RESOURCE_FLAGS resource_flags,
         D3D12_RESOURCE_STATES resource_state,
         std::string_view name);
@@ -42,7 +42,7 @@ struct GpuBuffer: public GpuRawBuffer {
     void create_vb(
         Dx& dx,
         uint32_t element_size,
-        D3D12_HEAP_TYPE heap_type,
+        bool host_visible,
         D3D12_RESOURCE_STATES resource_state,
         std::string_view name) {
         create_raw(
@@ -52,7 +52,7 @@ struct GpuBuffer: public GpuRawBuffer {
             sizeof(T) * element_size,
             0,
             DXGI_FORMAT_UNKNOWN,
-            heap_type,
+            host_visible,
             D3D12_RESOURCE_FLAG_NONE,
             resource_state,
             name);
@@ -61,7 +61,7 @@ struct GpuBuffer: public GpuRawBuffer {
     void create_ib(
         Dx& dx,
         uint32_t element_size,
-        D3D12_HEAP_TYPE heap_type,
+        bool host_visible,
         D3D12_RESOURCE_STATES resource_state,
         std::string_view name) {
         static_assert(
@@ -83,7 +83,7 @@ struct GpuBuffer: public GpuRawBuffer {
             sizeof(T) * element_size,
             0,
             format,
-            heap_type,
+            host_visible,
             D3D12_RESOURCE_FLAG_NONE,
             resource_state,
             name);
@@ -91,7 +91,7 @@ struct GpuBuffer: public GpuRawBuffer {
 
     void create_cb(
         Dx& dx,
-        D3D12_HEAP_TYPE heap_type,
+        bool host_visible,
         D3D12_RESOURCE_STATES resource_state,
         std::string_view name) {
         static_assert(
@@ -104,7 +104,7 @@ struct GpuBuffer: public GpuRawBuffer {
             sizeof(T),
             0,
             DXGI_FORMAT_UNKNOWN,
-            heap_type,
+            host_visible,
             D3D12_RESOURCE_FLAG_NONE,
             resource_state,
             name);
@@ -113,7 +113,7 @@ struct GpuBuffer: public GpuRawBuffer {
     void create_uav(
         Dx& dx,
         uint32_t element_size,
-        D3D12_HEAP_TYPE heap_type,
+        bool host_visible,
         D3D12_RESOURCE_STATES resource_state,
         std::string_view name) {
         create_raw(
@@ -123,7 +123,7 @@ struct GpuBuffer: public GpuRawBuffer {
             sizeof(T) * element_size,
             0,
             DXGI_FORMAT_UNKNOWN,
-            heap_type,
+            host_visible,
             D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
             resource_state,
             name);

@@ -230,13 +230,13 @@ Gui::Gui(Window* window, Dx& dx) {
         geometry.vertex_buffer.create_vb(
             dx,
             MAX_VERTEX_COUNT,
-            D3D12_HEAP_TYPE_UPLOAD,
+            true,
             D3D12_RESOURCE_STATE_GENERIC_READ,
             dx_name("Gui", "Vertex Buffer", i));
         geometry.index_buffer.create_ib(
             dx,
             MAX_INDEX_COUNT,
-            D3D12_HEAP_TYPE_UPLOAD,
+            true,
             D3D12_RESOURCE_STATE_GENERIC_READ,
             dx_name("Gui", "Index Buffer", i));
     }

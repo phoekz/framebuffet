@@ -14,7 +14,7 @@ Demo::Demo(Dx& dx) {
         particle_buffer.create_uav(
             dx,
             PARTICLE_COUNT,
-            D3D12_HEAP_TYPE_DEFAULT,
+            false,
             D3D12_RESOURCE_STATE_COMMON,
             dx_name("Rain", "Particle Buffer"));
         draw.vertex_buffer_view = particle_buffer.vertex_buffer_view();

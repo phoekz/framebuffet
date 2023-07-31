@@ -115,7 +115,7 @@ Cards::Cards(Dx& dx, const Params& params) {
     {
         constant_buffer.create_cb(
             dx,
-            D3D12_HEAP_TYPE_UPLOAD,
+            true,
             D3D12_RESOURCE_STATE_GENERIC_READ,
             dx_name("Cards", "Constant Buffer"));
         memcpy(constant_buffer.ptr, &constants, sizeof(constants));
@@ -139,13 +139,13 @@ Cards::Cards(Dx& dx, const Params& params) {
         vertex_buffer.create_vb(
             dx,
             (uint32_t)_countof(vertices),
-            D3D12_HEAP_TYPE_UPLOAD,
+            true,
             D3D12_RESOURCE_STATE_GENERIC_READ,
             dx_name("Cards", "Vertex Buffer"));
         index_buffer.create_ib(
             dx,
             (uint32_t)_countof(indices),
-            D3D12_HEAP_TYPE_UPLOAD,
+            true,
             D3D12_RESOURCE_STATE_GENERIC_READ,
             dx_name("Cards", "Index Buffer"));
 

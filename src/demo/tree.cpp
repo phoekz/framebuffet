@@ -23,13 +23,13 @@ static void init_scene_model(
         vertex_buffer.create_vb(
             dx,
             gltf_model.vertex_count(),
-            D3D12_HEAP_TYPE_UPLOAD,
+            true,
             D3D12_RESOURCE_STATE_GENERIC_READ,
             dx_name(Demo::NAME, model_name, "Vertex Buffer"));
         index_buffer.create_ib(
             dx,
             gltf_model.index_count(),
-            D3D12_HEAP_TYPE_UPLOAD,
+            true,
             D3D12_RESOURCE_STATE_GENERIC_READ,
             dx_name(Demo::NAME, model_name, "Index Buffer"));
         memcpy(vertex_buffer.ptr, gltf_model.vertex_data(), gltf_model.vertex_buffer_size());
@@ -156,7 +156,7 @@ static void init_shadow_pass(Dx& dx, Demo::ShadowPass& pass) {
         auto& cb = pass.constants;
         cb.create_cb(
             dx,
-            D3D12_HEAP_TYPE_UPLOAD,
+            true,
             D3D12_RESOURCE_STATE_GENERIC_READ,
             dx_name(Demo::NAME, Demo::ShadowPass::NAME, "Constants"));
         memset(cb.data(), 0, sizeof(ShadowConstants));
@@ -361,7 +361,7 @@ static void init_main_pass(Dx& dx, Demo::MainPass& pass) {
     {
         pass.constants.create_cb(
             dx,
-            D3D12_HEAP_TYPE_UPLOAD,
+            true,
             D3D12_RESOURCE_STATE_GENERIC_READ,
             dx_name(Demo::NAME, Demo::MainPass::NAME, "Constants"));
         memset(pass.constants.data(), 0, sizeof(MainConstants));

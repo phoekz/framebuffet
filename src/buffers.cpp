@@ -12,10 +12,11 @@ void GpuRawBuffer::create_raw(
     uint32_t byte_size,
     uint32_t alignment,
     DXGI_FORMAT format,
-    D3D12_HEAP_TYPE heap_type,
+    bool host_visible,
     D3D12_RESOURCE_FLAGS resource_flags,
     D3D12_RESOURCE_STATES resource_state,
     std::string_view name) {
+    auto heap_type = host_visible ? D3D12_HEAP_TYPE_UPLOAD : D3D12_HEAP_TYPE_DEFAULT;
     auto heap_properties = CD3DX12_HEAP_PROPERTIES(heap_type);
     resource_desc = CD3DX12_RESOURCE_DESC::Buffer(byte_size, resource_flags, alignment);
     FAIL_FAST_IF_FAILED(dx.device->CreateCommittedResource(
@@ -27,7 +28,7 @@ void GpuRawBuffer::create_raw(
         IID_PPV_ARGS(&resource)));
     fb::dx_set_name(resource, name);
 
-    if (heap_type == D3D12_HEAP_TYPE_UPLOAD) {
+    if (host_visible) {
         CD3DX12_RANGE read_range(0, 0);
         FAIL_FAST_IF_FAILED(resource->Map(0, &read_range, &ptr));
     }
