@@ -1,4 +1,8 @@
-cbuffer ConstantBuffer: register(b0) {
+//
+// Types
+//
+
+struct Constants {
     float4x4 transform;
 };
 
@@ -14,20 +18,29 @@ struct VertexOutput {
     float2 texcoord: TEXCOORD0;
 };
 
-VertexOutput vs_main(VertexInput input) {
-    VertexOutput output;
-    output.position = mul(transform, float4(input.position, 0.0f, 1.0f));
-    output.color = input.color;
-    output.texcoord = input.texcoord;
-    return output;
-};
-
 struct PixelOutput {
     float4 color: SV_TARGET;
 };
 
+//
+// I/O
+//
+
+ConstantBuffer<Constants> g_constants: register(b0);
 Texture2D g_texture: register(t0);
 SamplerState g_sampler: register(s0);
+
+//
+// Entry points
+//
+
+VertexOutput vs_main(VertexInput input) {
+    VertexOutput output;
+    output.position = mul(g_constants.transform, float4(input.position, 0.0f, 1.0f));
+    output.color = input.color;
+    output.texcoord = input.texcoord;
+    return output;
+};
 
 PixelOutput ps_main(VertexOutput input) {
     PixelOutput output;

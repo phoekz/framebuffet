@@ -1,4 +1,8 @@
-cbuffer ConstantBuffer: register(b0) {
+//
+// Types
+//
+
+struct Constants {
     float delta_time;
     float speed;
 };
@@ -6,7 +10,6 @@ cbuffer ConstantBuffer: register(b0) {
 struct Particle {
     float3 position;
 };
-RWStructuredBuffer<Particle> particles: register(u0);
 
 struct Input {
     uint3 gid: SV_GroupID;
@@ -15,10 +18,21 @@ struct Input {
     uint gi: SV_GroupIndex;
 };
 
+//
+// I/O
+//
+
+ConstantBuffer<Constants> g_constants: register(b0);
+RWStructuredBuffer<Particle> particles: register(u0);
+
+//
+// Entry points
+//
+
 [numthreads(128, 1, 1)] void cs_main(Input input) {
     uint i = input.dtid.x;
     Particle p = particles[i];
-    p.position.y -= speed * delta_time;
+    p.position.y -= g_constants.speed * g_constants.delta_time;
     if (p.position.y < -1.0f)
         p.position.y = 1.0f;
     particles[i] = p;

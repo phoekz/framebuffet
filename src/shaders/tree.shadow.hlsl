@@ -1,4 +1,8 @@
-cbuffer ConstantBuffer: register(b0) {
+//
+// Types
+//
+
+struct Constants {
     float4x4 transform;
     float pad[48];
 };
@@ -13,8 +17,18 @@ struct VertexOutput {
     float4 position: SV_POSITION;
 };
 
+//
+// I/O
+//
+
+ConstantBuffer<Constants> g_constants: register(b0);
+
+//
+// Entry points
+//
+
 VertexOutput vs_main(VertexInput input) {
     VertexOutput output;
-    output.position = mul(transform, float4(input.position, 1.0f));
+    output.position = mul(g_constants.transform, float4(input.position, 1.0f));
     return output;
 }
