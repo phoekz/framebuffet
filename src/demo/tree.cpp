@@ -24,16 +24,14 @@ static void init_scene_model(
             dx,
             gltf_model.vertex_count(),
             true,
-            D3D12_RESOURCE_STATE_GENERIC_READ,
             dx_name(Demo::NAME, model_name, "Vertex Buffer"));
         index_buffer.create_ib(
             dx,
             gltf_model.index_count(),
             true,
-            D3D12_RESOURCE_STATE_GENERIC_READ,
             dx_name(Demo::NAME, model_name, "Index Buffer"));
-        memcpy(vertex_buffer.ptr, gltf_model.vertex_data(), gltf_model.vertex_buffer_size());
-        memcpy(index_buffer.ptr, gltf_model.index_data(), gltf_model.index_buffer_size());
+        memcpy(vertex_buffer.ptr(), gltf_model.vertex_data(), gltf_model.vertex_buffer_size());
+        memcpy(index_buffer.ptr(), gltf_model.index_data(), gltf_model.index_buffer_size());
     }
 
     // Texture.
@@ -154,12 +152,8 @@ static void init_shadow_pass(Dx& dx, Demo::ShadowPass& pass) {
     {
         // Resource.
         auto& cb = pass.constants;
-        cb.create_cb(
-            dx,
-            true,
-            D3D12_RESOURCE_STATE_GENERIC_READ,
-            dx_name(Demo::NAME, Demo::ShadowPass::NAME, "Constants"));
-        memset(cb.data(), 0, sizeof(ShadowConstants));
+        cb.create_cb(dx, true, dx_name(Demo::NAME, Demo::ShadowPass::NAME, "Constants"));
+        memset(cb.ptr(), 0, sizeof(ShadowConstants));
 
         // Descriptor heap.
         auto& cb_dh = pass.constants_descriptor_heap;
@@ -359,13 +353,9 @@ static void init_main_pass(Dx& dx, Demo::MainPass& pass) {
 
     // Constants.
     {
-        pass.constants.create_cb(
-            dx,
-            true,
-            D3D12_RESOURCE_STATE_GENERIC_READ,
-            dx_name(Demo::NAME, Demo::MainPass::NAME, "Constants"));
-        memset(pass.constants.data(), 0, sizeof(MainConstants));
-        auto& constants = *pass.constants.data();
+        pass.constants.create_cb(dx, true, dx_name(Demo::NAME, Demo::MainPass::NAME, "Constants"));
+        memset(pass.constants.ptr(), 0, sizeof(MainConstants));
+        auto& constants = *pass.constants.ptr();
         constants.light_direction = Vec3(1.0f, 1.0f, 1.0f);
         constants.light_direction.Normalize();
         constants.ambient_light = 0.25f;
@@ -562,8 +552,8 @@ void Demo::update(const UpdateParams& params) {
     static float shadow_far_plane = 100.0f;
     static float camera_angle = PI;
 
-    auto& shadow_constants = *shadow_pass.constants.data();
-    auto& main_constants = *main_pass.constants.data();
+    auto& shadow_constants = *shadow_pass.constants.ptr();
+    auto& main_constants = *main_pass.constants.ptr();
 
     // ImGui.
     if (ImGui::Begin("Shadows")) {
@@ -641,16 +631,14 @@ void Demo::render(Dx& dx) {
             nullptr);
         cmd->SetGraphicsRootSignature(shadow_pass.root_signature.get());
         cmd->SetDescriptorHeaps(1, shadow_pass.constants_descriptor_heap.addressof());
-        cmd->SetGraphicsRootConstantBufferView(
-            0,
-            shadow_pass.constants.resource->GetGPUVirtualAddress());
+        cmd->SetGraphicsRootConstantBufferView(0, shadow_pass.constants.gpu_address());
         cmd->SetPipelineState(shadow_pass.pipeline_state.get());
         cmd->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
         {
             auto vbv = scene.tree.vertex_buffer.vertex_buffer_view();
             auto ibv = scene.tree.index_buffer.index_buffer_view();
-            auto index_count = scene.tree.index_buffer.element_size;
+            auto index_count = scene.tree.index_buffer.element_size();
             cmd->IASetVertexBuffers(0, 1, &vbv);
             cmd->IASetIndexBuffer(&ibv);
             cmd->DrawIndexedInstanced(index_count, 1, 0, 0, 0);
@@ -697,9 +685,7 @@ void Demo::render(Dx& dx) {
             nullptr);
         cmd->SetGraphicsRootSignature(main_pass.root_signature.get());
         cmd->SetDescriptorHeaps(1, main_pass.descriptor_heap.addressof());
-        cmd->SetGraphicsRootConstantBufferView(
-            0,
-            main_pass.constants.resource->GetGPUVirtualAddress());
+        cmd->SetGraphicsRootConstantBufferView(0, main_pass.constants.gpu_address());
         cmd->SetGraphicsRootDescriptorTable(2, shadow_pass.depth_srv_gpu_descriptor);
         cmd->SetPipelineState(main_pass.pipeline_state.get());
         cmd->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -707,7 +693,7 @@ void Demo::render(Dx& dx) {
         {
             auto vbv = scene.tree.vertex_buffer.vertex_buffer_view();
             auto ibv = scene.tree.index_buffer.index_buffer_view();
-            auto index_count = scene.tree.index_buffer.element_size;
+            auto index_count = scene.tree.index_buffer.element_size();
             cmd->IASetVertexBuffers(0, 1, &vbv);
             cmd->IASetIndexBuffer(&ibv);
             cmd->SetGraphicsRootDescriptorTable(1, scene.tree.texture_gpu_descriptor);
@@ -717,7 +703,7 @@ void Demo::render(Dx& dx) {
         {
             auto vbv = scene.plane.vertex_buffer.vertex_buffer_view();
             auto ibv = scene.plane.index_buffer.index_buffer_view();
-            auto index_count = scene.plane.index_buffer.element_size;
+            auto index_count = scene.plane.index_buffer.element_size();
             cmd->IASetVertexBuffers(0, 1, &vbv);
             cmd->IASetIndexBuffer(&ibv);
             cmd->SetGraphicsRootDescriptorTable(1, scene.plane.texture_gpu_descriptor);

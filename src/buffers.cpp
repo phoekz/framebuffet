@@ -14,52 +14,61 @@ void GpuRawBuffer::create_raw(
     DXGI_FORMAT format,
     bool host_visible,
     D3D12_RESOURCE_FLAGS resource_flags,
-    D3D12_RESOURCE_STATES resource_state,
     std::string_view name) {
+    // Resource.
     auto heap_type = host_visible ? D3D12_HEAP_TYPE_UPLOAD : D3D12_HEAP_TYPE_DEFAULT;
+    auto resource_state =
+        host_visible ? D3D12_RESOURCE_STATE_GENERIC_READ : D3D12_RESOURCE_STATE_COPY_DEST;
     auto heap_properties = CD3DX12_HEAP_PROPERTIES(heap_type);
-    resource_desc = CD3DX12_RESOURCE_DESC::Buffer(byte_size, resource_flags, alignment);
+    _resource_desc = CD3DX12_RESOURCE_DESC::Buffer(byte_size, resource_flags, alignment);
     FAIL_FAST_IF_FAILED(dx.device->CreateCommittedResource(
         &heap_properties,
         D3D12_HEAP_FLAG_NONE,
-        &resource_desc,
+        &_resource_desc,
         resource_state,
         nullptr,
-        IID_PPV_ARGS(&resource)));
-    fb::dx_set_name(resource, name);
+        IID_PPV_ARGS(&_resource)));
 
+    // Debug.
+    dx_set_name(_resource, name);
+
+    // Map host visible pointer.
     if (host_visible) {
         CD3DX12_RANGE read_range(0, 0);
-        FAIL_FAST_IF_FAILED(resource->Map(0, &read_range, &ptr));
+        FAIL_FAST_IF_FAILED(_resource->Map(0, &read_range, &_raw));
     }
 
-    this->element_byte_size = element_byte_size;
-    this->element_size = element_size;
-    this->byte_size = byte_size;
-    this->format = format;
-    this->resource_state = resource_state;
+    // GPU address.
+    _gpu_address = _resource->GetGPUVirtualAddress();
+
+    // Save.
+    this->_element_byte_size = element_byte_size;
+    this->_element_size = element_size;
+    this->_byte_size = byte_size;
+    this->_format = format;
+    this->_resource_state = resource_state;
 }
 
-D3D12_VERTEX_BUFFER_VIEW GpuRawBuffer::vertex_buffer_view() const {
+auto GpuRawBuffer::vertex_buffer_view() const -> D3D12_VERTEX_BUFFER_VIEW {
     return D3D12_VERTEX_BUFFER_VIEW {
-        .BufferLocation = resource->GetGPUVirtualAddress(),
-        .SizeInBytes = byte_size,
-        .StrideInBytes = element_byte_size,
+        .BufferLocation = _resource->GetGPUVirtualAddress(),
+        .SizeInBytes = _byte_size,
+        .StrideInBytes = _element_byte_size,
     };
 }
 
-D3D12_INDEX_BUFFER_VIEW GpuRawBuffer::index_buffer_view() const {
+auto GpuRawBuffer::index_buffer_view() const -> D3D12_INDEX_BUFFER_VIEW {
     return D3D12_INDEX_BUFFER_VIEW {
-        .BufferLocation = resource->GetGPUVirtualAddress(),
-        .SizeInBytes = byte_size,
-        .Format = format,
+        .BufferLocation = _resource->GetGPUVirtualAddress(),
+        .SizeInBytes = _byte_size,
+        .Format = _format,
     };
 }
 
-D3D12_CONSTANT_BUFFER_VIEW_DESC GpuRawBuffer::constant_buffer_view_desc() const {
+auto GpuRawBuffer::constant_buffer_view_desc() const -> D3D12_CONSTANT_BUFFER_VIEW_DESC {
     return D3D12_CONSTANT_BUFFER_VIEW_DESC {
-        .BufferLocation = resource->GetGPUVirtualAddress(),
-        .SizeInBytes = byte_size,
+        .BufferLocation = _resource->GetGPUVirtualAddress(),
+        .SizeInBytes = _byte_size,
     };
 }
 

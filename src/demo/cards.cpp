@@ -113,12 +113,8 @@ Cards::Cards(Dx& dx, const Params& params) {
 
     // Constant buffer.
     {
-        constant_buffer.create_cb(
-            dx,
-            true,
-            D3D12_RESOURCE_STATE_GENERIC_READ,
-            dx_name("Cards", "Constant Buffer"));
-        memcpy(constant_buffer.ptr, &constants, sizeof(constants));
+        constant_buffer.create_cb(dx, true, dx_name("Cards", "Constant Buffer"));
+        memcpy(constant_buffer.ptr(), &constants, sizeof(constants));
 
         auto cbv_desc = constant_buffer.constant_buffer_view_desc();
         dx.device->CreateConstantBufferView(
@@ -136,21 +132,13 @@ Cards::Cards(Dx& dx, const Params& params) {
         };
         uint16_t indices[] = {0, 1, 2, 0, 2, 3};
 
-        vertex_buffer.create_vb(
-            dx,
-            (uint32_t)_countof(vertices),
-            true,
-            D3D12_RESOURCE_STATE_GENERIC_READ,
-            dx_name("Cards", "Vertex Buffer"));
-        index_buffer.create_ib(
-            dx,
-            (uint32_t)_countof(indices),
-            true,
-            D3D12_RESOURCE_STATE_GENERIC_READ,
-            dx_name("Cards", "Index Buffer"));
+        vertex_buffer
+            .create_vb(dx, (uint32_t)_countof(vertices), true, dx_name("Cards", "Vertex Buffer"));
+        index_buffer
+            .create_ib(dx, (uint32_t)_countof(indices), true, dx_name("Cards", "Index Buffer"));
 
-        memcpy(vertex_buffer.ptr, vertices, sizeof(vertices));
-        memcpy(index_buffer.ptr, indices, sizeof(indices));
+        memcpy(vertex_buffer.ptr(), vertices, sizeof(vertices));
+        memcpy(index_buffer.ptr(), indices, sizeof(indices));
     }
 
     // Textures.
@@ -200,7 +188,7 @@ void Cards::update(const Dx& dx) {
 
     constants.transform =
         fb::Mat4x4::CreateOrthographicOffCenter(0.0f, width, height, 0.0f, 0.0f, 1.0f);
-    memcpy(constant_buffer.ptr, &constants, sizeof(constants));
+    memcpy(constant_buffer.ptr(), &constants, sizeof(constants));
 }
 
 void Cards::render(Dx& dx) {
@@ -220,14 +208,14 @@ void Cards::render(Dx& dx) {
     };
     auto vbv = vertex_buffer.vertex_buffer_view();
     auto ibv = index_buffer.index_buffer_view();
-    auto index_count = index_buffer.element_size;
+    auto index_count = index_buffer.element_size();
 
     auto* cmd = dx.command_list.get();
     cmd->RSSetViewports(1, &viewport);
     cmd->RSSetScissorRects(1, &scissor);
     cmd->SetGraphicsRootSignature(root_signature.get());
     cmd->SetDescriptorHeaps(1, descriptor_heap.addressof());
-    cmd->SetGraphicsRootConstantBufferView(1, constant_buffer.resource->GetGPUVirtualAddress());
+    cmd->SetGraphicsRootConstantBufferView(1, constant_buffer.gpu_address());
     cmd->SetPipelineState(pipeline_state.get());
     cmd->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
     cmd->IASetVertexBuffers(0, 1, &vbv);

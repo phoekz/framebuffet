@@ -227,18 +227,10 @@ Gui::Gui(Window* window, Dx& dx) {
     // Geometry.
     for (uint32_t i = 0; i < fb::FRAME_COUNT; i++) {
         Gui::Geometry& geometry = geometries[i];
-        geometry.vertex_buffer.create_vb(
-            dx,
-            MAX_VERTEX_COUNT,
-            true,
-            D3D12_RESOURCE_STATE_GENERIC_READ,
-            dx_name("Gui", "Vertex Buffer", i));
-        geometry.index_buffer.create_ib(
-            dx,
-            MAX_INDEX_COUNT,
-            true,
-            D3D12_RESOURCE_STATE_GENERIC_READ,
-            dx_name("Gui", "Index Buffer", i));
+        geometry.vertex_buffer
+            .create_vb(dx, MAX_VERTEX_COUNT, true, dx_name("Gui", "Vertex Buffer", i));
+        geometry.index_buffer
+            .create_ib(dx, MAX_INDEX_COUNT, true, dx_name("Gui", "Index Buffer", i));
     }
 
     // ImGui continued.
@@ -268,8 +260,8 @@ void Gui::render(const Dx& dx) {
     // Update geometries.
     auto& geometry = geometries[dx.frame_index];
     {
-        ImDrawVert* vertices = (ImDrawVert*)geometry.vertex_buffer.ptr;
-        ImDrawIdx* indices = (ImDrawIdx*)geometry.index_buffer.ptr;
+        ImDrawVert* vertices = geometry.vertex_buffer.ptr();
+        ImDrawIdx* indices = geometry.index_buffer.ptr();
         for (int i = 0; i < draw_data->CmdListsCount; i++) {
             auto* cmd_list = draw_data->CmdLists[i];
             memcpy(

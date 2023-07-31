@@ -130,12 +130,8 @@ Demo::Demo(Dx& dx) {
 
     // Constant buffer.
     {
-        constant_buffer.create_cb(
-            dx,
-            true,
-            D3D12_RESOURCE_STATE_GENERIC_READ,
-            dx_name("Cube", "Constant Buffer"));
-        memcpy(constant_buffer.ptr, &constants, sizeof(constants));
+        constant_buffer.create_cb(dx, true, dx_name("Cube", "Constant Buffer"));
+        memcpy(constant_buffer.ptr(), &constants, sizeof(constants));
 
         auto cbv_desc = constant_buffer.constant_buffer_view_desc();
         dx.device->CreateConstantBufferView(
@@ -148,21 +144,11 @@ Demo::Demo(Dx& dx) {
 
     // Geometry.
     {
-        vertex_buffer.create_vb(
-            dx,
-            model.vertex_count(),
-            true,
-            D3D12_RESOURCE_STATE_GENERIC_READ,
-            dx_name("Cube", "Vertex Buffer"));
-        index_buffer.create_ib(
-            dx,
-            model.index_count(),
-            true,
-            D3D12_RESOURCE_STATE_GENERIC_READ,
-            dx_name("Cube", "Index Buffer"));
+        vertex_buffer.create_vb(dx, model.vertex_count(), true, dx_name("Cube", "Vertex Buffer"));
+        index_buffer.create_ib(dx, model.index_count(), true, dx_name("Cube", "Index Buffer"));
 
-        memcpy(vertex_buffer.ptr, model.vertex_data(), model.vertex_buffer_size());
-        memcpy(index_buffer.ptr, model.index_data(), model.index_buffer_size());
+        memcpy(vertex_buffer.ptr(), model.vertex_data(), model.vertex_buffer_size());
+        memcpy(index_buffer.ptr(), model.index_data(), model.index_buffer_size());
     }
 
     // Texture.
@@ -300,7 +286,7 @@ void Demo::update(const UpdateParams& params) {
     fb::Mat4x4 view =
         fb::Mat4x4::CreateLookAt(eye, fb::Vec3(0.0f, 0.0f, 0.0f), fb::Vec3(0.0f, 1.0f, 0.0f));
     constants.transform = view * perspective;
-    memcpy(constant_buffer.ptr, &constants, sizeof(constants));
+    memcpy(constant_buffer.ptr(), &constants, sizeof(constants));
 }
 
 void Demo::render(Dx& dx) {
@@ -321,7 +307,7 @@ void Demo::render(Dx& dx) {
     };
     auto vbv = vertex_buffer.vertex_buffer_view();
     auto ibv = index_buffer.index_buffer_view();
-    auto index_count = index_buffer.element_size;
+    auto index_count = index_buffer.element_size();
 
     auto* cmd = dx.command_list.get();
     dx.transition(

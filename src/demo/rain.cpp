@@ -11,14 +11,9 @@ Demo::Demo(Dx& dx) {
     // Particles.
     {
         // Buffer.
-        particle_buffer.create_uav(
-            dx,
-            PARTICLE_COUNT,
-            false,
-            D3D12_RESOURCE_STATE_COMMON,
-            dx_name("Rain", "Particle Buffer"));
+        particle_buffer.create_uav(dx, PARTICLE_COUNT, false, dx_name("Rain", "Particle Buffer"));
         draw.vertex_buffer_view = particle_buffer.vertex_buffer_view();
-        auto buffer = particle_buffer.resource.get();
+        auto buffer = particle_buffer.resource();
 
         // Data.
         pcg rand;
@@ -33,8 +28,8 @@ Demo::Demo(Dx& dx) {
         // Upload.
         D3D12_SUBRESOURCE_DATA subresource_data = {
             .pData = particles.data(),
-            .RowPitch = particle_buffer.byte_size,
-            .SlicePitch = particle_buffer.byte_size,
+            .RowPitch = particle_buffer.byte_size(),
+            .SlicePitch = particle_buffer.byte_size(),
         };
         DirectX::ResourceUploadBatch rub(dx.device.get());
         rub.Begin();
@@ -295,16 +290,16 @@ void Demo::render(Dx& dx) {
 
     auto* cmd = dx.command_list.get();
     dx.transition(
-        particle_buffer.resource,
+        particle_buffer.resource(),
         D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER,
         D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
     cmd->SetComputeRootSignature(compute.root_signature.get());
     cmd->SetComputeRoot32BitConstants(0, 2, &compute.constants, 0);
-    cmd->SetComputeRootUnorderedAccessView(1, particle_buffer.resource->GetGPUVirtualAddress());
+    cmd->SetComputeRootUnorderedAccessView(1, particle_buffer.gpu_address());
     cmd->SetPipelineState(compute.pipeline_state.get());
     cmd->Dispatch(DISPATCH_COUNT, 1, 1);
     dx.transition(
-        particle_buffer.resource,
+        particle_buffer.resource(),
         D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
         D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
 

@@ -10,8 +10,9 @@
 
 namespace fb {
 
-struct GpuRawBuffer {
-    void create_raw(
+class GpuRawBuffer {
+  public:
+    auto create_raw(
         Dx& dx,
         uint32_t element_byte_size,
         uint32_t element_size,
@@ -20,31 +21,38 @@ struct GpuRawBuffer {
         DXGI_FORMAT format,
         bool host_visible,
         D3D12_RESOURCE_FLAGS resource_flags,
-        D3D12_RESOURCE_STATES resource_state,
-        std::string_view name);
-    D3D12_VERTEX_BUFFER_VIEW vertex_buffer_view() const;
-    D3D12_INDEX_BUFFER_VIEW index_buffer_view() const;
-    D3D12_CONSTANT_BUFFER_VIEW_DESC constant_buffer_view_desc() const;
+        std::string_view name) -> void;
 
-    uint32_t element_byte_size = 0;
-    uint32_t element_size = 0;
-    uint32_t byte_size = 0;
-    DXGI_FORMAT format = DXGI_FORMAT_UNKNOWN;
-    ComPtr<ID3D12Resource> resource;
-    CD3DX12_RESOURCE_DESC resource_desc;
-    D3D12_RESOURCE_STATES resource_state = D3D12_RESOURCE_STATE_COMMON;
-    void* ptr = nullptr;
+    [[nodiscard]] auto vertex_buffer_view() const -> D3D12_VERTEX_BUFFER_VIEW;
+    [[nodiscard]] auto index_buffer_view() const -> D3D12_INDEX_BUFFER_VIEW;
+    [[nodiscard]] auto constant_buffer_view_desc() const -> D3D12_CONSTANT_BUFFER_VIEW_DESC;
+    [[nodiscard]] auto element_byte_size() const -> uint32_t { return _element_byte_size; }
+    [[nodiscard]] auto element_size() const -> uint32_t { return _element_size; }
+    [[nodiscard]] auto byte_size() const -> uint32_t { return _byte_size; }
+    [[nodiscard]] auto format() const -> DXGI_FORMAT { return _format; }
+    [[nodiscard]] auto resource() const -> ID3D12Resource* { return _resource.get(); }
+    [[nodiscard]] auto resource_state() const -> D3D12_RESOURCE_STATES { return _resource_state; }
+    [[nodiscard]] auto raw() const -> void* { return _raw; }
+    [[nodiscard]] auto gpu_address() const -> D3D12_GPU_VIRTUAL_ADDRESS { return _gpu_address; }
+
+  private:
+    uint32_t _element_byte_size = 0;
+    uint32_t _element_size = 0;
+    uint32_t _byte_size = 0;
+    DXGI_FORMAT _format = DXGI_FORMAT_UNKNOWN;
+    ComPtr<ID3D12Resource> _resource;
+    CD3DX12_RESOURCE_DESC _resource_desc;
+    D3D12_RESOURCE_STATES _resource_state = D3D12_RESOURCE_STATE_COMMON;
+    void* _raw = nullptr;
+    D3D12_GPU_VIRTUAL_ADDRESS _gpu_address = 0;
 };
 
 template<typename T>
     requires std::is_standard_layout<T>::value
-struct GpuBuffer: public GpuRawBuffer {
-    void create_vb(
-        Dx& dx,
-        uint32_t element_size,
-        bool host_visible,
-        D3D12_RESOURCE_STATES resource_state,
-        std::string_view name) {
+class GpuBuffer final: public GpuRawBuffer {
+  public:
+    auto create_vb(Dx& dx, uint32_t element_size, bool host_visible, std::string_view name)
+        -> void {
         create_raw(
             dx,
             sizeof(T),
@@ -54,16 +62,11 @@ struct GpuBuffer: public GpuRawBuffer {
             DXGI_FORMAT_UNKNOWN,
             host_visible,
             D3D12_RESOURCE_FLAG_NONE,
-            resource_state,
             name);
     }
 
-    void create_ib(
-        Dx& dx,
-        uint32_t element_size,
-        bool host_visible,
-        D3D12_RESOURCE_STATES resource_state,
-        std::string_view name) {
+    auto create_ib(Dx& dx, uint32_t element_size, bool host_visible, std::string_view name)
+        -> void {
         static_assert(
             sizeof(T) == 2 || sizeof(T) == 4,
             "Only 16-bit and 32-bit index formats are supported");
@@ -85,15 +88,10 @@ struct GpuBuffer: public GpuRawBuffer {
             format,
             host_visible,
             D3D12_RESOURCE_FLAG_NONE,
-            resource_state,
             name);
     }
 
-    void create_cb(
-        Dx& dx,
-        bool host_visible,
-        D3D12_RESOURCE_STATES resource_state,
-        std::string_view name) {
+    auto create_cb(Dx& dx, bool host_visible, std::string_view name) -> void {
         static_assert(
             sizeof(T) % size_t(256) == 0,
             "Constant buffer size must be 256-byte aligned");
@@ -106,16 +104,11 @@ struct GpuBuffer: public GpuRawBuffer {
             DXGI_FORMAT_UNKNOWN,
             host_visible,
             D3D12_RESOURCE_FLAG_NONE,
-            resource_state,
             name);
     }
 
-    void create_uav(
-        Dx& dx,
-        uint32_t element_size,
-        bool host_visible,
-        D3D12_RESOURCE_STATES resource_state,
-        std::string_view name) {
+    auto create_uav(Dx& dx, uint32_t element_size, bool host_visible, std::string_view name)
+        -> void {
         create_raw(
             dx,
             sizeof(T),
@@ -125,13 +118,10 @@ struct GpuBuffer: public GpuRawBuffer {
             DXGI_FORMAT_UNKNOWN,
             host_visible,
             D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
-            resource_state,
             name);
     }
 
-    T* data() const {
-        return reinterpret_cast<T*>(ptr);
-    }
+    auto ptr() const -> T* { return reinterpret_cast<T*>(raw()); }
 };
 
 }  // namespace fb
