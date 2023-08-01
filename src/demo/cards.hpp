@@ -44,9 +44,9 @@ struct Cards {
     static_assert(sizeof(CardConstants) == (NUM_32BIT_VALUES * sizeof(uint32_t)));
 
     Constants constants;
-    GpuTypedBuffer<Constants> constant_buffer;
-    GpuTypedBuffer<Vertex> vertex_buffer;
-    GpuTypedBuffer<uint16_t> index_buffer;
+    GpuBuffer<Constants> constant_buffer;
+    GpuBuffer<Vertex> vertex_buffer;
+    GpuBuffer<uint16_t> index_buffer;
 
     D3D12_GPU_DESCRIPTOR_HANDLE cube_texture_descriptor;
     D3D12_GPU_DESCRIPTOR_HANDLE rain_texture_descriptor;

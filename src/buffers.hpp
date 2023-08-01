@@ -5,9 +5,6 @@
 #include <string_view>
 #include <type_traits>
 
-#pragma warning(push)
-#pragma warning(disable : 4458)  // declaration hides class member
-
 namespace fb {
 
 enum class GpuBufferAccessMode {
@@ -15,6 +12,8 @@ enum class GpuBufferAccessMode {
     GpuExclusive,
 };
 
+template<typename T>
+    requires std::is_standard_layout<T>::value
 class GpuBuffer {
   public:
     auto create_raw(
@@ -26,36 +25,42 @@ class GpuBuffer {
         DXGI_FORMAT format,
         GpuBufferAccessMode access_mode,
         D3D12_RESOURCE_FLAGS resource_flags,
-        std::string_view name) -> void;
+        std::string_view name) -> void {
+        // Resource.
+        auto host_visible = access_mode == GpuBufferAccessMode::HostWritable;
+        auto heap_type = host_visible ? D3D12_HEAP_TYPE_UPLOAD : D3D12_HEAP_TYPE_DEFAULT;
+        auto resource_state =
+            host_visible ? D3D12_RESOURCE_STATE_GENERIC_READ : D3D12_RESOURCE_STATE_COPY_DEST;
+        auto heap_properties = CD3DX12_HEAP_PROPERTIES(heap_type);
+        _resource_desc = CD3DX12_RESOURCE_DESC::Buffer(byte_size, resource_flags, alignment);
+        FAIL_FAST_IF_FAILED(dx.device->CreateCommittedResource(
+            &heap_properties,
+            D3D12_HEAP_FLAG_NONE,
+            &_resource_desc,
+            resource_state,
+            nullptr,
+            IID_PPV_ARGS(&_resource)));
 
-    auto vertex_buffer_view() const -> D3D12_VERTEX_BUFFER_VIEW;
-    auto index_buffer_view() const -> D3D12_INDEX_BUFFER_VIEW;
-    auto constant_buffer_view_desc() const -> D3D12_CONSTANT_BUFFER_VIEW_DESC;
-    auto element_byte_size() const -> uint32_t { return _element_byte_size; }
-    auto element_size() const -> uint32_t { return _element_size; }
-    auto byte_size() const -> uint32_t { return _byte_size; }
-    auto format() const -> DXGI_FORMAT { return _format; }
-    auto resource() const -> ID3D12Resource* { return _resource.get(); }
-    auto resource_state() const -> D3D12_RESOURCE_STATES { return _resource_state; }
-    auto raw() const -> void* { return _raw; }
-    auto gpu_address() const -> D3D12_GPU_VIRTUAL_ADDRESS { return _gpu_address; }
+        // Debug.
+        dx_set_name(_resource, name);
 
-  private:
-    uint32_t _element_byte_size = 0;
-    uint32_t _element_size = 0;
-    uint32_t _byte_size = 0;
-    DXGI_FORMAT _format = DXGI_FORMAT_UNKNOWN;
-    ComPtr<ID3D12Resource> _resource;
-    CD3DX12_RESOURCE_DESC _resource_desc;
-    D3D12_RESOURCE_STATES _resource_state = D3D12_RESOURCE_STATE_COMMON;
-    void* _raw = nullptr;
-    D3D12_GPU_VIRTUAL_ADDRESS _gpu_address = 0;
-};
+        // Map host visible pointer.
+        if (host_visible) {
+            CD3DX12_RANGE read_range(0, 0);
+            FAIL_FAST_IF_FAILED(_resource->Map(0, &read_range, &_raw));
+        }
 
-template<typename T>
-    requires std::is_standard_layout<T>::value
-class GpuTypedBuffer final: public GpuBuffer {
-  public:
+        // GPU address.
+        _gpu_address = _resource->GetGPUVirtualAddress();
+
+        // Save.
+        this->_element_byte_size = element_byte_size;
+        this->_element_size = element_size;
+        this->_byte_size = byte_size;
+        this->_format = format;
+        this->_resource_state = resource_state;
+    }
+
     auto
     create_vb(Dx& dx, uint32_t element_size, GpuBufferAccessMode access_mode, std::string_view name)
         -> void {
@@ -131,9 +136,47 @@ class GpuTypedBuffer final: public GpuBuffer {
             name);
     }
 
+    auto vertex_buffer_view() const -> D3D12_VERTEX_BUFFER_VIEW {
+        return D3D12_VERTEX_BUFFER_VIEW {
+            .BufferLocation = _resource->GetGPUVirtualAddress(),
+            .SizeInBytes = _byte_size,
+            .StrideInBytes = _element_byte_size,
+        };
+    }
+    auto index_buffer_view() const -> D3D12_INDEX_BUFFER_VIEW {
+        return D3D12_INDEX_BUFFER_VIEW {
+            .BufferLocation = _resource->GetGPUVirtualAddress(),
+            .SizeInBytes = _byte_size,
+            .Format = _format,
+        };
+    }
+    auto constant_buffer_view_desc() const -> D3D12_CONSTANT_BUFFER_VIEW_DESC {
+        return D3D12_CONSTANT_BUFFER_VIEW_DESC {
+            .BufferLocation = _resource->GetGPUVirtualAddress(),
+            .SizeInBytes = _byte_size,
+        };
+    }
+
+    auto element_byte_size() const -> uint32_t { return _element_byte_size; }
+    auto element_size() const -> uint32_t { return _element_size; }
+    auto byte_size() const -> uint32_t { return _byte_size; }
+    auto format() const -> DXGI_FORMAT { return _format; }
+    auto resource() const -> ID3D12Resource* { return _resource.get(); }
+    auto resource_state() const -> D3D12_RESOURCE_STATES { return _resource_state; }
+    auto raw() const -> void* { return _raw; }
     auto ptr() const -> T* { return reinterpret_cast<T*>(raw()); }
+    auto gpu_address() const -> D3D12_GPU_VIRTUAL_ADDRESS { return _gpu_address; }
+
+  private:
+    uint32_t _element_byte_size = 0;
+    uint32_t _element_size = 0;
+    uint32_t _byte_size = 0;
+    DXGI_FORMAT _format = DXGI_FORMAT_UNKNOWN;
+    ComPtr<ID3D12Resource> _resource;
+    CD3DX12_RESOURCE_DESC _resource_desc;
+    D3D12_RESOURCE_STATES _resource_state = D3D12_RESOURCE_STATE_COMMON;
+    void* _raw = nullptr;
+    D3D12_GPU_VIRTUAL_ADDRESS _gpu_address = 0;
 };
 
 }  // namespace fb
-
-#pragma warning(pop)

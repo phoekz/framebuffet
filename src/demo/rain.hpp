@@ -26,7 +26,7 @@ struct Demo {
         Vector3 position;
     };
     static_assert(sizeof(Particle) == 12);
-    GpuTypedBuffer<Particle> particle_buffer;
+    GpuBuffer<Particle> particle_buffer;
 
     struct {
         ComPtr<ID3D12RootSignature> root_signature;
