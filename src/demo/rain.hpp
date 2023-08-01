@@ -4,7 +4,6 @@
 #include "../maths.hpp"
 #include "../dx12.hpp"
 #include "../buffers.hpp"
-#include <d3dx12/d3dx12.h>
 
 namespace fb::rain {
 

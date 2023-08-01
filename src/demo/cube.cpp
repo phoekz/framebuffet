@@ -1,7 +1,6 @@
 #include "cube.hpp"
 #include "../shaders.hpp"
 #include "../gltf.hpp"
-#include <directxtk12/ResourceUploadBatch.h>
 
 namespace fb::cube {
 

@@ -1,5 +1,4 @@
 #include "pcg.hpp"
-#include <cmath>
 
 #pragma warning(push)
 #pragma warning(disable : 4244)  // conversion from 'uint64_t' to 'uint32_t', possible loss of data

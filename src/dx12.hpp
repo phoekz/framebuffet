@@ -2,12 +2,7 @@
 
 #include "win32.hpp"
 #include "utils.hpp"
-#include <d3dx12/d3dx12.h>
-#include <dxgi1_6.h>
-#include <dxcapi.h>
-#include <array>
-#include <span>
-#include <string_view>
+#include <pch.hpp>
 
 namespace fb {
 

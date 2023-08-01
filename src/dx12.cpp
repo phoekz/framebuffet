@@ -1,9 +1,6 @@
 #include "dx12.hpp"
 #include "utils.hpp"
 #include "maths.hpp"
-#include <wil/com.h>
-#include <wil/result_macros.h>
-#include <dxgidebug.h>
 
 // Setup DirectX Agility SDK.
 extern "C" {

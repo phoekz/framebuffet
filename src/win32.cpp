@@ -1,7 +1,5 @@
 #include "win32.hpp"
 #include "utils.hpp"
-#include <wil/resource.h>
-#include <wil/result_macros.h>
 #include <imgui.h>
 
 // ImGui input handler.

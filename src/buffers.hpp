@@ -2,8 +2,7 @@
 
 #include "dx12.hpp"
 #include "utils.hpp"
-#include <string_view>
-#include <type_traits>
+#include <pch.hpp>
 
 namespace fb {
 

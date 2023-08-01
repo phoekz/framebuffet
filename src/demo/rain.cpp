@@ -1,9 +1,6 @@
 #include "rain.hpp"
 #include "../shaders.hpp"
 #include "../pcg.hpp"
-#include <directxtk12/CommonStates.h>
-#include <directxtk12/ResourceUploadBatch.h>
-#include <imgui.h>
 
 namespace fb::rain {
 

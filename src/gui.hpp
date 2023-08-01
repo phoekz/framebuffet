@@ -5,7 +5,6 @@
 #include "shaders.hpp"
 #include "utils.hpp"
 #include "buffers.hpp"
-#include <imgui.h>
 
 namespace fb {
 

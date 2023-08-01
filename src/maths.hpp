@@ -1,6 +1,6 @@
 #pragma once
 
-#include <directxtk12/SimpleMath.h>
+#include <pch.hpp>
 
 namespace fb {
 

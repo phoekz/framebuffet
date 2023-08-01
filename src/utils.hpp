@@ -1,15 +1,6 @@
 #pragma once
 
-#include <source_location>
-#include <format>
-#include <string_view>
-#include <string>
-#include <vector>
-#include <sstream>
-
-#define WIL_SUPPRESS_EXCEPTIONS
-#include <wil/com.h>
-#include <wil/resource.h>
+#include <pch.hpp>
 
 namespace fb {
 

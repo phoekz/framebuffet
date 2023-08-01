@@ -1,10 +1,6 @@
 #pragma once
 
-#include <cstdint>
-#include <cstddef>
-#include <vector>
-#include <span>
-#include <dxgiformat.h>
+#include <pch.hpp>
 
 namespace fb {
 

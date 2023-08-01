@@ -1,10 +1,7 @@
 #pragma once
 
 #include "utils.hpp"
-#include <d3dx12/d3dx12.h>
-#include <dxcapi.h>
-#include <span>
-#include <string_view>
+#include <pch.hpp>
 
 namespace fb {
 

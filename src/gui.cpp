@@ -7,8 +7,6 @@
 
 #include <backends/imgui_impl_win32.h>
 
-#include <directxtk12/ResourceUploadBatch.h>
-
 namespace fb {
 
 Gui::Gui(const Window& window, Dx& dx) {

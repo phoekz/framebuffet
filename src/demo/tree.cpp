@@ -1,8 +1,6 @@
 #include "tree.hpp"
 #include "../shaders.hpp"
 #include "../gltf.hpp"
-#include <directxtk12/ResourceUploadBatch.h>
-#include <imgui.h>
 
 #pragma warning(push)
 #pragma warning(disable : 4100)

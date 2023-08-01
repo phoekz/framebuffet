@@ -13,18 +13,8 @@
 #include "demo/rain.hpp"
 #include "demo/tree.hpp"
 
-// DirectX.
-#include <d3dx12/d3dx12.h>
-#include <dxgi1_6.h>
-#include <dxgidebug.h>
-
-// WinPixEventRuntime.
-#define USE_PIX
-#include <WinPixEventRuntime/pix3.h>
-
-// Standard libraries.
-#include <array>
-#include <vector>
+// PCH.
+#include <pch.hpp>
 
 // Constants.
 constexpr const char* WINDOW_TITLE = "framebuffet 😎";

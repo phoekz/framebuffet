@@ -30,6 +30,7 @@ target_compile_definitions(
 )
 target_include_directories(
     ${PROJECT_NAME} PRIVATE
+    src/
     ${DEARIMGUI_INCLUDE_DIR}
     ${CGLTF_INCLUDE_DIR}
     ${STB_INCLUDE_DIR}
@@ -57,6 +58,8 @@ target_link_libraries(
     ${WINPIXEVENTRUNTIME_LINK_DIR}/WinPixEventRuntime.lib
 )
 target_link_options(${PROJECT_NAME} PRIVATE /entry:mainCRTStartup /SUBSYSTEM:WINDOWS)
+target_precompile_headers(${PROJECT_NAME} PRIVATE src/pch.hpp)
+
 set_property(DIRECTORY ${PROJECT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${PROJECT_NAME})
 set_target_properties(${PROJECT_NAME} PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY $<TARGET_FILE_DIR:${PROJECT_NAME}>)
 set_source_files_properties(${HLSL_FILES} PROPERTIES VS_TOOL_OVERRIDE None)

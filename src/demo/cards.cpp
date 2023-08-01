@@ -1,7 +1,5 @@
 #include "cards.hpp"
 #include "../shaders.hpp"
-#include <directxtk12/CommonStates.h>
-#include <imgui.h>
 
 namespace fb::cards {
 
