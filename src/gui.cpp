@@ -26,9 +26,8 @@ Gui::Gui(const Window& window, Dx& dx) {
     {
         ShaderCompiler sc;
         auto source = read_whole_file("shaders/gui.hlsl");
-        auto name = "gui";
-        vertex_shader = sc.compile(name, ShaderType::Vertex, "vs_main", source);
-        pixel_shader = sc.compile(name, ShaderType::Pixel, "ps_main", source);
+        vertex_shader = sc.compile(Gui::NAME, ShaderType::Vertex, "vs_main", source);
+        pixel_shader = sc.compile(Gui::NAME, ShaderType::Pixel, "ps_main", source);
     }
 
     // Root signature.
@@ -83,7 +82,7 @@ Gui::Gui(const Window& window, Dx& dx) {
             signature->GetBufferPointer(),
             signature->GetBufferSize(),
             IID_PPV_ARGS(&root_signature)));
-        dx_set_name(root_signature, "Gui - Root Signature");
+        dx_set_name(root_signature, dx_name(Gui::NAME, "Root Signature"));
     }
 
     // Pipeline state.
@@ -150,7 +149,7 @@ Gui::Gui(const Window& window, Dx& dx) {
         };
         FAIL_FAST_IF_FAILED(
             dx.device->CreateGraphicsPipelineState(&desc, IID_PPV_ARGS(&pipeline_state)));
-        dx_set_name(pipeline_state, "Gui - Pipeline State");
+        dx_set_name(pipeline_state, dx_name(Gui::NAME, "Pipeline State"));
     }
 
     // Font texture.
@@ -172,7 +171,7 @@ Gui::Gui(const Window& window, Dx& dx) {
             D3D12_RESOURCE_STATE_COPY_DEST,
             nullptr,
             IID_PPV_ARGS(&font_texture_resource)));
-        dx_set_name(font_texture_resource, "Gui - Font Texture");
+        dx_set_name(font_texture_resource, dx_name(Gui::NAME, "Font Texture"));
 
         // Upload.
         D3D12_SUBRESOURCE_DATA subresource_data = {
@@ -201,7 +200,7 @@ Gui::Gui(const Window& window, Dx& dx) {
         };
         FAIL_FAST_IF_FAILED(
             dx.device->CreateDescriptorHeap(&heap_desc, IID_PPV_ARGS(&descriptor_heap)));
-        dx_set_name(descriptor_heap, "Gui - Descriptor Heap");
+        dx_set_name(descriptor_heap, dx_name(Gui::NAME, "Descriptor Heap"));
 
         D3D12_CPU_DESCRIPTOR_HANDLE cpu_desc =
             descriptor_heap->GetCPUDescriptorHandleForHeapStart();
@@ -229,12 +228,12 @@ Gui::Gui(const Window& window, Dx& dx) {
             dx,
             MAX_VERTEX_COUNT,
             GpuBufferAccessMode::HostWritable,
-            dx_name("Gui", "Vertex Buffer", i));
+            dx_name(Gui::NAME, "Vertex Buffer", i));
         geometry.index_buffer.create_ib(
             dx,
             MAX_INDEX_COUNT,
             GpuBufferAccessMode::HostWritable,
-            dx_name("Gui", "Index Buffer", i));
+            dx_name(Gui::NAME, "Index Buffer", i));
     }
 
     // ImGui continued.

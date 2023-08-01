@@ -65,7 +65,7 @@ Demo::Demo(Dx& dx) {
             signature->GetBufferPointer(),
             signature->GetBufferSize(),
             IID_PPV_ARGS(&root_signature)));
-        dx_set_name(root_signature, "Cube - Root Signature");
+        dx_set_name(root_signature, dx_name(Demo::NAME, "Root Signature"));
     }
 
     // Shaders.
@@ -73,10 +73,9 @@ Demo::Demo(Dx& dx) {
     Shader pixel_shader;
     {
         ShaderCompiler sc;
-        auto name = "cube";
         auto source = read_whole_file("shaders/cube.hlsl");
-        vertex_shader = sc.compile(name, ShaderType::Vertex, "vs_main", source);
-        pixel_shader = sc.compile(name, ShaderType::Pixel, "ps_main", source);
+        vertex_shader = sc.compile(Demo::NAME, ShaderType::Vertex, "vs_main", source);
+        pixel_shader = sc.compile(Demo::NAME, ShaderType::Pixel, "ps_main", source);
     }
 
     // Pipeline state.
@@ -105,7 +104,7 @@ Demo::Demo(Dx& dx) {
         };
         FAIL_FAST_IF_FAILED(
             dx.device->CreateGraphicsPipelineState(&desc, IID_PPV_ARGS(&pipeline_state)));
-        dx_set_name(pipeline_state, "Cube - Pipeline State");
+        dx_set_name(pipeline_state, dx_name(Demo::NAME, "Pipeline State"));
     }
 
     // Descriptor heap.
@@ -117,7 +116,7 @@ Demo::Demo(Dx& dx) {
             .NodeMask = 0,
         };
         FAIL_FAST_IF_FAILED(dx.device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&descriptor_heap)));
-        dx_set_name(descriptor_heap, "Cube - Descriptor Heap");
+        dx_set_name(descriptor_heap, dx_name(Demo::NAME, "Descriptor Heap"));
 
         uint32_t increment_size =
             dx.device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
@@ -132,7 +131,7 @@ Demo::Demo(Dx& dx) {
         constant_buffer.create_cb(
             dx,
             GpuBufferAccessMode::HostWritable,
-            dx_name("Cube", "Constant Buffer"));
+            dx_name(Demo::NAME, "Constant Buffer"));
         memcpy(constant_buffer.ptr(), &constants, sizeof(constants));
 
         auto cbv_desc = constant_buffer.constant_buffer_view_desc();
@@ -150,12 +149,12 @@ Demo::Demo(Dx& dx) {
             dx,
             model.vertex_count(),
             GpuBufferAccessMode::HostWritable,
-            dx_name("Cube", "Vertex Buffer"));
+            dx_name(Demo::NAME, "Vertex Buffer"));
         index_buffer.create_ib(
             dx,
             model.index_count(),
             GpuBufferAccessMode::HostWritable,
-            dx_name("Cube", "Index Buffer"));
+            dx_name(Demo::NAME, "Index Buffer"));
 
         memcpy(vertex_buffer.ptr(), model.vertex_data(), model.vertex_buffer_size());
         memcpy(index_buffer.ptr(), model.index_data(), model.index_buffer_size());
@@ -175,7 +174,7 @@ Demo::Demo(Dx& dx) {
             D3D12_RESOURCE_STATE_COPY_DEST,
             nullptr,
             IID_PPV_ARGS(&texture)));
-        dx_set_name(texture, "Cube - Texture");
+        dx_set_name(texture, dx_name(Demo::NAME, "Texture"));
 
         // Upload.
         D3D12_SUBRESOURCE_DATA subresource_data = {
@@ -230,7 +229,7 @@ Demo::Demo(Dx& dx) {
             D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
             &color_clear_value,
             IID_PPV_ARGS(&color_target)));
-        dx_set_name(color_target, "Cube - Color Target");
+        dx_set_name(color_target, dx_name(Demo::NAME, "Color Target"));
 
         D3D12_DESCRIPTOR_HEAP_DESC descriptors_desc = {
             .Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV,
@@ -239,7 +238,9 @@ Demo::Demo(Dx& dx) {
         FAIL_FAST_IF_FAILED(dx.device->CreateDescriptorHeap(
             &descriptors_desc,
             IID_PPV_ARGS(&color_target_descriptor_heap)));
-        dx_set_name(color_target_descriptor_heap, "Cube - Color Target Descriptor Heap");
+        dx_set_name(
+            color_target_descriptor_heap,
+            dx_name(Demo::NAME, "Color Target Descriptor Heap"));
         color_target_descriptor =
             color_target_descriptor_heap->GetCPUDescriptorHandleForHeapStart();
         dx.device->CreateRenderTargetView(color_target.get(), nullptr, color_target_descriptor);
@@ -267,7 +268,7 @@ Demo::Demo(Dx& dx) {
             D3D12_RESOURCE_STATE_DEPTH_WRITE,
             &depth_clear_value,
             IID_PPV_ARGS(&depth_target)));
-        dx_set_name(depth_target, "Cube - Depth Target");
+        dx_set_name(depth_target, dx_name(Demo::NAME, "Depth Target"));
 
         D3D12_DESCRIPTOR_HEAP_DESC descriptors_desc = {
             .Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV,
@@ -276,7 +277,9 @@ Demo::Demo(Dx& dx) {
         FAIL_FAST_IF_FAILED(dx.device->CreateDescriptorHeap(
             &descriptors_desc,
             IID_PPV_ARGS(&depth_target_descriptor_heap)));
-        dx_set_name(depth_target_descriptor_heap, "Cube - Depth Target Descriptor Heap");
+        dx_set_name(
+            depth_target_descriptor_heap,
+            dx_name(Demo::NAME, "Depth Target Descriptor Heap"));
         depth_target_descriptor =
             depth_target_descriptor_heap->GetCPUDescriptorHandleForHeapStart();
         dx.device->CreateDepthStencilView(depth_target.get(), nullptr, depth_target_descriptor);

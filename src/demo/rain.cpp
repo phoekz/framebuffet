@@ -12,7 +12,7 @@ Demo::Demo(Dx& dx) {
             dx,
             PARTICLE_COUNT,
             GpuBufferAccessMode::GpuExclusive,
-            dx_name("Rain", "Particle Buffer"));
+            dx_name(Demo::NAME, "Particle Buffer"));
         draw.vertex_buffer_view = particle_buffer.vertex_buffer_view();
         auto buffer = particle_buffer.resource();
 
@@ -50,8 +50,8 @@ Demo::Demo(Dx& dx) {
     Shader pixel_shader;
     {
         ShaderCompiler sc;
-        auto compute_name = "rain-compute";
-        auto draw_name = "rain-draw";
+        auto compute_name = dx_name(Demo::NAME, Demo::Compute::NAME);
+        auto draw_name = dx_name(Demo::NAME, Demo::Draw::NAME);
         auto compute_source = read_whole_file("shaders/rain.compute.hlsl");
         auto draw_source = read_whole_file("shaders/rain.draw.hlsl");
         compute_shader = sc.compile(compute_name, ShaderType::Compute, "cs_main", compute_source);
@@ -89,7 +89,9 @@ Demo::Demo(Dx& dx) {
             signature->GetBufferPointer(),
             signature->GetBufferSize(),
             IID_PPV_ARGS(&compute.root_signature)));
-        dx_set_name(compute.root_signature, "Rain - Compute - Root Signature");
+        dx_set_name(
+            compute.root_signature,
+            dx_name(Demo::NAME, Demo::Compute::NAME, "Root Signature"));
     }
 
     // Compute - Pipeline state.
@@ -100,7 +102,9 @@ Demo::Demo(Dx& dx) {
         };
         FAIL_FAST_IF_FAILED(
             dx.device->CreateComputePipelineState(&desc, IID_PPV_ARGS(&compute.pipeline_state)));
-        dx_set_name(compute.pipeline_state, "Rain - Compute - Pipeline State");
+        dx_set_name(
+            compute.pipeline_state,
+            dx_name(Demo::NAME, Demo::Compute::NAME, "Pipeline State"));
     }
 
     // Compute - Descriptor heap.
@@ -112,7 +116,9 @@ Demo::Demo(Dx& dx) {
         };
         FAIL_FAST_IF_FAILED(
             dx.device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&compute.descriptor_heap)));
-        dx_set_name(compute.descriptor_heap, "Rain - Compute - Descriptor Heap");
+        dx_set_name(
+            compute.descriptor_heap,
+            dx_name(Demo::NAME, Demo::Compute::NAME, "Descriptor Heap"));
     }
 
     // Draw - Root signature.
@@ -141,7 +147,7 @@ Demo::Demo(Dx& dx) {
             signature->GetBufferPointer(),
             signature->GetBufferSize(),
             IID_PPV_ARGS(&draw.root_signature)));
-        dx_set_name(draw.root_signature, "Rain - Draw - Root Signature");
+        dx_set_name(draw.root_signature, dx_name(Demo::NAME, Demo::Draw::NAME, "Root Signature"));
     }
 
     // Draw - Pipeline state.
@@ -172,7 +178,7 @@ Demo::Demo(Dx& dx) {
         };
         FAIL_FAST_IF_FAILED(
             dx.device->CreateGraphicsPipelineState(&desc, IID_PPV_ARGS(&draw.pipeline_state)));
-        dx_set_name(draw.pipeline_state, "Rain - Draw - Pipeline State");
+        dx_set_name(draw.pipeline_state, dx_name(Demo::NAME, Demo::Draw::NAME, "Pipeline State"));
     }
 
     // Color target.
@@ -198,7 +204,7 @@ Demo::Demo(Dx& dx) {
             D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
             &color_clear_value,
             IID_PPV_ARGS(&color_target)));
-        dx_set_name(color_target, "Rain - Color Target");
+        dx_set_name(color_target, dx_name(Demo::NAME, "Color Target"));
 
         D3D12_DESCRIPTOR_HEAP_DESC descriptors_desc = {
             .Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV,
@@ -207,7 +213,9 @@ Demo::Demo(Dx& dx) {
         FAIL_FAST_IF_FAILED(dx.device->CreateDescriptorHeap(
             &descriptors_desc,
             IID_PPV_ARGS(&color_target_descriptor_heap)));
-        dx_set_name(color_target_descriptor_heap, "Rain - Color Target Descriptor Heap");
+        dx_set_name(
+            color_target_descriptor_heap,
+            dx_name(Demo::NAME, "Color Target Descriptor Heap"));
         color_target_descriptor =
             color_target_descriptor_heap->GetCPUDescriptorHandleForHeapStart();
         dx.device->CreateRenderTargetView(color_target.get(), nullptr, color_target_descriptor);
@@ -235,7 +243,7 @@ Demo::Demo(Dx& dx) {
             D3D12_RESOURCE_STATE_DEPTH_WRITE,
             &depth_clear_value,
             IID_PPV_ARGS(&depth_target)));
-        dx_set_name(depth_target, "Rain - Depth Target");
+        dx_set_name(depth_target, dx_name(Demo::NAME, "Depth Target"));
 
         D3D12_DESCRIPTOR_HEAP_DESC descriptors_desc = {
             .Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV,
@@ -244,7 +252,9 @@ Demo::Demo(Dx& dx) {
         FAIL_FAST_IF_FAILED(dx.device->CreateDescriptorHeap(
             &descriptors_desc,
             IID_PPV_ARGS(&depth_target_descriptor_heap)));
-        dx_set_name(depth_target_descriptor_heap, "Rain - Depth Target Descriptor Heap");
+        dx_set_name(
+            depth_target_descriptor_heap,
+            dx_name(Demo::NAME, "Depth Target Descriptor Heap"));
         depth_target_descriptor =
             depth_target_descriptor_heap->GetCPUDescriptorHandleForHeapStart();
         dx.device->CreateDepthStencilView(depth_target.get(), nullptr, depth_target_descriptor);
@@ -254,7 +264,7 @@ Demo::Demo(Dx& dx) {
 void Demo::update(const UpdateParams& params) {
     compute.constants.delta_time = params.delta_time;
 
-    if (ImGui::Begin("Rain")) {
+    if (ImGui::Begin(Demo::NAME)) {
         ImGui::SliderFloat("Speed", &compute.constants.speed, 0.0f, 2.0f);
     }
     ImGui::End();

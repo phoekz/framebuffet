@@ -83,7 +83,11 @@ static void init_shadow_pass(Dx& dx, Demo::ShadowPass& pass) {
         ShaderCompiler sc;
         auto path = "shaders/tree.shadow.hlsl";
         auto source = read_whole_file(path);
-        vertex_shader = sc.compile("tree-shadow", ShaderType::Vertex, "vs_main", source);
+        vertex_shader = sc.compile(
+            dx_name(Demo::NAME, Demo::ShadowPass::NAME),
+            ShaderType::Vertex,
+            "vs_main",
+            source);
     }
 
     // Root signature.
@@ -316,8 +320,9 @@ static void init_main_pass(Dx& dx, Demo::MainPass& pass) {
         ShaderCompiler sc;
         auto path = "shaders/tree.main.hlsl";
         auto source = read_whole_file(path);
-        vertex_shader = sc.compile("tree-main", ShaderType::Vertex, "vs_main", source);
-        pixel_shader = sc.compile("tree-main", ShaderType::Pixel, "ps_main", source);
+        auto name = dx_name(Demo::NAME, Demo::MainPass::NAME);
+        vertex_shader = sc.compile(name, ShaderType::Vertex, "vs_main", source);
+        pixel_shader = sc.compile(name, ShaderType::Pixel, "ps_main", source);
     }
 
     // Pipeline state.
@@ -347,7 +352,7 @@ static void init_main_pass(Dx& dx, Demo::MainPass& pass) {
         FAIL_FAST_IF_FAILED(
             dx.device->CreateGraphicsPipelineState(&desc, IID_PPV_ARGS(&pass.pipeline_state)));
         dx_set_name(
-            pass.root_signature,
+            pass.pipeline_state,
             dx_name(Demo::NAME, Demo::MainPass::NAME, "Pipeline State"));
     }
 
@@ -559,7 +564,7 @@ void Demo::update(const UpdateParams& params) {
     auto& main_constants = *main_pass.constants.ptr();
 
     // ImGui.
-    if (ImGui::Begin("Shadows")) {
+    if (ImGui::Begin(Demo::NAME)) {
         ImGui::SliderFloat("Ambient", &main_constants.ambient_light, 0.0f, 1.0f);
         ImGui::SliderFloat("Light Projection Size", &light_projection_size, 1.0f, 200.0f);
         ImGui::SliderFloat("Light Distance", &light_distance, 1.0f, 200.0f);

@@ -12,6 +12,8 @@ constexpr uint32_t MAX_VERTEX_COUNT = 1024 * 1024;
 constexpr uint32_t MAX_INDEX_COUNT = 1024 * 1024;
 
 struct Gui {
+    static constexpr const char* NAME = "Gui";
+
     Gui(const Window& window, Dx& dx);
     ~Gui();
     void update();

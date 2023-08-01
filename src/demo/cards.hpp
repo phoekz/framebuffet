@@ -24,6 +24,8 @@ struct Vertex {
 };
 
 struct Cards {
+    static constexpr const char* NAME = "Cards";
+
     Cards(Dx& dx, const Params& params);
     void update(const Dx& dx);
     void render(Dx& dx);

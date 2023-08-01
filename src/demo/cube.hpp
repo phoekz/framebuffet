@@ -19,6 +19,8 @@ struct UpdateParams {
 };
 
 struct Demo {
+    static constexpr const char* NAME = "Cube";
+
     Demo(Dx& dx);
     void update(const UpdateParams& params);
     void render(Dx& dx);

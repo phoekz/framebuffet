@@ -17,6 +17,8 @@ struct UpdateParams {
 };
 
 struct Demo {
+    static constexpr const char* NAME = "Rain";
+
     Demo(Dx& dx);
     void update(const UpdateParams& params);
     void render(Dx& dx);
@@ -27,7 +29,9 @@ struct Demo {
     static_assert(sizeof(Particle) == 12);
     GpuBuffer<Particle> particle_buffer;
 
-    struct {
+    struct Compute {
+        static constexpr const char* NAME = "Compute";
+
         ComPtr<ID3D12RootSignature> root_signature;
         ComPtr<ID3D12PipelineState> pipeline_state;
         ComPtr<ID3D12DescriptorHeap> descriptor_heap;
@@ -38,7 +42,9 @@ struct Demo {
         } constants;
     } compute;
 
-    struct {
+    struct Draw {
+        static constexpr const char* NAME = "Draw";
+
         ComPtr<ID3D12RootSignature> root_signature;
         ComPtr<ID3D12PipelineState> pipeline_state;
         D3D12_VERTEX_BUFFER_VIEW vertex_buffer_view;

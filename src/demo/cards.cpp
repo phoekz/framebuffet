@@ -56,7 +56,7 @@ Cards::Cards(Dx& dx, const Params& params) {
             signature->GetBufferPointer(),
             signature->GetBufferSize(),
             IID_PPV_ARGS(&root_signature)));
-        dx_set_name(root_signature, "Cards - Root Signature");
+        dx_set_name(root_signature, dx_name(Cards::NAME, "Root Signature"));
     }
 
     // Shaders.
@@ -65,9 +65,8 @@ Cards::Cards(Dx& dx, const Params& params) {
     {
         ShaderCompiler sc;
         auto source = read_whole_file("shaders/cards.hlsl");
-        auto name = "cards";
-        vertex_shader = sc.compile(name, ShaderType::Vertex, "vs_main", source);
-        pixel_shader = sc.compile(name, ShaderType::Pixel, "ps_main", source);
+        vertex_shader = sc.compile(Cards::NAME, ShaderType::Vertex, "vs_main", source);
+        pixel_shader = sc.compile(Cards::NAME, ShaderType::Pixel, "ps_main", source);
     }
 
     // Pipeline state.
@@ -94,7 +93,7 @@ Cards::Cards(Dx& dx, const Params& params) {
         };
         FAIL_FAST_IF_FAILED(
             dx.device->CreateGraphicsPipelineState(&desc, IID_PPV_ARGS(&pipeline_state)));
-        dx_set_name(pipeline_state, "Cards - Pipeline State");
+        dx_set_name(pipeline_state, dx_name(Cards::NAME, "Pipeline State"));
     }
 
     // Descriptor heap.
@@ -106,7 +105,7 @@ Cards::Cards(Dx& dx, const Params& params) {
         };
         FAIL_FAST_IF_FAILED(
             dx.device->CreateDescriptorHeap(&descriptor_heap_desc, IID_PPV_ARGS(&descriptor_heap)));
-        dx_set_name(descriptor_heap, "Cards - Descriptor Heap");
+        dx_set_name(descriptor_heap, dx_name(Cards::NAME, "Descriptor Heap"));
     }
 
     // Constant buffer.
@@ -114,7 +113,7 @@ Cards::Cards(Dx& dx, const Params& params) {
         constant_buffer.create_cb(
             dx,
             GpuBufferAccessMode::HostWritable,
-            dx_name("Cards", "Constant Buffer"));
+            dx_name(Cards::NAME, "Constant Buffer"));
         memcpy(constant_buffer.ptr(), &constants, sizeof(constants));
 
         auto cbv_desc = constant_buffer.constant_buffer_view_desc();
@@ -137,12 +136,12 @@ Cards::Cards(Dx& dx, const Params& params) {
             dx,
             (uint32_t)_countof(vertices),
             GpuBufferAccessMode::HostWritable,
-            dx_name("Cards", "Vertex Buffer"));
+            dx_name(Cards::NAME, "Vertex Buffer"));
         index_buffer.create_ib(
             dx,
             (uint32_t)_countof(indices),
             GpuBufferAccessMode::HostWritable,
-            dx_name("Cards", "Index Buffer"));
+            dx_name(Cards::NAME, "Index Buffer"));
 
         memcpy(vertex_buffer.ptr(), vertices, sizeof(vertices));
         memcpy(index_buffer.ptr(), indices, sizeof(indices));
@@ -182,7 +181,7 @@ void Cards::update(const Dx& dx) {
     float height = (float)dx.swapchain_height;
     float max_extent = std::max(width, height);
 
-    if (ImGui::Begin("Cards")) {
+    if (ImGui::Begin(Cards::NAME)) {
         for (int i = 0; i < 3; i++) {
             auto& cc = card_constants[i];
             ImGui::PushID(i);
