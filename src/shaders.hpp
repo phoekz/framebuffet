@@ -12,13 +12,14 @@ enum class ShaderType {
 };
 
 class Shader {
+    friend class ShaderCompiler;
+
   public:
     auto blob() const -> IDxcBlob* { return _blob.get(); }
     auto type() const -> ShaderType { return _type; }
     auto bytecode() const -> D3D12_SHADER_BYTECODE;
 
   private:
-    friend class ShaderCompiler;
     ComPtr<IDxcBlob> _blob;
     ShaderType _type;
 };
