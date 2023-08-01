@@ -227,10 +227,16 @@ Gui::Gui(const Window& window, Dx& dx) {
     // Geometry.
     for (uint32_t i = 0; i < FRAME_COUNT; i++) {
         Gui::Geometry& geometry = geometries[i];
-        geometry.vertex_buffer
-            .create_vb(dx, MAX_VERTEX_COUNT, true, dx_name("Gui", "Vertex Buffer", i));
-        geometry.index_buffer
-            .create_ib(dx, MAX_INDEX_COUNT, true, dx_name("Gui", "Index Buffer", i));
+        geometry.vertex_buffer.create_vb(
+            dx,
+            MAX_VERTEX_COUNT,
+            GpuBufferAccessMode::HostWritable,
+            dx_name("Gui", "Vertex Buffer", i));
+        geometry.index_buffer.create_ib(
+            dx,
+            MAX_INDEX_COUNT,
+            GpuBufferAccessMode::HostWritable,
+            dx_name("Gui", "Index Buffer", i));
     }
 
     // ImGui continued.

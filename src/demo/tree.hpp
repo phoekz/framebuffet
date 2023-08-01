@@ -38,8 +38,8 @@ struct Demo {
 
     struct Scene {
         struct Model {
-            GpuBuffer<GltfVertex> vertex_buffer;
-            GpuBuffer<GltfIndex> index_buffer;
+            GpuTypedBuffer<GltfVertex> vertex_buffer;
+            GpuTypedBuffer<GltfIndex> index_buffer;
             ComPtr<ID3D12Resource> texture;
             D3D12_CPU_DESCRIPTOR_HANDLE texture_cpu_descriptor = {};
             D3D12_GPU_DESCRIPTOR_HANDLE texture_gpu_descriptor = {};
@@ -54,7 +54,7 @@ struct Demo {
         ComPtr<ID3D12RootSignature> root_signature;
         ComPtr<ID3D12PipelineState> pipeline_state;
 
-        GpuBuffer<ShadowConstants> constants;
+        GpuTypedBuffer<ShadowConstants> constants;
         ComPtr<ID3D12DescriptorHeap> constants_descriptor_heap;
         D3D12_CPU_DESCRIPTOR_HANDLE constants_cpu_descriptor = {};
         D3D12_GPU_DESCRIPTOR_HANDLE constants_gpu_descriptor = {};
@@ -73,7 +73,7 @@ struct Demo {
         ComPtr<ID3D12PipelineState> pipeline_state;
         ComPtr<ID3D12DescriptorHeap> descriptor_heap;
 
-        GpuBuffer<MainConstants> constants;
+        GpuTypedBuffer<MainConstants> constants;
         D3D12_CPU_DESCRIPTOR_HANDLE constants_cpu_descriptor = {};
         D3D12_GPU_DESCRIPTOR_HANDLE constants_gpu_descriptor = {};
     } main_pass;

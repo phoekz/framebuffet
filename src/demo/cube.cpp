@@ -130,7 +130,10 @@ Demo::Demo(Dx& dx) {
 
     // Constant buffer.
     {
-        constant_buffer.create_cb(dx, true, dx_name("Cube", "Constant Buffer"));
+        constant_buffer.create_cb(
+            dx,
+            GpuBufferAccessMode::HostWritable,
+            dx_name("Cube", "Constant Buffer"));
         memcpy(constant_buffer.ptr(), &constants, sizeof(constants));
 
         auto cbv_desc = constant_buffer.constant_buffer_view_desc();
@@ -144,8 +147,16 @@ Demo::Demo(Dx& dx) {
 
     // Geometry.
     {
-        vertex_buffer.create_vb(dx, model.vertex_count(), true, dx_name("Cube", "Vertex Buffer"));
-        index_buffer.create_ib(dx, model.index_count(), true, dx_name("Cube", "Index Buffer"));
+        vertex_buffer.create_vb(
+            dx,
+            model.vertex_count(),
+            GpuBufferAccessMode::HostWritable,
+            dx_name("Cube", "Vertex Buffer"));
+        index_buffer.create_ib(
+            dx,
+            model.index_count(),
+            GpuBufferAccessMode::HostWritable,
+            dx_name("Cube", "Index Buffer"));
 
         memcpy(vertex_buffer.ptr(), model.vertex_data(), model.vertex_buffer_size());
         memcpy(index_buffer.ptr(), model.index_data(), model.index_buffer_size());

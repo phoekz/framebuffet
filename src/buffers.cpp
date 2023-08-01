@@ -5,17 +5,18 @@
 
 namespace fb {
 
-auto GpuRawBuffer::create_raw(
+auto GpuBuffer::create_raw(
     Dx& dx,
     uint32_t element_byte_size,
     uint32_t element_size,
     uint32_t byte_size,
     uint32_t alignment,
     DXGI_FORMAT format,
-    bool host_visible,
+    GpuBufferAccessMode access_mode,
     D3D12_RESOURCE_FLAGS resource_flags,
     std::string_view name) -> void {
     // Resource.
+    auto host_visible = access_mode == GpuBufferAccessMode::HostWritable;
     auto heap_type = host_visible ? D3D12_HEAP_TYPE_UPLOAD : D3D12_HEAP_TYPE_DEFAULT;
     auto resource_state =
         host_visible ? D3D12_RESOURCE_STATE_GENERIC_READ : D3D12_RESOURCE_STATE_COPY_DEST;
@@ -49,7 +50,7 @@ auto GpuRawBuffer::create_raw(
     this->_resource_state = resource_state;
 }
 
-auto GpuRawBuffer::vertex_buffer_view() const -> D3D12_VERTEX_BUFFER_VIEW {
+auto GpuBuffer::vertex_buffer_view() const -> D3D12_VERTEX_BUFFER_VIEW {
     return D3D12_VERTEX_BUFFER_VIEW {
         .BufferLocation = _resource->GetGPUVirtualAddress(),
         .SizeInBytes = _byte_size,
@@ -57,7 +58,7 @@ auto GpuRawBuffer::vertex_buffer_view() const -> D3D12_VERTEX_BUFFER_VIEW {
     };
 }
 
-auto GpuRawBuffer::index_buffer_view() const -> D3D12_INDEX_BUFFER_VIEW {
+auto GpuBuffer::index_buffer_view() const -> D3D12_INDEX_BUFFER_VIEW {
     return D3D12_INDEX_BUFFER_VIEW {
         .BufferLocation = _resource->GetGPUVirtualAddress(),
         .SizeInBytes = _byte_size,
@@ -65,7 +66,7 @@ auto GpuRawBuffer::index_buffer_view() const -> D3D12_INDEX_BUFFER_VIEW {
     };
 }
 
-auto GpuRawBuffer::constant_buffer_view_desc() const -> D3D12_CONSTANT_BUFFER_VIEW_DESC {
+auto GpuBuffer::constant_buffer_view_desc() const -> D3D12_CONSTANT_BUFFER_VIEW_DESC {
     return D3D12_CONSTANT_BUFFER_VIEW_DESC {
         .BufferLocation = _resource->GetGPUVirtualAddress(),
         .SizeInBytes = _byte_size,

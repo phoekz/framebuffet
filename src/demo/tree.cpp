@@ -23,12 +23,12 @@ static void init_scene_model(
         vertex_buffer.create_vb(
             dx,
             gltf_model.vertex_count(),
-            true,
+            GpuBufferAccessMode::HostWritable,
             dx_name(Demo::NAME, model_name, "Vertex Buffer"));
         index_buffer.create_ib(
             dx,
             gltf_model.index_count(),
-            true,
+            GpuBufferAccessMode::HostWritable,
             dx_name(Demo::NAME, model_name, "Index Buffer"));
         memcpy(vertex_buffer.ptr(), gltf_model.vertex_data(), gltf_model.vertex_buffer_size());
         memcpy(index_buffer.ptr(), gltf_model.index_data(), gltf_model.index_buffer_size());
@@ -151,7 +151,10 @@ static void init_shadow_pass(Dx& dx, Demo::ShadowPass& pass) {
     {
         // Resource.
         auto& cb = pass.constants;
-        cb.create_cb(dx, true, dx_name(Demo::NAME, Demo::ShadowPass::NAME, "Constants"));
+        cb.create_cb(
+            dx,
+            GpuBufferAccessMode::HostWritable,
+            dx_name(Demo::NAME, Demo::ShadowPass::NAME, "Constants"));
         memset(cb.ptr(), 0, sizeof(ShadowConstants));
 
         // Descriptor heap.
@@ -352,7 +355,10 @@ static void init_main_pass(Dx& dx, Demo::MainPass& pass) {
 
     // Constants.
     {
-        pass.constants.create_cb(dx, true, dx_name(Demo::NAME, Demo::MainPass::NAME, "Constants"));
+        pass.constants.create_cb(
+            dx,
+            GpuBufferAccessMode::HostWritable,
+            dx_name(Demo::NAME, Demo::MainPass::NAME, "Constants"));
         memset(pass.constants.ptr(), 0, sizeof(MainConstants));
         auto& constants = *pass.constants.ptr();
         constants.light_direction = Vector3(1.0f, 1.0f, 1.0f);

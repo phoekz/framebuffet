@@ -11,7 +11,11 @@ Demo::Demo(Dx& dx) {
     // Particles.
     {
         // Buffer.
-        particle_buffer.create_uav(dx, PARTICLE_COUNT, false, dx_name("Rain", "Particle Buffer"));
+        particle_buffer.create_uav(
+            dx,
+            PARTICLE_COUNT,
+            GpuBufferAccessMode::GpuExclusive,
+            dx_name("Rain", "Particle Buffer"));
         draw.vertex_buffer_view = particle_buffer.vertex_buffer_view();
         auto buffer = particle_buffer.resource();
 

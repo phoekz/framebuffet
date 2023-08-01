@@ -26,8 +26,8 @@ struct Gui {
     ComPtr<ID3D12Resource> font_texture_resource;
     ComPtr<ID3D12DescriptorHeap> descriptor_heap;
     struct Geometry {
-        GpuBuffer<ImDrawVert> vertex_buffer;
-        GpuBuffer<ImDrawIdx> index_buffer;
+        GpuTypedBuffer<ImDrawVert> vertex_buffer;
+        GpuTypedBuffer<ImDrawIdx> index_buffer;
     };
     std::array<Geometry, FRAME_COUNT> geometries;
 };

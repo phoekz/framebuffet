@@ -113,7 +113,10 @@ Cards::Cards(Dx& dx, const Params& params) {
 
     // Constant buffer.
     {
-        constant_buffer.create_cb(dx, true, dx_name("Cards", "Constant Buffer"));
+        constant_buffer.create_cb(
+            dx,
+            GpuBufferAccessMode::HostWritable,
+            dx_name("Cards", "Constant Buffer"));
         memcpy(constant_buffer.ptr(), &constants, sizeof(constants));
 
         auto cbv_desc = constant_buffer.constant_buffer_view_desc();
@@ -132,10 +135,16 @@ Cards::Cards(Dx& dx, const Params& params) {
         };
         uint16_t indices[] = {0, 1, 2, 0, 2, 3};
 
-        vertex_buffer
-            .create_vb(dx, (uint32_t)_countof(vertices), true, dx_name("Cards", "Vertex Buffer"));
-        index_buffer
-            .create_ib(dx, (uint32_t)_countof(indices), true, dx_name("Cards", "Index Buffer"));
+        vertex_buffer.create_vb(
+            dx,
+            (uint32_t)_countof(vertices),
+            GpuBufferAccessMode::HostWritable,
+            dx_name("Cards", "Vertex Buffer"));
+        index_buffer.create_ib(
+            dx,
+            (uint32_t)_countof(indices),
+            GpuBufferAccessMode::HostWritable,
+            dx_name("Cards", "Index Buffer"));
 
         memcpy(vertex_buffer.ptr(), vertices, sizeof(vertices));
         memcpy(index_buffer.ptr(), indices, sizeof(indices));

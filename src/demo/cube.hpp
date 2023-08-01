@@ -29,10 +29,10 @@ struct Demo {
     ComPtr<ID3D12DescriptorHeap> descriptor_heap;
 
     Constants constants;
-    GpuBuffer<Constants> constant_buffer;
+    GpuTypedBuffer<Constants> constant_buffer;
     D3D12_GPU_DESCRIPTOR_HANDLE constant_buffer_descriptor;
-    GpuBuffer<GltfVertex> vertex_buffer;
-    GpuBuffer<GltfIndex> index_buffer;
+    GpuTypedBuffer<GltfVertex> vertex_buffer;
+    GpuTypedBuffer<GltfIndex> index_buffer;
 
     ComPtr<ID3D12Resource> texture;
     D3D12_GPU_DESCRIPTOR_HANDLE texture_descriptor;

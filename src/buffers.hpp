@@ -10,7 +10,12 @@
 
 namespace fb {
 
-class GpuRawBuffer {
+enum class GpuBufferAccessMode {
+    HostWritable,
+    GpuExclusive,
+};
+
+class GpuBuffer {
   public:
     auto create_raw(
         Dx& dx,
@@ -19,7 +24,7 @@ class GpuRawBuffer {
         uint32_t byte_size,
         uint32_t alignment,
         DXGI_FORMAT format,
-        bool host_visible,
+        GpuBufferAccessMode access_mode,
         D3D12_RESOURCE_FLAGS resource_flags,
         std::string_view name) -> void;
 
@@ -49,9 +54,10 @@ class GpuRawBuffer {
 
 template<typename T>
     requires std::is_standard_layout<T>::value
-class GpuBuffer final: public GpuRawBuffer {
+class GpuTypedBuffer final: public GpuBuffer {
   public:
-    auto create_vb(Dx& dx, uint32_t element_size, bool host_visible, std::string_view name)
+    auto
+    create_vb(Dx& dx, uint32_t element_size, GpuBufferAccessMode access_mode, std::string_view name)
         -> void {
         create_raw(
             dx,
@@ -60,12 +66,13 @@ class GpuBuffer final: public GpuRawBuffer {
             sizeof(T) * element_size,
             0,
             DXGI_FORMAT_UNKNOWN,
-            host_visible,
+            access_mode,
             D3D12_RESOURCE_FLAG_NONE,
             name);
     }
 
-    auto create_ib(Dx& dx, uint32_t element_size, bool host_visible, std::string_view name)
+    auto
+    create_ib(Dx& dx, uint32_t element_size, GpuBufferAccessMode access_mode, std::string_view name)
         -> void {
         static_assert(
             sizeof(T) == 2 || sizeof(T) == 4,
@@ -86,12 +93,12 @@ class GpuBuffer final: public GpuRawBuffer {
             sizeof(T) * element_size,
             0,
             format,
-            host_visible,
+            access_mode,
             D3D12_RESOURCE_FLAG_NONE,
             name);
     }
 
-    auto create_cb(Dx& dx, bool host_visible, std::string_view name) -> void {
+    auto create_cb(Dx& dx, GpuBufferAccessMode access_mode, std::string_view name) -> void {
         static_assert(
             sizeof(T) % size_t(256) == 0,
             "Constant buffer size must be 256-byte aligned");
@@ -102,13 +109,16 @@ class GpuBuffer final: public GpuRawBuffer {
             sizeof(T),
             0,
             DXGI_FORMAT_UNKNOWN,
-            host_visible,
+            access_mode,
             D3D12_RESOURCE_FLAG_NONE,
             name);
     }
 
-    auto create_uav(Dx& dx, uint32_t element_size, bool host_visible, std::string_view name)
-        -> void {
+    auto create_uav(
+        Dx& dx,
+        uint32_t element_size,
+        GpuBufferAccessMode access_mode,
+        std::string_view name) -> void {
         create_raw(
             dx,
             sizeof(T),
@@ -116,7 +126,7 @@ class GpuBuffer final: public GpuRawBuffer {
             sizeof(T) * element_size,
             0,
             DXGI_FORMAT_UNKNOWN,
-            host_visible,
+            access_mode,
             D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
             name);
     }
