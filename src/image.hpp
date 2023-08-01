@@ -10,7 +10,7 @@ namespace fb {
 
 class Image {
   public:
-    Image(std::span<const std::byte> image_data);
+    static auto load(std::span<const std::byte> image_data) -> Image;
 
     auto format() const -> DXGI_FORMAT { return _format; }
     auto width() const -> uint32_t { return _width; }
@@ -21,10 +21,10 @@ class Image {
     auto data() const -> const std::byte* { return _pixels.data(); }
 
   private:
-    DXGI_FORMAT _format;
-    uint32_t _width;
-    uint32_t _height;
-    uint32_t _channels;
+    DXGI_FORMAT _format = DXGI_FORMAT_R8G8B8A8_UNORM;
+    uint32_t _width = 0;
+    uint32_t _height = 0;
+    uint32_t _channels = 4;
     std::vector<std::byte> _pixels;
 };
 

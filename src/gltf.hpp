@@ -26,12 +26,12 @@ class GltfModel {
     auto vertex_buffer_size() const -> uint32_t { return vertex_count() * sizeof(GltfVertex); }
     auto index_buffer_size() const -> uint32_t { return index_count() * sizeof(uint32_t); }
 
-    auto base_color_texture() const -> const Image& { return *_base_color_texture; }
+    auto base_color_texture() const -> const Image& { return _base_color_texture; }
 
   private:
     std::vector<GltfVertex> _vertices;
     std::vector<uint32_t> _indices;
-    std::unique_ptr<Image> _base_color_texture;
+    Image _base_color_texture;
 };
 
 }  // namespace fb
