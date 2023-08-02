@@ -1,4 +1,5 @@
 #include "shaders.hpp"
+#include <d3d12shader.h>
 
 namespace fb {
 
@@ -88,6 +89,22 @@ auto ShaderCompiler::compile(
 
         fclose(file);
     }
+
+    // Reflection.
+    ComPtr<IDxcBlob> reflection_blob;
+    FAIL_FAST_IF_FAILED(
+        result->GetOutput(DXC_OUT_REFLECTION, IID_PPV_ARGS(&reflection_blob), nullptr));
+    DxcBuffer reflection_buffer;
+    reflection_buffer.Encoding = DXC_CP_ACP;
+    reflection_buffer.Ptr = reflection_blob->GetBufferPointer();
+    reflection_buffer.Size = reflection_blob->GetBufferSize();
+    ComPtr<ID3D12ShaderReflection> reflection;
+    _utils->CreateReflection(&reflection_buffer, IID_PPV_ARGS(&reflection));
+
+    // Get reflection data.
+    D3D12_SHADER_DESC shader_desc;
+    reflection->GetDesc(&shader_desc);
+    log_info("Shader: {}, InstructionCount: {}", name, shader_desc.InstructionCount);
 
     // Result.
     Shader shader;
