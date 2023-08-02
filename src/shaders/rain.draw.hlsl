@@ -19,18 +19,22 @@ struct PixelOutput {
 };
 
 //
-// I/O
+// Bindings
 //
-
-ConstantBuffer<Constants> g_constants: register(b0);
+struct Bindings {
+    uint constants;
+};
+ConstantBuffer<Bindings> g_bindings: register(b0);
 
 //
 // Entry points
 //
 
 VertexOutput vs_main(VertexInput input) {
+    ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
+
     VertexOutput output;
-    output.position = mul(g_constants.transform, float4(input.position, 1.0f));
+    output.position = mul(constants.transform, float4(input.position, 1.0f));
     return output;
 }
 

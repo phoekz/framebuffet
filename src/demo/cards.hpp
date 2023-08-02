@@ -4,18 +4,26 @@
 #include "../maths.hpp"
 #include "../utils.hpp"
 #include "../buffers.hpp"
+#include "../descriptors.hpp"
+#include "../samplers.hpp"
+#include "../root_signature.hpp"
 
 namespace fb::cards {
 
+static constexpr uint32_t CARD_COUNT = 3;
+
 struct Params {
-    const ComPtr<ID3D12Resource>& cube_texture;
-    const ComPtr<ID3D12Resource>& rain_texture;
-    const ComPtr<ID3D12Resource>& tree_texture;
+    std::array<std::reference_wrapper<const ComPtr<ID3D12Resource>>, CARD_COUNT> card_textures;
 };
 
 struct Constants {
     Matrix transform;
     float pad[48];
+};
+
+struct Card {
+    Vector2 position;
+    Vector2 size;
 };
 
 struct Vertex {
@@ -30,29 +38,22 @@ struct Cards {
     void update(const Dx& dx);
     void render(Dx& dx);
 
-    ComPtr<ID3D12RootSignature> root_signature;
+    GpuRootSignature root_signature;
+    GpuDescriptors descriptors;
+    GpuSamplers samplers;
+
     ComPtr<ID3D12PipelineState> pipeline_state;
-    ComPtr<ID3D12DescriptorHeap> descriptor_heap;
 
-    static constexpr uint32_t NUM_32BIT_VALUES = 4;
-    struct CardConstants {
-        Vector2 position;
-        Vector2 size;
-    } card_constants[3] = {
-        {{0.0f, 0.0f}, {640.0f, 400.0f}},
-        {{640.0f, 0.0f}, {640.0f, 400.0f}},
-        {{0.0f, 400.0f}, {640.0f, 400.0f}},
-    };
-    static_assert(sizeof(CardConstants) == (NUM_32BIT_VALUES * sizeof(uint32_t)));
-
-    Constants constants;
     GpuBuffer<Constants> constant_buffer;
+    GpuDescriptorHandle constant_buffer_descriptor;
+
+    GpuBuffer<Card> card_buffer;
+    GpuDescriptorHandle card_buffer_descriptor;
+
     GpuBuffer<Vertex> vertex_buffer;
     GpuBuffer<uint16_t> index_buffer;
 
-    D3D12_GPU_DESCRIPTOR_HANDLE cube_texture_descriptor;
-    D3D12_GPU_DESCRIPTOR_HANDLE rain_texture_descriptor;
-    D3D12_GPU_DESCRIPTOR_HANDLE tree_texture_descriptor;
+    std::array<GpuDescriptorHandle, CARD_COUNT> card_texture_descriptors;
 };
 
 }  // namespace fb::cards

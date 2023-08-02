@@ -3,60 +3,17 @@
 
 namespace fb::cards {
 
-Cards::Cards(Dx& dx, const Params& params) {
-    // Root signature.
+Cards::Cards(Dx& dx, const Params& params) :
+    root_signature(dx, Cards::NAME),
+    descriptors(dx, Cards::NAME),
+    samplers(dx, descriptors) {
+    // Descriptors.
     {
-        CD3DX12_ROOT_PARAMETER1 root_parameters[3] = {};
-        root_parameters[0].InitAsConstants(NUM_32BIT_VALUES, 0, 0, D3D12_SHADER_VISIBILITY_VERTEX);
-        root_parameters[1].InitAsConstantBufferView(
-            1,
-            0,
-            D3D12_ROOT_DESCRIPTOR_FLAG_NONE,
-            D3D12_SHADER_VISIBILITY_VERTEX);
-
-        CD3DX12_DESCRIPTOR_RANGE1 srv_range = {};
-        srv_range.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0, 0, D3D12_DESCRIPTOR_RANGE_FLAG_NONE);
-        root_parameters[2].InitAsDescriptorTable(1, &srv_range, D3D12_SHADER_VISIBILITY_PIXEL);
-
-        D3D12_STATIC_SAMPLER_DESC1 sampler_desc = {
-            .Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR,
-            .AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP,
-            .AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP,
-            .AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP,
-            .MipLODBias = 0.0f,
-            .MaxAnisotropy = 0,
-            .ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER,
-            .BorderColor = D3D12_STATIC_BORDER_COLOR_TRANSPARENT_BLACK,
-            .MinLOD = 0.0f,
-            .MaxLOD = D3D12_FLOAT32_MAX,
-            .ShaderRegister = 0,
-            .RegisterSpace = 0,
-            .ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL,
-            .Flags = D3D12_SAMPLER_FLAG_NONE,
-        };
-
-        CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC root_signature_desc;
-        decltype(root_signature_desc)::Init_1_2(
-            root_signature_desc,
-            _countof(root_parameters),
-            root_parameters,
-            1,
-            &sampler_desc,
-            D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
-
-        ComPtr<ID3DBlob> signature;
-        ComPtr<ID3DBlob> error;
-        FAIL_FAST_IF_FAILED(D3DX12SerializeVersionedRootSignature(
-            &root_signature_desc,
-            D3D_ROOT_SIGNATURE_VERSION_1_2,
-            &signature,
-            &error));
-        FAIL_FAST_IF_FAILED(dx.device->CreateRootSignature(
-            0,
-            signature->GetBufferPointer(),
-            signature->GetBufferSize(),
-            IID_PPV_ARGS(&root_signature)));
-        dx_set_name(root_signature, dx_name(Cards::NAME, "Root Signature"));
+        constant_buffer_descriptor = descriptors.cbv_srv_uav().alloc();
+        card_buffer_descriptor = descriptors.cbv_srv_uav().alloc();
+        for (auto& card_texture_descriptor : card_texture_descriptors) {
+            card_texture_descriptor = descriptors.cbv_srv_uav().alloc();
+        }
     }
 
     // Shaders.
@@ -96,30 +53,35 @@ Cards::Cards(Dx& dx, const Params& params) {
         dx_set_name(pipeline_state, dx_name(Cards::NAME, "Pipeline State"));
     }
 
-    // Descriptor heap.
-    {
-        D3D12_DESCRIPTOR_HEAP_DESC descriptor_heap_desc = {
-            .Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV,
-            .NumDescriptors = 4,
-            .Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE,
-        };
-        FAIL_FAST_IF_FAILED(
-            dx.device->CreateDescriptorHeap(&descriptor_heap_desc, IID_PPV_ARGS(&descriptor_heap)));
-        dx_set_name(descriptor_heap, dx_name(Cards::NAME, "Descriptor Heap"));
-    }
-
     // Constant buffer.
     {
         constant_buffer.create_cb(
             dx,
             GpuBufferAccessMode::HostWritable,
             dx_name(Cards::NAME, "Constant Buffer"));
-        memcpy(constant_buffer.ptr(), &constants, sizeof(constants));
 
         auto cbv_desc = constant_buffer.constant_buffer_view_desc();
-        dx.device->CreateConstantBufferView(
-            &cbv_desc,
-            descriptor_heap->GetCPUDescriptorHandleForHeapStart());
+        dx.device->CreateConstantBufferView(&cbv_desc, constant_buffer_descriptor.cpu());
+    }
+
+    // Cards buffer.
+    {
+        card_buffer.create_srv(
+            dx,
+            CARD_COUNT,
+            GpuBufferAccessMode::HostWritable,
+            dx_name(Cards::NAME, "Cards Buffer"));
+
+        auto srv_desc = card_buffer.shader_resource_view_desc();
+        dx.device->CreateShaderResourceView(
+            card_buffer.resource(),
+            &srv_desc,
+            card_buffer_descriptor.cpu());
+
+        Card* cards = card_buffer.ptr();
+        cards[0] = {{0.0f, 0.0f}, {640.0f, 400.0f}};
+        cards[1] = {{640.0f, 0.0f}, {640.0f, 400.0f}};
+        cards[2] = {{0.0f, 400.0f}, {640.0f, 400.0f}};
     }
 
     // Geometry.
@@ -155,24 +117,12 @@ Cards::Cards(Dx& dx, const Params& params) {
             .Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING,
             .Texture2D = D3D12_TEX2D_SRV {.MipLevels = 1},
         };
-        auto descriptor_heap_type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-        auto increment_size = dx.device->GetDescriptorHandleIncrementSize(descriptor_heap_type);
-
-        auto cpu_descriptor = descriptor_heap->GetCPUDescriptorHandleForHeapStart();
-        cpu_descriptor.ptr += increment_size;
-        dx.device->CreateShaderResourceView(params.cube_texture.get(), &src_desc, cpu_descriptor);
-        cpu_descriptor.ptr += increment_size;
-        dx.device->CreateShaderResourceView(params.rain_texture.get(), &src_desc, cpu_descriptor);
-        cpu_descriptor.ptr += increment_size;
-        dx.device->CreateShaderResourceView(params.tree_texture.get(), &src_desc, cpu_descriptor);
-
-        auto gpu_descriptor = descriptor_heap->GetGPUDescriptorHandleForHeapStart();
-        gpu_descriptor.ptr += increment_size;
-        cube_texture_descriptor = gpu_descriptor;
-        gpu_descriptor.ptr += increment_size;
-        rain_texture_descriptor = gpu_descriptor;
-        gpu_descriptor.ptr += increment_size;
-        tree_texture_descriptor = gpu_descriptor;
+        for (uint32_t i = 0; i < CARD_COUNT; i++) {
+            dx.device->CreateShaderResourceView(
+                params.card_textures[i].get().get(),
+                &src_desc,
+                card_texture_descriptors[i].cpu());
+        }
     }
 }
 
@@ -182,22 +132,25 @@ void Cards::update(const Dx& dx) {
     float max_extent = std::max(width, height);
 
     if (ImGui::Begin(Cards::NAME)) {
-        for (int i = 0; i < 3; i++) {
-            auto& cc = card_constants[i];
-            ImGui::PushID(i);
-            ImGui::SliderFloat2("Position", (float*)&cc.position, -max_extent, max_extent);
-            ImGui::SliderFloat2("Size", (float*)&cc.size, 0.0f, max_extent);
-            ImGui::PopID();
+        Card* cards = card_buffer.ptr();
+        for (uint32_t i = 0; i < CARD_COUNT; i++) {
+            ImGui::SliderFloat4(
+                std::format("Card {}", i).c_str(),
+                (float*)&cards[i],
+                -max_extent,
+                max_extent);
         }
     }
     ImGui::End();
 
+    auto& constants = *constant_buffer.ptr();
     constants.transform =
         Matrix::CreateOrthographicOffCenter(0.0f, width, height, 0.0f, 0.0f, 1.0f);
-    memcpy(constant_buffer.ptr(), &constants, sizeof(constants));
 }
 
 void Cards::render(Dx& dx) {
+    auto* cmd = dx.command_list.get();
+
     D3D12_VIEWPORT viewport = {
         .TopLeftX = 0.0f,
         .TopLeftY = 0.0f,
@@ -212,32 +165,32 @@ void Cards::render(Dx& dx) {
         .right = (LONG)dx.swapchain_width,
         .bottom = (LONG)dx.swapchain_height,
     };
+    cmd->RSSetViewports(1, &viewport);
+    cmd->RSSetScissorRects(1, &scissor);
+
     auto vbv = vertex_buffer.vertex_buffer_view();
     auto ibv = index_buffer.index_buffer_view();
     auto index_count = index_buffer.element_size();
-
-    auto* cmd = dx.command_list.get();
-    cmd->RSSetViewports(1, &viewport);
-    cmd->RSSetScissorRects(1, &scissor);
-    cmd->SetGraphicsRootSignature(root_signature.get());
-    cmd->SetDescriptorHeaps(1, descriptor_heap.addressof());
-    cmd->SetGraphicsRootConstantBufferView(1, constant_buffer.gpu_address());
-    cmd->SetPipelineState(pipeline_state.get());
     cmd->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
     cmd->IASetVertexBuffers(0, 1, &vbv);
     cmd->IASetIndexBuffer(&ibv);
 
-    cmd->SetGraphicsRoot32BitConstants(0, NUM_32BIT_VALUES, &card_constants[0], 0);
-    cmd->SetGraphicsRootDescriptorTable(2, cube_texture_descriptor);
-    cmd->DrawIndexedInstanced(index_count, 1, 0, 0, 0);
+    ID3D12DescriptorHeap* heaps[] = {
+        descriptors.cbv_srv_uav().heap(),
+        descriptors.sampler().heap()};
+    cmd->SetDescriptorHeaps(_countof(heaps), heaps);
+    cmd->SetGraphicsRootSignature(root_signature.get());
+    cmd->SetPipelineState(pipeline_state.get());
 
-    cmd->SetGraphicsRoot32BitConstants(0, NUM_32BIT_VALUES, &card_constants[1], 0);
-    cmd->SetGraphicsRootDescriptorTable(2, rain_texture_descriptor);
-    cmd->DrawIndexedInstanced(index_count, 1, 0, 0, 0);
-
-    cmd->SetGraphicsRoot32BitConstants(0, NUM_32BIT_VALUES, &card_constants[2], 0);
-    cmd->SetGraphicsRootDescriptorTable(2, tree_texture_descriptor);
-    cmd->DrawIndexedInstanced(index_count, 1, 0, 0, 0);
+    for (uint32_t i = 0; i < CARD_COUNT; ++i) {
+        GpuBindings bindings;
+        bindings.push(i);
+        bindings.push(constant_buffer_descriptor);
+        bindings.push(card_buffer_descriptor);
+        bindings.push(card_texture_descriptors[i]);
+        cmd->SetGraphicsRoot32BitConstants(0, bindings.capacity(), bindings.ptr(), 0);
+        cmd->DrawIndexedInstanced(index_count, 1, 0, 0, 0);
+    }
 }
 
 }  // namespace fb::cards

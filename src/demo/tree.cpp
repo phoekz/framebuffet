@@ -76,7 +76,7 @@ static void init_scene(Dx& dx, Demo::Scene& scene) {
     init_scene_model(dx, GltfModel("models/sand_plane.glb"), "Plane", scene.plane);
 }
 
-static void init_shadow_pass(Dx& dx, Demo::ShadowPass& pass) {
+static void init_shadow_pass(Dx& dx, Demo& demo, Demo::ShadowPass& pass) {
     // Shaders.
     Shader vertex_shader;
     {
@@ -90,37 +90,6 @@ static void init_shadow_pass(Dx& dx, Demo::ShadowPass& pass) {
             source);
     }
 
-    // Root signature.
-    {
-        CD3DX12_ROOT_PARAMETER1 root_parameters[1] = {};
-        root_parameters[0].InitAsConstantBufferView(0, 0, D3D12_ROOT_DESCRIPTOR_FLAG_DATA_STATIC);
-
-        CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC desc;
-        decltype(desc)::Init_1_2(
-            desc,
-            _countof(root_parameters),
-            root_parameters,
-            0,
-            nullptr,
-            D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
-
-        ComPtr<ID3DBlob> signature;
-        ComPtr<ID3DBlob> error;
-        FAIL_FAST_IF_FAILED(D3DX12SerializeVersionedRootSignature(
-            &desc,
-            D3D_ROOT_SIGNATURE_VERSION_1_2,
-            &signature,
-            &error));
-        FAIL_FAST_IF_FAILED(dx.device->CreateRootSignature(
-            0,
-            signature->GetBufferPointer(),
-            signature->GetBufferSize(),
-            IID_PPV_ARGS(&pass.root_signature)));
-        dx_set_name(
-            pass.root_signature,
-            dx_name(Demo::NAME, Demo::ShadowPass::NAME, "Root Signature"));
-    }
-
     // Pipeline state.
     {
         D3D12_INPUT_ELEMENT_DESC input_element_descs[] = {
@@ -131,7 +100,7 @@ static void init_shadow_pass(Dx& dx, Demo::ShadowPass& pass) {
             // clang-format on
         };
         D3D12_GRAPHICS_PIPELINE_STATE_DESC desc = {
-            .pRootSignature = pass.root_signature.get(),
+            .pRootSignature = demo.root_signature.get(),
             .VS = vertex_shader.bytecode(),
             .BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT),
             .SampleMask = UINT_MAX,
@@ -151,31 +120,10 @@ static void init_shadow_pass(Dx& dx, Demo::ShadowPass& pass) {
 
     // Constants.
     {
-        // Resource.
-        auto& cb = pass.constants;
-        cb.create_cb(
+        pass.constants.create_cb(
             dx,
             GpuBufferAccessMode::HostWritable,
             dx_name(Demo::NAME, Demo::ShadowPass::NAME, "Constants"));
-        memset(cb.ptr(), 0, sizeof(ShadowConstants));
-
-        // Descriptor heap.
-        auto& cb_dh = pass.constants_descriptor_heap;
-        D3D12_DESCRIPTOR_HEAP_DESC desc = {
-            .Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV,
-            .NumDescriptors = 1,
-            .Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE,
-        };
-        FAIL_FAST_IF_FAILED(dx.device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&cb_dh)));
-        dx_set_name(
-            cb_dh,
-            dx_name(Demo::NAME, Demo::ShadowPass::NAME, "Constants", "Descriptor Heap"));
-
-        // Constant buffer view.
-        pass.constants_cpu_descriptor = cb_dh->GetCPUDescriptorHandleForHeapStart();
-        pass.constants_gpu_descriptor = cb_dh->GetGPUDescriptorHandleForHeapStart();
-        auto cbv_desc = cb.constant_buffer_view_desc();
-        dx.device->CreateConstantBufferView(&cbv_desc, pass.constants_cpu_descriptor);
     }
 
     // Depth.
@@ -203,116 +151,10 @@ static void init_shadow_pass(Dx& dx, Demo::ShadowPass& pass) {
             &clear_value,
             IID_PPV_ARGS(&pass.depth)));
         dx_set_name(pass.depth, dx_name(Demo::NAME, Demo::ShadowPass::NAME, "Depth"));
-
-        // Descriptor heap.
-        auto& dsv_dh = pass.depth_descriptor_heap;
-        D3D12_DESCRIPTOR_HEAP_DESC descriptor_heap_desc = {
-            .Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV,
-            .NumDescriptors = 1,
-        };
-        FAIL_FAST_IF_FAILED(
-            dx.device->CreateDescriptorHeap(&descriptor_heap_desc, IID_PPV_ARGS(&dsv_dh)));
-        dx_set_name(dsv_dh, dx_name(Demo::NAME, Demo::ShadowPass::NAME, "Descriptor Heap"));
-
-        // Depth stencil view.
-        pass.depth_cpu_descriptor = dsv_dh->GetCPUDescriptorHandleForHeapStart();
-        D3D12_DEPTH_STENCIL_VIEW_DESC dsv_desc = {
-            .Format = DXGI_FORMAT_D32_FLOAT,
-            .ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D,
-            .Flags = D3D12_DSV_FLAG_NONE,
-            .Texture2D = D3D12_TEX2D_DSV {.MipSlice = 0},
-        };
-        dx.device->CreateDepthStencilView(pass.depth.get(), &dsv_desc, pass.depth_cpu_descriptor);
     }
 }
 
-static void init_main_pass(Dx& dx, Demo::MainPass& pass) {
-    // Root signature.
-    {
-        CD3DX12_ROOT_PARAMETER1 root_parameters[3] = {};
-        root_parameters[0].InitAsConstantBufferView(
-            0,
-            0,
-            D3D12_ROOT_DESCRIPTOR_FLAG_DATA_STATIC,
-            D3D12_SHADER_VISIBILITY_ALL);
-        CD3DX12_DESCRIPTOR_RANGE1 range1 = {};
-        range1.Init(
-            D3D12_DESCRIPTOR_RANGE_TYPE_SRV,
-            1,
-            1,
-            0,
-            D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC);
-        root_parameters[1].InitAsDescriptorTable(1, &range1, D3D12_SHADER_VISIBILITY_PIXEL);
-        CD3DX12_DESCRIPTOR_RANGE1 range2 = {};
-        range2.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 2, 0, D3D12_DESCRIPTOR_RANGE_FLAG_NONE);
-        root_parameters[2].InitAsDescriptorTable(1, &range2, D3D12_SHADER_VISIBILITY_PIXEL);
-        D3D12_STATIC_SAMPLER_DESC1 main_sampler = {
-            .Filter = D3D12_FILTER_MIN_MAG_MIP_POINT,
-            .AddressU = D3D12_TEXTURE_ADDRESS_MODE_CLAMP,
-            .AddressV = D3D12_TEXTURE_ADDRESS_MODE_CLAMP,
-            .AddressW = D3D12_TEXTURE_ADDRESS_MODE_CLAMP,
-            .MipLODBias = 0.0f,
-            .MaxAnisotropy = 0,
-            .ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER,
-            .BorderColor = D3D12_STATIC_BORDER_COLOR_TRANSPARENT_BLACK,
-            .MinLOD = 0.0f,
-            .MaxLOD = D3D12_FLOAT32_MAX,
-            .ShaderRegister = 3,
-            .RegisterSpace = 0,
-            .ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL,
-            .Flags = D3D12_SAMPLER_FLAG_NONE,
-        };
-        D3D12_STATIC_SAMPLER_DESC1 shadow_sampler = {
-            .Filter = D3D12_FILTER_MIN_MAG_MIP_POINT,
-            .AddressU = D3D12_TEXTURE_ADDRESS_MODE_BORDER,
-            .AddressV = D3D12_TEXTURE_ADDRESS_MODE_BORDER,
-            .AddressW = D3D12_TEXTURE_ADDRESS_MODE_BORDER,
-            .MipLODBias = 0.0f,
-            .MaxAnisotropy = 0,
-            .ComparisonFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL,
-            .BorderColor = D3D12_STATIC_BORDER_COLOR_OPAQUE_WHITE,
-            .MinLOD = 0.0f,
-            .MaxLOD = D3D12_FLOAT32_MAX,
-            .ShaderRegister = 4,
-            .RegisterSpace = 0,
-            .ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL,
-            .Flags = D3D12_SAMPLER_FLAG_NONE,
-        };
-        D3D12_STATIC_SAMPLER_DESC1 samplers[] = {main_sampler, shadow_sampler};
-
-        CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC desc;
-        decltype(desc)::Init_1_2(
-            desc,
-            _countof(root_parameters),
-            root_parameters,
-            _countof(samplers),
-            samplers,
-            D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
-
-        ComPtr<ID3DBlob> signature;
-        ComPtr<ID3DBlob> error;
-        HRESULT hr = D3DX12SerializeVersionedRootSignature(
-            &desc,
-            D3D_ROOT_SIGNATURE_VERSION_1_2,
-            &signature,
-            &error);
-        if (FAILED(hr)) {
-            if (error) {
-                OutputDebugStringA((char*)error->GetBufferPointer());
-            }
-            FAIL_FAST_IF_FAILED(hr);
-        }
-        FAIL_FAST_IF_FAILED(hr);
-        FAIL_FAST_IF_FAILED(dx.device->CreateRootSignature(
-            0,
-            signature->GetBufferPointer(),
-            signature->GetBufferSize(),
-            IID_PPV_ARGS(&pass.root_signature)));
-        dx_set_name(
-            pass.root_signature,
-            dx_name(Demo::NAME, Demo::MainPass::NAME, "Root Signature"));
-    }
-
+static void init_main_pass(Dx& dx, Demo& demo, Demo::MainPass& pass) {
     // Shaders.
     Shader vertex_shader;
     Shader pixel_shader;
@@ -335,7 +177,7 @@ static void init_main_pass(Dx& dx, Demo::MainPass& pass) {
             // clang-format on
         };
         D3D12_GRAPHICS_PIPELINE_STATE_DESC desc = {
-            .pRootSignature = pass.root_signature.get(),
+            .pRootSignature = demo.root_signature.get(),
             .VS = vertex_shader.bytecode(),
             .PS = pixel_shader.bytecode(),
             .BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT),
@@ -362,11 +204,6 @@ static void init_main_pass(Dx& dx, Demo::MainPass& pass) {
             dx,
             GpuBufferAccessMode::HostWritable,
             dx_name(Demo::NAME, Demo::MainPass::NAME, "Constants"));
-        memset(pass.constants.ptr(), 0, sizeof(MainConstants));
-        auto& constants = *pass.constants.ptr();
-        constants.light_direction = Vector3(1.0f, 1.0f, 1.0f);
-        constants.light_direction.Normalize();
-        constants.ambient_light = 0.25f;
     }
 }
 
@@ -396,23 +233,6 @@ static void init_target(Dx& dx, Demo::Target& target) {
             &color_clear_value,
             IID_PPV_ARGS(&target.color)));
         dx_set_name(target.color, dx_name(Demo::NAME, "Color Target"));
-
-        // Descriptor heap.
-        D3D12_DESCRIPTOR_HEAP_DESC descriptor_heap_desc = {
-            .Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV,
-            .NumDescriptors = 1,
-        };
-        FAIL_FAST_IF_FAILED(dx.device->CreateDescriptorHeap(
-            &descriptor_heap_desc,
-            IID_PPV_ARGS(&target.color_descriptor_heap)));
-        dx_set_name(
-            target.color_descriptor_heap,
-            dx_name(Demo::NAME, "Color Target", "Descriptor Heap"));
-
-        // Render target view.
-        target.color_descriptor =
-            target.color_descriptor_heap->GetCPUDescriptorHandleForHeapStart();
-        dx.device->CreateRenderTargetView(target.color.get(), nullptr, target.color_descriptor);
     }
 
     // Depth.
@@ -439,76 +259,38 @@ static void init_target(Dx& dx, Demo::Target& target) {
             &depth_clear_value,
             IID_PPV_ARGS(&target.depth)));
         dx_set_name(target.depth, dx_name(Demo::NAME, "Depth Target"));
-
-        // Descriptor heap.
-        D3D12_DESCRIPTOR_HEAP_DESC descriptor_heap_desc = {
-            .Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV,
-            .NumDescriptors = 1,
-        };
-        FAIL_FAST_IF_FAILED(dx.device->CreateDescriptorHeap(
-            &descriptor_heap_desc,
-            IID_PPV_ARGS(&target.depth_descriptor_heap)));
-        dx_set_name(
-            target.depth_descriptor_heap,
-            dx_name(Demo::NAME, "Depth Target", "Descriptor Heap"));
-
-        // Depth stencil view.
-        target.depth_descriptor =
-            target.depth_descriptor_heap->GetCPUDescriptorHandleForHeapStart();
-        dx.device->CreateDepthStencilView(target.depth.get(), nullptr, target.depth_descriptor);
     }
 }
 
 static void init_descriptors(
     Dx& dx,
+    Demo& demo,
     Demo::Scene& scene,
     Demo::ShadowPass& shadow_pass,
-    Demo::MainPass& main_pass) {
-    // Descriptor heap.
+    Demo::MainPass& main_pass,
+    Demo::Target& target) {
+    // Allocate descriptors.
     {
-        D3D12_DESCRIPTOR_HEAP_DESC desc = {
-            .Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV,
-            .NumDescriptors = 4,
-            .Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE,
-            .NodeMask = 0,
-        };
-        FAIL_FAST_IF_FAILED(
-            dx.device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&main_pass.descriptor_heap)));
-        dx_set_name(
-            main_pass.descriptor_heap,
-            dx_name(Demo::NAME, Demo::MainPass::NAME, "Descriptor Heap"));
-
-        auto increment_size = dx.device->GetDescriptorHandleIncrementSize(desc.Type);
-        auto cpu_heap_start = main_pass.descriptor_heap->GetCPUDescriptorHandleForHeapStart();
-        auto gpu_heap_start = main_pass.descriptor_heap->GetGPUDescriptorHandleForHeapStart();
-
-        main_pass.constants_cpu_descriptor = cpu_heap_start;
-        main_pass.constants_gpu_descriptor = gpu_heap_start;
-        cpu_heap_start.ptr += increment_size;
-        gpu_heap_start.ptr += increment_size;
-
-        scene.tree.texture_cpu_descriptor = cpu_heap_start;
-        scene.tree.texture_gpu_descriptor = gpu_heap_start;
-        cpu_heap_start.ptr += increment_size;
-        gpu_heap_start.ptr += increment_size;
-
-        scene.plane.texture_cpu_descriptor = cpu_heap_start;
-        scene.plane.texture_gpu_descriptor = gpu_heap_start;
-        cpu_heap_start.ptr += increment_size;
-        gpu_heap_start.ptr += increment_size;
-
-        shadow_pass.depth_srv_cpu_descriptor = cpu_heap_start;
-        shadow_pass.depth_srv_gpu_descriptor = gpu_heap_start;
-        cpu_heap_start.ptr += increment_size;
-        gpu_heap_start.ptr += increment_size;
+        scene.tree.texture_descriptor = demo.descriptors.cbv_srv_uav().alloc();
+        scene.plane.texture_descriptor = demo.descriptors.cbv_srv_uav().alloc();
+        shadow_pass.constants_descriptor = demo.descriptors.cbv_srv_uav().alloc();
+        shadow_pass.depth_srv_descriptor = demo.descriptors.cbv_srv_uav().alloc();
+        shadow_pass.depth_dsv_descriptor = demo.descriptors.dsv().alloc();
+        main_pass.constants_descriptor = demo.descriptors.cbv_srv_uav().alloc();
+        target.color_descriptor = demo.descriptors.rtv().alloc();
+        target.depth_descriptor = demo.descriptors.dsv().alloc();
     }
 
     // Resource views.
     {
         // Constants.
         {
+            auto cbv_desc = shadow_pass.constants.constant_buffer_view_desc();
+            dx.device->CreateConstantBufferView(&cbv_desc, shadow_pass.constants_descriptor.cpu());
+        }
+        {
             auto cbv_desc = main_pass.constants.constant_buffer_view_desc();
-            dx.device->CreateConstantBufferView(&cbv_desc, main_pass.constants_cpu_descriptor);
+            dx.device->CreateConstantBufferView(&cbv_desc, main_pass.constants_descriptor.cpu());
         }
 
         // Scene.
@@ -522,14 +304,26 @@ static void init_descriptors(
             dx.device->CreateShaderResourceView(
                 scene.tree.texture.get(),
                 &srv_desc,
-                scene.tree.texture_cpu_descriptor);
+                scene.tree.texture_descriptor.cpu());
             dx.device->CreateShaderResourceView(
                 scene.plane.texture.get(),
                 &srv_desc,
-                scene.plane.texture_cpu_descriptor);
+                scene.plane.texture_descriptor.cpu());
         }
 
         // Shadow map.
+        {
+            D3D12_DEPTH_STENCIL_VIEW_DESC dsv_desc = {
+                .Format = DXGI_FORMAT_D32_FLOAT,
+                .ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D,
+                .Flags = D3D12_DSV_FLAG_NONE,
+                .Texture2D = D3D12_TEX2D_DSV {.MipSlice = 0},
+            };
+            dx.device->CreateDepthStencilView(
+                shadow_pass.depth.get(),
+                &dsv_desc,
+                shadow_pass.depth_dsv_descriptor.cpu());
+        }
         {
             D3D12_SHADER_RESOURCE_VIEW_DESC srv_desc = {
                 .Format = DXGI_FORMAT_R32_FLOAT,
@@ -540,17 +334,32 @@ static void init_descriptors(
             dx.device->CreateShaderResourceView(
                 shadow_pass.depth.get(),
                 &srv_desc,
-                shadow_pass.depth_srv_cpu_descriptor);
+                shadow_pass.depth_srv_descriptor.cpu());
+        }
+
+        // Targets.
+        {
+            dx.device->CreateRenderTargetView(
+                target.color.get(),
+                nullptr,
+                target.color_descriptor.cpu());
+            dx.device->CreateDepthStencilView(
+                target.depth.get(),
+                nullptr,
+                target.depth_descriptor.cpu());
         }
     }
 }
 
-Demo::Demo(Dx& dx) {
+Demo::Demo(Dx& dx) :
+    root_signature(dx, Demo::NAME),
+    descriptors(dx, Demo::NAME),
+    samplers(dx, descriptors) {
     init_scene(dx, scene);
-    init_shadow_pass(dx, shadow_pass);
-    init_main_pass(dx, main_pass);
+    init_shadow_pass(dx, *this, shadow_pass);
+    init_main_pass(dx, *this, main_pass);
     init_target(dx, target);
-    init_descriptors(dx, scene, shadow_pass, main_pass);
+    init_descriptors(dx, *this, scene, shadow_pass, main_pass, target);
 }
 
 void Demo::update(const UpdateParams& params) {
@@ -629,17 +438,20 @@ void Demo::render(Dx& dx) {
             D3D12_RESOURCE_STATE_DEPTH_WRITE);
         cmd->RSSetViewports(1, &viewport);
         cmd->RSSetScissorRects(1, &scissor);
-        cmd->OMSetRenderTargets(0, nullptr, FALSE, &shadow_pass.depth_cpu_descriptor);
+        cmd->OMSetRenderTargets(0, nullptr, FALSE, shadow_pass.depth_dsv_descriptor.cpu_ptr());
         cmd->ClearDepthStencilView(
-            shadow_pass.depth_cpu_descriptor,
+            shadow_pass.depth_dsv_descriptor.cpu(),
             D3D12_CLEAR_FLAG_DEPTH,
             1.0f,
             0,
             0,
             nullptr);
-        cmd->SetGraphicsRootSignature(shadow_pass.root_signature.get());
-        cmd->SetDescriptorHeaps(1, shadow_pass.constants_descriptor_heap.addressof());
-        cmd->SetGraphicsRootConstantBufferView(0, shadow_pass.constants.gpu_address());
+        ID3D12DescriptorHeap* heaps[] = {
+            descriptors.cbv_srv_uav().heap(),
+            descriptors.sampler().heap()};
+        cmd->SetDescriptorHeaps(_countof(heaps), heaps);
+        cmd->SetGraphicsRootSignature(root_signature.get());
+        cmd->SetGraphicsRoot32BitConstant(0, shadow_pass.constants_descriptor.index(), 0);
         cmd->SetPipelineState(shadow_pass.pipeline_state.get());
         cmd->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
@@ -682,19 +494,24 @@ void Demo::render(Dx& dx) {
             D3D12_RESOURCE_STATE_RENDER_TARGET);
         cmd->RSSetViewports(1, &viewport);
         cmd->RSSetScissorRects(1, &scissor);
-        cmd->OMSetRenderTargets(1, &target.color_descriptor, FALSE, &target.depth_descriptor);
-        cmd->ClearRenderTargetView(target.color_descriptor, CLEAR_COLOR, 0, nullptr);
+        cmd->OMSetRenderTargets(
+            1,
+            target.color_descriptor.cpu_ptr(),
+            FALSE,
+            target.depth_descriptor.cpu_ptr());
+        cmd->ClearRenderTargetView(target.color_descriptor.cpu(), CLEAR_COLOR, 0, nullptr);
         cmd->ClearDepthStencilView(
-            target.depth_descriptor,
+            target.depth_descriptor.cpu(),
             D3D12_CLEAR_FLAG_DEPTH,
             1.0f,
             0,
             0,
             nullptr);
-        cmd->SetGraphicsRootSignature(main_pass.root_signature.get());
-        cmd->SetDescriptorHeaps(1, main_pass.descriptor_heap.addressof());
-        cmd->SetGraphicsRootConstantBufferView(0, main_pass.constants.gpu_address());
-        cmd->SetGraphicsRootDescriptorTable(2, shadow_pass.depth_srv_gpu_descriptor);
+        ID3D12DescriptorHeap* heaps[] = {
+            descriptors.cbv_srv_uav().heap(),
+            descriptors.sampler().heap()};
+        cmd->SetDescriptorHeaps(_countof(heaps), heaps);
+        cmd->SetGraphicsRootSignature(root_signature.get());
         cmd->SetPipelineState(main_pass.pipeline_state.get());
         cmd->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
@@ -704,7 +521,11 @@ void Demo::render(Dx& dx) {
             auto index_count = scene.tree.index_buffer.element_size();
             cmd->IASetVertexBuffers(0, 1, &vbv);
             cmd->IASetIndexBuffer(&ibv);
-            cmd->SetGraphicsRootDescriptorTable(1, scene.tree.texture_gpu_descriptor);
+            GpuBindings bindings;
+            bindings.push(main_pass.constants_descriptor);
+            bindings.push(scene.tree.texture_descriptor);
+            bindings.push(shadow_pass.depth_srv_descriptor);
+            cmd->SetGraphicsRoot32BitConstants(0, bindings.capacity(), bindings.ptr(), 0);
             cmd->DrawIndexedInstanced(index_count, 1, 0, 0, 0);
         }
 
@@ -714,7 +535,11 @@ void Demo::render(Dx& dx) {
             auto index_count = scene.plane.index_buffer.element_size();
             cmd->IASetVertexBuffers(0, 1, &vbv);
             cmd->IASetIndexBuffer(&ibv);
-            cmd->SetGraphicsRootDescriptorTable(1, scene.plane.texture_gpu_descriptor);
+            GpuBindings bindings;
+            bindings.push(main_pass.constants_descriptor);
+            bindings.push(scene.plane.texture_descriptor);
+            bindings.push(shadow_pass.depth_srv_descriptor);
+            cmd->SetGraphicsRoot32BitConstants(0, bindings.capacity(), bindings.ptr(), 0);
             cmd->DrawIndexedInstanced(index_count, 1, 0, 0, 0);
         }
 

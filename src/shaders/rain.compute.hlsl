@@ -19,20 +19,25 @@ struct Input {
 };
 
 //
-// I/O
+// Bindings
 //
-
-ConstantBuffer<Constants> g_constants: register(b0);
-RWStructuredBuffer<Particle> particles: register(u0);
+struct Bindings {
+    uint constants;
+    uint particles;
+};
+ConstantBuffer<Bindings> g_bindings: register(b0);
 
 //
 // Entry points
 //
 
 [numthreads(128, 1, 1)] void cs_main(Input input) {
+    ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
+    RWStructuredBuffer<Particle> particles = ResourceDescriptorHeap[g_bindings.particles];
+
     uint i = input.dtid.x;
     Particle p = particles[i];
-    p.position.y -= g_constants.speed * g_constants.delta_time;
+    p.position.y -= constants.speed * constants.delta_time;
     if (p.position.y < -1.0f)
         p.position.y = 1.0f;
     particles[i] = p;

@@ -32,17 +32,18 @@ auto main() -> int {
     auto window =
         std::make_unique<fb::Window>(fb::Window::Desc {WINDOW_TITLE, WINDOW_WIDTH, WINDOW_HEIGHT});
     auto dx = std::make_unique<fb::Dx>(*window);
-    auto gui = std::make_unique<fb::Gui>(*window, *dx);
+    auto gui = std::make_unique<fb::gui::Gui>(*window, *dx);
     auto cube_demo = std::make_unique<fb::cube::Demo>(*dx);
     auto rain_demo = std::make_unique<fb::rain::Demo>(*dx);
     auto tree_demo = std::make_unique<fb::tree::Demo>(*dx);
     auto cards = std::make_unique<fb::cards::Cards>(
         *dx,
         fb::cards::Params {
-            .cube_texture = cube_demo->color_target,
-            .rain_texture = rain_demo->color_target,
-            .tree_texture = tree_demo->target.color,
-        });
+            .card_textures = {
+                cube_demo->color_target,
+                rain_demo->color_target,
+                tree_demo->target.color,
+            }});
 
     // Main loop.
     bool running = true;

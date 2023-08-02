@@ -7,9 +7,12 @@
 
 #include <backends/imgui_impl_win32.h>
 
-namespace fb {
+namespace fb::gui {
 
-Gui::Gui(const Window& window, Dx& dx) {
+Gui::Gui(const Window& window, Dx& dx) :
+    root_signature(dx, Gui::NAME),
+    descriptors(dx, Gui::NAME),
+    samplers(dx, descriptors) {
     // ImGui.
     {
         IMGUI_CHECKVERSION();
@@ -23,6 +26,8 @@ Gui::Gui(const Window& window, Dx& dx) {
     }
 
     // Shaders.
+    Shader vertex_shader;
+    Shader pixel_shader;
     {
         ShaderCompiler sc;
         auto source = read_whole_file("shaders/gui.hlsl");
@@ -30,59 +35,10 @@ Gui::Gui(const Window& window, Dx& dx) {
         pixel_shader = sc.compile(Gui::NAME, ShaderType::Pixel, "ps_main", source);
     }
 
-    // Root signature.
+    // Descriptors.
     {
-        CD3DX12_DESCRIPTOR_RANGE1 srv_range = {};
-        srv_range.Init(
-            D3D12_DESCRIPTOR_RANGE_TYPE_SRV,
-            1,
-            0,
-            0,
-            D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC);
-
-        CD3DX12_ROOT_PARAMETER1 root_parameters[2] = {};
-        root_parameters[0].InitAsConstants(16, 0, 0, D3D12_SHADER_VISIBILITY_VERTEX);
-        root_parameters[1].InitAsDescriptorTable(1, &srv_range, D3D12_SHADER_VISIBILITY_PIXEL);
-
-        CD3DX12_STATIC_SAMPLER_DESC1 sampler;
-        sampler.Init(
-            0,
-            D3D12_FILTER_MIN_MAG_MIP_LINEAR,
-            D3D12_TEXTURE_ADDRESS_MODE_WRAP,
-            D3D12_TEXTURE_ADDRESS_MODE_WRAP,
-            D3D12_TEXTURE_ADDRESS_MODE_WRAP,
-            0.0f,
-            0,
-            D3D12_COMPARISON_FUNC_ALWAYS,
-            D3D12_STATIC_BORDER_COLOR_TRANSPARENT_BLACK,
-            0.0f,
-            0.0f,
-            D3D12_SHADER_VISIBILITY_PIXEL,
-            0,
-            D3D12_SAMPLER_FLAG_NONE);
-
-        CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC desc;
-        decltype(desc)::Init_1_2(
-            desc,
-            _countof(root_parameters),
-            root_parameters,
-            1,
-            &sampler,
-            D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
-
-        ComPtr<ID3DBlob> signature;
-        ComPtr<ID3DBlob> error;
-        FAIL_FAST_IF_FAILED(D3DX12SerializeVersionedRootSignature(
-            &desc,
-            D3D_ROOT_SIGNATURE_VERSION_1_2,
-            &signature,
-            &error));
-        FAIL_FAST_IF_FAILED(dx.device->CreateRootSignature(
-            0,
-            signature->GetBufferPointer(),
-            signature->GetBufferSize(),
-            IID_PPV_ARGS(&root_signature)));
-        dx_set_name(root_signature, dx_name(Gui::NAME, "Root Signature"));
+        constant_buffer_descriptor = descriptors.cbv_srv_uav().alloc();
+        texture_descriptor = descriptors.cbv_srv_uav().alloc();
     }
 
     // Pipeline state.
@@ -126,21 +82,7 @@ Gui::Gui(const Window& window, Dx& dx) {
                  .AntialiasedLineEnable = FALSE,
                  .ForcedSampleCount = 0,
                  .ConservativeRaster = D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF},
-            .DepthStencilState =
-                {.DepthEnable = false,
-                 .DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL,
-                 .DepthFunc = D3D12_COMPARISON_FUNC_ALWAYS,
-                 .StencilEnable = false,
-                 .FrontFace =
-                     {.StencilFailOp = D3D12_STENCIL_OP_KEEP,
-                      .StencilDepthFailOp = D3D12_STENCIL_OP_KEEP,
-                      .StencilPassOp = D3D12_STENCIL_OP_KEEP,
-                      .StencilFunc = D3D12_COMPARISON_FUNC_ALWAYS},
-                 .BackFace =
-                     {.StencilFailOp = D3D12_STENCIL_OP_KEEP,
-                      .StencilDepthFailOp = D3D12_STENCIL_OP_KEEP,
-                      .StencilPassOp = D3D12_STENCIL_OP_KEEP,
-                      .StencilFunc = D3D12_COMPARISON_FUNC_ALWAYS}},
+            .DepthStencilState = DirectX::DX12::CommonStates::DepthNone,
             .InputLayout = {input_element_descs, _countof(input_element_descs)},
             .PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE,
             .NumRenderTargets = 1,
@@ -150,6 +92,17 @@ Gui::Gui(const Window& window, Dx& dx) {
         FAIL_FAST_IF_FAILED(
             dx.device->CreateGraphicsPipelineState(&desc, IID_PPV_ARGS(&pipeline_state)));
         dx_set_name(pipeline_state, dx_name(Gui::NAME, "Pipeline State"));
+    }
+
+    // Constants.
+    {
+        constant_buffer.create_cb(
+            dx,
+            GpuBufferAccessMode::HostWritable,
+            dx_name(Gui::NAME, "Constant Buffer"));
+
+        auto cbv_desc = constant_buffer.constant_buffer_view_desc();
+        dx.device->CreateConstantBufferView(&cbv_desc, constant_buffer_descriptor.cpu());
     }
 
     // Font texture.
@@ -170,8 +123,8 @@ Gui::Gui(const Window& window, Dx& dx) {
             &texture_desc,
             D3D12_RESOURCE_STATE_COPY_DEST,
             nullptr,
-            IID_PPV_ARGS(&font_texture_resource)));
-        dx_set_name(font_texture_resource, dx_name(Gui::NAME, "Font Texture"));
+            IID_PPV_ARGS(&texture)));
+        dx_set_name(texture, dx_name(Gui::NAME, "Font Texture"));
 
         // Upload.
         D3D12_SUBRESOURCE_DATA subresource_data = {
@@ -181,44 +134,23 @@ Gui::Gui(const Window& window, Dx& dx) {
         };
         DirectX::ResourceUploadBatch rub(dx.device.get());
         rub.Begin();
-        rub.Upload(font_texture_resource.get(), 0, &subresource_data, 1);
+        rub.Upload(texture.get(), 0, &subresource_data, 1);
         rub.Transition(
-            font_texture_resource.get(),
+            texture.get(),
             D3D12_RESOURCE_STATE_COPY_DEST,
             D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
         auto finish = rub.End(dx.command_queue.get());
         finish.wait();
-    }
 
-    // Descriptor heap.
-    {
-        D3D12_DESCRIPTOR_HEAP_DESC heap_desc = {
-            .Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV,
-            .NumDescriptors = 1,
-            .Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE,
-            .NodeMask = 0,
-        };
-        FAIL_FAST_IF_FAILED(
-            dx.device->CreateDescriptorHeap(&heap_desc, IID_PPV_ARGS(&descriptor_heap)));
-        dx_set_name(descriptor_heap, dx_name(Gui::NAME, "Descriptor Heap"));
-
-        D3D12_CPU_DESCRIPTOR_HANDLE cpu_desc =
-            descriptor_heap->GetCPUDescriptorHandleForHeapStart();
-        D3D12_GPU_DESCRIPTOR_HANDLE gpu_desc =
-            descriptor_heap->GetGPUDescriptorHandleForHeapStart();
-
+        // SRV.
         D3D12_SHADER_RESOURCE_VIEW_DESC srv_desc = {
             .Format = DXGI_FORMAT_R8G8B8A8_UNORM,
             .ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D,
             .Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING,
-            .Texture2D =
-                {
-                    .MipLevels = 1,
-                },
+            .Texture2D = {.MipLevels = 1},
         };
-        dx.device->CreateShaderResourceView(font_texture_resource.get(), &srv_desc, cpu_desc);
-        auto& io = ImGui::GetIO();
-        io.Fonts->SetTexID((ImTextureID)gpu_desc.ptr);
+        dx.device->CreateShaderResourceView(texture.get(), &srv_desc, texture_descriptor.cpu());
+        io.Fonts->SetTexID((ImTextureID)texture_descriptor.gpu().ptr);
     }
 
     // Geometry.
@@ -278,7 +210,6 @@ void Gui::render(const Dx& dx) {
     }
 
     // Update transform.
-    Matrix transform;
     {
         float l = ImGui::GetDrawData()->DisplayPos.x;
         float r = ImGui::GetDrawData()->DisplayPos.x + ImGui::GetDrawData()->DisplaySize.x;
@@ -290,7 +221,7 @@ void Gui::render(const Dx& dx) {
             {0.0f, 0.0f, 0.5f, 0.0f},
             {(r + l) / (l - r), (t + b) / (b - t), 0.5f, 1.0f},
         };
-        memcpy(&transform, m, sizeof(m));
+        memcpy(constant_buffer.ptr(), m, sizeof(m));
     }
 
     // Render.
@@ -306,10 +237,18 @@ void Gui::render(const Dx& dx) {
         cmd->IASetVertexBuffers(0, 1, &vbv);
         cmd->IASetIndexBuffer(&ibv);
         cmd->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-        cmd->SetPipelineState(pipeline_state.get());
+
+        ID3D12DescriptorHeap* heaps[] = {
+            descriptors.cbv_srv_uav().heap(),
+            descriptors.sampler().heap()};
+        cmd->SetDescriptorHeaps(_countof(heaps), heaps);
         cmd->SetGraphicsRootSignature(root_signature.get());
-        cmd->SetGraphicsRoot32BitConstants(0, 16, &transform, 0);
-        cmd->SetDescriptorHeaps(1, descriptor_heap.addressof());
+        GpuBindings bindings;
+        bindings.push(constant_buffer_descriptor);
+        bindings.push(texture_descriptor);
+        cmd->SetGraphicsRoot32BitConstants(0, bindings.capacity(), bindings.ptr(), 0);
+        cmd->SetPipelineState(pipeline_state.get());
+
         cmd->OMSetBlendFactor(blend_factor);
 
         int global_vtx_offset = 0;
@@ -328,9 +267,6 @@ void Gui::render(const Dx& dx) {
                         (LONG)(pcmd->ClipRect.z - clip_off.x),
                         (LONG)(pcmd->ClipRect.w - clip_off.y),
                     };
-                    cmd->SetGraphicsRootDescriptorTable(
-                        1,
-                        descriptor_heap->GetGPUDescriptorHandleForHeapStart());
                     cmd->RSSetScissorRects(1, &scissor_rect);
                     cmd->DrawIndexedInstanced(
                         pcmd->ElemCount,
@@ -346,4 +282,4 @@ void Gui::render(const Dx& dx) {
     }
 }
 
-}  // namespace fb
+}  // namespace fb::gui

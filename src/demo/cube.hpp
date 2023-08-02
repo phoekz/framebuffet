@@ -5,6 +5,10 @@
 #include "../dx12.hpp"
 #include "../buffers.hpp"
 #include "../gltf.hpp"
+#include "../descriptors.hpp"
+#include "../samplers.hpp"
+#include "../root_signature.hpp"
+#include <pch.hpp>
 
 namespace fb::cube {
 
@@ -25,26 +29,26 @@ struct Demo {
     void update(const UpdateParams& params);
     void render(Dx& dx);
 
-    ComPtr<ID3D12RootSignature> root_signature;
-    ComPtr<ID3D12PipelineState> pipeline_state;
-    ComPtr<ID3D12DescriptorHeap> descriptor_heap;
+    GpuRootSignature root_signature;
+    GpuDescriptors descriptors;
+    GpuSamplers samplers;
 
-    Constants constants;
+    ComPtr<ID3D12PipelineState> pipeline_state;
+
     GpuBuffer<Constants> constant_buffer;
-    D3D12_GPU_DESCRIPTOR_HANDLE constant_buffer_descriptor;
+    GpuDescriptorHandle constant_buffer_descriptor;
+
     GpuBuffer<GltfVertex> vertex_buffer;
     GpuBuffer<GltfIndex> index_buffer;
 
     ComPtr<ID3D12Resource> texture;
-    D3D12_GPU_DESCRIPTOR_HANDLE texture_descriptor;
+    GpuDescriptorHandle texture_descriptor;
 
     ComPtr<ID3D12Resource> color_target;
-    ComPtr<ID3D12DescriptorHeap> color_target_descriptor_heap;
-    D3D12_CPU_DESCRIPTOR_HANDLE color_target_descriptor;
+    GpuDescriptorHandle color_target_descriptor;
 
     ComPtr<ID3D12Resource> depth_target;
-    ComPtr<ID3D12DescriptorHeap> depth_target_descriptor_heap;
-    D3D12_CPU_DESCRIPTOR_HANDLE depth_target_descriptor;
+    GpuDescriptorHandle depth_target_descriptor;
 };
 
 }  // namespace fb::cube

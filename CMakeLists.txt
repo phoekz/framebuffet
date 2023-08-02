@@ -69,6 +69,7 @@ set(PROJECT_TARGET_DIRECTORY $<TARGET_FILE_DIR:${PROJECT_NAME}>)
 add_custom_command(
     TARGET ${PROJECT_NAME} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_TARGET_DIRECTORY}/shaders
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/src/shaders/samplers.hlsli ${PROJECT_TARGET_DIRECTORY}/shaders/
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/src/shaders/cube.hlsl ${PROJECT_TARGET_DIRECTORY}/shaders/
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/src/shaders/gui.hlsl ${PROJECT_TARGET_DIRECTORY}/shaders/
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/src/shaders/cards.hlsl ${PROJECT_TARGET_DIRECTORY}/shaders/

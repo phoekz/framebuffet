@@ -4,6 +4,9 @@
 #include "../maths.hpp"
 #include "../dx12.hpp"
 #include "../buffers.hpp"
+#include "../descriptors.hpp"
+#include "../samplers.hpp"
+#include "../root_signature.hpp"
 
 namespace fb::rain {
 
@@ -16,6 +19,22 @@ struct UpdateParams {
     float delta_time;
 };
 
+struct ComputeConstants {
+    float delta_time = 0.0f;
+    float speed = 0.2f;
+    float pad[62];
+};
+
+struct DrawConstants {
+    Matrix transform;
+    float pad[48];
+};
+
+struct Particle {
+    Vector3 position;
+};
+static_assert(sizeof(Particle) == 12);
+
 struct Demo {
     static constexpr const char* NAME = "Rain";
 
@@ -23,42 +42,37 @@ struct Demo {
     void update(const UpdateParams& params);
     void render(Dx& dx);
 
-    struct Particle {
-        Vector3 position;
-    };
-    static_assert(sizeof(Particle) == 12);
+    GpuRootSignature root_signature;
+    GpuDescriptors descriptors;
+
     GpuBuffer<Particle> particle_buffer;
+    GpuDescriptorHandle particle_buffer_descriptor;
 
     struct Compute {
         static constexpr const char* NAME = "Compute";
 
-        ComPtr<ID3D12RootSignature> root_signature;
         ComPtr<ID3D12PipelineState> pipeline_state;
-        ComPtr<ID3D12DescriptorHeap> descriptor_heap;
 
-        struct {
-            float delta_time = 0.0f;
-            float speed = 0.2f;
-        } constants;
+        GpuBuffer<ComputeConstants> constant_buffer;
+        GpuDescriptorHandle constant_buffer_descriptor;
     } compute;
 
     struct Draw {
         static constexpr const char* NAME = "Draw";
 
-        ComPtr<ID3D12RootSignature> root_signature;
         ComPtr<ID3D12PipelineState> pipeline_state;
-        D3D12_VERTEX_BUFFER_VIEW vertex_buffer_view;
 
-        Matrix transform;
+        GpuBuffer<DrawConstants> constant_buffer;
+        GpuDescriptorHandle constant_buffer_descriptor;
+
+        D3D12_VERTEX_BUFFER_VIEW vertex_buffer_view;
     } draw;
 
     ComPtr<ID3D12Resource> color_target;
-    ComPtr<ID3D12DescriptorHeap> color_target_descriptor_heap;
-    D3D12_CPU_DESCRIPTOR_HANDLE color_target_descriptor;
+    GpuDescriptorHandle color_target_descriptor;
 
     ComPtr<ID3D12Resource> depth_target;
-    ComPtr<ID3D12DescriptorHeap> depth_target_descriptor_heap;
-    D3D12_CPU_DESCRIPTOR_HANDLE depth_target_descriptor;
+    GpuDescriptorHandle depth_target_descriptor;
 };
 
 }  // namespace fb::rain

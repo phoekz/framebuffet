@@ -1,15 +1,17 @@
+#include "shaders/samplers.hlsli"
+
 //
 // Types
 //
 
-struct CardConstants {
-    float2 position;
-    float2 size;
-};
-
 struct Constants {
     float4x4 transform;
     float pad[48];
+};
+
+struct Card {
+    float2 position;
+    float2 size;
 };
 
 struct VertexInput {
@@ -27,28 +29,38 @@ struct PixelOutput {
 };
 
 //
-// I/O
+// Bindings
 //
 
-ConstantBuffer<CardConstants> g_card_constants: register(b0);
-ConstantBuffer<Constants> g_constants: register(b1);
-Texture2D g_texture: register(t0);
-SamplerState g_sampler: register(s0);
+struct Bindings {
+    uint card_index;
+    uint constants;
+    uint cards;
+    uint texture;
+};
+ConstantBuffer<Bindings> g_bindings: register(b0);
 
 //
 // Entry points
 //
 
 VertexOutput vs_main(VertexInput input) {
-    float2 position = input.position * g_card_constants.size + g_card_constants.position;
+    ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
+    StructuredBuffer<Card> cards = ResourceDescriptorHeap[g_bindings.cards];
+    Card card = cards[g_bindings.card_index];  // Todo:
+
+    float2 position = input.position * card.size + card.position;
     VertexOutput output;
-    output.position = mul(g_constants.transform, float4(position, 0.0f, 1.0f));
+    output.position = mul(constants.transform, float4(position, 0.0f, 1.0f));
     output.texcoord = input.texcoord;
     return output;
 }
 
 PixelOutput ps_main(VertexOutput input) {
+    Texture2D texture = ResourceDescriptorHeap[g_bindings.texture];
+    SamplerState samp = SamplerDescriptorHeap[(uint)GpuSamplerType::LinearClamp];
+
     PixelOutput output;
-    output.color = g_texture.Sample(g_sampler, input.texcoord);
+    output.color = texture.Sample(samp, input.texcoord);
     return output;
 }

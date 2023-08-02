@@ -4,7 +4,16 @@
 
 namespace fb::rain {
 
-Demo::Demo(Dx& dx) {
+Demo::Demo(Dx& dx) : root_signature(dx, Demo::NAME), descriptors(dx, Demo::NAME) {
+    // Descriptors.
+    {
+        particle_buffer_descriptor = descriptors.cbv_srv_uav().alloc();
+        compute.constant_buffer_descriptor = descriptors.cbv_srv_uav().alloc();
+        draw.constant_buffer_descriptor = descriptors.cbv_srv_uav().alloc();
+        color_target_descriptor = descriptors.rtv().alloc();
+        depth_target_descriptor = descriptors.dsv().alloc();
+    }
+
     // Particles.
     {
         // Buffer.
@@ -13,8 +22,17 @@ Demo::Demo(Dx& dx) {
             PARTICLE_COUNT,
             GpuBufferAccessMode::GpuExclusive,
             dx_name(Demo::NAME, "Particle Buffer"));
+
+        // Descriptor.
+        auto uav_desc = particle_buffer.unordered_access_view_desc();
+        dx.device->CreateUnorderedAccessView(
+            particle_buffer.resource(),
+            nullptr,
+            &uav_desc,
+            particle_buffer_descriptor.cpu());
+
+        // Vertex buffer view.
         draw.vertex_buffer_view = particle_buffer.vertex_buffer_view();
-        auto buffer = particle_buffer.resource();
 
         // Data.
         pcg rand;
@@ -27,6 +45,7 @@ Demo::Demo(Dx& dx) {
         }
 
         // Upload.
+        auto buffer = particle_buffer.resource();
         D3D12_SUBRESOURCE_DATA subresource_data = {
             .pData = particles.data(),
             .RowPitch = particle_buffer.byte_size(),
@@ -59,45 +78,10 @@ Demo::Demo(Dx& dx) {
         pixel_shader = sc.compile(draw_name, ShaderType::Pixel, "ps_main", draw_source);
     }
 
-    // Compute - Root signature.
-    {
-        CD3DX12_ROOT_PARAMETER1 root_parameters[2];
-        root_parameters[0].InitAsConstants(2, 0, 0, D3D12_SHADER_VISIBILITY_ALL);
-        root_parameters[1].InitAsUnorderedAccessView(
-            0,
-            0,
-            D3D12_ROOT_DESCRIPTOR_FLAG_DATA_VOLATILE);
-
-        CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC desc;
-        decltype(desc)::Init_1_2(
-            desc,
-            _countof(root_parameters),
-            root_parameters,
-            0,
-            nullptr,
-            D3D12_ROOT_SIGNATURE_FLAG_NONE);
-
-        ComPtr<ID3DBlob> signature;
-        ComPtr<ID3DBlob> error;
-        FAIL_FAST_IF_FAILED(D3DX12SerializeVersionedRootSignature(
-            &desc,
-            D3D_ROOT_SIGNATURE_VERSION_1_2,
-            &signature,
-            &error));
-        FAIL_FAST_IF_FAILED(dx.device->CreateRootSignature(
-            0,
-            signature->GetBufferPointer(),
-            signature->GetBufferSize(),
-            IID_PPV_ARGS(&compute.root_signature)));
-        dx_set_name(
-            compute.root_signature,
-            dx_name(Demo::NAME, Demo::Compute::NAME, "Root Signature"));
-    }
-
     // Compute - Pipeline state.
     {
         D3D12_COMPUTE_PIPELINE_STATE_DESC desc = {
-            .pRootSignature = compute.root_signature.get(),
+            .pRootSignature = root_signature.get(),
             .CS = compute_shader.bytecode(),
         };
         FAIL_FAST_IF_FAILED(
@@ -107,47 +91,15 @@ Demo::Demo(Dx& dx) {
             dx_name(Demo::NAME, Demo::Compute::NAME, "Pipeline State"));
     }
 
-    // Compute - Descriptor heap.
+    // Compute - Constant buffer.
     {
-        D3D12_DESCRIPTOR_HEAP_DESC desc = {
-            .Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV,
-            .NumDescriptors = 1,
-            .Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE,
-        };
-        FAIL_FAST_IF_FAILED(
-            dx.device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&compute.descriptor_heap)));
-        dx_set_name(
-            compute.descriptor_heap,
-            dx_name(Demo::NAME, Demo::Compute::NAME, "Descriptor Heap"));
-    }
+        compute.constant_buffer.create_cb(
+            dx,
+            GpuBufferAccessMode::HostWritable,
+            dx_name(Demo::NAME, Demo::Compute::NAME, "Constant Buffer"));
 
-    // Draw - Root signature.
-    {
-        CD3DX12_ROOT_PARAMETER1 root_parameters[1];
-        root_parameters[0].InitAsConstants(16, 0, 0, D3D12_SHADER_VISIBILITY_VERTEX);
-
-        CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC desc;
-        decltype(desc)::Init_1_2(
-            desc,
-            _countof(root_parameters),
-            root_parameters,
-            0,
-            nullptr,
-            D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
-
-        ComPtr<ID3DBlob> signature;
-        ComPtr<ID3DBlob> error;
-        FAIL_FAST_IF_FAILED(D3DX12SerializeVersionedRootSignature(
-            &desc,
-            D3D_ROOT_SIGNATURE_VERSION_1_2,
-            &signature,
-            &error));
-        FAIL_FAST_IF_FAILED(dx.device->CreateRootSignature(
-            0,
-            signature->GetBufferPointer(),
-            signature->GetBufferSize(),
-            IID_PPV_ARGS(&draw.root_signature)));
-        dx_set_name(draw.root_signature, dx_name(Demo::NAME, Demo::Draw::NAME, "Root Signature"));
+        auto cbv_desc = compute.constant_buffer.constant_buffer_view_desc();
+        dx.device->CreateConstantBufferView(&cbv_desc, compute.constant_buffer_descriptor.cpu());
     }
 
     // Draw - Pipeline state.
@@ -162,7 +114,7 @@ Demo::Demo(Dx& dx) {
             .InstanceDataStepRate = 0,
         }};
         D3D12_GRAPHICS_PIPELINE_STATE_DESC desc = {
-            .pRootSignature = draw.root_signature.get(),
+            .pRootSignature = root_signature.get(),
             .VS = vertex_shader.bytecode(),
             .PS = pixel_shader.bytecode(),
             .BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT),
@@ -179,6 +131,17 @@ Demo::Demo(Dx& dx) {
         FAIL_FAST_IF_FAILED(
             dx.device->CreateGraphicsPipelineState(&desc, IID_PPV_ARGS(&draw.pipeline_state)));
         dx_set_name(draw.pipeline_state, dx_name(Demo::NAME, Demo::Draw::NAME, "Pipeline State"));
+    }
+
+    // Draw - Constant buffer.
+    {
+        draw.constant_buffer.create_cb(
+            dx,
+            GpuBufferAccessMode::HostWritable,
+            dx_name(Demo::NAME, Demo::Draw::NAME, "Constant Buffer"));
+
+        auto cbv_desc = draw.constant_buffer.constant_buffer_view_desc();
+        dx.device->CreateConstantBufferView(&cbv_desc, draw.constant_buffer_descriptor.cpu());
     }
 
     // Color target.
@@ -206,19 +169,10 @@ Demo::Demo(Dx& dx) {
             IID_PPV_ARGS(&color_target)));
         dx_set_name(color_target, dx_name(Demo::NAME, "Color Target"));
 
-        D3D12_DESCRIPTOR_HEAP_DESC descriptors_desc = {
-            .Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV,
-            .NumDescriptors = 1,
-        };
-        FAIL_FAST_IF_FAILED(dx.device->CreateDescriptorHeap(
-            &descriptors_desc,
-            IID_PPV_ARGS(&color_target_descriptor_heap)));
-        dx_set_name(
-            color_target_descriptor_heap,
-            dx_name(Demo::NAME, "Color Target Descriptor Heap"));
-        color_target_descriptor =
-            color_target_descriptor_heap->GetCPUDescriptorHandleForHeapStart();
-        dx.device->CreateRenderTargetView(color_target.get(), nullptr, color_target_descriptor);
+        dx.device->CreateRenderTargetView(
+            color_target.get(),
+            nullptr,
+            color_target_descriptor.cpu());
     }
 
     // Depth target.
@@ -245,95 +199,127 @@ Demo::Demo(Dx& dx) {
             IID_PPV_ARGS(&depth_target)));
         dx_set_name(depth_target, dx_name(Demo::NAME, "Depth Target"));
 
-        D3D12_DESCRIPTOR_HEAP_DESC descriptors_desc = {
-            .Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV,
-            .NumDescriptors = 1,
-        };
-        FAIL_FAST_IF_FAILED(dx.device->CreateDescriptorHeap(
-            &descriptors_desc,
-            IID_PPV_ARGS(&depth_target_descriptor_heap)));
-        dx_set_name(
-            depth_target_descriptor_heap,
-            dx_name(Demo::NAME, "Depth Target Descriptor Heap"));
-        depth_target_descriptor =
-            depth_target_descriptor_heap->GetCPUDescriptorHandleForHeapStart();
-        dx.device->CreateDepthStencilView(depth_target.get(), nullptr, depth_target_descriptor);
+        dx.device->CreateDepthStencilView(
+            depth_target.get(),
+            nullptr,
+            depth_target_descriptor.cpu());
     }
 }
 
 void Demo::update(const UpdateParams& params) {
-    compute.constants.delta_time = params.delta_time;
+    {
+        auto& constants = *compute.constant_buffer.ptr();
+        constants.delta_time = params.delta_time;
 
-    if (ImGui::Begin(Demo::NAME)) {
-        ImGui::SliderFloat("Speed", &compute.constants.speed, 0.0f, 2.0f);
+        if (ImGui::Begin(Demo::NAME)) {
+            ImGui::SliderFloat("Speed", &constants.speed, 0.0f, 2.0f);
+        }
+        ImGui::End();
     }
-    ImGui::End();
 
-    float aspect_ratio = params.aspect_ratio;
-    Matrix perspective =
-        Matrix::CreatePerspectiveFieldOfView(rad_from_deg(45.0f), aspect_ratio, 0.1f, 100.0f);
-    Vector3 eye = Vector3(1.0f, 0.5f, 1.0f);
-    Matrix view = Matrix::CreateLookAt(eye, Vector3(0.0f, 0.0f, 0.0f), Vector3(0.0f, 1.0f, 0.0f));
-    draw.transform = view * perspective;
+    {
+        auto aspect_ratio = params.aspect_ratio;
+        auto fov = rad_from_deg(45.0f);
+        auto perspective = Matrix::CreatePerspectiveFieldOfView(fov, aspect_ratio, 0.1f, 100.0f);
+        auto eye = Vector3(1.0f, 0.5f, 1.0f);
+        auto target = Vector3(0.0f, 0.0f, 0.0f);
+        auto up = Vector3(0.0f, 1.0f, 0.0f);
+        auto view = Matrix::CreateLookAt(eye, target, up);
+        auto& constants = *draw.constant_buffer.ptr();
+        constants.transform = view * perspective;
+    }
 }
 
 void Demo::render(Dx& dx) {
-    constexpr float CLEAR_COLOR[4] = {0.0f, 0.0f, 0.0f, 1.0f};
-    D3D12_VIEWPORT viewport = {
-        .TopLeftX = 0.0f,
-        .TopLeftY = 0.0f,
-        .Width = (float)dx.swapchain_width,
-        .Height = (float)dx.swapchain_height,
-        .MinDepth = 0.0f,
-        .MaxDepth = 1.0f,
-    };
-    D3D12_RECT scissor = {
-        .left = 0,
-        .top = 0,
-        .right = (LONG)dx.swapchain_width,
-        .bottom = (LONG)dx.swapchain_height,
-    };
-
     auto* cmd = dx.command_list.get();
-    dx.transition(
-        particle_buffer.resource(),
-        D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER,
-        D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-    cmd->SetComputeRootSignature(compute.root_signature.get());
-    cmd->SetComputeRoot32BitConstants(0, 2, &compute.constants, 0);
-    cmd->SetComputeRootUnorderedAccessView(1, particle_buffer.gpu_address());
-    cmd->SetPipelineState(compute.pipeline_state.get());
-    cmd->Dispatch(DISPATCH_COUNT, 1, 1);
-    dx.transition(
-        particle_buffer.resource(),
-        D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
-        D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
 
-    dx.transition(
-        color_target,
-        D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
-        D3D12_RESOURCE_STATE_RENDER_TARGET);
-    cmd->RSSetViewports(1, &viewport);
-    cmd->RSSetScissorRects(1, &scissor);
-    cmd->OMSetRenderTargets(1, &color_target_descriptor, FALSE, &depth_target_descriptor);
-    cmd->ClearRenderTargetView(color_target_descriptor, CLEAR_COLOR, 0, nullptr);
-    cmd->ClearDepthStencilView(
-        depth_target_descriptor,
-        D3D12_CLEAR_FLAG_DEPTH,
-        1.0f,
-        0,
-        0,
-        nullptr);
-    cmd->SetGraphicsRootSignature(draw.root_signature.get());
-    cmd->SetGraphicsRoot32BitConstants(0, 16, &draw.transform, 0);
-    cmd->SetPipelineState(draw.pipeline_state.get());
-    cmd->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_POINTLIST);
-    cmd->IASetVertexBuffers(0, 1, &draw.vertex_buffer_view);
-    cmd->DrawInstanced(PARTICLE_COUNT, 1, 0, 0);
-    dx.transition(
-        color_target,
-        D3D12_RESOURCE_STATE_RENDER_TARGET,
-        D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+    {
+        // Transition particles.
+        dx.transition(
+            particle_buffer.resource(),
+            D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER,
+            D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+
+        // Pipeline state.
+        cmd->SetDescriptorHeaps(1, descriptors.cbv_srv_uav().heap_ptr());
+        cmd->SetComputeRootSignature(root_signature.get());
+        GpuBindings bindings;
+        bindings.push(compute.constant_buffer_descriptor);
+        bindings.push(particle_buffer_descriptor);
+        cmd->SetComputeRoot32BitConstants(0, bindings.capacity(), bindings.ptr(), 0);
+        cmd->SetPipelineState(compute.pipeline_state.get());
+
+        // Dispatch.
+        cmd->Dispatch(DISPATCH_COUNT, 1, 1);
+
+        // Transition particles.
+        dx.transition(
+            particle_buffer.resource(),
+            D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
+            D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
+    }
+
+    {
+        constexpr float CLEAR_COLOR[4] = {0.0f, 0.0f, 0.0f, 1.0f};
+
+        // Transition render targets.
+        dx.transition(
+            color_target,
+            D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
+            D3D12_RESOURCE_STATE_RENDER_TARGET);
+
+        // Render targets.
+        D3D12_VIEWPORT viewport = {
+            .TopLeftX = 0.0f,
+            .TopLeftY = 0.0f,
+            .Width = (float)dx.swapchain_width,
+            .Height = (float)dx.swapchain_height,
+            .MinDepth = 0.0f,
+            .MaxDepth = 1.0f,
+        };
+        D3D12_RECT scissor = {
+            .left = 0,
+            .top = 0,
+            .right = (LONG)dx.swapchain_width,
+            .bottom = (LONG)dx.swapchain_height,
+        };
+        cmd->RSSetViewports(1, &viewport);
+        cmd->RSSetScissorRects(1, &scissor);
+        cmd->OMSetRenderTargets(
+            1,
+            color_target_descriptor.cpu_ptr(),
+            FALSE,
+            depth_target_descriptor.cpu_ptr());
+        cmd->ClearRenderTargetView(color_target_descriptor.cpu(), CLEAR_COLOR, 0, nullptr);
+        cmd->ClearDepthStencilView(
+            depth_target_descriptor.cpu(),
+            D3D12_CLEAR_FLAG_DEPTH,
+            1.0f,
+            0,
+            0,
+            nullptr);
+
+        // Pipeline state.
+        cmd->SetDescriptorHeaps(1, descriptors.cbv_srv_uav().heap_ptr());
+        cmd->SetGraphicsRootSignature(root_signature.get());
+        GpuBindings bindings;
+        bindings.push(draw.constant_buffer_descriptor);
+        cmd->SetGraphicsRoot32BitConstants(0, bindings.capacity(), bindings.ptr(), 0);
+        cmd->SetPipelineState(draw.pipeline_state.get());
+
+        // Input assembler.
+        cmd->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_POINTLIST);
+        cmd->IASetVertexBuffers(0, 1, &draw.vertex_buffer_view);
+
+        // Draw.
+        cmd->DrawInstanced(PARTICLE_COUNT, 1, 0, 0);
+
+        // Transition render targets.
+        dx.transition(
+            color_target,
+            D3D12_RESOURCE_STATE_RENDER_TARGET,
+            D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+    }
 }
 
 }  // namespace fb::rain
