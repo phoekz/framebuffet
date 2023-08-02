@@ -45,6 +45,7 @@ auto ShaderCompiler::compile(
         L"-Zi",
         L"-Fo", shader_bin.c_str(),
         L"-Fd", L".\\shaders\\",
+        L"-WX",
         // clang-format on
     };
 
