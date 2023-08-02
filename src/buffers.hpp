@@ -103,6 +103,23 @@ class GpuBuffer {
             name);
     }
 
+    auto create_srv(
+        Dx& dx,
+        uint32_t element_size,
+        GpuBufferAccessMode access_mode,
+        std::string_view name) -> void {
+        create_raw(
+            dx,
+            sizeof(T),
+            element_size,
+            sizeof(T) * element_size,
+            0,
+            DXGI_FORMAT_UNKNOWN,
+            access_mode,
+            D3D12_RESOURCE_FLAG_NONE,
+            name);
+    }
+
     auto create_cb(Dx& dx, GpuBufferAccessMode access_mode, std::string_view name) -> void {
         static_assert(
             sizeof(T) % size_t(256) == 0,
@@ -154,6 +171,20 @@ class GpuBuffer {
         return D3D12_CONSTANT_BUFFER_VIEW_DESC {
             .BufferLocation = _resource->GetGPUVirtualAddress(),
             .SizeInBytes = _byte_size,
+        };
+    }
+    auto shader_resource_view_desc() const -> D3D12_SHADER_RESOURCE_VIEW_DESC {
+        return D3D12_SHADER_RESOURCE_VIEW_DESC {
+            .Format = _format,
+            .ViewDimension = D3D12_SRV_DIMENSION_BUFFER,
+            .Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING,
+            .Buffer =
+                {
+                    .FirstElement = 0,
+                    .NumElements = _element_size,
+                    .StructureByteStride = _element_byte_size,
+                    .Flags = D3D12_BUFFER_SRV_FLAG_NONE,
+                },
         };
     }
 
