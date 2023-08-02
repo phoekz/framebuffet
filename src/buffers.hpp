@@ -188,6 +188,20 @@ class GpuBuffer {
                 },
         };
     }
+    auto unordered_access_view_desc() const -> D3D12_UNORDERED_ACCESS_VIEW_DESC {
+        return D3D12_UNORDERED_ACCESS_VIEW_DESC {
+            .Format = _format,
+            .ViewDimension = D3D12_UAV_DIMENSION_BUFFER,
+            .Buffer =
+                {
+                    .FirstElement = 0,
+                    .NumElements = _element_size,
+                    .StructureByteStride = _element_byte_size,
+                    .CounterOffsetInBytes = 0,
+                    .Flags = D3D12_BUFFER_UAV_FLAG_NONE,
+                },
+        };
+    }
 
     auto element_byte_size() const -> uint32_t { return _element_byte_size; }
     auto element_size() const -> uint32_t { return _element_size; }
