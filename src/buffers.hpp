@@ -134,6 +134,7 @@ class GpuBuffer {
             access_mode,
             D3D12_RESOURCE_FLAG_NONE,
             name);
+        new (ptr()) T();
     }
 
     auto create_uav(
