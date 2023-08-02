@@ -47,6 +47,7 @@ class GpuBuffer {
         if (host_visible) {
             CD3DX12_RANGE read_range(0, 0);
             FAIL_FAST_IF_FAILED(_resource->Map(0, &read_range, &_raw));
+            memset(_raw, 0, byte_size);
         }
 
         // GPU address.
