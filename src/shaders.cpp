@@ -3,6 +3,19 @@
 
 namespace fb {
 
+static auto shader_type_name(ShaderType type) -> const char* {
+    switch (type) {
+        case ShaderType::Compute:
+            return "Compute";
+        case ShaderType::Vertex:
+            return "Vertex";
+        case ShaderType::Pixel:
+            return "Pixel";
+        default:
+            return "Unknown";
+    }
+}
+
 auto Shader::bytecode() const -> D3D12_SHADER_BYTECODE {
     return {
         .pShaderBytecode = _blob->GetBufferPointer(),
@@ -16,11 +29,66 @@ ShaderCompiler::ShaderCompiler() {
     _utils->CreateDefaultIncludeHandler(&_include_handler);
 }
 
+static auto
+analyze(std::string_view name, ShaderType shader_type, ComPtr<ID3D12ShaderReflection> reflection)
+    -> void {
+    // Get reflection data.
+    D3D12_SHADER_DESC shader_desc;
+    reflection->GetDesc(&shader_desc);
+    log_info(
+        "Shader: {}, Type: {}, InstructionCount: {}",
+        name,
+        shader_type_name(shader_type),
+        shader_desc.InstructionCount);
+
+    for (UINT cb_index = 0; cb_index < shader_desc.ConstantBuffers; ++cb_index) {
+        auto cb = reflection->GetConstantBufferByIndex(cb_index);
+        D3D12_SHADER_BUFFER_DESC shader_buffer_desc;
+        FAIL_FAST_IF_FAILED(cb->GetDesc(&shader_buffer_desc));
+        log_info(
+            "  ConstantBuffer: {}, Variables: {}, Size: {}",
+            shader_buffer_desc.Name,
+            shader_buffer_desc.Variables,
+            shader_buffer_desc.Size);
+        for (UINT var_index = 0; var_index < shader_buffer_desc.Variables; ++var_index) {
+            auto var = cb->GetVariableByIndex(var_index);
+            D3D12_SHADER_VARIABLE_DESC shader_variable_desc;
+            FAIL_FAST_IF_FAILED(var->GetDesc(&shader_variable_desc));
+            log_info(
+                "    Name: {}, Size: {}",
+                shader_variable_desc.Name,
+                shader_variable_desc.Size);
+
+            auto type = var->GetType();
+            D3D12_SHADER_TYPE_DESC shader_type_desc;
+            FAIL_FAST_IF_FAILED(type->GetDesc(&shader_type_desc));
+            log_info(
+                "      Name: {}, Members: {}",
+                shader_type_desc.Name,
+                shader_type_desc.Members);
+            for (UINT member_index = 0; member_index < shader_type_desc.Members; ++member_index) {
+                auto member = type->GetMemberTypeByIndex(member_index);
+                auto member_name = type->GetMemberTypeName(member_index);
+                D3D12_SHADER_TYPE_DESC shader_member_type_desc;
+                FAIL_FAST_IF_FAILED(member->GetDesc(&shader_member_type_desc));
+                log_info(
+                    "        {} {:16} // idx={} offset={}",
+                    shader_member_type_desc.Name,
+                    member_name,
+                    member_index,
+                    shader_member_type_desc.Offset);
+            }
+        }
+    }
+    log_info("");
+}
+
 auto ShaderCompiler::compile(
     std::string_view name,
     ShaderType type,
     std::string_view entry_point,
-    std::span<std::byte> source) -> Shader {
+    std::span<std::byte> source,
+    bool debug) -> Shader {
     // Note: remember to set PIX PDB search path correctly for shader debugging to work.
 
     // Shader profile.
@@ -91,20 +159,18 @@ auto ShaderCompiler::compile(
     }
 
     // Reflection.
-    ComPtr<IDxcBlob> reflection_blob;
-    FAIL_FAST_IF_FAILED(
-        result->GetOutput(DXC_OUT_REFLECTION, IID_PPV_ARGS(&reflection_blob), nullptr));
-    DxcBuffer reflection_buffer;
-    reflection_buffer.Encoding = DXC_CP_ACP;
-    reflection_buffer.Ptr = reflection_blob->GetBufferPointer();
-    reflection_buffer.Size = reflection_blob->GetBufferSize();
-    ComPtr<ID3D12ShaderReflection> reflection;
-    _utils->CreateReflection(&reflection_buffer, IID_PPV_ARGS(&reflection));
-
-    // Get reflection data.
-    D3D12_SHADER_DESC shader_desc;
-    reflection->GetDesc(&shader_desc);
-    log_info("Shader: {}, InstructionCount: {}", name, shader_desc.InstructionCount);
+    if (debug) {
+        ComPtr<IDxcBlob> reflection_blob;
+        FAIL_FAST_IF_FAILED(
+            result->GetOutput(DXC_OUT_REFLECTION, IID_PPV_ARGS(&reflection_blob), nullptr));
+        DxcBuffer reflection_buffer;
+        reflection_buffer.Encoding = DXC_CP_ACP;
+        reflection_buffer.Ptr = reflection_blob->GetBufferPointer();
+        reflection_buffer.Size = reflection_blob->GetBufferSize();
+        ComPtr<ID3D12ShaderReflection> reflection;
+        _utils->CreateReflection(&reflection_buffer, IID_PPV_ARGS(&reflection));
+        analyze(name, type, reflection);
+    }
 
     // Result.
     Shader shader;
