@@ -6,6 +6,7 @@
 	],
 	"settings": {
 		"files.associations": {
+			"*.hlsl": "hlsl",
 			"xstring": "cpp",
 			"string": "cpp",
 			"string_view": "cpp",
@@ -93,7 +94,8 @@
 			"xloctime": "cpp",
 			"xmemory": "cpp",
 			"xstddef": "cpp",
-			"xtr1common": "cpp"
+			"xtr1common": "cpp",
+			"*.hlsli": "cpp"
 		},
 		"C_Cpp.inlayHints.autoDeclarationTypes.enabled": true,
 		"C_Cpp.inlayHints.parameterNames.enabled": true,
