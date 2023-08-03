@@ -4,15 +4,22 @@
 
 namespace fb::rain {
 
-Demo::Demo(Dx& dx) : root_signature(dx, Demo::NAME), descriptors(dx, Demo::NAME) {
+Demo::Demo(Dx& dx) :
+    root_signature(dx, Demo::NAME),
+    descriptors(dx, Demo::NAME),
+    render_targets(
+        dx,
+        descriptors,
+        dx.swapchain_width,
+        dx.swapchain_height,
+        Demo::CLEAR_COLOR,
+        Demo::NAME) {
     // Descriptors.
     {
         particle_buffer_srv_descriptor = descriptors.cbv_srv_uav().alloc();
         particle_buffer_uav_descriptor = descriptors.cbv_srv_uav().alloc();
         compute.constant_buffer_descriptor = descriptors.cbv_srv_uav().alloc();
         draw.constant_buffer_descriptor = descriptors.cbv_srv_uav().alloc();
-        color_target_descriptor = descriptors.rtv().alloc();
-        depth_target_descriptor = descriptors.dsv().alloc();
     }
 
     // Particles.
@@ -132,67 +139,6 @@ Demo::Demo(Dx& dx) : root_signature(dx, Demo::NAME), descriptors(dx, Demo::NAME)
         auto cbv_desc = draw.constant_buffer.cbv_desc();
         dx.device->CreateConstantBufferView(&cbv_desc, draw.constant_buffer_descriptor.cpu());
     }
-
-    // Color target.
-    {
-        CD3DX12_HEAP_PROPERTIES color_target_heap(D3D12_HEAP_TYPE_DEFAULT);
-        CD3DX12_RESOURCE_DESC color_target_desc = CD3DX12_RESOURCE_DESC::Tex2D(
-            DXGI_FORMAT_R8G8B8A8_UNORM,
-            dx.swapchain_width,
-            dx.swapchain_height,
-            1,
-            1,
-            1,
-            0,
-            D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET);
-        D3D12_CLEAR_VALUE color_clear_value = {
-            .Format = DXGI_FORMAT_R8G8B8A8_UNORM,
-            .Color = {0.0f, 0.0f, 0.0f, 1.0f},
-        };
-        FAIL_FAST_IF_FAILED(dx.device->CreateCommittedResource(
-            &color_target_heap,
-            D3D12_HEAP_FLAG_NONE,
-            &color_target_desc,
-            D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
-            &color_clear_value,
-            IID_PPV_ARGS(&color_target)));
-        dx_set_name(color_target, dx_name(Demo::NAME, "Color Target"));
-
-        dx.device->CreateRenderTargetView(
-            color_target.get(),
-            nullptr,
-            color_target_descriptor.cpu());
-    }
-
-    // Depth target.
-    {
-        CD3DX12_HEAP_PROPERTIES depth_target_heap(D3D12_HEAP_TYPE_DEFAULT);
-        CD3DX12_RESOURCE_DESC depth_target_desc = CD3DX12_RESOURCE_DESC::Tex2D(
-            DXGI_FORMAT_D32_FLOAT,
-            dx.swapchain_width,
-            dx.swapchain_height,
-            1,
-            1,
-            1,
-            0,
-            D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL);
-        D3D12_CLEAR_VALUE depth_clear_value = {
-            .Format = DXGI_FORMAT_D32_FLOAT,
-            .DepthStencil = {.Depth = 1.0f, .Stencil = 0}};
-        FAIL_FAST_IF_FAILED(dx.device->CreateCommittedResource(
-            &depth_target_heap,
-            D3D12_HEAP_FLAG_NONE,
-            &depth_target_desc,
-            D3D12_RESOURCE_STATE_DEPTH_WRITE,
-            &depth_clear_value,
-            IID_PPV_ARGS(&depth_target)));
-        dx_set_name(depth_target, dx_name(Demo::NAME, "Depth Target"));
-
-        dx.device->CreateDepthStencilView(
-            depth_target.get(),
-            nullptr,
-            depth_target_descriptor.cpu());
-    }
 }
 
 void Demo::update(const UpdateParams& params) {
@@ -249,44 +195,8 @@ void Demo::render(Dx& dx) {
     }
 
     {
-        constexpr float CLEAR_COLOR[4] = {0.0f, 0.0f, 0.0f, 1.0f};
-
-        // Transition render targets.
-        dx.transition(
-            color_target,
-            D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
-            D3D12_RESOURCE_STATE_RENDER_TARGET);
-
-        // Render targets.
-        D3D12_VIEWPORT viewport = {
-            .TopLeftX = 0.0f,
-            .TopLeftY = 0.0f,
-            .Width = (float)dx.swapchain_width,
-            .Height = (float)dx.swapchain_height,
-            .MinDepth = 0.0f,
-            .MaxDepth = 1.0f,
-        };
-        D3D12_RECT scissor = {
-            .left = 0,
-            .top = 0,
-            .right = (LONG)dx.swapchain_width,
-            .bottom = (LONG)dx.swapchain_height,
-        };
-        cmd->RSSetViewports(1, &viewport);
-        cmd->RSSetScissorRects(1, &scissor);
-        cmd->OMSetRenderTargets(
-            1,
-            color_target_descriptor.cpu_ptr(),
-            FALSE,
-            depth_target_descriptor.cpu_ptr());
-        cmd->ClearRenderTargetView(color_target_descriptor.cpu(), CLEAR_COLOR, 0, nullptr);
-        cmd->ClearDepthStencilView(
-            depth_target_descriptor.cpu(),
-            D3D12_CLEAR_FLAG_DEPTH,
-            1.0f,
-            0,
-            0,
-            nullptr);
+        // Begin.
+        render_targets.begin(dx);
 
         // Pipeline state.
         cmd->SetDescriptorHeaps(1, descriptors.cbv_srv_uav().heap_ptr());
@@ -303,11 +213,8 @@ void Demo::render(Dx& dx) {
         // Draw.
         cmd->DrawInstanced(PARTICLE_COUNT, 1, 0, 0);
 
-        // Transition render targets.
-        dx.transition(
-            color_target,
-            D3D12_RESOURCE_STATE_RENDER_TARGET,
-            D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+        // End.
+        render_targets.end(dx);
     }
 }
 

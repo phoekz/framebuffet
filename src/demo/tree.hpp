@@ -8,6 +8,7 @@
 #include "../descriptors.hpp"
 #include "../samplers.hpp"
 #include "../root_signature.hpp"
+#include "../render_targets.hpp"
 
 namespace fb::tree {
 
@@ -33,6 +34,7 @@ struct UpdateParams {
 
 struct Demo {
     static constexpr const char* NAME = "Tree";
+    static constexpr Vector4 CLEAR_COLOR = {0.32549f, 0.51373f, 0.56078f, 1.0f};
 
     Demo(Dx& dx);
     void update(const UpdateParams& params);
@@ -41,6 +43,7 @@ struct Demo {
     GpuRootSignature root_signature;
     GpuDescriptors descriptors;
     GpuSamplers samplers;
+    GpuRenderTargets render_targets;
 
     struct Scene {
         struct Model {
@@ -75,14 +78,6 @@ struct Demo {
         GpuBufferHostCbv<MainConstants> constants;
         GpuDescriptorHandle constants_descriptor;
     } main_pass;
-
-    struct Target {
-        ComPtr<ID3D12Resource> color;
-        GpuDescriptorHandle color_descriptor;
-
-        ComPtr<ID3D12Resource> depth;
-        GpuDescriptorHandle depth_descriptor;
-    } target;
 };
 
 }  // namespace fb::tree

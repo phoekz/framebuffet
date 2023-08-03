@@ -7,6 +7,7 @@
 #include "../descriptors.hpp"
 #include "../samplers.hpp"
 #include "../root_signature.hpp"
+#include "../render_targets.hpp"
 
 namespace fb::rain {
 
@@ -37,6 +38,7 @@ static_assert(sizeof(Particle) == 12);
 
 struct Demo {
     static constexpr const char* NAME = "Rain";
+    static constexpr Vector4 CLEAR_COLOR = {0.0f, 0.3f, 0.6f, 1.0f};
 
     Demo(Dx& dx);
     void update(const UpdateParams& params);
@@ -44,6 +46,7 @@ struct Demo {
 
     GpuRootSignature root_signature;
     GpuDescriptors descriptors;
+    GpuRenderTargets render_targets;
 
     GpuBufferDeviceSrvUav<Particle> particle_buffer;
     GpuDescriptorHandle particle_buffer_srv_descriptor;
@@ -65,14 +68,7 @@ struct Demo {
 
         GpuBufferHostCbv<DrawConstants> constant_buffer;
         GpuDescriptorHandle constant_buffer_descriptor;
-
     } draw;
-
-    ComPtr<ID3D12Resource> color_target;
-    GpuDescriptorHandle color_target_descriptor;
-
-    ComPtr<ID3D12Resource> depth_target;
-    GpuDescriptorHandle depth_target_descriptor;
 };
 
 }  // namespace fb::rain

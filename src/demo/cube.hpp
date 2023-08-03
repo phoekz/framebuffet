@@ -8,6 +8,7 @@
 #include "../descriptors.hpp"
 #include "../samplers.hpp"
 #include "../root_signature.hpp"
+#include "../render_targets.hpp"
 #include <pch.hpp>
 
 namespace fb::cube {
@@ -24,6 +25,7 @@ struct UpdateParams {
 
 struct Demo {
     static constexpr const char* NAME = "Cube";
+    static constexpr Vector4 CLEAR_COLOR = {0.6f, 0.3f, 0.0f, 1.0f};
 
     Demo(Dx& dx);
     void update(const UpdateParams& params);
@@ -32,6 +34,7 @@ struct Demo {
     GpuRootSignature root_signature;
     GpuDescriptors descriptors;
     GpuSamplers samplers;
+    GpuRenderTargets render_targets;
 
     ComPtr<ID3D12PipelineState> pipeline_state;
 
@@ -45,12 +48,6 @@ struct Demo {
 
     ComPtr<ID3D12Resource> texture;
     GpuDescriptorHandle texture_descriptor;
-
-    ComPtr<ID3D12Resource> color_target;
-    GpuDescriptorHandle color_target_descriptor;
-
-    ComPtr<ID3D12Resource> depth_target;
-    GpuDescriptorHandle depth_target_descriptor;
 };
 
 }  // namespace fb::cube

@@ -40,9 +40,9 @@ auto main() -> int {
         *dx,
         fb::cards::Params {
             .card_textures = {
-                cube_demo->color_target,
-                rain_demo->color_target,
-                tree_demo->target.color,
+                cube_demo->render_targets.color(),
+                rain_demo->render_targets.color(),
+                tree_demo->render_targets.color(),
             }});
 
     // Main loop.

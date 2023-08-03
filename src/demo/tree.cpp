@@ -7,8 +7,6 @@
 
 namespace fb::tree {
 
-constexpr float CLEAR_COLOR[4] = {0.32549f, 0.51373f, 0.56078f, 1.0f};
-
 static void init_scene_model(
     Dx& dx,
     const GltfModel& gltf_model,
@@ -187,68 +185,12 @@ static void init_main_pass(Dx& dx, Demo& demo, Demo::MainPass& pass) {
     pass.constants.create(dx, 1, dx_name(Demo::NAME, Demo::MainPass::NAME, "Constants"));
 }
 
-static void init_target(Dx& dx, Demo::Target& target) {
-    // Color.
-    {
-        // Resource.
-        CD3DX12_HEAP_PROPERTIES color_target_heap(D3D12_HEAP_TYPE_DEFAULT);
-        CD3DX12_RESOURCE_DESC color_target_desc = CD3DX12_RESOURCE_DESC::Tex2D(
-            DXGI_FORMAT_R8G8B8A8_UNORM,
-            dx.swapchain_width,
-            dx.swapchain_height,
-            1,
-            1,
-            1,
-            0,
-            D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET);
-        D3D12_CLEAR_VALUE color_clear_value = {
-            .Format = DXGI_FORMAT_R8G8B8A8_UNORM,
-            .Color = {CLEAR_COLOR[0], CLEAR_COLOR[1], CLEAR_COLOR[2], CLEAR_COLOR[3]},
-        };
-        FAIL_FAST_IF_FAILED(dx.device->CreateCommittedResource(
-            &color_target_heap,
-            D3D12_HEAP_FLAG_NONE,
-            &color_target_desc,
-            D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
-            &color_clear_value,
-            IID_PPV_ARGS(&target.color)));
-        dx_set_name(target.color, dx_name(Demo::NAME, "Color Target"));
-    }
-
-    // Depth.
-    {
-        // Resource.
-        CD3DX12_HEAP_PROPERTIES depth_target_heap(D3D12_HEAP_TYPE_DEFAULT);
-        CD3DX12_RESOURCE_DESC depth_target_desc = CD3DX12_RESOURCE_DESC::Tex2D(
-            DXGI_FORMAT_D32_FLOAT,
-            dx.swapchain_width,
-            dx.swapchain_height,
-            1,
-            1,
-            1,
-            0,
-            D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL);
-        D3D12_CLEAR_VALUE depth_clear_value = {
-            .Format = DXGI_FORMAT_D32_FLOAT,
-            .DepthStencil = {.Depth = 1.0f, .Stencil = 0}};
-        FAIL_FAST_IF_FAILED(dx.device->CreateCommittedResource(
-            &depth_target_heap,
-            D3D12_HEAP_FLAG_NONE,
-            &depth_target_desc,
-            D3D12_RESOURCE_STATE_DEPTH_WRITE,
-            &depth_clear_value,
-            IID_PPV_ARGS(&target.depth)));
-        dx_set_name(target.depth, dx_name(Demo::NAME, "Depth Target"));
-    }
-}
-
 static void init_descriptors(
     Dx& dx,
     Demo& demo,
     Demo::Scene& scene,
     Demo::ShadowPass& shadow_pass,
-    Demo::MainPass& main_pass,
-    Demo::Target& target) {
+    Demo::MainPass& main_pass) {
     // Allocate descriptors.
     {
         scene.tree.vertex_buffer_descriptor = demo.descriptors.cbv_srv_uav().alloc();
@@ -259,8 +201,6 @@ static void init_descriptors(
         shadow_pass.depth_srv_descriptor = demo.descriptors.cbv_srv_uav().alloc();
         shadow_pass.depth_dsv_descriptor = demo.descriptors.dsv().alloc();
         main_pass.constants_descriptor = demo.descriptors.cbv_srv_uav().alloc();
-        target.color_descriptor = demo.descriptors.rtv().alloc();
-        target.depth_descriptor = demo.descriptors.dsv().alloc();
     }
 
     // Resource views.
@@ -334,30 +274,24 @@ static void init_descriptors(
                 &srv_desc,
                 shadow_pass.depth_srv_descriptor.cpu());
         }
-
-        // Targets.
-        {
-            dx.device->CreateRenderTargetView(
-                target.color.get(),
-                nullptr,
-                target.color_descriptor.cpu());
-            dx.device->CreateDepthStencilView(
-                target.depth.get(),
-                nullptr,
-                target.depth_descriptor.cpu());
-        }
     }
 }
 
 Demo::Demo(Dx& dx) :
     root_signature(dx, Demo::NAME),
     descriptors(dx, Demo::NAME),
-    samplers(dx, descriptors) {
+    samplers(dx, descriptors),
+    render_targets(
+        dx,
+        descriptors,
+        dx.swapchain_width,
+        dx.swapchain_height,
+        Demo::CLEAR_COLOR,
+        Demo::NAME) {
     init_scene(dx, scene);
     init_shadow_pass(dx, *this, shadow_pass);
     init_main_pass(dx, *this, main_pass);
-    init_target(dx, target);
-    init_descriptors(dx, *this, scene, shadow_pass, main_pass, target);
+    init_descriptors(dx, *this, scene, shadow_pass, main_pass);
 }
 
 void Demo::update(const UpdateParams& params) {
@@ -444,6 +378,7 @@ void Demo::render(Dx& dx) {
             0,
             0,
             nullptr);
+
         ID3D12DescriptorHeap* heaps[] = {
             descriptors.cbv_srv_uav().heap(),
             descriptors.sampler().heap()};
@@ -471,41 +406,10 @@ void Demo::render(Dx& dx) {
 
     // Main pass.
     {
-        D3D12_VIEWPORT viewport = {
-            .TopLeftX = 0.0f,
-            .TopLeftY = 0.0f,
-            .Width = (float)dx.swapchain_width,
-            .Height = (float)dx.swapchain_height,
-            .MinDepth = 0.0f,
-            .MaxDepth = 1.0f,
-        };
-        D3D12_RECT scissor = {
-            .left = 0,
-            .top = 0,
-            .right = (LONG)dx.swapchain_width,
-            .bottom = (LONG)dx.swapchain_height,
-        };
-
         auto* cmd = dx.command_list.get();
-        dx.transition(
-            target.color,
-            D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
-            D3D12_RESOURCE_STATE_RENDER_TARGET);
-        cmd->RSSetViewports(1, &viewport);
-        cmd->RSSetScissorRects(1, &scissor);
-        cmd->OMSetRenderTargets(
-            1,
-            target.color_descriptor.cpu_ptr(),
-            FALSE,
-            target.depth_descriptor.cpu_ptr());
-        cmd->ClearRenderTargetView(target.color_descriptor.cpu(), CLEAR_COLOR, 0, nullptr);
-        cmd->ClearDepthStencilView(
-            target.depth_descriptor.cpu(),
-            D3D12_CLEAR_FLAG_DEPTH,
-            1.0f,
-            0,
-            0,
-            nullptr);
+
+        render_targets.begin(dx);
+
         ID3D12DescriptorHeap* heaps[] = {
             descriptors.cbv_srv_uav().heap(),
             descriptors.sampler().heap()};
@@ -540,10 +444,7 @@ void Demo::render(Dx& dx) {
             cmd->DrawIndexedInstanced(index_count, 1, 0, 0, 0);
         }
 
-        dx.transition(
-            target.color,
-            D3D12_RESOURCE_STATE_RENDER_TARGET,
-            D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+        render_targets.end(dx);
     }
 }
 
