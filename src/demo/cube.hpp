@@ -24,7 +24,7 @@ struct UpdateParams {
 };
 
 struct Demo {
-    static constexpr const char* NAME = "Cube";
+    static constexpr std::string_view NAME = "Cube"sv;
     static constexpr Vector4 CLEAR_COLOR = {0.6f, 0.3f, 0.0f, 1.0f};
 
     Demo(Dx& dx);

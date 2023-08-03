@@ -37,7 +37,7 @@ struct Particle {
 static_assert(sizeof(Particle) == 12);
 
 struct Demo {
-    static constexpr const char* NAME = "Rain";
+    static constexpr std::string_view NAME = "Rain"sv;
     static constexpr Vector4 CLEAR_COLOR = {0.0f, 0.3f, 0.6f, 1.0f};
 
     Demo(Dx& dx);
@@ -53,7 +53,7 @@ struct Demo {
     GpuDescriptorHandle particle_buffer_uav_descriptor;
 
     struct Compute {
-        static constexpr const char* NAME = "Compute";
+        static constexpr std::string_view NAME = "Compute"sv;
 
         ComPtr<ID3D12PipelineState> pipeline_state;
 
@@ -62,7 +62,7 @@ struct Demo {
     } compute;
 
     struct Draw {
-        static constexpr const char* NAME = "Draw";
+        static constexpr std::string_view NAME = "Draw"sv;
 
         ComPtr<ID3D12PipelineState> pipeline_state;
 

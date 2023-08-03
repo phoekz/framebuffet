@@ -33,7 +33,7 @@ struct UpdateParams {
 };
 
 struct Demo {
-    static constexpr const char* NAME = "Tree";
+    static constexpr std::string_view NAME = "Tree"sv;
     static constexpr Vector4 CLEAR_COLOR = {0.32549f, 0.51373f, 0.56078f, 1.0f};
 
     Demo(Dx& dx);
@@ -58,7 +58,7 @@ struct Demo {
     } scene;
 
     struct ShadowPass {
-        static constexpr const char* NAME = "Shadow";
+        static constexpr std::string_view NAME = "Shadow"sv;
 
         ComPtr<ID3D12PipelineState> pipeline_state;
 
@@ -71,7 +71,7 @@ struct Demo {
     } shadow_pass;
 
     struct MainPass {
-        static constexpr const char* NAME = "Main";
+        static constexpr std::string_view NAME = "Main"sv;
 
         ComPtr<ID3D12PipelineState> pipeline_state;
 

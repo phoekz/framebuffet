@@ -305,7 +305,7 @@ void Demo::update(const UpdateParams& params) {
     auto& main_constants = *main_pass.constants.ptr();
 
     // ImGui.
-    if (ImGui::Begin(Demo::NAME)) {
+    if (ImGui::Begin(Demo::NAME.data())) {
         ImGui::SliderFloat("Ambient", &main_constants.ambient_light, 0.0f, 1.0f);
         ImGui::SliderFloat("Light Projection Size", &light_projection_size, 1.0f, 200.0f);
         ImGui::SliderFloat("Light Distance", &light_distance, 1.0f, 200.0f);

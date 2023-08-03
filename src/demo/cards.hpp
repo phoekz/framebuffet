@@ -32,7 +32,7 @@ struct Vertex {
 };
 
 struct Cards {
-    static constexpr const char* NAME = "Cards";
+    static constexpr std::string_view NAME = "Cards"sv;
 
     Cards(Dx& dx, const Params& params);
     void update(const Dx& dx);

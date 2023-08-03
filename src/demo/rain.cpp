@@ -146,7 +146,7 @@ void Demo::update(const UpdateParams& params) {
         auto& constants = *compute.constant_buffer.ptr();
         constants.delta_time = params.delta_time;
 
-        if (ImGui::Begin(Demo::NAME)) {
+        if (ImGui::Begin(Demo::NAME.data())) {
             ImGui::SliderFloat("Speed", &constants.speed, 0.0f, 2.0f);
         }
         ImGui::End();

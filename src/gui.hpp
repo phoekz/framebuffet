@@ -21,7 +21,7 @@ struct Constants {
 };
 
 struct Gui {
-    static constexpr const char* NAME = "Gui";
+    static constexpr std::string_view NAME = "Gui"sv;
 
     Gui(const Window& window, Dx& dx);
     ~Gui();

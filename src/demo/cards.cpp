@@ -118,7 +118,7 @@ void Cards::update(const Dx& dx) {
     float height = (float)dx.swapchain_height;
     float max_extent = std::max(width, height);
 
-    if (ImGui::Begin(Cards::NAME)) {
+    if (ImGui::Begin(Cards::NAME.data())) {
         Card* cards = card_buffer.ptr();
         for (uint32_t i = 0; i < CARD_COUNT; i++) {
             ImGui::SliderFloat4(

@@ -17,7 +17,7 @@
 #include <pch.hpp>
 
 // Constants.
-constexpr const char* WINDOW_TITLE = "framebuffet 😎";
+constexpr std::string_view WINDOW_TITLE = "framebuffet 😎"sv;
 constexpr int WINDOW_WIDTH = 1280;
 constexpr int WINDOW_HEIGHT = 800;
 constexpr float WINDOW_ASPECT_RATIO = (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT;
