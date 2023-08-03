@@ -36,13 +36,13 @@ struct Gui {
 
     ComPtr<ID3D12PipelineState> pipeline_state;
 
-    GpuBuffer<Constants> constant_buffer;
+    GpuBufferHostCbv<Constants> constant_buffer;
     GpuDescriptorHandle constant_buffer_descriptor;
 
     struct Geometry {
-        GpuBuffer<ImDrawVert> vertex_buffer;
+        GpuBufferHostSrv<ImDrawVert> vertex_buffer;
         GpuDescriptorHandle vertex_buffer_descriptor;
-        GpuBuffer<ImDrawIdx> index_buffer;
+        GpuBufferHostIndex<ImDrawIdx> index_buffer;
     };
     std::array<Geometry, FRAME_COUNT> geometries;
 

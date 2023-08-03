@@ -44,16 +44,16 @@ struct Cards {
 
     ComPtr<ID3D12PipelineState> pipeline_state;
 
-    GpuBuffer<Constants> constant_buffer;
+    GpuBufferHostCbv<Constants> constant_buffer;
     GpuDescriptorHandle constant_buffer_descriptor;
 
-    GpuBuffer<Card> card_buffer;
+    GpuBufferHostSrv<Card> card_buffer;
     GpuDescriptorHandle card_buffer_descriptor;
 
-    GpuBuffer<Vertex> vertex_buffer;
+    GpuBufferHostSrv<Vertex> vertex_buffer;
     GpuDescriptorHandle vertex_buffer_descriptor;
 
-    GpuBuffer<uint16_t> index_buffer;
+    GpuBufferHostIndex<uint16_t> index_buffer;
 
     std::array<GpuDescriptorHandle, CARD_COUNT> card_texture_descriptors;
 };

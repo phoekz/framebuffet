@@ -18,15 +18,11 @@ Demo::Demo(Dx& dx) : root_signature(dx, Demo::NAME), descriptors(dx, Demo::NAME)
     // Particles.
     {
         // Buffer.
-        particle_buffer.create_uav(
-            dx,
-            PARTICLE_COUNT,
-            GpuBufferAccessMode::GpuExclusive,
-            dx_name(Demo::NAME, "Particle Buffer"));
+        particle_buffer.create(dx, PARTICLE_COUNT, dx_name(Demo::NAME, "Particle Buffer"));
 
         // Descriptors.
-        auto srv_desc = particle_buffer.shader_resource_view_desc();
-        auto uav_desc = particle_buffer.unordered_access_view_desc();
+        auto srv_desc = particle_buffer.srv_desc();
+        auto uav_desc = particle_buffer.uav_desc();
         dx.device->CreateShaderResourceView(
             particle_buffer.resource(),
             &srv_desc,
@@ -96,12 +92,12 @@ Demo::Demo(Dx& dx) : root_signature(dx, Demo::NAME), descriptors(dx, Demo::NAME)
 
     // Compute - Constant buffer.
     {
-        compute.constant_buffer.create_cb(
+        compute.constant_buffer.create(
             dx,
-            GpuBufferAccessMode::HostWritable,
+            1,
             dx_name(Demo::NAME, Demo::Compute::NAME, "Constant Buffer"));
 
-        auto cbv_desc = compute.constant_buffer.constant_buffer_view_desc();
+        auto cbv_desc = compute.constant_buffer.cbv_desc();
         dx.device->CreateConstantBufferView(&cbv_desc, compute.constant_buffer_descriptor.cpu());
     }
 
@@ -128,12 +124,12 @@ Demo::Demo(Dx& dx) : root_signature(dx, Demo::NAME), descriptors(dx, Demo::NAME)
 
     // Draw - Constant buffer.
     {
-        draw.constant_buffer.create_cb(
+        draw.constant_buffer.create(
             dx,
-            GpuBufferAccessMode::HostWritable,
+            1,
             dx_name(Demo::NAME, Demo::Draw::NAME, "Constant Buffer"));
 
-        auto cbv_desc = draw.constant_buffer.constant_buffer_view_desc();
+        auto cbv_desc = draw.constant_buffer.cbv_desc();
         dx.device->CreateConstantBufferView(&cbv_desc, draw.constant_buffer_descriptor.cpu());
     }
 

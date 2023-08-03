@@ -35,13 +35,13 @@ struct Demo {
 
     ComPtr<ID3D12PipelineState> pipeline_state;
 
-    GpuBuffer<Constants> constant_buffer;
+    GpuBufferHostCbv<Constants> constant_buffer;
     GpuDescriptorHandle constant_buffer_descriptor;
 
-    GpuBuffer<GltfVertex> vertex_buffer;
+    GpuBufferHostSrv<GltfVertex> vertex_buffer;
     GpuDescriptorHandle vertex_buffer_descriptor;
 
-    GpuBuffer<GltfIndex> index_buffer;
+    GpuBufferHostIndex<GltfIndex> index_buffer;
 
     ComPtr<ID3D12Resource> texture;
     GpuDescriptorHandle texture_descriptor;

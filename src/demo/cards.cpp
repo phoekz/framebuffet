@@ -49,24 +49,17 @@ Cards::Cards(Dx& dx, const Params& params) :
 
     // Constant buffer.
     {
-        constant_buffer.create_cb(
-            dx,
-            GpuBufferAccessMode::HostWritable,
-            dx_name(Cards::NAME, "Constant Buffer"));
+        constant_buffer.create(dx, 1, dx_name(Cards::NAME, "Constant Buffer"));
 
-        auto cbv_desc = constant_buffer.constant_buffer_view_desc();
+        auto cbv_desc = constant_buffer.cbv_desc();
         dx.device->CreateConstantBufferView(&cbv_desc, constant_buffer_descriptor.cpu());
     }
 
     // Cards buffer.
     {
-        card_buffer.create_srv(
-            dx,
-            CARD_COUNT,
-            GpuBufferAccessMode::HostWritable,
-            dx_name(Cards::NAME, "Cards Buffer"));
+        card_buffer.create(dx, CARD_COUNT, dx_name(Cards::NAME, "Cards Buffer"));
 
-        auto srv_desc = card_buffer.shader_resource_view_desc();
+        auto srv_desc = card_buffer.srv_desc();
         dx.device->CreateShaderResourceView(
             card_buffer.resource(),
             &srv_desc,
@@ -87,22 +80,16 @@ Cards::Cards(Dx& dx, const Params& params) :
             {{0.0f, 1.0f}, {0.0f, 1.0f}},
         };
         uint16_t indices[] = {0, 1, 2, 0, 2, 3};
+        uint32_t vertex_count = (uint32_t)_countof(vertices);
+        uint32_t index_count = (uint32_t)_countof(indices);
 
-        vertex_buffer.create_srv(
-            dx,
-            (uint32_t)_countof(vertices),
-            GpuBufferAccessMode::HostWritable,
-            dx_name(Cards::NAME, "Vertex Buffer"));
-        index_buffer.create_ib(
-            dx,
-            (uint32_t)_countof(indices),
-            GpuBufferAccessMode::HostWritable,
-            dx_name(Cards::NAME, "Index Buffer"));
+        vertex_buffer.create(dx, vertex_count, dx_name(Cards::NAME, "Vertex Buffer"));
+        index_buffer.create(dx, index_count, dx_name(Cards::NAME, "Index Buffer"));
 
         memcpy(vertex_buffer.ptr(), vertices, sizeof(vertices));
         memcpy(index_buffer.ptr(), indices, sizeof(indices));
 
-        auto srv_desc = vertex_buffer.shader_resource_view_desc();
+        auto srv_desc = vertex_buffer.srv_desc();
         dx.device->CreateShaderResourceView(
             vertex_buffer.resource(),
             &srv_desc,

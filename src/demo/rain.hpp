@@ -45,7 +45,7 @@ struct Demo {
     GpuRootSignature root_signature;
     GpuDescriptors descriptors;
 
-    GpuBuffer<Particle> particle_buffer;
+    GpuBufferDeviceSrvUav<Particle> particle_buffer;
     GpuDescriptorHandle particle_buffer_srv_descriptor;
     GpuDescriptorHandle particle_buffer_uav_descriptor;
 
@@ -54,7 +54,7 @@ struct Demo {
 
         ComPtr<ID3D12PipelineState> pipeline_state;
 
-        GpuBuffer<ComputeConstants> constant_buffer;
+        GpuBufferHostCbv<ComputeConstants> constant_buffer;
         GpuDescriptorHandle constant_buffer_descriptor;
     } compute;
 
@@ -63,7 +63,7 @@ struct Demo {
 
         ComPtr<ID3D12PipelineState> pipeline_state;
 
-        GpuBuffer<DrawConstants> constant_buffer;
+        GpuBufferHostCbv<DrawConstants> constant_buffer;
         GpuDescriptorHandle constant_buffer_descriptor;
 
     } draw;

@@ -90,12 +90,9 @@ Gui::Gui(const Window& window, Dx& dx) :
 
     // Constants.
     {
-        constant_buffer.create_cb(
-            dx,
-            GpuBufferAccessMode::HostWritable,
-            dx_name(Gui::NAME, "Constant Buffer"));
+        constant_buffer.create(dx, 1, dx_name(Gui::NAME, "Constant Buffer"));
 
-        auto cbv_desc = constant_buffer.constant_buffer_view_desc();
+        auto cbv_desc = constant_buffer.cbv_desc();
         dx.device->CreateConstantBufferView(&cbv_desc, constant_buffer_descriptor.cpu());
     }
 
@@ -150,18 +147,10 @@ Gui::Gui(const Window& window, Dx& dx) :
     // Geometry.
     for (uint32_t i = 0; i < FRAME_COUNT; i++) {
         Gui::Geometry& geometry = geometries[i];
-        geometry.vertex_buffer.create_srv(
-            dx,
-            MAX_VERTEX_COUNT,
-            GpuBufferAccessMode::HostWritable,
-            dx_name(Gui::NAME, "Vertex Buffer", i));
-        geometry.index_buffer.create_ib(
-            dx,
-            MAX_INDEX_COUNT,
-            GpuBufferAccessMode::HostWritable,
-            dx_name(Gui::NAME, "Index Buffer", i));
+        geometry.vertex_buffer.create(dx, MAX_VERTEX_COUNT, dx_name(Gui::NAME, "Vertex Buffer", i));
+        geometry.index_buffer.create(dx, MAX_INDEX_COUNT, dx_name(Gui::NAME, "Index Buffer", i));
 
-        auto srv_desc = geometry.vertex_buffer.shader_resource_view_desc();
+        auto srv_desc = geometry.vertex_buffer.srv_desc();
         dx.device->CreateShaderResourceView(
             geometry.vertex_buffer.resource(),
             &srv_desc,

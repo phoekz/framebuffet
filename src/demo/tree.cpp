@@ -18,15 +18,13 @@ static void init_scene_model(
     {
         auto& vertex_buffer = model.vertex_buffer;
         auto& index_buffer = model.index_buffer;
-        vertex_buffer.create_srv(
+        vertex_buffer.create(
             dx,
             gltf_model.vertex_count(),
-            GpuBufferAccessMode::HostWritable,
             dx_name(Demo::NAME, model_name, "Vertex Buffer"));
-        index_buffer.create_ib(
+        index_buffer.create(
             dx,
             gltf_model.index_count(),
-            GpuBufferAccessMode::HostWritable,
             dx_name(Demo::NAME, model_name, "Index Buffer"));
         memcpy(vertex_buffer.ptr(), gltf_model.vertex_data(), gltf_model.vertex_buffer_size());
         memcpy(index_buffer.ptr(), gltf_model.index_data(), gltf_model.index_buffer_size());
@@ -111,12 +109,7 @@ static void init_shadow_pass(Dx& dx, Demo& demo, Demo::ShadowPass& pass) {
     }
 
     // Constants.
-    {
-        pass.constants.create_cb(
-            dx,
-            GpuBufferAccessMode::HostWritable,
-            dx_name(Demo::NAME, Demo::ShadowPass::NAME, "Constants"));
-    }
+    pass.constants.create(dx, 1, dx_name(Demo::NAME, Demo::ShadowPass::NAME, "Constants"));
 
     // Depth.
     {
@@ -191,12 +184,7 @@ static void init_main_pass(Dx& dx, Demo& demo, Demo::MainPass& pass) {
     }
 
     // Constants.
-    {
-        pass.constants.create_cb(
-            dx,
-            GpuBufferAccessMode::HostWritable,
-            dx_name(Demo::NAME, Demo::MainPass::NAME, "Constants"));
-    }
+    pass.constants.create(dx, 1, dx_name(Demo::NAME, Demo::MainPass::NAME, "Constants"));
 }
 
 static void init_target(Dx& dx, Demo::Target& target) {
@@ -279,18 +267,18 @@ static void init_descriptors(
     {
         // Constants.
         {
-            auto cbv_desc = shadow_pass.constants.constant_buffer_view_desc();
+            auto cbv_desc = shadow_pass.constants.cbv_desc();
             dx.device->CreateConstantBufferView(&cbv_desc, shadow_pass.constants_descriptor.cpu());
         }
         {
-            auto cbv_desc = main_pass.constants.constant_buffer_view_desc();
+            auto cbv_desc = main_pass.constants.cbv_desc();
             dx.device->CreateConstantBufferView(&cbv_desc, main_pass.constants_descriptor.cpu());
         }
 
         // Scene.
         {
             auto& model = scene.tree;
-            auto srv_desc = model.vertex_buffer.shader_resource_view_desc();
+            auto srv_desc = model.vertex_buffer.srv_desc();
             dx.device->CreateShaderResourceView(
                 model.vertex_buffer.resource(),
                 &srv_desc,
@@ -298,7 +286,7 @@ static void init_descriptors(
         }
         {
             auto& model = scene.plane;
-            auto srv_desc = model.vertex_buffer.shader_resource_view_desc();
+            auto srv_desc = model.vertex_buffer.srv_desc();
             dx.device->CreateShaderResourceView(
                 model.vertex_buffer.resource(),
                 &srv_desc,

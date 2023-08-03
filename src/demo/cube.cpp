@@ -50,12 +50,9 @@ Demo::Demo(Dx& dx) :
 
     // Constant buffer.
     {
-        constant_buffer.create_cb(
-            dx,
-            GpuBufferAccessMode::HostWritable,
-            dx_name(Demo::NAME, "Constant Buffer"));
+        constant_buffer.create(dx, 1, dx_name(Demo::NAME, "Constant Buffer"));
 
-        auto cbv_desc = constant_buffer.constant_buffer_view_desc();
+        auto cbv_desc = constant_buffer.cbv_desc();
         dx.device->CreateConstantBufferView(&cbv_desc, constant_buffer_descriptor.cpu());
     }
 
@@ -64,21 +61,13 @@ Demo::Demo(Dx& dx) :
 
     // Geometry.
     {
-        vertex_buffer.create_srv(
-            dx,
-            model.vertex_count(),
-            GpuBufferAccessMode::HostWritable,
-            dx_name(Demo::NAME, "Vertex Buffer"));
-        index_buffer.create_ib(
-            dx,
-            model.index_count(),
-            GpuBufferAccessMode::HostWritable,
-            dx_name(Demo::NAME, "Index Buffer"));
+        vertex_buffer.create(dx, model.vertex_count(), dx_name(Demo::NAME, "Vertex Buffer"));
+        index_buffer.create(dx, model.index_count(), dx_name(Demo::NAME, "Index Buffer"));
 
         memcpy(vertex_buffer.ptr(), model.vertex_data(), model.vertex_buffer_size());
         memcpy(index_buffer.ptr(), model.index_data(), model.index_buffer_size());
 
-        auto srv_desc = vertex_buffer.shader_resource_view_desc();
+        auto srv_desc = vertex_buffer.srv_desc();
         dx.device->CreateShaderResourceView(
             vertex_buffer.resource(),
             &srv_desc,
