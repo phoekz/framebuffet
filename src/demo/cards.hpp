@@ -51,6 +51,8 @@ struct Cards {
     GpuDescriptorHandle card_buffer_descriptor;
 
     GpuBuffer<Vertex> vertex_buffer;
+    GpuDescriptorHandle vertex_buffer_descriptor;
+
     GpuBuffer<uint16_t> index_buffer;
 
     std::array<GpuDescriptorHandle, CARD_COUNT> card_texture_descriptors;

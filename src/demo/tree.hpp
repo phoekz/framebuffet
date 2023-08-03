@@ -45,6 +45,7 @@ struct Demo {
     struct Scene {
         struct Model {
             GpuBuffer<GltfVertex> vertex_buffer;
+            GpuDescriptorHandle vertex_buffer_descriptor;
             GpuBuffer<GltfIndex> index_buffer;
             ComPtr<ID3D12Resource> texture;
             GpuDescriptorHandle texture_descriptor;

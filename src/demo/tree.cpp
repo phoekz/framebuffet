@@ -18,7 +18,7 @@ static void init_scene_model(
     {
         auto& vertex_buffer = model.vertex_buffer;
         auto& index_buffer = model.index_buffer;
-        vertex_buffer.create_vb(
+        vertex_buffer.create_srv(
             dx,
             gltf_model.vertex_count(),
             GpuBufferAccessMode::HostWritable,
@@ -92,13 +92,6 @@ static void init_shadow_pass(Dx& dx, Demo& demo, Demo::ShadowPass& pass) {
 
     // Pipeline state.
     {
-        D3D12_INPUT_ELEMENT_DESC input_element_descs[] = {
-            // clang-format off
-            {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
-            {"NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
-            {"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 24, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
-            // clang-format on
-        };
         D3D12_GRAPHICS_PIPELINE_STATE_DESC desc = {
             .pRootSignature = demo.root_signature.get(),
             .VS = vertex_shader.bytecode(),
@@ -106,7 +99,6 @@ static void init_shadow_pass(Dx& dx, Demo& demo, Demo::ShadowPass& pass) {
             .SampleMask = UINT_MAX,
             .RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT),
             .DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT),
-            .InputLayout = {input_element_descs, _countof(input_element_descs)},
             .PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE,
             .DSVFormat = DXGI_FORMAT_D32_FLOAT,
             .SampleDesc = {.Count = 1, .Quality = 0},
@@ -271,7 +263,9 @@ static void init_descriptors(
     Demo::Target& target) {
     // Allocate descriptors.
     {
+        scene.tree.vertex_buffer_descriptor = demo.descriptors.cbv_srv_uav().alloc();
         scene.tree.texture_descriptor = demo.descriptors.cbv_srv_uav().alloc();
+        scene.plane.vertex_buffer_descriptor = demo.descriptors.cbv_srv_uav().alloc();
         scene.plane.texture_descriptor = demo.descriptors.cbv_srv_uav().alloc();
         shadow_pass.constants_descriptor = demo.descriptors.cbv_srv_uav().alloc();
         shadow_pass.depth_srv_descriptor = demo.descriptors.cbv_srv_uav().alloc();
@@ -294,6 +288,22 @@ static void init_descriptors(
         }
 
         // Scene.
+        {
+            auto& model = scene.tree;
+            auto srv_desc = model.vertex_buffer.shader_resource_view_desc();
+            dx.device->CreateShaderResourceView(
+                model.vertex_buffer.resource(),
+                &srv_desc,
+                model.vertex_buffer_descriptor.cpu());
+        }
+        {
+            auto& model = scene.plane;
+            auto srv_desc = model.vertex_buffer.shader_resource_view_desc();
+            dx.device->CreateShaderResourceView(
+                model.vertex_buffer.resource(),
+                &srv_desc,
+                model.vertex_buffer_descriptor.cpu());
+        }
         {
             D3D12_SHADER_RESOURCE_VIEW_DESC srv_desc = {
                 .Format = DXGI_FORMAT_R8G8B8A8_UNORM,
@@ -451,15 +461,16 @@ void Demo::render(Dx& dx) {
             descriptors.sampler().heap()};
         cmd->SetDescriptorHeaps(_countof(heaps), heaps);
         cmd->SetGraphicsRootSignature(root_signature.get());
-        cmd->SetGraphicsRoot32BitConstant(0, shadow_pass.constants_descriptor.index(), 0);
+        GpuBindings bindings;
+        bindings.push(shadow_pass.constants_descriptor);
+        bindings.push(scene.tree.vertex_buffer_descriptor);
+        cmd->SetGraphicsRoot32BitConstants(0, bindings.capacity(), bindings.ptr(), 0);
         cmd->SetPipelineState(shadow_pass.pipeline_state.get());
         cmd->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
         {
-            auto vbv = scene.tree.vertex_buffer.vertex_buffer_view();
             auto ibv = scene.tree.index_buffer.index_buffer_view();
             auto index_count = scene.tree.index_buffer.element_size();
-            cmd->IASetVertexBuffers(0, 1, &vbv);
             cmd->IASetIndexBuffer(&ibv);
             cmd->DrawIndexedInstanced(index_count, 1, 0, 0, 0);
         }
@@ -516,13 +527,12 @@ void Demo::render(Dx& dx) {
         cmd->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
         {
-            auto vbv = scene.tree.vertex_buffer.vertex_buffer_view();
             auto ibv = scene.tree.index_buffer.index_buffer_view();
             auto index_count = scene.tree.index_buffer.element_size();
-            cmd->IASetVertexBuffers(0, 1, &vbv);
             cmd->IASetIndexBuffer(&ibv);
             GpuBindings bindings;
             bindings.push(main_pass.constants_descriptor);
+            bindings.push(scene.tree.vertex_buffer_descriptor);
             bindings.push(scene.tree.texture_descriptor);
             bindings.push(shadow_pass.depth_srv_descriptor);
             cmd->SetGraphicsRoot32BitConstants(0, bindings.capacity(), bindings.ptr(), 0);
@@ -530,13 +540,12 @@ void Demo::render(Dx& dx) {
         }
 
         {
-            auto vbv = scene.plane.vertex_buffer.vertex_buffer_view();
             auto ibv = scene.plane.index_buffer.index_buffer_view();
             auto index_count = scene.plane.index_buffer.element_size();
-            cmd->IASetVertexBuffers(0, 1, &vbv);
             cmd->IASetIndexBuffer(&ibv);
             GpuBindings bindings;
             bindings.push(main_pass.constants_descriptor);
+            bindings.push(scene.plane.vertex_buffer_descriptor);
             bindings.push(scene.plane.texture_descriptor);
             bindings.push(shadow_pass.depth_srv_descriptor);
             cmd->SetGraphicsRoot32BitConstants(0, bindings.capacity(), bindings.ptr(), 0);

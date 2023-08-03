@@ -7,7 +7,8 @@ namespace fb::rain {
 Demo::Demo(Dx& dx) : root_signature(dx, Demo::NAME), descriptors(dx, Demo::NAME) {
     // Descriptors.
     {
-        particle_buffer_descriptor = descriptors.cbv_srv_uav().alloc();
+        particle_buffer_srv_descriptor = descriptors.cbv_srv_uav().alloc();
+        particle_buffer_uav_descriptor = descriptors.cbv_srv_uav().alloc();
         compute.constant_buffer_descriptor = descriptors.cbv_srv_uav().alloc();
         draw.constant_buffer_descriptor = descriptors.cbv_srv_uav().alloc();
         color_target_descriptor = descriptors.rtv().alloc();
@@ -23,16 +24,18 @@ Demo::Demo(Dx& dx) : root_signature(dx, Demo::NAME), descriptors(dx, Demo::NAME)
             GpuBufferAccessMode::GpuExclusive,
             dx_name(Demo::NAME, "Particle Buffer"));
 
-        // Descriptor.
+        // Descriptors.
+        auto srv_desc = particle_buffer.shader_resource_view_desc();
         auto uav_desc = particle_buffer.unordered_access_view_desc();
+        dx.device->CreateShaderResourceView(
+            particle_buffer.resource(),
+            &srv_desc,
+            particle_buffer_srv_descriptor.cpu());
         dx.device->CreateUnorderedAccessView(
             particle_buffer.resource(),
             nullptr,
             &uav_desc,
-            particle_buffer_descriptor.cpu());
-
-        // Vertex buffer view.
-        draw.vertex_buffer_view = particle_buffer.vertex_buffer_view();
+            particle_buffer_uav_descriptor.cpu());
 
         // Data.
         pcg rand;
@@ -104,15 +107,6 @@ Demo::Demo(Dx& dx) : root_signature(dx, Demo::NAME), descriptors(dx, Demo::NAME)
 
     // Draw - Pipeline state.
     {
-        D3D12_INPUT_ELEMENT_DESC input_element_descs[] = {{
-            .SemanticName = "POSITION",
-            .SemanticIndex = 0,
-            .Format = DXGI_FORMAT_R32G32B32_FLOAT,
-            .InputSlot = 0,
-            .AlignedByteOffset = 0,
-            .InputSlotClass = D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,
-            .InstanceDataStepRate = 0,
-        }};
         D3D12_GRAPHICS_PIPELINE_STATE_DESC desc = {
             .pRootSignature = root_signature.get(),
             .VS = vertex_shader.bytecode(),
@@ -121,7 +115,6 @@ Demo::Demo(Dx& dx) : root_signature(dx, Demo::NAME), descriptors(dx, Demo::NAME)
             .SampleMask = UINT_MAX,
             .RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT),
             .DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT),
-            .InputLayout = {input_element_descs, _countof(input_element_descs)},
             .PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT,
             .NumRenderTargets = 1,
             .RTVFormats = {DXGI_FORMAT_R8G8B8A8_UNORM},
@@ -245,7 +238,7 @@ void Demo::render(Dx& dx) {
         cmd->SetComputeRootSignature(root_signature.get());
         GpuBindings bindings;
         bindings.push(compute.constant_buffer_descriptor);
-        bindings.push(particle_buffer_descriptor);
+        bindings.push(particle_buffer_uav_descriptor);
         cmd->SetComputeRoot32BitConstants(0, bindings.capacity(), bindings.ptr(), 0);
         cmd->SetPipelineState(compute.pipeline_state.get());
 
@@ -304,12 +297,12 @@ void Demo::render(Dx& dx) {
         cmd->SetGraphicsRootSignature(root_signature.get());
         GpuBindings bindings;
         bindings.push(draw.constant_buffer_descriptor);
+        bindings.push(particle_buffer_srv_descriptor);
         cmd->SetGraphicsRoot32BitConstants(0, bindings.capacity(), bindings.ptr(), 0);
         cmd->SetPipelineState(draw.pipeline_state.get());
 
         // Input assembler.
         cmd->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_POINTLIST);
-        cmd->IASetVertexBuffers(0, 1, &draw.vertex_buffer_view);
 
         // Draw.
         cmd->DrawInstanced(PARTICLE_COUNT, 1, 0, 0);

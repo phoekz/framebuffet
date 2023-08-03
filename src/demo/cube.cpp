@@ -11,6 +11,7 @@ Demo::Demo(Dx& dx) :
     // Descriptors.
     {
         constant_buffer_descriptor = descriptors.cbv_srv_uav().alloc();
+        vertex_buffer_descriptor = descriptors.cbv_srv_uav().alloc();
         texture_descriptor = descriptors.cbv_srv_uav().alloc();
         color_target_descriptor = descriptors.rtv().alloc();
         depth_target_descriptor = descriptors.dsv().alloc();
@@ -28,13 +29,6 @@ Demo::Demo(Dx& dx) :
 
     // Pipeline state.
     {
-        D3D12_INPUT_ELEMENT_DESC input_element_descs[] = {
-            // clang-format off
-            {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
-            {"NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
-            {"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 24, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
-            // clang-format on
-        };
         D3D12_GRAPHICS_PIPELINE_STATE_DESC desc = {
             .pRootSignature = root_signature.get(),
             .VS = vertex_shader.bytecode(),
@@ -43,7 +37,6 @@ Demo::Demo(Dx& dx) :
             .SampleMask = UINT_MAX,
             .RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT),
             .DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT),
-            .InputLayout = {input_element_descs, _countof(input_element_descs)},
             .PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE,
             .NumRenderTargets = 1,
             .RTVFormats = {DXGI_FORMAT_R8G8B8A8_UNORM},
@@ -71,7 +64,7 @@ Demo::Demo(Dx& dx) :
 
     // Geometry.
     {
-        vertex_buffer.create_vb(
+        vertex_buffer.create_srv(
             dx,
             model.vertex_count(),
             GpuBufferAccessMode::HostWritable,
@@ -84,6 +77,12 @@ Demo::Demo(Dx& dx) :
 
         memcpy(vertex_buffer.ptr(), model.vertex_data(), model.vertex_buffer_size());
         memcpy(index_buffer.ptr(), model.index_data(), model.index_buffer_size());
+
+        auto srv_desc = vertex_buffer.shader_resource_view_desc();
+        dx.device->CreateShaderResourceView(
+            vertex_buffer.resource(),
+            &srv_desc,
+            vertex_buffer_descriptor.cpu());
     }
 
     // Texture.
@@ -216,7 +215,6 @@ void Demo::render(Dx& dx) {
         .right = (LONG)dx.swapchain_width,
         .bottom = (LONG)dx.swapchain_height,
     };
-    auto vbv = vertex_buffer.vertex_buffer_view();
     auto ibv = index_buffer.index_buffer_view();
     auto index_count = index_buffer.element_size();
 
@@ -248,13 +246,14 @@ void Demo::render(Dx& dx) {
     cmd->SetGraphicsRootSignature(root_signature.get());
     GpuBindings bindings;
     bindings.push(constant_buffer_descriptor);
+    bindings.push(vertex_buffer_descriptor);
     bindings.push(texture_descriptor);
     cmd->SetGraphicsRoot32BitConstants(0, bindings.capacity(), bindings.ptr(), 0);
 
     cmd->SetPipelineState(pipeline_state.get());
     cmd->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-    cmd->IASetVertexBuffers(0, 1, &vbv);
     cmd->IASetIndexBuffer(&ibv);
+
     cmd->DrawIndexedInstanced(index_count, 1, 0, 0, 0);
     dx.transition(
         color_target,

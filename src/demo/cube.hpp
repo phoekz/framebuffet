@@ -39,6 +39,8 @@ struct Demo {
     GpuDescriptorHandle constant_buffer_descriptor;
 
     GpuBuffer<GltfVertex> vertex_buffer;
+    GpuDescriptorHandle vertex_buffer_descriptor;
+
     GpuBuffer<GltfIndex> index_buffer;
 
     ComPtr<ID3D12Resource> texture;

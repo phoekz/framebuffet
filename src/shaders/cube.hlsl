@@ -9,10 +9,14 @@ struct Constants {
     float pad[48];
 };
 
+struct Vertex {
+    float3 position;
+    float3 normal;
+    float2 texcoord;
+};
+
 struct VertexInput {
-    float3 position: POSITION;
-    float3 normal: NORMAL;
-    float2 texcoord: TEXCOORD;
+    uint index: SV_VertexID;
 };
 
 struct VertexOutput {
@@ -31,6 +35,7 @@ struct PixelOutput {
 
 struct Bindings {
     uint constants;
+    uint vertices;
     uint texture;
 };
 ConstantBuffer<Bindings> g_bindings: register(b0);
@@ -41,11 +46,13 @@ ConstantBuffer<Bindings> g_bindings: register(b0);
 
 VertexOutput vs_main(VertexInput input) {
     ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
+    StructuredBuffer<Vertex> vertices = ResourceDescriptorHeap[g_bindings.vertices];
+    Vertex vertex = vertices[input.index];
 
     VertexOutput output;
-    output.position = mul(constants.transform, float4(input.position, 1.0f));
-    output.normal = input.normal;
-    output.texcoord = input.texcoord;
+    output.position = mul(constants.transform, float4(vertex.position, 1.0f));
+    output.normal = vertex.normal;
+    output.texcoord = vertex.texcoord;
     return output;
 }
 

@@ -46,7 +46,8 @@ struct Demo {
     GpuDescriptors descriptors;
 
     GpuBuffer<Particle> particle_buffer;
-    GpuDescriptorHandle particle_buffer_descriptor;
+    GpuDescriptorHandle particle_buffer_srv_descriptor;
+    GpuDescriptorHandle particle_buffer_uav_descriptor;
 
     struct Compute {
         static constexpr const char* NAME = "Compute";
@@ -65,7 +66,6 @@ struct Demo {
         GpuBuffer<DrawConstants> constant_buffer;
         GpuDescriptorHandle constant_buffer_descriptor;
 
-        D3D12_VERTEX_BUFFER_VIEW vertex_buffer_view;
     } draw;
 
     ComPtr<ID3D12Resource> color_target;

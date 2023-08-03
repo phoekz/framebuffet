@@ -6,8 +6,12 @@ struct Constants {
     float4x4 transform;
 };
 
+struct Vertex {
+    float3 position;
+};
+
 struct VertexInput {
-    float3 position: POSITION;
+    uint index: SV_VertexID;
 };
 
 struct VertexOutput {
@@ -23,6 +27,7 @@ struct PixelOutput {
 //
 struct Bindings {
     uint constants;
+    uint vertices;
 };
 ConstantBuffer<Bindings> g_bindings: register(b0);
 
@@ -32,9 +37,11 @@ ConstantBuffer<Bindings> g_bindings: register(b0);
 
 VertexOutput vs_main(VertexInput input) {
     ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
+    StructuredBuffer<Vertex> vertices = ResourceDescriptorHeap[g_bindings.vertices];
+    Vertex vertex = vertices[input.index];
 
     VertexOutput output;
-    output.position = mul(constants.transform, float4(input.position, 1.0f));
+    output.position = mul(constants.transform, float4(vertex.position, 1.0f));
     return output;
 }
 

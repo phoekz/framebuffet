@@ -11,6 +11,7 @@ Cards::Cards(Dx& dx, const Params& params) :
     {
         constant_buffer_descriptor = descriptors.cbv_srv_uav().alloc();
         card_buffer_descriptor = descriptors.cbv_srv_uav().alloc();
+        vertex_buffer_descriptor = descriptors.cbv_srv_uav().alloc();
         for (auto& card_texture_descriptor : card_texture_descriptors) {
             card_texture_descriptor = descriptors.cbv_srv_uav().alloc();
         }
@@ -28,12 +29,6 @@ Cards::Cards(Dx& dx, const Params& params) :
 
     // Pipeline state.
     {
-        D3D12_INPUT_ELEMENT_DESC input_element_descs[] = {
-            // clang-format off
-            {"POSITION", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
-            {"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 8, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
-            // clang-format on
-        };
         D3D12_GRAPHICS_PIPELINE_STATE_DESC desc = {
             .pRootSignature = root_signature.get(),
             .VS = vertex_shader.bytecode(),
@@ -42,7 +37,6 @@ Cards::Cards(Dx& dx, const Params& params) :
             .SampleMask = UINT_MAX,
             .RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT),
             .DepthStencilState = DirectX::DX12::CommonStates::DepthNone,
-            .InputLayout = {input_element_descs, _countof(input_element_descs)},
             .PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE,
             .NumRenderTargets = 1,
             .RTVFormats = {DXGI_FORMAT_R8G8B8A8_UNORM},
@@ -94,7 +88,7 @@ Cards::Cards(Dx& dx, const Params& params) :
         };
         uint16_t indices[] = {0, 1, 2, 0, 2, 3};
 
-        vertex_buffer.create_vb(
+        vertex_buffer.create_srv(
             dx,
             (uint32_t)_countof(vertices),
             GpuBufferAccessMode::HostWritable,
@@ -107,6 +101,12 @@ Cards::Cards(Dx& dx, const Params& params) :
 
         memcpy(vertex_buffer.ptr(), vertices, sizeof(vertices));
         memcpy(index_buffer.ptr(), indices, sizeof(indices));
+
+        auto srv_desc = vertex_buffer.shader_resource_view_desc();
+        dx.device->CreateShaderResourceView(
+            vertex_buffer.resource(),
+            &srv_desc,
+            vertex_buffer_descriptor.cpu());
     }
 
     // Textures.
@@ -168,25 +168,25 @@ void Cards::render(Dx& dx) {
     cmd->RSSetViewports(1, &viewport);
     cmd->RSSetScissorRects(1, &scissor);
 
-    auto vbv = vertex_buffer.vertex_buffer_view();
     auto ibv = index_buffer.index_buffer_view();
     auto index_count = index_buffer.element_size();
-    cmd->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-    cmd->IASetVertexBuffers(0, 1, &vbv);
-    cmd->IASetIndexBuffer(&ibv);
 
     ID3D12DescriptorHeap* heaps[] = {
         descriptors.cbv_srv_uav().heap(),
         descriptors.sampler().heap()};
     cmd->SetDescriptorHeaps(_countof(heaps), heaps);
     cmd->SetGraphicsRootSignature(root_signature.get());
+
     cmd->SetPipelineState(pipeline_state.get());
+    cmd->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    cmd->IASetIndexBuffer(&ibv);
 
     for (uint32_t i = 0; i < CARD_COUNT; ++i) {
         GpuBindings bindings;
         bindings.push(i);
         bindings.push(constant_buffer_descriptor);
         bindings.push(card_buffer_descriptor);
+        bindings.push(vertex_buffer_descriptor);
         bindings.push(card_texture_descriptors[i]);
         cmd->SetGraphicsRoot32BitConstants(0, bindings.capacity(), bindings.ptr(), 0);
         cmd->DrawIndexedInstanced(index_count, 1, 0, 0, 0);

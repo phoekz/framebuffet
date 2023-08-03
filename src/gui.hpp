@@ -41,6 +41,7 @@ struct Gui {
 
     struct Geometry {
         GpuBuffer<ImDrawVert> vertex_buffer;
+        GpuDescriptorHandle vertex_buffer_descriptor;
         GpuBuffer<ImDrawIdx> index_buffer;
     };
     std::array<Geometry, FRAME_COUNT> geometries;

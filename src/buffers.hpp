@@ -62,21 +62,6 @@ class GpuBuffer {
     }
 
     auto
-    create_vb(Dx& dx, uint32_t element_size, GpuBufferAccessMode access_mode, std::string_view name)
-        -> void {
-        create_raw(
-            dx,
-            sizeof(T),
-            element_size,
-            sizeof(T) * element_size,
-            0,
-            DXGI_FORMAT_UNKNOWN,
-            access_mode,
-            D3D12_RESOURCE_FLAG_NONE,
-            name);
-    }
-
-    auto
     create_ib(Dx& dx, uint32_t element_size, GpuBufferAccessMode access_mode, std::string_view name)
         -> void {
         static_assert(
@@ -154,13 +139,6 @@ class GpuBuffer {
             name);
     }
 
-    auto vertex_buffer_view() const -> D3D12_VERTEX_BUFFER_VIEW {
-        return D3D12_VERTEX_BUFFER_VIEW {
-            .BufferLocation = _resource->GetGPUVirtualAddress(),
-            .SizeInBytes = _byte_size,
-            .StrideInBytes = _element_byte_size,
-        };
-    }
     auto index_buffer_view() const -> D3D12_INDEX_BUFFER_VIEW {
         return D3D12_INDEX_BUFFER_VIEW {
             .BufferLocation = _resource->GetGPUVirtualAddress(),

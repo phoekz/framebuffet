@@ -38,19 +38,14 @@ Gui::Gui(const Window& window, Dx& dx) :
     // Descriptors.
     {
         constant_buffer_descriptor = descriptors.cbv_srv_uav().alloc();
+        for (auto& geometry : geometries) {
+            geometry.vertex_buffer_descriptor = descriptors.cbv_srv_uav().alloc();
+        }
         texture_descriptor = descriptors.cbv_srv_uav().alloc();
     }
 
     // Pipeline state.
     {
-        D3D12_INPUT_ELEMENT_DESC input_element_descs[] = {
-            // clang-format off
-            {"POSITION", 0, DXGI_FORMAT_R32G32_FLOAT, 0, (UINT)IM_OFFSETOF(ImDrawVert, pos), D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
-            {"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, (UINT)IM_OFFSETOF(ImDrawVert, uv), D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
-            {"COLOR", 0,DXGI_FORMAT_R8G8B8A8_UNORM, 0, (UINT)IM_OFFSETOF(ImDrawVert, col), D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
-            // clang-format on
-        };
-
         D3D12_GRAPHICS_PIPELINE_STATE_DESC desc = {
             .pRootSignature = root_signature.get(),
             .VS = vertex_shader.bytecode(),
@@ -83,7 +78,6 @@ Gui::Gui(const Window& window, Dx& dx) :
                  .ForcedSampleCount = 0,
                  .ConservativeRaster = D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF},
             .DepthStencilState = DirectX::DX12::CommonStates::DepthNone,
-            .InputLayout = {input_element_descs, _countof(input_element_descs)},
             .PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE,
             .NumRenderTargets = 1,
             .RTVFormats = {DXGI_FORMAT_R8G8B8A8_UNORM},
@@ -156,7 +150,7 @@ Gui::Gui(const Window& window, Dx& dx) :
     // Geometry.
     for (uint32_t i = 0; i < FRAME_COUNT; i++) {
         Gui::Geometry& geometry = geometries[i];
-        geometry.vertex_buffer.create_vb(
+        geometry.vertex_buffer.create_srv(
             dx,
             MAX_VERTEX_COUNT,
             GpuBufferAccessMode::HostWritable,
@@ -166,6 +160,12 @@ Gui::Gui(const Window& window, Dx& dx) :
             MAX_INDEX_COUNT,
             GpuBufferAccessMode::HostWritable,
             dx_name(Gui::NAME, "Index Buffer", i));
+
+        auto srv_desc = geometry.vertex_buffer.shader_resource_view_desc();
+        dx.device->CreateShaderResourceView(
+            geometry.vertex_buffer.resource(),
+            &srv_desc,
+            geometry.vertex_buffer_descriptor.cpu());
     }
 
     // ImGui continued.
@@ -229,27 +229,21 @@ void Gui::render(const Dx& dx) {
         auto* cmd = dx.command_list.get();
 
         CD3DX12_VIEWPORT viewport(0.0f, 0.0f, draw_data->DisplaySize.x, draw_data->DisplaySize.y);
-        auto vbv = geometry.vertex_buffer.vertex_buffer_view();
         auto ibv = geometry.index_buffer.index_buffer_view();
         const float blend_factor[4] = {0.f, 0.f, 0.f, 0.f};
 
         cmd->RSSetViewports(1, &viewport);
-        cmd->IASetVertexBuffers(0, 1, &vbv);
-        cmd->IASetIndexBuffer(&ibv);
-        cmd->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+        cmd->OMSetBlendFactor(blend_factor);
 
         ID3D12DescriptorHeap* heaps[] = {
             descriptors.cbv_srv_uav().heap(),
             descriptors.sampler().heap()};
         cmd->SetDescriptorHeaps(_countof(heaps), heaps);
         cmd->SetGraphicsRootSignature(root_signature.get());
-        GpuBindings bindings;
-        bindings.push(constant_buffer_descriptor);
-        bindings.push(texture_descriptor);
-        cmd->SetGraphicsRoot32BitConstants(0, bindings.capacity(), bindings.ptr(), 0);
-        cmd->SetPipelineState(pipeline_state.get());
 
-        cmd->OMSetBlendFactor(blend_factor);
+        cmd->SetPipelineState(pipeline_state.get());
+        cmd->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+        cmd->IASetIndexBuffer(&ibv);
 
         int global_vtx_offset = 0;
         int global_idx_offset = 0;
@@ -267,12 +261,19 @@ void Gui::render(const Dx& dx) {
                         (LONG)(pcmd->ClipRect.z - clip_off.x),
                         (LONG)(pcmd->ClipRect.w - clip_off.y),
                     };
+                    GpuBindings bindings;
+                    bindings.push(constant_buffer_descriptor);
+                    bindings.push(geometry.vertex_buffer_descriptor);
+                    bindings.push((pcmd->VtxOffset + (uint32_t)global_vtx_offset));
+                    bindings.push(texture_descriptor);
+                    cmd->SetGraphicsRoot32BitConstants(0, bindings.capacity(), bindings.ptr(), 0);
+
                     cmd->RSSetScissorRects(1, &scissor_rect);
                     cmd->DrawIndexedInstanced(
                         pcmd->ElemCount,
                         1,
                         pcmd->IdxOffset + global_idx_offset,
-                        pcmd->VtxOffset + global_vtx_offset,
+                        0,
                         0);
                 }
             }
