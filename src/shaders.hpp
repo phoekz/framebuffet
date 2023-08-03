@@ -32,7 +32,7 @@ class ShaderCompiler {
         std::string_view name,
         ShaderType type,
         std::string_view entry_point,
-        std::span<std::byte> source,
+        std::span<const std::byte> source,
         bool debug = false) -> Shader;
 
   private:

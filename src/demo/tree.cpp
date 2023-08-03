@@ -8,7 +8,7 @@ namespace fb::tree {
 static void init_scene_model(
     Dx& dx,
     const GltfModel& gltf_model,
-    const std::string_view model_name,
+    std::string_view model_name,
     Demo::Scene::Model& model) {
     // Geometry.
     {

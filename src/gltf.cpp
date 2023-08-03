@@ -74,7 +74,7 @@ GltfModel::GltfModel(std::string_view path) {
     {
         auto& image = *pbr.base_color_texture.texture->image;
         auto image_view = image.buffer_view;
-        auto image_data = (std::byte*)cgltf_buffer_view_data(image_view);
+        auto image_data = (const std::byte*)cgltf_buffer_view_data(image_view);
         auto image_span = std::span(image_data, image_view->size);
         _base_color_texture = Image::load(image_span);
     }
