@@ -26,7 +26,7 @@ constexpr auto gpu_buffer_flags_is_set(GpuBufferFlags flags, GpuBufferFlags flag
 
 namespace detail {
     template<typename T, GpuBufferFlags FLAGS>
-    constexpr auto check_buffer_type() -> bool {
+    constexpr auto buffer_type_is_valid() -> bool {
         static_assert(std::is_standard_layout_v<T>, "Buffer type must be standard layout");
         static_assert(std::is_trivially_copyable_v<T>, "Buffer type must be trivially copyable");
         static_assert(std::is_constructible_v<T>, "Buffer type must be constructible");
@@ -44,7 +44,7 @@ namespace detail {
 }  // namespace detail
 
 template<typename T, GpuBufferAccessMode ACCESS_MODE, GpuBufferFlags FLAGS>
-    requires(detail::check_buffer_type<T, FLAGS>())
+    requires(detail::buffer_type_is_valid<T, FLAGS>())
 class GpuBuffer {
   public:
     auto create(Dx& dx, uint32_t element_size, std::string_view name) -> void {
