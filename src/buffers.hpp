@@ -43,10 +43,9 @@ namespace detail {
 }  // namespace detail
 
 template<typename T, GpuBufferAccessMode ACCESS_MODE, GpuBufferFlags FLAGS>
+    requires(detail::check_buffer_type<T, FLAGS>())
 class GpuBuffer {
   public:
-    static_assert(detail::check_buffer_type<T, FLAGS>());
-
     auto create(Dx& dx, uint32_t element_size, std::string_view name) -> void {
         // Format.
         if (gpu_buffer_flags_is_set(FLAGS, GpuBufferFlags::Index)) {
