@@ -1,9 +1,7 @@
 #include "gui.hpp"
 #include "utils.hpp"
 #include "win32.hpp"
-#include "dx12.hpp"
 #include "maths.hpp"
-#include "shaders.hpp"
 
 #include <backends/imgui_impl_win32.h>
 
@@ -26,13 +24,13 @@ Gui::Gui(const Window& window, Dx& dx) :
     }
 
     // Shaders.
-    Shader vertex_shader;
-    Shader pixel_shader;
+    GpuShader vertex_shader;
+    GpuShader pixel_shader;
     {
-        ShaderCompiler sc;
+        GpuShaderCompiler sc;
         auto source = read_whole_file("shaders/gui.hlsl");
-        vertex_shader = sc.compile(Gui::NAME, ShaderType::Vertex, "vs_main", source);
-        pixel_shader = sc.compile(Gui::NAME, ShaderType::Pixel, "ps_main", source);
+        vertex_shader = sc.compile(Gui::NAME, GpuShaderType::Vertex, "vs_main", source);
+        pixel_shader = sc.compile(Gui::NAME, GpuShaderType::Pixel, "ps_main", source);
     }
 
     // Descriptors.

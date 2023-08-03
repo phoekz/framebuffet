@@ -7,13 +7,13 @@ GpuDebugDraw::GpuDebugDraw(Dx& dx, std::string_view name) :
     _root_signature(dx, dx_name(name, NAME)),
     _descriptors(dx, dx_name(name, NAME)) {
     // Shaders.
-    Shader vertex_shader;
-    Shader pixel_shader;
+    GpuShader vertex_shader;
+    GpuShader pixel_shader;
     {
-        ShaderCompiler sc;
+        GpuShaderCompiler sc;
         auto source = read_whole_file("shaders/debug_draw.hlsl");
-        vertex_shader = sc.compile(NAME, ShaderType::Vertex, "vs_main", source);
-        pixel_shader = sc.compile(NAME, ShaderType::Pixel, "ps_main", source);
+        vertex_shader = sc.compile(NAME, GpuShaderType::Vertex, "vs_main", source);
+        pixel_shader = sc.compile(NAME, GpuShaderType::Pixel, "ps_main", source);
     }
 
     // Pipeline state.

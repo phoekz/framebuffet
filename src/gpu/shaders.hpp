@@ -5,35 +5,35 @@
 
 namespace fb {
 
-enum class ShaderType {
+enum class GpuShaderType {
     Compute,
     Vertex,
     Pixel,
 };
 
-class Shader {
-    friend class ShaderCompiler;
+class GpuShader {
+    friend class GpuShaderCompiler;
 
   public:
     auto blob() const -> IDxcBlob* { return _blob.get(); }
-    auto type() const -> ShaderType { return _type; }
+    auto type() const -> GpuShaderType { return _type; }
     auto bytecode() const -> D3D12_SHADER_BYTECODE;
 
   private:
     ComPtr<IDxcBlob> _blob;
-    ShaderType _type;
+    GpuShaderType _type;
 };
 
-class ShaderCompiler {
+class GpuShaderCompiler {
   public:
-    ShaderCompiler();
+    GpuShaderCompiler();
 
     auto compile(
         std::string_view name,
-        ShaderType type,
+        GpuShaderType type,
         std::string_view entry_point,
         std::span<const std::byte> source,
-        bool debug = false) -> Shader;
+        bool debug = false) -> GpuShader;
 
   private:
     ComPtr<IDxcCompiler3> _compiler;

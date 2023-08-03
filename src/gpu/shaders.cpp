@@ -3,9 +3,9 @@
 
 namespace fb {
 
-static auto shader_type_name(ShaderType type) -> std::string_view {
+static auto shader_type_name(GpuShaderType type) -> std::string_view {
     switch (type) {
-        using enum ShaderType;
+        using enum GpuShaderType;
         case Compute: return "Compute"sv;
         case Vertex: return "Vertex"sv;
         case Pixel: return "Pixel"sv;
@@ -13,21 +13,21 @@ static auto shader_type_name(ShaderType type) -> std::string_view {
     }
 }
 
-auto Shader::bytecode() const -> D3D12_SHADER_BYTECODE {
+auto GpuShader::bytecode() const -> D3D12_SHADER_BYTECODE {
     return {
         .pShaderBytecode = _blob->GetBufferPointer(),
         .BytecodeLength = _blob->GetBufferSize(),
     };
 }
 
-ShaderCompiler::ShaderCompiler() {
+GpuShaderCompiler::GpuShaderCompiler() {
     DxcCreateInstance(CLSID_DxcCompiler, IID_PPV_ARGS(&_compiler));
     DxcCreateInstance(CLSID_DxcUtils, IID_PPV_ARGS(&_utils));
     _utils->CreateDefaultIncludeHandler(&_include_handler);
 }
 
 static auto
-analyze(std::string_view name, ShaderType shader_type, ComPtr<ID3D12ShaderReflection> reflection)
+analyze(std::string_view name, GpuShaderType shader_type, ComPtr<ID3D12ShaderReflection> reflection)
     -> void {
     // Get reflection data.
     D3D12_SHADER_DESC shader_desc;
@@ -80,21 +80,21 @@ analyze(std::string_view name, ShaderType shader_type, ComPtr<ID3D12ShaderReflec
     FB_LOG_INFO("");
 }
 
-auto ShaderCompiler::compile(
+auto GpuShaderCompiler::compile(
     std::string_view name,
-    ShaderType type,
+    GpuShaderType type,
     std::string_view entry_point,
     std::span<const std::byte> source,
-    bool debug) -> Shader {
+    bool debug) -> GpuShader {
     // Note: remember to set PIX PDB search path correctly for shader debugging to work.
 
     // Shader profile.
     LPCWSTR shader_profile = nullptr;
     // clang-format off
     switch (type) {
-        case ShaderType::Compute: shader_profile = L"cs_6_7"; break;
-        case ShaderType::Vertex: shader_profile = L"vs_6_7"; break;
-        case ShaderType::Pixel: shader_profile = L"ps_6_7"; break;
+        case GpuShaderType::Compute: shader_profile = L"cs_6_7"; break;
+        case GpuShaderType::Vertex: shader_profile = L"vs_6_7"; break;
+        case GpuShaderType::Pixel: shader_profile = L"ps_6_7"; break;
     }
     // clang-format on
 
@@ -170,7 +170,7 @@ auto ShaderCompiler::compile(
     }
 
     // Result.
-    Shader shader;
+    GpuShader shader;
     shader._blob = blob;
     shader._type = type;
     return shader;

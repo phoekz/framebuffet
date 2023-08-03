@@ -1,12 +1,9 @@
 #pragma once
 
-#include "../dx12.hpp"
-#include "../maths.hpp"
-#include "../utils.hpp"
-#include "../buffers.hpp"
-#include "../descriptors.hpp"
-#include "../samplers.hpp"
-#include "../root_signature.hpp"
+#include <gpu/gpu.hpp>
+
+#include "maths.hpp"
+#include "utils.hpp"
 
 namespace fb::cards {
 

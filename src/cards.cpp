@@ -1,5 +1,4 @@
 #include "cards.hpp"
-#include "../shaders.hpp"
 
 namespace fb::cards {
 
@@ -18,13 +17,13 @@ Cards::Cards(Dx& dx, const Params& params) :
     }
 
     // Shaders.
-    Shader vertex_shader;
-    Shader pixel_shader;
+    GpuShader vertex_shader;
+    GpuShader pixel_shader;
     {
-        ShaderCompiler sc;
+        GpuShaderCompiler sc;
         auto source = read_whole_file("shaders/cards.hlsl");
-        vertex_shader = sc.compile(Cards::NAME, ShaderType::Vertex, "vs_main", source);
-        pixel_shader = sc.compile(Cards::NAME, ShaderType::Pixel, "ps_main", source);
+        vertex_shader = sc.compile(Cards::NAME, GpuShaderType::Vertex, "vs_main", source);
+        pixel_shader = sc.compile(Cards::NAME, GpuShaderType::Pixel, "ps_main", source);
     }
 
     // Pipeline state.

@@ -24,14 +24,8 @@ static auto CALLBACK win32_window_proc(HWND window, UINT message, WPARAM w_param
                 return 0;
             }
             break;
-
-        case WM_DESTROY:
-            PostQuitMessage(0);
-            return 0;
-
-        case WM_CLOSE:
-            PostQuitMessage(0);
-            return 0;
+        case WM_DESTROY: PostQuitMessage(0); return 0;
+        case WM_CLOSE: PostQuitMessage(0); return 0;
     }
 
     // Default window procedure.

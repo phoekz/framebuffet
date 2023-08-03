@@ -72,14 +72,14 @@ static void init_scene(Dx& dx, Demo::Scene& scene) {
 
 static void init_shadow_pass(Dx& dx, Demo& demo, Demo::ShadowPass& pass) {
     // Shaders.
-    Shader vertex_shader;
+    GpuShader vertex_shader;
     {
-        ShaderCompiler sc;
+        GpuShaderCompiler sc;
         auto path = "shaders/tree.shadow.hlsl";
         auto source = read_whole_file(path);
         vertex_shader = sc.compile(
             dx_name(Demo::NAME, Demo::ShadowPass::NAME),
-            ShaderType::Vertex,
+            GpuShaderType::Vertex,
             "vs_main",
             source);
     }
@@ -137,15 +137,15 @@ static void init_shadow_pass(Dx& dx, Demo& demo, Demo::ShadowPass& pass) {
 
 static void init_main_pass(Dx& dx, Demo& demo, Demo::MainPass& pass) {
     // Shaders.
-    Shader vertex_shader;
-    Shader pixel_shader;
+    GpuShader vertex_shader;
+    GpuShader pixel_shader;
     {
-        ShaderCompiler sc;
+        GpuShaderCompiler sc;
         auto path = "shaders/tree.main.hlsl";
         auto source = read_whole_file(path);
         auto name = dx_name(Demo::NAME, Demo::MainPass::NAME);
-        vertex_shader = sc.compile(name, ShaderType::Vertex, "vs_main", source);
-        pixel_shader = sc.compile(name, ShaderType::Pixel, "ps_main", source);
+        vertex_shader = sc.compile(name, GpuShaderType::Vertex, "vs_main", source);
+        pixel_shader = sc.compile(name, GpuShaderType::Pixel, "ps_main", source);
     }
 
     // Pipeline state.

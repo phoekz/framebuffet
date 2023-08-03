@@ -69,18 +69,18 @@ Demo::Demo(Dx& dx) :
     }
 
     // Shaders.
-    Shader compute_shader;
-    Shader vertex_shader;
-    Shader pixel_shader;
+    GpuShader compute_shader;
+    GpuShader vertex_shader;
+    GpuShader pixel_shader;
     {
-        ShaderCompiler sc;
+        GpuShaderCompiler sc;
         auto compute_name = dx_name(Demo::NAME, Demo::Compute::NAME);
         auto draw_name = dx_name(Demo::NAME, Demo::Draw::NAME);
         auto compute_source = read_whole_file("shaders/rain.compute.hlsl");
         auto draw_source = read_whole_file("shaders/rain.draw.hlsl");
-        compute_shader = sc.compile(compute_name, ShaderType::Compute, "cs_main", compute_source);
-        vertex_shader = sc.compile(draw_name, ShaderType::Vertex, "vs_main", draw_source);
-        pixel_shader = sc.compile(draw_name, ShaderType::Pixel, "ps_main", draw_source);
+        compute_shader = sc.compile(compute_name, GpuShaderType::Compute, "cs_main", compute_source);
+        vertex_shader = sc.compile(draw_name, GpuShaderType::Vertex, "vs_main", draw_source);
+        pixel_shader = sc.compile(draw_name, GpuShaderType::Pixel, "ps_main", draw_source);
     }
 
     // Compute - Pipeline state.

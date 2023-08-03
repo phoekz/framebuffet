@@ -1,18 +1,11 @@
 #pragma once
 
 #include <pch.hpp>
+#include <gpu/gpu.hpp>
 #include "../utils.hpp"
 #include "../maths.hpp"
 #include "../pcg.hpp"
-#include "../dx12.hpp"
-#include "../shaders.hpp"
-#include "../buffers.hpp"
 #include "../gltf.hpp"
-#include "../descriptors.hpp"
-#include "../samplers.hpp"
-#include "../root_signature.hpp"
-#include "../render_targets.hpp"
-#include "../debug_draw.hpp"
 
 namespace fb::demo {
 

@@ -3,12 +3,10 @@
 #include "utils.hpp"
 #include "pcg.hpp"
 #include "win32.hpp"
-#include "dx12.hpp"
-#include "shaders.hpp"
 #include "gui.hpp"
 
 // Framebuffet - demos
-#include "demo/cards.hpp"
+#include "cards.hpp"
 #include "demo/cube.hpp"
 #include "demo/rain.hpp"
 #include "demo/tree.hpp"
