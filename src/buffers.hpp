@@ -30,6 +30,7 @@ namespace detail {
         static_assert(std::is_standard_layout_v<T>, "Buffer type must be standard layout");
         static_assert(std::is_trivially_copyable_v<T>, "Buffer type must be trivially copyable");
         static_assert(std::is_constructible_v<T>, "Buffer type must be constructible");
+        static_assert(std::is_pointer_v<T> == false, "Buffer type cannot be a pointer");
         if constexpr (gpu_buffer_flags_is_set(FLAGS, GpuBufferFlags::Index)) {
             static_assert(
                 std::is_same_v<T, uint16_t> || std::is_same_v<T, uint32_t>,
