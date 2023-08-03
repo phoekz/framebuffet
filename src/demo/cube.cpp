@@ -14,7 +14,8 @@ Demo::Demo(Dx& dx) :
         dx.swapchain_width,
         dx.swapchain_height,
         Demo::CLEAR_COLOR,
-        Demo::NAME) {
+        Demo::NAME),
+    debug_draw(dx, Demo::NAME) {
     // Descriptors.
     {
         constant_buffer_descriptor = descriptors.cbv_srv_uav().alloc();
@@ -129,13 +130,23 @@ void Demo::update(const UpdateParams& params) {
         Matrix::CreatePerspectiveFieldOfView(rad_from_deg(45.0f), aspect_ratio, 0.1f, 100.0f);
     Vector3 eye = Vector3(4.0f * std::sin(elapsed_time), 3.0f, 4.0f * std::cos(elapsed_time));
     Matrix view = Matrix::CreateLookAt(eye, Vector3(0.0f, 0.0f, 0.0f), Vector3(0.0f, 1.0f, 0.0f));
-    constant_buffer.ptr()->transform = view * perspective;
+    Matrix transform = view * perspective;
+    constant_buffer.ptr()->transform = transform;
+
+    debug_draw.begin(params.frame_index);
+    debug_draw.transform(transform);
+    debug_draw.axes();
+    debug_draw.end();
 }
 
 void Demo::render(Dx& dx) {
     auto* cmd = dx.command_list.get();
     render_targets.begin(dx);
 
+    // Debug pass.
+    debug_draw.render(dx);
+
+    // Main pass.
     ID3D12DescriptorHeap* heaps[] = {
         descriptors.cbv_srv_uav().heap(),
         descriptors.sampler().heap()};

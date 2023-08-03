@@ -77,6 +77,7 @@ add_custom_command(
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/src/shaders/rain.draw.hlsl ${PROJECT_TARGET_DIRECTORY}/shaders/
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/src/shaders/tree.shadow.hlsl ${PROJECT_TARGET_DIRECTORY}/shaders/
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/src/shaders/tree.main.hlsl ${PROJECT_TARGET_DIRECTORY}/shaders/
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/src/shaders/debug_draw.hlsl ${PROJECT_TARGET_DIRECTORY}/shaders/
     COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_TARGET_DIRECTORY}/models
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/src/models/CREDITS.md ${PROJECT_TARGET_DIRECTORY}/models/
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/src/models/stylized_crate.glb ${PROJECT_TARGET_DIRECTORY}/models/

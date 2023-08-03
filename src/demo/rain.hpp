@@ -8,6 +8,7 @@
 #include "../samplers.hpp"
 #include "../root_signature.hpp"
 #include "../render_targets.hpp"
+#include "../debug_draw.hpp"
 
 namespace fb::rain {
 
@@ -18,6 +19,7 @@ constexpr uint32_t DISPATCH_COUNT = PARTICLE_COUNT / DISPATCH_SIZE;
 struct UpdateParams {
     float aspect_ratio;
     float delta_time;
+    uint32_t frame_index;
 };
 
 struct ComputeConstants {
@@ -47,6 +49,7 @@ struct Demo {
     GpuRootSignature root_signature;
     GpuDescriptors descriptors;
     GpuRenderTargets render_targets;
+    GpuDebugDraw debug_draw;
 
     GpuBufferDeviceSrvUav<Particle> particle_buffer;
     GpuDescriptorHandle particle_buffer_srv_descriptor;

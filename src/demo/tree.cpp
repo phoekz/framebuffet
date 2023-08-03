@@ -287,7 +287,8 @@ Demo::Demo(Dx& dx) :
         dx.swapchain_width,
         dx.swapchain_height,
         Demo::CLEAR_COLOR,
-        Demo::NAME) {
+        Demo::NAME),
+    debug_draw(dx, Demo::NAME) {
     init_scene(dx, scene);
     init_shadow_pass(dx, *this, shadow_pass);
     init_main_pass(dx, *this, main_pass);
@@ -331,6 +332,7 @@ void Demo::update(const UpdateParams& params) {
     }
 
     // Main pass - constants.
+    Matrix transform;
     {
         auto fov = rad_from_deg(45.0f);
         auto aspect_ratio = params.aspect_ratio;
@@ -339,9 +341,19 @@ void Demo::update(const UpdateParams& params) {
         auto at = Vector3(0.0f, 3.0f, 0.0f);
         auto up = Vector3(0.0f, 1.0f, 0.0f);
         auto view = Matrix::CreateLookAt(eye, at, up);
+        transform = view * projection;
 
-        main_constants.transform = view * projection;
+        main_constants.transform = transform;
         main_constants.light_transform = shadow_constants.transform;
+    }
+
+    // Debug.
+    {
+        debug_draw.begin(params.frame_index);
+        debug_draw.transform(transform);
+        debug_draw.axes();
+        debug_draw.line(Vector3(), 16.0f * main_constants.light_direction, COLOR_YELLOW);
+        debug_draw.end();
     }
 }
 
@@ -409,6 +421,8 @@ void Demo::render(Dx& dx) {
         auto* cmd = dx.command_list.get();
 
         render_targets.begin(dx);
+
+        debug_draw.render(dx);
 
         ID3D12DescriptorHeap* heaps[] = {
             descriptors.cbv_srv_uav().heap(),

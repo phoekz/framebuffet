@@ -72,14 +72,17 @@ auto main() -> int {
         cube_demo->update({
             .aspect_ratio = WINDOW_ASPECT_RATIO,
             .elapsed_time = ft.elapsed_time(),
+            .frame_index = dx->frame_index,
         });
         rain_demo->update({
             .aspect_ratio = WINDOW_ASPECT_RATIO,
             .delta_time = ft.delta_time(),
+            .frame_index = dx->frame_index,
         });
         tree_demo->update({
             .aspect_ratio = WINDOW_ASPECT_RATIO,
             .elapsed_time = ft.elapsed_time(),
+            .frame_index = dx->frame_index,
         });
         cards->update(*dx);
 

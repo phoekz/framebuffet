@@ -9,6 +9,7 @@
 #include "../samplers.hpp"
 #include "../root_signature.hpp"
 #include "../render_targets.hpp"
+#include "../debug_draw.hpp"
 
 namespace fb::tree {
 
@@ -30,6 +31,7 @@ struct MainConstants {
 struct UpdateParams {
     float aspect_ratio;
     float elapsed_time;
+    uint32_t frame_index;
 };
 
 struct Demo {
@@ -44,6 +46,7 @@ struct Demo {
     GpuDescriptors descriptors;
     GpuSamplers samplers;
     GpuRenderTargets render_targets;
+    GpuDebugDraw debug_draw;
 
     struct Scene {
         struct Model {

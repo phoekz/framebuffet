@@ -9,6 +9,7 @@
 #include "../samplers.hpp"
 #include "../root_signature.hpp"
 #include "../render_targets.hpp"
+#include "../debug_draw.hpp"
 #include <pch.hpp>
 
 namespace fb::cube {
@@ -21,6 +22,7 @@ struct Constants {
 struct UpdateParams {
     float aspect_ratio;
     float elapsed_time;
+    uint32_t frame_index;
 };
 
 struct Demo {
@@ -35,6 +37,7 @@ struct Demo {
     GpuDescriptors descriptors;
     GpuSamplers samplers;
     GpuRenderTargets render_targets;
+    GpuDebugDraw debug_draw;
 
     ComPtr<ID3D12PipelineState> pipeline_state;
 

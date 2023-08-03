@@ -11,7 +11,8 @@ using Vector4 = DirectX::SimpleMath::Vector4;
 using Matrix = DirectX::SimpleMath::Matrix;
 using Plane = DirectX::SimpleMath::Plane;
 using Quaternion = DirectX::SimpleMath::Quaternion;
-using Color = DirectX::SimpleMath::Color;
+using ColorRgba32f = DirectX::SimpleMath::Color;
+using ColorRgba8 = DirectX::PackedVector::XMUBYTEN4;
 using Ray = DirectX::SimpleMath::Ray;
 using Viewport = DirectX::SimpleMath::Viewport;
 

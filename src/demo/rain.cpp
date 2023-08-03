@@ -13,7 +13,8 @@ Demo::Demo(Dx& dx) :
         dx.swapchain_width,
         dx.swapchain_height,
         Demo::CLEAR_COLOR,
-        Demo::NAME) {
+        Demo::NAME),
+    debug_draw(dx, Demo::NAME) {
     // Descriptors.
     {
         particle_buffer_srv_descriptor = descriptors.cbv_srv_uav().alloc();
@@ -152,6 +153,7 @@ void Demo::update(const UpdateParams& params) {
         ImGui::End();
     }
 
+    Matrix transform;
     {
         auto aspect_ratio = params.aspect_ratio;
         auto fov = rad_from_deg(45.0f);
@@ -160,8 +162,16 @@ void Demo::update(const UpdateParams& params) {
         auto target = Vector3(0.0f, 0.0f, 0.0f);
         auto up = Vector3(0.0f, 1.0f, 0.0f);
         auto view = Matrix::CreateLookAt(eye, target, up);
+        transform = view * perspective;
         auto& constants = *draw.constant_buffer.ptr();
-        constants.transform = view * perspective;
+        constants.transform = transform;
+    }
+
+    {
+        debug_draw.begin(params.frame_index);
+        debug_draw.transform(transform);
+        debug_draw.axes();
+        debug_draw.end();
     }
 }
 
@@ -212,6 +222,9 @@ void Demo::render(Dx& dx) {
 
         // Draw.
         cmd->DrawInstanced(PARTICLE_COUNT, 1, 0, 0);
+
+        // Debug.
+        debug_draw.render(dx);
 
         // End.
         render_targets.end(dx);
