@@ -82,3 +82,10 @@ using ComPtr = wil::com_ptr_nothrow<T>;
     fb::log_internal(fb::LogLevel::Warn, std::source_location::current(), fmt, __VA_ARGS__)
 #define FB_LOG_ERROR(fmt, ...) \
     fb::log_internal(fb::LogLevel::Error, std::source_location::current(), fmt, __VA_ARGS__)
+
+// No copy/move.
+#define FB_NO_COPY_MOVE(T) \
+    T(const T&) = delete; \
+    T(T&&) = delete; \
+    auto operator=(const T&)->T& = delete; \
+    auto operator=(T&&)->T& = delete;
