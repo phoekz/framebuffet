@@ -109,7 +109,7 @@ Window::Window(const Desc& desc) {
     UpdateWindow(window_handle);
 
     // Logging.
-    log_info("Created window: {}", desc.title);
+    FB_LOG_INFO("Created window: {}", desc.title);
 
     // Create window implementation.
     impl = std::make_unique<WindowImpl>();

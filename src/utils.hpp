@@ -72,12 +72,13 @@ using ComPtr = wil::com_ptr_nothrow<T>;
 }  // namespace fb
 
 //
-// Logging.
+// Macros.
 //
 
-#define log_info(fmt, ...) \
+// Logging.
+#define FB_LOG_INFO(fmt, ...) \
     fb::log_internal(fb::LogLevel::Info, std::source_location::current(), fmt, __VA_ARGS__)
-#define log_warn(fmt, ...) \
+#define FB_LOG_WARN(fmt, ...) \
     fb::log_internal(fb::LogLevel::Warn, std::source_location::current(), fmt, __VA_ARGS__)
-#define log_error(fmt, ...) \
+#define FB_LOG_ERROR(fmt, ...) \
     fb::log_internal(fb::LogLevel::Error, std::source_location::current(), fmt, __VA_ARGS__)

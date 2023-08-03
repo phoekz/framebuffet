@@ -54,7 +54,7 @@ Dx::Dx(const Window& window) {
                     nullptr))) {
                 DXGI_ADAPTER_DESC3 desc;
                 temp_adapter->GetDesc3(&desc);
-                log_info("Using adapter {}: {}", adapter_index, fb::from_wstr(desc.Description));
+                FB_LOG_INFO("Using adapter {}: {}", adapter_index, fb::from_wstr(desc.Description));
                 adapter = temp_adapter;
                 break;
             }
@@ -74,7 +74,7 @@ Dx::Dx(const Window& window) {
             output6->GetDesc1(&desc);
 
             Rectangle desktop_rect(desc.DesktopCoordinates);
-            log_info(
+            FB_LOG_INFO(
                 "Display: {} x {} @ {}bpp, luminance: {} to {}",
                 desktop_rect.width,
                 desktop_rect.height,

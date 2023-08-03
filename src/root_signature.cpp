@@ -27,7 +27,7 @@ GpuRootSignature::GpuRootSignature(Dx& dx, std::string_view name) {
         &error);
     if (FAILED(hr)) {
         if (error) {
-            log_error("{}", (char*)error->GetBufferPointer());
+            FB_LOG_ERROR("{}", (char*)error->GetBufferPointer());
         }
         FAIL_FAST_IF_FAILED(hr);
     }

@@ -32,7 +32,7 @@ analyze(std::string_view name, ShaderType shader_type, ComPtr<ID3D12ShaderReflec
     // Get reflection data.
     D3D12_SHADER_DESC shader_desc;
     reflection->GetDesc(&shader_desc);
-    log_info(
+    FB_LOG_INFO(
         "Shader: {}, Type: {}, InstructionCount: {}",
         name,
         shader_type_name(shader_type),
@@ -42,7 +42,7 @@ analyze(std::string_view name, ShaderType shader_type, ComPtr<ID3D12ShaderReflec
         auto cb = reflection->GetConstantBufferByIndex(cb_index);
         D3D12_SHADER_BUFFER_DESC shader_buffer_desc;
         FAIL_FAST_IF_FAILED(cb->GetDesc(&shader_buffer_desc));
-        log_info(
+        FB_LOG_INFO(
             "  ConstantBuffer: {}, Variables: {}, Size: {}",
             shader_buffer_desc.Name,
             shader_buffer_desc.Variables,
@@ -51,7 +51,7 @@ analyze(std::string_view name, ShaderType shader_type, ComPtr<ID3D12ShaderReflec
             auto var = cb->GetVariableByIndex(var_index);
             D3D12_SHADER_VARIABLE_DESC shader_variable_desc;
             FAIL_FAST_IF_FAILED(var->GetDesc(&shader_variable_desc));
-            log_info(
+            FB_LOG_INFO(
                 "    Name: {}, Size: {}",
                 shader_variable_desc.Name,
                 shader_variable_desc.Size);
@@ -59,7 +59,7 @@ analyze(std::string_view name, ShaderType shader_type, ComPtr<ID3D12ShaderReflec
             auto type = var->GetType();
             D3D12_SHADER_TYPE_DESC shader_type_desc;
             FAIL_FAST_IF_FAILED(type->GetDesc(&shader_type_desc));
-            log_info(
+            FB_LOG_INFO(
                 "      Name: {}, Members: {}",
                 shader_type_desc.Name,
                 shader_type_desc.Members);
@@ -68,7 +68,7 @@ analyze(std::string_view name, ShaderType shader_type, ComPtr<ID3D12ShaderReflec
                 auto member_name = type->GetMemberTypeName(member_index);
                 D3D12_SHADER_TYPE_DESC shader_member_type_desc;
                 FAIL_FAST_IF_FAILED(member->GetDesc(&shader_member_type_desc));
-                log_info(
+                FB_LOG_INFO(
                     "        {} {:16} // idx={} offset={}",
                     shader_member_type_desc.Name,
                     member_name,
@@ -77,7 +77,7 @@ analyze(std::string_view name, ShaderType shader_type, ComPtr<ID3D12ShaderReflec
             }
         }
     }
-    log_info("");
+    FB_LOG_INFO("");
 }
 
 auto ShaderCompiler::compile(
@@ -134,7 +134,7 @@ auto ShaderCompiler::compile(
         IID_PPV_ARGS(&result)));
     FAIL_FAST_IF_FAILED(result->GetOutput(DXC_OUT_ERRORS, IID_PPV_ARGS(&errors), nullptr));
     if (errors && errors->GetStringLength() != 0) {
-        log_error("Failed to compile {}", errors->GetStringPointer());
+        FB_LOG_ERROR("Failed to compile {}", errors->GetStringPointer());
         FAIL_FAST();
     }
     FAIL_FAST_IF_FAILED(result->GetOutput(DXC_OUT_OBJECT, IID_PPV_ARGS(&blob), nullptr));
