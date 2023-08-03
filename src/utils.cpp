@@ -37,14 +37,12 @@ auto read_whole_file(std::string_view path) -> std::vector<std::byte> {
 
 auto log_level_name(LogLevel level) -> std::string_view {
     switch (level) {
-        case LogLevel::Info:
-            return "INFO";
-        case LogLevel::Warn:
-            return "WARN";
-        case LogLevel::Error:
-            return "ERROR";
+        using enum LogLevel;
+        case Info: return "Info"sv;
+        case Warn: return "Warn"sv;
+        case Error: return "Error"sv;
+        default: return "Unknown"sv;
     }
-    return "UNKNOWN";
 }
 
 auto log_output_debug_string(std::string_view str) -> void {

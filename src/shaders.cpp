@@ -3,16 +3,13 @@
 
 namespace fb {
 
-static auto shader_type_name(ShaderType type) -> const char* {
+static auto shader_type_name(ShaderType type) -> std::string_view {
     switch (type) {
-        case ShaderType::Compute:
-            return "Compute";
-        case ShaderType::Vertex:
-            return "Vertex";
-        case ShaderType::Pixel:
-            return "Pixel";
-        default:
-            return "Unknown";
+        using enum ShaderType;
+        case Compute: return "Compute"sv;
+        case Vertex: return "Vertex"sv;
+        case Pixel: return "Pixel"sv;
+        default: return "Unknown"sv;
     }
 }
 
