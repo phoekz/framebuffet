@@ -1,6 +1,4 @@
 #include "rain.hpp"
-#include "../shaders.hpp"
-#include "../pcg.hpp"
 
 namespace fb::rain {
 
@@ -142,10 +140,10 @@ Demo::Demo(Dx& dx) :
     }
 }
 
-void Demo::update(const UpdateParams& params) {
+void Demo::update(const demo::UpdateDesc& desc) {
     {
         auto& constants = *compute.constant_buffer.ptr();
-        constants.delta_time = params.delta_time;
+        constants.delta_time = desc.delta_time;
 
         if (ImGui::Begin(Demo::NAME.data())) {
             ImGui::SliderFloat("Speed", &constants.speed, 0.0f, 2.0f);
@@ -155,7 +153,7 @@ void Demo::update(const UpdateParams& params) {
 
     Matrix transform;
     {
-        auto aspect_ratio = params.aspect_ratio;
+        auto aspect_ratio = desc.aspect_ratio;
         auto fov = rad_from_deg(45.0f);
         auto perspective = Matrix::CreatePerspectiveFieldOfView(fov, aspect_ratio, 0.1f, 100.0f);
         auto eye = Vector3(1.0f, 0.5f, 1.0f);
@@ -168,7 +166,7 @@ void Demo::update(const UpdateParams& params) {
     }
 
     {
-        debug_draw.begin(params.frame_index);
+        debug_draw.begin(desc.frame_index);
         debug_draw.transform(transform);
         debug_draw.axes();
         debug_draw.end();

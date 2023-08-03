@@ -1,6 +1,4 @@
 #include "tree.hpp"
-#include "../shaders.hpp"
-#include "../gltf.hpp"
 
 #pragma warning(push)
 #pragma warning(disable : 4100)
@@ -295,7 +293,7 @@ Demo::Demo(Dx& dx) :
     init_descriptors(dx, *this, scene, shadow_pass, main_pass);
 }
 
-void Demo::update(const UpdateParams& params) {
+void Demo::update(const demo::UpdateDesc& desc) {
     static float light_projection_size = 15.0f;
     static float light_distance = 15.0f;
     static float shadow_near_plane = 0.1f;
@@ -335,7 +333,7 @@ void Demo::update(const UpdateParams& params) {
     Matrix transform;
     {
         auto fov = rad_from_deg(45.0f);
-        auto aspect_ratio = params.aspect_ratio;
+        auto aspect_ratio = desc.aspect_ratio;
         auto projection = Matrix::CreatePerspectiveFieldOfView(fov, aspect_ratio, 0.1f, 100.0f);
         auto eye = Vector3(7.0f * std::sin(camera_angle), 8.0f, 7.0f * std::cos(camera_angle));
         auto at = Vector3(0.0f, 3.0f, 0.0f);
@@ -349,7 +347,7 @@ void Demo::update(const UpdateParams& params) {
 
     // Debug.
     {
-        debug_draw.begin(params.frame_index);
+        debug_draw.begin(desc.frame_index);
         debug_draw.transform(transform);
         debug_draw.axes();
         debug_draw.line(Vector3(), 16.0f * main_constants.light_direction, COLOR_YELLOW);

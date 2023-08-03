@@ -1,6 +1,4 @@
 #include "cube.hpp"
-#include "../shaders.hpp"
-#include "../gltf.hpp"
 
 namespace fb::cube {
 
@@ -123,9 +121,9 @@ Demo::Demo(Dx& dx) :
     }
 }
 
-void Demo::update(const UpdateParams& params) {
-    float aspect_ratio = params.aspect_ratio;
-    float elapsed_time = params.elapsed_time;
+void Demo::update(const demo::UpdateDesc& desc) {
+    float aspect_ratio = desc.aspect_ratio;
+    float elapsed_time = desc.elapsed_time;
     Matrix perspective =
         Matrix::CreatePerspectiveFieldOfView(rad_from_deg(45.0f), aspect_ratio, 0.1f, 100.0f);
     Vector3 eye = Vector3(4.0f * std::sin(elapsed_time), 3.0f, 4.0f * std::cos(elapsed_time));
@@ -133,7 +131,7 @@ void Demo::update(const UpdateParams& params) {
     Matrix transform = view * perspective;
     constant_buffer.ptr()->transform = transform;
 
-    debug_draw.begin(params.frame_index);
+    debug_draw.begin(desc.frame_index);
     debug_draw.transform(transform);
     debug_draw.axes();
     debug_draw.end();

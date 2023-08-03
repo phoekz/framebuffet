@@ -1,16 +1,6 @@
 #pragma once
 
-#include "../utils.hpp"
-#include "../maths.hpp"
-#include "../dx12.hpp"
-#include "../buffers.hpp"
-#include "../gltf.hpp"
-#include "../descriptors.hpp"
-#include "../samplers.hpp"
-#include "../root_signature.hpp"
-#include "../render_targets.hpp"
-#include "../debug_draw.hpp"
-#include <pch.hpp>
+#include "demo.hpp"
 
 namespace fb::cube {
 
@@ -30,7 +20,7 @@ struct Demo {
     static constexpr Vector4 CLEAR_COLOR = {0.6f, 0.3f, 0.0f, 1.0f};
 
     Demo(Dx& dx);
-    void update(const UpdateParams& params);
+    void update(const demo::UpdateDesc& desc);
     void render(Dx& dx);
 
     GpuRootSignature root_signature;

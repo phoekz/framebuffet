@@ -1,26 +1,12 @@
 #pragma once
 
-#include "../utils.hpp"
-#include "../maths.hpp"
-#include "../dx12.hpp"
-#include "../buffers.hpp"
-#include "../descriptors.hpp"
-#include "../samplers.hpp"
-#include "../root_signature.hpp"
-#include "../render_targets.hpp"
-#include "../debug_draw.hpp"
+#include "demo.hpp"
 
 namespace fb::rain {
 
 constexpr uint32_t PARTICLE_COUNT = 4 * 1024;
 constexpr uint32_t DISPATCH_SIZE = 128;
 constexpr uint32_t DISPATCH_COUNT = PARTICLE_COUNT / DISPATCH_SIZE;
-
-struct UpdateParams {
-    float aspect_ratio;
-    float delta_time;
-    uint32_t frame_index;
-};
 
 struct ComputeConstants {
     float delta_time = 0.0f;
@@ -43,7 +29,7 @@ struct Demo {
     static constexpr Vector4 CLEAR_COLOR = {0.0f, 0.3f, 0.6f, 1.0f};
 
     Demo(Dx& dx);
-    void update(const UpdateParams& params);
+    void update(const demo::UpdateDesc& desc);
     void render(Dx& dx);
 
     GpuRootSignature root_signature;
