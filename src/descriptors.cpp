@@ -7,18 +7,13 @@ static auto is_shader_visible(D3D12_DESCRIPTOR_HEAP_TYPE type) -> bool {
         || type == D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER;
 }
 
-static auto heap_type_name(D3D12_DESCRIPTOR_HEAP_TYPE type) -> const char* {
+static auto heap_type_name(D3D12_DESCRIPTOR_HEAP_TYPE type) -> std::string_view {
     switch (type) {
-        case D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV:
-            return "CbvSrvUav";
-        case D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER:
-            return "Sampler";
-        case D3D12_DESCRIPTOR_HEAP_TYPE_RTV:
-            return "Rtv";
-        case D3D12_DESCRIPTOR_HEAP_TYPE_DSV:
-            return "Dsv";
-        default:
-            return "Unknown";
+        case D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV: return "CbvSrvUav"sv;
+        case D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER: return "Sampler"sv;
+        case D3D12_DESCRIPTOR_HEAP_TYPE_RTV: return "Rtv"sv;
+        case D3D12_DESCRIPTOR_HEAP_TYPE_DSV: return "Dsv"sv;
+        default: return "Unknown"sv;
     }
 }
 
