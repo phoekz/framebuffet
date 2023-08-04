@@ -8,7 +8,7 @@ namespace fb {
 
 class GpuSamplers {
   public:
-    GpuSamplers(Dx& dx, GpuDescriptors& descriptors);
+    GpuSamplers(GpuDevice& device, GpuDescriptors& descriptors);
 
   private:
     std::array<GpuDescriptorHandle, (size_t)GpuSamplerType::Count> _handles;

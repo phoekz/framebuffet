@@ -2,17 +2,11 @@
 
 namespace fb::rain {
 
-Demo::Demo(Dx& dx) :
-    root_signature(dx, Demo::NAME),
-    descriptors(dx, Demo::NAME),
-    render_targets(
-        dx,
-        descriptors,
-        dx.swapchain_width,
-        dx.swapchain_height,
-        Demo::CLEAR_COLOR,
-        Demo::NAME),
-    debug_draw(dx, Demo::NAME) {
+Demo::Demo(GpuDevice& device) :
+    root_signature(device, Demo::NAME),
+    descriptors(device, Demo::NAME),
+    render_targets(device, descriptors, device.swapchain_size(), Demo::CLEAR_COLOR, Demo::NAME),
+    debug_draw(device, Demo::NAME) {
     // Descriptors.
     {
         particle_buffer_srv_descriptor = descriptors.cbv_srv_uav().alloc();
@@ -24,19 +18,17 @@ Demo::Demo(Dx& dx) :
     // Particles.
     {
         // Buffer.
-        particle_buffer.create(dx, PARTICLE_COUNT, dx_name(Demo::NAME, "Particle Buffer"));
+        particle_buffer.create(device, PARTICLE_COUNT, dx_name(Demo::NAME, "Particle Buffer"));
 
         // Descriptors.
-        auto srv_desc = particle_buffer.srv_desc();
-        auto uav_desc = particle_buffer.uav_desc();
-        dx.device->CreateShaderResourceView(
+        device.create_shader_resource_view(
             particle_buffer.resource(),
-            &srv_desc,
+            particle_buffer.srv_desc(),
             particle_buffer_srv_descriptor.cpu());
-        dx.device->CreateUnorderedAccessView(
+        device.create_unordered_access_view(
             particle_buffer.resource(),
-            nullptr,
-            &uav_desc,
+            std::nullopt,
+            particle_buffer.uav_desc(),
             particle_buffer_uav_descriptor.cpu());
 
         // Data.
@@ -50,22 +42,14 @@ Demo::Demo(Dx& dx) :
         }
 
         // Upload.
-        auto buffer = particle_buffer.resource();
-        D3D12_SUBRESOURCE_DATA subresource_data = {
-            .pData = particles.data(),
-            .RowPitch = particle_buffer.byte_size(),
-            .SlicePitch = particle_buffer.byte_size(),
-        };
-        DirectX::ResourceUploadBatch rub(dx.device.get());
-        rub.Begin();
-        rub.Transition(buffer, D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_COPY_DEST);
-        rub.Upload(buffer, 0, &subresource_data, 1);
-        rub.Transition(
-            buffer,
-            D3D12_RESOURCE_STATE_COPY_DEST,
+        device.easy_upload(
+            D3D12_SUBRESOURCE_DATA {
+                .pData = particles.data(),
+                .RowPitch = particle_buffer.byte_size(),
+                .SlicePitch = particle_buffer.byte_size()},
+            particle_buffer.resource(),
+            D3D12_RESOURCE_STATE_COMMON,
             D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
-        auto finish = rub.End(dx.command_queue.get());
-        finish.wait();
     }
 
     // Shaders.
@@ -78,38 +62,33 @@ Demo::Demo(Dx& dx) :
         auto draw_name = dx_name(Demo::NAME, Demo::Draw::NAME);
         auto compute_source = read_whole_file("shaders/rain.compute.hlsl");
         auto draw_source = read_whole_file("shaders/rain.draw.hlsl");
-        compute_shader = sc.compile(compute_name, GpuShaderType::Compute, "cs_main", compute_source);
+        compute_shader =
+            sc.compile(compute_name, GpuShaderType::Compute, "cs_main", compute_source);
         vertex_shader = sc.compile(draw_name, GpuShaderType::Vertex, "vs_main", draw_source);
         pixel_shader = sc.compile(draw_name, GpuShaderType::Pixel, "ps_main", draw_source);
     }
 
     // Compute - Pipeline state.
-    {
-        D3D12_COMPUTE_PIPELINE_STATE_DESC desc = {
+    compute.pipeline_state = device.create_compute_pipeline_state(
+        D3D12_COMPUTE_PIPELINE_STATE_DESC {
             .pRootSignature = root_signature.get(),
-            .CS = compute_shader.bytecode(),
-        };
-        FAIL_FAST_IF_FAILED(
-            dx.device->CreateComputePipelineState(&desc, IID_PPV_ARGS(&compute.pipeline_state)));
-        dx_set_name(
-            compute.pipeline_state,
-            dx_name(Demo::NAME, Demo::Compute::NAME, "Pipeline State"));
-    }
+            .CS = compute_shader.bytecode()},
+        dx_name(Demo::NAME, Demo::Compute::NAME, "Pipeline State"));
 
     // Compute - Constant buffer.
     {
         compute.constant_buffer.create(
-            dx,
+            device,
             1,
             dx_name(Demo::NAME, Demo::Compute::NAME, "Constant Buffer"));
-
-        auto cbv_desc = compute.constant_buffer.cbv_desc();
-        dx.device->CreateConstantBufferView(&cbv_desc, compute.constant_buffer_descriptor.cpu());
+        device.create_constant_buffer_view(
+            compute.constant_buffer.cbv_desc(),
+            compute.constant_buffer_descriptor.cpu());
     }
 
     // Draw - Pipeline state.
-    {
-        D3D12_GRAPHICS_PIPELINE_STATE_DESC desc = {
+    draw.pipeline_state = device.create_graphics_pipeline_state(
+        {
             .pRootSignature = root_signature.get(),
             .VS = vertex_shader.bytecode(),
             .PS = pixel_shader.bytecode(),
@@ -122,21 +101,18 @@ Demo::Demo(Dx& dx) :
             .RTVFormats = {DXGI_FORMAT_R8G8B8A8_UNORM},
             .DSVFormat = DXGI_FORMAT_D32_FLOAT,
             .SampleDesc = {.Count = 1, .Quality = 0},
-        };
-        FAIL_FAST_IF_FAILED(
-            dx.device->CreateGraphicsPipelineState(&desc, IID_PPV_ARGS(&draw.pipeline_state)));
-        dx_set_name(draw.pipeline_state, dx_name(Demo::NAME, Demo::Draw::NAME, "Pipeline State"));
-    }
+        },
+        dx_name(Demo::NAME, Demo::Draw::NAME, "Pipeline State"));
 
     // Draw - Constant buffer.
     {
         draw.constant_buffer.create(
-            dx,
+            device,
             1,
             dx_name(Demo::NAME, Demo::Draw::NAME, "Constant Buffer"));
-
-        auto cbv_desc = draw.constant_buffer.cbv_desc();
-        dx.device->CreateConstantBufferView(&cbv_desc, draw.constant_buffer_descriptor.cpu());
+        device.create_constant_buffer_view(
+            draw.constant_buffer.cbv_desc(),
+            draw.constant_buffer_descriptor.cpu());
     }
 }
 
@@ -173,12 +149,12 @@ void Demo::update(const demo::UpdateDesc& desc) {
     }
 }
 
-void Demo::render(Dx& dx) {
-    auto* cmd = dx.command_list.get();
+void Demo::render(GpuDevice& device) {
+    auto* cmd = device.command_list();
 
     {
         // Transition particles.
-        dx.transition(
+        device.transition(
             particle_buffer.resource(),
             D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER,
             D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
@@ -196,7 +172,7 @@ void Demo::render(Dx& dx) {
         cmd->Dispatch(DISPATCH_COUNT, 1, 1);
 
         // Transition particles.
-        dx.transition(
+        device.transition(
             particle_buffer.resource(),
             D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
             D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
@@ -204,7 +180,7 @@ void Demo::render(Dx& dx) {
 
     {
         // Begin.
-        render_targets.begin(dx);
+        render_targets.begin(device);
 
         // Pipeline state.
         cmd->SetDescriptorHeaps(1, descriptors.cbv_srv_uav().heap_ptr());
@@ -222,10 +198,10 @@ void Demo::render(Dx& dx) {
         cmd->DrawInstanced(PARTICLE_COUNT, 1, 0, 0);
 
         // Debug.
-        debug_draw.render(dx);
+        debug_draw.render(device);
 
         // End.
-        render_targets.end(dx);
+        render_targets.end(device);
     }
 }
 

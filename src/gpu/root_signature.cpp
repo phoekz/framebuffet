@@ -3,7 +3,7 @@
 
 namespace fb {
 
-GpuRootSignature::GpuRootSignature(Dx& dx, std::string_view name) {
+GpuRootSignature::GpuRootSignature(GpuDevice& device, std::string_view name) {
     // Allocate constants for binding slots.
     CD3DX12_ROOT_PARAMETER1 root_parameter = {};
     root_parameter.InitAsConstants(GpuBindings::CAPACITY, 0, 0);
@@ -33,14 +33,7 @@ GpuRootSignature::GpuRootSignature(Dx& dx, std::string_view name) {
     }
 
     // Create the root signature.
-    FAIL_FAST_IF_FAILED(dx.device->CreateRootSignature(
-        0,
-        signature->GetBufferPointer(),
-        signature->GetBufferSize(),
-        IID_PPV_ARGS(&_root_signature)));
-
-    // Debug.
-    dx_set_name(_root_signature, dx_name(name, "Root Signature"));
+    _root_signature = device.create_root_signature(signature, dx_name(name, "Root Signature"));
 }
 
 }  // namespace fb

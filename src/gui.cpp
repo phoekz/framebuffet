@@ -7,10 +7,10 @@
 
 namespace fb::gui {
 
-Gui::Gui(const Window& window, Dx& dx) :
-    root_signature(dx, Gui::NAME),
-    descriptors(dx, Gui::NAME),
-    samplers(dx, descriptors) {
+Gui::Gui(const Window& window, GpuDevice& device) :
+    root_signature(device, Gui::NAME),
+    descriptors(device, Gui::NAME),
+    samplers(device, descriptors) {
     // ImGui.
     {
         IMGUI_CHECKVERSION();
@@ -43,8 +43,8 @@ Gui::Gui(const Window& window, Dx& dx) :
     }
 
     // Pipeline state.
-    {
-        D3D12_GRAPHICS_PIPELINE_STATE_DESC desc = {
+    pipeline_state = device.create_graphics_pipeline_state(
+        D3D12_GRAPHICS_PIPELINE_STATE_DESC {
             .pRootSignature = root_signature.get(),
             .VS = vertex_shader.bytecode(),
             .PS = pixel_shader.bytecode(),
@@ -80,18 +80,15 @@ Gui::Gui(const Window& window, Dx& dx) :
             .NumRenderTargets = 1,
             .RTVFormats = {DXGI_FORMAT_R8G8B8A8_UNORM},
             .SampleDesc = {.Count = 1, .Quality = 0},
-        };
-        FAIL_FAST_IF_FAILED(
-            dx.device->CreateGraphicsPipelineState(&desc, IID_PPV_ARGS(&pipeline_state)));
-        dx_set_name(pipeline_state, dx_name(Gui::NAME, "Pipeline State"));
-    }
+        },
+        dx_name(Gui::NAME, "Pipeline State"));
 
     // Constants.
     {
-        constant_buffer.create(dx, 1, dx_name(Gui::NAME, "Constant Buffer"));
-
-        auto cbv_desc = constant_buffer.cbv_desc();
-        dx.device->CreateConstantBufferView(&cbv_desc, constant_buffer_descriptor.cpu());
+        constant_buffer.create(device, 1, dx_name(Gui::NAME, "Constant Buffer"));
+        device.create_constant_buffer_view(
+            constant_buffer.cbv_desc(),
+            constant_buffer_descriptor.cpu());
     }
 
     // Font texture.
@@ -103,55 +100,49 @@ Gui::Gui(const Window& window, Dx& dx) :
         io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);
 
         // Texture.
-        auto texture_desc =
-            CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R8G8B8A8_UNORM, width, height, 1, 1);
-        CD3DX12_HEAP_PROPERTIES texture_heap(D3D12_HEAP_TYPE_DEFAULT);
-        FAIL_FAST_IF_FAILED(dx.device->CreateCommittedResource(
-            &texture_heap,
-            D3D12_HEAP_FLAG_NONE,
-            &texture_desc,
-            D3D12_RESOURCE_STATE_COPY_DEST,
-            nullptr,
-            IID_PPV_ARGS(&texture)));
-        dx_set_name(texture, dx_name(Gui::NAME, "Font Texture"));
+        texture = device.create_committed_resource(
+            CD3DX12_HEAP_PROPERTIES {D3D12_HEAP_TYPE_DEFAULT},
+            CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R8G8B8A8_UNORM, width, height, 1, 1),
+            D3D12_RESOURCE_STATE_COMMON,
+            std::nullopt,
+            dx_name(Gui::NAME, "Font Texture"));
 
         // Upload.
-        D3D12_SUBRESOURCE_DATA subresource_data = {
-            .pData = pixels,
-            .RowPitch = width * 4,
-            .SlicePitch = width * height * 4,
-        };
-        DirectX::ResourceUploadBatch rub(dx.device.get());
-        rub.Begin();
-        rub.Upload(texture.get(), 0, &subresource_data, 1);
-        rub.Transition(
-            texture.get(),
-            D3D12_RESOURCE_STATE_COPY_DEST,
+        device.easy_upload(
+            D3D12_SUBRESOURCE_DATA {
+                .pData = pixels,
+                .RowPitch = width * 4,
+                .SlicePitch = width * height * 4},
+            texture,
+            D3D12_RESOURCE_STATE_COMMON,
             D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-        auto finish = rub.End(dx.command_queue.get());
-        finish.wait();
 
         // SRV.
-        D3D12_SHADER_RESOURCE_VIEW_DESC srv_desc = {
-            .Format = DXGI_FORMAT_R8G8B8A8_UNORM,
-            .ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D,
-            .Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING,
-            .Texture2D = {.MipLevels = 1},
-        };
-        dx.device->CreateShaderResourceView(texture.get(), &srv_desc, texture_descriptor.cpu());
+        device.create_shader_resource_view(
+            texture,
+            D3D12_SHADER_RESOURCE_VIEW_DESC {
+                .Format = DXGI_FORMAT_R8G8B8A8_UNORM,
+                .ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D,
+                .Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING,
+                .Texture2D = {.MipLevels = 1}},
+            texture_descriptor.cpu());
         io.Fonts->SetTexID((ImTextureID)texture_descriptor.gpu().ptr);
     }
 
     // Geometry.
     for (uint32_t i = 0; i < FRAME_COUNT; i++) {
         Gui::Geometry& geometry = geometries[i];
-        geometry.vertex_buffer.create(dx, MAX_VERTEX_COUNT, dx_name(Gui::NAME, "Vertex Buffer", i));
-        geometry.index_buffer.create(dx, MAX_INDEX_COUNT, dx_name(Gui::NAME, "Index Buffer", i));
-
-        auto srv_desc = geometry.vertex_buffer.srv_desc();
-        dx.device->CreateShaderResourceView(
+        geometry.vertex_buffer.create(
+            device,
+            MAX_VERTEX_COUNT,
+            dx_name(Gui::NAME, "Vertex Buffer", i));
+        geometry.index_buffer.create(
+            device,
+            MAX_INDEX_COUNT,
+            dx_name(Gui::NAME, "Index Buffer", i));
+        device.create_shader_resource_view(
             geometry.vertex_buffer.resource(),
-            &srv_desc,
+            geometry.vertex_buffer.srv_desc(),
             geometry.vertex_buffer_descriptor.cpu());
     }
 
@@ -170,7 +161,7 @@ void Gui::update() {
     ImGui::ShowDemoWindow();
 }
 
-void Gui::render(const Dx& dx) {
+void Gui::render(const GpuDevice& device) {
     ImGui::Render();
     auto* draw_data = ImGui::GetDrawData();
 
@@ -180,7 +171,7 @@ void Gui::render(const Dx& dx) {
     }
 
     // Update geometries.
-    auto& geometry = geometries[dx.frame_index];
+    auto& geometry = geometries[device.frame_index()];
     {
         ImDrawVert* vertices = geometry.vertex_buffer.ptr();
         ImDrawIdx* indices = geometry.index_buffer.ptr();
@@ -213,7 +204,7 @@ void Gui::render(const Dx& dx) {
 
     // Render.
     {
-        auto* cmd = dx.command_list.get();
+        auto* cmd = device.command_list();
 
         CD3DX12_VIEWPORT viewport(0.0f, 0.0f, draw_data->DisplaySize.x, draw_data->DisplaySize.y);
         auto ibv = geometry.index_buffer.index_buffer_view();

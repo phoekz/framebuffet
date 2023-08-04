@@ -18,10 +18,10 @@ struct Constants {
 struct Gui {
     static constexpr std::string_view NAME = "Gui"sv;
 
-    Gui(const Window& window, Dx& dx);
+    Gui(const Window& window, GpuDevice& device);
     ~Gui();
     void update();
-    void render(const Dx& dx);
+    void render(const GpuDevice& device);
 
     ImGuiContext* imgui_ctx = nullptr;
 

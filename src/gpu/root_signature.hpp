@@ -1,14 +1,14 @@
 #pragma once
 
-#include "dx12.hpp"
-#include "utils.hpp"
 #include <pch.hpp>
+#include "device.hpp"
+#include "utils.hpp"
 
 namespace fb {
 
 class GpuRootSignature {
   public:
-    GpuRootSignature(Dx& dx, std::string_view name);
+    GpuRootSignature(GpuDevice& device, std::string_view name);
 
     auto get() const -> ID3D12RootSignature* { return _root_signature.get(); }
 

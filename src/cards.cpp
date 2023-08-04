@@ -2,10 +2,10 @@
 
 namespace fb::cards {
 
-Cards::Cards(Dx& dx, const Params& params) :
-    root_signature(dx, Cards::NAME),
-    descriptors(dx, Cards::NAME),
-    samplers(dx, descriptors) {
+Cards::Cards(GpuDevice& device, const Params& params) :
+    root_signature(device, Cards::NAME),
+    descriptors(device, Cards::NAME),
+    samplers(device, descriptors) {
     // Descriptors.
     {
         constant_buffer_descriptor = descriptors.cbv_srv_uav().alloc();
@@ -27,8 +27,8 @@ Cards::Cards(Dx& dx, const Params& params) :
     }
 
     // Pipeline state.
-    {
-        D3D12_GRAPHICS_PIPELINE_STATE_DESC desc = {
+    pipeline_state = device.create_graphics_pipeline_state(
+        D3D12_GRAPHICS_PIPELINE_STATE_DESC {
             .pRootSignature = root_signature.get(),
             .VS = vertex_shader.bytecode(),
             .PS = pixel_shader.bytecode(),
@@ -40,28 +40,23 @@ Cards::Cards(Dx& dx, const Params& params) :
             .NumRenderTargets = 1,
             .RTVFormats = {DXGI_FORMAT_R8G8B8A8_UNORM},
             .SampleDesc = {.Count = 1, .Quality = 0},
-        };
-        FAIL_FAST_IF_FAILED(
-            dx.device->CreateGraphicsPipelineState(&desc, IID_PPV_ARGS(&pipeline_state)));
-        dx_set_name(pipeline_state, dx_name(Cards::NAME, "Pipeline State"));
-    }
+        },
+        dx_name(Cards::NAME, "Pipeline State"));
 
     // Constant buffer.
     {
-        constant_buffer.create(dx, 1, dx_name(Cards::NAME, "Constant Buffer"));
-
-        auto cbv_desc = constant_buffer.cbv_desc();
-        dx.device->CreateConstantBufferView(&cbv_desc, constant_buffer_descriptor.cpu());
+        constant_buffer.create(device, 1, dx_name(Cards::NAME, "Constant Buffer"));
+        device.create_constant_buffer_view(
+            constant_buffer.cbv_desc(),
+            constant_buffer_descriptor.cpu());
     }
 
     // Cards buffer.
     {
-        card_buffer.create(dx, CARD_COUNT, dx_name(Cards::NAME, "Cards Buffer"));
-
-        auto srv_desc = card_buffer.srv_desc();
-        dx.device->CreateShaderResourceView(
+        card_buffer.create(device, CARD_COUNT, dx_name(Cards::NAME, "Cards Buffer"));
+        device.create_shader_resource_view(
             card_buffer.resource(),
-            &srv_desc,
+            card_buffer.srv_desc(),
             card_buffer_descriptor.cpu());
 
         Card* cards = card_buffer.ptr();
@@ -82,39 +77,36 @@ Cards::Cards(Dx& dx, const Params& params) :
         uint32_t vertex_count = (uint32_t)_countof(vertices);
         uint32_t index_count = (uint32_t)_countof(indices);
 
-        vertex_buffer.create(dx, vertex_count, dx_name(Cards::NAME, "Vertex Buffer"));
-        index_buffer.create(dx, index_count, dx_name(Cards::NAME, "Index Buffer"));
+        vertex_buffer.create(device, vertex_count, dx_name(Cards::NAME, "Vertex Buffer"));
+        index_buffer.create(device, index_count, dx_name(Cards::NAME, "Index Buffer"));
 
         memcpy(vertex_buffer.ptr(), vertices, sizeof(vertices));
         memcpy(index_buffer.ptr(), indices, sizeof(indices));
 
-        auto srv_desc = vertex_buffer.srv_desc();
-        dx.device->CreateShaderResourceView(
+        device.create_shader_resource_view(
             vertex_buffer.resource(),
-            &srv_desc,
+            vertex_buffer.srv_desc(),
             vertex_buffer_descriptor.cpu());
     }
 
     // Textures.
-    {
-        D3D12_SHADER_RESOURCE_VIEW_DESC src_desc = {
-            .Format = DXGI_FORMAT_R8G8B8A8_UNORM,
-            .ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D,
-            .Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING,
-            .Texture2D = D3D12_TEX2D_SRV {.MipLevels = 1},
-        };
-        for (uint32_t i = 0; i < CARD_COUNT; i++) {
-            dx.device->CreateShaderResourceView(
-                params.card_textures[i].get().get(),
-                &src_desc,
-                card_texture_descriptors[i].cpu());
-        }
+    for (uint32_t i = 0; i < CARD_COUNT; i++) {
+        device.create_shader_resource_view(
+            params.card_textures[i],
+            D3D12_SHADER_RESOURCE_VIEW_DESC {
+                .Format = DXGI_FORMAT_R8G8B8A8_UNORM,
+                .ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D,
+                .Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING,
+                .Texture2D = D3D12_TEX2D_SRV {.MipLevels = 1},
+            },
+            card_texture_descriptors[i].cpu());
     }
 }
 
-void Cards::update(const Dx& dx) {
-    float width = (float)dx.swapchain_width;
-    float height = (float)dx.swapchain_height;
+void Cards::update(const GpuDevice& device) {
+    Uint2 swapchain_size = device.swapchain_size();
+    float width = (float)swapchain_size.x;
+    float height = (float)swapchain_size.y;
     float max_extent = std::max(width, height);
 
     if (ImGui::Begin(Cards::NAME.data())) {
@@ -134,22 +126,22 @@ void Cards::update(const Dx& dx) {
         Matrix::CreateOrthographicOffCenter(0.0f, width, height, 0.0f, 0.0f, 1.0f);
 }
 
-void Cards::render(Dx& dx) {
-    auto* cmd = dx.command_list.get();
+void Cards::render(GpuDevice& device) {
+    auto* cmd = device.command_list();
 
     D3D12_VIEWPORT viewport = {
         .TopLeftX = 0.0f,
         .TopLeftY = 0.0f,
-        .Width = (float)dx.swapchain_width,
-        .Height = (float)dx.swapchain_height,
+        .Width = (float)device.swapchain_size().x,
+        .Height = (float)device.swapchain_size().y,
         .MinDepth = 0.0f,
         .MaxDepth = 1.0f,
     };
     D3D12_RECT scissor = {
         .left = 0,
         .top = 0,
-        .right = (LONG)dx.swapchain_width,
-        .bottom = (LONG)dx.swapchain_height,
+        .right = (LONG)device.swapchain_size().x,
+        .bottom = (LONG)device.swapchain_size().y,
     };
     cmd->RSSetViewports(1, &viewport);
     cmd->RSSetScissorRects(1, &scissor);

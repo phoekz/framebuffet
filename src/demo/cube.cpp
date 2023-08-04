@@ -2,18 +2,12 @@
 
 namespace fb::cube {
 
-Demo::Demo(Dx& dx) :
-    root_signature(dx, Demo::NAME),
-    descriptors(dx, Demo::NAME),
-    samplers(dx, descriptors),
-    render_targets(
-        dx,
-        descriptors,
-        dx.swapchain_width,
-        dx.swapchain_height,
-        Demo::CLEAR_COLOR,
-        Demo::NAME),
-    debug_draw(dx, Demo::NAME) {
+Demo::Demo(GpuDevice& device) :
+    root_signature(device, Demo::NAME),
+    descriptors(device, Demo::NAME),
+    samplers(device, descriptors),
+    render_targets(device, descriptors, device.swapchain_size(), Demo::CLEAR_COLOR, Demo::NAME),
+    debug_draw(device, Demo::NAME) {
     // Descriptors.
     {
         constant_buffer_descriptor = descriptors.cbv_srv_uav().alloc();
@@ -32,8 +26,8 @@ Demo::Demo(Dx& dx) :
     }
 
     // Pipeline state.
-    {
-        D3D12_GRAPHICS_PIPELINE_STATE_DESC desc = {
+    pipeline_state = device.create_graphics_pipeline_state(
+        D3D12_GRAPHICS_PIPELINE_STATE_DESC {
             .pRootSignature = root_signature.get(),
             .VS = vertex_shader.bytecode(),
             .PS = pixel_shader.bytecode(),
@@ -46,18 +40,15 @@ Demo::Demo(Dx& dx) :
             .RTVFormats = {DXGI_FORMAT_R8G8B8A8_UNORM},
             .DSVFormat = DXGI_FORMAT_D32_FLOAT,
             .SampleDesc = {.Count = 1, .Quality = 0},
-        };
-        FAIL_FAST_IF_FAILED(
-            dx.device->CreateGraphicsPipelineState(&desc, IID_PPV_ARGS(&pipeline_state)));
-        dx_set_name(pipeline_state, dx_name(Demo::NAME, "Pipeline State"));
-    }
+        },
+        dx_name(Demo::NAME, "Pipeline State"));
 
     // Constant buffer.
     {
-        constant_buffer.create(dx, 1, dx_name(Demo::NAME, "Constant Buffer"));
-
-        auto cbv_desc = constant_buffer.cbv_desc();
-        dx.device->CreateConstantBufferView(&cbv_desc, constant_buffer_descriptor.cpu());
+        constant_buffer.create(device, 1, dx_name(Demo::NAME, "Constant Buffer"));
+        device.create_constant_buffer_view(
+            constant_buffer.cbv_desc(),
+            constant_buffer_descriptor.cpu());
     }
 
     // Model.
@@ -65,16 +56,15 @@ Demo::Demo(Dx& dx) :
 
     // Geometry.
     {
-        vertex_buffer.create(dx, model.vertex_count(), dx_name(Demo::NAME, "Vertex Buffer"));
-        index_buffer.create(dx, model.index_count(), dx_name(Demo::NAME, "Index Buffer"));
+        vertex_buffer.create(device, model.vertex_count(), dx_name(Demo::NAME, "Vertex Buffer"));
+        index_buffer.create(device, model.index_count(), dx_name(Demo::NAME, "Index Buffer"));
 
         memcpy(vertex_buffer.ptr(), model.vertex_data(), model.vertex_buffer_size());
         memcpy(index_buffer.ptr(), model.index_data(), model.index_buffer_size());
 
-        auto srv_desc = vertex_buffer.srv_desc();
-        dx.device->CreateShaderResourceView(
+        device.create_shader_resource_view(
             vertex_buffer.resource(),
-            &srv_desc,
+            vertex_buffer.srv_desc(),
             vertex_buffer_descriptor.cpu());
     }
 
@@ -82,42 +72,32 @@ Demo::Demo(Dx& dx) :
     {
         // Create.
         const auto& image = model.base_color_texture();
-        auto texture_desc =
-            CD3DX12_RESOURCE_DESC::Tex2D(image.format(), image.width(), image.height(), 1, 1);
-        CD3DX12_HEAP_PROPERTIES texture_heap(D3D12_HEAP_TYPE_DEFAULT);
-        FAIL_FAST_IF_FAILED(dx.device->CreateCommittedResource(
-            &texture_heap,
-            D3D12_HEAP_FLAG_NONE,
-            &texture_desc,
-            D3D12_RESOURCE_STATE_COPY_DEST,
-            nullptr,
-            IID_PPV_ARGS(&texture)));
-        dx_set_name(texture, dx_name(Demo::NAME, "Texture"));
+        texture = device.create_committed_resource(
+            CD3DX12_HEAP_PROPERTIES {D3D12_HEAP_TYPE_DEFAULT},
+            CD3DX12_RESOURCE_DESC::Tex2D(image.format(), image.width(), image.height(), 1, 1),
+            D3D12_RESOURCE_STATE_COMMON,
+            std::nullopt,
+            dx_name(Demo::NAME, "Texture"));
 
         // Upload.
-        D3D12_SUBRESOURCE_DATA subresource_data = {
-            .pData = image.data(),
-            .RowPitch = image.row_pitch(),
-            .SlicePitch = image.slice_pitch(),
-        };
-        DirectX::ResourceUploadBatch rub(dx.device.get());
-        rub.Begin();
-        rub.Upload(texture.get(), 0, &subresource_data, 1);
-        rub.Transition(
-            texture.get(),
-            D3D12_RESOURCE_STATE_COPY_DEST,
+        device.easy_upload(
+            D3D12_SUBRESOURCE_DATA {
+                .pData = image.data(),
+                .RowPitch = image.row_pitch(),
+                .SlicePitch = image.slice_pitch()},
+            texture,
+            D3D12_RESOURCE_STATE_COMMON,
             D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-        auto finish = rub.End(dx.command_queue.get());
-        finish.wait();
 
         // Descriptor.
-        D3D12_SHADER_RESOURCE_VIEW_DESC srv_desc = {
-            .Format = image.format(),
-            .ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D,
-            .Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING,
-            .Texture2D = D3D12_TEX2D_SRV {.MipLevels = 1},
-        };
-        dx.device->CreateShaderResourceView(texture.get(), &srv_desc, texture_descriptor.cpu());
+        device.create_shader_resource_view(
+            texture,
+            D3D12_SHADER_RESOURCE_VIEW_DESC {
+                .Format = image.format(),
+                .ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D,
+                .Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING,
+                .Texture2D = D3D12_TEX2D_SRV {.MipLevels = 1}},
+            texture_descriptor.cpu());
     }
 }
 
@@ -137,12 +117,12 @@ void Demo::update(const demo::UpdateDesc& desc) {
     debug_draw.end();
 }
 
-void Demo::render(Dx& dx) {
-    auto* cmd = dx.command_list.get();
-    render_targets.begin(dx);
+void Demo::render(GpuDevice& device) {
+    auto* cmd = device.command_list();
+    render_targets.begin(device);
 
     // Debug pass.
-    debug_draw.render(dx);
+    debug_draw.render(device);
 
     // Main pass.
     ID3D12DescriptorHeap* heaps[] = {
@@ -164,7 +144,7 @@ void Demo::render(Dx& dx) {
     auto index_count = index_buffer.element_size();
     cmd->DrawIndexedInstanced(index_count, 1, 0, 0, 0);
 
-    render_targets.end(dx);
+    render_targets.end(device);
 }
 
 }  // namespace fb::cube

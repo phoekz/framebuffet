@@ -1,10 +1,10 @@
 #pragma once
 
-#include "dx12.hpp"
-#include "utils.hpp"
-#include "maths.hpp"
-#include "descriptors.hpp"
 #include <pch.hpp>
+#include "device.hpp"
+#include "descriptors.hpp"
+#include "maths.hpp"
+#include "utils.hpp"
 
 namespace fb {
 
@@ -15,21 +15,19 @@ class GpuRenderTargets {
     static constexpr uint32_t SAMPLE_COUNT = 1;
 
     GpuRenderTargets(
-        Dx& dx,
+        const GpuDevice& device,
         GpuDescriptors& descriptors,
-        uint32_t width,
-        uint32_t height,
+        Uint2 size,
         Vector4 clear_color,
         std::string_view name);
 
-    auto begin(Dx& dx) -> void;
-    auto end(Dx& dx) -> void;
+    auto begin(GpuDevice& device) -> void;
+    auto end(GpuDevice& device) -> void;
     auto color() const -> const ComPtr<ID3D12Resource>& { return _color; }
     auto depth() const -> const ComPtr<ID3D12Resource>& { return _depth; }
 
   private:
-    uint32_t _width = 0;
-    uint32_t _height = 0;
+    Uint2 _size = {};
     Vector4 _clear_color;
 
     ComPtr<ID3D12Resource> _color;

@@ -2,7 +2,7 @@
 
 namespace fb {
 
-GpuSamplers::GpuSamplers(Dx& dx, GpuDescriptors& descriptors) {
+GpuSamplers::GpuSamplers(GpuDevice& device, GpuDescriptors& descriptors) {
     std::tuple<GpuSamplerType, D3D12_SAMPLER_DESC, GpuDescriptorHandle> samplers[] = {
         {
             GpuSamplerType::LinearClamp,
@@ -55,7 +55,7 @@ GpuSamplers::GpuSamplers(Dx& dx, GpuDescriptors& descriptors) {
     };
 
     for (const auto& [type, desc, handle] : samplers) {
-        dx.device->CreateSampler(&desc, handle.cpu());
+        device.create_sampler(desc, handle.cpu());
         _handles[(size_t)type] = handle;
     }
 }

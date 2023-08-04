@@ -1,6 +1,6 @@
 #pragma once
 
-#include "dx12.hpp"
+#include "device.hpp"
 #include "utils.hpp"
 #include "maths.hpp"
 #include "buffers.hpp"
@@ -24,14 +24,14 @@ class GpuDebugDraw {
     static constexpr std::string_view NAME = "Debug Draw"sv;
     static constexpr size_t MAX_LINE_COUNT = 1024;
 
-    GpuDebugDraw(Dx& dx, std::string_view name);
+    GpuDebugDraw(GpuDevice& device, std::string_view name);
 
     auto begin(uint32_t frame_index) -> void;
     auto transform(const Matrix& transform) -> void;
     auto line(const Vector3& a, const Vector3& b, ColorRgba8 color) -> void;
     auto axes() -> void;
     auto end() -> void;
-    auto render(Dx& dx) -> void;
+    auto render(GpuDevice& device) -> void;
 
   private:
     GpuRootSignature _root_signature;

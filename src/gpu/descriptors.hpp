@@ -1,8 +1,8 @@
 #pragma once
 
-#include "dx12.hpp"
-#include "utils.hpp"
 #include <pch.hpp>
+#include "device.hpp"
+#include "utils.hpp"
 
 namespace fb {
 
@@ -27,7 +27,7 @@ class GpuDescriptorHandle {
 class GpuDescriptorHeap {
   public:
     GpuDescriptorHeap(
-        Dx& dx,
+        GpuDevice& device,
         std::string_view name,
         D3D12_DESCRIPTOR_HEAP_TYPE type,
         uint32_t capacity);
@@ -56,7 +56,7 @@ class GpuDescriptors {
     static constexpr uint32_t RTV_DESCRIPTOR_CAPACITY = 16;
     static constexpr uint32_t DSV_DESCRIPTOR_CAPACITY = 16;
 
-    GpuDescriptors(Dx& dx, std::string_view name);
+    GpuDescriptors(GpuDevice& device, std::string_view name);
 
     auto rtv() -> GpuDescriptorHeap& { return _rtv_heap; }
     auto dsv() -> GpuDescriptorHeap& { return _dsv_heap; }

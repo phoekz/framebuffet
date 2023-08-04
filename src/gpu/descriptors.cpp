@@ -18,7 +18,7 @@ static auto heap_type_name(D3D12_DESCRIPTOR_HEAP_TYPE type) -> std::string_view 
 }
 
 GpuDescriptorHeap::GpuDescriptorHeap(
-    Dx& dx,
+    GpuDevice& device,
     std::string_view name,
     D3D12_DESCRIPTOR_HEAP_TYPE type,
     uint32_t capacity) :
@@ -30,14 +30,13 @@ GpuDescriptorHeap::GpuDescriptorHeap(
     };
     if (is_shader_visible(type))
         desc.Flags |= D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-    FAIL_FAST_IF_FAILED(dx.device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&_heap)));
-
-    _descriptor_size = dx.device->GetDescriptorHandleIncrementSize(type);
+    _heap = device.create_descriptor_heap(
+        desc,
+        dx_name(name, "Descriptor Heap", heap_type_name(_type)));
+    _descriptor_size = device.descriptor_size(type);
     _cpu_heap_start = _heap->GetCPUDescriptorHandleForHeapStart();
     if (is_shader_visible(type))
         _gpu_heap_start = _heap->GetGPUDescriptorHandleForHeapStart();
-
-    dx_set_name(_heap, dx_name(name, "Descriptor Heap", heap_type_name(_type)));
 }
 
 auto GpuDescriptorHeap::alloc() -> GpuDescriptorHandle {
@@ -54,14 +53,14 @@ auto GpuDescriptorHeap::alloc() -> GpuDescriptorHandle {
     return handle;
 }
 
-GpuDescriptors::GpuDescriptors(Dx& dx, std::string_view name) :
+GpuDescriptors::GpuDescriptors(GpuDevice& device, std::string_view name) :
     _cbv_srv_uav_heap(
-        dx,
+        device,
         name,
         D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV,
         CBV_SRV_UAV_DESCRIPTOR_CAPACITY),
-    _sampler_heap(dx, name, D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER, SAMPLER_DESCRIPTOR_CAPACITY),
-    _rtv_heap(dx, name, D3D12_DESCRIPTOR_HEAP_TYPE_RTV, RTV_DESCRIPTOR_CAPACITY),
-    _dsv_heap(dx, name, D3D12_DESCRIPTOR_HEAP_TYPE_DSV, DSV_DESCRIPTOR_CAPACITY) {}
+    _sampler_heap(device, name, D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER, SAMPLER_DESCRIPTOR_CAPACITY),
+    _rtv_heap(device, name, D3D12_DESCRIPTOR_HEAP_TYPE_RTV, RTV_DESCRIPTOR_CAPACITY),
+    _dsv_heap(device, name, D3D12_DESCRIPTOR_HEAP_TYPE_DSV, DSV_DESCRIPTOR_CAPACITY) {}
 
 }  // namespace fb

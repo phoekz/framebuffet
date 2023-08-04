@@ -23,9 +23,9 @@ struct Demo {
     static constexpr std::string_view NAME = "Tree"sv;
     static constexpr Vector4 CLEAR_COLOR = {0.32549f, 0.51373f, 0.56078f, 1.0f};
 
-    Demo(Dx& dx);
+    Demo(GpuDevice& device);
     void update(const demo::UpdateDesc& desc);
-    void render(Dx& dx);
+    void render(GpuDevice& device);
 
     GpuRootSignature root_signature;
     GpuDescriptors descriptors;

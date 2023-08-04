@@ -6,7 +6,7 @@
 namespace fb::tree {
 
 static void init_scene_model(
-    Dx& dx,
+    GpuDevice& device,
     const GltfModel& gltf_model,
     std::string_view model_name,
     Demo::Scene::Model& model) {
@@ -15,11 +15,11 @@ static void init_scene_model(
         auto& vertex_buffer = model.vertex_buffer;
         auto& index_buffer = model.index_buffer;
         vertex_buffer.create(
-            dx,
+            device,
             gltf_model.vertex_count(),
             dx_name(Demo::NAME, model_name, "Vertex Buffer"));
         index_buffer.create(
-            dx,
+            device,
             gltf_model.index_count(),
             dx_name(Demo::NAME, model_name, "Index Buffer"));
         memcpy(vertex_buffer.ptr(), gltf_model.vertex_data(), gltf_model.vertex_buffer_size());
@@ -31,46 +31,36 @@ static void init_scene_model(
         // Resource.
         const auto& gltf_texture = gltf_model.base_color_texture();
         auto& texture = model.texture;
-        auto texture_desc = CD3DX12_RESOURCE_DESC::Tex2D(
-            gltf_texture.format(),
-            gltf_texture.width(),
-            gltf_texture.height(),
-            1,
-            1);
-        CD3DX12_HEAP_PROPERTIES texture_heap(D3D12_HEAP_TYPE_DEFAULT);
-        FAIL_FAST_IF_FAILED(dx.device->CreateCommittedResource(
-            &texture_heap,
-            D3D12_HEAP_FLAG_NONE,
-            &texture_desc,
-            D3D12_RESOURCE_STATE_COPY_DEST,
-            nullptr,
-            IID_PPV_ARGS(&texture)));
-        dx_set_name(texture, dx_name(Demo::NAME, model_name, "Texture"));
+        texture = device.create_committed_resource(
+            CD3DX12_HEAP_PROPERTIES {D3D12_HEAP_TYPE_DEFAULT},
+            CD3DX12_RESOURCE_DESC::Tex2D(
+                gltf_texture.format(),
+                gltf_texture.width(),
+                gltf_texture.height(),
+                1,
+                1),
+            D3D12_RESOURCE_STATE_COMMON,
+            std::nullopt,
+            dx_name(Demo::NAME, model_name, "Texture"));
 
         // Upload.
-        D3D12_SUBRESOURCE_DATA subresource_data = {
-            .pData = gltf_texture.data(),
-            .RowPitch = gltf_texture.row_pitch(),
-            .SlicePitch = gltf_texture.slice_pitch(),
-        };
-        DirectX::ResourceUploadBatch rub(dx.device.get());
-        rub.Begin();
-        rub.Upload(texture.get(), 0, &subresource_data, 1);
-        rub.Transition(
-            texture.get(),
-            D3D12_RESOURCE_STATE_COPY_DEST,
+        device.easy_upload(
+            D3D12_SUBRESOURCE_DATA {
+                .pData = gltf_texture.data(),
+                .RowPitch = gltf_texture.row_pitch(),
+                .SlicePitch = gltf_texture.slice_pitch()},
+            texture,
+            D3D12_RESOURCE_STATE_COMMON,
             D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-        auto finish = rub.End(dx.command_queue.get());
-        finish.wait();
     }
 }
 
-static void init_scene(Dx& dx, Demo::Scene& scene) {
-    init_scene_model(dx, GltfModel("models/coconut_tree.glb"), "Tree", scene.tree);
-    init_scene_model(dx, GltfModel("models/sand_plane.glb"), "Plane", scene.plane);
+static void init_scene(GpuDevice& device, Demo::Scene& scene) {
+    init_scene_model(device, GltfModel("models/coconut_tree.glb"), "Tree", scene.tree);
+    init_scene_model(device, GltfModel("models/sand_plane.glb"), "Plane", scene.plane);
 }
 
-static void init_shadow_pass(Dx& dx, Demo& demo, Demo::ShadowPass& pass) {
+static void init_shadow_pass(const GpuDevice& device, Demo& demo, Demo::ShadowPass& pass) {
     // Shaders.
     GpuShader vertex_shader;
     {
@@ -85,8 +75,8 @@ static void init_shadow_pass(Dx& dx, Demo& demo, Demo::ShadowPass& pass) {
     }
 
     // Pipeline state.
-    {
-        D3D12_GRAPHICS_PIPELINE_STATE_DESC desc = {
+    pass.pipeline_state = device.create_graphics_pipeline_state(
+        D3D12_GRAPHICS_PIPELINE_STATE_DESC {
             .pRootSignature = demo.root_signature.get(),
             .VS = vertex_shader.bytecode(),
             .BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT),
@@ -96,22 +86,16 @@ static void init_shadow_pass(Dx& dx, Demo& demo, Demo::ShadowPass& pass) {
             .PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE,
             .DSVFormat = DXGI_FORMAT_D32_FLOAT,
             .SampleDesc = {.Count = 1, .Quality = 0},
-        };
-        FAIL_FAST_IF_FAILED(
-            dx.device->CreateGraphicsPipelineState(&desc, IID_PPV_ARGS(&pass.pipeline_state)));
-        dx_set_name(
-            pass.pipeline_state,
-            dx_name(Demo::NAME, Demo::ShadowPass::NAME, "Pipeline State"));
-    }
+        },
+        dx_name(Demo::NAME, Demo::ShadowPass::NAME, "Pipeline State"));
 
     // Constants.
-    pass.constants.create(dx, 1, dx_name(Demo::NAME, Demo::ShadowPass::NAME, "Constants"));
+    pass.constants.create(device, 1, dx_name(Demo::NAME, Demo::ShadowPass::NAME, "Constants"));
 
     // Depth.
-    {
-        // Resource.
-        CD3DX12_HEAP_PROPERTIES heap_properties(D3D12_HEAP_TYPE_DEFAULT);
-        CD3DX12_RESOURCE_DESC resource_desc = CD3DX12_RESOURCE_DESC::Tex2D(
+    pass.depth = device.create_committed_resource(
+        CD3DX12_HEAP_PROPERTIES {D3D12_HEAP_TYPE_DEFAULT},
+        CD3DX12_RESOURCE_DESC::Tex2D(
             DXGI_FORMAT_R32_TYPELESS,
             SHADOW_MAP_SIZE,
             SHADOW_MAP_SIZE,
@@ -119,23 +103,13 @@ static void init_shadow_pass(Dx& dx, Demo& demo, Demo::ShadowPass& pass) {
             1,
             1,
             0,
-            D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL);
-        D3D12_CLEAR_VALUE clear_value = {
-            .Format = DXGI_FORMAT_D32_FLOAT,
-            .DepthStencil = {1.0f, 0},
-        };
-        FAIL_FAST_IF_FAILED(dx.device->CreateCommittedResource(
-            &heap_properties,
-            D3D12_HEAP_FLAG_NONE,
-            &resource_desc,
-            D3D12_RESOURCE_STATE_DEPTH_WRITE,
-            &clear_value,
-            IID_PPV_ARGS(&pass.depth)));
-        dx_set_name(pass.depth, dx_name(Demo::NAME, Demo::ShadowPass::NAME, "Depth"));
-    }
+            D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL),
+        D3D12_RESOURCE_STATE_DEPTH_WRITE,
+        D3D12_CLEAR_VALUE {.Format = DXGI_FORMAT_D32_FLOAT, .DepthStencil = {1.0f, 0}},
+        dx_name(Demo::NAME, Demo::ShadowPass::NAME, "Depth"));
 }
 
-static void init_main_pass(Dx& dx, Demo& demo, Demo::MainPass& pass) {
+static void init_main_pass(GpuDevice& device, Demo& demo, Demo::MainPass& pass) {
     // Shaders.
     GpuShader vertex_shader;
     GpuShader pixel_shader;
@@ -149,15 +123,8 @@ static void init_main_pass(Dx& dx, Demo& demo, Demo::MainPass& pass) {
     }
 
     // Pipeline state.
-    {
-        D3D12_INPUT_ELEMENT_DESC input_element_descs[] = {
-            // clang-format off
-            {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
-            {"NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
-            {"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 24, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
-            // clang-format on
-        };
-        D3D12_GRAPHICS_PIPELINE_STATE_DESC desc = {
+    pass.pipeline_state = device.create_graphics_pipeline_state(
+        D3D12_GRAPHICS_PIPELINE_STATE_DESC {
             .pRootSignature = demo.root_signature.get(),
             .VS = vertex_shader.bytecode(),
             .PS = pixel_shader.bytecode(),
@@ -165,26 +132,19 @@ static void init_main_pass(Dx& dx, Demo& demo, Demo::MainPass& pass) {
             .SampleMask = UINT_MAX,
             .RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT),
             .DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT),
-            .InputLayout = {input_element_descs, _countof(input_element_descs)},
             .PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE,
             .NumRenderTargets = 1,
             .RTVFormats = {DXGI_FORMAT_R8G8B8A8_UNORM},
             .DSVFormat = DXGI_FORMAT_D32_FLOAT,
-            .SampleDesc = {.Count = 1, .Quality = 0},
-        };
-        FAIL_FAST_IF_FAILED(
-            dx.device->CreateGraphicsPipelineState(&desc, IID_PPV_ARGS(&pass.pipeline_state)));
-        dx_set_name(
-            pass.pipeline_state,
-            dx_name(Demo::NAME, Demo::MainPass::NAME, "Pipeline State"));
-    }
+            .SampleDesc = {.Count = 1, .Quality = 0}},
+        dx_name(Demo::NAME, Demo::MainPass::NAME, "Pipeline State"));
 
     // Constants.
-    pass.constants.create(dx, 1, dx_name(Demo::NAME, Demo::MainPass::NAME, "Constants"));
+    pass.constants.create(device, 1, dx_name(Demo::NAME, Demo::MainPass::NAME, "Constants"));
 }
 
 static void init_descriptors(
-    Dx& dx,
+    GpuDevice& device,
     Demo& demo,
     Demo::Scene& scene,
     Demo::ShadowPass& shadow_pass,
@@ -205,30 +165,24 @@ static void init_descriptors(
     {
         // Constants.
         {
-            auto cbv_desc = shadow_pass.constants.cbv_desc();
-            dx.device->CreateConstantBufferView(&cbv_desc, shadow_pass.constants_descriptor.cpu());
-        }
-        {
-            auto cbv_desc = main_pass.constants.cbv_desc();
-            dx.device->CreateConstantBufferView(&cbv_desc, main_pass.constants_descriptor.cpu());
+            device.create_constant_buffer_view(
+                shadow_pass.constants.cbv_desc(),
+                shadow_pass.constants_descriptor.cpu());
+            device.create_constant_buffer_view(
+                main_pass.constants.cbv_desc(),
+                main_pass.constants_descriptor.cpu());
         }
 
         // Scene.
         {
-            auto& model = scene.tree;
-            auto srv_desc = model.vertex_buffer.srv_desc();
-            dx.device->CreateShaderResourceView(
-                model.vertex_buffer.resource(),
-                &srv_desc,
-                model.vertex_buffer_descriptor.cpu());
-        }
-        {
-            auto& model = scene.plane;
-            auto srv_desc = model.vertex_buffer.srv_desc();
-            dx.device->CreateShaderResourceView(
-                model.vertex_buffer.resource(),
-                &srv_desc,
-                model.vertex_buffer_descriptor.cpu());
+            device.create_shader_resource_view(
+                scene.tree.vertex_buffer.resource(),
+                scene.tree.vertex_buffer.srv_desc(),
+                scene.tree.vertex_buffer_descriptor.cpu());
+            device.create_shader_resource_view(
+                scene.plane.vertex_buffer.resource(),
+                scene.plane.vertex_buffer.srv_desc(),
+                scene.plane.vertex_buffer_descriptor.cpu());
         }
         {
             D3D12_SHADER_RESOURCE_VIEW_DESC srv_desc = {
@@ -237,60 +191,48 @@ static void init_descriptors(
                 .Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING,
                 .Texture2D = D3D12_TEX2D_SRV {.MipLevels = 1},
             };
-            dx.device->CreateShaderResourceView(
+            device.create_shader_resource_view(
                 scene.tree.texture.get(),
-                &srv_desc,
+                srv_desc,
                 scene.tree.texture_descriptor.cpu());
-            dx.device->CreateShaderResourceView(
+            device.create_shader_resource_view(
                 scene.plane.texture.get(),
-                &srv_desc,
+                srv_desc,
                 scene.plane.texture_descriptor.cpu());
         }
 
         // Shadow map.
         {
-            D3D12_DEPTH_STENCIL_VIEW_DESC dsv_desc = {
-                .Format = DXGI_FORMAT_D32_FLOAT,
-                .ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D,
-                .Flags = D3D12_DSV_FLAG_NONE,
-                .Texture2D = D3D12_TEX2D_DSV {.MipSlice = 0},
-            };
-            dx.device->CreateDepthStencilView(
+            device.create_depth_stencil_view(
                 shadow_pass.depth.get(),
-                &dsv_desc,
+                D3D12_DEPTH_STENCIL_VIEW_DESC {
+                    .Format = DXGI_FORMAT_D32_FLOAT,
+                    .ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D,
+                    .Flags = D3D12_DSV_FLAG_NONE,
+                    .Texture2D = D3D12_TEX2D_DSV {.MipSlice = 0}},
                 shadow_pass.depth_dsv_descriptor.cpu());
-        }
-        {
-            D3D12_SHADER_RESOURCE_VIEW_DESC srv_desc = {
-                .Format = DXGI_FORMAT_R32_FLOAT,
-                .ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D,
-                .Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING,
-                .Texture2D = D3D12_TEX2D_SRV {.MipLevels = 1},
-            };
-            dx.device->CreateShaderResourceView(
+            device.create_shader_resource_view(
                 shadow_pass.depth.get(),
-                &srv_desc,
+                D3D12_SHADER_RESOURCE_VIEW_DESC {
+                    .Format = DXGI_FORMAT_R32_FLOAT,
+                    .ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D,
+                    .Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING,
+                    .Texture2D = D3D12_TEX2D_SRV {.MipLevels = 1}},
                 shadow_pass.depth_srv_descriptor.cpu());
         }
     }
 }
 
-Demo::Demo(Dx& dx) :
-    root_signature(dx, Demo::NAME),
-    descriptors(dx, Demo::NAME),
-    samplers(dx, descriptors),
-    render_targets(
-        dx,
-        descriptors,
-        dx.swapchain_width,
-        dx.swapchain_height,
-        Demo::CLEAR_COLOR,
-        Demo::NAME),
-    debug_draw(dx, Demo::NAME) {
-    init_scene(dx, scene);
-    init_shadow_pass(dx, *this, shadow_pass);
-    init_main_pass(dx, *this, main_pass);
-    init_descriptors(dx, *this, scene, shadow_pass, main_pass);
+Demo::Demo(GpuDevice& device) :
+    root_signature(device, Demo::NAME),
+    descriptors(device, Demo::NAME),
+    samplers(device, descriptors),
+    render_targets(device, descriptors, device.swapchain_size(), Demo::CLEAR_COLOR, Demo::NAME),
+    debug_draw(device, Demo::NAME) {
+    init_scene(device, scene);
+    init_shadow_pass(device, *this, shadow_pass);
+    init_main_pass(device, *this, main_pass);
+    init_descriptors(device, *this, scene, shadow_pass, main_pass);
 }
 
 void Demo::update(const demo::UpdateDesc& desc) {
@@ -355,7 +297,7 @@ void Demo::update(const demo::UpdateDesc& desc) {
     }
 }
 
-void Demo::render(Dx& dx) {
+void Demo::render(GpuDevice& device) {
     // Shadow pass.
     {
         D3D12_VIEWPORT viewport = {
@@ -373,8 +315,8 @@ void Demo::render(Dx& dx) {
             .bottom = (LONG)SHADOW_MAP_SIZE,
         };
 
-        auto* cmd = dx.command_list.get();
-        dx.transition(
+        auto* cmd = device.command_list();
+        device.transition(
             shadow_pass.depth,
             D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
             D3D12_RESOURCE_STATE_DEPTH_WRITE);
@@ -408,7 +350,7 @@ void Demo::render(Dx& dx) {
             cmd->DrawIndexedInstanced(index_count, 1, 0, 0, 0);
         }
 
-        dx.transition(
+        device.transition(
             shadow_pass.depth,
             D3D12_RESOURCE_STATE_DEPTH_WRITE,
             D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
@@ -416,11 +358,11 @@ void Demo::render(Dx& dx) {
 
     // Main pass.
     {
-        auto* cmd = dx.command_list.get();
+        auto* cmd = device.command_list();
 
-        render_targets.begin(dx);
+        render_targets.begin(device);
 
-        debug_draw.render(dx);
+        debug_draw.render(device);
 
         ID3D12DescriptorHeap* heaps[] = {
             descriptors.cbv_srv_uav().heap(),
@@ -456,7 +398,7 @@ void Demo::render(Dx& dx) {
             cmd->DrawIndexedInstanced(index_count, 1, 0, 0, 0);
         }
 
-        render_targets.end(dx);
+        render_targets.end(device);
     }
 }
 

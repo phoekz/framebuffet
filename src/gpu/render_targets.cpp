@@ -2,87 +2,78 @@
 
 namespace fb {
 
+static auto make_color_clear_value(DXGI_FORMAT format, Vector4 color) -> D3D12_CLEAR_VALUE {
+    return D3D12_CLEAR_VALUE {.Format = format, .Color = {color.x, color.y, color.z, color.w}};
+}
+
+static auto make_depth_stencil_clear_value(DXGI_FORMAT format, float depth, uint8_t stencil)
+    -> D3D12_CLEAR_VALUE {
+    return D3D12_CLEAR_VALUE {
+        .Format = format,
+        .DepthStencil = {.Depth = depth, .Stencil = stencil}};
+}
+
 GpuRenderTargets::GpuRenderTargets(
-    Dx& dx,
+    const GpuDevice& device,
     GpuDescriptors& descriptors,
-    uint32_t width,
-    uint32_t height,
+    Uint2 size,
     Vector4 clear_color,
     std::string_view name) :
-    _width(width),
-    _height(height),
+    _size(size),
     _clear_color(clear_color) {
     // Color target.
     {
         // Resource.
-        CD3DX12_HEAP_PROPERTIES heap_properties(D3D12_HEAP_TYPE_DEFAULT);
-        CD3DX12_RESOURCE_DESC resource_desc = CD3DX12_RESOURCE_DESC::Tex2D(
-            COLOR_FORMAT,
-            _width,
-            _height,
-            1,
-            1,
-            SAMPLE_COUNT,
-            0,
-            D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET);
-        D3D12_CLEAR_VALUE clear_value;
-        clear_value.Format = COLOR_FORMAT;
-        memcpy(clear_value.Color, &_clear_color, sizeof(_clear_color));
-        FAIL_FAST_IF_FAILED(dx.device->CreateCommittedResource(
-            &heap_properties,
-            D3D12_HEAP_FLAG_NONE,
-            &resource_desc,
+        _color = device.create_committed_resource(
+            CD3DX12_HEAP_PROPERTIES {D3D12_HEAP_TYPE_DEFAULT},
+            CD3DX12_RESOURCE_DESC::Tex2D(
+                COLOR_FORMAT,
+                size.x,
+                size.y,
+                1,
+                1,
+                SAMPLE_COUNT,
+                0,
+                D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET),
             D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
-            &clear_value,
-            IID_PPV_ARGS(&_color)));
-
-        // Debug.
-        dx_set_name(_color, dx_name(name, "Color Target"));
+            make_color_clear_value(COLOR_FORMAT, _clear_color),
+            dx_name(name, "Color Target"));
 
         // View.
         _color_descriptor = descriptors.rtv().alloc();
-        dx.device->CreateRenderTargetView(_color.get(), nullptr, _color_descriptor.cpu());
+        device.create_render_target_view(_color, std::nullopt, _color_descriptor.cpu());
     }
 
     // Depth target.
     {
         // Resource.
-        CD3DX12_HEAP_PROPERTIES heap_properties(D3D12_HEAP_TYPE_DEFAULT);
-        CD3DX12_RESOURCE_DESC resource_desc = CD3DX12_RESOURCE_DESC::Tex2D(
-            DEPTH_FORMAT,
-            _width,
-            _height,
-            1,
-            1,
-            SAMPLE_COUNT,
-            0,
-            D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL);
-        D3D12_CLEAR_VALUE clear_value = {
-            .Format = DEPTH_FORMAT,
-            .DepthStencil = {.Depth = 1.0f, .Stencil = 0}};
-        FAIL_FAST_IF_FAILED(dx.device->CreateCommittedResource(
-            &heap_properties,
-            D3D12_HEAP_FLAG_NONE,
-            &resource_desc,
+        _depth = device.create_committed_resource(
+            CD3DX12_HEAP_PROPERTIES {D3D12_HEAP_TYPE_DEFAULT},
+            CD3DX12_RESOURCE_DESC::Tex2D(
+                DEPTH_FORMAT,
+                size.x,
+                size.y,
+                1,
+                1,
+                SAMPLE_COUNT,
+                0,
+                D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL),
             D3D12_RESOURCE_STATE_DEPTH_WRITE,
-            &clear_value,
-            IID_PPV_ARGS(&_depth)));
-
-        // Debug.
-        dx_set_name(_depth, dx_name(name, "Depth Target"));
+            make_depth_stencil_clear_value(DEPTH_FORMAT, 1.0f, 0),
+            dx_name(name, "Depth Target"));
 
         // View.
         _depth_descriptor = descriptors.dsv().alloc();
-        dx.device->CreateDepthStencilView(_depth.get(), nullptr, _depth_descriptor.cpu());
+        device.create_depth_stencil_view(_depth, std::nullopt, _depth_descriptor.cpu());
     }
 }
 
-auto GpuRenderTargets::begin(Dx& dx) -> void {
+auto GpuRenderTargets::begin(GpuDevice& device) -> void {
     // Command list.
-    auto* cmd = dx.command_list.get();
+    auto* cmd = device.command_list();
 
     // Transition to be renderable.
-    dx.transition(
+    device.transition(
         _color,
         D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
         D3D12_RESOURCE_STATE_RENDER_TARGET);
@@ -91,8 +82,8 @@ auto GpuRenderTargets::begin(Dx& dx) -> void {
     D3D12_VIEWPORT viewport = {
         .TopLeftX = 0.0f,
         .TopLeftY = 0.0f,
-        .Width = (float)_width,
-        .Height = (float)_height,
+        .Width = (float)_size.x,
+        .Height = (float)_size.y,
         .MinDepth = 0.0f,
         .MaxDepth = 1.0f,
     };
@@ -102,8 +93,8 @@ auto GpuRenderTargets::begin(Dx& dx) -> void {
     D3D12_RECT scissor = {
         .left = 0,
         .top = 0,
-        .right = (LONG)_width,
-        .bottom = (LONG)_height,
+        .right = (LONG)_size.x,
+        .bottom = (LONG)_size.y,
     };
     cmd->RSSetScissorRects(1, &scissor);
 
@@ -122,9 +113,9 @@ auto GpuRenderTargets::begin(Dx& dx) -> void {
         nullptr);
 }
 
-auto GpuRenderTargets::end(Dx& dx) -> void {
+auto GpuRenderTargets::end(GpuDevice& device) -> void {
     // Transition to be shader readable.
-    dx.transition(
+    device.transition(
         _color,
         D3D12_RESOURCE_STATE_RENDER_TARGET,
         D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);

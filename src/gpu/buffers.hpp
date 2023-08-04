@@ -1,8 +1,8 @@
 #pragma once
 
-#include "dx12.hpp"
-#include "utils.hpp"
 #include <pch.hpp>
+#include "device.hpp"
+#include "utils.hpp"
 
 namespace fb {
 
@@ -47,7 +47,7 @@ template<typename T, GpuBufferAccessMode ACCESS_MODE, GpuBufferFlags FLAGS>
     requires(detail::buffer_type_is_valid<T, FLAGS>())
 class GpuBuffer {
   public:
-    auto create(Dx& dx, uint32_t element_size, std::string_view name) -> void {
+    auto create(const GpuDevice& device, uint32_t element_size, std::string_view name) -> void {
         // Format.
         if (gpu_buffer_flags_is_set(FLAGS, GpuBufferFlags::Index)) {
             if (std::is_same_v<T, uint16_t>) {
@@ -66,7 +66,6 @@ class GpuBuffer {
         // Resource properties.
         auto host_visible = ACCESS_MODE == GpuBufferAccessMode::Host;
         auto heap_type = host_visible ? D3D12_HEAP_TYPE_UPLOAD : D3D12_HEAP_TYPE_DEFAULT;
-        auto heap_properties = CD3DX12_HEAP_PROPERTIES(heap_type);
         _element_size = element_size;
         _byte_size = _element_byte_size * element_size;
         _resource_desc = CD3DX12_RESOURCE_DESC::Buffer(_byte_size, resource_flags);
@@ -74,16 +73,12 @@ class GpuBuffer {
             host_visible ? D3D12_RESOURCE_STATE_GENERIC_READ : D3D12_RESOURCE_STATE_COPY_DEST;
 
         // Create.
-        FAIL_FAST_IF_FAILED(dx.device->CreateCommittedResource(
-            &heap_properties,
-            D3D12_HEAP_FLAG_NONE,
-            &_resource_desc,
+        _resource = device.create_committed_resource(
+            CD3DX12_HEAP_PROPERTIES {heap_type},
+            _resource_desc,
             _resource_state,
-            nullptr,
-            IID_PPV_ARGS(&_resource)));
-
-        // Debug.
-        dx_set_name(_resource, name);
+            std::nullopt,
+            name);
 
         // Prepare host visible pointer.
         if (host_visible) {

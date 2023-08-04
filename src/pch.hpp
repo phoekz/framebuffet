@@ -32,6 +32,7 @@
 #include <cstdint>
 #include <format>
 #include <memory>
+#include <optional>
 #include <source_location>
 #include <span>
 #include <sstream>

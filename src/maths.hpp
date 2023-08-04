@@ -16,6 +16,10 @@ using ColorRgba8 = DirectX::PackedVector::XMUBYTEN4;
 using Ray = DirectX::SimpleMath::Ray;
 using Viewport = DirectX::SimpleMath::Viewport;
 
+using Uint2 = DirectX::XMUINT2;
+using Uint3 = DirectX::XMUINT3;
+using Uint4 = DirectX::XMUINT4;
+
 constexpr float PI = DirectX::XM_PI;
 constexpr auto rad_from_deg(float deg) -> float {
     return deg * PI / 180.0f;
