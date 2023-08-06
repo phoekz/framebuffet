@@ -8,7 +8,6 @@
 #define WIL_SUPPRESS_EXCEPTIONS
 #include <wil/com.h>
 #include <wil/resource.h>
-#include <wil/result_macros.h>
 
 // DirectX.
 #include <d3dx12/d3dx12.h>
