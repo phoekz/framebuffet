@@ -27,7 +27,7 @@ GpuDevice::GpuDevice(const Window& window) {
     {
 #if defined(_DEBUG)
         ComPtr<ID3D12Debug6> debug;
-        FAIL_FAST_IF_FAILED(D3D12GetDebugInterface(IID_PPV_ARGS(&debug)));
+        FB_ASSERT_HR(D3D12GetDebugInterface(IID_PPV_ARGS(&debug)));
         debug->EnableDebugLayer();
         factory_flags = DXGI_CREATE_FACTORY_DEBUG;
 #endif
@@ -35,7 +35,7 @@ GpuDevice::GpuDevice(const Window& window) {
 
     // Factory.
     ComPtr<IDXGIFactory7> factory;
-    FAIL_FAST_IF_FAILED(CreateDXGIFactory2(factory_flags, IID_PPV_ARGS(&factory)));
+    FB_ASSERT_HR(CreateDXGIFactory2(factory_flags, IID_PPV_ARGS(&factory)));
 
     // Adapter.
     ComPtr<IDXGIAdapter4> adapter;
@@ -87,8 +87,7 @@ GpuDevice::GpuDevice(const Window& window) {
     }
 
     // Device.
-    FAIL_FAST_IF_FAILED(
-        D3D12CreateDevice(adapter.get(), MIN_FEATURE_LEVEL, IID_PPV_ARGS(&_device)));
+    FB_ASSERT_HR(D3D12CreateDevice(adapter.get(), MIN_FEATURE_LEVEL, IID_PPV_ARGS(&_device)));
     dx_set_name(_device, "Device");
 
     // Debug device.
@@ -98,7 +97,7 @@ GpuDevice::GpuDevice(const Window& window) {
     {
         D3D12_FEATURE_DATA_ROOT_SIGNATURE feature_data = {
             .HighestVersion = D3D_ROOT_SIGNATURE_VERSION_1_2};
-        FAIL_FAST_IF_FAILED(_device->CheckFeatureSupport(
+        FB_ASSERT_HR(_device->CheckFeatureSupport(
             D3D12_FEATURE_ROOT_SIGNATURE,
             &feature_data,
             sizeof(feature_data)));
@@ -112,20 +111,20 @@ GpuDevice::GpuDevice(const Window& window) {
             .Flags = D3D12_COMMAND_QUEUE_FLAG_NONE,
             .NodeMask = 0,
         };
-        FAIL_FAST_IF_FAILED(_device->CreateCommandQueue(&desc, IID_PPV_ARGS(&_command_queue)));
+        FB_ASSERT_HR(_device->CreateCommandQueue(&desc, IID_PPV_ARGS(&_command_queue)));
         dx_set_name(_command_queue, "Command Queue");
     }
 
     // Command allocators.
     for (uint32_t i = 0; i < FRAME_COUNT; i++) {
-        FAIL_FAST_IF_FAILED(_device->CreateCommandAllocator(
+        FB_ASSERT_HR(_device->CreateCommandAllocator(
             D3D12_COMMAND_LIST_TYPE_DIRECT,
             IID_PPV_ARGS(&_command_allocators[i])));
         dx_set_name(_command_allocators[i], dx_name("Command Allocator", i));
     }
 
     // Command list.
-    FAIL_FAST_IF_FAILED(_device->CreateCommandList1(
+    FB_ASSERT_HR(_device->CreateCommandList1(
         0,
         D3D12_COMMAND_LIST_TYPE_DIRECT,
         D3D12_COMMAND_LIST_FLAG_NONE,
@@ -152,7 +151,7 @@ GpuDevice::GpuDevice(const Window& window) {
             .AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED,
             .Flags = DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT,
         };
-        FAIL_FAST_IF_FAILED(factory->CreateSwapChainForHwnd(
+        FB_ASSERT_HR(factory->CreateSwapChainForHwnd(
             _command_queue.get(),
             window.hwnd(),
             &desc,
@@ -178,7 +177,7 @@ GpuDevice::GpuDevice(const Window& window) {
             dx_name("Render Target", "Descriptor Heap"));
 
         for (uint32_t i = 0; i < FRAME_COUNT; i++) {
-            FAIL_FAST_IF_FAILED(_swapchain->GetBuffer(i, IID_PPV_ARGS(&_rtvs[i])));
+            FB_ASSERT_HR(_swapchain->GetBuffer(i, IID_PPV_ARGS(&_rtvs[i])));
             dx_set_name(_rtvs[i], dx_name("Render Target", i));
 
             auto rtv_descriptor_handle = _rtv_descriptor_heap->GetCPUDescriptorHandleForHeapStart();
@@ -193,14 +192,14 @@ GpuDevice::GpuDevice(const Window& window) {
         _frame_index = _swapchain->GetCurrentBackBufferIndex();
         _fence = this->create_fence(0, "Fence");
         _fence_event = wil::unique_handle(CreateEvent(nullptr, FALSE, FALSE, nullptr));
-        FAIL_FAST_IF_NULL_MSG(_fence_event, "Failed to create fence event.");
+        FB_ASSERT_MSG(_fence_event != nullptr, "Failed to create fence event.");
     }
 }
 
 auto GpuDevice::create_root_signature(const ComPtr<ID3DBlob>& signature, std::string_view name)
     const -> ComPtr<ID3D12RootSignature> {
     ComPtr<ID3D12RootSignature> result;
-    FAIL_FAST_IF_FAILED(_device->CreateRootSignature(
+    FB_ASSERT_HR(_device->CreateRootSignature(
         0,
         signature->GetBufferPointer(),
         signature->GetBufferSize(),
@@ -213,7 +212,7 @@ auto GpuDevice::create_descriptor_heap(
     const D3D12_DESCRIPTOR_HEAP_DESC& desc,
     std::string_view name) const -> ComPtr<ID3D12DescriptorHeap> {
     ComPtr<ID3D12DescriptorHeap> result;
-    FAIL_FAST_IF_FAILED(_device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&result)));
+    FB_ASSERT_HR(_device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&result)));
     dx_set_name(result, name);
     return result;
 }
@@ -222,7 +221,7 @@ auto GpuDevice::create_graphics_pipeline_state(
     const D3D12_GRAPHICS_PIPELINE_STATE_DESC& desc,
     std::string_view name) const -> ComPtr<ID3D12PipelineState> {
     ComPtr<ID3D12PipelineState> result;
-    FAIL_FAST_IF_FAILED(_device->CreateGraphicsPipelineState(&desc, IID_PPV_ARGS(&result)));
+    FB_ASSERT_HR(_device->CreateGraphicsPipelineState(&desc, IID_PPV_ARGS(&result)));
     dx_set_name(result, name);
     return result;
 }
@@ -231,7 +230,7 @@ auto GpuDevice::create_compute_pipeline_state(
     const D3D12_COMPUTE_PIPELINE_STATE_DESC& desc,
     std::string_view name) -> ComPtr<ID3D12PipelineState> {
     ComPtr<ID3D12PipelineState> result;
-    FAIL_FAST_IF_FAILED(_device->CreateComputePipelineState(&desc, IID_PPV_ARGS(&result)));
+    FB_ASSERT_HR(_device->CreateComputePipelineState(&desc, IID_PPV_ARGS(&result)));
     dx_set_name(result, name);
     return result;
 }
@@ -247,7 +246,7 @@ auto GpuDevice::create_committed_resource(
     if (clear_value) {
         clear_value_ptr = &clear_value.value();
     }
-    FAIL_FAST_IF_FAILED(_device->CreateCommittedResource(
+    FB_ASSERT_HR(_device->CreateCommittedResource(
         &heap_props,
         D3D12_HEAP_FLAG_NONE,
         &desc,
@@ -261,8 +260,7 @@ auto GpuDevice::create_committed_resource(
 auto GpuDevice::create_fence(uint64_t init_value, std::string_view name) const
     -> ComPtr<ID3D12Fence1> {
     ComPtr<ID3D12Fence1> result;
-    FAIL_FAST_IF_FAILED(
-        _device->CreateFence(init_value, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&result)));
+    FB_ASSERT_HR(_device->CreateFence(init_value, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&result)));
     dx_set_name(result, name);
     return result;
 }
@@ -361,7 +359,7 @@ auto GpuDevice::end_frame() -> void {
 
     // Schedule a Signal command in the queue.
     uint64_t current_fence_value = _fence_values[_frame_index];
-    FAIL_FAST_IF_FAILED(_command_queue->Signal(_fence.get(), _fence_values[_frame_index]));
+    FB_ASSERT_HR(_command_queue->Signal(_fence.get(), _fence_values[_frame_index]));
 
     // Update the frame index.
     _frame_index = _swapchain->GetCurrentBackBufferIndex();
@@ -369,7 +367,7 @@ auto GpuDevice::end_frame() -> void {
 
     // If the next frame is not ready to be rendered yet, wait until it is ready.
     if (_fence->GetCompletedValue() < *fence_value) {
-        FAIL_FAST_IF_FAILED(_fence->SetEventOnCompletion(*fence_value, _fence_event.get()));
+        FB_ASSERT_HR(_fence->SetEventOnCompletion(*fence_value, _fence_event.get()));
         WaitForSingleObjectEx(_fence_event.get(), INFINITE, FALSE);
     }
 
@@ -379,11 +377,10 @@ auto GpuDevice::end_frame() -> void {
 
 auto GpuDevice::wait() -> void {
     // Schedule a Signal command in the queue.
-    FAIL_FAST_IF_FAILED(_command_queue->Signal(_fence.get(), _fence_values[_frame_index]));
+    FB_ASSERT_HR(_command_queue->Signal(_fence.get(), _fence_values[_frame_index]));
 
     // Wait until the fence has been processed.
-    FAIL_FAST_IF_FAILED(
-        _fence->SetEventOnCompletion(_fence_values[_frame_index], _fence_event.get()));
+    FB_ASSERT_HR(_fence->SetEventOnCompletion(_fence_values[_frame_index], _fence_event.get()));
     WaitForSingleObjectEx(_fence_event.get(), INFINITE, FALSE);
 }
 

@@ -96,7 +96,7 @@ Window::Window(const Desc& desc) {
         nullptr,
         module_handle,
         nullptr);
-    FAIL_FAST_IF_NULL_MSG(window_handle, "Failed to create window.");
+    FB_ASSERT_MSG(window_handle != nullptr, "Failed to create window.");
 
     // Show window.
     ShowWindow(window_handle, SW_SHOWDEFAULT);

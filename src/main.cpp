@@ -25,6 +25,12 @@ constexpr float WINDOW_ASPECT_RATIO = (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT
 //
 
 auto main() -> int {
+    // Optimistically try to attach to the parent process console to capture
+    // stdout/stderr prints. It is useful when we run framebuffet without a
+    // debugger, but within a console instead. It's not a big deal if this
+    // fails.
+    AttachConsole(ATTACH_PARENT_PROCESS);
+
     // Init.
     auto window =
         std::make_unique<fb::Window>(fb::Window::Desc {WINDOW_TITLE, WINDOW_WIDTH, WINDOW_HEIGHT});

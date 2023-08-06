@@ -15,38 +15,18 @@ auto read_whole_file(std::string_view path) -> std::vector<std::byte> {
         OPEN_EXISTING,
         FILE_ATTRIBUTE_NORMAL,
         nullptr));
-    FAIL_FAST_IF_NULL_MSG(file.get(), "Failed to open file.");
+    FB_ASSERT_MSG(file.is_valid(), "Failed to open file.");
 
     LARGE_INTEGER file_size;
-    FAIL_FAST_IF_WIN32_BOOL_FALSE_MSG(
-        GetFileSizeEx(file.get(), &file_size),
-        "Failed to get file size.");
+    FB_ASSERT_MSG(GetFileSizeEx(file.get(), &file_size), "Failed to get file size.");
 
     std::vector<std::byte> buffer(file_size.QuadPart);
     DWORD bytes_read;
-    FAIL_FAST_IF_WIN32_BOOL_FALSE_MSG(
+    FB_ASSERT_MSG(
         ReadFile(file.get(), buffer.data(), (DWORD)buffer.size(), &bytes_read, nullptr),
         "Failed to read file.");
 
     return buffer;
-}
-
-//
-// Logging.
-//
-
-auto log_level_name(LogLevel level) -> std::string_view {
-    switch (level) {
-        using enum LogLevel;
-        case Info: return "Info"sv;
-        case Warn: return "Warn"sv;
-        case Error: return "Error"sv;
-        default: return "Unknown"sv;
-    }
-}
-
-auto log_output_debug_string(std::string_view str) -> void {
-    OutputDebugStringA(str.data());
 }
 
 //

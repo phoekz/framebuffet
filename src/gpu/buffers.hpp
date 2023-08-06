@@ -84,7 +84,7 @@ class GpuBuffer {
         if (host_visible) {
             // Map pointer.
             CD3DX12_RANGE read_range(0, 0);
-            FAIL_FAST_IF_FAILED(_resource->Map(0, &read_range, &_raw));
+            FB_ASSERT_HR(_resource->Map(0, &read_range, &_raw));
 
             // Clear memory.
             memset(_raw, 0, _byte_size);

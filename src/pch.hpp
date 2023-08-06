@@ -2,6 +2,7 @@
 
 // Windows.
 #include <windows.h>
+#include <comdef.h>
 
 // Windows Implementation Library (WIL).
 #define WIL_SUPPRESS_EXCEPTIONS
@@ -29,6 +30,7 @@
 #include <array>
 #include <cmath>
 #include <cstddef>
+#include <chrono>
 #include <cstdint>
 #include <format>
 #include <memory>

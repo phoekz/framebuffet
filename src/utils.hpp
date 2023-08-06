@@ -1,6 +1,8 @@
 #pragma once
 
 #include <pch.hpp>
+#include <log.hpp>
+#include <error.hpp>
 
 namespace fb {
 
@@ -9,29 +11,6 @@ namespace fb {
 //
 
 auto read_whole_file(std::string_view path) -> std::vector<std::byte>;
-
-//
-// Logging.
-//
-
-enum class LogLevel {
-    Info,
-    Warn,
-    Error,
-};
-auto log_level_name(LogLevel level) -> std::string_view;
-auto log_output_debug_string(std::string_view str) -> void;
-template<typename... Args>
-auto log_internal(
-    LogLevel level,
-    const std::source_location& loc,
-    std::string_view fmt,
-    Args&&... args) -> void {
-    std::string str = std::vformat(fmt, std::make_format_args(args...));
-    std::string dbg_str =
-        std::format("[{}]: {}({}): {}\n", log_level_name(level), loc.file_name(), loc.line(), str);
-    log_output_debug_string(dbg_str);
-}
 
 //
 // String conversions.
@@ -69,23 +48,14 @@ class FrameTiming {
 template<typename T>
 using ComPtr = wil::com_ptr_nothrow<T>;
 
-}  // namespace fb
-
 //
 // Macros.
 //
 
-// Logging.
-#define FB_LOG_INFO(fmt, ...) \
-    fb::log_internal(fb::LogLevel::Info, std::source_location::current(), fmt, __VA_ARGS__)
-#define FB_LOG_WARN(fmt, ...) \
-    fb::log_internal(fb::LogLevel::Warn, std::source_location::current(), fmt, __VA_ARGS__)
-#define FB_LOG_ERROR(fmt, ...) \
-    fb::log_internal(fb::LogLevel::Error, std::source_location::current(), fmt, __VA_ARGS__)
-
-// No copy/move.
 #define FB_NO_COPY_MOVE(T) \
     T(const T&) = delete; \
     T(T&&) = delete; \
     auto operator=(const T&)->T& = delete; \
     auto operator=(T&&)->T& = delete;
+
+}  // namespace fb

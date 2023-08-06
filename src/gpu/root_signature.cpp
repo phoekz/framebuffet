@@ -29,7 +29,7 @@ GpuRootSignature::GpuRootSignature(GpuDevice& device, std::string_view name) {
         if (error) {
             FB_LOG_ERROR("{}", (char*)error->GetBufferPointer());
         }
-        FAIL_FAST_IF_FAILED(hr);
+        FB_ASSERT_HR(hr);
     }
 
     // Create the root signature.

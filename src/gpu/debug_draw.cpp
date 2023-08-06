@@ -66,7 +66,7 @@ auto GpuDebugDraw::transform(const Matrix& transform) -> void {
 }
 
 auto GpuDebugDraw::line(const Vector3& a, const Vector3& b, ColorRgba8 color) -> void {
-    FAIL_FAST_IF(_lines.size() >= MAX_LINE_COUNT);
+    FB_ASSERT(_lines.size() < MAX_LINE_COUNT);
     _lines.push_back({a, color});
     _lines.push_back({b, color});
 }

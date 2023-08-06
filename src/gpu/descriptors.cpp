@@ -40,7 +40,7 @@ GpuDescriptorHeap::GpuDescriptorHeap(
 }
 
 auto GpuDescriptorHeap::alloc() -> GpuDescriptorHandle {
-    FAIL_FAST_IF_MSG(_count >= _capacity, "Descriptor heap is full");
+    FB_ASSERT(_count < _capacity);
     GpuDescriptorHandle handle;
     handle._type = _type;
     handle._index = _count++;
