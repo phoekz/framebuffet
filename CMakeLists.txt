@@ -58,9 +58,12 @@ target_link_libraries(
     D3D12MemoryAllocator
     dxagilitysdk
     ${DXCOMPILER_LINK_DIR}/dxcompiler.lib
-    $<$<CONFIG:Debug>:${DIRECTXTK12_DEBUG_LINK_DIR}/DirectXTK12.lib> $<$<CONFIG:Release>:${DIRECTXTK12_RELEASE_LINK_DIR}/DirectXTK12.lib>
-    $<$<CONFIG:Debug>:${DIRECTXMESH_DEBUG_LINK_DIR}/DirectXMesh.lib> $<$<CONFIG:Release>:${DIRECTXMESH_RELEASE_LINK_DIR}/DirectXMesh.lib>
-    $<$<CONFIG:Debug>:${DIRECTXTEX_DEBUG_LINK_DIR}/DirectXTex.lib> $<$<CONFIG:Release>:${DIRECTXTEX_RELEASE_LINK_DIR}/DirectXTex.lib>
+    $<$<CONFIG:Debug>:${DIRECTXTK12_DEBUG_LINK_DIR}/DirectXTK12.lib>
+    $<$<CONFIG:Debug>:${DIRECTXMESH_DEBUG_LINK_DIR}/DirectXMesh.lib>
+    $<$<CONFIG:Debug>:${DIRECTXTEX_DEBUG_LINK_DIR}/DirectXTex.lib>
+    $<$<CONFIG:Release>:${DIRECTXTK12_RELEASE_LINK_DIR}/DirectXTK12.lib>
+    $<$<CONFIG:Release>:${DIRECTXMESH_RELEASE_LINK_DIR}/DirectXMesh.lib>
+    $<$<CONFIG:Release>:${DIRECTXTEX_RELEASE_LINK_DIR}/DirectXTex.lib>
     ${WINPIXEVENTRUNTIME_LINK_DIR}/WinPixEventRuntime.lib
 )
 target_link_options(${PROJECT_NAME} PRIVATE /entry:mainCRTStartup /SUBSYSTEM:WINDOWS)
