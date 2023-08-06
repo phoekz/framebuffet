@@ -9,12 +9,6 @@ struct Constants {
     float pad[48] = {};
 };
 
-struct UpdateParams {
-    float aspect_ratio;
-    float elapsed_time;
-    uint32_t frame_index;
-};
-
 struct Demo {
     static constexpr std::string_view NAME = "Cube"sv;
     static constexpr Vector4 CLEAR_COLOR = {0.6f, 0.3f, 0.0f, 1.0f};
