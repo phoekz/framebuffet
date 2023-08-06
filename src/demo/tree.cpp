@@ -237,6 +237,8 @@ Demo::Demo(GpuDevice& device) :
 
 void Demo::update(const demo::UpdateDesc& desc) {
     static float light_projection_size = 15.0f;
+    static float light_lon = 0.0f;
+    static float light_lat = rad_from_deg(30.0f);
     static float light_distance = 15.0f;
     static float shadow_near_plane = 0.1f;
     static float shadow_far_plane = 100.0f;
@@ -245,16 +247,34 @@ void Demo::update(const demo::UpdateDesc& desc) {
     auto& shadow_constants = *shadow_pass.constants.ptr();
     auto& main_constants = *main_pass.constants.ptr();
 
+    // Update light angle.
+    {
+        light_lon += desc.delta_time;
+        if (light_lon > PI * 2.0f) {
+            light_lon -= PI * 2.0f;
+        }
+    }
+
     // ImGui.
     if (ImGui::Begin(Demo::NAME.data())) {
         ImGui::SliderFloat("Ambient", &main_constants.ambient_light, 0.0f, 1.0f);
         ImGui::SliderFloat("Light Projection Size", &light_projection_size, 1.0f, 200.0f);
+        ImGui::SliderAngle("Light Lon", &light_lon, 0.0f, 360.0f);
+        ImGui::SliderAngle("Light Lat", &light_lat, 0.0f, 180.0f);
         ImGui::SliderFloat("Light Distance", &light_distance, 1.0f, 200.0f);
         ImGui::SliderFloat("Shadow Near Plane", &shadow_near_plane, 0.0f, 10.0f);
         ImGui::SliderFloat("Shadow Far Plane", &shadow_far_plane, 1.0f, 100.0f);
         ImGui::SliderFloat("Camera Angle", &camera_angle, 0.0f, 2.0f * PI);
     }
     ImGui::End();
+
+    // Light direction.
+    {
+        auto x = std::cos(light_lon) * std::cos(light_lat);
+        auto y = std::sin(light_lat);
+        auto z = std::sin(light_lon) * std::cos(light_lat);
+        main_constants.light_direction = Vector3(x, y, z);
+    }
 
     // Shadow pass - constants.
     {

@@ -14,7 +14,7 @@ struct ShadowConstants {
 struct MainConstants {
     Matrix transform;
     Matrix light_transform;
-    Vector3 light_direction = {0.577f, 0.577f, 0.577f};  // normalized(1,1,1)
+    Vector3 light_direction;
     float ambient_light = 0.25f;
     float pad[28];
 };
