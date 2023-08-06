@@ -8,7 +8,7 @@ constexpr uint32_t SHADOW_MAP_SIZE = 1024;
 
 struct ShadowConstants {
     Matrix transform;
-    float pad[48];
+    float pad[48] = {};
 };
 
 struct MainConstants {
@@ -16,7 +16,7 @@ struct MainConstants {
     Matrix light_transform;
     Vector3 light_direction;
     float ambient_light = 0.25f;
-    float pad[28];
+    float pad[28] = {};
 };
 
 struct Demo {

@@ -12,7 +12,7 @@ namespace error_detail {
         return std::string {err.ErrorMessage()};
     }
 
-    inline auto terminate() -> void {
+    [[noreturn]] inline auto terminate() -> void {
         std::terminate();
     }
 

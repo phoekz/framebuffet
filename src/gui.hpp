@@ -12,7 +12,7 @@ constexpr uint32_t MAX_INDEX_COUNT = 1024 * 1024;
 
 struct Constants {
     Matrix transform;
-    float pad[48];
+    float pad[48] = {};
 };
 
 struct Gui {

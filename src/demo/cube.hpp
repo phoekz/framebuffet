@@ -6,7 +6,7 @@ namespace fb::cube {
 
 struct Constants {
     Matrix transform;
-    float pad[48];
+    float pad[48] = {};
 };
 
 struct UpdateParams {

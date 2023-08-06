@@ -6,6 +6,7 @@
 namespace fb {
 
 enum class GpuShaderType {
+    Unknown,
     Compute,
     Vertex,
     Pixel,
@@ -21,7 +22,7 @@ class GpuShader {
 
   private:
     ComPtr<IDxcBlob> _blob;
-    GpuShaderType _type;
+    GpuShaderType _type = GpuShaderType::Unknown;
 };
 
 class GpuShaderCompiler {

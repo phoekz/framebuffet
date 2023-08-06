@@ -129,9 +129,9 @@ void Demo::update(const demo::UpdateDesc& desc) {
 
     Matrix transform;
     {
+        constexpr auto FOV = rad_from_deg(45.0f);
         auto aspect_ratio = desc.aspect_ratio;
-        auto fov = rad_from_deg(45.0f);
-        auto perspective = Matrix::CreatePerspectiveFieldOfView(fov, aspect_ratio, 0.1f, 100.0f);
+        auto perspective = Matrix::CreatePerspectiveFieldOfView(FOV, aspect_ratio, 0.1f, 100.0f);
         auto eye = Vector3(1.0f, 0.5f, 1.0f);
         auto target = Vector3(0.0f, 0.0f, 0.0f);
         auto up = Vector3(0.0f, 1.0f, 0.0f);

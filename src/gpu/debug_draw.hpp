@@ -42,13 +42,13 @@ class GpuDebugDraw {
 
     struct Constants {
         Matrix transform;
-        float pad[48];
+        float pad[48] = {};
     };
     Constants _constants;
 
     struct Vertex {
         Vector3 position;
-        ColorRgba8 color;
+        ColorRgba8 color = {};
     };
     std::vector<Vertex> _lines;
 

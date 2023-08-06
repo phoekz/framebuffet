@@ -11,12 +11,12 @@ constexpr uint32_t DISPATCH_COUNT = PARTICLE_COUNT / DISPATCH_SIZE;
 struct ComputeConstants {
     float delta_time = 0.0f;
     float speed = 0.2f;
-    float pad[62];
+    float pad[62] = {};
 };
 
 struct DrawConstants {
     Matrix transform;
-    float pad[48];
+    float pad[48] = {};
 };
 
 struct Particle {

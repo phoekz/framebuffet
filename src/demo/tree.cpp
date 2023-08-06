@@ -294,9 +294,9 @@ void Demo::update(const demo::UpdateDesc& desc) {
     // Main pass - constants.
     Matrix transform;
     {
-        auto fov = rad_from_deg(45.0f);
+        constexpr auto FOV = rad_from_deg(45.0f);
         auto aspect_ratio = desc.aspect_ratio;
-        auto projection = Matrix::CreatePerspectiveFieldOfView(fov, aspect_ratio, 0.1f, 100.0f);
+        auto projection = Matrix::CreatePerspectiveFieldOfView(FOV, aspect_ratio, 0.1f, 100.0f);
         auto eye = Vector3(7.0f * std::sin(camera_angle), 8.0f, 7.0f * std::cos(camera_angle));
         auto at = Vector3(0.0f, 3.0f, 0.0f);
         auto up = Vector3(0.0f, 1.0f, 0.0f);

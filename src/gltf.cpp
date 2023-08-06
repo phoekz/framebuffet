@@ -34,6 +34,9 @@ GltfModel::GltfModel(std::string_view path) {
             texcoord_accessor = attribute.data;
         }
     }
+    FB_ASSERT(position_accessor != nullptr);
+    FB_ASSERT(normal_accessor != nullptr);
+    FB_ASSERT(texcoord_accessor != nullptr);
     FB_ASSERT(position_accessor->type == cgltf_type_vec3);
     FB_ASSERT(normal_accessor->type == cgltf_type_vec3);
     FB_ASSERT(texcoord_accessor->type == cgltf_type_vec2);
