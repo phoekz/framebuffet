@@ -121,6 +121,19 @@ set(DXCOMPILER_INCLUDE_DIR ${DXCOMPILER_SOURCE_DIR}/include CACHE INTERNAL "Dire
 set(DXCOMPILER_LINK_DIR ${DXCOMPILER_SOURCE_DIR}/lib/x64 CACHE INTERNAL "DirectX Shader Compiler Link Directory")
 
 #
+# DirectXMath.
+#
+message(STATUS "Fetching DirectXMath...")
+FetchContent_Declare(
+    directxmath
+    URL "https://globalcdn.nuget.org/packages/directxmath.2022.12.12.1.nupkg"
+    URL_MD5 b8fb4fda4eea8171627d0e080c4da062
+)
+FetchContent_MakeAvailable(directxmath)
+set(DIRECTXMATH_SOURCE_DIR ${FETCHCONTENT_BASE_DIR}/directxmath-src CACHE INTERNAL "DirectXMath Source Directory")
+set(DIRECTXMATH_INCLUDE_DIR ${DIRECTXMATH_SOURCE_DIR}/include CACHE INTERNAL "DirectXMath Include Directory")
+
+#
 # DirectXTK12.
 #
 message(STATUS "Fetching DirectXTK12...")
