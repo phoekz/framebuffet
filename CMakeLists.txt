@@ -19,8 +19,14 @@ file(GLOB_RECURSE HLSL_FILES CONFIGURE_DEPENDS src/*.hlsl)
 file(GLOB_RECURSE MANIFEST_FILES CONFIGURE_DEPENDS src/*.manifest)
 add_executable(${PROJECT_NAME} ${CPP_FILES} ${MANIFEST_FILES})
 target_sources(${PROJECT_NAME} PRIVATE ${HPP_FILES} ${HLSL_FILES})
-target_compile_options(${PROJECT_NAME} PRIVATE /W4 /WX /MP /EHs-c- /GR- /ZI)
+target_compile_options(
+    ${PROJECT_NAME} PRIVATE
+    /W4 /WX /MP /EHs-c- /GR-
+    $<$<CONFIG:Debug>:/ZI>
+    $<$<CONFIG:Release>:/Ob3>
+)
 string(REGEX REPLACE "/EH[a-z]+" "" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
+string(REGEX REPLACE "/Ob2" "" CMAKE_CXX_FLAGS_RELEASE ${CMAKE_CXX_FLAGS})
 target_compile_definitions(
     ${PROJECT_NAME} PRIVATE
     _HAS_EXCEPTIONS=0
