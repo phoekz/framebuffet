@@ -96,7 +96,8 @@
 			"xstddef": "cpp",
 			"xtr1common": "cpp",
 			"*.hlsli": "cpp",
-			"resumable": "cpp"
+			"resumable": "cpp",
+			"cinttypes": "cpp"
 		},
 		"C_Cpp.inlayHints.autoDeclarationTypes.enabled": true,
 		"C_Cpp.inlayHints.parameterNames.enabled": true,
