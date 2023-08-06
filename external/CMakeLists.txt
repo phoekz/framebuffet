@@ -55,6 +55,20 @@ set(STB_SOURCE_DIR ${stb_SOURCE_DIR})
 set(STB_INCLUDE_DIR ${STB_SOURCE_DIR} CACHE INTERNAL "stb Include Directory")
 
 #
+# tinyexr
+#
+message(STATUS "Fetching tinyexr...")
+FetchContent_Declare(
+    tinyexr
+    GIT_REPOSITORY https://github.com/syoyo/tinyexr
+    GIT_TAG 6e8cac308cdf4d717078f3f37c4aa39bf3b356b4 # v1.0.7
+)
+option(TINYEXR_BUILD_SAMPLE OFF)
+FetchContent_MakeAvailable(tinyexr)
+set(TINYEXR_SOURCE_DIR ${tinyexr_SOURCE_DIR})
+set(TINYEXR_INCLUDE_DIR ${TINYEXR_SOURCE_DIR} CACHE INTERNAL "tinyexr Include Directory")
+
+#
 # Windows Implementation Library (WIL).
 #
 message(STATUS "Fetching WIL...")

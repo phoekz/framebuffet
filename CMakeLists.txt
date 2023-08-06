@@ -40,6 +40,7 @@ target_include_directories(
     ${DEARIMGUI_INCLUDE_DIR}
     ${CGLTF_INCLUDE_DIR}
     ${STB_INCLUDE_DIR}
+    ${TINYEXR_INCLUDE_DIR}
     ${WIL_INCLUDE_DIR}
     ${D3D12MEMALLOC_INCLUDE_DIR}
     ${DXAGILITYSDK_INCLUDE_DIR}
@@ -53,6 +54,7 @@ target_include_directories(
 target_link_libraries(
     ${PROJECT_NAME} PRIVATE
     dearimgui
+    tinyexr
     d3d12.lib
     dxgi.lib
     dxguid.lib
