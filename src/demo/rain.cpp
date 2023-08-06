@@ -12,6 +12,7 @@ Demo::Demo(GpuDevice& device) :
         particle_buffer_uav_descriptor = descriptors.cbv_srv_uav().alloc();
         compute.constant_buffer_descriptor = descriptors.cbv_srv_uav().alloc();
         draw.constant_buffer_descriptor = descriptors.cbv_srv_uav().alloc();
+        draw.vertex_buffer_descriptor = descriptors.cbv_srv_uav().alloc();
     }
 
     // Particles.
@@ -86,16 +87,17 @@ Demo::Demo(GpuDevice& device) :
     }
 
     // Draw - Pipeline state.
+    using CommonStates = DirectX::DX12::CommonStates;
     draw.pipeline_state = device.create_graphics_pipeline_state(
         {
             .pRootSignature = device.root_signature(),
             .VS = vertex_shader.bytecode(),
             .PS = pixel_shader.bytecode(),
-            .BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT),
+            .BlendState = CommonStates::Additive,
             .SampleMask = UINT_MAX,
             .RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT),
-            .DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT),
-            .PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT,
+            .DepthStencilState = CommonStates::DepthNone,
+            .PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE,
             .NumRenderTargets = 1,
             .RTVFormats = {DXGI_FORMAT_R8G8B8A8_UNORM},
             .DSVFormat = DXGI_FORMAT_D32_FLOAT,
@@ -113,36 +115,104 @@ Demo::Demo(GpuDevice& device) :
             draw.constant_buffer.cbv_desc(),
             draw.constant_buffer_descriptor.cpu());
     }
+
+    // Draw - Vertex buffer.
+    {
+        Vertex vertices[] = {
+            {{-0.5f, -0.5f, 0.0f}, {0.0f, 0.0f}},
+            {{-0.5f, 0.5f, 0.0f}, {0.0f, 1.0f}},
+            {{0.5f, 0.5f, 0.0f}, {1.0f, 1.0f}},
+            {{0.5f, -0.5f, 0.0f}, {1.0f, 0.0f}},
+        };
+
+        uint16_t indices[] = {0, 1, 2, 0, 2, 3};
+        uint32_t vertex_count = (uint32_t)_countof(vertices);
+        uint32_t index_count = (uint32_t)_countof(indices);
+
+        draw.vertex_buffer.create(
+            device,
+            vertex_count,
+            dx_name(Demo::NAME, Demo::Draw::NAME, "Vertex Buffer"));
+        draw.index_buffer.create(
+            device,
+            index_count,
+            dx_name(Demo::NAME, Demo::Draw::NAME, "Index Buffer"));
+
+        device.create_shader_resource_view(
+            draw.vertex_buffer.resource(),
+            draw.vertex_buffer.srv_desc(),
+            draw.vertex_buffer_descriptor.cpu());
+
+        memcpy(draw.vertex_buffer.ptr(), vertices, sizeof(vertices));
+        memcpy(draw.index_buffer.ptr(), indices, sizeof(indices));
+    }
 }
 
 void Demo::update(const demo::UpdateDesc& desc) {
+    static float camera_distance = 1.25f;
+    static float camera_lon = rad_from_deg(45.0f);
+    static float camera_lat = rad_from_deg(-15.0f);
+    static float camera_rotation_speed = 0.05f;
+    static float particle_width = 0.01f;
+    static float particle_height = 0.075f;
+
+    // Update light angle.
+    // ImGui.
     {
-        auto& constants = *compute.constant_buffer.ptr();
-        constants.delta_time = desc.delta_time;
+        camera_lon += camera_rotation_speed * desc.delta_time;
+        if (camera_lon > PI * 2.0f) {
+            camera_lon -= PI * 2.0f;
+        }
+    }
+
+    {
+        auto& compute_constants = *compute.constant_buffer.ptr();
+        compute_constants.delta_time = desc.delta_time;
 
         if (ImGui::Begin(Demo::NAME.data())) {
-            ImGui::SliderFloat("Speed", &constants.speed, 0.0f, 2.0f);
+            ImGui::SliderFloat("Speed", &compute_constants.speed, 0.0f, 2.0f);
+            ImGui::SliderFloat("Camera Distance", &camera_distance, 1.0f, 10.0f);
+            ImGui::SliderAngle("Camera Longitude", &camera_lon, -180.0f, 180.0f);
+            ImGui::SliderAngle("Camera Latitude", &camera_lat, -90.0f, 90.0f);
+            ImGui::SliderFloat("Camera Rotation Speed", &camera_rotation_speed, 0.0f, 1.0f);
+            ImGui::SliderFloat("Particle Width", &particle_width, 0.0f, 1.0f);
+            ImGui::SliderFloat("Particle Height", &particle_height, 0.0f, 1.0f);
         }
         ImGui::End();
     }
 
-    Matrix transform;
+    Matrix camera_transform;
     {
+        auto& draw_constants = *draw.constant_buffer.ptr();
+
         constexpr auto FOV = rad_from_deg(45.0f);
         auto aspect_ratio = desc.aspect_ratio;
-        auto perspective = Matrix::CreatePerspectiveFieldOfView(FOV, aspect_ratio, 0.1f, 100.0f);
-        auto eye = Vector3(1.0f, 0.5f, 1.0f);
+        auto projection = Matrix::CreatePerspectiveFieldOfView(FOV, aspect_ratio, 0.1f, 100.0f);
+
+        Vector3 eye;
+        eye.x = camera_distance * cos(camera_lat) * cos(camera_lon);
+        eye.y = camera_distance * sin(camera_lat);
+        eye.z = camera_distance * cos(camera_lat) * sin(camera_lon);
+
         auto target = Vector3(0.0f, 0.0f, 0.0f);
         auto up = Vector3(0.0f, 1.0f, 0.0f);
         auto view = Matrix::CreateLookAt(eye, target, up);
-        transform = view * perspective;
-        auto& constants = *draw.constant_buffer.ptr();
-        constants.transform = transform;
+
+        auto from_dir = Vector3::UnitZ;
+        auto to_dir = Vector3(eye.x, 0.0f, eye.z);
+        auto rot_quat = Quaternion::FromToRotation(from_dir, to_dir);
+        auto rot_matrix = Matrix::CreateFromQuaternion(rot_quat);
+        auto scale = Matrix::CreateScale(particle_width, particle_height, 1.0f);
+        auto particle_transform = scale * rot_matrix;
+
+        camera_transform = view * projection;
+        draw_constants.transform = camera_transform;
+        draw_constants.particle_transform = particle_transform;
     }
 
     {
         debug_draw.begin(desc.frame_index);
-        debug_draw.transform(transform);
+        debug_draw.transform(camera_transform);
         debug_draw.axes();
         debug_draw.end();
     }
@@ -186,15 +256,18 @@ void Demo::render(GpuDevice& device) {
         cmd->SetGraphicsRootSignature(device.root_signature());
         GpuBindings bindings;
         bindings.push(draw.constant_buffer_descriptor);
+        bindings.push(draw.vertex_buffer_descriptor);
         bindings.push(particle_buffer_srv_descriptor);
         cmd->SetGraphicsRoot32BitConstants(0, bindings.capacity(), bindings.ptr(), 0);
         cmd->SetPipelineState(draw.pipeline_state.get());
 
         // Input assembler.
-        cmd->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_POINTLIST);
+        cmd->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+        auto ibv = draw.index_buffer.index_buffer_view();
+        cmd->IASetIndexBuffer(&ibv);
 
         // Draw.
-        cmd->DrawInstanced(PARTICLE_COUNT, 1, 0, 0);
+        cmd->DrawIndexedInstanced(6, PARTICLE_COUNT, 0, 0, 0);
 
         // Debug.
         debug_draw.render(device);

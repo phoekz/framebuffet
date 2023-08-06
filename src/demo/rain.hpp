@@ -10,13 +10,14 @@ constexpr uint32_t DISPATCH_COUNT = PARTICLE_COUNT / DISPATCH_SIZE;
 
 struct ComputeConstants {
     float delta_time = 0.0f;
-    float speed = 0.2f;
+    float speed = 0.5f;
     float pad[62] = {};
 };
 
 struct DrawConstants {
     Matrix transform;
-    float pad[48] = {};
+    Matrix particle_transform;
+    float pad[32] = {};
 };
 
 struct Particle {
@@ -24,9 +25,14 @@ struct Particle {
 };
 static_assert(sizeof(Particle) == 12);
 
+struct Vertex {
+    Vector3 position;
+    Vector2 texcoord;
+};
+
 struct Demo {
     static constexpr std::string_view NAME = "Rain"sv;
-    static constexpr Vector4 CLEAR_COLOR = {0.0f, 0.3f, 0.6f, 1.0f};
+    static constexpr Vector4 CLEAR_COLOR = {0.2f, 0.2f, 0.2f, 1.0f};
 
     Demo(GpuDevice& device);
     void update(const demo::UpdateDesc& desc);
@@ -56,6 +62,11 @@ struct Demo {
 
         GpuBufferHostCbv<DrawConstants> constant_buffer;
         GpuDescriptorHandle constant_buffer_descriptor;
+
+        GpuBufferHostSrv<Vertex> vertex_buffer;
+        GpuDescriptorHandle vertex_buffer_descriptor;
+
+        GpuBufferHostIndex<uint16_t> index_buffer;
     } draw;
 };
 
