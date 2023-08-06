@@ -70,9 +70,12 @@ PixelOutput ps_main(VertexOutput input) {
     SamplerComparisonState shadow_samp = SamplerDescriptorHeap[(uint)GpuSamplerType::Shadow];
 
     float3 shadow_coord = input.shadow_coord.xyz / input.shadow_coord.w;
-    float3 shadow_texcoord = shadow_coord.xyz * 0.5f + 0.5f;
-    float shadow =
-        shadow_texture.SampleCmpLevelZero(shadow_samp, shadow_texcoord.xy, shadow_texcoord.z).r;
+    float2 shadow_texcoord = shadow_coord.xy * float2(0.5f, -0.5f) + 0.5f;
+    float shadow_bias = 0.001f;
+    float shadow = (float)shadow_texture.SampleCmpLevelZero(
+        shadow_samp,
+        shadow_texcoord.xy,
+        shadow_coord.z - shadow_bias);
 
     float3 color = texture.Sample(samp, input.texcoord).rgb;
     float n_dot_l = shadow * saturate(dot(input.normal, constants.light_direction));
