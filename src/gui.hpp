@@ -25,7 +25,6 @@ struct Gui {
 
     ImGuiContext* imgui_ctx = nullptr;
 
-    GpuRootSignature root_signature;
     GpuDescriptors descriptors;
     GpuSamplers samplers;
 

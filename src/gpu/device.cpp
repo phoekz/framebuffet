@@ -13,13 +13,16 @@ constexpr D3D_FEATURE_LEVEL MIN_FEATURE_LEVEL = D3D_FEATURE_LEVEL_12_2;
 
 namespace fb {
 
-DxLeakTracker::~DxLeakTracker() {
-#if defined(_DEBUG)
-    if (debug_device) {
-        debug_device->ReportLiveDeviceObjects(D3D12_RLDO_DETAIL | D3D12_RLDO_IGNORE_INTERNAL);
-    }
-#endif
-}
+//
+// Forward declarations.
+//
+
+static auto dx_set_name(ID3D12Object* object, std::string_view name) -> void;
+static auto dx_set_name(const ComPtr<ID3D12Object>& object, std::string_view name) -> void;
+
+//
+// Constructor.
+//
 
 GpuDevice::GpuDevice(const Window& window) {
     // Debug layer.
@@ -194,7 +197,43 @@ GpuDevice::GpuDevice(const Window& window) {
         _fence_event = wil::unique_handle(CreateEvent(nullptr, FALSE, FALSE, nullptr));
         FB_ASSERT_MSG(_fence_event != nullptr, "Failed to create fence event.");
     }
+
+    // Global root signature.
+    {
+        // Allocate constants for binding slots.
+        CD3DX12_ROOT_PARAMETER1 root_parameter = {};
+        root_parameter.InitAsConstants(BINDINGS_CAPACITY, 0, 0);
+
+        // Create the root signature description.
+        auto flags = D3D12_ROOT_SIGNATURE_FLAG_NONE;
+        flags |= D3D12_ROOT_SIGNATURE_FLAG_CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED;
+        flags |= D3D12_ROOT_SIGNATURE_FLAG_SAMPLER_HEAP_DIRECTLY_INDEXED;
+        CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC desc;
+        decltype(desc)::Init_1_2(desc, 1, &root_parameter, 0, nullptr, flags);
+
+        // Serialize the root signature.
+        ComPtr<ID3DBlob> signature;
+        ComPtr<ID3DBlob> error;
+        auto hr = D3DX12SerializeVersionedRootSignature(
+            &desc,
+            D3D_ROOT_SIGNATURE_VERSION_1_2,
+            &signature,
+            &error);
+        if (FAILED(hr)) {
+            if (error) {
+                FB_LOG_ERROR("{}", (char*)error->GetBufferPointer());
+            }
+            FB_ASSERT_HR(hr);
+        }
+
+        // Create the root signature.
+        _root_signature = this->create_root_signature(signature, "Global Root Signature");
+    }
 }
+
+//
+// Direct3D 12 wrappers.
+//
 
 auto GpuDevice::create_root_signature(const ComPtr<ID3DBlob>& signature, std::string_view name)
     const -> ComPtr<ID3D12RootSignature> {
@@ -322,6 +361,10 @@ auto GpuDevice::descriptor_size(D3D12_DESCRIPTOR_HEAP_TYPE heap_type) const -> u
     return _device->GetDescriptorHandleIncrementSize(heap_type);
 }
 
+//
+// Device state.
+//
+
 auto GpuDevice::begin_frame() -> void {
     // Reset.
     auto* cmd_alloc = _command_allocators[_frame_index].get();
@@ -384,6 +427,10 @@ auto GpuDevice::wait() -> void {
     WaitForSingleObjectEx(_fence_event.get(), INFINITE, FALSE);
 }
 
+//
+// Resource utilities.
+//
+
 auto GpuDevice::transition(
     const ComPtr<ID3D12Resource>& resource,
     D3D12_RESOURCE_STATES before,
@@ -406,7 +453,19 @@ auto GpuDevice::easy_upload(
     finish.wait();
 }
 
-auto dx_set_name(ID3D12Object* object, std::string_view name) -> void {
+//
+// Debugging.
+//
+
+GpuDevice::LeakTracker::~LeakTracker() {
+#if defined(_DEBUG)
+    if (debug_device) {
+        debug_device->ReportLiveDeviceObjects(D3D12_RLDO_DETAIL | D3D12_RLDO_IGNORE_INTERNAL);
+    }
+#endif
+}
+
+static auto dx_set_name(ID3D12Object* object, std::string_view name) -> void {
 #if defined(_DEBUG)
     std::wstring wname = fb::to_wstr(name);
     object->SetName(wname.c_str());
@@ -416,7 +475,7 @@ auto dx_set_name(ID3D12Object* object, std::string_view name) -> void {
 #endif
 }
 
-auto dx_set_name(const ComPtr<ID3D12Object>& object, std::string_view name) -> void {
+static auto dx_set_name(const ComPtr<ID3D12Object>& object, std::string_view name) -> void {
     dx_set_name(object.get(), name);
 }
 

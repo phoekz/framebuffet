@@ -3,7 +3,6 @@
 namespace fb::rain {
 
 Demo::Demo(GpuDevice& device) :
-    root_signature(device, Demo::NAME),
     descriptors(device, Demo::NAME),
     render_targets(device, descriptors, device.swapchain_size(), Demo::CLEAR_COLOR, Demo::NAME),
     debug_draw(device, Demo::NAME) {
@@ -71,7 +70,7 @@ Demo::Demo(GpuDevice& device) :
     // Compute - Pipeline state.
     compute.pipeline_state = device.create_compute_pipeline_state(
         D3D12_COMPUTE_PIPELINE_STATE_DESC {
-            .pRootSignature = root_signature.get(),
+            .pRootSignature = device.root_signature(),
             .CS = compute_shader.bytecode()},
         dx_name(Demo::NAME, Demo::Compute::NAME, "Pipeline State"));
 
@@ -89,7 +88,7 @@ Demo::Demo(GpuDevice& device) :
     // Draw - Pipeline state.
     draw.pipeline_state = device.create_graphics_pipeline_state(
         {
-            .pRootSignature = root_signature.get(),
+            .pRootSignature = device.root_signature(),
             .VS = vertex_shader.bytecode(),
             .PS = pixel_shader.bytecode(),
             .BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT),
@@ -161,7 +160,7 @@ void Demo::render(GpuDevice& device) {
 
         // Pipeline state.
         cmd->SetDescriptorHeaps(1, descriptors.cbv_srv_uav().heap_ptr());
-        cmd->SetComputeRootSignature(root_signature.get());
+        cmd->SetComputeRootSignature(device.root_signature());
         GpuBindings bindings;
         bindings.push(compute.constant_buffer_descriptor);
         bindings.push(particle_buffer_uav_descriptor);
@@ -184,7 +183,7 @@ void Demo::render(GpuDevice& device) {
 
         // Pipeline state.
         cmd->SetDescriptorHeaps(1, descriptors.cbv_srv_uav().heap_ptr());
-        cmd->SetGraphicsRootSignature(root_signature.get());
+        cmd->SetGraphicsRootSignature(device.root_signature());
         GpuBindings bindings;
         bindings.push(draw.constant_buffer_descriptor);
         bindings.push(particle_buffer_srv_descriptor);

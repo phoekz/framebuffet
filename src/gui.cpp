@@ -8,7 +8,6 @@
 namespace fb::gui {
 
 Gui::Gui(const Window& window, GpuDevice& device) :
-    root_signature(device, Gui::NAME),
     descriptors(device, Gui::NAME),
     samplers(device, descriptors) {
     // ImGui.
@@ -45,7 +44,7 @@ Gui::Gui(const Window& window, GpuDevice& device) :
     // Pipeline state.
     pipeline_state = device.create_graphics_pipeline_state(
         D3D12_GRAPHICS_PIPELINE_STATE_DESC {
-            .pRootSignature = root_signature.get(),
+            .pRootSignature = device.root_signature(),
             .VS = vertex_shader.bytecode(),
             .PS = pixel_shader.bytecode(),
             .BlendState =
@@ -217,7 +216,7 @@ void Gui::render(const GpuDevice& device) {
             descriptors.cbv_srv_uav().heap(),
             descriptors.sampler().heap()};
         cmd->SetDescriptorHeaps(_countof(heaps), heaps);
-        cmd->SetGraphicsRootSignature(root_signature.get());
+        cmd->SetGraphicsRootSignature(device.root_signature());
 
         cmd->SetPipelineState(pipeline_state.get());
         cmd->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);

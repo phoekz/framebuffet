@@ -72,21 +72,19 @@ class GpuDescriptors {
 
 class GpuBindings {
   public:
-    static constexpr uint32_t CAPACITY = 16;
-
     GpuBindings() { _bindings.fill(UINT32_MAX); }
 
     auto push(uint32_t binding) -> void {
-        assert(_count < CAPACITY);
+        assert(_count < BINDINGS_CAPACITY);
         _bindings[_count++] = binding;
     }
     auto push(const GpuDescriptorHandle& handle) -> void { push(handle.index()); }
     auto count() const -> uint32_t { return _count; }
-    auto capacity() -> uint32_t { return CAPACITY; }
+    auto capacity() -> uint32_t { return BINDINGS_CAPACITY; }
     auto ptr() const -> const uint32_t* { return _bindings.data(); }
 
   private:
-    std::array<uint32_t, CAPACITY> _bindings;
+    std::array<uint32_t, BINDINGS_CAPACITY> _bindings;
     uint32_t _count = 0;
 };
 

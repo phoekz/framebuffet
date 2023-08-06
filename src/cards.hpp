@@ -35,7 +35,6 @@ struct Cards {
     void update(const GpuDevice& device);
     void render(GpuDevice& device);
 
-    GpuRootSignature root_signature;
     GpuDescriptors descriptors;
     GpuSamplers samplers;
 

@@ -5,7 +5,6 @@
 #include "maths.hpp"
 #include "buffers.hpp"
 #include "descriptors.hpp"
-#include "root_signature.hpp"
 #include <pch.hpp>
 
 namespace fb {
@@ -34,7 +33,6 @@ class GpuDebugDraw {
     auto render(GpuDevice& device) -> void;
 
   private:
-    GpuRootSignature _root_signature;
     GpuDescriptors _descriptors;
     ComPtr<ID3D12PipelineState> _pipeline_state;
 

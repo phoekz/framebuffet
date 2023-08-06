@@ -32,7 +32,6 @@ struct Demo {
     void update(const demo::UpdateDesc& desc);
     void render(GpuDevice& device);
 
-    GpuRootSignature root_signature;
     GpuDescriptors descriptors;
     GpuRenderTargets render_targets;
     GpuDebugDraw debug_draw;

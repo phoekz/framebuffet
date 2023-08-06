@@ -3,7 +3,6 @@
 namespace fb::cube {
 
 Demo::Demo(GpuDevice& device) :
-    root_signature(device, Demo::NAME),
     descriptors(device, Demo::NAME),
     samplers(device, descriptors),
     render_targets(device, descriptors, device.swapchain_size(), Demo::CLEAR_COLOR, Demo::NAME),
@@ -28,7 +27,7 @@ Demo::Demo(GpuDevice& device) :
     // Pipeline state.
     pipeline_state = device.create_graphics_pipeline_state(
         D3D12_GRAPHICS_PIPELINE_STATE_DESC {
-            .pRootSignature = root_signature.get(),
+            .pRootSignature = device.root_signature(),
             .VS = vertex_shader.bytecode(),
             .PS = pixel_shader.bytecode(),
             .BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT),
@@ -129,7 +128,7 @@ void Demo::render(GpuDevice& device) {
         descriptors.cbv_srv_uav().heap(),
         descriptors.sampler().heap()};
     cmd->SetDescriptorHeaps(_countof(heaps), heaps);
-    cmd->SetGraphicsRootSignature(root_signature.get());
+    cmd->SetGraphicsRootSignature(device.root_signature());
     GpuBindings bindings;
     bindings.push(constant_buffer_descriptor);
     bindings.push(vertex_buffer_descriptor);

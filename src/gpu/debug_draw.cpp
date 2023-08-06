@@ -4,7 +4,6 @@
 namespace fb {
 
 GpuDebugDraw::GpuDebugDraw(GpuDevice& device, std::string_view name) :
-    _root_signature(device, dx_name(name, NAME)),
     _descriptors(device, dx_name(name, NAME)) {
     // Shaders.
     GpuShader vertex_shader;
@@ -21,7 +20,7 @@ GpuDebugDraw::GpuDebugDraw(GpuDevice& device, std::string_view name) :
         using CommonStates = DirectX::DX12::CommonStates;
         _pipeline_state = device.create_graphics_pipeline_state(
             D3D12_GRAPHICS_PIPELINE_STATE_DESC {
-                .pRootSignature = _root_signature.get(),
+                .pRootSignature = device.root_signature(),
                 .VS = vertex_shader.bytecode(),
                 .PS = pixel_shader.bytecode(),
                 .BlendState = CommonStates::AlphaBlend,
@@ -90,7 +89,7 @@ auto GpuDebugDraw::render(GpuDevice& device) -> void {
         _descriptors.cbv_srv_uav().heap(),
         _descriptors.sampler().heap()};
     cmd->SetDescriptorHeaps(_countof(heaps), heaps);
-    cmd->SetGraphicsRootSignature(_root_signature.get());
+    cmd->SetGraphicsRootSignature(device.root_signature());
     cmd->SetPipelineState(_pipeline_state.get());
     cmd->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
 

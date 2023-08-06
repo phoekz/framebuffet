@@ -1,18 +1,14 @@
 #pragma once
 
+#include <pch.hpp>
 #include "win32.hpp"
 #include "utils.hpp"
 #include "maths.hpp"
-#include <pch.hpp>
 
 namespace fb {
 
 constexpr uint32_t FRAME_COUNT = 2;
-
-struct DxLeakTracker {
-    ~DxLeakTracker();
-    ComPtr<ID3D12DebugDevice2> debug_device;
-};
+constexpr uint32_t BINDINGS_CAPACITY = 16;
 
 class GpuDevice {
     FB_NO_COPY_MOVE(GpuDevice);
@@ -37,16 +33,14 @@ class GpuDevice {
     auto descriptor_size(D3D12_DESCRIPTOR_HEAP_TYPE heap_type) const -> uint32_t;
     // clang-format on
 
+    // Device state.
     auto begin_frame() -> void;
     auto begin_main_pass() -> void;
     auto end_main_pass() -> void;
     auto end_frame() -> void;
     auto wait() -> void;
 
-    auto command_list() const -> ID3D12GraphicsCommandList9* { return _command_list.get(); }
-    auto swapchain_size() const -> Uint2 { return _swapchain_size; }
-    auto frame_index() const -> uint32_t { return _frame_index; }
-
+    // Resource utilities.
     auto transition(
         const ComPtr<ID3D12Resource>& resource,
         D3D12_RESOURCE_STATES before,
@@ -57,9 +51,20 @@ class GpuDevice {
         D3D12_RESOURCE_STATES before_state,
         D3D12_RESOURCE_STATES after_state) const -> void;
 
+    // Getters.
+    auto command_list() const -> ID3D12GraphicsCommandList9* { return _command_list.get(); }
+    auto swapchain_size() const -> Uint2 { return _swapchain_size; }
+    auto frame_index() const -> uint32_t { return _frame_index; }
+    auto root_signature() const -> ID3D12RootSignature* { return _root_signature.get(); }
+
   private:
+    struct LeakTracker {
+        ~LeakTracker();
+        ComPtr<ID3D12DebugDevice2> debug_device;
+    };
+
     ComPtr<ID3D12Device12> _device;
-    DxLeakTracker _leak_tracker;
+    LeakTracker _leak_tracker;
     ComPtr<ID3D12CommandQueue> _command_queue;
     std::array<ComPtr<ID3D12CommandAllocator>, FRAME_COUNT> _command_allocators;
     ComPtr<ID3D12GraphicsCommandList9> _command_list;
@@ -73,6 +78,8 @@ class GpuDevice {
     ComPtr<ID3D12Fence1> _fence;
     wil::unique_handle _fence_event;
     std::array<uint64_t, FRAME_COUNT> _fence_values = {};
+
+    ComPtr<ID3D12RootSignature> _root_signature;
 };
 
 template<typename... Args>
@@ -84,7 +91,5 @@ template<typename... Args>
     str.erase(str.size() - DELIMITER.size());
     return str;
 }
-auto dx_set_name(ID3D12Object* object, std::string_view name) -> void;
-auto dx_set_name(const ComPtr<ID3D12Object>& object, std::string_view name) -> void;
 
 }  // namespace fb
