@@ -1,8 +1,8 @@
 #pragma once
 
 #include <shaders/samplers.hlsli>
-#include "descriptors.hpp"
 #include <pch.hpp>
+#include "device.hpp"
 
 namespace fb {
 

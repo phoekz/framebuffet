@@ -3,7 +3,6 @@
 #include <pch.hpp>
 #include "device.hpp"
 #include "textures.hpp"
-#include "descriptors.hpp"
 #include "maths.hpp"
 #include "utils.hpp"
 
