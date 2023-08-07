@@ -112,6 +112,7 @@ auto GpuShaderCompiler::compile(
         L"-Fo", shader_bin.c_str(),
         L"-Fd", L".\\shaders\\",
         L"-WX",
+        L"-all_resources_bound",
         // clang-format on
     };
 
