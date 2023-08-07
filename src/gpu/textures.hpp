@@ -31,14 +31,14 @@ struct GpuTexture2dDesc {
     uint32_t sample_count = 1;
     std::optional<D3D12_CLEAR_VALUE> clear_value = std::nullopt;
     std::optional<DXGI_FORMAT> srv_format = std::nullopt;
+    std::optional<DXGI_FORMAT> rtv_format = std::nullopt;
     std::optional<DXGI_FORMAT> dsv_format = std::nullopt;
 };
 
 template<GpuTextureFlags FLAGS>
 class GpuTexture2d {
   public:
-    auto create(const GpuDevice& device, const GpuTexture2dDesc& desc, std::string_view name)
-        -> void {
+    auto create(GpuDevice& device, const GpuTexture2dDesc& desc, std::string_view name) -> void {
         // Validate.
         FB_ASSERT(desc.format != DXGI_FORMAT_UNKNOWN);
         FB_ASSERT(desc.width > 0);
@@ -50,11 +50,9 @@ class GpuTexture2d {
             FB_ASSERT(desc.depth == 6);
         }
 
-        // Copy desc.
-        _desc = desc;
-
         // Optionally override view formats.
         _srv_format = desc.srv_format.value_or(desc.format);
+        _rtv_format = desc.rtv_format.value_or(desc.format);
         _dsv_format = desc.dsv_format.value_or(desc.format);
 
         // Heap properties.
@@ -108,6 +106,52 @@ class GpuTexture2d {
             init_state,
             clear_value,
             name);
+
+        // Views.
+        if constexpr (gpu_texture_flags_is_set(FLAGS, GpuTextureFlags::Srv)) {
+            _srv_descriptor = device.descriptors().cbv_srv_uav().alloc();
+            device.create_shader_resource_view(
+                _resource,
+                D3D12_SHADER_RESOURCE_VIEW_DESC {
+                    .Format = _srv_format,
+                    .ViewDimension = gpu_texture_flags_is_set(FLAGS, GpuTextureFlags::Cube)
+                        ? D3D12_SRV_DIMENSION_TEXTURECUBE
+                        : D3D12_SRV_DIMENSION_TEXTURE2D,
+                    .Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING,
+                    .Texture2D = D3D12_TEX2D_SRV {.MipLevels = _desc.mip_levels},
+                },
+                _srv_descriptor.cpu());
+        }
+        if constexpr (gpu_texture_flags_is_set(FLAGS, GpuTextureFlags::Rtv)) {
+            _rtv_descriptor = device.descriptors().rtv().alloc();
+            std::optional<D3D12_RENDER_TARGET_VIEW_DESC> maybe_desc = std::nullopt;
+            if (D3D12_PROPERTY_LAYOUT_FORMAT_TABLE::GetTypeLevel(desc.format)
+                == D3DFTL_PARTIAL_TYPE) {
+                maybe_desc = D3D12_RENDER_TARGET_VIEW_DESC {
+                    .Format = _rtv_format,
+                    .ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D,
+                    .Texture2D = D3D12_TEX2D_RTV {.MipSlice = 0, .PlaneSlice = 0},
+                };
+            }
+            device.create_render_target_view(_resource, maybe_desc, _rtv_descriptor.cpu());
+        }
+        if constexpr (gpu_texture_flags_is_set(FLAGS, GpuTextureFlags::Dsv)) {
+            _dsv_descriptor = device.descriptors().dsv().alloc();
+            std::optional<D3D12_DEPTH_STENCIL_VIEW_DESC> maybe_desc = std::nullopt;
+            if (D3D12_PROPERTY_LAYOUT_FORMAT_TABLE::GetTypeLevel(desc.format)
+                == D3DFTL_PARTIAL_TYPE) {
+                maybe_desc = D3D12_DEPTH_STENCIL_VIEW_DESC {
+                    .Format = _dsv_format,
+                    .ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D,
+                    .Flags = D3D12_DSV_FLAG_NONE,
+                    .Texture2D = D3D12_TEX2D_DSV {.MipSlice = 0},
+                };
+            }
+            device.create_depth_stencil_view(_resource, maybe_desc, _dsv_descriptor.cpu());
+        }
+
+        // Copy desc.
+        _desc = desc;
     }
 
     auto width() const -> uint32_t { return _desc.width; }
@@ -120,49 +164,34 @@ class GpuTexture2d {
     auto resource() const -> const ComPtr<ID3D12Resource>& { return _resource; }
     auto row_pitch() const -> uint32_t { return bytes_per_unit() * _desc.width; }
     auto slice_pitch() const -> uint32_t { return row_pitch() * _desc.height; }
-
-    auto srv_desc() const -> D3D12_SHADER_RESOURCE_VIEW_DESC {
+    auto srv_descriptor() const -> GpuDescriptorHandle {
         static_assert(
             gpu_texture_flags_is_set(FLAGS, GpuTextureFlags::Srv),
             "Texture does not support SRV");
-        D3D12_SRV_DIMENSION view_dimension;
-        if (gpu_texture_flags_is_set(FLAGS, GpuTextureFlags::Cube)) {
-            view_dimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
-        } else {
-            view_dimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-        }
-
-        return D3D12_SHADER_RESOURCE_VIEW_DESC {
-            .Format = _srv_format,
-            .ViewDimension = view_dimension,
-            .Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING,
-            .Texture2D =
-                D3D12_TEX2D_SRV {
-                    .MostDetailedMip = 0,
-                    .MipLevels = _desc.mip_levels,
-                    .PlaneSlice = 0,
-                    .ResourceMinLODClamp = 0.0f,
-                },
-        };
+        return _srv_descriptor;
     }
-
-    auto dsv_desc() -> const D3D12_DEPTH_STENCIL_VIEW_DESC {
+    auto rtv_descriptor() const -> GpuDescriptorHandle {
+        static_assert(
+            gpu_texture_flags_is_set(FLAGS, GpuTextureFlags::Rtv),
+            "Texture does not support RTV");
+        return _rtv_descriptor;
+    }
+    auto dsv_descriptor() const -> GpuDescriptorHandle {
         static_assert(
             gpu_texture_flags_is_set(FLAGS, GpuTextureFlags::Dsv),
             "Texture does not support DSV");
-        return D3D12_DEPTH_STENCIL_VIEW_DESC {
-            .Format = _dsv_format,
-            .ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D,
-            .Flags = D3D12_DSV_FLAG_NONE,
-            .Texture2D = D3D12_TEX2D_DSV {.MipSlice = 0},
-        };
+        return _dsv_descriptor;
     }
 
   private:
     GpuTexture2dDesc _desc;
     ComPtr<ID3D12Resource> _resource;
     DXGI_FORMAT _srv_format = DXGI_FORMAT_UNKNOWN;
+    DXGI_FORMAT _rtv_format = DXGI_FORMAT_UNKNOWN;
     DXGI_FORMAT _dsv_format = DXGI_FORMAT_UNKNOWN;
+    GpuDescriptorHandle _srv_descriptor = {};
+    GpuDescriptorHandle _rtv_descriptor = {};
+    GpuDescriptorHandle _dsv_descriptor = {};
 };
 
 using GpuTexture2dSrv = GpuTexture2d<GpuTextureFlags::Srv>;

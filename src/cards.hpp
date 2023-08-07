@@ -10,7 +10,7 @@ namespace fb::cards {
 static constexpr uint32_t CARD_COUNT = 4;
 
 struct Params {
-    std::array<std::reference_wrapper<const ComPtr<ID3D12Resource>>, CARD_COUNT> card_textures;
+    std::array<GpuDescriptorHandle, CARD_COUNT> card_texture_descriptors;
 };
 
 struct Constants {
@@ -37,22 +37,11 @@ class Cards {
     auto render(GpuDevice& device) -> void;
 
   private:
-    GpuDescriptors _descriptors;
-    GpuSamplers _samplers;
-
     ComPtr<ID3D12PipelineState> _pipeline_state;
-
     GpuBufferHostCbv<Constants> _constant_buffer;
-    GpuDescriptorHandle _constant_buffer_descriptor;
-
     GpuBufferHostSrv<Card> _card_buffer;
-    GpuDescriptorHandle _card_buffer_descriptor;
-
     GpuBufferHostSrv<Vertex> _vertex_buffer;
-    GpuDescriptorHandle _vertex_buffer_descriptor;
-
     GpuBufferHostIndex<uint16_t> _index_buffer;
-
     std::array<GpuDescriptorHandle, CARD_COUNT> _card_texture_descriptors;
 };
 

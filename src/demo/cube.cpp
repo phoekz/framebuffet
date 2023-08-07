@@ -3,17 +3,8 @@
 namespace fb::cube {
 
 Demo::Demo(GpuDevice& device) :
-    _descriptors(device, Demo::NAME),
-    _samplers(device, _descriptors),
-    _render_targets(device, _descriptors, device.swapchain_size(), Demo::CLEAR_COLOR, Demo::NAME),
+    _render_targets(device, device.swapchain_size(), Demo::CLEAR_COLOR, Demo::NAME),
     _debug_draw(device, Demo::NAME) {
-    // Descriptors.
-    {
-        _constant_buffer_descriptor = _descriptors.cbv_srv_uav().alloc();
-        _vertex_buffer_descriptor = _descriptors.cbv_srv_uav().alloc();
-        _texture_descriptor = _descriptors.cbv_srv_uav().alloc();
-    }
-
     // Shaders.
     GpuShader vertex_shader;
     GpuShader pixel_shader;
@@ -43,12 +34,7 @@ Demo::Demo(GpuDevice& device) :
         dx_name(Demo::NAME, "Pipeline State"));
 
     // Constant buffer.
-    {
-        _constant_buffer.create(device, 1, dx_name(Demo::NAME, "Constant Buffer"));
-        device.create_constant_buffer_view(
-            _constant_buffer.cbv_desc(),
-            _constant_buffer_descriptor.cpu());
-    }
+    _constant_buffer.create(device, 1, dx_name(Demo::NAME, "Constant Buffer"));
 
     // Model.
     auto model = GltfModel("models/stylized_crate.glb");
@@ -60,11 +46,6 @@ Demo::Demo(GpuDevice& device) :
 
         memcpy(_vertex_buffer.ptr(), model.vertex_data(), model.vertex_buffer_size());
         memcpy(_index_buffer.ptr(), model.index_data(), model.index_buffer_size());
-
-        device.create_shader_resource_view(
-            _vertex_buffer.resource(),
-            _vertex_buffer.srv_desc(),
-            _vertex_buffer_descriptor.cpu());
     }
 
     // Texture.
@@ -79,12 +60,6 @@ Demo::Demo(GpuDevice& device) :
                 .height = image.height(),
             },
             dx_name(Demo::NAME, "Texture"));
-
-        // Descriptor.
-        device.create_shader_resource_view(
-            _texture.resource(),
-            _texture.srv_desc(),
-            _texture_descriptor.cpu());
 
         // Upload.
         device.easy_upload(
@@ -122,15 +97,11 @@ auto Demo::render(GpuDevice& device) -> void {
     _debug_draw.render(device);
 
     // Main pass.
-    ID3D12DescriptorHeap* heaps[] = {
-        _descriptors.cbv_srv_uav().heap(),
-        _descriptors.sampler().heap()};
-    cmd->SetDescriptorHeaps(_countof(heaps), heaps);
-    cmd->SetGraphicsRootSignature(device.root_signature());
     GpuBindings bindings;
-    bindings.push(_constant_buffer_descriptor);
-    bindings.push(_vertex_buffer_descriptor);
-    bindings.push(_texture_descriptor);
+    bindings.push(_constant_buffer.cbv_descriptor());
+    bindings.push(_vertex_buffer.srv_descriptor());
+    bindings.push(_texture.srv_descriptor());
+    device.cmd_set_graphics();
     cmd->SetGraphicsRoot32BitConstants(0, bindings.capacity(), bindings.ptr(), 0);
 
     cmd->SetPipelineState(_pipeline_state.get());

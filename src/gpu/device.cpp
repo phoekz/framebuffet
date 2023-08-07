@@ -77,6 +77,68 @@ GpuDescriptors::GpuDescriptors(GpuDevice& device, std::string_view name) :
     _dsv_heap(device, name, D3D12_DESCRIPTOR_HEAP_TYPE_DSV, DSV_DESCRIPTOR_CAPACITY) {}
 
 //
+// Samplers.
+//
+
+GpuSamplers::GpuSamplers(GpuDevice& device, GpuDescriptors& descriptors) {
+    std::tuple<GpuSamplerType, D3D12_SAMPLER_DESC, GpuDescriptorHandle> samplers[] = {
+        {
+            GpuSamplerType::LinearClamp,
+            {
+                .Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR,
+                .AddressU = D3D12_TEXTURE_ADDRESS_MODE_CLAMP,
+                .AddressV = D3D12_TEXTURE_ADDRESS_MODE_CLAMP,
+                .AddressW = D3D12_TEXTURE_ADDRESS_MODE_CLAMP,
+                .MipLODBias = 0.0f,
+                .MaxAnisotropy = 0,
+                .ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER,
+                .BorderColor = {0.0f, 0.0f, 0.0f, 0.0f},
+                .MinLOD = 0.0f,
+                .MaxLOD = D3D12_FLOAT32_MAX,
+            },
+            descriptors.sampler().alloc(),
+        },
+        {
+            GpuSamplerType::LinearWrap,
+            {
+                .Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR,
+                .AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP,
+                .AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP,
+                .AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP,
+                .MipLODBias = 0.0f,
+                .MaxAnisotropy = 0,
+                .ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER,
+                .BorderColor = {0.0f, 0.0f, 0.0f, 0.0f},
+                .MinLOD = 0.0f,
+                .MaxLOD = D3D12_FLOAT32_MAX,
+            },
+            descriptors.sampler().alloc(),
+        },
+        {
+            GpuSamplerType::Shadow,
+            {
+                .Filter = D3D12_FILTER_COMPARISON_MIN_MAG_MIP_POINT,
+                .AddressU = D3D12_TEXTURE_ADDRESS_MODE_BORDER,
+                .AddressV = D3D12_TEXTURE_ADDRESS_MODE_BORDER,
+                .AddressW = D3D12_TEXTURE_ADDRESS_MODE_BORDER,
+                .MipLODBias = 0.0f,
+                .MaxAnisotropy = 0,
+                .ComparisonFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL,
+                .BorderColor = {1.0f, 1.0f, 1.0f, 1.0f},
+                .MinLOD = 0.0f,
+                .MaxLOD = D3D12_FLOAT32_MAX,
+            },
+            descriptors.sampler().alloc(),
+        },
+    };
+
+    for (const auto& [type, desc, handle] : samplers) {
+        device.create_sampler(desc, handle.cpu());
+        _handles[(size_t)type] = handle;
+    }
+}
+
+//
 // Constructor.
 //
 
@@ -285,6 +347,12 @@ GpuDevice::GpuDevice(const Window& window) {
         // Create the root signature.
         _root_signature = this->create_root_signature(signature, "Global Root Signature");
     }
+
+    // Global descriptor heap.
+    _descriptors = std::make_unique<GpuDescriptors>(*this, "Global Descriptor Heap");
+
+    // Global samplers.
+    _samplers = std::make_unique<GpuSamplers>(*this, *_descriptors);
 }
 
 //
@@ -436,6 +504,22 @@ auto GpuDevice::begin_main_pass() -> void {
         D3D12_RESOURCE_STATE_RENDER_TARGET);
     _command_list->ClearRenderTargetView(_rtv_descriptors[_frame_index], CLEAR_COLOR, 0, nullptr);
     _command_list->OMSetRenderTargets(1, &_rtv_descriptors[_frame_index], FALSE, nullptr);
+}
+
+auto GpuDevice::cmd_set_graphics() const -> void {
+    ID3D12DescriptorHeap* heaps[] = {
+        _descriptors->cbv_srv_uav().heap(),
+        _descriptors->sampler().heap()};
+    _command_list->SetDescriptorHeaps(_countof(heaps), heaps);
+    _command_list->SetGraphicsRootSignature(_root_signature.get());
+}
+
+auto GpuDevice::cmd_set_compute() const -> void {
+    ID3D12DescriptorHeap* heaps[] = {
+        _descriptors->cbv_srv_uav().heap(),
+        _descriptors->sampler().heap()};
+    _command_list->SetDescriptorHeaps(_countof(heaps), heaps);
+    _command_list->SetComputeRootSignature(_root_signature.get());
 }
 
 auto GpuDevice::end_main_pass() -> void {

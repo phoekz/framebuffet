@@ -7,9 +7,7 @@
 
 namespace fb::gui {
 
-Gui::Gui(const Window& window, GpuDevice& device) :
-    _descriptors(device, Gui::NAME),
-    _samplers(device, _descriptors) {
+Gui::Gui(const Window& window, GpuDevice& device) {
     // ImGui.
     {
         IMGUI_CHECKVERSION();
@@ -30,15 +28,6 @@ Gui::Gui(const Window& window, GpuDevice& device) :
         auto source = read_whole_file("shaders/gui.hlsl");
         vertex_shader = sc.compile(Gui::NAME, GpuShaderType::Vertex, "vs_main", source);
         pixel_shader = sc.compile(Gui::NAME, GpuShaderType::Pixel, "ps_main", source);
-    }
-
-    // Descriptors.
-    {
-        _constant_buffer_descriptor = _descriptors.cbv_srv_uav().alloc();
-        for (auto& geometry : _geometries) {
-            geometry.vertex_buffer_descriptor = _descriptors.cbv_srv_uav().alloc();
-        }
-        _texture_descriptor = _descriptors.cbv_srv_uav().alloc();
     }
 
     // Pipeline state.
@@ -83,12 +72,7 @@ Gui::Gui(const Window& window, GpuDevice& device) :
         dx_name(Gui::NAME, "Pipeline State"));
 
     // Constants.
-    {
-        _constant_buffer.create(device, 1, dx_name(Gui::NAME, "Constant Buffer"));
-        device.create_constant_buffer_view(
-            _constant_buffer.cbv_desc(),
-            _constant_buffer_descriptor.cpu());
-    }
+    _constant_buffer.create(device, 1, dx_name(Gui::NAME, "Constant Buffer"));
 
     // Font texture.
     {
@@ -108,14 +92,8 @@ Gui::Gui(const Window& window, GpuDevice& device) :
             },
             dx_name(Gui::NAME, "Font Texture"));
 
-        // SRV.
-        device.create_shader_resource_view(
-            _texture.resource(),
-            _texture.srv_desc(),
-            _texture_descriptor.cpu());
-
         // ImGui Font texture ID.
-        io.Fonts->SetTexID((ImTextureID)_texture_descriptor.gpu().ptr);
+        io.Fonts->SetTexID((ImTextureID)_texture.srv_descriptor().gpu().ptr);
 
         // Upload.
         device.easy_upload(
@@ -139,10 +117,6 @@ Gui::Gui(const Window& window, GpuDevice& device) :
             device,
             MAX_INDEX_COUNT,
             dx_name(Gui::NAME, "Index Buffer", i));
-        device.create_shader_resource_view(
-            geometry.vertex_buffer.resource(),
-            geometry.vertex_buffer.srv_desc(),
-            geometry.vertex_buffer_descriptor.cpu());
     }
 
     // ImGui continued.
@@ -212,15 +186,11 @@ auto Gui::render(const GpuDevice& device) -> void {
         cmd->RSSetViewports(1, &viewport);
         cmd->OMSetBlendFactor(blend_factor);
 
-        ID3D12DescriptorHeap* heaps[] = {
-            _descriptors.cbv_srv_uav().heap(),
-            _descriptors.sampler().heap()};
-        cmd->SetDescriptorHeaps(_countof(heaps), heaps);
-        cmd->SetGraphicsRootSignature(device.root_signature());
-
         cmd->SetPipelineState(_pipeline_state.get());
         cmd->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
         cmd->IASetIndexBuffer(&ibv);
+
+        device.cmd_set_graphics();
 
         int global_vtx_offset = 0;
         int global_idx_offset = 0;
@@ -239,10 +209,10 @@ auto Gui::render(const GpuDevice& device) -> void {
                         (LONG)(pcmd->ClipRect.w - clip_off.y),
                     };
                     GpuBindings bindings;
-                    bindings.push(_constant_buffer_descriptor);
-                    bindings.push(geometry.vertex_buffer_descriptor);
+                    bindings.push(_constant_buffer.cbv_descriptor());
+                    bindings.push(geometry.vertex_buffer.srv_descriptor());
                     bindings.push((pcmd->VtxOffset + (uint32_t)global_vtx_offset));
-                    bindings.push(_texture_descriptor);
+                    bindings.push(_texture.srv_descriptor());
                     cmd->SetGraphicsRoot32BitConstants(0, bindings.capacity(), bindings.ptr(), 0);
 
                     cmd->RSSetScissorRects(1, &scissor_rect);

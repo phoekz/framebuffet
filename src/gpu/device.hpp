@@ -1,6 +1,7 @@
 #pragma once
 
 #include <pch.hpp>
+#include <shaders/samplers.hlsli>
 #include "win32.hpp"
 #include "utils.hpp"
 #include "maths.hpp"
@@ -104,6 +105,18 @@ class GpuBindings {
 };
 
 //
+// Samplers.
+//
+
+class GpuSamplers {
+  public:
+    GpuSamplers(GpuDevice& device, GpuDescriptors& descriptors);
+
+  private:
+    std::array<GpuDescriptorHandle, (size_t)GpuSamplerType::Count> _handles;
+};
+
+//
 // Device.
 //
 
@@ -133,6 +146,8 @@ class GpuDevice {
     // Device state.
     auto begin_frame() -> void;
     auto begin_main_pass() -> void;
+    auto cmd_set_graphics() const -> void;
+    auto cmd_set_compute() const -> void;
     auto end_main_pass() -> void;
     auto end_frame() -> void;
     auto wait() -> void;
@@ -158,6 +173,7 @@ class GpuDevice {
     auto swapchain_size() const -> Uint2 { return _swapchain_size; }
     auto frame_index() const -> uint32_t { return _frame_index; }
     auto root_signature() const -> ID3D12RootSignature* { return _root_signature.get(); }
+    auto descriptors() -> GpuDescriptors& { return *_descriptors; }
 
   private:
     struct LeakTracker {
@@ -182,6 +198,8 @@ class GpuDevice {
     std::array<uint64_t, FRAME_COUNT> _fence_values = {};
 
     ComPtr<ID3D12RootSignature> _root_signature;
+    std::unique_ptr<GpuDescriptors> _descriptors;
+    std::unique_ptr<GpuSamplers> _samplers;
 };
 
 //

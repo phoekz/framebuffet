@@ -3,8 +3,7 @@
 
 namespace fb {
 
-GpuDebugDraw::GpuDebugDraw(GpuDevice& device, std::string_view name) :
-    _descriptors(device, dx_name(name, NAME)) {
+GpuDebugDraw::GpuDebugDraw(GpuDevice& device, std::string_view name) {
     // Shaders.
     GpuShader vertex_shader;
     GpuShader pixel_shader;
@@ -39,19 +38,8 @@ GpuDebugDraw::GpuDebugDraw(GpuDevice& device, std::string_view name) :
     // Frame resources.
     for (uint32_t i = 0; i < FRAME_COUNT; i++) {
         auto& frame = _frames[i];
-
         frame._constant_buffer.create(device, 1, dx_name(name, NAME, "Constant Buffer", i));
-        frame._constant_buffer_descriptor = _descriptors.cbv_srv_uav().alloc();
-        device.create_constant_buffer_view(
-            frame._constant_buffer.cbv_desc(),
-            frame._constant_buffer_descriptor.cpu());
-
         frame._lines_buffer.create(device, MAX_LINE_COUNT, dx_name(name, NAME, "Lines Buffer", i));
-        frame._lines_buffer_descriptor = _descriptors.cbv_srv_uav().alloc();
-        device.create_shader_resource_view(
-            frame._lines_buffer.resource(),
-            frame._lines_buffer.srv_desc(),
-            frame._lines_buffer_descriptor.cpu());
     }
 }
 
@@ -85,18 +73,14 @@ auto GpuDebugDraw::end() -> void {
 auto GpuDebugDraw::render(GpuDevice& device) -> void {
     auto* cmd = device.command_list();
 
-    ID3D12DescriptorHeap* heaps[] = {
-        _descriptors.cbv_srv_uav().heap(),
-        _descriptors.sampler().heap()};
-    cmd->SetDescriptorHeaps(_countof(heaps), heaps);
-    cmd->SetGraphicsRootSignature(device.root_signature());
     cmd->SetPipelineState(_pipeline_state.get());
     cmd->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
 
     const auto& frame = _frames[_frame_index];
     GpuBindings bindings;
-    bindings.push(frame._constant_buffer_descriptor);
-    bindings.push(frame._lines_buffer_descriptor);
+    bindings.push(frame._constant_buffer.cbv_descriptor());
+    bindings.push(frame._lines_buffer.srv_descriptor());
+    device.cmd_set_graphics();
     cmd->SetGraphicsRoot32BitConstants(0, bindings.capacity(), bindings.ptr(), 0);
     cmd->DrawInstanced((uint32_t)_lines.size(), 1, 0, 0);
 }

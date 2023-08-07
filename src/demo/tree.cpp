@@ -137,70 +137,11 @@ Demo::MainPass::MainPass(GpuDevice& device) {
 }
 
 Demo::Demo(GpuDevice& device) :
-    _descriptors(device, Demo::NAME),
-    _samplers(device, _descriptors),
-    _render_targets(device, _descriptors, device.swapchain_size(), Demo::CLEAR_COLOR, Demo::NAME),
+    _render_targets(device, device.swapchain_size(), Demo::CLEAR_COLOR, Demo::NAME),
     _debug_draw(device, Demo::NAME),
     _scene(device),
     _shadow_pass(device),
-    _main_pass(device) {
-    // Allocate descriptors.
-    {
-        _scene.tree.vertex_buffer_descriptor = _descriptors.cbv_srv_uav().alloc();
-        _scene.tree.texture_descriptor = _descriptors.cbv_srv_uav().alloc();
-        _scene.plane.vertex_buffer_descriptor = _descriptors.cbv_srv_uav().alloc();
-        _scene.plane.texture_descriptor = _descriptors.cbv_srv_uav().alloc();
-        _shadow_pass.constants_descriptor = _descriptors.cbv_srv_uav().alloc();
-        _shadow_pass.depth_srv_descriptor = _descriptors.cbv_srv_uav().alloc();
-        _shadow_pass.depth_dsv_descriptor = _descriptors.dsv().alloc();
-        _main_pass.constants_descriptor = _descriptors.cbv_srv_uav().alloc();
-    }
-
-    // Resource views.
-    {
-        // Constants.
-        {
-            device.create_constant_buffer_view(
-                _shadow_pass.constants.cbv_desc(),
-                _shadow_pass.constants_descriptor.cpu());
-            device.create_constant_buffer_view(
-                _main_pass.constants.cbv_desc(),
-                _main_pass.constants_descriptor.cpu());
-        }
-
-        // Scene.
-        {
-            device.create_shader_resource_view(
-                _scene.tree.vertex_buffer.resource(),
-                _scene.tree.vertex_buffer.srv_desc(),
-                _scene.tree.vertex_buffer_descriptor.cpu());
-            device.create_shader_resource_view(
-                _scene.plane.vertex_buffer.resource(),
-                _scene.plane.vertex_buffer.srv_desc(),
-                _scene.plane.vertex_buffer_descriptor.cpu());
-            device.create_shader_resource_view(
-                _scene.tree.texture.resource(),
-                _scene.tree.texture.srv_desc(),
-                _scene.tree.texture_descriptor.cpu());
-            device.create_shader_resource_view(
-                _scene.plane.texture.resource(),
-                _scene.plane.texture.srv_desc(),
-                _scene.plane.texture_descriptor.cpu());
-        }
-
-        // Shadow map.
-        {
-            device.create_depth_stencil_view(
-                _shadow_pass.depth.resource(),
-                _shadow_pass.depth.dsv_desc(),
-                _shadow_pass.depth_dsv_descriptor.cpu());
-            device.create_shader_resource_view(
-                _shadow_pass.depth.resource(),
-                _shadow_pass.depth.srv_desc(),
-                _shadow_pass.depth_srv_descriptor.cpu());
-        }
-    }
-}
+    _main_pass(device) {}
 
 auto Demo::update(const demo::UpdateDesc& desc) -> void {
     static float light_projection_size = 15.0f;
@@ -309,23 +250,18 @@ auto Demo::render(GpuDevice& device) -> void {
             D3D12_RESOURCE_STATE_DEPTH_WRITE);
         cmd->RSSetViewports(1, &viewport);
         cmd->RSSetScissorRects(1, &scissor);
-        cmd->OMSetRenderTargets(0, nullptr, FALSE, _shadow_pass.depth_dsv_descriptor.cpu_ptr());
+        cmd->OMSetRenderTargets(0, nullptr, FALSE, _shadow_pass.depth.dsv_descriptor().cpu_ptr());
         cmd->ClearDepthStencilView(
-            _shadow_pass.depth_dsv_descriptor.cpu(),
+            _shadow_pass.depth.dsv_descriptor().cpu(),
             D3D12_CLEAR_FLAG_DEPTH,
             1.0f,
             0,
             0,
             nullptr);
 
-        ID3D12DescriptorHeap* heaps[] = {
-            _descriptors.cbv_srv_uav().heap(),
-            _descriptors.sampler().heap()};
-        cmd->SetDescriptorHeaps(_countof(heaps), heaps);
-        cmd->SetGraphicsRootSignature(device.root_signature());
         GpuBindings bindings;
-        bindings.push(_shadow_pass.constants_descriptor);
-        bindings.push(_scene.tree.vertex_buffer_descriptor);
+        bindings.push(_shadow_pass.constants.cbv_descriptor());
+        bindings.push(_scene.tree.vertex_buffer.srv_descriptor());
         cmd->SetGraphicsRoot32BitConstants(0, bindings.capacity(), bindings.ptr(), 0);
         cmd->SetPipelineState(_shadow_pass.pipeline_state.get());
         cmd->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -351,11 +287,6 @@ auto Demo::render(GpuDevice& device) -> void {
 
         _debug_draw.render(device);
 
-        ID3D12DescriptorHeap* heaps[] = {
-            _descriptors.cbv_srv_uav().heap(),
-            _descriptors.sampler().heap()};
-        cmd->SetDescriptorHeaps(_countof(heaps), heaps);
-        cmd->SetGraphicsRootSignature(device.root_signature());
         cmd->SetPipelineState(_main_pass.pipeline_state.get());
         cmd->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
@@ -364,10 +295,11 @@ auto Demo::render(GpuDevice& device) -> void {
             auto index_count = _scene.tree.index_buffer.element_size();
             cmd->IASetIndexBuffer(&ibv);
             GpuBindings bindings;
-            bindings.push(_main_pass.constants_descriptor);
-            bindings.push(_scene.tree.vertex_buffer_descriptor);
-            bindings.push(_scene.tree.texture_descriptor);
-            bindings.push(_shadow_pass.depth_srv_descriptor);
+            bindings.push(_main_pass.constants.cbv_descriptor());
+            bindings.push(_scene.tree.vertex_buffer.srv_descriptor());
+            bindings.push(_scene.tree.texture.srv_descriptor());
+            bindings.push(_shadow_pass.depth.srv_descriptor());
+            device.cmd_set_graphics();
             cmd->SetGraphicsRoot32BitConstants(0, bindings.capacity(), bindings.ptr(), 0);
             cmd->DrawIndexedInstanced(index_count, 1, 0, 0, 0);
         }
@@ -377,10 +309,11 @@ auto Demo::render(GpuDevice& device) -> void {
             auto index_count = _scene.plane.index_buffer.element_size();
             cmd->IASetIndexBuffer(&ibv);
             GpuBindings bindings;
-            bindings.push(_main_pass.constants_descriptor);
-            bindings.push(_scene.plane.vertex_buffer_descriptor);
-            bindings.push(_scene.plane.texture_descriptor);
-            bindings.push(_shadow_pass.depth_srv_descriptor);
+            bindings.push(_main_pass.constants.cbv_descriptor());
+            bindings.push(_scene.plane.vertex_buffer.srv_descriptor());
+            bindings.push(_scene.plane.texture.srv_descriptor());
+            bindings.push(_shadow_pass.depth.srv_descriptor());
+            device.cmd_set_graphics();
             cmd->SetGraphicsRoot32BitConstants(0, bindings.capacity(), bindings.ptr(), 0);
             cmd->DrawIndexedInstanced(index_count, 1, 0, 0, 0);
         }

@@ -26,24 +26,14 @@ class Gui {
 
   private:
     ImGuiContext* _imgui_ctx = nullptr;
-
-    GpuDescriptors _descriptors;
-    GpuSamplers _samplers;
-
     ComPtr<ID3D12PipelineState> _pipeline_state;
-
     GpuBufferHostCbv<Constants> _constant_buffer;
-    GpuDescriptorHandle _constant_buffer_descriptor;
-
     struct Geometry {
         GpuBufferHostSrv<ImDrawVert> vertex_buffer;
-        GpuDescriptorHandle vertex_buffer_descriptor;
         GpuBufferHostIndex<ImDrawIdx> index_buffer;
     };
     std::array<Geometry, FRAME_COUNT> _geometries;
-
     GpuTexture2dSrv _texture;
-    GpuDescriptorHandle _texture_descriptor;
 };
 
 }  // namespace fb::gui

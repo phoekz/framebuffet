@@ -45,11 +45,11 @@ auto main() -> int {
     auto cards = std::make_unique<fb::cards::Cards>(
         *device,
         fb::cards::Params {
-            .card_textures = {
-                cube_demo->rt_color().resource(),
-                rain_demo->rt_color().resource(),
-                tree_demo->rt_color().resource(),
-                env_demo->rt_color().resource(),
+            .card_texture_descriptors = {
+                cube_demo->rt_color().srv_descriptor(),
+                rain_demo->rt_color().srv_descriptor(),
+                tree_demo->rt_color().srv_descriptor(),
+                env_demo->rt_color().srv_descriptor(),
             }});
 
     // Main loop.

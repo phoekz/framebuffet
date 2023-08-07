@@ -3,9 +3,7 @@
 namespace fb::env {
 
 Demo::Demo(GpuDevice& device) :
-    _descriptors(device, Demo::NAME),
-    _samplers(device, _descriptors),
-    _render_targets(device, _descriptors, device.swapchain_size(), Demo::CLEAR_COLOR, Demo::NAME),
+    _render_targets(device, device.swapchain_size(), Demo::CLEAR_COLOR, Demo::NAME),
     _debug_draw(device, Demo::NAME) {
     // Shaders.
     GpuShader vertex_shader;
@@ -35,20 +33,8 @@ Demo::Demo(GpuDevice& device) :
         },
         dx_name(Demo::NAME, "Pipeline State"));
 
-    // Descriptors.
-    {
-        _constant_buffer_descriptor = _descriptors.cbv_srv_uav().alloc();
-        _vertex_buffer_descriptor = _descriptors.cbv_srv_uav().alloc();
-        _env_texture_descriptor = _descriptors.cbv_srv_uav().alloc();
-    }
-
     // Constants.
-    {
-        _constant_buffer.create(device, 1, dx_name(Demo::NAME, "Constant Buffer"));
-        device.create_constant_buffer_view(
-            _constant_buffer.cbv_desc(),
-            _constant_buffer_descriptor.cpu());
-    }
+    _constant_buffer.create(device, 1, dx_name(Demo::NAME, "Constant Buffer"));
 
     // Geometry.
     {
@@ -64,11 +50,6 @@ Demo::Demo(GpuDevice& device) :
             (uint32_t)vertices.size(),
             dx_name(Demo::NAME, "Vertex Buffer"));
         _index_buffer.create(device, (uint32_t)indices.size(), dx_name(Demo::NAME, "Index Buffer"));
-
-        device.create_shader_resource_view(
-            _vertex_buffer.resource(),
-            _vertex_buffer.srv_desc(),
-            _vertex_buffer_descriptor.cpu());
 
         memcpy(_vertex_buffer.ptr(), vertices.data(), vertices.size() * sizeof(Vertex));
         memcpy(_index_buffer.ptr(), indices.data(), indices.size() * sizeof(Index));
@@ -112,12 +93,6 @@ Demo::Demo(GpuDevice& device) :
                 .depth = 6,
             },
             dx_name(Demo::NAME, "Env Texture"));
-
-        // Create SRV.
-        device.create_shader_resource_view(
-            _env_texture.resource(),
-            _env_texture.srv_desc(),
-            _env_texture_descriptor.cpu());
 
         // Upload faces.
         D3D12_SUBRESOURCE_DATA subresources[6];
@@ -190,15 +165,11 @@ auto Demo::render(GpuDevice& device) -> void {
     _debug_draw.render(device);
     {
         auto* cmd = device.command_list();
-        ID3D12DescriptorHeap* heaps[] = {
-            _descriptors.cbv_srv_uav().heap(),
-            _descriptors.sampler().heap()};
-        cmd->SetDescriptorHeaps(_countof(heaps), heaps);
-        cmd->SetGraphicsRootSignature(device.root_signature());
+
         GpuBindings bindings;
-        bindings.push(_constant_buffer_descriptor);
-        bindings.push(_vertex_buffer_descriptor);
-        bindings.push(_env_texture_descriptor);
+        bindings.push(_constant_buffer.cbv_descriptor());
+        bindings.push(_vertex_buffer.srv_descriptor());
+        bindings.push(_env_texture.srv_descriptor());
         cmd->SetGraphicsRoot32BitConstants(0, bindings.capacity(), bindings.ptr(), 0);
         cmd->SetPipelineState(_pipeline_state.get());
 

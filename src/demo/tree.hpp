@@ -31,52 +31,34 @@ class Demo {
     auto rt_color() const -> const GpuTexture2dSrvRtv& { return _render_targets.color(); }
 
   private:
-    GpuDescriptors _descriptors;
-    GpuSamplers _samplers;
     GpuRenderTargets _render_targets;
     GpuDebugDraw _debug_draw;
 
     struct Scene {
         Scene(GpuDevice& device);
-
         struct Model {
             Model(GpuDevice& device, const GltfModel& gltf_model, std::string_view model_name);
-
             GpuBufferHostSrv<GltfVertex> vertex_buffer;
-            GpuDescriptorHandle vertex_buffer_descriptor;
             GpuBufferHostIndex<GltfIndex> index_buffer;
             GpuTexture2dSrv texture;
-            GpuDescriptorHandle texture_descriptor;
         };
-
         Model tree;
         Model plane;
     } _scene;
 
     struct ShadowPass {
         static constexpr std::string_view NAME = "Shadow"sv;
-
         ShadowPass(GpuDevice& device);
-
         ComPtr<ID3D12PipelineState> pipeline_state;
-
         GpuBufferHostCbv<ShadowConstants> constants;
-        GpuDescriptorHandle constants_descriptor;
-
         GpuTexture2dSrvDsv depth;
-        GpuDescriptorHandle depth_dsv_descriptor;
-        GpuDescriptorHandle depth_srv_descriptor;
     } _shadow_pass;
 
     struct MainPass {
         static constexpr std::string_view NAME = "Main"sv;
-
         MainPass(GpuDevice& device);
-
         ComPtr<ID3D12PipelineState> pipeline_state;
-
         GpuBufferHostCbv<MainConstants> constants;
-        GpuDescriptorHandle constants_descriptor;
     } _main_pass;
 };
 

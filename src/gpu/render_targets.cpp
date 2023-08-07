@@ -14,50 +14,32 @@ static auto make_depth_stencil_clear_value(DXGI_FORMAT format, float depth, uint
 }
 
 GpuRenderTargets::GpuRenderTargets(
-    const GpuDevice& device,
-    GpuDescriptors& descriptors,
+    GpuDevice& device,
     Uint2 size,
     Vector4 clear_color,
     std::string_view name) :
     _size(size),
     _clear_color(clear_color) {
-    // Color target.
-    {
-        // Resource.
-        _color.create(
-            device,
-            GpuTexture2dDesc {
-                .format = COLOR_FORMAT,
-                .width = size.x,
-                .height = size.y,
-                .sample_count = SAMPLE_COUNT,
-                .clear_value = make_color_clear_value(COLOR_FORMAT, _clear_color),
-            },
-            dx_name(name, "Color Target"));
-
-        // View.
-        _color_descriptor = descriptors.rtv().alloc();
-        device.create_render_target_view(_color.resource(), std::nullopt, _color_descriptor.cpu());
-    }
-
-    // Depth target.
-    {
-        // Resource.
-        _depth.create(
-            device,
-            GpuTexture2dDesc {
-                .format = DEPTH_FORMAT,
-                .width = size.x,
-                .height = size.y,
-                .sample_count = SAMPLE_COUNT,
-                .clear_value = make_depth_stencil_clear_value(DEPTH_FORMAT, 1.0f, 0),
-            },
-            dx_name(name, "Depth Target"));
-
-        // View.
-        _depth_descriptor = descriptors.dsv().alloc();
-        device.create_depth_stencil_view(_depth.resource(), std::nullopt, _depth_descriptor.cpu());
-    }
+    _color.create(
+        device,
+        GpuTexture2dDesc {
+            .format = COLOR_FORMAT,
+            .width = size.x,
+            .height = size.y,
+            .sample_count = SAMPLE_COUNT,
+            .clear_value = make_color_clear_value(COLOR_FORMAT, _clear_color),
+        },
+        dx_name(name, "Color Target"));
+    _depth.create(
+        device,
+        GpuTexture2dDesc {
+            .format = DEPTH_FORMAT,
+            .width = size.x,
+            .height = size.y,
+            .sample_count = SAMPLE_COUNT,
+            .clear_value = make_depth_stencil_clear_value(DEPTH_FORMAT, 1.0f, 0),
+        },
+        dx_name(name, "Depth Target"));
 }
 
 auto GpuRenderTargets::begin(GpuDevice& device) -> void {
@@ -91,13 +73,21 @@ auto GpuRenderTargets::begin(GpuDevice& device) -> void {
     cmd->RSSetScissorRects(1, &scissor);
 
     // Set render targets.
-    cmd->OMSetRenderTargets(1, _color_descriptor.cpu_ptr(), FALSE, _depth_descriptor.cpu_ptr());
+    cmd->OMSetRenderTargets(
+        1,
+        _color.rtv_descriptor().cpu_ptr(),
+        FALSE,
+        _depth.dsv_descriptor().cpu_ptr());
 
     // Clear render targets.
     constexpr float DEPTH_VALUE = 1.0f;
-    cmd->ClearRenderTargetView(_color_descriptor.cpu(), (const float*)&_clear_color, 0, nullptr);
+    cmd->ClearRenderTargetView(
+        _color.rtv_descriptor().cpu(),
+        (const float*)&_clear_color,
+        0,
+        nullptr);
     cmd->ClearDepthStencilView(
-        _depth_descriptor.cpu(),
+        _depth.dsv_descriptor().cpu(),
         D3D12_CLEAR_FLAG_DEPTH,
         DEPTH_VALUE,
         0,

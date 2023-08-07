@@ -47,9 +47,9 @@ template<typename T, GpuBufferAccessMode ACCESS_MODE, GpuBufferFlags FLAGS>
     requires(detail::buffer_type_is_valid<T, FLAGS>())
 class GpuBuffer {
   public:
-    auto create(const GpuDevice& device, uint32_t element_size, std::string_view name) -> void {
+    auto create(GpuDevice& device, uint32_t element_size, std::string_view name) -> void {
         // Format.
-        if (gpu_buffer_flags_is_set(FLAGS, GpuBufferFlags::Index)) {
+        if constexpr (gpu_buffer_flags_is_set(FLAGS, GpuBufferFlags::Index)) {
             if (std::is_same_v<T, uint16_t>) {
                 _format = DXGI_FORMAT_R16_UINT;
             } else if (std::is_same_v<T, uint32_t>) {
@@ -59,7 +59,7 @@ class GpuBuffer {
 
         // Resource flags.
         auto resource_flags = D3D12_RESOURCE_FLAG_NONE;
-        if (gpu_buffer_flags_is_set(FLAGS, GpuBufferFlags::Uav)) {
+        if constexpr (gpu_buffer_flags_is_set(FLAGS, GpuBufferFlags::Uav)) {
             resource_flags |= D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
         }
 
@@ -97,6 +97,54 @@ class GpuBuffer {
 
         // GPU address.
         _gpu_address = _resource->GetGPUVirtualAddress();
+
+        // Views.
+        if constexpr (gpu_buffer_flags_is_set(FLAGS, GpuBufferFlags::Cbv)) {
+            _cbv_descriptor = device.descriptors().cbv_srv_uav().alloc();
+            device.create_constant_buffer_view(
+                D3D12_CONSTANT_BUFFER_VIEW_DESC {
+                    .BufferLocation = _gpu_address,
+                    .SizeInBytes = _byte_size,
+                },
+                _cbv_descriptor.cpu());
+        }
+        if constexpr (gpu_buffer_flags_is_set(FLAGS, GpuBufferFlags::Srv)) {
+            _srv_descriptor = device.descriptors().cbv_srv_uav().alloc();
+            device.create_shader_resource_view(
+                _resource,
+                D3D12_SHADER_RESOURCE_VIEW_DESC {
+                    .Format = _format,
+                    .ViewDimension = D3D12_SRV_DIMENSION_BUFFER,
+                    .Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING,
+                    .Buffer =
+                        {
+                            .FirstElement = 0,
+                            .NumElements = _element_size,
+                            .StructureByteStride = _element_byte_size,
+                            .Flags = D3D12_BUFFER_SRV_FLAG_NONE,
+                        },
+                },
+                _srv_descriptor.cpu());
+        }
+        if constexpr (gpu_buffer_flags_is_set(FLAGS, GpuBufferFlags::Uav)) {
+            _uav_descriptor = device.descriptors().cbv_srv_uav().alloc();
+            device.create_unordered_access_view(
+                _resource,
+                std::nullopt,
+                D3D12_UNORDERED_ACCESS_VIEW_DESC {
+                    .Format = _format,
+                    .ViewDimension = D3D12_UAV_DIMENSION_BUFFER,
+                    .Buffer =
+                        {
+                            .FirstElement = 0,
+                            .NumElements = _element_size,
+                            .StructureByteStride = _element_byte_size,
+                            .CounterOffsetInBytes = 0,
+                            .Flags = D3D12_BUFFER_UAV_FLAG_NONE,
+                        },
+                },
+                _uav_descriptor.cpu());
+        }
     }
 
     auto element_byte_size() const -> uint32_t { return _element_byte_size; }
@@ -120,48 +168,23 @@ class GpuBuffer {
             .Format = _format,
         };
     }
-    auto srv_desc() const -> D3D12_SHADER_RESOURCE_VIEW_DESC {
-        static_assert(
-            gpu_buffer_flags_is_set(FLAGS, GpuBufferFlags::Srv),
-            "Buffer does not support SRV");
-        return D3D12_SHADER_RESOURCE_VIEW_DESC {
-            .Format = _format,
-            .ViewDimension = D3D12_SRV_DIMENSION_BUFFER,
-            .Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING,
-            .Buffer =
-                {
-                    .FirstElement = 0,
-                    .NumElements = _element_size,
-                    .StructureByteStride = _element_byte_size,
-                    .Flags = D3D12_BUFFER_SRV_FLAG_NONE,
-                },
-        };
-    }
-    auto cbv_desc() const -> D3D12_CONSTANT_BUFFER_VIEW_DESC {
+    auto cbv_descriptor() const -> GpuDescriptorHandle {
         static_assert(
             gpu_buffer_flags_is_set(FLAGS, GpuBufferFlags::Cbv),
             "Buffer does not support CBV");
-        return D3D12_CONSTANT_BUFFER_VIEW_DESC {
-            .BufferLocation = _gpu_address,
-            .SizeInBytes = _byte_size,
-        };
+        return _cbv_descriptor;
     }
-    auto uav_desc() const -> D3D12_UNORDERED_ACCESS_VIEW_DESC {
+    auto srv_descriptor() const -> GpuDescriptorHandle {
+        static_assert(
+            gpu_buffer_flags_is_set(FLAGS, GpuBufferFlags::Srv),
+            "Buffer does not support SRV");
+        return _srv_descriptor;
+    }
+    auto uav_descriptor() const -> GpuDescriptorHandle {
         static_assert(
             gpu_buffer_flags_is_set(FLAGS, GpuBufferFlags::Uav),
             "Buffer does not support UAV");
-        return D3D12_UNORDERED_ACCESS_VIEW_DESC {
-            .Format = _format,
-            .ViewDimension = D3D12_UAV_DIMENSION_BUFFER,
-            .Buffer =
-                {
-                    .FirstElement = 0,
-                    .NumElements = _element_size,
-                    .StructureByteStride = _element_byte_size,
-                    .CounterOffsetInBytes = 0,
-                    .Flags = D3D12_BUFFER_UAV_FLAG_NONE,
-                },
-        };
+        return _uav_descriptor;
     }
 
   private:
@@ -174,6 +197,9 @@ class GpuBuffer {
     D3D12_RESOURCE_STATES _resource_state = D3D12_RESOURCE_STATE_COMMON;
     void* _raw = nullptr;
     D3D12_GPU_VIRTUAL_ADDRESS _gpu_address = 0;
+    GpuDescriptorHandle _cbv_descriptor = {};
+    GpuDescriptorHandle _srv_descriptor = {};
+    GpuDescriptorHandle _uav_descriptor = {};
 };
 
 template<typename T>

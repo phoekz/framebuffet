@@ -21,23 +21,13 @@ class Demo {
     auto rt_color() const -> const GpuTexture2dSrvRtv& { return _render_targets.color(); }
 
   private:
-    GpuDescriptors _descriptors;
-    GpuSamplers _samplers;
     GpuRenderTargets _render_targets;
     GpuDebugDraw _debug_draw;
-
     ComPtr<ID3D12PipelineState> _pipeline_state;
-
     GpuBufferHostCbv<Constants> _constant_buffer;
-    GpuDescriptorHandle _constant_buffer_descriptor;
-
     GpuBufferHostSrv<GltfVertex> _vertex_buffer;
-    GpuDescriptorHandle _vertex_buffer_descriptor;
-
     GpuBufferHostIndex<GltfIndex> _index_buffer;
-
     GpuTexture2dSrv _texture;
-    GpuDescriptorHandle _texture_descriptor;
 };
 
 }  // namespace fb::cube

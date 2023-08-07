@@ -42,34 +42,23 @@ class Demo {
     auto rt_color() const -> const GpuTexture2dSrvRtv& { return _render_targets.color(); }
 
   private:
-    GpuDescriptors _descriptors;
     GpuRenderTargets _render_targets;
     GpuDebugDraw _debug_draw;
-
     GpuBufferDeviceSrvUav<Particle> _particle_buffer;
-    GpuDescriptorHandle _particle_buffer_srv_descriptor;
-    GpuDescriptorHandle _particle_buffer_uav_descriptor;
 
     struct Compute {
         static constexpr std::string_view NAME = "Compute"sv;
 
         ComPtr<ID3D12PipelineState> pipeline_state;
-
         GpuBufferHostCbv<ComputeConstants> constant_buffer;
-        GpuDescriptorHandle constant_buffer_descriptor;
     } _compute;
 
     struct Draw {
         static constexpr std::string_view NAME = "Draw"sv;
 
         ComPtr<ID3D12PipelineState> pipeline_state;
-
         GpuBufferHostCbv<DrawConstants> constant_buffer;
-        GpuDescriptorHandle constant_buffer_descriptor;
-
         GpuBufferHostSrv<Vertex> vertex_buffer;
-        GpuDescriptorHandle vertex_buffer_descriptor;
-
         GpuBufferHostIndex<uint16_t> index_buffer;
     } _draw;
 };

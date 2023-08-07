@@ -39,8 +39,6 @@ class Demo {
     auto rt_color() const -> const GpuTexture2dSrvRtv& { return _render_targets.color(); }
 
   private:
-    GpuDescriptors _descriptors;
-    GpuSamplers _samplers;
     GpuRenderTargets _render_targets;
     GpuDebugDraw _debug_draw;
 
@@ -49,10 +47,6 @@ class Demo {
     GpuBufferHostSrv<Vertex> _vertex_buffer;
     GpuBufferHostIndex<Index> _index_buffer;
     GpuTexture2dSrvCube _env_texture;
-
-    GpuDescriptorHandle _constant_buffer_descriptor;
-    GpuDescriptorHandle _vertex_buffer_descriptor;
-    GpuDescriptorHandle _env_texture_descriptor;
 };
 
 }  // namespace fb::env

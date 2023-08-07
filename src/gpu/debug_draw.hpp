@@ -32,7 +32,6 @@ class GpuDebugDraw {
     auto render(GpuDevice& device) -> void;
 
   private:
-    GpuDescriptors _descriptors;
     ComPtr<ID3D12PipelineState> _pipeline_state;
 
     uint32_t _frame_index = 0;
@@ -51,9 +50,7 @@ class GpuDebugDraw {
 
     struct Frame {
         GpuBufferHostCbv<Constants> _constant_buffer;
-        GpuDescriptorHandle _constant_buffer_descriptor;
         GpuBufferHostSrv<Vertex> _lines_buffer;
-        GpuDescriptorHandle _lines_buffer_descriptor;
     };
     std::array<Frame, FRAME_COUNT> _frames;
 };
