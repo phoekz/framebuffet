@@ -53,6 +53,7 @@ VertexOutput vs_main(VertexInput input) {
 
     VertexOutput output;
     output.position = mul(constants.transform, float4(vertex.position, 1.0f));
+    output.position = output.position.xyww;  // Forces far plane.
     output.normal = vertex.normal;
     output.texcoord = vertex.texcoord;
     output.direction = direction;

@@ -24,7 +24,12 @@ Demo::Demo(GpuDevice& device) :
             .BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT),
             .SampleMask = UINT_MAX,
             .RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT),
-            .DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT),
+            .DepthStencilState =
+                D3D12_DEPTH_STENCIL_DESC {
+                    .DepthEnable = true,
+                    .DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL,
+                    .DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL,
+                },
             .PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE,
             .NumRenderTargets = 1,
             .RTVFormats = {DXGI_FORMAT_R8G8B8A8_UNORM},
