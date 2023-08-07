@@ -225,100 +225,53 @@ auto Demo::update(const demo::UpdateDesc& desc) -> void {
     }
 }
 
-auto Demo::render(GpuDevice& device) -> void {
+auto Demo::render(GpuDevice& device, GpuCommandList& cmd) -> void {
     // Shadow pass.
     {
-        D3D12_VIEWPORT viewport = {
-            .TopLeftX = 0.0f,
-            .TopLeftY = 0.0f,
-            .Width = (float)SHADOW_MAP_SIZE,
-            .Height = (float)SHADOW_MAP_SIZE,
-            .MinDepth = 0.0f,
-            .MaxDepth = 1.0f,
-        };
-        D3D12_RECT scissor = {
-            .left = 0,
-            .top = 0,
-            .right = (LONG)SHADOW_MAP_SIZE,
-            .bottom = (LONG)SHADOW_MAP_SIZE,
-        };
-
-        auto* cmd = device.command_list();
-        device.transition(
-            _shadow_pass.depth.resource(),
-            D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
-            D3D12_RESOURCE_STATE_DEPTH_WRITE);
-        cmd->RSSetViewports(1, &viewport);
-        cmd->RSSetScissorRects(1, &scissor);
-        cmd->OMSetRenderTargets(0, nullptr, FALSE, _shadow_pass.depth.dsv_descriptor().cpu_ptr());
-        cmd->ClearDepthStencilView(
-            _shadow_pass.depth.dsv_descriptor().cpu(),
-            D3D12_CLEAR_FLAG_DEPTH,
-            1.0f,
-            0,
-            0,
-            nullptr);
-
-        GpuBindings bindings;
-        bindings.push(_shadow_pass.constants.cbv_descriptor());
-        bindings.push(_scene.tree.vertex_buffer.srv_descriptor());
-        cmd->SetGraphicsRoot32BitConstants(0, bindings.capacity(), bindings.ptr(), 0);
-        cmd->SetPipelineState(_shadow_pass.pipeline_state.get());
-        cmd->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-        {
-            auto ibv = _scene.tree.index_buffer.index_buffer_view();
-            auto index_count = _scene.tree.index_buffer.element_size();
-            cmd->IASetIndexBuffer(&ibv);
-            cmd->DrawIndexedInstanced(index_count, 1, 0, 0, 0);
-        }
-
-        device.transition(
-            _shadow_pass.depth.resource(),
-            D3D12_RESOURCE_STATE_DEPTH_WRITE,
-            D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+        cmd.set_graphics();
+        _shadow_pass.depth.transition(cmd, D3D12_RESOURCE_STATE_DEPTH_WRITE);
+        cmd.set_viewport(0, 0, SHADOW_MAP_SIZE, SHADOW_MAP_SIZE);
+        cmd.set_scissor(0, 0, SHADOW_MAP_SIZE, SHADOW_MAP_SIZE);
+        cmd.set_rtv_dsv(std::nullopt, _shadow_pass.depth.dsv_descriptor());
+        cmd.clear_dsv(_shadow_pass.depth.dsv_descriptor(), 1.0f);
+        cmd.set_graphics_constants({
+            _shadow_pass.constants.cbv_descriptor().index(),
+            _scene.tree.vertex_buffer.srv_descriptor().index(),
+        });
+        cmd.set_pipeline(_shadow_pass.pipeline_state);
+        cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+        cmd.set_index_buffer(_scene.tree.index_buffer.index_buffer_view());
+        cmd.draw_indexed_instanced(_scene.tree.index_buffer.element_size(), 1, 0, 0, 0);
+        _shadow_pass.depth.transition(cmd, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
     }
 
     // Main pass.
     {
-        auto* cmd = device.command_list();
+        cmd.set_graphics();
+        _render_targets.begin(device, cmd);
+        _debug_draw.render(device, cmd);
+        cmd.set_pipeline(_main_pass.pipeline_state);
+        cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-        _render_targets.begin(device);
+        cmd.set_graphics_constants({
+            _main_pass.constants.cbv_descriptor().index(),
+            _scene.tree.vertex_buffer.srv_descriptor().index(),
+            _scene.tree.texture.srv_descriptor().index(),
+            _shadow_pass.depth.srv_descriptor().index(),
+        });
+        cmd.set_index_buffer(_scene.tree.index_buffer.index_buffer_view());
+        cmd.draw_indexed_instanced(_scene.tree.index_buffer.element_size(), 1, 0, 0, 0);
 
-        _debug_draw.render(device);
+        cmd.set_graphics_constants({
+            _main_pass.constants.cbv_descriptor().index(),
+            _scene.plane.vertex_buffer.srv_descriptor().index(),
+            _scene.plane.texture.srv_descriptor().index(),
+            _shadow_pass.depth.srv_descriptor().index(),
+        });
+        cmd.set_index_buffer(_scene.plane.index_buffer.index_buffer_view());
+        cmd.draw_indexed_instanced(_scene.plane.index_buffer.element_size(), 1, 0, 0, 0);
 
-        cmd->SetPipelineState(_main_pass.pipeline_state.get());
-        cmd->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-        {
-            auto ibv = _scene.tree.index_buffer.index_buffer_view();
-            auto index_count = _scene.tree.index_buffer.element_size();
-            cmd->IASetIndexBuffer(&ibv);
-            GpuBindings bindings;
-            bindings.push(_main_pass.constants.cbv_descriptor());
-            bindings.push(_scene.tree.vertex_buffer.srv_descriptor());
-            bindings.push(_scene.tree.texture.srv_descriptor());
-            bindings.push(_shadow_pass.depth.srv_descriptor());
-            device.cmd_set_graphics();
-            cmd->SetGraphicsRoot32BitConstants(0, bindings.capacity(), bindings.ptr(), 0);
-            cmd->DrawIndexedInstanced(index_count, 1, 0, 0, 0);
-        }
-
-        {
-            auto ibv = _scene.plane.index_buffer.index_buffer_view();
-            auto index_count = _scene.plane.index_buffer.element_size();
-            cmd->IASetIndexBuffer(&ibv);
-            GpuBindings bindings;
-            bindings.push(_main_pass.constants.cbv_descriptor());
-            bindings.push(_scene.plane.vertex_buffer.srv_descriptor());
-            bindings.push(_scene.plane.texture.srv_descriptor());
-            bindings.push(_shadow_pass.depth.srv_descriptor());
-            device.cmd_set_graphics();
-            cmd->SetGraphicsRoot32BitConstants(0, bindings.capacity(), bindings.ptr(), 0);
-            cmd->DrawIndexedInstanced(index_count, 1, 0, 0, 0);
-        }
-
-        _render_targets.end(device);
+        _render_targets.end(device, cmd);
     }
 }
 

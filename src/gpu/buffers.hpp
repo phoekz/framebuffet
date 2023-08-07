@@ -70,7 +70,7 @@ class GpuBuffer {
         _byte_size = _element_byte_size * element_size;
         _resource_desc = CD3DX12_RESOURCE_DESC::Buffer(_byte_size, resource_flags);
         _resource_state =
-            host_visible ? D3D12_RESOURCE_STATE_GENERIC_READ : D3D12_RESOURCE_STATE_COPY_DEST;
+            host_visible ? D3D12_RESOURCE_STATE_GENERIC_READ : D3D12_RESOURCE_STATE_COMMON;
 
         // Create.
         _resource = device.create_committed_resource(
@@ -185,6 +185,13 @@ class GpuBuffer {
             gpu_buffer_flags_is_set(FLAGS, GpuBufferFlags::Uav),
             "Buffer does not support UAV");
         return _uav_descriptor;
+    }
+
+    auto transition(const GpuCommandList& cmd, D3D12_RESOURCE_STATES after) -> void {
+        if (_resource_state != after) {
+            cmd.transition_barrier(_resource, _resource_state, after);
+            _resource_state = after;
+        }
     }
 
   private:

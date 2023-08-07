@@ -106,6 +106,7 @@ class GpuTexture2d {
             init_state,
             clear_value,
             name);
+        _resource_state = init_state;
 
         // Views.
         if constexpr (gpu_texture_flags_is_set(FLAGS, GpuTextureFlags::Srv)) {
@@ -183,9 +184,17 @@ class GpuTexture2d {
         return _dsv_descriptor;
     }
 
+    auto transition(const GpuCommandList& cmd, D3D12_RESOURCE_STATES after) -> void {
+        if (_resource_state != after) {
+            cmd.transition_barrier(_resource, _resource_state, after);
+            _resource_state = after;
+        }
+    }
+
   private:
     GpuTexture2dDesc _desc;
     ComPtr<ID3D12Resource> _resource;
+    D3D12_RESOURCE_STATES _resource_state = D3D12_RESOURCE_STATE_COMMON;
     DXGI_FORMAT _srv_format = DXGI_FORMAT_UNKNOWN;
     DXGI_FORMAT _rtv_format = DXGI_FORMAT_UNKNOWN;
     DXGI_FORMAT _dsv_format = DXGI_FORMAT_UNKNOWN;

@@ -42,65 +42,17 @@ GpuRenderTargets::GpuRenderTargets(
         dx_name(name, "Depth Target"));
 }
 
-auto GpuRenderTargets::begin(GpuDevice& device) -> void {
-    // Command list.
-    auto* cmd = device.command_list();
-
-    // Transition to be renderable.
-    device.transition(
-        _color.resource(),
-        D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
-        D3D12_RESOURCE_STATE_RENDER_TARGET);
-
-    // Set viewport.
-    D3D12_VIEWPORT viewport = {
-        .TopLeftX = 0.0f,
-        .TopLeftY = 0.0f,
-        .Width = (float)_size.x,
-        .Height = (float)_size.y,
-        .MinDepth = 0.0f,
-        .MaxDepth = 1.0f,
-    };
-    cmd->RSSetViewports(1, &viewport);
-
-    // Set scissor rect.
-    D3D12_RECT scissor = {
-        .left = 0,
-        .top = 0,
-        .right = (LONG)_size.x,
-        .bottom = (LONG)_size.y,
-    };
-    cmd->RSSetScissorRects(1, &scissor);
-
-    // Set render targets.
-    cmd->OMSetRenderTargets(
-        1,
-        _color.rtv_descriptor().cpu_ptr(),
-        FALSE,
-        _depth.dsv_descriptor().cpu_ptr());
-
-    // Clear render targets.
-    constexpr float DEPTH_VALUE = 1.0f;
-    cmd->ClearRenderTargetView(
-        _color.rtv_descriptor().cpu(),
-        (const float*)&_clear_color,
-        0,
-        nullptr);
-    cmd->ClearDepthStencilView(
-        _depth.dsv_descriptor().cpu(),
-        D3D12_CLEAR_FLAG_DEPTH,
-        DEPTH_VALUE,
-        0,
-        0,
-        nullptr);
+auto GpuRenderTargets::begin(GpuDevice&, const GpuCommandList& cmd) -> void {
+    _color.transition(cmd, D3D12_RESOURCE_STATE_RENDER_TARGET);
+    cmd.set_viewport(0, 0, _size.x, _size.y);
+    cmd.set_scissor(0, 0, _size.x, _size.y);
+    cmd.set_rtv_dsv(_color.rtv_descriptor(), _depth.dsv_descriptor());
+    cmd.clear_rtv(_color.rtv_descriptor(), _clear_color);
+    cmd.clear_dsv(_depth.dsv_descriptor(), DEPTH_VALUE);
 }
 
-auto GpuRenderTargets::end(GpuDevice& device) -> void {
-    // Transition to be shader readable.
-    device.transition(
-        _color.resource(),
-        D3D12_RESOURCE_STATE_RENDER_TARGET,
-        D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+auto GpuRenderTargets::end(GpuDevice&, const GpuCommandList& cmd) -> void {
+    _color.transition(cmd, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 }
 
 }  // namespace fb

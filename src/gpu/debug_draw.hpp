@@ -29,7 +29,7 @@ class GpuDebugDraw {
     auto line(const Vector3& a, const Vector3& b, ColorRgba8 color) -> void;
     auto axes() -> void;
     auto end() -> void;
-    auto render(GpuDevice& device) -> void;
+    auto render(GpuDevice& device, const GpuCommandList& cmd) -> void;
 
   private:
     ComPtr<ID3D12PipelineState> _pipeline_state;

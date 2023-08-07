@@ -70,19 +70,15 @@ auto GpuDebugDraw::end() -> void {
     memcpy(frame._lines_buffer.ptr(), _lines.data(), _lines.size() * sizeof(Vertex));
 }
 
-auto GpuDebugDraw::render(GpuDevice& device) -> void {
-    auto* cmd = device.command_list();
-
-    cmd->SetPipelineState(_pipeline_state.get());
-    cmd->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
-
+auto GpuDebugDraw::render(GpuDevice&, const GpuCommandList& cmd) -> void {
     const auto& frame = _frames[_frame_index];
-    GpuBindings bindings;
-    bindings.push(frame._constant_buffer.cbv_descriptor());
-    bindings.push(frame._lines_buffer.srv_descriptor());
-    device.cmd_set_graphics();
-    cmd->SetGraphicsRoot32BitConstants(0, bindings.capacity(), bindings.ptr(), 0);
-    cmd->DrawInstanced((uint32_t)_lines.size(), 1, 0, 0);
+    cmd.set_graphics_constants({
+        frame._constant_buffer.cbv_descriptor().index(),
+        frame._lines_buffer.srv_descriptor().index(),
+    });
+    cmd.set_pipeline(_pipeline_state);
+    cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
+    cmd.draw_instanced((uint32_t)_lines.size(), 1, 0, 0);
 }
 
 }  // namespace fb

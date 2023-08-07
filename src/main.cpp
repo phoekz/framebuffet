@@ -89,53 +89,52 @@ auto main() -> int {
         cards->update(*device);
 
         // Begin frame.
-        device->begin_frame();
-        auto* cmd = device->command_list();
-        PIXBeginEvent(cmd, PIX_COLOR_DEFAULT, std::format("Frame {}", frame_count).c_str());
+        auto cmd = device->begin_frame();
+        cmd.begin_pix(std::format("Frame {}", frame_count));
 
         // Demo pass.
         {
-            PIXBeginEvent(cmd, PIX_COLOR_DEFAULT, "Demo pass");
+            cmd.begin_pix("Demo pass");
 
-            PIXBeginEvent(cmd, PIX_COLOR_DEFAULT, "Cube");
-            cube_demo->render(*device);
-            PIXEndEvent(cmd);
+            cmd.begin_pix("Cube");
+            cube_demo->render(*device, cmd);
+            cmd.end_pix();
 
-            PIXBeginEvent(cmd, PIX_COLOR_DEFAULT, "Rain");
-            rain_demo->render(*device);
-            PIXEndEvent(cmd);
+            cmd.begin_pix("Rain");
+            rain_demo->render(*device, cmd);
+            cmd.end_pix();
 
-            PIXBeginEvent(cmd, PIX_COLOR_DEFAULT, "Tree");
-            tree_demo->render(*device);
-            PIXEndEvent(cmd);
+            cmd.begin_pix("Tree");
+            tree_demo->render(*device, cmd);
+            cmd.end_pix();
 
-            PIXBeginEvent(cmd, PIX_COLOR_DEFAULT, "Env");
-            env_demo->render(*device);
-            PIXEndEvent(cmd);
+            cmd.begin_pix("Env");
+            env_demo->render(*device, cmd);
+            cmd.end_pix();
 
-            PIXEndEvent(cmd);
+            cmd.end_pix();
         }
 
         // Main pass.
         {
-            PIXBeginEvent(cmd, PIX_COLOR_DEFAULT, "Main pass");
+            cmd.begin_pix("Main pass");
             device->begin_main_pass();
 
-            PIXBeginEvent(cmd, PIX_COLOR_DEFAULT, "Cards");
-            cards->render(*device);
-            PIXEndEvent(cmd);
+            cmd.begin_pix("Cards");
+            cards->render(*device, cmd);
+            cmd.end_pix();
 
-            PIXBeginEvent(cmd, PIX_COLOR_DEFAULT, "Gui");
-            gui->render(*device);
-            PIXEndEvent(cmd);
+            cmd.begin_pix("Gui");
+            gui->render(*device, cmd);
+            cmd.end_pix();
 
             device->end_main_pass();
-            PIXEndEvent(cmd);
+            cmd.end_pix();
         }
 
         // End frame.
-        PIXEndEvent(cmd);
-        device->end_frame();
+        cmd.end_pix();
+        device->end_frame(std::move(cmd));
 
         // Update frame count.
         frame_count++;

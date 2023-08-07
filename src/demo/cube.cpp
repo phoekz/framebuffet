@@ -89,30 +89,20 @@ auto Demo::update(const demo::UpdateDesc& desc) -> void {
     _debug_draw.end();
 }
 
-auto Demo::render(GpuDevice& device) -> void {
-    auto* cmd = device.command_list();
-    _render_targets.begin(device);
-
-    // Debug pass.
-    _debug_draw.render(device);
-
-    // Main pass.
-    GpuBindings bindings;
-    bindings.push(_constant_buffer.cbv_descriptor());
-    bindings.push(_vertex_buffer.srv_descriptor());
-    bindings.push(_texture.srv_descriptor());
-    device.cmd_set_graphics();
-    cmd->SetGraphicsRoot32BitConstants(0, bindings.capacity(), bindings.ptr(), 0);
-
-    cmd->SetPipelineState(_pipeline_state.get());
-    cmd->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-    auto ibv = _index_buffer.index_buffer_view();
-    cmd->IASetIndexBuffer(&ibv);
-
-    auto index_count = _index_buffer.element_size();
-    cmd->DrawIndexedInstanced(index_count, 1, 0, 0, 0);
-
-    _render_targets.end(device);
+auto Demo::render(GpuDevice& device, GpuCommandList& cmd) -> void {
+    cmd.set_graphics();
+    _render_targets.begin(device, cmd);
+    _debug_draw.render(device, cmd);
+    cmd.set_graphics_constants({
+        _constant_buffer.cbv_descriptor().index(),
+        _vertex_buffer.srv_descriptor().index(),
+        _texture.srv_descriptor().index(),
+    });
+    cmd.set_pipeline(_pipeline_state);
+    cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    cmd.set_index_buffer(_index_buffer.index_buffer_view());
+    cmd.draw_indexed_instanced(_index_buffer.element_size(), 1, 0, 0, 0);
+    _render_targets.end(device, cmd);
 }
 
 }  // namespace fb::cube

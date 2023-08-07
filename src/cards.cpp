@@ -90,43 +90,23 @@ void Cards::update(const GpuDevice& device) {
         Matrix::CreateOrthographicOffCenter(0.0f, width, height, 0.0f, 0.0f, 1.0f);
 }
 
-void Cards::render(GpuDevice& device) {
-    auto* cmd = device.command_list();
-
-    D3D12_VIEWPORT viewport = {
-        .TopLeftX = 0.0f,
-        .TopLeftY = 0.0f,
-        .Width = (float)device.swapchain_size().x,
-        .Height = (float)device.swapchain_size().y,
-        .MinDepth = 0.0f,
-        .MaxDepth = 1.0f,
-    };
-    D3D12_RECT scissor = {
-        .left = 0,
-        .top = 0,
-        .right = (LONG)device.swapchain_size().x,
-        .bottom = (LONG)device.swapchain_size().y,
-    };
-    cmd->RSSetViewports(1, &viewport);
-    cmd->RSSetScissorRects(1, &scissor);
-
-    auto ibv = _index_buffer.index_buffer_view();
-    auto index_count = _index_buffer.element_size();
-
-    cmd->SetPipelineState(_pipeline_state.get());
-    cmd->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-    cmd->IASetIndexBuffer(&ibv);
+void Cards::render(GpuDevice& device, GpuCommandList& cmd) {
+    cmd.set_graphics();
+    cmd.set_viewport(0, 0, device.swapchain_size().x, device.swapchain_size().y);
+    cmd.set_scissor(0, 0, device.swapchain_size().x, device.swapchain_size().y);
+    cmd.set_pipeline(_pipeline_state);
+    cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    cmd.set_index_buffer(_index_buffer.index_buffer_view());
 
     for (uint32_t i = 0; i < CARD_COUNT; ++i) {
-        GpuBindings bindings;
-        bindings.push(i);
-        bindings.push(_constant_buffer.cbv_descriptor());
-        bindings.push(_card_buffer.srv_descriptor());
-        bindings.push(_vertex_buffer.srv_descriptor());
-        bindings.push(_card_texture_descriptors[i]);
-        device.cmd_set_graphics();
-        cmd->SetGraphicsRoot32BitConstants(0, bindings.capacity(), bindings.ptr(), 0);
-        cmd->DrawIndexedInstanced(index_count, 1, 0, 0, 0);
+        cmd.set_graphics_constants({
+            i,
+            _constant_buffer.cbv_descriptor().index(),
+            _card_buffer.srv_descriptor().index(),
+            _vertex_buffer.srv_descriptor().index(),
+            _card_texture_descriptors[i].index(),
+        });
+        cmd.draw_indexed_instanced(_index_buffer.element_size(), 1, 0, 0, 0);
     }
 }
 

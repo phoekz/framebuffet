@@ -182,60 +182,33 @@ void Demo::update(const demo::UpdateDesc& desc) {
     }
 }
 
-void Demo::render(GpuDevice& device) {
-    auto* cmd = device.command_list();
-
+void Demo::render(GpuDevice& device, GpuCommandList& cmd) {
     {
-        // Transition particles.
-        device.transition(
-            _particle_buffer.resource(),
-            D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER,
-            D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-
-        // Pipeline state.
-        GpuBindings bindings;
-        bindings.push(_compute.constant_buffer.cbv_descriptor());
-        bindings.push(_particle_buffer.uav_descriptor());
-        device.cmd_set_compute();
-        cmd->SetComputeRoot32BitConstants(0, bindings.capacity(), bindings.ptr(), 0);
-        cmd->SetPipelineState(_compute.pipeline_state.get());
-
-        // Dispatch.
-        cmd->Dispatch(DISPATCH_COUNT, 1, 1);
-
-        // Transition particles.
-        device.transition(
-            _particle_buffer.resource(),
-            D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
-            D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
+        cmd.set_compute();
+        _particle_buffer.transition(cmd, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+        cmd.set_compute_constants({
+            _compute.constant_buffer.cbv_descriptor().index(),
+            _particle_buffer.uav_descriptor().index(),
+        });
+        cmd.set_pipeline(_compute.pipeline_state);
+        cmd.dispatch(DISPATCH_COUNT, 1, 1);
+        _particle_buffer.transition(cmd, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
     }
 
     {
-        // Begin.
-        _render_targets.begin(device);
-
-        // Pipeline state.
-        GpuBindings bindings;
-        bindings.push(_draw.constant_buffer.cbv_descriptor());
-        bindings.push(_draw.vertex_buffer.srv_descriptor());
-        bindings.push(_particle_buffer.srv_descriptor());
-        device.cmd_set_graphics();
-        cmd->SetGraphicsRoot32BitConstants(0, bindings.capacity(), bindings.ptr(), 0);
-        cmd->SetPipelineState(_draw.pipeline_state.get());
-
-        // Input assembler.
-        cmd->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-        auto ibv = _draw.index_buffer.index_buffer_view();
-        cmd->IASetIndexBuffer(&ibv);
-
-        // Draw.
-        cmd->DrawIndexedInstanced(6, PARTICLE_COUNT, 0, 0, 0);
-
-        // Debug.
-        _debug_draw.render(device);
-
-        // End.
-        _render_targets.end(device);
+        cmd.set_graphics();
+        _render_targets.begin(device, cmd);
+        cmd.set_graphics_constants({
+            _draw.constant_buffer.cbv_descriptor().index(),
+            _draw.vertex_buffer.srv_descriptor().index(),
+            _particle_buffer.srv_descriptor().index(),
+        });
+        cmd.set_pipeline(_draw.pipeline_state);
+        cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+        cmd.set_index_buffer(_draw.index_buffer.index_buffer_view());
+        cmd.draw_indexed_instanced(6, PARTICLE_COUNT, 0, 0, 0);
+        _debug_draw.render(device, cmd);
+        _render_targets.end(device, cmd);
     }
 }
 

@@ -22,7 +22,7 @@ class Gui {
     Gui(const Window& window, GpuDevice& device);
     ~Gui();
     auto update() -> void;
-    auto render(const GpuDevice& device) -> void;
+    auto render(const GpuDevice& device, GpuCommandList& cmd) -> void;
 
   private:
     ImGuiContext* _imgui_ctx = nullptr;

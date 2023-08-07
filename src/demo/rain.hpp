@@ -37,7 +37,7 @@ class Demo {
 
     Demo(GpuDevice& device);
     void update(const demo::UpdateDesc& desc);
-    void render(GpuDevice& device);
+    void render(GpuDevice& device, GpuCommandList& cmd);
 
     auto rt_color() const -> const GpuTexture2dSrvRtv& { return _render_targets.color(); }
 

@@ -74,6 +74,24 @@ GpuDescriptors::GpuDescriptors(GpuDevice& device, std::string_view name) :
     _rtv_heap(device, name, D3D12_DESCRIPTOR_HEAP_TYPE_RTV, RTV_DESCRIPTOR_CAPACITY),
     _dsv_heap(device, name, D3D12_DESCRIPTOR_HEAP_TYPE_DSV, DSV_DESCRIPTOR_CAPACITY) {}
 
+class GpuBindings {
+  public:
+    GpuBindings() { _bindings.fill(UINT32_MAX); }
+
+    auto push(uint32_t binding) -> void {
+        assert(_count < BINDINGS_CAPACITY);
+        _bindings[_count++] = binding;
+    }
+    auto push(const GpuDescriptorHandle& handle) -> void { push(handle.index()); }
+    auto count() const -> uint32_t { return _count; }
+    auto capacity() -> uint32_t { return BINDINGS_CAPACITY; }
+    auto ptr() const -> const uint32_t* { return _bindings.data(); }
+
+  private:
+    std::array<uint32_t, BINDINGS_CAPACITY> _bindings;
+    uint32_t _count = 0;
+};
+
 #pragma endregion
 
 #pragma region Samplers
@@ -138,6 +156,166 @@ GpuSamplers::GpuSamplers(GpuDevice& device, GpuDescriptors& descriptors) {
 
 #pragma endregion
 
+#pragma region Commands
+
+auto GpuCommandList::begin_pix(std::string_view name) const -> void {
+    PIXBeginEvent(_cmd, PIX_COLOR_DEFAULT, name.data());
+}
+
+auto GpuCommandList::end_pix() const -> void {
+    PIXEndEvent(_cmd);
+}
+
+auto GpuCommandList::set_graphics() -> void {
+    if (_engine == GpuCommandEngine::Graphics)
+        return;
+    _engine = GpuCommandEngine::Graphics;
+    ID3D12DescriptorHeap* heaps[] = {
+        _descriptors->cbv_srv_uav().heap(),
+        _descriptors->sampler().heap()};
+    _cmd->SetDescriptorHeaps(_countof(heaps), heaps);
+    _cmd->SetGraphicsRootSignature(_root_signature);
+}
+
+auto GpuCommandList::set_compute() -> void {
+    if (_engine == GpuCommandEngine::Compute)
+        return;
+    _engine = GpuCommandEngine::Compute;
+    ID3D12DescriptorHeap* heaps[] = {
+        _descriptors->cbv_srv_uav().heap(),
+        _descriptors->sampler().heap()};
+    _cmd->SetDescriptorHeaps(_countof(heaps), heaps);
+    _cmd->SetComputeRootSignature(_root_signature);
+}
+
+auto GpuCommandList::set_viewport(
+    uint32_t left,
+    uint32_t top,
+    uint32_t right,
+    uint32_t bottom,
+    float min_depth,
+    float max_depth) const -> void {
+    FB_ASSERT(_engine == GpuCommandEngine::Graphics);
+    D3D12_VIEWPORT viewport {
+        .TopLeftX = (FLOAT)left,
+        .TopLeftY = (FLOAT)top,
+        .Width = (FLOAT)(right - left),
+        .Height = (FLOAT)(bottom - top),
+        .MinDepth = min_depth,
+        .MaxDepth = max_depth,
+    };
+    _cmd->RSSetViewports(1, &viewport);
+}
+
+auto GpuCommandList::set_scissor(uint32_t left, uint32_t top, uint32_t right, uint32_t bottom) const
+    -> void {
+    FB_ASSERT(_engine == GpuCommandEngine::Graphics);
+    D3D12_RECT scissor {
+        .left = (LONG)left,
+        .top = (LONG)top,
+        .right = (LONG)right,
+        .bottom = (LONG)bottom,
+    };
+    _cmd->RSSetScissorRects(1, &scissor);
+}
+
+auto GpuCommandList::set_rtv_dsv(
+    const std::optional<GpuDescriptorHandle>& rtv,
+    const std::optional<GpuDescriptorHandle>& dsv) const -> void {
+    FB_ASSERT(_engine == GpuCommandEngine::Graphics);
+    _cmd->OMSetRenderTargets(
+        rtv.has_value() ? 1 : 0,
+        rtv.has_value() ? rtv.value().cpu_ptr() : nullptr,
+        false,
+        dsv.has_value() ? dsv.value().cpu_ptr() : nullptr);
+}
+
+auto GpuCommandList::set_topology(D3D12_PRIMITIVE_TOPOLOGY topology) const -> void {
+    FB_ASSERT(_engine == GpuCommandEngine::Graphics);
+    _cmd->IASetPrimitiveTopology(topology);
+}
+
+auto GpuCommandList::set_index_buffer(D3D12_INDEX_BUFFER_VIEW ibv) const -> void {
+    FB_ASSERT(_engine == GpuCommandEngine::Graphics);
+    _cmd->IASetIndexBuffer(&ibv);
+}
+
+auto GpuCommandList::set_blend_factor(Vector4 factor) const -> void {
+    FB_ASSERT(_engine == GpuCommandEngine::Graphics);
+    _cmd->OMSetBlendFactor((const float*)&factor);
+}
+
+auto GpuCommandList::set_pipeline(const ComPtr<ID3D12PipelineState>& pipeline_state) const -> void {
+    _cmd->SetPipelineState(pipeline_state.get());
+}
+
+auto GpuCommandList::set_graphics_constants(std::initializer_list<uint32_t> constants) const
+    -> void {
+    FB_ASSERT(_engine == GpuCommandEngine::Graphics);
+    GpuBindings bindings;
+    for (auto constant : constants)
+        bindings.push(constant);
+    _cmd->SetGraphicsRoot32BitConstants(0, bindings.capacity(), bindings.ptr(), 0);
+}
+
+auto GpuCommandList::set_compute_constants(std::initializer_list<uint32_t> constants) const
+    -> void {
+    FB_ASSERT(_engine == GpuCommandEngine::Compute);
+    GpuBindings bindings;
+    for (auto constant : constants)
+        bindings.push(constant);
+    _cmd->SetComputeRoot32BitConstants(0, bindings.capacity(), bindings.ptr(), 0);
+}
+
+auto GpuCommandList::clear_rtv(const GpuDescriptorHandle& rtv, Vector4 color) const -> void {
+    FB_ASSERT(_engine == GpuCommandEngine::Graphics);
+    _cmd->ClearRenderTargetView(rtv.cpu(), (const float*)&color, 0, nullptr);
+}
+
+auto GpuCommandList::clear_dsv(const GpuDescriptorHandle& dsv, float depth) const -> void {
+    FB_ASSERT(_engine == GpuCommandEngine::Graphics);
+    _cmd->ClearDepthStencilView(dsv.cpu(), D3D12_CLEAR_FLAG_DEPTH, depth, 0, 0, nullptr);
+}
+
+auto GpuCommandList::draw_instanced(
+    uint32_t vertex_count,
+    uint32_t instance_count,
+    uint32_t start_vertex,
+    uint32_t start_instance) const -> void {
+    FB_ASSERT(_engine == GpuCommandEngine::Graphics);
+    _cmd->DrawInstanced(vertex_count, instance_count, start_vertex, start_instance);
+}
+
+auto GpuCommandList::draw_indexed_instanced(
+    uint32_t index_count,
+    uint32_t instance_count,
+    uint32_t start_index,
+    int32_t base_vertex,
+    uint32_t start_instance) const -> void {
+    FB_ASSERT(_engine == GpuCommandEngine::Graphics);
+    _cmd->DrawIndexedInstanced(
+        index_count,
+        instance_count,
+        start_index,
+        base_vertex,
+        start_instance);
+}
+
+auto GpuCommandList::dispatch(uint32_t x, uint32_t y, uint32_t z) const -> void {
+    FB_ASSERT(_engine == GpuCommandEngine::Compute);
+    _cmd->Dispatch(x, y, z);
+}
+
+auto GpuCommandList::transition_barrier(
+    const ComPtr<ID3D12Resource>& resource,
+    D3D12_RESOURCE_STATES before,
+    D3D12_RESOURCE_STATES after) const -> void {
+    auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(resource.get(), before, after);
+    _cmd->ResourceBarrier(1, &barrier);
+}
+
+#pragma endregion
+
 #pragma region Device
 
 #pragma region Device - State
@@ -147,10 +325,23 @@ GpuDevice::GpuDevice(const Window& window) {
     UINT factory_flags = 0;
     {
 #if defined(_DEBUG)
+        factory_flags = DXGI_CREATE_FACTORY_DEBUG;
+
         ComPtr<ID3D12Debug6> debug;
         FB_ASSERT_HR(D3D12GetDebugInterface(IID_PPV_ARGS(&debug)));
         debug->EnableDebugLayer();
-        factory_flags = DXGI_CREATE_FACTORY_DEBUG;
+
+        ComPtr<IDXGIInfoQueue> info_queue;
+        FB_ASSERT_HR(DXGIGetDebugInterface1(0, IID_PPV_ARGS(&info_queue)));
+        info_queue->SetBreakOnSeverity(
+            DXGI_DEBUG_ALL,
+            DXGI_INFO_QUEUE_MESSAGE_SEVERITY_ERROR,
+            true);
+        info_queue->SetBreakOnSeverity(
+            DXGI_DEBUG_ALL,
+            DXGI_INFO_QUEUE_MESSAGE_SEVERITY_CORRUPTION,
+            true);
+
 #endif
     }
 
@@ -213,6 +404,34 @@ GpuDevice::GpuDevice(const Window& window) {
 
     // Debug device.
     _device->QueryInterface(IID_PPV_ARGS(&_leak_tracker.debug_device));
+
+    {
+#if defined(_DEBUG)
+        ComPtr<ID3D12InfoQueue1> info_queue;
+        FB_ASSERT_HR(_device->QueryInterface(IID_PPV_ARGS(&info_queue)));
+        // info_queue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, true);
+        info_queue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, true);
+        info_queue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_CORRUPTION, true);
+        DWORD callback_cookie;
+        info_queue->RegisterMessageCallback(
+            [](D3D12_MESSAGE_CATEGORY,
+               D3D12_MESSAGE_SEVERITY severity,
+               D3D12_MESSAGE_ID,
+               const char* description,
+               void*) {
+                switch (severity) {
+                    case D3D12_MESSAGE_SEVERITY_CORRUPTION: FB_LOG_ERROR("[{}", description); break;
+                    case D3D12_MESSAGE_SEVERITY_ERROR: FB_LOG_ERROR("{}", description); break;
+                    case D3D12_MESSAGE_SEVERITY_WARNING: FB_LOG_WARN("{}", description); break;
+                    case D3D12_MESSAGE_SEVERITY_INFO: FB_LOG_INFO("{}", description); break;
+                    default: break;
+                }
+            },
+            D3D12_MESSAGE_CALLBACK_FLAG_NONE,
+            nullptr,
+            &callback_cookie);
+#endif
+    }
 
     // Root signature support.
     {
@@ -355,46 +574,39 @@ GpuDevice::GpuDevice(const Window& window) {
     _samplers = std::make_unique<GpuSamplers>(*this, *_descriptors);
 }
 
-auto GpuDevice::begin_frame() -> void {
+auto GpuDevice::begin_frame() -> GpuCommandList {
     auto* cmd_alloc = _command_allocators[_frame_index].get();
     cmd_alloc->Reset();
     _command_list->Reset(cmd_alloc, nullptr);
+    return GpuCommandList {
+        _command_list.get(),
+        GpuCommandEngine::Unknown,
+        _root_signature.get(),
+        _descriptors.get(),
+    };
 }
 
 auto GpuDevice::begin_main_pass() -> void {
-    static constexpr float CLEAR_COLOR[4] = {0.1f, 0.1f, 0.1f, 1.0f};
-    transition(
-        _rtvs[_frame_index],
+    auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(
+        _rtvs[_frame_index].get(),
         D3D12_RESOURCE_STATE_PRESENT,
         D3D12_RESOURCE_STATE_RENDER_TARGET);
+    _command_list->ResourceBarrier(1, &barrier);
+
+    static constexpr float CLEAR_COLOR[4] = {0.1f, 0.1f, 0.1f, 1.0f};
     _command_list->ClearRenderTargetView(_rtv_descriptors[_frame_index], CLEAR_COLOR, 0, nullptr);
     _command_list->OMSetRenderTargets(1, &_rtv_descriptors[_frame_index], FALSE, nullptr);
 }
 
-auto GpuDevice::cmd_set_graphics() const -> void {
-    ID3D12DescriptorHeap* heaps[] = {
-        _descriptors->cbv_srv_uav().heap(),
-        _descriptors->sampler().heap()};
-    _command_list->SetDescriptorHeaps(_countof(heaps), heaps);
-    _command_list->SetGraphicsRootSignature(_root_signature.get());
-}
-
-auto GpuDevice::cmd_set_compute() const -> void {
-    ID3D12DescriptorHeap* heaps[] = {
-        _descriptors->cbv_srv_uav().heap(),
-        _descriptors->sampler().heap()};
-    _command_list->SetDescriptorHeaps(_countof(heaps), heaps);
-    _command_list->SetComputeRootSignature(_root_signature.get());
-}
-
 auto GpuDevice::end_main_pass() -> void {
-    transition(
-        _rtvs[_frame_index],
+    auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(
+        _rtvs[_frame_index].get(),
         D3D12_RESOURCE_STATE_RENDER_TARGET,
         D3D12_RESOURCE_STATE_PRESENT);
+    _command_list->ResourceBarrier(1, &barrier);
 }
 
-auto GpuDevice::end_frame() -> void {
+auto GpuDevice::end_frame(GpuCommandList&&) -> void {
     // Close.
     _command_list->Close();
 
@@ -566,14 +778,6 @@ auto GpuDevice::descriptor_size(D3D12_DESCRIPTOR_HEAP_TYPE heap_type) const -> u
 
 #pragma region Device - Resources
 
-auto GpuDevice::transition(
-    const ComPtr<ID3D12Resource>& resource,
-    D3D12_RESOURCE_STATES before,
-    D3D12_RESOURCE_STATES after) const -> void {
-    auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(resource.get(), before, after);
-    _command_list->ResourceBarrier(1, &barrier);
-}
-
 auto GpuDevice::easy_upload(
     const D3D12_SUBRESOURCE_DATA& data,
     const ComPtr<ID3D12Resource>& resource,
@@ -614,7 +818,8 @@ auto GpuDevice::easy_multi_upload(
 GpuDevice::LeakTracker::~LeakTracker() {
 #if defined(_DEBUG)
     if (debug_device) {
-        debug_device->ReportLiveDeviceObjects(D3D12_RLDO_DETAIL | D3D12_RLDO_IGNORE_INTERNAL);
+        debug_device->ReportLiveDeviceObjects(
+            D3D12_RLDO_SUMMARY | D3D12_RLDO_DETAIL | D3D12_RLDO_IGNORE_INTERNAL);
     }
 #endif
 }

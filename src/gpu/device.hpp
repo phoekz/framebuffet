@@ -88,24 +88,6 @@ class GpuDescriptors {
     GpuDescriptorHeap _dsv_heap;
 };
 
-class GpuBindings {
-  public:
-    GpuBindings() { _bindings.fill(UINT32_MAX); }
-
-    auto push(uint32_t binding) -> void {
-        assert(_count < BINDINGS_CAPACITY);
-        _bindings[_count++] = binding;
-    }
-    auto push(const GpuDescriptorHandle& handle) -> void { push(handle.index()); }
-    auto count() const -> uint32_t { return _count; }
-    auto capacity() -> uint32_t { return BINDINGS_CAPACITY; }
-    auto ptr() const -> const uint32_t* { return _bindings.data(); }
-
-  private:
-    std::array<uint32_t, BINDINGS_CAPACITY> _bindings;
-    uint32_t _count = 0;
-};
-
 #pragma endregion
 
 #pragma region Samplers
@@ -120,6 +102,93 @@ class GpuSamplers {
 
 #pragma endregion
 
+#pragma region Commands
+
+enum class GpuCommandEngine {
+    Unknown,
+    Graphics,
+    Compute,
+    Copy,
+};
+
+class GpuCommandList {
+    friend class GpuDevice;
+
+  public:
+    GpuCommandList(GpuCommandList&& o) { *this = std::move(o); };
+    GpuCommandList& operator=(GpuCommandList&& o) {
+        _cmd = std::exchange(o._cmd, nullptr);
+        _engine = std::exchange(o._engine, GpuCommandEngine::Unknown);
+        _root_signature = std::exchange(o._root_signature, nullptr);
+        _descriptors = std::exchange(o._descriptors, nullptr);
+        return *this;
+    };
+
+    auto begin_pix(std::string_view name) const -> void;
+    auto end_pix() const -> void;
+
+    auto set_graphics() -> void;
+    auto set_compute() -> void;
+
+    auto set_viewport(
+        uint32_t left,
+        uint32_t top,
+        uint32_t right,
+        uint32_t bottom,
+        float min_depth = 0.0f,
+        float max_depth = 1.0f) const -> void;
+    auto set_scissor(uint32_t left, uint32_t top, uint32_t right, uint32_t bottom) const -> void;
+    auto set_rtv_dsv(
+        const std::optional<GpuDescriptorHandle>& rtv,
+        const std::optional<GpuDescriptorHandle>& dsv) const -> void;
+    auto set_topology(D3D12_PRIMITIVE_TOPOLOGY topology) const -> void;
+    auto set_index_buffer(D3D12_INDEX_BUFFER_VIEW ibv) const -> void;
+    auto set_blend_factor(Vector4 factor) const -> void;
+    auto set_pipeline(const ComPtr<ID3D12PipelineState>& pipeline_state) const -> void;
+    auto set_graphics_constants(std::initializer_list<uint32_t> constants) const -> void;
+    auto set_compute_constants(std::initializer_list<uint32_t> constants) const -> void;
+
+    auto clear_rtv(const GpuDescriptorHandle& rtv, Vector4 color) const -> void;
+    auto clear_dsv(const GpuDescriptorHandle& dsv, float depth) const -> void;
+    auto draw_instanced(
+        uint32_t vertex_count,
+        uint32_t instance_count,
+        uint32_t start_vertex,
+        uint32_t start_instance) const -> void;
+    auto draw_indexed_instanced(
+        uint32_t index_count,
+        uint32_t instance_count,
+        uint32_t start_index,
+        int32_t base_vertex,
+        uint32_t start_instance) const -> void;
+    auto dispatch(uint32_t x, uint32_t y, uint32_t z) const -> void;
+
+    auto transition_barrier(
+        const ComPtr<ID3D12Resource>& resource,
+        D3D12_RESOURCE_STATES before,
+        D3D12_RESOURCE_STATES after) const -> void;
+
+  private:
+    GpuCommandList(
+        ID3D12GraphicsCommandList9* cmd,
+        GpuCommandEngine engine,
+        ID3D12RootSignature* root_signature,
+        GpuDescriptors* descriptors) :
+        _cmd(cmd),
+        _engine(engine),
+        _root_signature(root_signature),
+        _descriptors(descriptors) {}
+    GpuCommandList(GpuCommandList& o) = delete;
+    GpuCommandList& operator=(GpuCommandList& o) = delete;
+
+    ID3D12GraphicsCommandList9* _cmd = nullptr;
+    GpuCommandEngine _engine = GpuCommandEngine::Unknown;
+    ID3D12RootSignature* _root_signature = nullptr;
+    GpuDescriptors* _descriptors = nullptr;
+};
+
+#pragma endregion
+
 #pragma region Device
 
 class GpuDevice {
@@ -128,12 +197,10 @@ class GpuDevice {
   public:
     // Device state.
     GpuDevice(const Window& window);
-    auto begin_frame() -> void;
+    auto begin_frame() -> GpuCommandList;
     auto begin_main_pass() -> void;
-    auto cmd_set_graphics() const -> void;
-    auto cmd_set_compute() const -> void;
     auto end_main_pass() -> void;
-    auto end_frame() -> void;
+    auto end_frame(GpuCommandList&& cmd) -> void;
     auto wait() -> void;
 
     // Direct3D 12 wrappers.
@@ -154,10 +221,6 @@ class GpuDevice {
     // clang-format on
 
     // Resource utilities.
-    auto transition(
-        const ComPtr<ID3D12Resource>& resource,
-        D3D12_RESOURCE_STATES before,
-        D3D12_RESOURCE_STATES after) const -> void;
     auto easy_upload(
         const D3D12_SUBRESOURCE_DATA& data,
         const ComPtr<ID3D12Resource>& resource,
@@ -170,7 +233,6 @@ class GpuDevice {
         D3D12_RESOURCE_STATES after_state) const -> void;
 
     // Getters.
-    auto command_list() const -> ID3D12GraphicsCommandList9* { return _command_list.get(); }
     auto swapchain_size() const -> Uint2 { return _swapchain_size; }
     auto frame_index() const -> uint32_t { return _frame_index; }
     auto root_signature() const -> ID3D12RootSignature* { return _root_signature.get(); }
@@ -182,8 +244,8 @@ class GpuDevice {
         ComPtr<ID3D12DebugDevice2> debug_device;
     };
 
-    ComPtr<ID3D12Device12> _device;
     LeakTracker _leak_tracker;
+    ComPtr<ID3D12Device12> _device;
     ComPtr<ID3D12CommandQueue> _command_queue;
     std::array<ComPtr<ID3D12CommandAllocator>, FRAME_COUNT> _command_allocators;
     ComPtr<ID3D12GraphicsCommandList9> _command_list;

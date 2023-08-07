@@ -134,7 +134,7 @@ auto Gui::update() -> void {
     ImGui::ShowDemoWindow();
 }
 
-auto Gui::render(const GpuDevice& device) -> void {
+auto Gui::render(const GpuDevice& device, GpuCommandList& cmd) -> void {
     ImGui::Render();
     auto* draw_data = ImGui::GetDrawData();
 
@@ -177,20 +177,16 @@ auto Gui::render(const GpuDevice& device) -> void {
 
     // Render.
     {
-        auto* cmd = device.command_list();
-
-        CD3DX12_VIEWPORT viewport(0.0f, 0.0f, draw_data->DisplaySize.x, draw_data->DisplaySize.y);
-        auto ibv = geometry.index_buffer.index_buffer_view();
-        const float blend_factor[4] = {0.f, 0.f, 0.f, 0.f};
-
-        cmd->RSSetViewports(1, &viewport);
-        cmd->OMSetBlendFactor(blend_factor);
-
-        cmd->SetPipelineState(_pipeline_state.get());
-        cmd->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-        cmd->IASetIndexBuffer(&ibv);
-
-        device.cmd_set_graphics();
+        cmd.set_graphics();
+        cmd.set_viewport(
+            0,
+            0,
+            (uint32_t)draw_data->DisplaySize.x,
+            (uint32_t)draw_data->DisplaySize.y);
+        cmd.set_blend_factor(Vector4(0.0f, 0.0f, 0.0f, 0.0f));
+        cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+        cmd.set_index_buffer(geometry.index_buffer.index_buffer_view());
+        cmd.set_pipeline(_pipeline_state);
 
         int global_vtx_offset = 0;
         int global_idx_offset = 0;
@@ -202,21 +198,18 @@ auto Gui::render(const GpuDevice& device) -> void {
                 if (pcmd->UserCallback != nullptr) {
                     pcmd->UserCallback(cmd_list, pcmd);
                 } else {
-                    D3D12_RECT scissor_rect = {
-                        (LONG)(pcmd->ClipRect.x - clip_off.x),
-                        (LONG)(pcmd->ClipRect.y - clip_off.y),
-                        (LONG)(pcmd->ClipRect.z - clip_off.x),
-                        (LONG)(pcmd->ClipRect.w - clip_off.y),
-                    };
-                    GpuBindings bindings;
-                    bindings.push(_constant_buffer.cbv_descriptor());
-                    bindings.push(geometry.vertex_buffer.srv_descriptor());
-                    bindings.push((pcmd->VtxOffset + (uint32_t)global_vtx_offset));
-                    bindings.push(_texture.srv_descriptor());
-                    cmd->SetGraphicsRoot32BitConstants(0, bindings.capacity(), bindings.ptr(), 0);
-
-                    cmd->RSSetScissorRects(1, &scissor_rect);
-                    cmd->DrawIndexedInstanced(
+                    cmd.set_scissor(
+                        (uint32_t)(pcmd->ClipRect.x - clip_off.x),
+                        (uint32_t)(pcmd->ClipRect.y - clip_off.y),
+                        (uint32_t)(pcmd->ClipRect.z - clip_off.x),
+                        (uint32_t)(pcmd->ClipRect.w - clip_off.y));
+                    cmd.set_graphics_constants({
+                        _constant_buffer.cbv_descriptor().index(),
+                        geometry.vertex_buffer.srv_descriptor().index(),
+                        (pcmd->VtxOffset + (uint32_t)global_vtx_offset),
+                        _texture.srv_descriptor().index(),
+                    });
+                    cmd.draw_indexed_instanced(
                         pcmd->ElemCount,
                         1,
                         pcmd->IdxOffset + global_idx_offset,

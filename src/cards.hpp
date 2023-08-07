@@ -34,7 +34,7 @@ class Cards {
 
     Cards(GpuDevice& device, const Params& params);
     auto update(const GpuDevice& device) -> void;
-    auto render(GpuDevice& device) -> void;
+    auto render(GpuDevice& device, GpuCommandList& cmd) -> void;
 
   private:
     ComPtr<ID3D12PipelineState> _pipeline_state;
