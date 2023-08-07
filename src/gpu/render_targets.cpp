@@ -24,47 +24,39 @@ GpuRenderTargets::GpuRenderTargets(
     // Color target.
     {
         // Resource.
-        _color = device.create_committed_resource(
-            CD3DX12_HEAP_PROPERTIES {D3D12_HEAP_TYPE_DEFAULT},
-            CD3DX12_RESOURCE_DESC::Tex2D(
-                COLOR_FORMAT,
-                size.x,
-                size.y,
-                1,
-                1,
-                SAMPLE_COUNT,
-                0,
-                D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET),
-            D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
-            make_color_clear_value(COLOR_FORMAT, _clear_color),
+        _color.create(
+            device,
+            GpuTexture2dDesc {
+                .format = COLOR_FORMAT,
+                .width = size.x,
+                .height = size.y,
+                .sample_count = SAMPLE_COUNT,
+                .clear_value = make_color_clear_value(COLOR_FORMAT, _clear_color),
+            },
             dx_name(name, "Color Target"));
 
         // View.
         _color_descriptor = descriptors.rtv().alloc();
-        device.create_render_target_view(_color, std::nullopt, _color_descriptor.cpu());
+        device.create_render_target_view(_color.resource(), std::nullopt, _color_descriptor.cpu());
     }
 
     // Depth target.
     {
         // Resource.
-        _depth = device.create_committed_resource(
-            CD3DX12_HEAP_PROPERTIES {D3D12_HEAP_TYPE_DEFAULT},
-            CD3DX12_RESOURCE_DESC::Tex2D(
-                DEPTH_FORMAT,
-                size.x,
-                size.y,
-                1,
-                1,
-                SAMPLE_COUNT,
-                0,
-                D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL),
-            D3D12_RESOURCE_STATE_DEPTH_WRITE,
-            make_depth_stencil_clear_value(DEPTH_FORMAT, 1.0f, 0),
+        _depth.create(
+            device,
+            GpuTexture2dDesc {
+                .format = DEPTH_FORMAT,
+                .width = size.x,
+                .height = size.y,
+                .sample_count = SAMPLE_COUNT,
+                .clear_value = make_depth_stencil_clear_value(DEPTH_FORMAT, 1.0f, 0),
+            },
             dx_name(name, "Depth Target"));
 
         // View.
         _depth_descriptor = descriptors.dsv().alloc();
-        device.create_depth_stencil_view(_depth, std::nullopt, _depth_descriptor.cpu());
+        device.create_depth_stencil_view(_depth.resource(), std::nullopt, _depth_descriptor.cpu());
     }
 }
 
@@ -74,7 +66,7 @@ auto GpuRenderTargets::begin(GpuDevice& device) -> void {
 
     // Transition to be renderable.
     device.transition(
-        _color,
+        _color.resource(),
         D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
         D3D12_RESOURCE_STATE_RENDER_TARGET);
 
@@ -116,7 +108,7 @@ auto GpuRenderTargets::begin(GpuDevice& device) -> void {
 auto GpuRenderTargets::end(GpuDevice& device) -> void {
     // Transition to be shader readable.
     device.transition(
-        _color,
+        _color.resource(),
         D3D12_RESOURCE_STATE_RENDER_TARGET,
         D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 }

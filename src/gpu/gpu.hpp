@@ -1,6 +1,7 @@
 #pragma once
 
 #include "buffers.hpp"
+#include "textures.hpp"
 #include "debug_draw.hpp"
 #include "descriptors.hpp"
 #include "device.hpp"

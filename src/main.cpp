@@ -46,10 +46,10 @@ auto main() -> int {
         *device,
         fb::cards::Params {
             .card_textures = {
-                cube_demo->render_targets.color(),
-                rain_demo->render_targets.color(),
-                tree_demo->render_targets.color(),
-                env_demo->rt_color(),
+                cube_demo->render_targets.color().resource(),
+                rain_demo->render_targets.color().resource(),
+                tree_demo->render_targets.color().resource(),
+                env_demo->rt_color().resource(),
             }});
 
     // Main loop.

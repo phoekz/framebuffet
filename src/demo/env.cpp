@@ -103,27 +103,20 @@ Demo::Demo(GpuDevice& device) :
         }));
 
         // Create texture.
-        _env_texture = device.create_committed_resource(
-            CD3DX12_HEAP_PROPERTIES {D3D12_HEAP_TYPE_DEFAULT},
-            CD3DX12_RESOURCE_DESC::Tex2D(cube_format, cube_face_size.x, cube_face_size.y, 6, 1),
-            D3D12_RESOURCE_STATE_COMMON,
-            std::nullopt,
+        _env_texture.create(
+            device,
+            GpuTexture2dDesc {
+                .format = cube_format,
+                .width = cube_face_size.x,
+                .height = cube_face_size.y,
+                .depth = 6,
+            },
             dx_name(Demo::NAME, "Env Texture"));
 
         // Create SRV.
         device.create_shader_resource_view(
-            _env_texture,
-            D3D12_SHADER_RESOURCE_VIEW_DESC {
-                .Format = cube_format,
-                .ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE,
-                .Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING,
-                .TextureCube =
-                    D3D12_TEXCUBE_SRV {
-                        .MostDetailedMip = 0,
-                        .MipLevels = 1,
-                        .ResourceMinLODClamp = 0.0f,
-                    },
-            },
+            _env_texture.resource(),
+            _env_texture.srv_desc(),
             _env_texture_descriptor.cpu());
 
         // Upload faces.
@@ -138,7 +131,7 @@ Demo::Demo(GpuDevice& device) :
         }
         device.easy_multi_upload(
             subresources,
-            _env_texture,
+            _env_texture.resource(),
             D3D12_RESOURCE_STATE_COMMON,
             D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
     }

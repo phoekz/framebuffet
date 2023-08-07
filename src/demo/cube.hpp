@@ -32,7 +32,7 @@ struct Demo {
 
     GpuBufferHostIndex<GltfIndex> index_buffer;
 
-    ComPtr<ID3D12Resource> texture;
+    GpuTexture2dSrv texture;
     GpuDescriptorHandle texture_descriptor;
 };
 

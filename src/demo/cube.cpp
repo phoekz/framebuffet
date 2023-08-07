@@ -71,12 +71,20 @@ Demo::Demo(GpuDevice& device) :
     {
         // Create.
         const auto& image = model.base_color_texture();
-        texture = device.create_committed_resource(
-            CD3DX12_HEAP_PROPERTIES {D3D12_HEAP_TYPE_DEFAULT},
-            CD3DX12_RESOURCE_DESC::Tex2D(image.format(), image.width(), image.height(), 1, 1),
-            D3D12_RESOURCE_STATE_COMMON,
-            std::nullopt,
+        texture.create(
+            device,
+            GpuTexture2dDesc {
+                .format = image.format(),
+                .width = image.width(),
+                .height = image.height(),
+            },
             dx_name(Demo::NAME, "Texture"));
+
+        // Descriptor.
+        device.create_shader_resource_view(
+            texture.resource(),
+            texture.srv_desc(),
+            texture_descriptor.cpu());
 
         // Upload.
         device.easy_upload(
@@ -84,19 +92,9 @@ Demo::Demo(GpuDevice& device) :
                 .pData = image.data(),
                 .RowPitch = image.row_pitch(),
                 .SlicePitch = image.slice_pitch()},
-            texture,
+            texture.resource(),
             D3D12_RESOURCE_STATE_COMMON,
             D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-
-        // Descriptor.
-        device.create_shader_resource_view(
-            texture,
-            D3D12_SHADER_RESOURCE_VIEW_DESC {
-                .Format = image.format(),
-                .ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D,
-                .Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING,
-                .Texture2D = D3D12_TEX2D_SRV {.MipLevels = 1}},
-            texture_descriptor.cpu());
     }
 }
 

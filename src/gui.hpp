@@ -40,7 +40,7 @@ struct Gui {
     };
     std::array<Geometry, FRAME_COUNT> geometries;
 
-    ComPtr<ID3D12Resource> texture;
+    GpuTexture2dSrv texture;
     GpuDescriptorHandle texture_descriptor;
 };
 

@@ -31,16 +31,13 @@ static void init_scene_model(
         // Resource.
         const auto& gltf_texture = gltf_model.base_color_texture();
         auto& texture = model.texture;
-        texture = device.create_committed_resource(
-            CD3DX12_HEAP_PROPERTIES {D3D12_HEAP_TYPE_DEFAULT},
-            CD3DX12_RESOURCE_DESC::Tex2D(
-                gltf_texture.format(),
-                gltf_texture.width(),
-                gltf_texture.height(),
-                1,
-                1),
-            D3D12_RESOURCE_STATE_COMMON,
-            std::nullopt,
+        texture.create(
+            device,
+            GpuTexture2dDesc {
+                .format = gltf_texture.format(),
+                .width = gltf_texture.width(),
+                .height = gltf_texture.height(),
+            },
             dx_name(Demo::NAME, model_name, "Texture"));
 
         // Upload.
@@ -49,7 +46,7 @@ static void init_scene_model(
                 .pData = gltf_texture.data(),
                 .RowPitch = gltf_texture.row_pitch(),
                 .SlicePitch = gltf_texture.slice_pitch()},
-            texture,
+            texture.resource(),
             D3D12_RESOURCE_STATE_COMMON,
             D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
     }
@@ -93,19 +90,20 @@ static void init_shadow_pass(const GpuDevice& device, Demo& demo, Demo::ShadowPa
     pass.constants.create(device, 1, dx_name(Demo::NAME, Demo::ShadowPass::NAME, "Constants"));
 
     // Depth.
-    pass.depth = device.create_committed_resource(
-        CD3DX12_HEAP_PROPERTIES {D3D12_HEAP_TYPE_DEFAULT},
-        CD3DX12_RESOURCE_DESC::Tex2D(
-            DXGI_FORMAT_R32_TYPELESS,
-            SHADOW_MAP_SIZE,
-            SHADOW_MAP_SIZE,
-            1,
-            1,
-            1,
-            0,
-            D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL),
-        D3D12_RESOURCE_STATE_DEPTH_WRITE,
-        D3D12_CLEAR_VALUE {.Format = DXGI_FORMAT_D32_FLOAT, .DepthStencil = {1.0f, 0}},
+    pass.depth.create(
+        device,
+        GpuTexture2dDesc {
+            .format = DXGI_FORMAT_R32_TYPELESS,
+            .width = SHADOW_MAP_SIZE,
+            .height = SHADOW_MAP_SIZE,
+            .clear_value =
+                D3D12_CLEAR_VALUE {
+                    .Format = DXGI_FORMAT_D32_FLOAT,
+                    .DepthStencil = {1.0f, 0},
+                },
+            .srv_format = DXGI_FORMAT_R32_FLOAT,
+            .dsv_format = DXGI_FORMAT_D32_FLOAT,
+        },
         dx_name(Demo::NAME, Demo::ShadowPass::NAME, "Depth"));
 }
 
@@ -183,41 +181,25 @@ static void init_descriptors(
                 scene.plane.vertex_buffer.resource(),
                 scene.plane.vertex_buffer.srv_desc(),
                 scene.plane.vertex_buffer_descriptor.cpu());
-        }
-        {
-            D3D12_SHADER_RESOURCE_VIEW_DESC srv_desc = {
-                .Format = DXGI_FORMAT_R8G8B8A8_UNORM,
-                .ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D,
-                .Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING,
-                .Texture2D = D3D12_TEX2D_SRV {.MipLevels = 1},
-            };
             device.create_shader_resource_view(
-                scene.tree.texture.get(),
-                srv_desc,
+                scene.tree.texture.resource(),
+                scene.tree.texture.srv_desc(),
                 scene.tree.texture_descriptor.cpu());
             device.create_shader_resource_view(
-                scene.plane.texture.get(),
-                srv_desc,
+                scene.plane.texture.resource(),
+                scene.plane.texture.srv_desc(),
                 scene.plane.texture_descriptor.cpu());
         }
 
         // Shadow map.
         {
             device.create_depth_stencil_view(
-                shadow_pass.depth.get(),
-                D3D12_DEPTH_STENCIL_VIEW_DESC {
-                    .Format = DXGI_FORMAT_D32_FLOAT,
-                    .ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D,
-                    .Flags = D3D12_DSV_FLAG_NONE,
-                    .Texture2D = D3D12_TEX2D_DSV {.MipSlice = 0}},
+                shadow_pass.depth.resource(),
+                shadow_pass.depth.dsv_desc(),
                 shadow_pass.depth_dsv_descriptor.cpu());
             device.create_shader_resource_view(
-                shadow_pass.depth.get(),
-                D3D12_SHADER_RESOURCE_VIEW_DESC {
-                    .Format = DXGI_FORMAT_R32_FLOAT,
-                    .ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D,
-                    .Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING,
-                    .Texture2D = D3D12_TEX2D_SRV {.MipLevels = 1}},
+                shadow_pass.depth.resource(),
+                shadow_pass.depth.srv_desc(),
                 shadow_pass.depth_srv_descriptor.cpu());
         }
     }
@@ -336,7 +318,7 @@ void Demo::render(GpuDevice& device) {
 
         auto* cmd = device.command_list();
         device.transition(
-            shadow_pass.depth,
+            shadow_pass.depth.resource(),
             D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
             D3D12_RESOURCE_STATE_DEPTH_WRITE);
         cmd->RSSetViewports(1, &viewport);
@@ -370,7 +352,7 @@ void Demo::render(GpuDevice& device) {
         }
 
         device.transition(
-            shadow_pass.depth,
+            shadow_pass.depth.resource(),
             D3D12_RESOURCE_STATE_DEPTH_WRITE,
             D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
     }

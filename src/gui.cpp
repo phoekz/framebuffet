@@ -99,12 +99,23 @@ Gui::Gui(const Window& window, GpuDevice& device) :
         io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);
 
         // Texture.
-        texture = device.create_committed_resource(
-            CD3DX12_HEAP_PROPERTIES {D3D12_HEAP_TYPE_DEFAULT},
-            CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R8G8B8A8_UNORM, width, height, 1, 1),
-            D3D12_RESOURCE_STATE_COMMON,
-            std::nullopt,
+        texture.create(
+            device,
+            GpuTexture2dDesc {
+                .format = DXGI_FORMAT_R8G8B8A8_UNORM,
+                .width = (uint32_t)width,
+                .height = (uint32_t)height,
+            },
             dx_name(Gui::NAME, "Font Texture"));
+
+        // SRV.
+        device.create_shader_resource_view(
+            texture.resource(),
+            texture.srv_desc(),
+            texture_descriptor.cpu());
+
+        // ImGui Font texture ID.
+        io.Fonts->SetTexID((ImTextureID)texture_descriptor.gpu().ptr);
 
         // Upload.
         device.easy_upload(
@@ -112,20 +123,9 @@ Gui::Gui(const Window& window, GpuDevice& device) :
                 .pData = pixels,
                 .RowPitch = width * 4,
                 .SlicePitch = width * height * 4},
-            texture,
+            texture.resource(),
             D3D12_RESOURCE_STATE_COMMON,
             D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-
-        // SRV.
-        device.create_shader_resource_view(
-            texture,
-            D3D12_SHADER_RESOURCE_VIEW_DESC {
-                .Format = DXGI_FORMAT_R8G8B8A8_UNORM,
-                .ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D,
-                .Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING,
-                .Texture2D = {.MipLevels = 1}},
-            texture_descriptor.cpu());
-        io.Fonts->SetTexID((ImTextureID)texture_descriptor.gpu().ptr);
     }
 
     // Geometry.

@@ -2,6 +2,7 @@
 
 #include <pch.hpp>
 #include "device.hpp"
+#include "textures.hpp"
 #include "descriptors.hpp"
 #include "maths.hpp"
 #include "utils.hpp"
@@ -23,17 +24,17 @@ class GpuRenderTargets {
 
     auto begin(GpuDevice& device) -> void;
     auto end(GpuDevice& device) -> void;
-    auto color() const -> const ComPtr<ID3D12Resource>& { return _color; }
-    auto depth() const -> const ComPtr<ID3D12Resource>& { return _depth; }
+    auto color() const -> const GpuTexture2dSrvRtv& { return _color; }
+    auto depth() const -> const GpuTexture2dSrvDsv& { return _depth; }
 
   private:
     Uint2 _size = {};
     Vector4 _clear_color;
 
-    ComPtr<ID3D12Resource> _color;
+    GpuTexture2dSrvRtv _color;
     GpuDescriptorHandle _color_descriptor;
 
-    ComPtr<ID3D12Resource> _depth;
+    GpuTexture2dSrvDsv _depth;
     GpuDescriptorHandle _depth_descriptor;
 };
 

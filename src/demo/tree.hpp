@@ -37,7 +37,7 @@ struct Demo {
             GpuBufferHostSrv<GltfVertex> vertex_buffer;
             GpuDescriptorHandle vertex_buffer_descriptor;
             GpuBufferHostIndex<GltfIndex> index_buffer;
-            ComPtr<ID3D12Resource> texture;
+            GpuTexture2dSrv texture;
             GpuDescriptorHandle texture_descriptor;
         };
         Model tree;
@@ -52,7 +52,7 @@ struct Demo {
         GpuBufferHostCbv<ShadowConstants> constants;
         GpuDescriptorHandle constants_descriptor;
 
-        ComPtr<ID3D12Resource> depth;
+        GpuTexture2dSrvDsv depth;
         GpuDescriptorHandle depth_dsv_descriptor;
         GpuDescriptorHandle depth_srv_descriptor;
     } shadow_pass;

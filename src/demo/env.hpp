@@ -36,7 +36,7 @@ class Demo {
     auto update(const demo::UpdateDesc& desc) -> void;
     auto render(GpuDevice& device) -> void;
 
-    auto rt_color() const -> const fb::ComPtr<ID3D12Resource>& { return _render_targets.color(); }
+    auto rt_color() const -> const GpuTexture2dSrvRtv& { return _render_targets.color(); }
 
   private:
     GpuDescriptors _descriptors;
@@ -48,7 +48,7 @@ class Demo {
     GpuBufferHostCbv<Constants> _constant_buffer;
     GpuBufferHostSrv<Vertex> _vertex_buffer;
     GpuBufferHostIndex<Index> _index_buffer;
-    ComPtr<ID3D12Resource> _env_texture;
+    GpuTexture2dSrvCube _env_texture;
 
     GpuDescriptorHandle _constant_buffer_descriptor;
     GpuDescriptorHandle _vertex_buffer_descriptor;
