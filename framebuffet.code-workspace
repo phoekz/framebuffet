@@ -111,6 +111,7 @@
 		"explorer.autoReveal": false,
 		"files.insertFinalNewline": true,
 		"files.trimTrailingWhitespace": true,
+		"output.smartScroll.enabled": false,
 	},
 	"extensions": {
 		"recommendations": [
