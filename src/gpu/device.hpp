@@ -8,19 +8,21 @@
 
 namespace fb {
 
+#pragma region Constants
+
 constexpr uint32_t FRAME_COUNT = 2;
 constexpr uint32_t BINDINGS_CAPACITY = 16;
 constexpr D3D_FEATURE_LEVEL MIN_FEATURE_LEVEL = D3D_FEATURE_LEVEL_12_2;
 
-//
-// Forward declarations.
-//
+#pragma endregion
+
+#pragma region Forward declarations
 
 class GpuDevice;
 
-//
-// Descriptors.
-//
+#pragma endregion
+
+#pragma region Descriptors
 
 class GpuDescriptorHandle {
     friend class GpuDescriptorHeap;
@@ -104,9 +106,9 @@ class GpuBindings {
     uint32_t _count = 0;
 };
 
-//
-// Samplers.
-//
+#pragma endregion
+
+#pragma region Samplers
 
 class GpuSamplers {
   public:
@@ -116,15 +118,23 @@ class GpuSamplers {
     std::array<GpuDescriptorHandle, (size_t)GpuSamplerType::Count> _handles;
 };
 
-//
-// Device.
-//
+#pragma endregion
+
+#pragma region Device
 
 class GpuDevice {
     FB_NO_COPY_MOVE(GpuDevice);
 
   public:
+    // Device state.
     GpuDevice(const Window& window);
+    auto begin_frame() -> void;
+    auto begin_main_pass() -> void;
+    auto cmd_set_graphics() const -> void;
+    auto cmd_set_compute() const -> void;
+    auto end_main_pass() -> void;
+    auto end_frame() -> void;
+    auto wait() -> void;
 
     // Direct3D 12 wrappers.
     // clang-format off
@@ -142,15 +152,6 @@ class GpuDevice {
     auto create_sampler(const D3D12_SAMPLER_DESC& desc, D3D12_CPU_DESCRIPTOR_HANDLE descriptor) const -> void;
     auto descriptor_size(D3D12_DESCRIPTOR_HEAP_TYPE heap_type) const -> uint32_t;
     // clang-format on
-
-    // Device state.
-    auto begin_frame() -> void;
-    auto begin_main_pass() -> void;
-    auto cmd_set_graphics() const -> void;
-    auto cmd_set_compute() const -> void;
-    auto end_main_pass() -> void;
-    auto end_frame() -> void;
-    auto wait() -> void;
 
     // Resource utilities.
     auto transition(
@@ -202,9 +203,9 @@ class GpuDevice {
     std::unique_ptr<GpuSamplers> _samplers;
 };
 
-//
-// Debugging.
-//
+#pragma endregion
+
+#pragma region Debugging
 
 template<typename... Args>
 [[nodiscard]] auto dx_name(Args&&... args) -> std::string {
@@ -215,5 +216,7 @@ template<typename... Args>
     str.erase(str.size() - DELIMITER.size());
     return str;
 }
+
+#pragma endregion
 
 }  // namespace fb

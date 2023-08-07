@@ -4,16 +4,14 @@
 
 namespace fb {
 
-//
-// Forward declarations.
-//
+#pragma region Forward declarations
 
 static auto dx_set_name(ID3D12Object* object, std::string_view name) -> void;
 static auto dx_set_name(const ComPtr<ID3D12Object>& object, std::string_view name) -> void;
 
-//
-// Descriptor utilities.
-//
+#pragma endregion
+
+#pragma region Descriptors
 
 static auto is_shader_visible(D3D12_DESCRIPTOR_HEAP_TYPE type) -> bool {
     return type == D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV
@@ -76,9 +74,9 @@ GpuDescriptors::GpuDescriptors(GpuDevice& device, std::string_view name) :
     _rtv_heap(device, name, D3D12_DESCRIPTOR_HEAP_TYPE_RTV, RTV_DESCRIPTOR_CAPACITY),
     _dsv_heap(device, name, D3D12_DESCRIPTOR_HEAP_TYPE_DSV, DSV_DESCRIPTOR_CAPACITY) {}
 
-//
-// Samplers.
-//
+#pragma endregion
+
+#pragma region Samplers
 
 GpuSamplers::GpuSamplers(GpuDevice& device, GpuDescriptors& descriptors) {
     std::tuple<GpuSamplerType, D3D12_SAMPLER_DESC, GpuDescriptorHandle> samplers[] = {
@@ -138,9 +136,11 @@ GpuSamplers::GpuSamplers(GpuDevice& device, GpuDescriptors& descriptors) {
     }
 }
 
-//
-// Constructor.
-//
+#pragma endregion
+
+#pragma region Device
+
+#pragma region Device - State
 
 GpuDevice::GpuDevice(const Window& window) {
     // Debug layer.
@@ -355,9 +355,86 @@ GpuDevice::GpuDevice(const Window& window) {
     _samplers = std::make_unique<GpuSamplers>(*this, *_descriptors);
 }
 
-//
-// Direct3D 12 wrappers.
-//
+auto GpuDevice::begin_frame() -> void {
+    auto* cmd_alloc = _command_allocators[_frame_index].get();
+    cmd_alloc->Reset();
+    _command_list->Reset(cmd_alloc, nullptr);
+}
+
+auto GpuDevice::begin_main_pass() -> void {
+    static constexpr float CLEAR_COLOR[4] = {0.1f, 0.1f, 0.1f, 1.0f};
+    transition(
+        _rtvs[_frame_index],
+        D3D12_RESOURCE_STATE_PRESENT,
+        D3D12_RESOURCE_STATE_RENDER_TARGET);
+    _command_list->ClearRenderTargetView(_rtv_descriptors[_frame_index], CLEAR_COLOR, 0, nullptr);
+    _command_list->OMSetRenderTargets(1, &_rtv_descriptors[_frame_index], FALSE, nullptr);
+}
+
+auto GpuDevice::cmd_set_graphics() const -> void {
+    ID3D12DescriptorHeap* heaps[] = {
+        _descriptors->cbv_srv_uav().heap(),
+        _descriptors->sampler().heap()};
+    _command_list->SetDescriptorHeaps(_countof(heaps), heaps);
+    _command_list->SetGraphicsRootSignature(_root_signature.get());
+}
+
+auto GpuDevice::cmd_set_compute() const -> void {
+    ID3D12DescriptorHeap* heaps[] = {
+        _descriptors->cbv_srv_uav().heap(),
+        _descriptors->sampler().heap()};
+    _command_list->SetDescriptorHeaps(_countof(heaps), heaps);
+    _command_list->SetComputeRootSignature(_root_signature.get());
+}
+
+auto GpuDevice::end_main_pass() -> void {
+    transition(
+        _rtvs[_frame_index],
+        D3D12_RESOURCE_STATE_RENDER_TARGET,
+        D3D12_RESOURCE_STATE_PRESENT);
+}
+
+auto GpuDevice::end_frame() -> void {
+    // Close.
+    _command_list->Close();
+
+    // Execute command list.
+    ID3D12CommandList* command_lists[] = {(ID3D12CommandList*)_command_list.get()};
+    _command_queue->ExecuteCommandLists(_countof(command_lists), command_lists);
+
+    // Present.
+    _swapchain->Present(1, 0);
+
+    // Schedule a Signal command in the queue.
+    uint64_t current_fence_value = _fence_values[_frame_index];
+    FB_ASSERT_HR(_command_queue->Signal(_fence.get(), _fence_values[_frame_index]));
+
+    // Update the frame index.
+    _frame_index = _swapchain->GetCurrentBackBufferIndex();
+    uint64_t* fence_value = &_fence_values[_frame_index];
+
+    // If the next frame is not ready to be rendered yet, wait until it is ready.
+    if (_fence->GetCompletedValue() < *fence_value) {
+        FB_ASSERT_HR(_fence->SetEventOnCompletion(*fence_value, _fence_event.get()));
+        WaitForSingleObjectEx(_fence_event.get(), INFINITE, FALSE);
+    }
+
+    // Set the fence value for the next frame.
+    *fence_value = current_fence_value + 1;
+}
+
+auto GpuDevice::wait() -> void {
+    // Schedule a Signal command in the queue.
+    FB_ASSERT_HR(_command_queue->Signal(_fence.get(), _fence_values[_frame_index]));
+
+    // Wait until the fence has been processed.
+    FB_ASSERT_HR(_fence->SetEventOnCompletion(_fence_values[_frame_index], _fence_event.get()));
+    WaitForSingleObjectEx(_fence_event.get(), INFINITE, FALSE);
+}
+
+#pragma endregion  // Device - State
+
+#pragma region Device - Wrappers
 
 auto GpuDevice::create_root_signature(const ComPtr<ID3DBlob>& signature, std::string_view name)
     const -> ComPtr<ID3D12RootSignature> {
@@ -485,91 +562,9 @@ auto GpuDevice::descriptor_size(D3D12_DESCRIPTOR_HEAP_TYPE heap_type) const -> u
     return _device->GetDescriptorHandleIncrementSize(heap_type);
 }
 
-//
-// Device state.
-//
+#pragma endregion  // Device - Wrappers
 
-auto GpuDevice::begin_frame() -> void {
-    // Reset.
-    auto* cmd_alloc = _command_allocators[_frame_index].get();
-    cmd_alloc->Reset();
-    _command_list->Reset(cmd_alloc, nullptr);
-}
-
-auto GpuDevice::begin_main_pass() -> void {
-    static constexpr float CLEAR_COLOR[4] = {0.1f, 0.1f, 0.1f, 1.0f};
-    transition(
-        _rtvs[_frame_index],
-        D3D12_RESOURCE_STATE_PRESENT,
-        D3D12_RESOURCE_STATE_RENDER_TARGET);
-    _command_list->ClearRenderTargetView(_rtv_descriptors[_frame_index], CLEAR_COLOR, 0, nullptr);
-    _command_list->OMSetRenderTargets(1, &_rtv_descriptors[_frame_index], FALSE, nullptr);
-}
-
-auto GpuDevice::cmd_set_graphics() const -> void {
-    ID3D12DescriptorHeap* heaps[] = {
-        _descriptors->cbv_srv_uav().heap(),
-        _descriptors->sampler().heap()};
-    _command_list->SetDescriptorHeaps(_countof(heaps), heaps);
-    _command_list->SetGraphicsRootSignature(_root_signature.get());
-}
-
-auto GpuDevice::cmd_set_compute() const -> void {
-    ID3D12DescriptorHeap* heaps[] = {
-        _descriptors->cbv_srv_uav().heap(),
-        _descriptors->sampler().heap()};
-    _command_list->SetDescriptorHeaps(_countof(heaps), heaps);
-    _command_list->SetComputeRootSignature(_root_signature.get());
-}
-
-auto GpuDevice::end_main_pass() -> void {
-    transition(
-        _rtvs[_frame_index],
-        D3D12_RESOURCE_STATE_RENDER_TARGET,
-        D3D12_RESOURCE_STATE_PRESENT);
-}
-
-auto GpuDevice::end_frame() -> void {
-    // Close.
-    _command_list->Close();
-
-    // Execute command list.
-    ID3D12CommandList* command_lists[] = {(ID3D12CommandList*)_command_list.get()};
-    _command_queue->ExecuteCommandLists(_countof(command_lists), command_lists);
-
-    // Present.
-    _swapchain->Present(1, 0);
-
-    // Schedule a Signal command in the queue.
-    uint64_t current_fence_value = _fence_values[_frame_index];
-    FB_ASSERT_HR(_command_queue->Signal(_fence.get(), _fence_values[_frame_index]));
-
-    // Update the frame index.
-    _frame_index = _swapchain->GetCurrentBackBufferIndex();
-    uint64_t* fence_value = &_fence_values[_frame_index];
-
-    // If the next frame is not ready to be rendered yet, wait until it is ready.
-    if (_fence->GetCompletedValue() < *fence_value) {
-        FB_ASSERT_HR(_fence->SetEventOnCompletion(*fence_value, _fence_event.get()));
-        WaitForSingleObjectEx(_fence_event.get(), INFINITE, FALSE);
-    }
-
-    // Set the fence value for the next frame.
-    *fence_value = current_fence_value + 1;
-}
-
-auto GpuDevice::wait() -> void {
-    // Schedule a Signal command in the queue.
-    FB_ASSERT_HR(_command_queue->Signal(_fence.get(), _fence_values[_frame_index]));
-
-    // Wait until the fence has been processed.
-    FB_ASSERT_HR(_fence->SetEventOnCompletion(_fence_values[_frame_index], _fence_event.get()));
-    WaitForSingleObjectEx(_fence_event.get(), INFINITE, FALSE);
-}
-
-//
-// Resource utilities.
-//
+#pragma region Device - Resources
 
 auto GpuDevice::transition(
     const ComPtr<ID3D12Resource>& resource,
@@ -610,9 +605,11 @@ auto GpuDevice::easy_multi_upload(
     finish.wait();
 }
 
-//
-// Debugging.
-//
+#pragma endregion  // Device - Resources
+
+#pragma endregion  // Device
+
+#pragma region Debugging
 
 GpuDevice::LeakTracker::~LeakTracker() {
 #if defined(_DEBUG)
@@ -636,12 +633,11 @@ static auto dx_set_name(const ComPtr<ID3D12Object>& object, std::string_view nam
     dx_set_name(object.get(), name);
 }
 
+#pragma endregion
+
 }  // namespace fb
 
-//
 // Setup DirectX Agility SDK.
-//
-
 extern "C" {
 __declspec(dllexport) extern const UINT D3D12SDKVersion = 610;
 __declspec(dllexport) extern const char* D3D12SDKPath = ".\\";
