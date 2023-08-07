@@ -6,6 +6,7 @@
 #include "../maths.hpp"
 #include "../pcg.hpp"
 #include "../gltf.hpp"
+#include "../exr.hpp"
 
 namespace fb::demo {
 

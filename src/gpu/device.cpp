@@ -453,6 +453,23 @@ auto GpuDevice::easy_upload(
     finish.wait();
 }
 
+auto GpuDevice::easy_multi_upload(
+    std::span<const D3D12_SUBRESOURCE_DATA> datas,
+    const ComPtr<ID3D12Resource>& resource,
+    D3D12_RESOURCE_STATES before_state,
+    D3D12_RESOURCE_STATES after_state) const -> void {
+    DirectX::ResourceUploadBatch rub((ID3D12Device*)_device.get());
+    rub.Begin();
+    rub.Transition(resource.get(), before_state, D3D12_RESOURCE_STATE_COPY_DEST);
+    for (uint32_t i = 0; i < (uint32_t)datas.size(); i++) {
+        const auto& data = datas[i];
+        rub.Upload(resource.get(), i, &data, 1);
+    }
+    rub.Transition(resource.get(), D3D12_RESOURCE_STATE_COPY_DEST, after_state);
+    auto finish = rub.End(_command_queue.get());
+    finish.wait();
+}
+
 //
 // Debugging.
 //

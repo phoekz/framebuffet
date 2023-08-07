@@ -62,6 +62,7 @@ Cards::Cards(GpuDevice& device, const Params& params) :
         cards[0] = {{0.0f, 0.0f}, {640.0f, 400.0f}};
         cards[1] = {{640.0f, 0.0f}, {640.0f, 400.0f}};
         cards[2] = {{0.0f, 400.0f}, {640.0f, 400.0f}};
+        cards[3] = {{640.0f, 400.0f}, {640.0f, 400.0f}};
     }
 
     // Geometry.

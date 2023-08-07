@@ -50,6 +50,11 @@ class GpuDevice {
         const ComPtr<ID3D12Resource>& resource,
         D3D12_RESOURCE_STATES before_state,
         D3D12_RESOURCE_STATES after_state) const -> void;
+    auto easy_multi_upload(
+        std::span<const D3D12_SUBRESOURCE_DATA> datas,
+        const ComPtr<ID3D12Resource>& resource,
+        D3D12_RESOURCE_STATES before_state,
+        D3D12_RESOURCE_STATES after_state) const -> void;
 
     // Getters.
     auto command_list() const -> ID3D12GraphicsCommandList9* { return _command_list.get(); }

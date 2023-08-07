@@ -7,7 +7,7 @@
 
 namespace fb::cards {
 
-static constexpr uint32_t CARD_COUNT = 3;
+static constexpr uint32_t CARD_COUNT = 4;
 
 struct Params {
     std::array<std::reference_wrapper<const ComPtr<ID3D12Resource>>, CARD_COUNT> card_textures;

@@ -17,6 +17,7 @@
 #include <directxtk12/ResourceUploadBatch.h>
 #include <directxtk12/SimpleMath.h>
 #include <directxtk12/CommonStates.h>
+#include <directxtk12/GeometricPrimitive.h>
 
 // PIX.
 #define USE_PIX
@@ -27,13 +28,14 @@
 
 // Standard library.
 #include <array>
+#include <chrono>
 #include <cmath>
 #include <cstddef>
-#include <chrono>
 #include <cstdint>
 #include <format>
 #include <memory>
 #include <optional>
+#include <ranges>
 #include <source_location>
 #include <span>
 #include <sstream>

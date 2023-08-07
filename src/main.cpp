@@ -4,12 +4,14 @@
 #include "pcg.hpp"
 #include "win32.hpp"
 #include "gui.hpp"
+#include "exr.hpp"
 
 // Framebuffet - demos
 #include "cards.hpp"
 #include "demo/cube.hpp"
 #include "demo/rain.hpp"
 #include "demo/tree.hpp"
+#include "demo/env.hpp"
 
 // PCH.
 #include <pch.hpp>
@@ -39,6 +41,7 @@ auto main() -> int {
     auto cube_demo = std::make_unique<fb::cube::Demo>(*device);
     auto rain_demo = std::make_unique<fb::rain::Demo>(*device);
     auto tree_demo = std::make_unique<fb::tree::Demo>(*device);
+    auto env_demo = std::make_unique<fb::env::Demo>(*device);
     auto cards = std::make_unique<fb::cards::Cards>(
         *device,
         fb::cards::Params {
@@ -46,6 +49,7 @@ auto main() -> int {
                 cube_demo->render_targets.color(),
                 rain_demo->render_targets.color(),
                 tree_demo->render_targets.color(),
+                env_demo->rt_color(),
             }});
 
     // Main loop.
@@ -81,6 +85,7 @@ auto main() -> int {
         cube_demo->update(update_desc);
         rain_demo->update(update_desc);
         tree_demo->update(update_desc);
+        env_demo->update(update_desc);
         cards->update(*device);
 
         // Begin frame.
@@ -102,6 +107,10 @@ auto main() -> int {
 
             PIXBeginEvent(cmd, PIX_COLOR_DEFAULT, "Tree");
             tree_demo->render(*device);
+            PIXEndEvent(cmd);
+
+            PIXBeginEvent(cmd, PIX_COLOR_DEFAULT, "Env");
+            env_demo->render(*device);
             PIXEndEvent(cmd);
 
             PIXEndEvent(cmd);
@@ -134,15 +143,6 @@ auto main() -> int {
 
     // Wait for pending GPU work to complete.
     device->wait();
-
-    // Cleanup.
-    cards = nullptr;
-    tree_demo = nullptr;
-    rain_demo = nullptr;
-    cube_demo = nullptr;
-    gui = nullptr;
-    device = nullptr;
-    window = nullptr;
 
     return 0;
 }

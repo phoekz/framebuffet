@@ -157,7 +157,6 @@ void Demo::update(const demo::UpdateDesc& desc) {
     static float particle_height = 0.075f;
 
     // Update light angle.
-    // ImGui.
     {
         camera_lon += camera_rotation_speed * desc.delta_time;
         if (camera_lon > PI * 2.0f) {
@@ -165,6 +164,7 @@ void Demo::update(const demo::UpdateDesc& desc) {
         }
     }
 
+    // ImGui.
     {
         auto& compute_constants = *compute.constant_buffer.ptr();
         compute_constants.delta_time = desc.delta_time;
