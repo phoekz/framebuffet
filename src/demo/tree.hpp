@@ -19,33 +19,44 @@ struct MainConstants {
     float pad[28] = {};
 };
 
-struct Demo {
+class Demo {
+  public:
     static constexpr std::string_view NAME = "Tree"sv;
     static constexpr Vector4 CLEAR_COLOR = {0.32549f, 0.51373f, 0.56078f, 1.0f};
 
     Demo(GpuDevice& device);
-    void update(const demo::UpdateDesc& desc);
-    void render(GpuDevice& device);
+    auto update(const demo::UpdateDesc& desc) -> void;
+    auto render(GpuDevice& device) -> void;
 
-    GpuDescriptors descriptors;
-    GpuSamplers samplers;
-    GpuRenderTargets render_targets;
-    GpuDebugDraw debug_draw;
+    auto rt_color() const -> const GpuTexture2dSrvRtv& { return _render_targets.color(); }
+
+  private:
+    GpuDescriptors _descriptors;
+    GpuSamplers _samplers;
+    GpuRenderTargets _render_targets;
+    GpuDebugDraw _debug_draw;
 
     struct Scene {
+        Scene(GpuDevice& device);
+
         struct Model {
+            Model(GpuDevice& device, const GltfModel& gltf_model, std::string_view model_name);
+
             GpuBufferHostSrv<GltfVertex> vertex_buffer;
             GpuDescriptorHandle vertex_buffer_descriptor;
             GpuBufferHostIndex<GltfIndex> index_buffer;
             GpuTexture2dSrv texture;
             GpuDescriptorHandle texture_descriptor;
         };
+
         Model tree;
         Model plane;
-    } scene;
+    } _scene;
 
     struct ShadowPass {
         static constexpr std::string_view NAME = "Shadow"sv;
+
+        ShadowPass(GpuDevice& device);
 
         ComPtr<ID3D12PipelineState> pipeline_state;
 
@@ -55,16 +66,18 @@ struct Demo {
         GpuTexture2dSrvDsv depth;
         GpuDescriptorHandle depth_dsv_descriptor;
         GpuDescriptorHandle depth_srv_descriptor;
-    } shadow_pass;
+    } _shadow_pass;
 
     struct MainPass {
         static constexpr std::string_view NAME = "Main"sv;
+
+        MainPass(GpuDevice& device);
 
         ComPtr<ID3D12PipelineState> pipeline_state;
 
         GpuBufferHostCbv<MainConstants> constants;
         GpuDescriptorHandle constants_descriptor;
-    } main_pass;
+    } _main_pass;
 };
 
 }  // namespace fb::tree

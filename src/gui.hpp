@@ -15,33 +15,35 @@ struct Constants {
     float pad[48] = {};
 };
 
-struct Gui {
+class Gui {
+  public:
     static constexpr std::string_view NAME = "Gui"sv;
 
     Gui(const Window& window, GpuDevice& device);
     ~Gui();
-    void update();
-    void render(const GpuDevice& device);
+    auto update() -> void;
+    auto render(const GpuDevice& device) -> void;
 
-    ImGuiContext* imgui_ctx = nullptr;
+  private:
+    ImGuiContext* _imgui_ctx = nullptr;
 
-    GpuDescriptors descriptors;
-    GpuSamplers samplers;
+    GpuDescriptors _descriptors;
+    GpuSamplers _samplers;
 
-    ComPtr<ID3D12PipelineState> pipeline_state;
+    ComPtr<ID3D12PipelineState> _pipeline_state;
 
-    GpuBufferHostCbv<Constants> constant_buffer;
-    GpuDescriptorHandle constant_buffer_descriptor;
+    GpuBufferHostCbv<Constants> _constant_buffer;
+    GpuDescriptorHandle _constant_buffer_descriptor;
 
     struct Geometry {
         GpuBufferHostSrv<ImDrawVert> vertex_buffer;
         GpuDescriptorHandle vertex_buffer_descriptor;
         GpuBufferHostIndex<ImDrawIdx> index_buffer;
     };
-    std::array<Geometry, FRAME_COUNT> geometries;
+    std::array<Geometry, FRAME_COUNT> _geometries;
 
-    GpuTexture2dSrv texture;
-    GpuDescriptorHandle texture_descriptor;
+    GpuTexture2dSrv _texture;
+    GpuDescriptorHandle _texture_descriptor;
 };
 
 }  // namespace fb::gui

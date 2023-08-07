@@ -30,7 +30,8 @@ struct Vertex {
     Vector2 texcoord;
 };
 
-struct Demo {
+class Demo {
+  public:
     static constexpr std::string_view NAME = "Rain"sv;
     static constexpr Vector4 CLEAR_COLOR = {0.2f, 0.2f, 0.2f, 1.0f};
 
@@ -38,13 +39,16 @@ struct Demo {
     void update(const demo::UpdateDesc& desc);
     void render(GpuDevice& device);
 
-    GpuDescriptors descriptors;
-    GpuRenderTargets render_targets;
-    GpuDebugDraw debug_draw;
+    auto rt_color() const -> const GpuTexture2dSrvRtv& { return _render_targets.color(); }
 
-    GpuBufferDeviceSrvUav<Particle> particle_buffer;
-    GpuDescriptorHandle particle_buffer_srv_descriptor;
-    GpuDescriptorHandle particle_buffer_uav_descriptor;
+  private:
+    GpuDescriptors _descriptors;
+    GpuRenderTargets _render_targets;
+    GpuDebugDraw _debug_draw;
+
+    GpuBufferDeviceSrvUav<Particle> _particle_buffer;
+    GpuDescriptorHandle _particle_buffer_srv_descriptor;
+    GpuDescriptorHandle _particle_buffer_uav_descriptor;
 
     struct Compute {
         static constexpr std::string_view NAME = "Compute"sv;
@@ -53,7 +57,7 @@ struct Demo {
 
         GpuBufferHostCbv<ComputeConstants> constant_buffer;
         GpuDescriptorHandle constant_buffer_descriptor;
-    } compute;
+    } _compute;
 
     struct Draw {
         static constexpr std::string_view NAME = "Draw"sv;
@@ -67,7 +71,7 @@ struct Demo {
         GpuDescriptorHandle vertex_buffer_descriptor;
 
         GpuBufferHostIndex<uint16_t> index_buffer;
-    } draw;
+    } _draw;
 };
 
 }  // namespace fb::rain

@@ -8,12 +8,12 @@
 namespace fb::gui {
 
 Gui::Gui(const Window& window, GpuDevice& device) :
-    descriptors(device, Gui::NAME),
-    samplers(device, descriptors) {
+    _descriptors(device, Gui::NAME),
+    _samplers(device, _descriptors) {
     // ImGui.
     {
         IMGUI_CHECKVERSION();
-        imgui_ctx = ImGui::CreateContext();
+        _imgui_ctx = ImGui::CreateContext();
         auto& io = ImGui::GetIO();
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
@@ -34,15 +34,15 @@ Gui::Gui(const Window& window, GpuDevice& device) :
 
     // Descriptors.
     {
-        constant_buffer_descriptor = descriptors.cbv_srv_uav().alloc();
-        for (auto& geometry : geometries) {
-            geometry.vertex_buffer_descriptor = descriptors.cbv_srv_uav().alloc();
+        _constant_buffer_descriptor = _descriptors.cbv_srv_uav().alloc();
+        for (auto& geometry : _geometries) {
+            geometry.vertex_buffer_descriptor = _descriptors.cbv_srv_uav().alloc();
         }
-        texture_descriptor = descriptors.cbv_srv_uav().alloc();
+        _texture_descriptor = _descriptors.cbv_srv_uav().alloc();
     }
 
     // Pipeline state.
-    pipeline_state = device.create_graphics_pipeline_state(
+    _pipeline_state = device.create_graphics_pipeline_state(
         D3D12_GRAPHICS_PIPELINE_STATE_DESC {
             .pRootSignature = device.root_signature(),
             .VS = vertex_shader.bytecode(),
@@ -84,10 +84,10 @@ Gui::Gui(const Window& window, GpuDevice& device) :
 
     // Constants.
     {
-        constant_buffer.create(device, 1, dx_name(Gui::NAME, "Constant Buffer"));
+        _constant_buffer.create(device, 1, dx_name(Gui::NAME, "Constant Buffer"));
         device.create_constant_buffer_view(
-            constant_buffer.cbv_desc(),
-            constant_buffer_descriptor.cpu());
+            _constant_buffer.cbv_desc(),
+            _constant_buffer_descriptor.cpu());
     }
 
     // Font texture.
@@ -99,7 +99,7 @@ Gui::Gui(const Window& window, GpuDevice& device) :
         io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);
 
         // Texture.
-        texture.create(
+        _texture.create(
             device,
             GpuTexture2dDesc {
                 .format = DXGI_FORMAT_R8G8B8A8_UNORM,
@@ -110,12 +110,12 @@ Gui::Gui(const Window& window, GpuDevice& device) :
 
         // SRV.
         device.create_shader_resource_view(
-            texture.resource(),
-            texture.srv_desc(),
-            texture_descriptor.cpu());
+            _texture.resource(),
+            _texture.srv_desc(),
+            _texture_descriptor.cpu());
 
         // ImGui Font texture ID.
-        io.Fonts->SetTexID((ImTextureID)texture_descriptor.gpu().ptr);
+        io.Fonts->SetTexID((ImTextureID)_texture_descriptor.gpu().ptr);
 
         // Upload.
         device.easy_upload(
@@ -123,14 +123,14 @@ Gui::Gui(const Window& window, GpuDevice& device) :
                 .pData = pixels,
                 .RowPitch = width * 4,
                 .SlicePitch = width * height * 4},
-            texture.resource(),
+            _texture.resource(),
             D3D12_RESOURCE_STATE_COMMON,
             D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
     }
 
     // Geometry.
     for (uint32_t i = 0; i < FRAME_COUNT; i++) {
-        Gui::Geometry& geometry = geometries[i];
+        Gui::Geometry& geometry = _geometries[i];
         geometry.vertex_buffer.create(
             device,
             MAX_VERTEX_COUNT,
@@ -151,16 +151,16 @@ Gui::Gui(const Window& window, GpuDevice& device) :
 
 Gui::~Gui() {
     ImGui_ImplWin32_Shutdown();
-    ImGui::DestroyContext(imgui_ctx);
+    ImGui::DestroyContext(_imgui_ctx);
 }
 
-void Gui::update() {
+auto Gui::update() -> void {
     ImGui_ImplWin32_NewFrame();
     ImGui::NewFrame();
     ImGui::ShowDemoWindow();
 }
 
-void Gui::render(const GpuDevice& device) {
+auto Gui::render(const GpuDevice& device) -> void {
     ImGui::Render();
     auto* draw_data = ImGui::GetDrawData();
 
@@ -170,7 +170,7 @@ void Gui::render(const GpuDevice& device) {
     }
 
     // Update geometries.
-    auto& geometry = geometries[device.frame_index()];
+    auto& geometry = _geometries[device.frame_index()];
     {
         ImDrawVert* vertices = geometry.vertex_buffer.ptr();
         ImDrawIdx* indices = geometry.index_buffer.ptr();
@@ -198,7 +198,7 @@ void Gui::render(const GpuDevice& device) {
             {0.0f, 0.0f, 0.5f, 0.0f},
             {(r + l) / (l - r), (t + b) / (b - t), 0.5f, 1.0f},
         };
-        memcpy(constant_buffer.ptr(), m, sizeof(m));
+        memcpy(_constant_buffer.ptr(), m, sizeof(m));
     }
 
     // Render.
@@ -213,12 +213,12 @@ void Gui::render(const GpuDevice& device) {
         cmd->OMSetBlendFactor(blend_factor);
 
         ID3D12DescriptorHeap* heaps[] = {
-            descriptors.cbv_srv_uav().heap(),
-            descriptors.sampler().heap()};
+            _descriptors.cbv_srv_uav().heap(),
+            _descriptors.sampler().heap()};
         cmd->SetDescriptorHeaps(_countof(heaps), heaps);
         cmd->SetGraphicsRootSignature(device.root_signature());
 
-        cmd->SetPipelineState(pipeline_state.get());
+        cmd->SetPipelineState(_pipeline_state.get());
         cmd->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
         cmd->IASetIndexBuffer(&ibv);
 
@@ -239,10 +239,10 @@ void Gui::render(const GpuDevice& device) {
                         (LONG)(pcmd->ClipRect.w - clip_off.y),
                     };
                     GpuBindings bindings;
-                    bindings.push(constant_buffer_descriptor);
+                    bindings.push(_constant_buffer_descriptor);
                     bindings.push(geometry.vertex_buffer_descriptor);
                     bindings.push((pcmd->VtxOffset + (uint32_t)global_vtx_offset));
-                    bindings.push(texture_descriptor);
+                    bindings.push(_texture_descriptor);
                     cmd->SetGraphicsRoot32BitConstants(0, bindings.capacity(), bindings.ptr(), 0);
 
                     cmd->RSSetScissorRects(1, &scissor_rect);

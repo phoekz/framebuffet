@@ -9,31 +9,35 @@ struct Constants {
     float pad[48] = {};
 };
 
-struct Demo {
+class Demo {
+  public:
     static constexpr std::string_view NAME = "Cube"sv;
     static constexpr Vector4 CLEAR_COLOR = {0.6f, 0.3f, 0.0f, 1.0f};
 
     Demo(GpuDevice& device);
-    void update(const demo::UpdateDesc& desc);
-    void render(GpuDevice& device);
+    auto update(const demo::UpdateDesc& desc) -> void;
+    auto render(GpuDevice& device) -> void;
 
-    GpuDescriptors descriptors;
-    GpuSamplers samplers;
-    GpuRenderTargets render_targets;
-    GpuDebugDraw debug_draw;
+    auto rt_color() const -> const GpuTexture2dSrvRtv& { return _render_targets.color(); }
 
-    ComPtr<ID3D12PipelineState> pipeline_state;
+  private:
+    GpuDescriptors _descriptors;
+    GpuSamplers _samplers;
+    GpuRenderTargets _render_targets;
+    GpuDebugDraw _debug_draw;
 
-    GpuBufferHostCbv<Constants> constant_buffer;
-    GpuDescriptorHandle constant_buffer_descriptor;
+    ComPtr<ID3D12PipelineState> _pipeline_state;
 
-    GpuBufferHostSrv<GltfVertex> vertex_buffer;
-    GpuDescriptorHandle vertex_buffer_descriptor;
+    GpuBufferHostCbv<Constants> _constant_buffer;
+    GpuDescriptorHandle _constant_buffer_descriptor;
 
-    GpuBufferHostIndex<GltfIndex> index_buffer;
+    GpuBufferHostSrv<GltfVertex> _vertex_buffer;
+    GpuDescriptorHandle _vertex_buffer_descriptor;
 
-    GpuTexture2dSrv texture;
-    GpuDescriptorHandle texture_descriptor;
+    GpuBufferHostIndex<GltfIndex> _index_buffer;
+
+    GpuTexture2dSrv _texture;
+    GpuDescriptorHandle _texture_descriptor;
 };
 
 }  // namespace fb::cube

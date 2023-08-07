@@ -46,9 +46,9 @@ auto main() -> int {
         *device,
         fb::cards::Params {
             .card_textures = {
-                cube_demo->render_targets.color().resource(),
-                rain_demo->render_targets.color().resource(),
-                tree_demo->render_targets.color().resource(),
+                cube_demo->rt_color().resource(),
+                rain_demo->rt_color().resource(),
+                tree_demo->rt_color().resource(),
                 env_demo->rt_color().resource(),
             }});
 

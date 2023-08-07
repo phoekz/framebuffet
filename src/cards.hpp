@@ -28,30 +28,32 @@ struct Vertex {
     Vector2 texcoord;
 };
 
-struct Cards {
+class Cards {
+  public:
     static constexpr std::string_view NAME = "Cards"sv;
 
     Cards(GpuDevice& device, const Params& params);
-    void update(const GpuDevice& device);
-    void render(GpuDevice& device);
+    auto update(const GpuDevice& device) -> void;
+    auto render(GpuDevice& device) -> void;
 
-    GpuDescriptors descriptors;
-    GpuSamplers samplers;
+  private:
+    GpuDescriptors _descriptors;
+    GpuSamplers _samplers;
 
-    ComPtr<ID3D12PipelineState> pipeline_state;
+    ComPtr<ID3D12PipelineState> _pipeline_state;
 
-    GpuBufferHostCbv<Constants> constant_buffer;
-    GpuDescriptorHandle constant_buffer_descriptor;
+    GpuBufferHostCbv<Constants> _constant_buffer;
+    GpuDescriptorHandle _constant_buffer_descriptor;
 
-    GpuBufferHostSrv<Card> card_buffer;
-    GpuDescriptorHandle card_buffer_descriptor;
+    GpuBufferHostSrv<Card> _card_buffer;
+    GpuDescriptorHandle _card_buffer_descriptor;
 
-    GpuBufferHostSrv<Vertex> vertex_buffer;
-    GpuDescriptorHandle vertex_buffer_descriptor;
+    GpuBufferHostSrv<Vertex> _vertex_buffer;
+    GpuDescriptorHandle _vertex_buffer_descriptor;
 
-    GpuBufferHostIndex<uint16_t> index_buffer;
+    GpuBufferHostIndex<uint16_t> _index_buffer;
 
-    std::array<GpuDescriptorHandle, CARD_COUNT> card_texture_descriptors;
+    std::array<GpuDescriptorHandle, CARD_COUNT> _card_texture_descriptors;
 };
 
 }  // namespace fb::cards

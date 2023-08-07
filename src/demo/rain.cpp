@@ -3,33 +3,33 @@
 namespace fb::rain {
 
 Demo::Demo(GpuDevice& device) :
-    descriptors(device, Demo::NAME),
-    render_targets(device, descriptors, device.swapchain_size(), Demo::CLEAR_COLOR, Demo::NAME),
-    debug_draw(device, Demo::NAME) {
+    _descriptors(device, Demo::NAME),
+    _render_targets(device, _descriptors, device.swapchain_size(), Demo::CLEAR_COLOR, Demo::NAME),
+    _debug_draw(device, Demo::NAME) {
     // Descriptors.
     {
-        particle_buffer_srv_descriptor = descriptors.cbv_srv_uav().alloc();
-        particle_buffer_uav_descriptor = descriptors.cbv_srv_uav().alloc();
-        compute.constant_buffer_descriptor = descriptors.cbv_srv_uav().alloc();
-        draw.constant_buffer_descriptor = descriptors.cbv_srv_uav().alloc();
-        draw.vertex_buffer_descriptor = descriptors.cbv_srv_uav().alloc();
+        _particle_buffer_srv_descriptor = _descriptors.cbv_srv_uav().alloc();
+        _particle_buffer_uav_descriptor = _descriptors.cbv_srv_uav().alloc();
+        _compute.constant_buffer_descriptor = _descriptors.cbv_srv_uav().alloc();
+        _draw.constant_buffer_descriptor = _descriptors.cbv_srv_uav().alloc();
+        _draw.vertex_buffer_descriptor = _descriptors.cbv_srv_uav().alloc();
     }
 
     // Particles.
     {
         // Buffer.
-        particle_buffer.create(device, PARTICLE_COUNT, dx_name(Demo::NAME, "Particle Buffer"));
+        _particle_buffer.create(device, PARTICLE_COUNT, dx_name(Demo::NAME, "Particle Buffer"));
 
         // Descriptors.
         device.create_shader_resource_view(
-            particle_buffer.resource(),
-            particle_buffer.srv_desc(),
-            particle_buffer_srv_descriptor.cpu());
+            _particle_buffer.resource(),
+            _particle_buffer.srv_desc(),
+            _particle_buffer_srv_descriptor.cpu());
         device.create_unordered_access_view(
-            particle_buffer.resource(),
+            _particle_buffer.resource(),
             std::nullopt,
-            particle_buffer.uav_desc(),
-            particle_buffer_uav_descriptor.cpu());
+            _particle_buffer.uav_desc(),
+            _particle_buffer_uav_descriptor.cpu());
 
         // Data.
         pcg rand;
@@ -45,9 +45,9 @@ Demo::Demo(GpuDevice& device) :
         device.easy_upload(
             D3D12_SUBRESOURCE_DATA {
                 .pData = particles.data(),
-                .RowPitch = particle_buffer.byte_size(),
-                .SlicePitch = particle_buffer.byte_size()},
-            particle_buffer.resource(),
+                .RowPitch = _particle_buffer.byte_size(),
+                .SlicePitch = _particle_buffer.byte_size()},
+            _particle_buffer.resource(),
             D3D12_RESOURCE_STATE_COMMON,
             D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
     }
@@ -69,7 +69,7 @@ Demo::Demo(GpuDevice& device) :
     }
 
     // Compute - Pipeline state.
-    compute.pipeline_state = device.create_compute_pipeline_state(
+    _compute.pipeline_state = device.create_compute_pipeline_state(
         D3D12_COMPUTE_PIPELINE_STATE_DESC {
             .pRootSignature = device.root_signature(),
             .CS = compute_shader.bytecode()},
@@ -77,18 +77,18 @@ Demo::Demo(GpuDevice& device) :
 
     // Compute - Constant buffer.
     {
-        compute.constant_buffer.create(
+        _compute.constant_buffer.create(
             device,
             1,
             dx_name(Demo::NAME, Demo::Compute::NAME, "Constant Buffer"));
         device.create_constant_buffer_view(
-            compute.constant_buffer.cbv_desc(),
-            compute.constant_buffer_descriptor.cpu());
+            _compute.constant_buffer.cbv_desc(),
+            _compute.constant_buffer_descriptor.cpu());
     }
 
     // Draw - Pipeline state.
     using CommonStates = DirectX::DX12::CommonStates;
-    draw.pipeline_state = device.create_graphics_pipeline_state(
+    _draw.pipeline_state = device.create_graphics_pipeline_state(
         {
             .pRootSignature = device.root_signature(),
             .VS = vertex_shader.bytecode(),
@@ -107,13 +107,13 @@ Demo::Demo(GpuDevice& device) :
 
     // Draw - Constant buffer.
     {
-        draw.constant_buffer.create(
+        _draw.constant_buffer.create(
             device,
             1,
             dx_name(Demo::NAME, Demo::Draw::NAME, "Constant Buffer"));
         device.create_constant_buffer_view(
-            draw.constant_buffer.cbv_desc(),
-            draw.constant_buffer_descriptor.cpu());
+            _draw.constant_buffer.cbv_desc(),
+            _draw.constant_buffer_descriptor.cpu());
     }
 
     // Draw - Vertex buffer.
@@ -129,22 +129,22 @@ Demo::Demo(GpuDevice& device) :
         uint32_t vertex_count = (uint32_t)_countof(vertices);
         uint32_t index_count = (uint32_t)_countof(indices);
 
-        draw.vertex_buffer.create(
+        _draw.vertex_buffer.create(
             device,
             vertex_count,
             dx_name(Demo::NAME, Demo::Draw::NAME, "Vertex Buffer"));
-        draw.index_buffer.create(
+        _draw.index_buffer.create(
             device,
             index_count,
             dx_name(Demo::NAME, Demo::Draw::NAME, "Index Buffer"));
 
         device.create_shader_resource_view(
-            draw.vertex_buffer.resource(),
-            draw.vertex_buffer.srv_desc(),
-            draw.vertex_buffer_descriptor.cpu());
+            _draw.vertex_buffer.resource(),
+            _draw.vertex_buffer.srv_desc(),
+            _draw.vertex_buffer_descriptor.cpu());
 
-        memcpy(draw.vertex_buffer.ptr(), vertices, sizeof(vertices));
-        memcpy(draw.index_buffer.ptr(), indices, sizeof(indices));
+        memcpy(_draw.vertex_buffer.ptr(), vertices, sizeof(vertices));
+        memcpy(_draw.index_buffer.ptr(), indices, sizeof(indices));
     }
 }
 
@@ -166,7 +166,7 @@ void Demo::update(const demo::UpdateDesc& desc) {
 
     // ImGui.
     {
-        auto& compute_constants = *compute.constant_buffer.ptr();
+        auto& compute_constants = *_compute.constant_buffer.ptr();
         compute_constants.delta_time = desc.delta_time;
 
         if (ImGui::Begin(Demo::NAME.data())) {
@@ -183,7 +183,7 @@ void Demo::update(const demo::UpdateDesc& desc) {
 
     Matrix camera_transform;
     {
-        auto& draw_constants = *draw.constant_buffer.ptr();
+        auto& draw_constants = *_draw.constant_buffer.ptr();
 
         constexpr auto FOV = rad_from_deg(45.0f);
         auto aspect_ratio = desc.aspect_ratio;
@@ -211,10 +211,10 @@ void Demo::update(const demo::UpdateDesc& desc) {
     }
 
     {
-        debug_draw.begin(desc.frame_index);
-        debug_draw.transform(camera_transform);
-        debug_draw.axes();
-        debug_draw.end();
+        _debug_draw.begin(desc.frame_index);
+        _debug_draw.transform(camera_transform);
+        _debug_draw.axes();
+        _debug_draw.end();
     }
 }
 
@@ -224,56 +224,56 @@ void Demo::render(GpuDevice& device) {
     {
         // Transition particles.
         device.transition(
-            particle_buffer.resource(),
+            _particle_buffer.resource(),
             D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER,
             D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 
         // Pipeline state.
-        cmd->SetDescriptorHeaps(1, descriptors.cbv_srv_uav().heap_ptr());
+        cmd->SetDescriptorHeaps(1, _descriptors.cbv_srv_uav().heap_ptr());
         cmd->SetComputeRootSignature(device.root_signature());
         GpuBindings bindings;
-        bindings.push(compute.constant_buffer_descriptor);
-        bindings.push(particle_buffer_uav_descriptor);
+        bindings.push(_compute.constant_buffer_descriptor);
+        bindings.push(_particle_buffer_uav_descriptor);
         cmd->SetComputeRoot32BitConstants(0, bindings.capacity(), bindings.ptr(), 0);
-        cmd->SetPipelineState(compute.pipeline_state.get());
+        cmd->SetPipelineState(_compute.pipeline_state.get());
 
         // Dispatch.
         cmd->Dispatch(DISPATCH_COUNT, 1, 1);
 
         // Transition particles.
         device.transition(
-            particle_buffer.resource(),
+            _particle_buffer.resource(),
             D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
             D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
     }
 
     {
         // Begin.
-        render_targets.begin(device);
+        _render_targets.begin(device);
 
         // Pipeline state.
-        cmd->SetDescriptorHeaps(1, descriptors.cbv_srv_uav().heap_ptr());
+        cmd->SetDescriptorHeaps(1, _descriptors.cbv_srv_uav().heap_ptr());
         cmd->SetGraphicsRootSignature(device.root_signature());
         GpuBindings bindings;
-        bindings.push(draw.constant_buffer_descriptor);
-        bindings.push(draw.vertex_buffer_descriptor);
-        bindings.push(particle_buffer_srv_descriptor);
+        bindings.push(_draw.constant_buffer_descriptor);
+        bindings.push(_draw.vertex_buffer_descriptor);
+        bindings.push(_particle_buffer_srv_descriptor);
         cmd->SetGraphicsRoot32BitConstants(0, bindings.capacity(), bindings.ptr(), 0);
-        cmd->SetPipelineState(draw.pipeline_state.get());
+        cmd->SetPipelineState(_draw.pipeline_state.get());
 
         // Input assembler.
         cmd->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-        auto ibv = draw.index_buffer.index_buffer_view();
+        auto ibv = _draw.index_buffer.index_buffer_view();
         cmd->IASetIndexBuffer(&ibv);
 
         // Draw.
         cmd->DrawIndexedInstanced(6, PARTICLE_COUNT, 0, 0, 0);
 
         // Debug.
-        debug_draw.render(device);
+        _debug_draw.render(device);
 
         // End.
-        render_targets.end(device);
+        _render_targets.end(device);
     }
 }
 
