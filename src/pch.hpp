@@ -16,7 +16,6 @@
 #include <dxgidebug.h>
 #include <directxtk12/ResourceUploadBatch.h>
 #include <directxtk12/SimpleMath.h>
-#include <directxtk12/CommonStates.h>
 #include <directxtk12/GeometricPrimitive.h>
 
 // PIX.

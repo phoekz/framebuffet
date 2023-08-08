@@ -23,7 +23,7 @@ class Demo {
   private:
     GpuRenderTargets _render_targets;
     GpuDebugDraw _debug_draw;
-    ComPtr<ID3D12PipelineState> _pipeline_state;
+    GpuPipeline _pipeline;
     GpuBufferHostCbv<Constants> _constant_buffer;
     GpuBufferHostSrv<GltfVertex> _vertex_buffer;
     GpuBufferHostIndex<GltfIndex> _index_buffer;

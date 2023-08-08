@@ -66,20 +66,12 @@ Demo::ShadowPass::ShadowPass(GpuDevice& device) {
             source);
     }
 
-    // Pipeline state.
-    pipeline_state = device.create_graphics_pipeline_state(
-        D3D12_GRAPHICS_PIPELINE_STATE_DESC {
-            .pRootSignature = device.root_signature(),
-            .VS = vertex_shader.bytecode(),
-            .BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT),
-            .SampleMask = UINT_MAX,
-            .RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT),
-            .DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT),
-            .PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE,
-            .DSVFormat = DXGI_FORMAT_D32_FLOAT,
-            .SampleDesc = {.Count = 1, .Quality = 0},
-        },
-        dx_name(Demo::NAME, Demo::ShadowPass::NAME, "Pipeline State"));
+    // Pipeline.
+    GpuPipelineBuilder()
+        .primitive_topology(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)
+        .vertex_shader(vertex_shader.bytecode())
+        .depth_stencil_format(DXGI_FORMAT_D32_FLOAT)
+        .build(device, pipeline, dx_name(Demo::NAME, Demo::ShadowPass::NAME, "Pipeline"));
 
     // Constants.
     constants.create(device, 1, dx_name(Demo::NAME, Demo::ShadowPass::NAME, "Constants"));
@@ -115,22 +107,14 @@ Demo::MainPass::MainPass(GpuDevice& device) {
         pixel_shader = sc.compile(name, GpuShaderType::Pixel, "ps_main", source);
     }
 
-    // Pipeline state.
-    pipeline_state = device.create_graphics_pipeline_state(
-        D3D12_GRAPHICS_PIPELINE_STATE_DESC {
-            .pRootSignature = device.root_signature(),
-            .VS = vertex_shader.bytecode(),
-            .PS = pixel_shader.bytecode(),
-            .BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT),
-            .SampleMask = UINT_MAX,
-            .RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT),
-            .DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT),
-            .PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE,
-            .NumRenderTargets = 1,
-            .RTVFormats = {DXGI_FORMAT_R8G8B8A8_UNORM},
-            .DSVFormat = DXGI_FORMAT_D32_FLOAT,
-            .SampleDesc = {.Count = 1, .Quality = 0}},
-        dx_name(Demo::NAME, Demo::MainPass::NAME, "Pipeline State"));
+    // Pipeline.
+    GpuPipelineBuilder()
+        .primitive_topology(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)
+        .vertex_shader(vertex_shader.bytecode())
+        .pixel_shader(pixel_shader.bytecode())
+        .render_target_formats({DXGI_FORMAT_R8G8B8A8_UNORM})
+        .depth_stencil_format(DXGI_FORMAT_D32_FLOAT)
+        .build(device, pipeline, dx_name(Demo::NAME, Demo::MainPass::NAME, "Pipeline"));
 
     // Constants.
     constants.create(device, 1, dx_name(Demo::NAME, Demo::MainPass::NAME, "Constants"));
@@ -238,7 +222,7 @@ auto Demo::render(GpuDevice& device, GpuCommandList& cmd) -> void {
             _shadow_pass.constants.cbv_descriptor().index(),
             _scene.tree.vertex_buffer.srv_descriptor().index(),
         });
-        cmd.set_pipeline(_shadow_pass.pipeline_state);
+        cmd.set_pipeline(_shadow_pass.pipeline);
         cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
         cmd.set_index_buffer(_scene.tree.index_buffer.index_buffer_view());
         cmd.draw_indexed_instanced(_scene.tree.index_buffer.element_size(), 1, 0, 0, 0);
@@ -250,7 +234,7 @@ auto Demo::render(GpuDevice& device, GpuCommandList& cmd) -> void {
         cmd.set_graphics();
         _render_targets.begin(device, cmd);
         _debug_draw.render(device, cmd);
-        cmd.set_pipeline(_main_pass.pipeline_state);
+        cmd.set_pipeline(_main_pass.pipeline);
         cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
         cmd.set_graphics_constants({

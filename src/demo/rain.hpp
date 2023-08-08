@@ -49,14 +49,14 @@ class Demo {
     struct Compute {
         static constexpr std::string_view NAME = "Compute"sv;
 
-        ComPtr<ID3D12PipelineState> pipeline_state;
+        GpuPipeline pipeline;
         GpuBufferHostCbv<ComputeConstants> constant_buffer;
     } _compute;
 
     struct Draw {
         static constexpr std::string_view NAME = "Draw"sv;
 
-        ComPtr<ID3D12PipelineState> pipeline_state;
+        GpuPipeline pipeline;
         GpuBufferHostCbv<DrawConstants> constant_buffer;
         GpuBufferHostSrv<Vertex> vertex_buffer;
         GpuBufferHostIndex<uint16_t> index_buffer;

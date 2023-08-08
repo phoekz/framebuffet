@@ -14,26 +14,17 @@ GpuDebugDraw::GpuDebugDraw(GpuDevice& device, std::string_view name) {
         pixel_shader = sc.compile(NAME, GpuShaderType::Pixel, "ps_main", source);
     }
 
-    // Pipeline state.
-    {
-        using CommonStates = DirectX::DX12::CommonStates;
-        _pipeline_state = device.create_graphics_pipeline_state(
-            D3D12_GRAPHICS_PIPELINE_STATE_DESC {
-                .pRootSignature = device.root_signature(),
-                .VS = vertex_shader.bytecode(),
-                .PS = pixel_shader.bytecode(),
-                .BlendState = CommonStates::AlphaBlend,
-                .SampleMask = UINT_MAX,
-                .RasterizerState = CommonStates::CullNone,
-                .DepthStencilState = CommonStates::DepthDefault,
-                .PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE,
-                .NumRenderTargets = 1,
-                .RTVFormats = {DXGI_FORMAT_R8G8B8A8_UNORM},
-                .DSVFormat = DXGI_FORMAT_D32_FLOAT,
-                .SampleDesc = {.Count = 1, .Quality = 0},
-            },
-            dx_name(name, NAME, "Pipeline State"));
-    }
+    // Pipeline.
+    GpuPipelineBuilder()
+        .primitive_topology(D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE)
+        .vertex_shader(vertex_shader.bytecode())
+        .pixel_shader(pixel_shader.bytecode())
+        .blend(GPU_PIPELINE_BLEND_ALPHA)
+        .depth_stencil(GPU_PIPELINE_DEPTH_DEFAULT)
+        .rasterizer(GPU_PIPELINE_CULL_NONE)
+        .render_target_formats({DXGI_FORMAT_R8G8B8A8_UNORM})
+        .depth_stencil_format(DXGI_FORMAT_D32_FLOAT)
+        .build(device, _pipeline, dx_name(NAME, "Pipeline"));
 
     // Frame resources.
     for (uint32_t i = 0; i < FRAME_COUNT; i++) {
@@ -76,7 +67,7 @@ auto GpuDebugDraw::render(GpuDevice&, const GpuCommandList& cmd) -> void {
         frame._constant_buffer.cbv_descriptor().index(),
         frame._lines_buffer.srv_descriptor().index(),
     });
-    cmd.set_pipeline(_pipeline_state);
+    cmd.set_pipeline(_pipeline);
     cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
     cmd.draw_instanced((uint32_t)_lines.size(), 1, 0, 0);
 }

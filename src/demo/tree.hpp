@@ -49,7 +49,7 @@ class Demo {
     struct ShadowPass {
         static constexpr std::string_view NAME = "Shadow"sv;
         ShadowPass(GpuDevice& device);
-        ComPtr<ID3D12PipelineState> pipeline_state;
+        GpuPipeline pipeline;
         GpuBufferHostCbv<ShadowConstants> constants;
         GpuTexture2dSrvDsv depth;
     } _shadow_pass;
@@ -57,7 +57,7 @@ class Demo {
     struct MainPass {
         static constexpr std::string_view NAME = "Main"sv;
         MainPass(GpuDevice& device);
-        ComPtr<ID3D12PipelineState> pipeline_state;
+        GpuPipeline pipeline;
         GpuBufferHostCbv<MainConstants> constants;
     } _main_pass;
 };

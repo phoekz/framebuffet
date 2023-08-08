@@ -19,6 +19,7 @@ constexpr D3D_FEATURE_LEVEL MIN_FEATURE_LEVEL = D3D_FEATURE_LEVEL_12_2;
 #pragma region Forward declarations
 
 class GpuDevice;
+class GpuPipeline;
 
 #pragma endregion
 
@@ -144,7 +145,7 @@ class GpuCommandList {
     auto set_topology(D3D12_PRIMITIVE_TOPOLOGY topology) const -> void;
     auto set_index_buffer(D3D12_INDEX_BUFFER_VIEW ibv) const -> void;
     auto set_blend_factor(Vector4 factor) const -> void;
-    auto set_pipeline(const ComPtr<ID3D12PipelineState>& pipeline_state) const -> void;
+    auto set_pipeline(const GpuPipeline& pipeline) const -> void;
     auto set_graphics_constants(std::initializer_list<uint32_t> constants) const -> void;
     auto set_compute_constants(std::initializer_list<uint32_t> constants) const -> void;
 
@@ -207,8 +208,7 @@ class GpuDevice {
     // clang-format off
     [[nodiscard]] auto create_root_signature(const ComPtr<ID3DBlob>& signature, std::string_view name) const -> ComPtr<ID3D12RootSignature>;
     [[nodiscard]] auto create_descriptor_heap(const D3D12_DESCRIPTOR_HEAP_DESC& desc, std::string_view name) const -> ComPtr<ID3D12DescriptorHeap>;
-    [[nodiscard]] auto create_graphics_pipeline_state(const D3D12_GRAPHICS_PIPELINE_STATE_DESC& desc, std::string_view name) const -> ComPtr<ID3D12PipelineState>;
-    [[nodiscard]] auto create_compute_pipeline_state(const D3D12_COMPUTE_PIPELINE_STATE_DESC& desc, std::string_view name) -> ComPtr<ID3D12PipelineState>;
+    [[nodiscard]] auto create_pipeline_state( const D3D12_PIPELINE_STATE_STREAM_DESC& desc, std::string_view name) -> ComPtr<ID3D12PipelineState>;
     [[nodiscard]] auto create_committed_resource(const CD3DX12_HEAP_PROPERTIES& heap_props, const D3D12_RESOURCE_DESC& desc, D3D12_RESOURCE_STATES init_state, const std::optional<D3D12_CLEAR_VALUE>& clear_value, std::string_view name) const -> ComPtr<ID3D12Resource>;
     [[nodiscard]] auto create_fence(uint64_t init_value, std::string_view name) const -> ComPtr<ID3D12Fence1>;
     auto create_constant_buffer_view(const D3D12_CONSTANT_BUFFER_VIEW_DESC& desc, D3D12_CPU_DESCRIPTOR_HANDLE descriptor) const -> void;

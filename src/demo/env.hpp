@@ -42,7 +42,7 @@ class Demo {
     GpuRenderTargets _render_targets;
     GpuDebugDraw _debug_draw;
 
-    ComPtr<ID3D12PipelineState> _pipeline_state;
+    GpuPipeline _pipeline;
     GpuBufferHostCbv<Constants> _constant_buffer;
     GpuBufferHostSrv<Vertex> _vertex_buffer;
     GpuBufferHostIndex<Index> _index_buffer;

@@ -26,7 +26,7 @@ class Gui {
 
   private:
     ImGuiContext* _imgui_ctx = nullptr;
-    ComPtr<ID3D12PipelineState> _pipeline_state;
+    GpuPipeline _pipeline;
     GpuBufferHostCbv<Constants> _constant_buffer;
     struct Geometry {
         GpuBufferHostSrv<ImDrawVert> vertex_buffer;

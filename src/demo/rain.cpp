@@ -47,12 +47,10 @@ Demo::Demo(GpuDevice& device) :
         pixel_shader = sc.compile(draw_name, GpuShaderType::Pixel, "ps_main", draw_source);
     }
 
-    // Compute - Pipeline state.
-    _compute.pipeline_state = device.create_compute_pipeline_state(
-        D3D12_COMPUTE_PIPELINE_STATE_DESC {
-            .pRootSignature = device.root_signature(),
-            .CS = compute_shader.bytecode()},
-        dx_name(Demo::NAME, Demo::Compute::NAME, "Pipeline State"));
+    // Compute - Pipeline.
+    GpuPipelineBuilder()
+        .compute_shader(compute_shader.bytecode())
+        .build(device, _compute.pipeline, dx_name(Demo::NAME, Demo::Compute::NAME, "Pipeline"));
 
     // Compute - Constant buffer.
     _compute.constant_buffer.create(
@@ -60,24 +58,16 @@ Demo::Demo(GpuDevice& device) :
         1,
         dx_name(Demo::NAME, Demo::Compute::NAME, "Constant Buffer"));
 
-    // Draw - Pipeline state.
-    using CommonStates = DirectX::DX12::CommonStates;
-    _draw.pipeline_state = device.create_graphics_pipeline_state(
-        {
-            .pRootSignature = device.root_signature(),
-            .VS = vertex_shader.bytecode(),
-            .PS = pixel_shader.bytecode(),
-            .BlendState = CommonStates::Additive,
-            .SampleMask = UINT_MAX,
-            .RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT),
-            .DepthStencilState = CommonStates::DepthNone,
-            .PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE,
-            .NumRenderTargets = 1,
-            .RTVFormats = {DXGI_FORMAT_R8G8B8A8_UNORM},
-            .DSVFormat = DXGI_FORMAT_D32_FLOAT,
-            .SampleDesc = {.Count = 1, .Quality = 0},
-        },
-        dx_name(Demo::NAME, Demo::Draw::NAME, "Pipeline State"));
+    // Draw - Pipeline.
+    GpuPipelineBuilder()
+        .primitive_topology(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)
+        .vertex_shader(vertex_shader.bytecode())
+        .pixel_shader(pixel_shader.bytecode())
+        .blend(GPU_PIPELINE_BLEND_ADDITIVE)
+        .depth_stencil(GPU_PIPELINE_DEPTH_NONE)
+        .render_target_formats({DXGI_FORMAT_R8G8B8A8_UNORM})
+        .depth_stencil_format(DXGI_FORMAT_D32_FLOAT)
+        .build(device, _draw.pipeline, dx_name(Demo::NAME, Demo::Draw::NAME, "Pipeline"));
 
     // Draw - Constant buffer.
     _draw.constant_buffer.create(
@@ -190,7 +180,7 @@ void Demo::render(GpuDevice& device, GpuCommandList& cmd) {
             _compute.constant_buffer.cbv_descriptor().index(),
             _particle_buffer.uav_descriptor().index(),
         });
-        cmd.set_pipeline(_compute.pipeline_state);
+        cmd.set_pipeline(_compute.pipeline);
         cmd.dispatch(DISPATCH_COUNT, 1, 1);
         _particle_buffer.transition(cmd, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
     }
@@ -203,7 +193,7 @@ void Demo::render(GpuDevice& device, GpuCommandList& cmd) {
             _draw.vertex_buffer.srv_descriptor().index(),
             _particle_buffer.srv_descriptor().index(),
         });
-        cmd.set_pipeline(_draw.pipeline_state);
+        cmd.set_pipeline(_draw.pipeline);
         cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
         cmd.set_index_buffer(_draw.index_buffer.index_buffer_view());
         cmd.draw_indexed_instanced(6, PARTICLE_COUNT, 0, 0, 0);

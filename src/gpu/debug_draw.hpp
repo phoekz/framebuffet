@@ -2,6 +2,7 @@
 
 #include <pch.hpp>
 #include "device.hpp"
+#include "pipelines.hpp"
 #include "utils.hpp"
 #include "maths.hpp"
 #include "buffers.hpp"
@@ -32,7 +33,7 @@ class GpuDebugDraw {
     auto render(GpuDevice& device, const GpuCommandList& cmd) -> void;
 
   private:
-    ComPtr<ID3D12PipelineState> _pipeline_state;
+    GpuPipeline _pipeline;
 
     uint32_t _frame_index = 0;
 

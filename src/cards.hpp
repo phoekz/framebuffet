@@ -37,7 +37,7 @@ class Cards {
     auto render(GpuDevice& device, GpuCommandList& cmd) -> void;
 
   private:
-    ComPtr<ID3D12PipelineState> _pipeline_state;
+    GpuPipeline _pipeline;
     GpuBufferHostCbv<Constants> _constant_buffer;
     GpuBufferHostSrv<Card> _card_buffer;
     GpuBufferHostSrv<Vertex> _vertex_buffer;

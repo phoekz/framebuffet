@@ -1,4 +1,5 @@
 #include "device.hpp"
+#include "pipelines.hpp"
 #include "utils.hpp"
 #include "maths.hpp"
 
@@ -245,8 +246,8 @@ auto GpuCommandList::set_blend_factor(Vector4 factor) const -> void {
     _cmd->OMSetBlendFactor((const float*)&factor);
 }
 
-auto GpuCommandList::set_pipeline(const ComPtr<ID3D12PipelineState>& pipeline_state) const -> void {
-    _cmd->SetPipelineState(pipeline_state.get());
+auto GpuCommandList::set_pipeline(const GpuPipeline& pipeline) const -> void {
+    _cmd->SetPipelineState(pipeline.get());
 }
 
 auto GpuCommandList::set_graphics_constants(std::initializer_list<uint32_t> constants) const
@@ -669,20 +670,11 @@ auto GpuDevice::create_descriptor_heap(
     return result;
 }
 
-auto GpuDevice::create_graphics_pipeline_state(
-    const D3D12_GRAPHICS_PIPELINE_STATE_DESC& desc,
-    std::string_view name) const -> ComPtr<ID3D12PipelineState> {
-    ComPtr<ID3D12PipelineState> result;
-    FB_ASSERT_HR(_device->CreateGraphicsPipelineState(&desc, IID_PPV_ARGS(&result)));
-    dx_set_name(result, name);
-    return result;
-}
-
-auto GpuDevice::create_compute_pipeline_state(
-    const D3D12_COMPUTE_PIPELINE_STATE_DESC& desc,
+auto GpuDevice::create_pipeline_state(
+    const D3D12_PIPELINE_STATE_STREAM_DESC& desc,
     std::string_view name) -> ComPtr<ID3D12PipelineState> {
     ComPtr<ID3D12PipelineState> result;
-    FB_ASSERT_HR(_device->CreateComputePipelineState(&desc, IID_PPV_ARGS(&result)));
+    FB_ASSERT_HR(_device->CreatePipelineState(&desc, IID_PPV_ARGS(&result)));
     dx_set_name(result, name);
     return result;
 }

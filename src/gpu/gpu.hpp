@@ -1,8 +1,9 @@
 #pragma once
 
+#include "device.hpp"
 #include "buffers.hpp"
 #include "textures.hpp"
-#include "debug_draw.hpp"
-#include "device.hpp"
-#include "render_targets.hpp"
+#include "pipelines.hpp"
 #include "shaders.hpp"
+#include "debug_draw.hpp"
+#include "render_targets.hpp"

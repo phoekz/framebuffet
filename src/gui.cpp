@@ -30,46 +30,30 @@ Gui::Gui(const Window& window, GpuDevice& device) {
         pixel_shader = sc.compile(Gui::NAME, GpuShaderType::Pixel, "ps_main", source);
     }
 
-    // Pipeline state.
-    _pipeline_state = device.create_graphics_pipeline_state(
-        D3D12_GRAPHICS_PIPELINE_STATE_DESC {
-            .pRootSignature = device.root_signature(),
-            .VS = vertex_shader.bytecode(),
-            .PS = pixel_shader.bytecode(),
-            .BlendState =
-                {.AlphaToCoverageEnable = false,
-                 .IndependentBlendEnable = false,
-                 .RenderTarget =
-                     {{.BlendEnable = true,
-                       .LogicOpEnable = false,
-                       .SrcBlend = D3D12_BLEND_SRC_ALPHA,
-                       .DestBlend = D3D12_BLEND_INV_SRC_ALPHA,
-                       .BlendOp = D3D12_BLEND_OP_ADD,
-                       .SrcBlendAlpha = D3D12_BLEND_ONE,
-                       .DestBlendAlpha = D3D12_BLEND_INV_SRC_ALPHA,
-                       .BlendOpAlpha = D3D12_BLEND_OP_ADD,
-                       .LogicOp = D3D12_LOGIC_OP_NOOP,
-                       .RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL}}},
-            .SampleMask = UINT_MAX,
-            .RasterizerState =
-                {.FillMode = D3D12_FILL_MODE_SOLID,
-                 .CullMode = D3D12_CULL_MODE_NONE,
-                 .FrontCounterClockwise = FALSE,
-                 .DepthBias = D3D12_DEFAULT_DEPTH_BIAS,
-                 .DepthBiasClamp = D3D12_DEFAULT_DEPTH_BIAS_CLAMP,
-                 .SlopeScaledDepthBias = D3D12_DEFAULT_SLOPE_SCALED_DEPTH_BIAS,
-                 .DepthClipEnable = true,
-                 .MultisampleEnable = FALSE,
-                 .AntialiasedLineEnable = FALSE,
-                 .ForcedSampleCount = 0,
-                 .ConservativeRaster = D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF},
-            .DepthStencilState = DirectX::DX12::CommonStates::DepthNone,
-            .PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE,
-            .NumRenderTargets = 1,
-            .RTVFormats = {DXGI_FORMAT_R8G8B8A8_UNORM},
-            .SampleDesc = {.Count = 1, .Quality = 0},
-        },
-        dx_name(Gui::NAME, "Pipeline State"));
+    // Pipeline.
+    GpuPipelineBuilder()
+        .primitive_topology(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)
+        .vertex_shader(vertex_shader.bytecode())
+        .pixel_shader(pixel_shader.bytecode())
+        .blend(D3D12_BLEND_DESC {
+            .AlphaToCoverageEnable = FALSE,
+            .IndependentBlendEnable = FALSE,
+            .RenderTarget = {{
+                .BlendEnable = TRUE,
+                .LogicOpEnable = FALSE,
+                .SrcBlend = D3D12_BLEND_SRC_ALPHA,
+                .DestBlend = D3D12_BLEND_INV_SRC_ALPHA,
+                .BlendOp = D3D12_BLEND_OP_ADD,
+                .SrcBlendAlpha = D3D12_BLEND_ONE,
+                .DestBlendAlpha = D3D12_BLEND_INV_SRC_ALPHA,
+                .BlendOpAlpha = D3D12_BLEND_OP_ADD,
+                .LogicOp = D3D12_LOGIC_OP_NOOP,
+                .RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL,
+            }}})
+        .depth_stencil(GPU_PIPELINE_DEPTH_NONE)
+        .render_target_formats({DXGI_FORMAT_R8G8B8A8_UNORM})
+        .rasterizer(GPU_PIPELINE_CULL_NONE)
+        .build(device, _pipeline, dx_name(Gui::NAME, "Pipeline"));
 
     // Constants.
     _constant_buffer.create(device, 1, dx_name(Gui::NAME, "Constant Buffer"));
@@ -186,7 +170,7 @@ auto Gui::render(const GpuDevice& device, GpuCommandList& cmd) -> void {
         cmd.set_blend_factor(Vector4(0.0f, 0.0f, 0.0f, 0.0f));
         cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
         cmd.set_index_buffer(geometry.index_buffer.index_buffer_view());
-        cmd.set_pipeline(_pipeline_state);
+        cmd.set_pipeline(_pipeline);
 
         int global_vtx_offset = 0;
         int global_idx_offset = 0;
