@@ -1,4 +1,5 @@
 #include "time.hpp"
+#include "utils.hpp"
 
 namespace fb {
 
@@ -30,30 +31,54 @@ static auto win32_get_performance_counter() -> uint64_t {
 }
 
 FrameTiming::FrameTiming() {
-    m_frequency = win32_get_frequency();
-    m_curr_time = win32_get_performance_counter();
-    m_prev_time = m_curr_time;
-    m_delta_time = 0;
-    m_elapsed_time = 0;
-    m_delta_time_sec = 0.0f;
-    m_elapsed_time_sec = 0.0f;
+    _frequency = win32_get_frequency();
+    _curr_time = win32_get_performance_counter();
+    _prev_time = _curr_time;
+    _delta_time = 0;
+    _elapsed_time = 0;
+    _delta_time_sec = 0.0f;
+    _elapsed_time_sec = 0.0f;
+    _delta_time_history = std::deque<float>();
+    _smoothed_delta_time = 0.0f;
+    _since_last_delta_time_update = 0.0f;
+    _last_delta_time = 0.0f;
 }
 
 auto FrameTiming::update() -> void {
-    m_prev_time = m_curr_time;
-    m_curr_time = win32_get_performance_counter();
-    m_delta_time = m_curr_time - m_prev_time;
-    m_elapsed_time += m_delta_time;
-    m_delta_time_sec = (float)((double)m_delta_time / (double)m_frequency);
-    m_elapsed_time_sec = (float)((double)m_elapsed_time / (double)m_frequency);
-}
+    // Update timing values.
+    {
+        _prev_time = _curr_time;
+        _curr_time = win32_get_performance_counter();
+        _delta_time = _curr_time - _prev_time;
+        _elapsed_time += _delta_time;
+        _delta_time_sec = (float)((double)_delta_time / (double)_frequency);
+        _elapsed_time_sec = (float)((double)_elapsed_time / (double)_frequency);
+    }
 
-auto FrameTiming::delta_time() const -> float {
-    return m_delta_time_sec;
-}
+    // Update delta time history.
+    {
+        _delta_time_history.push_back(_delta_time_sec);
+        if (_delta_time_history.size() > MAX_DELTA_TIME_HISTORY) {
+            _delta_time_history.pop_front();
+        }
+    }
 
-auto FrameTiming::elapsed_time() const -> float {
-    return m_elapsed_time_sec;
+    // Update smoothed delta time.
+    if (!_delta_time_history.empty()) {
+        float sum = 0.0f;
+        for (auto dt : _delta_time_history)
+            sum += dt;
+        _smoothed_delta_time = sum / (float)_delta_time_history.size();
+    }
+
+    // Update FPS.
+    {
+        _since_last_delta_time_update += _delta_time_sec;
+        if (_since_last_delta_time_update >= DELTA_TIME_UPDATE_INTERVAL) {
+            _since_last_delta_time_update = 0.0f;
+            _last_delta_time = _smoothed_delta_time;
+        }
+    }
 }
 
 }  // namespace fb

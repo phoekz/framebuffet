@@ -31,6 +31,7 @@
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
+#include <deque>
 #include <format>
 #include <memory>
 #include <optional>
