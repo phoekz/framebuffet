@@ -45,8 +45,8 @@ Demo::Scene::Model::Model(
 }
 
 Demo::Scene::Scene(GpuDevice& device) :
-    tree(device, GltfModel("models/coconut_tree.glb"), "Tree"),
-    plane(device, GltfModel("models/sand_plane.glb"), "Plane") {}
+    tree(device, GltfModel("assets/models/coconut_tree.glb"), "Tree"),
+    plane(device, GltfModel("assets/models/sand_plane.glb"), "Plane") {}
 
 Demo::ShadowPass::ShadowPass(GpuDevice& device) {
     // Shaders.
@@ -134,7 +134,7 @@ static float camera_fov = rad_from_deg(45.0f);
 static float camera_latitude = rad_from_deg(30.0f);
 static float camera_longitude = rad_from_deg(0.0f);
 
-auto Demo::gui(const gui::Desc& ) -> void {
+auto Demo::gui(const gui::Desc&) -> void {
     auto& main_constants = *_main_pass.constants.ptr();
     ImGui::SliderFloat("Ambient", &main_constants.ambient_light, 0.0f, 1.0f);
     ImGui::SliderFloat("Light Projection Size", &light_projection_size, 1.0f, 200.0f);

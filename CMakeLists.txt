@@ -91,19 +91,19 @@ add_custom_command(
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/src/shaders/tree.main.hlsl ${PROJECT_TARGET_DIRECTORY}/shaders/
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/src/shaders/debug_draw.hlsl ${PROJECT_TARGET_DIRECTORY}/shaders/
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/src/shaders/env.hlsl ${PROJECT_TARGET_DIRECTORY}/shaders/
-    COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_TARGET_DIRECTORY}/models
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/src/models/CREDITS.md ${PROJECT_TARGET_DIRECTORY}/models/
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/src/models/stylized_crate.glb ${PROJECT_TARGET_DIRECTORY}/models/
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/src/models/coconut_tree.glb ${PROJECT_TARGET_DIRECTORY}/models/
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/src/models/sand_plane.glb ${PROJECT_TARGET_DIRECTORY}/models/
-    COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_TARGET_DIRECTORY}/envmaps
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/src/envmaps/CREDITS.md ${PROJECT_TARGET_DIRECTORY}/envmaps/
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/src/envmaps/winter_evening_1k_-X.exr ${PROJECT_TARGET_DIRECTORY}/envmaps/
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/src/envmaps/winter_evening_1k_-Y.exr ${PROJECT_TARGET_DIRECTORY}/envmaps/
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/src/envmaps/winter_evening_1k_-Z.exr ${PROJECT_TARGET_DIRECTORY}/envmaps/
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/src/envmaps/winter_evening_1k_+X.exr ${PROJECT_TARGET_DIRECTORY}/envmaps/
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/src/envmaps/winter_evening_1k_+Y.exr ${PROJECT_TARGET_DIRECTORY}/envmaps/
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/src/envmaps/winter_evening_1k_+Z.exr ${PROJECT_TARGET_DIRECTORY}/envmaps/
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_TARGET_DIRECTORY}/assets
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_TARGET_DIRECTORY}/assets/models
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_TARGET_DIRECTORY}/assets/envmaps
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/src/assets/CREDITS.md ${PROJECT_TARGET_DIRECTORY}/assets/
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/src/assets/models/stylized_crate.glb ${PROJECT_TARGET_DIRECTORY}/assets/models/
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/src/assets/models/coconut_tree.glb ${PROJECT_TARGET_DIRECTORY}/assets/models/
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/src/assets/models/sand_plane.glb ${PROJECT_TARGET_DIRECTORY}/assets/models/
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/src/assets/envmaps/winter_evening_1k_-X.exr ${PROJECT_TARGET_DIRECTORY}/assets/envmaps/
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/src/assets/envmaps/winter_evening_1k_-Y.exr ${PROJECT_TARGET_DIRECTORY}/assets/envmaps/
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/src/assets/envmaps/winter_evening_1k_-Z.exr ${PROJECT_TARGET_DIRECTORY}/assets/envmaps/
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/src/assets/envmaps/winter_evening_1k_+X.exr ${PROJECT_TARGET_DIRECTORY}/assets/envmaps/
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/src/assets/envmaps/winter_evening_1k_+Y.exr ${PROJECT_TARGET_DIRECTORY}/assets/envmaps/
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/src/assets/envmaps/winter_evening_1k_+Z.exr ${PROJECT_TARGET_DIRECTORY}/assets/envmaps/
     COMMAND ${CMAKE_COMMAND} -E copy ${DXAGILITYSDK_SOURCE_DIR}/bin/x64/D3D12Core.dll ${PROJECT_TARGET_DIRECTORY}
     COMMAND ${CMAKE_COMMAND} -E copy ${DXAGILITYSDK_SOURCE_DIR}/bin/x64/D3D12Core.pdb ${PROJECT_TARGET_DIRECTORY}
     COMMAND ${CMAKE_COMMAND} -E copy ${DXAGILITYSDK_SOURCE_DIR}/bin/x64/d3d12SDKLayers.dll ${PROJECT_TARGET_DIRECTORY}

@@ -28,7 +28,7 @@ Demo::Demo(GpuDevice& device) :
     _constant_buffer.create(device, 1, dx_name(Demo::NAME, "Constant Buffer"));
 
     // Model.
-    auto model = GltfModel("models/stylized_crate.glb");
+    auto model = GltfModel("assets/models/stylized_crate.glb");
 
     // Geometry.
     _vertex_buffer.create_with_data(

@@ -50,12 +50,12 @@ Demo::Demo(GpuDevice& device) :
         std::vector<ExrImage> cube_faces;
         cube_faces.reserve(6);
         std::tuple<CubeFace, std::string_view> cube_face_paths[] = {
-            {CubeFace::PosX, "envmaps/winter_evening_1k_+X.exr"sv},
-            {CubeFace::NegX, "envmaps/winter_evening_1k_-X.exr"sv},
-            {CubeFace::PosY, "envmaps/winter_evening_1k_+Y.exr"sv},
-            {CubeFace::NegY, "envmaps/winter_evening_1k_-Y.exr"sv},
-            {CubeFace::PosZ, "envmaps/winter_evening_1k_+Z.exr"sv},
-            {CubeFace::NegZ, "envmaps/winter_evening_1k_-Z.exr"sv},
+            {CubeFace::PosX, "assets/envmaps/winter_evening_1k_+X.exr"sv},
+            {CubeFace::NegX, "assets/envmaps/winter_evening_1k_-X.exr"sv},
+            {CubeFace::PosY, "assets/envmaps/winter_evening_1k_+Y.exr"sv},
+            {CubeFace::NegY, "assets/envmaps/winter_evening_1k_-Y.exr"sv},
+            {CubeFace::PosZ, "assets/envmaps/winter_evening_1k_+Z.exr"sv},
+            {CubeFace::NegZ, "assets/envmaps/winter_evening_1k_-Z.exr"sv},
         };
         for (auto& [face, path] : cube_face_paths) {
             cube_faces.push_back(std::move(ExrImage::load(path)));
