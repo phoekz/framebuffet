@@ -31,13 +31,14 @@ Demo::Demo(GpuDevice& device) :
     auto model = GltfModel("models/stylized_crate.glb");
 
     // Geometry.
-    {
-        _vertex_buffer.create(device, model.vertex_count(), dx_name(Demo::NAME, "Vertex Buffer"));
-        _index_buffer.create(device, model.index_count(), dx_name(Demo::NAME, "Index Buffer"));
-
-        memcpy(_vertex_buffer.ptr(), model.vertex_data(), model.vertex_buffer_size());
-        memcpy(_index_buffer.ptr(), model.index_data(), model.index_buffer_size());
-    }
+    _vertex_buffer.create_with_data(
+        device,
+        model.vertex_buffer(),
+        dx_name(Demo::NAME, "Vertex Buffer"));
+    _index_buffer.create_with_data(
+        device,
+        model.index_buffer(),
+        dx_name(Demo::NAME, "Index Buffer"));
 
     // Texture.
     {

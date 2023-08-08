@@ -167,14 +167,19 @@ auto GpuCommandList::end_pix() const -> void {
     PIXEndEvent(_cmd);
 }
 
+auto GpuCommandList::set_global_descriptor_heap() -> void {
+    const auto heaps = std::to_array<ID3D12DescriptorHeap*>({
+        _descriptors->cbv_srv_uav().heap(),
+        _descriptors->sampler().heap(),
+    });
+    _cmd->SetDescriptorHeaps((uint32_t)heaps.size(), heaps.data());
+}
+
 auto GpuCommandList::set_graphics() -> void {
     if (_engine == GpuCommandEngine::Graphics)
         return;
     _engine = GpuCommandEngine::Graphics;
-    ID3D12DescriptorHeap* heaps[] = {
-        _descriptors->cbv_srv_uav().heap(),
-        _descriptors->sampler().heap()};
-    _cmd->SetDescriptorHeaps(_countof(heaps), heaps);
+    set_global_descriptor_heap();
     _cmd->SetGraphicsRootSignature(_root_signature);
 }
 
@@ -182,10 +187,7 @@ auto GpuCommandList::set_compute() -> void {
     if (_engine == GpuCommandEngine::Compute)
         return;
     _engine = GpuCommandEngine::Compute;
-    ID3D12DescriptorHeap* heaps[] = {
-        _descriptors->cbv_srv_uav().heap(),
-        _descriptors->sampler().heap()};
-    _cmd->SetDescriptorHeaps(_countof(heaps), heaps);
+    set_global_descriptor_heap();
     _cmd->SetComputeRootSignature(_root_signature);
 }
 

@@ -10,18 +10,14 @@ Demo::Scene::Model::Model(
     const GltfModel& gltf_model,
     std::string_view model_name) {
     // Geometry.
-    {
-        vertex_buffer.create(
-            device,
-            gltf_model.vertex_count(),
-            dx_name(Demo::NAME, model_name, "Vertex Buffer"));
-        index_buffer.create(
-            device,
-            gltf_model.index_count(),
-            dx_name(Demo::NAME, model_name, "Index Buffer"));
-        memcpy(vertex_buffer.ptr(), gltf_model.vertex_data(), gltf_model.vertex_buffer_size());
-        memcpy(index_buffer.ptr(), gltf_model.index_data(), gltf_model.index_buffer_size());
-    }
+    vertex_buffer.create_with_data(
+        device,
+        gltf_model.vertex_buffer(),
+        dx_name(Demo::NAME, model_name, "Vertex Buffer"));
+    index_buffer.create_with_data(
+        device,
+        gltf_model.index_buffer(),
+        dx_name(Demo::NAME, model_name, "Index Buffer"));
 
     // Texture.
     {

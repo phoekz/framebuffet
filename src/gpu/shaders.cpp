@@ -102,7 +102,7 @@ auto GpuShaderCompiler::compile(
     std::wstring shader_name = fb::to_wstr(name);
     std::wstring shader_bin = std::format(L"{}.bin", shader_name);
     std::wstring shader_entry = fb::to_wstr(entry_point);
-    LPCWSTR shader_args[] = {
+    auto shader_args = std::to_array<LPCWSTR>({
         // clang-format off
         shader_name.c_str(),
         L"-E", shader_entry.c_str(),
@@ -114,7 +114,7 @@ auto GpuShaderCompiler::compile(
         L"-WX",
         L"-all_resources_bound",
         // clang-format on
-    };
+    });
 
     // Compile.
     DxcBuffer source_buffer = {
@@ -129,8 +129,8 @@ auto GpuShaderCompiler::compile(
     ComPtr<IDxcBlobUtf16> pdb_name;
     FB_ASSERT_HR(_compiler->Compile(
         &source_buffer,
-        shader_args,
-        _countof(shader_args),
+        shader_args.data(),
+        (uint32_t)shader_args.size(),
         _include_handler.get(),
         IID_PPV_ARGS(&result)));
     FB_ASSERT_HR(result->GetOutput(DXC_OUT_ERRORS, IID_PPV_ARGS(&errors), nullptr));

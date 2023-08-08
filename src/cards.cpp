@@ -31,8 +31,7 @@ Cards::Cards(GpuDevice& device, const Params& params) {
     // Cards buffer.
     {
         _card_buffer.create(device, CARD_COUNT, dx_name(Cards::NAME, "Cards Buffer"));
-
-        Card* cards = _card_buffer.ptr();
+        auto cards = _card_buffer.span();
         cards[0] = {{0.0f, 0.0f}, {640.0f, 400.0f}};
         cards[1] = {{640.0f, 0.0f}, {640.0f, 400.0f}};
         cards[2] = {{0.0f, 400.0f}, {640.0f, 400.0f}};
@@ -41,21 +40,15 @@ Cards::Cards(GpuDevice& device, const Params& params) {
 
     // Geometry.
     {
-        Vertex vertices[] = {
+        const auto vertices = std::to_array<Vertex>({
             {{0.0f, 0.0f}, {0.0f, 0.0f}},
             {{1.0f, 0.0f}, {1.0f, 0.0f}},
             {{1.0f, 1.0f}, {1.0f, 1.0f}},
             {{0.0f, 1.0f}, {0.0f, 1.0f}},
-        };
-        uint16_t indices[] = {0, 1, 2, 0, 2, 3};
-        uint32_t vertex_count = (uint32_t)_countof(vertices);
-        uint32_t index_count = (uint32_t)_countof(indices);
-
-        _vertex_buffer.create(device, vertex_count, dx_name(Cards::NAME, "Vertex Buffer"));
-        _index_buffer.create(device, index_count, dx_name(Cards::NAME, "Index Buffer"));
-
-        memcpy(_vertex_buffer.ptr(), vertices, sizeof(vertices));
-        memcpy(_index_buffer.ptr(), indices, sizeof(indices));
+        });
+        const auto indices = std::to_array<uint16_t>({0, 1, 2, 0, 2, 3});
+        _vertex_buffer.create_with_data(device, vertices, dx_name(Cards::NAME, "Vertex Buffer"));
+        _index_buffer.create_with_data(device, indices, dx_name(Cards::NAME, "Index Buffer"));
     }
 }
 

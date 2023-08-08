@@ -182,6 +182,8 @@ class GpuCommandList {
     GpuCommandList(GpuCommandList& o) = delete;
     GpuCommandList& operator=(GpuCommandList& o) = delete;
 
+    auto set_global_descriptor_heap() -> void;
+
     ID3D12GraphicsCommandList9* _cmd = nullptr;
     GpuCommandEngine _engine = GpuCommandEngine::Unknown;
     ID3D12RootSignature* _root_signature = nullptr;

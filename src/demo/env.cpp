@@ -33,18 +33,17 @@ Demo::Demo(GpuDevice& device) :
         using namespace DirectX::DX12;
         using Vertices = GeometricPrimitive::VertexCollection;
         using Indices = GeometricPrimitive::IndexCollection;
-
         Vertices vertices;
         Indices indices;
         GeometricPrimitive::CreateBox(vertices, indices, {2.0f, 2.0f, 2.0f}, false, true);
-        _vertex_buffer.create(
-            device,
-            (uint32_t)vertices.size(),
-            dx_name(Demo::NAME, "Vertex Buffer"));
-        _index_buffer.create(device, (uint32_t)indices.size(), dx_name(Demo::NAME, "Index Buffer"));
-
-        memcpy(_vertex_buffer.ptr(), vertices.data(), vertices.size() * sizeof(Vertex));
-        memcpy(_index_buffer.ptr(), indices.data(), indices.size() * sizeof(Index));
+        auto vertex_span = std::span(
+            reinterpret_cast<const Vertex*>(vertices.data()),
+            vertices.size());
+        auto index_span = std::span(
+            reinterpret_cast<const uint16_t*>(indices.data()),
+            indices.size());
+        _vertex_buffer.create_with_data(device, vertex_span, dx_name(Demo::NAME, "Vertex Buffer"));
+        _index_buffer.create_with_data(device, index_span, dx_name(Demo::NAME, "Index Buffer"));
     }
 
     // Environment map.

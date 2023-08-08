@@ -146,6 +146,11 @@ class GpuBuffer {
                 _uav_descriptor.cpu());
         }
     }
+    auto create_with_data(GpuDevice& device, std::span<const T> data, std::string_view name)
+        -> void {
+        create(device, (uint32_t)data.size(), name);
+        memcpy(_raw, data.data(), data.size_bytes());
+    }
 
     auto element_byte_size() const -> uint32_t { return _element_byte_size; }
     auto element_size() const -> uint32_t { return _element_size; }
@@ -155,6 +160,7 @@ class GpuBuffer {
     auto resource_state() const -> D3D12_RESOURCE_STATES { return _resource_state; }
     auto raw() const -> void* { return _raw; }
     auto ptr() const -> T* { return reinterpret_cast<T*>(raw()); }
+    auto span() const -> std::span<T> { return std::span<T>(ptr(), element_size()); }
     auto gpu_address() const -> D3D12_GPU_VIRTUAL_ADDRESS { return _gpu_address; }
     auto access_mode() const -> GpuBufferAccessMode { return ACCESS_MODE; }
     auto flags() const -> GpuBufferFlags { return FLAGS; }

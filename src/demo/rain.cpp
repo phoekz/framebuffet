@@ -77,28 +77,21 @@ Demo::Demo(GpuDevice& device) :
 
     // Draw - Vertex buffer.
     {
-        Vertex vertices[] = {
+        const auto vertices = std::to_array<Vertex>({
             {{-0.5f, -0.5f, 0.0f}, {0.0f, 0.0f}},
             {{-0.5f, 0.5f, 0.0f}, {0.0f, 1.0f}},
             {{0.5f, 0.5f, 0.0f}, {1.0f, 1.0f}},
             {{0.5f, -0.5f, 0.0f}, {1.0f, 0.0f}},
-        };
-
-        uint16_t indices[] = {0, 1, 2, 0, 2, 3};
-        uint32_t vertex_count = (uint32_t)_countof(vertices);
-        uint32_t index_count = (uint32_t)_countof(indices);
-
-        _draw.vertex_buffer.create(
+        });
+        const auto indices = std::to_array<uint16_t>({0, 1, 2, 0, 2, 3});
+        _draw.vertex_buffer.create_with_data(
             device,
-            vertex_count,
+            vertices,
             dx_name(Demo::NAME, Demo::Draw::NAME, "Vertex Buffer"));
-        _draw.index_buffer.create(
+        _draw.index_buffer.create_with_data(
             device,
-            index_count,
+            indices,
             dx_name(Demo::NAME, Demo::Draw::NAME, "Index Buffer"));
-
-        memcpy(_draw.vertex_buffer.ptr(), vertices, sizeof(vertices));
-        memcpy(_draw.index_buffer.ptr(), indices, sizeof(indices));
     }
 }
 
