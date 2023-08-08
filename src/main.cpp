@@ -33,12 +33,14 @@ concept GuiWrappable = requires(T demo, const fb::gui::Desc& desc) {
 };
 
 template<typename T>
-constexpr auto gui_wrapper(T& demo, const fb::gui::Desc& desc) -> void
+constexpr auto
+gui_wrapper(T& demo, const fb::gui::Desc& desc, ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_None)
+    -> void
     requires GuiWrappable<T>
 {
     auto name = demo->NAME;
     ImGui::PushID(name.data());
-    if (ImGui::CollapsingHeader(name.data())) {
+    if (ImGui::CollapsingHeader(name.data(), nullptr, flags)) {
         demo->gui(desc);
     }
     ImGui::PopID();
@@ -105,11 +107,11 @@ auto main() -> int {
                     ft.last_fps());
 
                 const auto desc = fb::gui::Desc {.window_size = device->swapchain_size()};
+                gui_wrapper(cards, desc, ImGuiTreeNodeFlags_DefaultOpen);
                 gui_wrapper(cube_demo, desc);
                 gui_wrapper(rain_demo, desc);
                 gui_wrapper(tree_demo, desc);
                 gui_wrapper(env_demo, desc);
-                gui_wrapper(cards, desc);
             }
             ImGui::End();
             gui->end_frame();

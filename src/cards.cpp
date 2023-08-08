@@ -52,15 +52,69 @@ Cards::Cards(GpuDevice& device, const Params& params) {
     }
 }
 
+static auto layout_grid(std::span<Card> cards, Uint2 window_size, uint32_t columns) -> void {
+    const uint32_t card_count = (uint32_t)cards.size();
+    const float window_w = (float)window_size.x;
+    const float window_h = (float)window_size.y;
+    const float card_w = window_w / (float)columns;
+    const float card_h = card_w * (window_h / window_w);
+    for (uint32_t i = 0; i < card_count; i++) {
+        const float x = (float)(i % columns) * card_w;
+        const float y = (float)(i / columns) * card_h;
+        cards[i].position = {x, y};
+        cards[i].size = {card_w, card_h};
+    }
+}
+
+static auto layout_hmosaic(std::span<Card> cards, Uint2 window_size) -> void {
+    const uint32_t card_count = (uint32_t)cards.size();
+    const float window_w = (float)window_size.x;
+    const float window_h = (float)window_size.y;
+    const float thumb_w = window_w / (float)(card_count - 1);
+    const float thumb_h = thumb_w * (window_h / window_w);
+    const float hero_h = window_h - thumb_h;
+    const float hero_w = hero_h * (window_w / window_h);
+    const float hero_y = thumb_h;
+    const float hero_x = window_w * 0.5f - hero_w * 0.5f;
+    for (uint32_t i = 0; i < card_count - 1; i++) {
+        cards[i].position = {thumb_w * (float)i, 0.0f};
+        cards[i].size = {thumb_w, thumb_h};
+    }
+    cards[card_count - 1].position = {hero_x, hero_y};
+    cards[card_count - 1].size = {hero_w, hero_h};
+}
+
+static auto layout_vmosaic(std::span<Card> cards, Uint2 window_size) -> void {
+    const uint32_t card_count = (uint32_t)cards.size();
+    const float window_w = (float)window_size.x;
+    const float window_h = (float)window_size.y;
+    const float thumb_h = window_h / (float)(card_count - 1);
+    const float thumb_w = thumb_h * (window_w / window_h);
+    const float hero_w = window_w - thumb_w;
+    const float hero_h = hero_w * (window_h / window_w);
+    const float hero_x = thumb_w;
+    const float hero_y = window_h * 0.5f - hero_h * 0.5f;
+    for (uint32_t i = 0; i < card_count - 1; i++) {
+        cards[i].position = {0.0f, thumb_h * (float)i};
+        cards[i].size = {thumb_w, thumb_h};
+    }
+    cards[card_count - 1].position = {hero_x, hero_y};
+    cards[card_count - 1].size = {hero_w, hero_h};
+}
+
 auto Cards::gui(const gui::Desc& desc) -> void {
-    float max_extent = std::max((float)desc.window_size.x, (float)desc.window_size.y);
-    Card* cards = _card_buffer.ptr();
-    for (uint32_t i = 0; i < CARD_COUNT; i++) {
-        ImGui::SliderFloat4(
-            std::format("Card {}", i).c_str(),
-            (float*)&cards[i],
-            -max_extent,
-            max_extent);
+    std::span<Card> cards = {_card_buffer.ptr(), CARD_COUNT};
+
+    if (ImGui::Button("Grid")) {
+        layout_grid(cards, desc.window_size, 2);
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("HMosaic")) {
+        layout_hmosaic(cards, desc.window_size);
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("VMosaic")) {
+        layout_vmosaic(cards, desc.window_size);
     }
 }
 
