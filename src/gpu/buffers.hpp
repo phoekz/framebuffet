@@ -174,19 +174,19 @@ class GpuBuffer {
             .Format = _format,
         };
     }
-    auto cbv_descriptor() const -> GpuDescriptorHandle {
+    auto cbv_descriptor() const -> GpuDescriptor {
         static_assert(
             gpu_buffer_flags_is_set(FLAGS, GpuBufferFlags::Cbv),
             "Buffer does not support CBV");
         return _cbv_descriptor;
     }
-    auto srv_descriptor() const -> GpuDescriptorHandle {
+    auto srv_descriptor() const -> GpuDescriptor {
         static_assert(
             gpu_buffer_flags_is_set(FLAGS, GpuBufferFlags::Srv),
             "Buffer does not support SRV");
         return _srv_descriptor;
     }
-    auto uav_descriptor() const -> GpuDescriptorHandle {
+    auto uav_descriptor() const -> GpuDescriptor {
         static_assert(
             gpu_buffer_flags_is_set(FLAGS, GpuBufferFlags::Uav),
             "Buffer does not support UAV");
@@ -210,9 +210,9 @@ class GpuBuffer {
     D3D12_RESOURCE_STATES _resource_state = D3D12_RESOURCE_STATE_COMMON;
     void* _raw = nullptr;
     D3D12_GPU_VIRTUAL_ADDRESS _gpu_address = 0;
-    GpuDescriptorHandle _cbv_descriptor = {};
-    GpuDescriptorHandle _srv_descriptor = {};
-    GpuDescriptorHandle _uav_descriptor = {};
+    GpuDescriptor _cbv_descriptor = {};
+    GpuDescriptor _srv_descriptor = {};
+    GpuDescriptor _uav_descriptor = {};
 };
 
 template<typename T>

@@ -165,19 +165,19 @@ class GpuTexture2d {
     auto resource() const -> const ComPtr<ID3D12Resource>& { return _resource; }
     auto row_pitch() const -> uint32_t { return bytes_per_unit() * _desc.width; }
     auto slice_pitch() const -> uint32_t { return row_pitch() * _desc.height; }
-    auto srv_descriptor() const -> GpuDescriptorHandle {
+    auto srv_descriptor() const -> GpuDescriptor {
         static_assert(
             gpu_texture_flags_is_set(FLAGS, GpuTextureFlags::Srv),
             "Texture does not support SRV");
         return _srv_descriptor;
     }
-    auto rtv_descriptor() const -> GpuDescriptorHandle {
+    auto rtv_descriptor() const -> GpuDescriptor {
         static_assert(
             gpu_texture_flags_is_set(FLAGS, GpuTextureFlags::Rtv),
             "Texture does not support RTV");
         return _rtv_descriptor;
     }
-    auto dsv_descriptor() const -> GpuDescriptorHandle {
+    auto dsv_descriptor() const -> GpuDescriptor {
         static_assert(
             gpu_texture_flags_is_set(FLAGS, GpuTextureFlags::Dsv),
             "Texture does not support DSV");
@@ -198,9 +198,9 @@ class GpuTexture2d {
     DXGI_FORMAT _srv_format = DXGI_FORMAT_UNKNOWN;
     DXGI_FORMAT _rtv_format = DXGI_FORMAT_UNKNOWN;
     DXGI_FORMAT _dsv_format = DXGI_FORMAT_UNKNOWN;
-    GpuDescriptorHandle _srv_descriptor = {};
-    GpuDescriptorHandle _rtv_descriptor = {};
-    GpuDescriptorHandle _dsv_descriptor = {};
+    GpuDescriptor _srv_descriptor = {};
+    GpuDescriptor _rtv_descriptor = {};
+    GpuDescriptor _dsv_descriptor = {};
 };
 
 using GpuTexture2dSrv = GpuTexture2d<GpuTextureFlags::Srv>;

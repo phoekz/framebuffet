@@ -25,7 +25,7 @@ class GpuPipeline;
 
 #pragma region Descriptors
 
-class GpuDescriptorHandle {
+class GpuDescriptor {
     friend class GpuDescriptorHeap;
 
   public:
@@ -51,7 +51,7 @@ class GpuDescriptorHeap {
         D3D12_DESCRIPTOR_HEAP_TYPE type,
         uint32_t capacity);
 
-    auto alloc() -> GpuDescriptorHandle;
+    auto alloc() -> GpuDescriptor;
     auto type() const -> D3D12_DESCRIPTOR_HEAP_TYPE { return _type; }
     auto count() const -> uint32_t { return _count; }
     auto capacity() const -> uint32_t { return _capacity; }
@@ -98,7 +98,7 @@ class GpuSamplers {
     GpuSamplers(GpuDevice& device, GpuDescriptors& descriptors);
 
   private:
-    std::array<GpuDescriptorHandle, (size_t)GpuSamplerType::Count> _handles;
+    std::array<GpuDescriptor, (size_t)GpuSamplerType::Count> _handles;
 };
 
 #pragma endregion
@@ -140,8 +140,8 @@ class GpuCommandList {
         float max_depth = 1.0f) const -> void;
     auto set_scissor(uint32_t left, uint32_t top, uint32_t right, uint32_t bottom) const -> void;
     auto set_rtv_dsv(
-        const std::optional<GpuDescriptorHandle>& rtv,
-        const std::optional<GpuDescriptorHandle>& dsv) const -> void;
+        const std::optional<GpuDescriptor>& rtv,
+        const std::optional<GpuDescriptor>& dsv) const -> void;
     auto set_topology(D3D12_PRIMITIVE_TOPOLOGY topology) const -> void;
     auto set_index_buffer(D3D12_INDEX_BUFFER_VIEW ibv) const -> void;
     auto set_blend_factor(Vector4 factor) const -> void;
@@ -149,8 +149,8 @@ class GpuCommandList {
     auto set_graphics_constants(std::initializer_list<uint32_t> constants) const -> void;
     auto set_compute_constants(std::initializer_list<uint32_t> constants) const -> void;
 
-    auto clear_rtv(const GpuDescriptorHandle& rtv, Vector4 color) const -> void;
-    auto clear_dsv(const GpuDescriptorHandle& dsv, float depth) const -> void;
+    auto clear_rtv(const GpuDescriptor& rtv, Vector4 color) const -> void;
+    auto clear_dsv(const GpuDescriptor& dsv, float depth) const -> void;
     auto draw_instanced(
         uint32_t vertex_count,
         uint32_t instance_count,

@@ -10,7 +10,7 @@ namespace fb::cards {
 static constexpr uint32_t CARD_COUNT = 4;
 
 struct Params {
-    std::array<GpuDescriptorHandle, CARD_COUNT> card_texture_descriptors;
+    std::array<GpuDescriptor, CARD_COUNT> card_texture_descriptors;
 };
 
 struct Constants {
@@ -42,7 +42,7 @@ class Cards {
     GpuBufferHostSrv<Card> _card_buffer;
     GpuBufferHostSrv<Vertex> _vertex_buffer;
     GpuBufferHostIndex<uint16_t> _index_buffer;
-    std::array<GpuDescriptorHandle, CARD_COUNT> _card_texture_descriptors;
+    std::array<GpuDescriptor, CARD_COUNT> _card_texture_descriptors;
 };
 
 }  // namespace fb::cards

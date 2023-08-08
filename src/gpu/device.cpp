@@ -51,9 +51,9 @@ GpuDescriptorHeap::GpuDescriptorHeap(
         _gpu_heap_start = _heap->GetGPUDescriptorHandleForHeapStart();
 }
 
-auto GpuDescriptorHeap::alloc() -> GpuDescriptorHandle {
+auto GpuDescriptorHeap::alloc() -> GpuDescriptor {
     FB_ASSERT(_count < _capacity);
-    GpuDescriptorHandle handle;
+    GpuDescriptor handle;
     handle._type = _type;
     handle._index = _count++;
     handle._cpu_handle = _cpu_heap_start;
@@ -83,7 +83,7 @@ class GpuBindings {
         assert(_count < BINDINGS_CAPACITY);
         _bindings[_count++] = binding;
     }
-    auto push(const GpuDescriptorHandle& handle) -> void { push(handle.index()); }
+    auto push(const GpuDescriptor& handle) -> void { push(handle.index()); }
     auto count() const -> uint32_t { return _count; }
     auto capacity() -> uint32_t { return BINDINGS_CAPACITY; }
     auto ptr() const -> const uint32_t* { return _bindings.data(); }
@@ -98,7 +98,7 @@ class GpuBindings {
 #pragma region Samplers
 
 GpuSamplers::GpuSamplers(GpuDevice& device, GpuDescriptors& descriptors) {
-    std::tuple<GpuSamplerType, D3D12_SAMPLER_DESC, GpuDescriptorHandle> samplers[] = {
+    std::tuple<GpuSamplerType, D3D12_SAMPLER_DESC, GpuDescriptor> samplers[] = {
         {
             GpuSamplerType::LinearClamp,
             {
@@ -223,8 +223,8 @@ auto GpuCommandList::set_scissor(uint32_t left, uint32_t top, uint32_t right, ui
 }
 
 auto GpuCommandList::set_rtv_dsv(
-    const std::optional<GpuDescriptorHandle>& rtv,
-    const std::optional<GpuDescriptorHandle>& dsv) const -> void {
+    const std::optional<GpuDescriptor>& rtv,
+    const std::optional<GpuDescriptor>& dsv) const -> void {
     FB_ASSERT(_engine == GpuCommandEngine::Graphics);
     _cmd->OMSetRenderTargets(
         rtv.has_value() ? 1 : 0,
@@ -270,12 +270,12 @@ auto GpuCommandList::set_compute_constants(std::initializer_list<uint32_t> const
     _cmd->SetComputeRoot32BitConstants(0, bindings.capacity(), bindings.ptr(), 0);
 }
 
-auto GpuCommandList::clear_rtv(const GpuDescriptorHandle& rtv, Vector4 color) const -> void {
+auto GpuCommandList::clear_rtv(const GpuDescriptor& rtv, Vector4 color) const -> void {
     FB_ASSERT(_engine == GpuCommandEngine::Graphics);
     _cmd->ClearRenderTargetView(rtv.cpu(), (const float*)&color, 0, nullptr);
 }
 
-auto GpuCommandList::clear_dsv(const GpuDescriptorHandle& dsv, float depth) const -> void {
+auto GpuCommandList::clear_dsv(const GpuDescriptor& dsv, float depth) const -> void {
     FB_ASSERT(_engine == GpuCommandEngine::Graphics);
     _cmd->ClearDepthStencilView(dsv.cpu(), D3D12_CLEAR_FLAG_DEPTH, depth, 0, 0, nullptr);
 }
