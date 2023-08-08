@@ -98,7 +98,7 @@ auto main() -> int {
         {
             gui->begin_frame();
             ImGui::SetNextWindowSize({300, 300}, ImGuiCond_FirstUseEver);
-            if (ImGui::Begin("framebuffet")) {
+            if (ImGui::Begin("Framebuffet")) {
                 const auto desc = fb::gui::Desc {.window_size = device->swapchain_size()};
                 gui_wrapper(cube_demo, desc);
                 gui_wrapper(rain_demo, desc);

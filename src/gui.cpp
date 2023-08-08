@@ -18,6 +18,7 @@ Gui::Gui(const Window& window, GpuDevice& device) {
         io.BackendRendererName = "framebuffet";
         io.BackendFlags |= ImGuiBackendFlags_RendererHasVtxOffset;
         ImGui::StyleColorsDark();
+        io.Fonts->AddFontFromFileTTF("assets/fonts/Roboto-Medium.ttf", 16.0f);
     }
 
     // Shaders.
