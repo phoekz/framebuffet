@@ -23,6 +23,28 @@ constexpr int WINDOW_HEIGHT = 800;
 constexpr float WINDOW_ASPECT_RATIO = (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT;
 
 //
+// GUI.
+//
+
+template<typename T>
+concept GuiWrappable = requires(T demo, const fb::gui::Desc& desc) {
+    { demo->NAME } -> std::convertible_to<std::string_view>;
+    { demo->gui(desc) } -> std::same_as<void>;
+};
+
+template<typename T>
+constexpr auto gui_wrapper(T& demo, const fb::gui::Desc& desc) -> void
+    requires GuiWrappable<T>
+{
+    auto name = demo->NAME;
+    ImGui::PushID(name.data());
+    if (ImGui::CollapsingHeader(name.data())) {
+        demo->gui(desc);
+    }
+    ImGui::PopID();
+};
+
+//
 // Main.
 //
 
@@ -72,8 +94,21 @@ auto main() -> int {
         // Update frame timing.
         ft.update();
 
-        // Update Dear ImGui.
-        gui->update();
+        // Update gui.
+        {
+            gui->begin_frame();
+            ImGui::SetNextWindowSize({300, 300}, ImGuiCond_FirstUseEver);
+            if (ImGui::Begin("framebuffet")) {
+                const auto desc = fb::gui::Desc {.window_size = device->swapchain_size()};
+                gui_wrapper(cube_demo, desc);
+                gui_wrapper(rain_demo, desc);
+                gui_wrapper(tree_demo, desc);
+                gui_wrapper(env_demo, desc);
+                gui_wrapper(cards, desc);
+            }
+            ImGui::End();
+            gui->end_frame();
+        }
 
         // Update demos.
         fb::demo::UpdateDesc update_desc = {

@@ -123,46 +123,46 @@ Demo::Demo(GpuDevice& device) :
     _shadow_pass(device),
     _main_pass(device) {}
 
-auto Demo::update(const demo::UpdateDesc& desc) -> void {
-    static float light_projection_size = 15.0f;
-    static float light_lon = 0.0f;
-    static float light_lat = rad_from_deg(30.0f);
-    static float light_distance = 15.0f;
-    static float shadow_near_plane = 0.1f;
-    static float shadow_far_plane = 100.0f;
-    static float camera_angle = PI;
+static float light_projection_size = 15.0f;
+static float light_longitude = 0.0f;
+static float light_latitude = rad_from_deg(30.0f);
+static float light_distance = 15.0f;
+static float shadow_near_plane = 0.1f;
+static float shadow_far_plane = 100.0f;
+static float camera_distance = 10.0f;
+static float camera_fov = rad_from_deg(45.0f);
+static float camera_latitude = rad_from_deg(30.0f);
+static float camera_longitude = rad_from_deg(0.0f);
 
+auto Demo::gui(const gui::Desc& ) -> void {
+    auto& main_constants = *_main_pass.constants.ptr();
+    ImGui::SliderFloat("Ambient", &main_constants.ambient_light, 0.0f, 1.0f);
+    ImGui::SliderFloat("Light Projection Size", &light_projection_size, 1.0f, 200.0f);
+    ImGui::SliderAngle("Light Longitude", &light_longitude, 0.0f, 360.0f);
+    ImGui::SliderAngle("Light Latitude", &light_latitude, 0.0f, 180.0f);
+    ImGui::SliderFloat("Light Distance", &light_distance, 1.0f, 200.0f);
+    ImGui::SliderFloat("Shadow Near Plane", &shadow_near_plane, 0.0f, 10.0f);
+    ImGui::SliderFloat("Shadow Far Plane", &shadow_far_plane, 1.0f, 100.0f);
+    ImGui::SliderFloat("Camera Distance", &camera_distance, 0.0f, 10.0f);
+    ImGui::SliderAngle("Camera FOV", &camera_fov, 0.0f, 90.0f);
+    ImGui::SliderAngle("Camera Latitude", &camera_latitude, -90.0f, 90.0f);
+    ImGui::SliderAngle("Camera Longitude", &camera_longitude, 0.0f, 360.0f);
+}
+
+auto Demo::update(const demo::UpdateDesc& desc) -> void {
     auto& shadow_constants = *_shadow_pass.constants.ptr();
     auto& main_constants = *_main_pass.constants.ptr();
 
     // Update light angle.
     {
-        light_lon += desc.delta_time;
-        if (light_lon > PI * 2.0f) {
-            light_lon -= PI * 2.0f;
+        light_longitude += desc.delta_time;
+        if (light_longitude > PI * 2.0f) {
+            light_longitude -= PI * 2.0f;
         }
     }
 
-    // ImGui.
-    if (ImGui::Begin(Demo::NAME.data())) {
-        ImGui::SliderFloat("Ambient", &main_constants.ambient_light, 0.0f, 1.0f);
-        ImGui::SliderFloat("Light Projection Size", &light_projection_size, 1.0f, 200.0f);
-        ImGui::SliderAngle("Light Lon", &light_lon, 0.0f, 360.0f);
-        ImGui::SliderAngle("Light Lat", &light_lat, 0.0f, 180.0f);
-        ImGui::SliderFloat("Light Distance", &light_distance, 1.0f, 200.0f);
-        ImGui::SliderFloat("Shadow Near Plane", &shadow_near_plane, 0.0f, 10.0f);
-        ImGui::SliderFloat("Shadow Far Plane", &shadow_far_plane, 1.0f, 100.0f);
-        ImGui::SliderFloat("Camera Angle", &camera_angle, 0.0f, 2.0f * PI);
-    }
-    ImGui::End();
-
     // Light direction.
-    {
-        auto x = std::cos(light_lon) * std::cos(light_lat);
-        auto y = std::sin(light_lat);
-        auto z = std::sin(light_lon) * std::cos(light_lat);
-        main_constants.light_direction = Vector3(x, y, z);
-    }
+    main_constants.light_direction = dir_from_lonlat(light_longitude, light_latitude);
 
     // Shadow pass - constants.
     {
@@ -172,9 +172,7 @@ auto Demo::update(const demo::UpdateDesc& desc) -> void {
             shadow_near_plane,
             shadow_far_plane);
         auto eye = light_distance * main_constants.light_direction;
-        auto at = Vector3(0.0f, 0.0f, 0.0f);
-        auto up = Vector3(0.0f, 1.0f, 0.0f);
-        auto view = Matrix::CreateLookAt(eye, at, up);
+        auto view = Matrix::CreateLookAt(eye, Vector3::Zero, Vector3::Up);
 
         shadow_constants.transform = view * projection;
     }
@@ -182,13 +180,11 @@ auto Demo::update(const demo::UpdateDesc& desc) -> void {
     // Main pass - constants.
     Matrix transform;
     {
-        constexpr auto FOV = rad_from_deg(45.0f);
-        auto aspect_ratio = desc.aspect_ratio;
-        auto projection = Matrix::CreatePerspectiveFieldOfView(FOV, aspect_ratio, 0.1f, 100.0f);
-        auto eye = Vector3(7.0f * std::sin(camera_angle), 8.0f, 7.0f * std::cos(camera_angle));
+        auto projection =
+            Matrix::CreatePerspectiveFieldOfView(camera_fov, desc.aspect_ratio, 0.1f, 100.0f);
+        auto eye = camera_distance * dir_from_lonlat(camera_longitude, camera_latitude);
         auto at = Vector3(0.0f, 3.0f, 0.0f);
-        auto up = Vector3(0.0f, 1.0f, 0.0f);
-        auto view = Matrix::CreateLookAt(eye, at, up);
+        auto view = Matrix::CreateLookAt(eye, at, Vector3::Up);
         transform = view * projection;
 
         main_constants.transform = transform;

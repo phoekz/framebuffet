@@ -36,12 +36,10 @@ Demo::Demo(GpuDevice& device) :
         Vertices vertices;
         Indices indices;
         GeometricPrimitive::CreateBox(vertices, indices, {2.0f, 2.0f, 2.0f}, false, true);
-        auto vertex_span = std::span(
-            reinterpret_cast<const Vertex*>(vertices.data()),
-            vertices.size());
-        auto index_span = std::span(
-            reinterpret_cast<const uint16_t*>(indices.data()),
-            indices.size());
+        auto vertex_span =
+            std::span(reinterpret_cast<const Vertex*>(vertices.data()), vertices.size());
+        auto index_span =
+            std::span(reinterpret_cast<const uint16_t*>(indices.data()), indices.size());
         _vertex_buffer.create_with_data(device, vertex_span, dx_name(Demo::NAME, "Vertex Buffer"));
         _index_buffer.create_with_data(device, index_span, dx_name(Demo::NAME, "Index Buffer"));
     }
@@ -103,38 +101,30 @@ Demo::Demo(GpuDevice& device) :
     }
 }
 
+static float camera_fov = rad_from_deg(70.0f);
+static float camera_distance = 1.25f;
+static float camera_longitude = rad_from_deg(45.0f);
+static float camera_latitude = rad_from_deg(0.0f);
+static float camera_rotation_speed = 0.5f;
+
+auto Demo::gui(const gui::Desc&) -> void {
+    ImGui::SliderAngle("Camera FOV", &camera_fov, 1.0f, 90.0f);
+    ImGui::SliderFloat("Camera Distance", &camera_distance, 1.0f, 10.0f);
+    ImGui::SliderAngle("Camera Longitude", &camera_longitude, -180.0f, 180.0f);
+    ImGui::SliderAngle("Camera Latitude", &camera_latitude, -90.0f, 90.0f);
+    ImGui::SliderFloat("Camera Rotation Speed", &camera_rotation_speed, 0.0f, 1.0f);
+}
+
 auto Demo::update(const demo::UpdateDesc& desc) -> void {
-    static float camera_fov = rad_from_deg(70.0f);
-    static float camera_distance = 1.25f;
-    static float camera_lon = rad_from_deg(45.0f);
-    static float camera_lat = rad_from_deg(0.0f);
-    static float camera_rotation_speed = 0.5f;
-
-    // Update light angle.
-    {
-        camera_lon += camera_rotation_speed * desc.delta_time;
-        if (camera_lon > PI * 2.0f) {
-            camera_lon -= PI * 2.0f;
-        }
+    camera_longitude += camera_rotation_speed * desc.delta_time;
+    if (camera_longitude > PI * 2.0f) {
+        camera_longitude -= PI * 2.0f;
     }
-
-    // ImGui.
-    if (ImGui::Begin(Demo::NAME.data())) {
-        ImGui::SliderAngle("Camera FOV", &camera_fov, 1.0f, 90.0f);
-        ImGui::SliderFloat("Camera Distance", &camera_distance, 1.0f, 10.0f);
-        ImGui::SliderAngle("Camera Longitude", &camera_lon, -180.0f, 180.0f);
-        ImGui::SliderAngle("Camera Latitude", &camera_lat, -90.0f, 90.0f);
-        ImGui::SliderFloat("Camera Rotation Speed", &camera_rotation_speed, 0.0f, 1.0f);
-    }
-    ImGui::End();
 
     float aspect_ratio = desc.aspect_ratio;
     Matrix perspective =
         Matrix::CreatePerspectiveFieldOfView(camera_fov, aspect_ratio, 0.1f, 100.0f);
-    Vector3 eye;
-    eye.x = camera_distance * cos(camera_lat) * cos(camera_lon);
-    eye.y = camera_distance * sin(camera_lat);
-    eye.z = camera_distance * cos(camera_lat) * sin(camera_lon);
+    Vector3 eye = camera_distance * dir_from_lonlat(camera_longitude, camera_latitude);
     Matrix view = Matrix::CreateLookAt(eye, Vector3(0.0f, 0.0f, 0.0f), Vector3(0.0f, 1.0f, 0.0f));
     Matrix env_view = view;
     env_view.m[3][0] = 0.0f;

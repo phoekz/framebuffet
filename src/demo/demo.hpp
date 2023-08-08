@@ -7,6 +7,7 @@
 #include "../pcg.hpp"
 #include "../gltf.hpp"
 #include "../exr.hpp"
+#include "../gui_common.hpp"
 
 namespace fb::demo {
 

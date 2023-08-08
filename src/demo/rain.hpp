@@ -36,6 +36,7 @@ class Demo {
     static constexpr Vector4 CLEAR_COLOR = {0.2f, 0.2f, 0.2f, 1.0f};
 
     Demo(GpuDevice& device);
+    auto gui(const gui::Desc& desc) -> void;
     void update(const demo::UpdateDesc& desc);
     void render(GpuDevice& device, GpuCommandList& cmd);
 

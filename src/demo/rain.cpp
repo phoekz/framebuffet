@@ -95,55 +95,39 @@ Demo::Demo(GpuDevice& device) :
     }
 }
 
+static float camera_distance = 1.25f;
+static float camera_longitude = rad_from_deg(45.0f);
+static float camera_latitude = rad_from_deg(-15.0f);
+static float camera_fov = rad_from_deg(45.0f);
+static float camera_rotation_speed = 0.05f;
+static float particle_width = 0.01f;
+static float particle_height = 0.075f;
+
+auto Demo::gui(const gui::Desc&) -> void {
+    auto& compute_constants = *_compute.constant_buffer.ptr();
+    ImGui::SliderFloat("Rain Speed", &compute_constants.speed, 0.0f, 2.0f);
+    ImGui::SliderFloat("Camera Distance", &camera_distance, 1.0f, 10.0f);
+    ImGui::SliderAngle("Camera Longitude", &camera_longitude, -180.0f, 180.0f);
+    ImGui::SliderAngle("Camera Latitude", &camera_latitude, -90.0f, 90.0f);
+    ImGui::SliderAngle("Camera FOV", &camera_fov, 0.0f, 90.0f);
+    ImGui::SliderFloat("Camera Rotation Speed", &camera_rotation_speed, 0.0f, 1.0f);
+    ImGui::SliderFloat("Particle Width", &particle_width, 0.0f, 1.0f);
+    ImGui::SliderFloat("Particle Height", &particle_height, 0.0f, 1.0f);
+}
+
 void Demo::update(const demo::UpdateDesc& desc) {
-    static float camera_distance = 1.25f;
-    static float camera_lon = rad_from_deg(45.0f);
-    static float camera_lat = rad_from_deg(-15.0f);
-    static float camera_rotation_speed = 0.05f;
-    static float particle_width = 0.01f;
-    static float particle_height = 0.075f;
-
-    // Update light angle.
-    {
-        camera_lon += camera_rotation_speed * desc.delta_time;
-        if (camera_lon > PI * 2.0f) {
-            camera_lon -= PI * 2.0f;
-        }
-    }
-
-    // ImGui.
-    {
-        auto& compute_constants = *_compute.constant_buffer.ptr();
-        compute_constants.delta_time = desc.delta_time;
-
-        if (ImGui::Begin(Demo::NAME.data())) {
-            ImGui::SliderFloat("Speed", &compute_constants.speed, 0.0f, 2.0f);
-            ImGui::SliderFloat("Camera Distance", &camera_distance, 1.0f, 10.0f);
-            ImGui::SliderAngle("Camera Longitude", &camera_lon, -180.0f, 180.0f);
-            ImGui::SliderAngle("Camera Latitude", &camera_lat, -90.0f, 90.0f);
-            ImGui::SliderFloat("Camera Rotation Speed", &camera_rotation_speed, 0.0f, 1.0f);
-            ImGui::SliderFloat("Particle Width", &particle_width, 0.0f, 1.0f);
-            ImGui::SliderFloat("Particle Height", &particle_height, 0.0f, 1.0f);
-        }
-        ImGui::End();
-    }
-
     Matrix camera_transform;
     {
-        auto& draw_constants = *_draw.constant_buffer.ptr();
+        camera_longitude += camera_rotation_speed * desc.delta_time;
+        if (camera_longitude > PI * 2.0f) {
+            camera_longitude -= PI * 2.0f;
+        }
 
-        constexpr auto FOV = rad_from_deg(45.0f);
         auto aspect_ratio = desc.aspect_ratio;
-        auto projection = Matrix::CreatePerspectiveFieldOfView(FOV, aspect_ratio, 0.1f, 100.0f);
-
-        Vector3 eye;
-        eye.x = camera_distance * cos(camera_lat) * cos(camera_lon);
-        eye.y = camera_distance * sin(camera_lat);
-        eye.z = camera_distance * cos(camera_lat) * sin(camera_lon);
-
-        auto target = Vector3(0.0f, 0.0f, 0.0f);
-        auto up = Vector3(0.0f, 1.0f, 0.0f);
-        auto view = Matrix::CreateLookAt(eye, target, up);
+        auto projection =
+            Matrix::CreatePerspectiveFieldOfView(camera_fov, aspect_ratio, 0.1f, 100.0f);
+        auto eye = camera_distance * dir_from_lonlat(camera_longitude, camera_latitude);
+        auto view = Matrix::CreateLookAt(eye, Vector3::Zero, Vector3::Up);
 
         auto from_dir = Vector3::UnitZ;
         auto to_dir = Vector3(eye.x, 0.0f, eye.z);
@@ -153,6 +137,10 @@ void Demo::update(const demo::UpdateDesc& desc) {
         auto particle_transform = scale * rot_matrix;
 
         camera_transform = view * projection;
+
+        auto& compute_constants = *_compute.constant_buffer.ptr();
+        auto& draw_constants = *_draw.constant_buffer.ptr();
+        compute_constants.delta_time = desc.delta_time;
         draw_constants.transform = camera_transform;
         draw_constants.particle_transform = particle_transform;
     }

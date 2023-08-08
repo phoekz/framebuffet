@@ -52,23 +52,22 @@ Cards::Cards(GpuDevice& device, const Params& params) {
     }
 }
 
+auto Cards::gui(const gui::Desc& desc) -> void {
+    float max_extent = std::max((float)desc.window_size.x, (float)desc.window_size.y);
+    Card* cards = _card_buffer.ptr();
+    for (uint32_t i = 0; i < CARD_COUNT; i++) {
+        ImGui::SliderFloat4(
+            std::format("Card {}", i).c_str(),
+            (float*)&cards[i],
+            -max_extent,
+            max_extent);
+    }
+}
+
 void Cards::update(const GpuDevice& device) {
     Uint2 swapchain_size = device.swapchain_size();
     float width = (float)swapchain_size.x;
     float height = (float)swapchain_size.y;
-    float max_extent = std::max(width, height);
-
-    if (ImGui::Begin(Cards::NAME.data())) {
-        Card* cards = _card_buffer.ptr();
-        for (uint32_t i = 0; i < CARD_COUNT; i++) {
-            ImGui::SliderFloat4(
-                std::format("Card {}", i).c_str(),
-                (float*)&cards[i],
-                -max_extent,
-                max_extent);
-        }
-    }
-    ImGui::End();
 
     auto& constants = *_constant_buffer.ptr();
     constants.transform =

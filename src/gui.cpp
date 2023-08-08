@@ -112,14 +112,16 @@ Gui::~Gui() {
     ImGui::DestroyContext(_imgui_ctx);
 }
 
-auto Gui::update() -> void {
+auto Gui::begin_frame() -> void {
     ImGui_ImplWin32_NewFrame();
     ImGui::NewFrame();
-    ImGui::ShowDemoWindow();
+}
+
+auto Gui::end_frame() -> void {
+    ImGui::Render();
 }
 
 auto Gui::render(const GpuDevice& device, GpuCommandList& cmd) -> void {
-    ImGui::Render();
     auto* draw_data = ImGui::GetDrawData();
 
     // Avoid rendering when minimized.

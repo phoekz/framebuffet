@@ -21,11 +21,21 @@ using Uint3 = DirectX::XMUINT3;
 using Uint4 = DirectX::XMUINT4;
 
 constexpr float PI = DirectX::XM_PI;
+
 constexpr auto rad_from_deg(float deg) -> float {
     return deg * PI / 180.0f;
 }
+
 constexpr auto deg_from_rad(float rad) -> float {
     return rad * 180.0f / PI;
+}
+
+constexpr auto dir_from_lonlat(float lon, float lat) -> Vector3 {
+    return {
+        std::cos(lat) * std::cos(lon),
+        std::sin(lat),
+        std::cos(lat) * std::sin(lon),
+    };
 }
 
 }  // namespace fb

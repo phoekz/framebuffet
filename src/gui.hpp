@@ -21,7 +21,8 @@ class Gui {
 
     Gui(const Window& window, GpuDevice& device);
     ~Gui();
-    auto update() -> void;
+    auto begin_frame() -> void;
+    auto end_frame() -> void;
     auto render(const GpuDevice& device, GpuCommandList& cmd) -> void;
 
   private:

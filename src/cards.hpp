@@ -1,7 +1,7 @@
 #pragma once
 
 #include <gpu/gpu.hpp>
-
+#include "gui_common.hpp"
 #include "maths.hpp"
 #include "utils.hpp"
 
@@ -33,6 +33,7 @@ class Cards {
     static constexpr std::string_view NAME = "Cards"sv;
 
     Cards(GpuDevice& device, const Params& params);
+    auto gui(const gui::Desc& desc) -> void;
     auto update(const GpuDevice& device) -> void;
     auto render(GpuDevice& device, GpuCommandList& cmd) -> void;
 
