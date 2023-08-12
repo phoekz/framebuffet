@@ -39,3 +39,61 @@ constexpr auto dir_from_lonlat(float lon, float lat) -> Vector3 {
 }
 
 }  // namespace fb
+
+//
+// Formatters.
+//
+
+template<>
+struct std::formatter<fb::Vector3>: std::formatter<char> {
+    template<class FormatContext>
+    auto format(fb::Vector3 v, FormatContext& fc) const {
+        return std::format_to(fc.out(), "({:6.3f} {:6.3f} {:6.3f})", v.x, v.y, v.z);
+    }
+};
+
+template<>
+struct std::formatter<fb::Vector4>: std::formatter<char> {
+    template<class FormatContext>
+    auto format(fb::Vector4 v, FormatContext& fc) const {
+        return std::format_to(fc.out(), "({:6.3f} {:6.3f} {:6.3f} {:6.3f})", v.x, v.y, v.z, v.w);
+    }
+};
+
+template<>
+struct std::formatter<fb::Matrix>: std::formatter<char> {
+    template<class FormatContext>
+    auto format(fb::Matrix m, FormatContext& fc) const {
+        return std::format_to(
+            fc.out(),
+            "\n|{:6.3f} {:6.3f} {:6.3f} {:6.3f}|"
+            "\n|{:6.3f} {:6.3f} {:6.3f} {:6.3f}|"
+            "\n|{:6.3f} {:6.3f} {:6.3f} {:6.3f}|"
+            "\n|{:6.3f} {:6.3f} {:6.3f} {:6.3f}|"
+            "",
+            m.m[0][0],
+            m.m[1][0],
+            m.m[2][0],
+            m.m[3][0],
+            m.m[0][1],
+            m.m[1][1],
+            m.m[2][1],
+            m.m[3][1],
+            m.m[0][2],
+            m.m[1][2],
+            m.m[2][2],
+            m.m[3][2],
+            m.m[0][3],
+            m.m[1][3],
+            m.m[2][3],
+            m.m[3][3]);
+    }
+};
+
+template<>
+struct std::formatter<fb::Uint4>: std::formatter<char> {
+    template<class FormatContext>
+    auto format(fb::Uint4 v, FormatContext& fc) const {
+        return std::format_to(fc.out(), "({} {} {} {})", v.x, v.y, v.z, v.w);
+    }
+};
