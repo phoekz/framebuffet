@@ -24,6 +24,15 @@ target_compile_options(
     /W4 /WX /MP /EHs-c- /GR-
     $<$<CONFIG:Debug>:/ZI>
     $<$<CONFIG:Release>:/Ob3>
+    $<$<CONFIG:Release>:/Zi>
+)
+target_link_options(
+    ${PROJECT_NAME} PRIVATE
+    /entry:mainCRTStartup
+    /SUBSYSTEM:WINDOWS
+    $<$<CONFIG:Release>:/DEBUG>
+    $<$<CONFIG:Release>:/OPT:REF>
+    $<$<CONFIG:Release>:/OPT:ICF>
 )
 string(REGEX REPLACE "/EH[a-z]+" "" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
 string(REGEX REPLACE "/Ob2" "" CMAKE_CXX_FLAGS_RELEASE ${CMAKE_CXX_FLAGS})
@@ -69,7 +78,6 @@ target_link_libraries(
     $<$<CONFIG:Release>:${DIRECTXTEX_RELEASE_LINK_DIR}/DirectXTex.lib>
     ${WINPIXEVENTRUNTIME_LINK_DIR}/WinPixEventRuntime.lib
 )
-target_link_options(${PROJECT_NAME} PRIVATE /entry:mainCRTStartup /SUBSYSTEM:WINDOWS)
 target_precompile_headers(${PROJECT_NAME} PRIVATE src/pch.hpp)
 
 set_property(DIRECTORY ${PROJECT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${PROJECT_NAME})
