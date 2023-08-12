@@ -24,6 +24,8 @@ target_compile_options(
     /W4 /WX /MP /EHs-c- /GR-
     $<$<CONFIG:Debug>:/ZI>
     $<$<CONFIG:Release>:/Ob3>
+    $<$<CONFIG:Release>:/Oi>
+    $<$<CONFIG:Release>:/Ot>
     $<$<CONFIG:Release>:/Zi>
 )
 target_link_options(
