@@ -38,6 +38,32 @@ constexpr auto dir_from_lonlat(float lon, float lat) -> Vector3 {
     };
 }
 
+constexpr auto float4x4_from_trs(const Vector3& t, const Quaternion& r, const Vector3& s)
+    -> Matrix {
+    // Note: inlined quaternion-float3x3 conversion.
+    Matrix m;
+    float rxx = r.x * r.x;
+    float ryy = r.y * r.y;
+    float rzz = r.z * r.z;
+    m.m[0][0] = s.x * (1.0f - 2.0f * ryy - 2.0f * rzz);
+    m.m[0][1] = (2.0f * r.x * r.y + 2.0f * r.z * r.w);
+    m.m[0][2] = (2.0f * r.x * r.z - 2.0f * r.y * r.w);
+    m.m[0][3] = 0.0f;
+    m.m[1][0] = (2.0f * r.x * r.y - 2.0f * r.z * r.w);
+    m.m[1][1] = s.y * (1.0f - 2.0f * rxx - 2.0f * rzz);
+    m.m[1][2] = (2.0f * r.y * r.z + 2.0f * r.x * r.w);
+    m.m[1][3] = 0.0f;
+    m.m[2][0] = (2.0f * r.x * r.z + 2.0f * r.y * r.w);
+    m.m[2][1] = (2.0f * r.y * r.z - 2.0f * r.x * r.w);
+    m.m[2][2] = s.z * (1.0f - 2.0f * rxx - 2.0f * ryy);
+    m.m[2][3] = 0.0f;
+    m.m[3][0] = t.x;
+    m.m[3][1] = t.y;
+    m.m[3][2] = t.z;
+    m.m[3][3] = 1.0f;
+    return m;
+}
+
 }  // namespace fb
 
 //

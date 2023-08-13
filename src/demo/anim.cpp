@@ -157,10 +157,8 @@ auto Demo::update(const demo::UpdateDesc& desc) -> void {
                     return Vector3::Lerp(lhs, rhs, t);
                 });
 
-            const auto translation = Matrix::CreateTranslation(t);
-            const auto rotation = Matrix::CreateFromQuaternion(r);
-            const auto scale = Matrix::CreateScale(s);
-            const auto transform = scale * rotation * translation;
+            const auto transform = float4x4_from_trs(t, r, s);
+
             if (node_parents[node_index] == GLTF_NULL_NODE) {
                 _node_global_transforms[node_index] = transform;
             } else {
