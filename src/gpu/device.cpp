@@ -334,6 +334,11 @@ auto GpuCommandList::transition_barrier(
     _cmd->ResourceBarrier(1, &barrier);
 }
 
+auto GpuCommandList::uav_barrier(const ComPtr<ID3D12Resource>& resource) const -> void {
+    auto barrier = CD3DX12_RESOURCE_BARRIER::UAV(resource.get());
+    _cmd->ResourceBarrier(1, &barrier);
+}
+
 #pragma endregion
 
 #pragma region Device

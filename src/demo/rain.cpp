@@ -156,14 +156,13 @@ void Demo::update(const demo::UpdateDesc& desc) {
 void Demo::render(GpuDevice& device, GpuCommandList& cmd) {
     {
         cmd.set_compute();
-        _particle_buffer.transition(cmd, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
         cmd.set_compute_constants({
             _compute.constant_buffer.cbv_descriptor().index(),
             _particle_buffer.uav_descriptor().index(),
         });
         cmd.set_pipeline(_compute.pipeline);
         cmd.dispatch(DISPATCH_COUNT, 1, 1);
-        _particle_buffer.transition(cmd, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
+        _particle_buffer.uav_barrier(cmd);
     }
 
     {

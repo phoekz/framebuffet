@@ -169,6 +169,7 @@ class GpuCommandList {
         const ComPtr<ID3D12Resource>& resource,
         D3D12_RESOURCE_STATES before,
         D3D12_RESOURCE_STATES after) const -> void;
+    auto uav_barrier(const ComPtr<ID3D12Resource>& resource) const -> void;
 
   private:
     GpuCommandList(

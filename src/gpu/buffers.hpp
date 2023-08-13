@@ -194,6 +194,13 @@ class GpuBuffer {
         }
     }
 
+    auto uav_barrier(const GpuCommandList& cmd) -> void {
+        static_assert(
+            gpu_buffer_flags_is_set(FLAGS, GpuBufferFlags::Uav),
+            "Buffer does not support UAV");
+        cmd.uav_barrier(_resource);
+    }
+
   private:
     uint32_t _element_byte_size = (uint32_t)sizeof(T);
     uint32_t _element_size = 0;
