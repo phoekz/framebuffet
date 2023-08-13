@@ -2,56 +2,6 @@
 
 namespace fb::cards {
 
-Cards::Cards(GpuDevice& device, const Params& params) {
-    // Descriptors.
-    _card_texture_descriptors = params.card_texture_descriptors;
-
-    // Shaders.
-    GpuShader vertex_shader;
-    GpuShader pixel_shader;
-    {
-        GpuShaderCompiler sc;
-        auto source = read_whole_file("shaders/cards.hlsl");
-        vertex_shader = sc.compile(Cards::NAME, GpuShaderType::Vertex, "vs_main", source);
-        pixel_shader = sc.compile(Cards::NAME, GpuShaderType::Pixel, "ps_main", source);
-    }
-
-    // Pipeline.
-    GpuPipelineBuilder()
-        .vertex_shader(vertex_shader.bytecode())
-        .pixel_shader(pixel_shader.bytecode())
-        .primitive_topology(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)
-        .render_target_formats({DXGI_FORMAT_R8G8B8A8_UNORM})
-        .depth_stencil(GPU_PIPELINE_DEPTH_NONE)
-        .build(device, _pipeline, dx_name(Cards::NAME, "Pipeline"));
-
-    // Constant buffer.
-    _constant_buffer.create(device, 1, dx_name(Cards::NAME, "Constant Buffer"));
-
-    // Cards buffer.
-    {
-        _card_buffer.create(device, CARD_COUNT, dx_name(Cards::NAME, "Cards Buffer"));
-        auto cards = _card_buffer.span();
-        cards[0] = {{0.0f, 0.0f}, {640.0f, 400.0f}};
-        cards[1] = {{640.0f, 0.0f}, {640.0f, 400.0f}};
-        cards[2] = {{0.0f, 400.0f}, {640.0f, 400.0f}};
-        cards[3] = {{640.0f, 400.0f}, {640.0f, 400.0f}};
-    }
-
-    // Geometry.
-    {
-        const auto vertices = std::to_array<Vertex>({
-            {{0.0f, 0.0f}, {0.0f, 0.0f}},
-            {{1.0f, 0.0f}, {1.0f, 0.0f}},
-            {{1.0f, 1.0f}, {1.0f, 1.0f}},
-            {{0.0f, 1.0f}, {0.0f, 1.0f}},
-        });
-        const auto indices = std::to_array<uint16_t>({0, 1, 2, 0, 2, 3});
-        _vertex_buffer.create_with_data(device, vertices, dx_name(Cards::NAME, "Vertex Buffer"));
-        _index_buffer.create_with_data(device, indices, dx_name(Cards::NAME, "Index Buffer"));
-    }
-}
-
 static auto layout_grid(std::span<Card> cards, Uint2 window_size, uint32_t columns) -> void {
     const uint32_t card_count = (uint32_t)cards.size();
     const float window_w = (float)window_size.x;
@@ -102,11 +52,57 @@ static auto layout_vmosaic(std::span<Card> cards, Uint2 window_size) -> void {
     cards[card_count - 1].size = {hero_w, hero_h};
 }
 
+Cards::Cards(GpuDevice& device, const Params& params) {
+    // Descriptors.
+    _card_texture_descriptors = params.card_texture_descriptors;
+
+    // Shaders.
+    GpuShader vertex_shader;
+    GpuShader pixel_shader;
+    {
+        GpuShaderCompiler sc;
+        auto source = read_whole_file("shaders/cards.hlsl");
+        vertex_shader = sc.compile(Cards::NAME, GpuShaderType::Vertex, "vs_main", source);
+        pixel_shader = sc.compile(Cards::NAME, GpuShaderType::Pixel, "ps_main", source);
+    }
+
+    // Pipeline.
+    GpuPipelineBuilder()
+        .vertex_shader(vertex_shader.bytecode())
+        .pixel_shader(pixel_shader.bytecode())
+        .primitive_topology(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)
+        .render_target_formats({DXGI_FORMAT_R8G8B8A8_UNORM})
+        .depth_stencil(GPU_PIPELINE_DEPTH_NONE)
+        .build(device, _pipeline, dx_name(Cards::NAME, "Pipeline"));
+
+    // Constant buffer.
+    _constant_buffer.create(device, 1, dx_name(Cards::NAME, "Constant Buffer"));
+
+    // Cards buffer.
+    _card_buffer.create(device, CARD_COUNT, dx_name(Cards::NAME, "Cards Buffer"));
+
+    // Default card layout.
+    layout_hmosaic(_card_buffer.span(), device.swapchain_size());
+
+    // Geometry.
+    {
+        const auto vertices = std::to_array<Vertex>({
+            {{0.0f, 0.0f}, {0.0f, 0.0f}},
+            {{1.0f, 0.0f}, {1.0f, 0.0f}},
+            {{1.0f, 1.0f}, {1.0f, 1.0f}},
+            {{0.0f, 1.0f}, {0.0f, 1.0f}},
+        });
+        const auto indices = std::to_array<uint16_t>({0, 1, 2, 0, 2, 3});
+        _vertex_buffer.create_with_data(device, vertices, dx_name(Cards::NAME, "Vertex Buffer"));
+        _index_buffer.create_with_data(device, indices, dx_name(Cards::NAME, "Index Buffer"));
+    }
+}
+
 auto Cards::gui(const gui::Desc& desc) -> void {
     std::span<Card> cards = {_card_buffer.ptr(), CARD_COUNT};
 
     if (ImGui::Button("Grid")) {
-        layout_grid(cards, desc.window_size, 2);
+        layout_grid(cards, desc.window_size, CARD_GRID_COLUMNS);
     }
     ImGui::SameLine();
     if (ImGui::Button("HMosaic")) {

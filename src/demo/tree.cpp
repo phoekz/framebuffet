@@ -12,11 +12,11 @@ Demo::Scene::Model::Model(
     // Geometry.
     vertex_buffer.create_with_data(
         device,
-        gltf_model.vertex_buffer(),
+        gltf_model.vertices(),
         dx_name(Demo::NAME, model_name, "Vertex Buffer"));
     index_buffer.create_with_data(
         device,
-        gltf_model.index_buffer(),
+        gltf_model.indices(),
         dx_name(Demo::NAME, model_name, "Index Buffer"));
 
     // Texture.

@@ -7,7 +7,8 @@
 
 namespace fb::cards {
 
-static constexpr uint32_t CARD_COUNT = 4;
+static constexpr uint32_t CARD_COUNT = 5;
+static constexpr uint32_t CARD_GRID_COLUMNS = 3;
 
 struct Params {
     std::array<GpuDescriptor, CARD_COUNT> card_texture_descriptors;

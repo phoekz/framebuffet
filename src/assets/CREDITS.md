@@ -18,6 +18,10 @@ Notes: Converted from `4k_latlon` to `1k_cube` with `exrenvmap`.
 
 "Coconut Tree" (https://skfb.ly/6WGQx) by sujirour is licensed under Creative Commons Attribution (http://creativecommons.org/licenses/by/4.0/).
 
+# `models/low-poly_racoon_run_animation.glb`
+
+"Low-poly Racoon Run Animation" (https://skfb.ly/6RG6Q) by avatrass is licensed under Creative Commons Attribution (http://creativecommons.org/licenses/by/4.0/).
+
 # `fonts/Roboto-Medium.ttf`
 
 "Roboto" (https://fonts.google.com/specimen/Roboto) by Christian Robertson is licensed under Apache License 2.0 (http://www.apache.org/licenses/LICENSE-2.0).

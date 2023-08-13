@@ -12,6 +12,7 @@
 #include "demo/rain.hpp"
 #include "demo/tree.hpp"
 #include "demo/env.hpp"
+#include "demo/anim.hpp"
 
 // PCH.
 #include <pch.hpp>
@@ -66,6 +67,7 @@ auto main() -> int {
     auto rain_demo = std::make_unique<fb::rain::Demo>(*device);
     auto tree_demo = std::make_unique<fb::tree::Demo>(*device);
     auto env_demo = std::make_unique<fb::env::Demo>(*device);
+    auto anim_demo = std::make_unique<fb::anim::Demo>(*device);
     auto cards = std::make_unique<fb::cards::Cards>(
         *device,
         fb::cards::Params {
@@ -74,6 +76,7 @@ auto main() -> int {
                 rain_demo->rt_color().srv_descriptor(),
                 tree_demo->rt_color().srv_descriptor(),
                 env_demo->rt_color().srv_descriptor(),
+                anim_demo->rt_color().srv_descriptor(),
             }});
 
     // Main loop.
@@ -112,6 +115,7 @@ auto main() -> int {
                 gui_wrapper(rain_demo, desc);
                 gui_wrapper(tree_demo, desc);
                 gui_wrapper(env_demo, desc);
+                gui_wrapper(anim_demo, desc);
             }
             ImGui::End();
             gui->end_frame();
@@ -128,6 +132,7 @@ auto main() -> int {
         rain_demo->update(update_desc);
         tree_demo->update(update_desc);
         env_demo->update(update_desc);
+        anim_demo->update(update_desc);
         cards->update(*device);
 
         // Begin frame.
@@ -138,20 +143,24 @@ auto main() -> int {
         {
             cmd.begin_pix("Demo pass");
 
-            cmd.begin_pix("Cube");
+            cmd.begin_pix(cube_demo->NAME);
             cube_demo->render(*device, cmd);
             cmd.end_pix();
 
-            cmd.begin_pix("Rain");
+            cmd.begin_pix(rain_demo->NAME);
             rain_demo->render(*device, cmd);
             cmd.end_pix();
 
-            cmd.begin_pix("Tree");
+            cmd.begin_pix(tree_demo->NAME);
             tree_demo->render(*device, cmd);
             cmd.end_pix();
 
-            cmd.begin_pix("Env");
+            cmd.begin_pix(env_demo->NAME);
             env_demo->render(*device, cmd);
+            cmd.end_pix();
+
+            cmd.begin_pix(anim_demo->NAME);
+            anim_demo->render(*device, cmd);
             cmd.end_pix();
 
             cmd.end_pix();
