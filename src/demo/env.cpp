@@ -38,8 +38,7 @@ Demo::Demo(GpuDevice& device) :
         GeometricPrimitive::CreateBox(vertices, indices, {2.0f, 2.0f, 2.0f}, false, true);
         auto vertex_span =
             std::span(reinterpret_cast<const Vertex*>(vertices.data()), vertices.size());
-        auto index_span =
-            std::span(reinterpret_cast<const uint16_t*>(indices.data()), indices.size());
+        auto index_span = std::span(reinterpret_cast<const Index*>(indices.data()), indices.size());
         _vertex_buffer.create_with_data(device, vertex_span, dx_name(Demo::NAME, "Vertex Buffer"));
         _index_buffer.create_with_data(device, index_span, dx_name(Demo::NAME, "Index Buffer"));
     }
