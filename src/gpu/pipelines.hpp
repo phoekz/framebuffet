@@ -140,4 +140,17 @@ inline constexpr D3D12_RASTERIZER_DESC2 GPU_PIPELINE_CULL_NONE = {
     .ConservativeRaster = D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF,
 };
 
+inline constexpr D3D12_RASTERIZER_DESC2 GPU_PIPELINE_WIREFRAME = {
+    .FillMode = D3D12_FILL_MODE_WIREFRAME,
+    .CullMode = D3D12_CULL_MODE_NONE,
+    .FrontCounterClockwise = FALSE,
+    .DepthBias = D3D12_DEFAULT_DEPTH_BIAS,
+    .DepthBiasClamp = D3D12_DEFAULT_DEPTH_BIAS_CLAMP,
+    .SlopeScaledDepthBias = D3D12_DEFAULT_SLOPE_SCALED_DEPTH_BIAS,
+    .DepthClipEnable = TRUE,
+    .LineRasterizationMode = D3D12_LINE_RASTERIZATION_MODE_ALIASED,
+    .ForcedSampleCount = 0,
+    .ConservativeRaster = D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF,
+};
+
 }  // namespace fb

@@ -13,6 +13,7 @@
 #include "demo/tree.hpp"
 #include "demo/env.hpp"
 #include "demo/anim.hpp"
+#include "demo/fibers.hpp"
 
 // PCH.
 #include <pch.hpp>
@@ -68,6 +69,7 @@ auto main() -> int {
     auto tree_demo = std::make_unique<fb::tree::Demo>(*device);
     auto env_demo = std::make_unique<fb::env::Demo>(*device);
     auto anim_demo = std::make_unique<fb::anim::Demo>(*device);
+    auto fibers_demo = std::make_unique<fb::fibers::Demo>(*device);
     auto cards = std::make_unique<fb::cards::Cards>(
         *device,
         fb::cards::Params {
@@ -77,6 +79,7 @@ auto main() -> int {
                 tree_demo->rt_color().srv_descriptor(),
                 env_demo->rt_color().srv_descriptor(),
                 anim_demo->rt_color().srv_descriptor(),
+                fibers_demo->rt_color().srv_descriptor(),
             }});
     device->log_stats();
 
@@ -122,6 +125,7 @@ auto main() -> int {
                 gui_wrapper(tree_demo, desc);
                 gui_wrapper(env_demo, desc);
                 gui_wrapper(anim_demo, desc);
+                gui_wrapper(fibers_demo, desc);
             }
             ImGui::End();
             gui->end_frame();
@@ -142,6 +146,7 @@ auto main() -> int {
             tree_demo->update(update_desc);
             env_demo->update(update_desc);
             anim_demo->update(update_desc);
+            fibers_demo->update(update_desc);
             cards->update(*device);
             update_time = timer.elapsed_time();
         }
@@ -172,6 +177,10 @@ auto main() -> int {
 
             cmd.begin_pix(anim_demo->NAME);
             anim_demo->render(*device, cmd);
+            cmd.end_pix();
+
+            cmd.begin_pix(fibers_demo->NAME);
+            fibers_demo->render(*device, cmd);
             cmd.end_pix();
 
             cmd.end_pix();

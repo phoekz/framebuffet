@@ -64,6 +64,28 @@ inline constexpr auto float4x4_from_trs(const Float3& t, const Quaternion& r, co
     return m;
 }
 
+inline auto rgb_from_hsv(Float3 hsv) -> Float3 {
+    float h = hsv.x;
+    float s = hsv.y;
+    float v = hsv.z;
+    float c = v * s;
+    float x = c * (1.0f - std::fabs(std::fmod(h / 60.0f, 2.0f) - 1.0f));
+    float m = v - c;
+    if (h < 60.0f) {
+        return Float3(c + m, x + m, m);
+    } else if (h < 120.0f) {
+        return Float3(x + m, c + m, m);
+    } else if (h < 180.0f) {
+        return Float3(m, c + m, x + m);
+    } else if (h < 240.0f) {
+        return Float3(m, x + m, c + m);
+    } else if (h < 300.0f) {
+        return Float3(x + m, m, c + m);
+    } else {
+        return Float3(c + m, m, x + m);
+    }
+}
+
 }  // namespace fb
 
 //
