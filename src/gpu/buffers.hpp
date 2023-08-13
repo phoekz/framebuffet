@@ -152,18 +152,12 @@ class GpuBuffer {
         memcpy(_raw, data.data(), data.size_bytes());
     }
 
-    auto element_byte_size() const -> uint32_t { return _element_byte_size; }
     auto element_size() const -> uint32_t { return _element_size; }
     auto byte_size() const -> uint32_t { return _byte_size; }
-    auto format() const -> DXGI_FORMAT { return _format; }
     auto resource() const -> ID3D12Resource* { return _resource.get(); }
-    auto resource_state() const -> D3D12_RESOURCE_STATES { return _resource_state; }
     auto raw() const -> void* { return _raw; }
     auto ptr() const -> T* { return reinterpret_cast<T*>(raw()); }
     auto span() const -> std::span<T> { return std::span<T>(ptr(), element_size()); }
-    auto gpu_address() const -> D3D12_GPU_VIRTUAL_ADDRESS { return _gpu_address; }
-    auto access_mode() const -> GpuBufferAccessMode { return ACCESS_MODE; }
-    auto flags() const -> GpuBufferFlags { return FLAGS; }
     auto index_buffer_view() const -> D3D12_INDEX_BUFFER_VIEW {
         static_assert(
             gpu_buffer_flags_is_set(FLAGS, GpuBufferFlags::Index),
