@@ -20,14 +20,14 @@ struct VertexInput {
 };
 
 struct VertexOutput {
-    float4 position: SV_POSITION;
-    float3 normal: NORMAL;
-    float2 texcoord: TEXCOORD0;
-    float3 direction: TEXCOORD1;
+    float4 position: SV_Position;
+    float3 normal: ATTRIBUTE0;
+    float2 texcoord: ATTRIBUTE1;
+    float3 direction: ATTRIBUTE2;
 };
 
 struct PixelOutput {
-    float4 color: SV_TARGET;
+    float4 color: SV_Target;
 };
 
 //

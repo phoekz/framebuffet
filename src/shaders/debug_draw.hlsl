@@ -17,12 +17,12 @@ struct VertexInput {
 };
 
 struct VertexOutput {
-    float4 position: SV_POSITION;
-    float4 color: COLOR0;
+    float4 position: SV_Position;
+    float4 color: ATTRIBUTE0;
 };
 
 struct PixelOutput {
-    float4 color: SV_TARGET;
+    float4 color: SV_Target;
 };
 
 //
