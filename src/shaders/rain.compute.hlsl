@@ -21,6 +21,7 @@ struct Input {
 //
 // Bindings
 //
+
 struct Bindings {
     uint constants;
     uint particles;

@@ -33,6 +33,7 @@ struct PixelOutput {
 //
 // Bindings
 //
+
 struct Bindings {
     uint constants;
     uint vertices;
