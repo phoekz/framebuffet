@@ -97,7 +97,8 @@
 			"xtr1common": "cpp",
 			"*.hlsli": "cpp",
 			"resumable": "cpp",
-			"cinttypes": "cpp"
+			"cinttypes": "cpp",
+			"codecvt": "cpp"
 		},
 		"C_Cpp.inlayHints.autoDeclarationTypes.enabled": true,
 		"C_Cpp.inlayHints.parameterNames.enabled": true,
