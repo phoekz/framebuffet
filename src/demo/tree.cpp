@@ -166,25 +166,25 @@ auto Demo::update(const demo::UpdateDesc& desc) -> void {
 
     // Shadow pass - constants.
     {
-        auto projection = Matrix::CreateOrthographic(
+        auto projection = Float4x4::CreateOrthographic(
             light_projection_size,
             light_projection_size,
             shadow_near_plane,
             shadow_far_plane);
         auto eye = light_distance * main_constants.light_direction;
-        auto view = Matrix::CreateLookAt(eye, Vector3::Zero, Vector3::Up);
+        auto view = Float4x4::CreateLookAt(eye, Float3::Zero, Float3::Up);
 
         shadow_constants.transform = view * projection;
     }
 
     // Main pass - constants.
-    Matrix transform;
+    Float4x4 transform;
     {
         auto projection =
-            Matrix::CreatePerspectiveFieldOfView(camera_fov, desc.aspect_ratio, 0.1f, 100.0f);
+            Float4x4::CreatePerspectiveFieldOfView(camera_fov, desc.aspect_ratio, 0.1f, 100.0f);
         auto eye = camera_distance * dir_from_lonlat(camera_longitude, camera_latitude);
-        auto at = Vector3(0.0f, 3.0f, 0.0f);
-        auto view = Matrix::CreateLookAt(eye, at, Vector3::Up);
+        auto at = Float3(0.0f, 3.0f, 0.0f);
+        auto view = Float4x4::CreateLookAt(eye, at, Float3::Up);
         transform = view * projection;
 
         main_constants.transform = transform;
@@ -196,7 +196,7 @@ auto Demo::update(const demo::UpdateDesc& desc) -> void {
         _debug_draw.begin(desc.frame_index);
         _debug_draw.transform(transform);
         _debug_draw.axes();
-        _debug_draw.line(Vector3(), 16.0f * main_constants.light_direction, COLOR_YELLOW);
+        _debug_draw.line(Float3(), 16.0f * main_constants.light_direction, COLOR_YELLOW);
         _debug_draw.end();
     }
 }

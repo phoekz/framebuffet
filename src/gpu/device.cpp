@@ -243,7 +243,7 @@ auto GpuCommandList::set_index_buffer(D3D12_INDEX_BUFFER_VIEW ibv) const -> void
     _cmd->IASetIndexBuffer(&ibv);
 }
 
-auto GpuCommandList::set_blend_factor(Vector4 factor) const -> void {
+auto GpuCommandList::set_blend_factor(Float4 factor) const -> void {
     FB_ASSERT(_engine == GpuCommandEngine::Graphics);
     _cmd->OMSetBlendFactor((const float*)&factor);
 }
@@ -270,7 +270,7 @@ auto GpuCommandList::set_compute_constants(std::initializer_list<uint32_t> const
     _cmd->SetComputeRoot32BitConstants(0, bindings.capacity(), bindings.ptr(), 0);
 }
 
-auto GpuCommandList::clear_rtv(const GpuDescriptor& rtv, Vector4 color) const -> void {
+auto GpuCommandList::clear_rtv(const GpuDescriptor& rtv, Float4 color) const -> void {
     FB_ASSERT(_engine == GpuCommandEngine::Graphics);
     _cmd->ClearRenderTargetView(rtv.cpu(), (const float*)&color, 0, nullptr);
 }

@@ -9,12 +9,12 @@
 
 namespace fb {
 
-static constexpr ColorRgba8 COLOR_RED = {(uint8_t)255, 0, 0, 255};
-static constexpr ColorRgba8 COLOR_GREEN = {(uint8_t)0, 255, 0, 255};
-static constexpr ColorRgba8 COLOR_BLUE = {(uint8_t)0, 0, 255, 255};
-static constexpr ColorRgba8 COLOR_YELLOW = {(uint8_t)255, 255, 0, 255};
-static constexpr ColorRgba8 COLOR_MAGENTA = {(uint8_t)255, 0, 255, 255};
-static constexpr ColorRgba8 COLOR_CYAN = {(uint8_t)0, 255, 255, 255};
+static constexpr RgbaByte COLOR_RED = {(uint8_t)255, 0, 0, 255};
+static constexpr RgbaByte COLOR_GREEN = {(uint8_t)0, 255, 0, 255};
+static constexpr RgbaByte COLOR_BLUE = {(uint8_t)0, 0, 255, 255};
+static constexpr RgbaByte COLOR_YELLOW = {(uint8_t)255, 255, 0, 255};
+static constexpr RgbaByte COLOR_MAGENTA = {(uint8_t)255, 0, 255, 255};
+static constexpr RgbaByte COLOR_CYAN = {(uint8_t)0, 255, 255, 255};
 
 class GpuDebugDraw {
     FB_NO_COPY_MOVE(GpuDebugDraw);
@@ -26,8 +26,8 @@ class GpuDebugDraw {
     GpuDebugDraw(GpuDevice& device, std::string_view name);
 
     auto begin(uint32_t frame_index) -> void;
-    auto transform(const Matrix& transform) -> void;
-    auto line(const Vector3& a, const Vector3& b, ColorRgba8 color) -> void;
+    auto transform(const Float4x4& transform) -> void;
+    auto line(const Float3& a, const Float3& b, RgbaByte color) -> void;
     auto axes() -> void;
     auto end() -> void;
     auto render(GpuDevice& device, const GpuCommandList& cmd) -> void;
@@ -38,14 +38,14 @@ class GpuDebugDraw {
     uint32_t _frame_index = 0;
 
     struct Constants {
-        Matrix transform;
+        Float4x4 transform;
         float pad[48] = {};
     };
     Constants _constants;
 
     struct Vertex {
-        Vector3 position;
-        ColorRgba8 color = {};
+        Float3 position;
+        RgbaByte color = {};
     };
     std::vector<Vertex> _lines;
 

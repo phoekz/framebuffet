@@ -186,7 +186,7 @@ GltfModel::GltfModel(std::string_view gltf_path) {
         }
 
         // Read additional node data.
-        auto node_transforms = std::vector<Matrix>(data->nodes_count);
+        auto node_transforms = std::vector<Float4x4>(data->nodes_count);
         auto node_parents = std::vector<uint32_t>(data->nodes_count, GLTF_NULL_NODE);
         for (size_t i = 0; i < data->nodes_count; i++) {
             const auto& node = data->nodes[i];
@@ -199,7 +199,7 @@ GltfModel::GltfModel(std::string_view gltf_path) {
         // Read joint data.
         const auto& skin = data->skins[0];
         const auto* ibms = skin.inverse_bind_matrices;
-        auto joint_inverse_binds = std::vector<Matrix>(skin.joints_count);
+        auto joint_inverse_binds = std::vector<Float4x4>(skin.joints_count);
         auto joint_nodes = std::vector<uint32_t>(skin.joints_count);
         for (size_t i = 0; i < skin.joints_count; i++) {
             FB_ASSERT(cgltf_accessor_read_float(ibms, i, (float*)&joint_inverse_binds[i], 16));
@@ -243,9 +243,9 @@ GltfModel::GltfModel(std::string_view gltf_path) {
         auto node_channel_times_t = std::vector<float>(total_t_count);
         auto node_channel_times_r = std::vector<float>(total_r_count);
         auto node_channel_times_s = std::vector<float>(total_s_count);
-        auto node_channel_values_t = std::vector<Vector3>(total_t_count);
+        auto node_channel_values_t = std::vector<Float3>(total_t_count);
         auto node_channel_values_r = std::vector<Quaternion>(total_r_count);
-        auto node_channel_values_s = std::vector<Vector3>(total_s_count);
+        auto node_channel_values_s = std::vector<Float3>(total_s_count);
         for (size_t i = 0; i < animation.samplers_count; i++) {
             const auto& sampler = animation.samplers[i];
             const auto& input = *sampler.input;

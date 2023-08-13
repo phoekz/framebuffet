@@ -15,25 +15,25 @@ struct ComputeConstants {
 };
 
 struct DrawConstants {
-    Matrix transform;
-    Matrix particle_transform;
+    Float4x4 transform;
+    Float4x4 particle_transform;
     float pad[32] = {};
 };
 
 struct Particle {
-    Vector3 position;
+    Float3 position;
 };
 static_assert(sizeof(Particle) == 12);
 
 struct Vertex {
-    Vector3 position;
-    Vector2 texcoord;
+    Float3 position;
+    Float2 texcoord;
 };
 
 class Demo {
   public:
     static constexpr std::string_view NAME = "Rain"sv;
-    static constexpr Vector4 CLEAR_COLOR = {0.2f, 0.2f, 0.2f, 1.0f};
+    static constexpr Float4 CLEAR_COLOR = {0.2f, 0.2f, 0.2f, 1.0f};
 
     Demo(GpuDevice& device);
     auto gui(const gui::Desc& desc) -> void;

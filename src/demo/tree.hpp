@@ -7,14 +7,14 @@ namespace fb::tree {
 constexpr uint32_t SHADOW_MAP_SIZE = 1024;
 
 struct ShadowConstants {
-    Matrix transform;
+    Float4x4 transform;
     float pad[48] = {};
 };
 
 struct MainConstants {
-    Matrix transform;
-    Matrix light_transform;
-    Vector3 light_direction;
+    Float4x4 transform;
+    Float4x4 light_transform;
+    Float3 light_direction;
     float ambient_light = 0.25f;
     float pad[28] = {};
 };
@@ -22,7 +22,7 @@ struct MainConstants {
 class Demo {
   public:
     static constexpr std::string_view NAME = "Tree"sv;
-    static constexpr Vector4 CLEAR_COLOR = {0.32549f, 0.51373f, 0.56078f, 1.0f};
+    static constexpr Float4 CLEAR_COLOR = {0.32549f, 0.51373f, 0.56078f, 1.0f};
 
     Demo(GpuDevice& device);
     auto gui(const gui::Desc& desc) -> void;

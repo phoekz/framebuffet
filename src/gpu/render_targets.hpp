@@ -15,7 +15,7 @@ class GpuRenderTargets {
     static constexpr uint32_t SAMPLE_COUNT = 1;
     static constexpr float DEPTH_VALUE = 1.0f;
 
-    GpuRenderTargets(GpuDevice& device, Uint2 size, Vector4 clear_color, std::string_view name);
+    GpuRenderTargets(GpuDevice& device, Uint2 size, Float4 clear_color, std::string_view name);
 
     auto begin(GpuDevice& device, const GpuCommandList& cmd) -> void;
     auto end(GpuDevice& device, const GpuCommandList& cmd) -> void;
@@ -24,7 +24,7 @@ class GpuRenderTargets {
 
   private:
     Uint2 _size = {};
-    Vector4 _clear_color;
+    Float4 _clear_color;
     GpuTexture2dSrvRtv _color;
     GpuTexture2dDsv _depth;
 };

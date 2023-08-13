@@ -5,14 +5,14 @@
 namespace fb {
 
 using Rectangle = DirectX::SimpleMath::Rectangle;
-using Vector2 = DirectX::SimpleMath::Vector2;
-using Vector3 = DirectX::SimpleMath::Vector3;
-using Vector4 = DirectX::SimpleMath::Vector4;
-using Matrix = DirectX::SimpleMath::Matrix;
+using Float2 = DirectX::SimpleMath::Vector2;
+using Float3 = DirectX::SimpleMath::Vector3;
+using Float4 = DirectX::SimpleMath::Vector4;
+using Float4x4 = DirectX::SimpleMath::Matrix;
 using Plane = DirectX::SimpleMath::Plane;
 using Quaternion = DirectX::SimpleMath::Quaternion;
-using ColorRgba32f = DirectX::SimpleMath::Color;
-using ColorRgba8 = DirectX::PackedVector::XMUBYTEN4;
+using RgbaFloat = DirectX::SimpleMath::Color;
+using RgbaByte = DirectX::PackedVector::XMUBYTEN4;
 using Ray = DirectX::SimpleMath::Ray;
 using Viewport = DirectX::SimpleMath::Viewport;
 
@@ -30,7 +30,7 @@ constexpr auto deg_from_rad(float rad) -> float {
     return rad * 180.0f / PI;
 }
 
-constexpr auto dir_from_lonlat(float lon, float lat) -> Vector3 {
+constexpr auto dir_from_lonlat(float lon, float lat) -> Float3 {
     return {
         std::cos(lat) * std::cos(lon),
         std::sin(lat),
@@ -38,10 +38,10 @@ constexpr auto dir_from_lonlat(float lon, float lat) -> Vector3 {
     };
 }
 
-constexpr auto float4x4_from_trs(const Vector3& t, const Quaternion& r, const Vector3& s)
-    -> Matrix {
+constexpr auto float4x4_from_trs(const Float3& t, const Quaternion& r, const Float3& s)
+    -> Float4x4 {
     // Note: inlined quaternion-float3x3 conversion.
-    Matrix m;
+    Float4x4 m;
     float rxx = r.x * r.x;
     float ryy = r.y * r.y;
     float rzz = r.z * r.z;
@@ -71,25 +71,25 @@ constexpr auto float4x4_from_trs(const Vector3& t, const Quaternion& r, const Ve
 //
 
 template<>
-struct std::formatter<fb::Vector3>: std::formatter<char> {
+struct std::formatter<fb::Float3>: std::formatter<char> {
     template<class FormatContext>
-    auto format(fb::Vector3 v, FormatContext& fc) const {
+    auto format(fb::Float3 v, FormatContext& fc) const {
         return std::format_to(fc.out(), "({:6.3f} {:6.3f} {:6.3f})", v.x, v.y, v.z);
     }
 };
 
 template<>
-struct std::formatter<fb::Vector4>: std::formatter<char> {
+struct std::formatter<fb::Float4>: std::formatter<char> {
     template<class FormatContext>
-    auto format(fb::Vector4 v, FormatContext& fc) const {
+    auto format(fb::Float4 v, FormatContext& fc) const {
         return std::format_to(fc.out(), "({:6.3f} {:6.3f} {:6.3f} {:6.3f})", v.x, v.y, v.z, v.w);
     }
 };
 
 template<>
-struct std::formatter<fb::Matrix>: std::formatter<char> {
+struct std::formatter<fb::Float4x4>: std::formatter<char> {
     template<class FormatContext>
-    auto format(fb::Matrix m, FormatContext& fc) const {
+    auto format(fb::Float4x4 m, FormatContext& fc) const {
         return std::format_to(
             fc.out(),
             "\n|{:6.3f} {:6.3f} {:6.3f} {:6.3f}|"

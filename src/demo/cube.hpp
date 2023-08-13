@@ -5,14 +5,14 @@
 namespace fb::cube {
 
 struct Constants {
-    Matrix transform;
+    Float4x4 transform;
     float pad[48] = {};
 };
 
 class Demo {
   public:
     static constexpr std::string_view NAME = "Cube"sv;
-    static constexpr Vector4 CLEAR_COLOR = {0.6f, 0.3f, 0.0f, 1.0f};
+    static constexpr Float4 CLEAR_COLOR = {0.6f, 0.3f, 0.0f, 1.0f};
 
     Demo(GpuDevice& device);
     auto gui(const gui::Desc& desc) -> void;

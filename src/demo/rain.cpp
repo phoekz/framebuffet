@@ -116,7 +116,7 @@ auto Demo::gui(const gui::Desc&) -> void {
 }
 
 void Demo::update(const demo::UpdateDesc& desc) {
-    Matrix camera_transform;
+    Float4x4 camera_transform;
     {
         camera_longitude += camera_rotation_speed * desc.delta_time;
         if (camera_longitude > PI * 2.0f) {
@@ -125,16 +125,16 @@ void Demo::update(const demo::UpdateDesc& desc) {
 
         auto aspect_ratio = desc.aspect_ratio;
         auto projection =
-            Matrix::CreatePerspectiveFieldOfView(camera_fov, aspect_ratio, 0.1f, 100.0f);
+            Float4x4::CreatePerspectiveFieldOfView(camera_fov, aspect_ratio, 0.1f, 100.0f);
         auto eye = camera_distance * dir_from_lonlat(camera_longitude, camera_latitude);
-        auto view = Matrix::CreateLookAt(eye, Vector3::Zero, Vector3::Up);
+        auto view = Float4x4::CreateLookAt(eye, Float3::Zero, Float3::Up);
 
-        auto from_dir = Vector3::UnitZ;
-        auto to_dir = Vector3(eye.x, 0.0f, eye.z);
+        auto from_dir = Float3::UnitZ;
+        auto to_dir = Float3(eye.x, 0.0f, eye.z);
         auto rot_quat = Quaternion::FromToRotation(from_dir, to_dir);
-        auto rot_matrix = Matrix::CreateFromQuaternion(rot_quat);
-        auto scale = Matrix::CreateScale(particle_width, particle_height, 1.0f);
-        auto particle_transform = scale * rot_matrix;
+        auto rot_Float4x4 = Float4x4::CreateFromQuaternion(rot_quat);
+        auto scale = Float4x4::CreateScale(particle_width, particle_height, 1.0f);
+        auto particle_transform = scale * rot_Float4x4;
 
         camera_transform = view * projection;
 

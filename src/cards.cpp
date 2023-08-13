@@ -139,7 +139,7 @@ void Cards::update(const GpuDevice& device) {
 
     auto& constants = *_constant_buffer.ptr();
     constants.transform =
-        Matrix::CreateOrthographicOffCenter(0.0f, width, height, 0.0f, 0.0f, 1.0f);
+        Float4x4::CreateOrthographicOffCenter(0.0f, width, height, 0.0f, 0.0f, 1.0f);
 }
 
 void Cards::render(GpuDevice& device, GpuCommandList& cmd) {

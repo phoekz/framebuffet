@@ -74,7 +74,7 @@ auto Demo::gui(const gui::Desc&) -> void {
 }
 
 auto Demo::update(const demo::UpdateDesc& desc) -> void {
-    Matrix camera_transform;
+    Float4x4 camera_transform;
     {
         camera_longitude += camera_rotation_speed * desc.delta_time;
         if (camera_longitude > PI * 2.0f) {
@@ -82,9 +82,9 @@ auto Demo::update(const demo::UpdateDesc& desc) -> void {
         }
 
         auto projection =
-            Matrix::CreatePerspectiveFieldOfView(camera_fov, desc.aspect_ratio, 0.1f, 100.0f);
+            Float4x4::CreatePerspectiveFieldOfView(camera_fov, desc.aspect_ratio, 0.1f, 100.0f);
         auto eye = camera_distance * dir_from_lonlat(camera_longitude, camera_latitude);
-        auto view = Matrix::CreateLookAt(eye, Vector3::Zero, Vector3::Up);
+        auto view = Float4x4::CreateLookAt(eye, Float3::Zero, Float3::Up);
         camera_transform = view * projection;
 
         auto& constants = *_constant_buffer.ptr();

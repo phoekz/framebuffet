@@ -170,7 +170,7 @@ auto Gui::render(const GpuDevice& device, GpuCommandList& cmd) -> void {
             0,
             (uint32_t)draw_data->DisplaySize.x,
             (uint32_t)draw_data->DisplaySize.y);
-        cmd.set_blend_factor(Vector4(0.0f, 0.0f, 0.0f, 0.0f));
+        cmd.set_blend_factor(Float4(0.0f, 0.0f, 0.0f, 0.0f));
         cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
         cmd.set_index_buffer(geometry.index_buffer.index_buffer_view());
         cmd.set_pipeline(_pipeline);

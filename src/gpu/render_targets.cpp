@@ -2,7 +2,7 @@
 
 namespace fb {
 
-static auto make_color_clear_value(DXGI_FORMAT format, Vector4 color) -> D3D12_CLEAR_VALUE {
+static auto make_color_clear_value(DXGI_FORMAT format, Float4 color) -> D3D12_CLEAR_VALUE {
     return D3D12_CLEAR_VALUE {.Format = format, .Color = {color.x, color.y, color.z, color.w}};
 }
 
@@ -16,7 +16,7 @@ static auto make_depth_stencil_clear_value(DXGI_FORMAT format, float depth, uint
 GpuRenderTargets::GpuRenderTargets(
     GpuDevice& device,
     Uint2 size,
-    Vector4 clear_color,
+    Float4 clear_color,
     std::string_view name) :
     _size(size),
     _clear_color(clear_color) {

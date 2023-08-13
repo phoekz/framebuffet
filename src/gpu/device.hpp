@@ -144,12 +144,12 @@ class GpuCommandList {
         const std::optional<GpuDescriptor>& dsv) const -> void;
     auto set_topology(D3D12_PRIMITIVE_TOPOLOGY topology) const -> void;
     auto set_index_buffer(D3D12_INDEX_BUFFER_VIEW ibv) const -> void;
-    auto set_blend_factor(Vector4 factor) const -> void;
+    auto set_blend_factor(Float4 factor) const -> void;
     auto set_pipeline(const GpuPipeline& pipeline) const -> void;
     auto set_graphics_constants(std::initializer_list<uint32_t> constants) const -> void;
     auto set_compute_constants(std::initializer_list<uint32_t> constants) const -> void;
 
-    auto clear_rtv(const GpuDescriptor& rtv, Vector4 color) const -> void;
+    auto clear_rtv(const GpuDescriptor& rtv, Float4 color) const -> void;
     auto clear_dsv(const GpuDescriptor& dsv, float depth) const -> void;
     auto draw_instanced(
         uint32_t vertex_count,

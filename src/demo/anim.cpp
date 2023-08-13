@@ -70,7 +70,7 @@ static float camera_fov = rad_from_deg(45.0f);
 static float camera_latitude = rad_from_deg(30.0f);
 static float camera_longitude = rad_from_deg(0.0f);
 static float camera_rotation_speed = 0.5f;
-static Vector2 camera_clip_planes = Vector2(0.1f, 300.0f);
+static Float2 camera_clip_planes = Float2(0.1f, 300.0f);
 
 auto Demo::gui(const gui::Desc&) -> void {
     ImGui::SliderFloat("Camera Distance", &camera_distance, 1.0f, 200.0f);
@@ -136,9 +136,9 @@ auto Demo::update(const demo::UpdateDesc& desc) -> void {
                 _animation_time,
                 times_t,
                 values_t,
-                Vector3::Zero,
-                [](const Vector3& lhs, const Vector3& rhs, float t) {
-                    return Vector3::Lerp(lhs, rhs, t);
+                Float3::Zero,
+                [](const Float3& lhs, const Float3& rhs, float t) {
+                    return Float3::Lerp(lhs, rhs, t);
                 });
             const auto r = keyframe_interpolation(
                 _animation_time,
@@ -152,9 +152,9 @@ auto Demo::update(const demo::UpdateDesc& desc) -> void {
                 _animation_time,
                 times_s,
                 values_s,
-                Vector3::One,
-                [](const Vector3& lhs, const Vector3& rhs, float t) {
-                    return Vector3::Lerp(lhs, rhs, t);
+                Float3::One,
+                [](const Float3& lhs, const Float3& rhs, float t) {
+                    return Float3::Lerp(lhs, rhs, t);
                 });
 
             const auto transform = float4x4_from_trs(t, r, s);
@@ -175,20 +175,20 @@ auto Demo::update(const demo::UpdateDesc& desc) -> void {
     }
 
     // Update constant buffer.
-    Matrix camera_transform;
+    Float4x4 camera_transform;
     {
         camera_longitude += camera_rotation_speed * desc.delta_time;
         if (camera_longitude > PI * 2.0f) {
             camera_longitude -= PI * 2.0f;
         }
 
-        auto projection = Matrix::CreatePerspectiveFieldOfView(
+        auto projection = Float4x4::CreatePerspectiveFieldOfView(
             camera_fov,
             desc.aspect_ratio,
             camera_clip_planes.x,
             camera_clip_planes.y);
         auto eye = camera_distance * dir_from_lonlat(camera_longitude, camera_latitude);
-        auto view = Matrix::CreateLookAt(eye, Vector3::Zero, Vector3::Up);
+        auto view = Float4x4::CreateLookAt(eye, Float3::Zero, Float3::Up);
         camera_transform = view * projection;
 
         auto& constants = *_constant_buffer.ptr();

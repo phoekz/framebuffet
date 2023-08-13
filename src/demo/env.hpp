@@ -15,14 +15,14 @@ enum class CubeFace : uint32_t {
 };
 
 struct Constants {
-    Matrix transform;
+    Float4x4 transform;
     float pad[48] = {};
 };
 
 struct Vertex {
-    Vector3 position;
-    Vector3 normal;
-    Vector2 texcoord;
+    Float3 position;
+    Float3 normal;
+    Float2 texcoord;
 };
 
 using Index = uint16_t;
@@ -30,7 +30,7 @@ using Index = uint16_t;
 class Demo {
   public:
     static constexpr std::string_view NAME = "Env"sv;
-    static constexpr Vector4 CLEAR_COLOR = {0.3f, 0.6f, 0.0f, 1.0f};
+    static constexpr Float4 CLEAR_COLOR = {0.3f, 0.6f, 0.0f, 1.0f};
 
     Demo(GpuDevice& device);
     auto gui(const gui::Desc& desc) -> void;

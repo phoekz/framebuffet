@@ -122,19 +122,19 @@ auto Demo::update(const demo::UpdateDesc& desc) -> void {
     }
 
     float aspect_ratio = desc.aspect_ratio;
-    Matrix perspective =
-        Matrix::CreatePerspectiveFieldOfView(camera_fov, aspect_ratio, 0.1f, 100.0f);
-    Vector3 eye = camera_distance * dir_from_lonlat(camera_longitude, camera_latitude);
-    Matrix view = Matrix::CreateLookAt(eye, Vector3(0.0f, 0.0f, 0.0f), Vector3(0.0f, 1.0f, 0.0f));
-    Matrix env_view = view;
+    Float4x4 perspective =
+        Float4x4::CreatePerspectiveFieldOfView(camera_fov, aspect_ratio, 0.1f, 100.0f);
+    Float3 eye = camera_distance * dir_from_lonlat(camera_longitude, camera_latitude);
+    Float4x4 view = Float4x4::CreateLookAt(eye, Float3(0.0f, 0.0f, 0.0f), Float3(0.0f, 1.0f, 0.0f));
+    Float4x4 env_view = view;
     env_view.m[3][0] = 0.0f;
     env_view.m[3][1] = 0.0f;
     env_view.m[3][2] = 0.0f;
     env_view.m[3][3] = 1.0f;
-    Matrix env_transform = env_view * perspective;
+    Float4x4 env_transform = env_view * perspective;
     _constant_buffer.ptr()->transform = env_transform;
 
-    Matrix camera_transform = view * perspective;
+    Float4x4 camera_transform = view * perspective;
     _debug_draw.begin(desc.frame_index);
     _debug_draw.transform(camera_transform);
     _debug_draw.axes();

@@ -15,18 +15,18 @@ struct Params {
 };
 
 struct Constants {
-    Matrix transform;
+    Float4x4 transform;
     float pad[48] = {};
 };
 
 struct Card {
-    Vector2 position;
-    Vector2 size;
+    Float2 position;
+    Float2 size;
 };
 
 struct Vertex {
-    Vector2 position;
-    Vector2 texcoord;
+    Float2 position;
+    Float2 texcoord;
 };
 
 class Cards {

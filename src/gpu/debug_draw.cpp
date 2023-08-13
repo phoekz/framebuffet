@@ -39,20 +39,20 @@ auto GpuDebugDraw::begin(uint32_t frame_index) -> void {
     _lines.clear();
 }
 
-auto GpuDebugDraw::transform(const Matrix& transform) -> void {
+auto GpuDebugDraw::transform(const Float4x4& transform) -> void {
     _constants.transform = transform;
 }
 
-auto GpuDebugDraw::line(const Vector3& a, const Vector3& b, ColorRgba8 color) -> void {
+auto GpuDebugDraw::line(const Float3& a, const Float3& b, RgbaByte color) -> void {
     FB_ASSERT(_lines.size() < MAX_LINE_COUNT);
     _lines.push_back({a, color});
     _lines.push_back({b, color});
 }
 
 auto GpuDebugDraw::axes() -> void {
-    line(Vector3(0.0f, 0.0f, 0.0f), Vector3(1.0f, 0.0f, 0.0f), COLOR_RED);
-    line(Vector3(0.0f, 0.0f, 0.0f), Vector3(0.0f, 1.0f, 0.0f), COLOR_GREEN);
-    line(Vector3(0.0f, 0.0f, 0.0f), Vector3(0.0f, 0.0f, 1.0f), COLOR_BLUE);
+    line(Float3(0.0f, 0.0f, 0.0f), Float3(1.0f, 0.0f, 0.0f), COLOR_RED);
+    line(Float3(0.0f, 0.0f, 0.0f), Float3(0.0f, 1.0f, 0.0f), COLOR_GREEN);
+    line(Float3(0.0f, 0.0f, 0.0f), Float3(0.0f, 0.0f, 1.0f), COLOR_BLUE);
 }
 
 auto GpuDebugDraw::end() -> void {
