@@ -83,6 +83,8 @@ auto main() -> int {
     bool running = true;
     uint64_t frame_count = 0;
     fb::FrameTiming ft = {};
+    double update_time = 0.0;
+    double gui_time = 0.0;
     while (running) {
         // Handle window messages.
         {
@@ -101,13 +103,16 @@ auto main() -> int {
 
         // Update gui.
         {
+            auto timer = fb::Instant();
             gui->begin_frame();
             ImGui::SetNextWindowSize({300, 300}, ImGuiCond_FirstUseEver);
             if (ImGui::Begin("Framebuffet")) {
                 ImGui::Text(
                     "Frame time: %.3f ms (%.3f fps)",
-                    1000.0f * ft.last_delta_time(),
+                    1e3f * ft.last_delta_time(),
                     ft.last_fps());
+                ImGui::Text("Update time: %.3f ms", 1e3f * update_time);
+                ImGui::Text("GUI time: %.3f ms", 1e3f * gui_time);
 
                 const auto desc = fb::gui::Desc {.window_size = device->swapchain_size()};
                 gui_wrapper(cards, desc, ImGuiTreeNodeFlags_DefaultOpen);
@@ -119,21 +124,26 @@ auto main() -> int {
             }
             ImGui::End();
             gui->end_frame();
+            gui_time = timer.elapsed_time();
         }
 
         // Update demos.
-        fb::demo::UpdateDesc update_desc = {
-            .aspect_ratio = WINDOW_ASPECT_RATIO,
-            .delta_time = ft.delta_time(),
-            .elapsed_time = ft.elapsed_time(),
-            .frame_index = device->frame_index(),
-        };
-        cube_demo->update(update_desc);
-        rain_demo->update(update_desc);
-        tree_demo->update(update_desc);
-        env_demo->update(update_desc);
-        anim_demo->update(update_desc);
-        cards->update(*device);
+        {
+            auto timer = fb::Instant();
+            fb::demo::UpdateDesc update_desc = {
+                .aspect_ratio = WINDOW_ASPECT_RATIO,
+                .delta_time = ft.delta_time(),
+                .elapsed_time = ft.elapsed_time(),
+                .frame_index = device->frame_index(),
+            };
+            cube_demo->update(update_desc);
+            rain_demo->update(update_desc);
+            tree_demo->update(update_desc);
+            env_demo->update(update_desc);
+            anim_demo->update(update_desc);
+            cards->update(*device);
+            update_time = timer.elapsed_time();
+        }
 
         // Begin frame.
         auto cmd = device->begin_frame();
