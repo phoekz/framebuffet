@@ -70,7 +70,7 @@ class GpuDescriptorHeap {
 
 class GpuDescriptors {
   public:
-    static constexpr uint32_t CBV_SRV_UAV_DESCRIPTOR_CAPACITY = 64;
+    static constexpr uint32_t CBV_SRV_UAV_DESCRIPTOR_CAPACITY = 128;
     static constexpr uint32_t SAMPLER_DESCRIPTOR_CAPACITY = 6;
     static constexpr uint32_t RTV_DESCRIPTOR_CAPACITY = 16;
     static constexpr uint32_t DSV_DESCRIPTOR_CAPACITY = 16;
@@ -81,6 +81,7 @@ class GpuDescriptors {
     auto dsv() -> GpuDescriptorHeap& { return _dsv_heap; }
     auto cbv_srv_uav() -> GpuDescriptorHeap& { return _cbv_srv_uav_heap; }
     auto sampler() -> GpuDescriptorHeap& { return _sampler_heap; }
+    auto log_stats() -> void;
 
   private:
     GpuDescriptorHeap _cbv_srv_uav_heap;
@@ -239,6 +240,9 @@ class GpuDevice {
     auto frame_index() const -> uint32_t { return _frame_index; }
     auto root_signature() const -> ID3D12RootSignature* { return _root_signature.get(); }
     auto descriptors() -> GpuDescriptors& { return *_descriptors; }
+
+    // Debugging.
+    auto log_stats() -> void;
 
   private:
     struct LeakTracker {

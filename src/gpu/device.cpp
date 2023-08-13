@@ -75,6 +75,23 @@ GpuDescriptors::GpuDescriptors(GpuDevice& device, std::string_view name) :
     _rtv_heap(device, name, D3D12_DESCRIPTOR_HEAP_TYPE_RTV, RTV_DESCRIPTOR_CAPACITY),
     _dsv_heap(device, name, D3D12_DESCRIPTOR_HEAP_TYPE_DSV, DSV_DESCRIPTOR_CAPACITY) {}
 
+auto GpuDescriptors::log_stats() -> void {
+    FB_LOG_INFO(
+        "Descriptor heaps: "
+        "CbvSrvUav: {}/{} "
+        "Sampler: {}/{} "
+        "Rtv: {}/{} "
+        "Dsv: {}/{}",
+        _cbv_srv_uav_heap.count(),
+        _cbv_srv_uav_heap.capacity(),
+        _sampler_heap.count(),
+        _sampler_heap.capacity(),
+        _rtv_heap.count(),
+        _rtv_heap.capacity(),
+        _dsv_heap.count(),
+        _dsv_heap.capacity());
+}
+
 class GpuBindings {
   public:
     GpuBindings() { _bindings.fill(UINT32_MAX); }
@@ -801,6 +818,10 @@ auto GpuDevice::easy_multi_upload(
     rub.Transition(resource.get(), D3D12_RESOURCE_STATE_COPY_DEST, after_state);
     auto finish = rub.End(_command_queue.get());
     finish.wait();
+}
+
+auto GpuDevice::log_stats() -> void {
+    _descriptors->log_stats();
 }
 
 #pragma endregion  // Device - Resources

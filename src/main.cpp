@@ -78,6 +78,7 @@ auto main() -> int {
                 env_demo->rt_color().srv_descriptor(),
                 anim_demo->rt_color().srv_descriptor(),
             }});
+    device->log_stats();
 
     // Main loop.
     bool running = true;
