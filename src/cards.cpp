@@ -96,6 +96,11 @@ Cards::Cards(GpuDevice& device, const Params& params) {
         _vertex_buffer.create_with_data(device, vertices, dx_name(Cards::NAME, "Vertex Buffer"));
         _index_buffer.create_with_data(device, indices, dx_name(Cards::NAME, "Index Buffer"));
     }
+
+    // Card indices.
+    for (uint32_t i = 0; i < CARD_COUNT; i++) {
+        _card_indirect_indices[i] = i;
+    }
 }
 
 auto Cards::gui(const gui::Desc& desc) -> void {
@@ -111,6 +116,19 @@ auto Cards::gui(const gui::Desc& desc) -> void {
     ImGui::SameLine();
     if (ImGui::Button("VMosaic")) {
         layout_vmosaic(cards, desc.window_size);
+    }
+    if (ImGui::Button("Rotate Left")) {
+        std::rotate(
+            _card_indirect_indices.begin(),
+            _card_indirect_indices.begin() + 1,
+            _card_indirect_indices.end());
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Rotate Right")) {
+        std::rotate(
+            _card_indirect_indices.rbegin(),
+            _card_indirect_indices.rbegin() + 1,
+            _card_indirect_indices.rend());
     }
 }
 
@@ -132,13 +150,14 @@ void Cards::render(GpuDevice& device, GpuCommandList& cmd) {
     cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
     cmd.set_index_buffer(_index_buffer.index_buffer_view());
 
-    for (uint32_t i = 0; i < CARD_COUNT; ++i) {
+    for (uint32_t card_index = 0; card_index < CARD_COUNT; ++card_index) {
+        uint32_t card_indirect = _card_indirect_indices[card_index];
         cmd.set_graphics_constants({
-            i,
+            card_index,
             _constant_buffer.cbv_descriptor().index(),
             _card_buffer.srv_descriptor().index(),
             _vertex_buffer.srv_descriptor().index(),
-            _card_texture_descriptors[i].index(),
+            _card_texture_descriptors[card_indirect].index(),
         });
         cmd.draw_indexed_instanced(_index_buffer.element_size(), 1, 0, 0, 0);
     }

@@ -45,6 +45,7 @@ class Cards {
     GpuBufferHostSrv<Vertex> _vertex_buffer;
     GpuBufferHostIndex<uint16_t> _index_buffer;
     std::array<GpuDescriptor, CARD_COUNT> _card_texture_descriptors;
+    std::array<uint32_t, CARD_COUNT> _card_indirect_indices;
 };
 
 }  // namespace fb::cards
