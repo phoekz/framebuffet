@@ -10,16 +10,6 @@ enum class LogLevel {
     Error,
 };
 
-constexpr auto log_level_name(LogLevel level) -> std::string_view {
-    switch (level) {
-        using enum LogLevel;
-        case Info: return "Info"sv;
-        case Warn: return "Warn"sv;
-        case Error: return "Error"sv;
-        default: return "Unknown"sv;
-    }
-}
-
 inline auto output_debug_string(std::string_view str) -> void {
     OutputDebugStringA(str.data());
 }
@@ -36,6 +26,16 @@ inline auto output_console_string(std::string_view str) -> void {
 }
 
 namespace log_detail {
+
+    inline constexpr auto log_level_name(LogLevel level) -> std::string_view {
+        switch (level) {
+            using enum LogLevel;
+            case Info: return "Info"sv;
+            case Warn: return "Warn"sv;
+            case Error: return "Error"sv;
+            default: return "Unknown"sv;
+        }
+    }
 
     template<typename... Args>
     inline auto log(LogLevel level, std::string_view fmt, Args&&... args) -> void {

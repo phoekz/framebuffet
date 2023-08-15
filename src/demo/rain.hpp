@@ -4,9 +4,9 @@
 
 namespace fb::rain {
 
-constexpr uint32_t PARTICLE_COUNT = 4 * 1024;
-constexpr uint32_t DISPATCH_SIZE = 128;
-constexpr uint32_t DISPATCH_COUNT = PARTICLE_COUNT / DISPATCH_SIZE;
+inline constexpr uint32_t PARTICLE_COUNT = 4 * 1024;
+inline constexpr uint32_t DISPATCH_SIZE = 128;
+inline constexpr uint32_t DISPATCH_COUNT = PARTICLE_COUNT / DISPATCH_SIZE;
 
 struct ComputeConstants {
     float delta_time = 0.0f;

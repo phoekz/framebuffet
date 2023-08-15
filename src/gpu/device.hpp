@@ -10,9 +10,9 @@ namespace fb {
 
 #pragma region Constants
 
-constexpr uint32_t FRAME_COUNT = 2;
-constexpr uint32_t BINDINGS_CAPACITY = 16;
-constexpr D3D_FEATURE_LEVEL MIN_FEATURE_LEVEL = D3D_FEATURE_LEVEL_12_2;
+inline constexpr uint32_t FRAME_COUNT = 2;
+inline constexpr uint32_t BINDINGS_CAPACITY = 16;
+inline constexpr D3D_FEATURE_LEVEL MIN_FEATURE_LEVEL = D3D_FEATURE_LEVEL_12_2;
 
 #pragma endregion
 
@@ -278,7 +278,7 @@ class GpuDevice {
 
 template<typename... Args>
 [[nodiscard]] auto dx_name(Args&&... args) -> std::string {
-    constexpr std::string_view DELIMITER = " - ";
+    static constexpr std::string_view DELIMITER = " - ";
     std::ostringstream oss;
     ((oss << args << DELIMITER), ...);
     std::string str = oss.str();

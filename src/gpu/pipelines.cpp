@@ -4,7 +4,7 @@ namespace fb {
 
 auto GpuPipelineBuilder::primitive_topology(D3D12_PRIMITIVE_TOPOLOGY_TYPE topology)
     -> GpuPipelineBuilder& {
-    constexpr uint32_t BIT = (1 << D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_PRIMITIVE_TOPOLOGY);
+    static constexpr uint32_t BIT = (1 << D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_PRIMITIVE_TOPOLOGY);
     FB_ASSERT((_subobject_mask & BIT) == 0);
     new (_buffer + _buffet_offset) CD3DX12_PIPELINE_STATE_STREAM_PRIMITIVE_TOPOLOGY(topology);
     _buffet_offset += sizeof(CD3DX12_PIPELINE_STATE_STREAM_PRIMITIVE_TOPOLOGY);
@@ -13,7 +13,7 @@ auto GpuPipelineBuilder::primitive_topology(D3D12_PRIMITIVE_TOPOLOGY_TYPE topolo
 }
 
 auto GpuPipelineBuilder::vertex_shader(D3D12_SHADER_BYTECODE bytecode) -> GpuPipelineBuilder& {
-    constexpr uint32_t BIT = (1 << D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_VS);
+    static constexpr uint32_t BIT = (1 << D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_VS);
     FB_ASSERT((_subobject_mask & BIT) == 0);
     new (_buffer + _buffet_offset) CD3DX12_PIPELINE_STATE_STREAM_VS(bytecode);
     _buffet_offset += sizeof(CD3DX12_PIPELINE_STATE_STREAM_VS);
@@ -22,7 +22,7 @@ auto GpuPipelineBuilder::vertex_shader(D3D12_SHADER_BYTECODE bytecode) -> GpuPip
 }
 
 auto GpuPipelineBuilder::pixel_shader(D3D12_SHADER_BYTECODE bytecode) -> GpuPipelineBuilder& {
-    constexpr uint32_t BIT = (1 << D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_PS);
+    static constexpr uint32_t BIT = (1 << D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_PS);
     FB_ASSERT((_subobject_mask & BIT) == 0);
     new (_buffer + _buffet_offset) CD3DX12_PIPELINE_STATE_STREAM_PS(bytecode);
     _buffet_offset += sizeof(CD3DX12_PIPELINE_STATE_STREAM_PS);
@@ -31,7 +31,7 @@ auto GpuPipelineBuilder::pixel_shader(D3D12_SHADER_BYTECODE bytecode) -> GpuPipe
 }
 
 auto GpuPipelineBuilder::compute_shader(D3D12_SHADER_BYTECODE bytecode) -> GpuPipelineBuilder& {
-    constexpr uint32_t BIT = (1 << D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_CS);
+    static constexpr uint32_t BIT = (1 << D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_CS);
     FB_ASSERT((_subobject_mask & BIT) == 0);
     new (_buffer + _buffet_offset) CD3DX12_PIPELINE_STATE_STREAM_CS(bytecode);
     _buffet_offset += sizeof(CD3DX12_PIPELINE_STATE_STREAM_CS);
@@ -40,7 +40,7 @@ auto GpuPipelineBuilder::compute_shader(D3D12_SHADER_BYTECODE bytecode) -> GpuPi
 }
 
 auto GpuPipelineBuilder::blend(D3D12_BLEND_DESC blend) -> GpuPipelineBuilder& {
-    constexpr uint32_t BIT = (1 << D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_BLEND);
+    static constexpr uint32_t BIT = (1 << D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_BLEND);
     FB_ASSERT((_subobject_mask & BIT) == 0);
     CD3DX12_BLEND_DESC cdesc(blend);
     new (_buffer + _buffet_offset) CD3DX12_PIPELINE_STATE_STREAM_BLEND_DESC(cdesc);
@@ -51,7 +51,7 @@ auto GpuPipelineBuilder::blend(D3D12_BLEND_DESC blend) -> GpuPipelineBuilder& {
 
 auto GpuPipelineBuilder::depth_stencil(D3D12_DEPTH_STENCIL_DESC2 depth_stencil)
     -> GpuPipelineBuilder& {
-    constexpr uint32_t BIT = (1 << D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_DEPTH_STENCIL2);
+    static constexpr uint32_t BIT = (1 << D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_DEPTH_STENCIL2);
     FB_ASSERT((_subobject_mask & BIT) == 0);
     CD3DX12_DEPTH_STENCIL_DESC2 cdesc(depth_stencil);
     new (_buffer + _buffet_offset) CD3DX12_PIPELINE_STATE_STREAM_DEPTH_STENCIL2(cdesc);
@@ -61,7 +61,7 @@ auto GpuPipelineBuilder::depth_stencil(D3D12_DEPTH_STENCIL_DESC2 depth_stencil)
 }
 
 auto GpuPipelineBuilder::rasterizer(D3D12_RASTERIZER_DESC2 rasterizer) -> GpuPipelineBuilder& {
-    constexpr uint32_t BIT = (1 << D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_RASTERIZER2);
+    static constexpr uint32_t BIT = (1 << D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_RASTERIZER2);
     FB_ASSERT((_subobject_mask & BIT) == 0);
     CD3DX12_RASTERIZER_DESC2 cdesc(rasterizer);
     new (_buffer + _buffet_offset) CD3DX12_PIPELINE_STATE_STREAM_RASTERIZER2(cdesc);
@@ -72,7 +72,8 @@ auto GpuPipelineBuilder::rasterizer(D3D12_RASTERIZER_DESC2 rasterizer) -> GpuPip
 
 auto GpuPipelineBuilder::render_target_formats(std::initializer_list<DXGI_FORMAT> formats)
     -> GpuPipelineBuilder& {
-    constexpr uint32_t BIT = (1 << D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_RENDER_TARGET_FORMATS);
+    static constexpr uint32_t BIT =
+        (1 << D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_RENDER_TARGET_FORMATS);
     FB_ASSERT((_subobject_mask & BIT) == 0);
     FB_ASSERT(formats.size() <= D3D12_SIMULTANEOUS_RENDER_TARGET_COUNT);
     D3D12_RT_FORMAT_ARRAY array = {};
@@ -86,7 +87,7 @@ auto GpuPipelineBuilder::render_target_formats(std::initializer_list<DXGI_FORMAT
 }
 
 auto GpuPipelineBuilder::depth_stencil_format(DXGI_FORMAT format) -> GpuPipelineBuilder& {
-    constexpr uint32_t BIT = (1 << D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_DEPTH_STENCIL_FORMAT);
+    static constexpr uint32_t BIT = (1 << D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_DEPTH_STENCIL_FORMAT);
     FB_ASSERT((_subobject_mask & BIT) == 0);
     new (_buffer + _buffet_offset) CD3DX12_PIPELINE_STATE_STREAM_DEPTH_STENCIL_FORMAT(format);
     _buffet_offset += sizeof(CD3DX12_PIPELINE_STATE_STREAM_DEPTH_STENCIL_FORMAT);

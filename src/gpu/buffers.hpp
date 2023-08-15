@@ -20,13 +20,13 @@ enum class GpuBufferFlags : uint32_t {
     Index = 0x8,
 };
 
-constexpr auto gpu_buffer_flags_is_set(GpuBufferFlags flags, GpuBufferFlags flag) -> bool {
+inline constexpr auto gpu_buffer_flags_is_set(GpuBufferFlags flags, GpuBufferFlags flag) -> bool {
     return ((uint32_t)flags & (uint32_t)flag) > 0;
 }
 
 namespace detail {
     template<typename T, GpuBufferFlags FLAGS>
-    constexpr auto buffer_type_is_valid() -> bool {
+    inline constexpr auto buffer_type_is_valid() -> bool {
         static_assert(std::is_standard_layout_v<T>, "Buffer type must be standard layout");
         static_assert(std::is_trivially_copyable_v<T>, "Buffer type must be trivially copyable");
         static_assert(std::is_constructible_v<T>, "Buffer type must be constructible");

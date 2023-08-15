@@ -9,12 +9,12 @@
 
 namespace fb {
 
-static constexpr RgbaByte COLOR_RED = {(uint8_t)255, 0, 0, 255};
-static constexpr RgbaByte COLOR_GREEN = {(uint8_t)0, 255, 0, 255};
-static constexpr RgbaByte COLOR_BLUE = {(uint8_t)0, 0, 255, 255};
-static constexpr RgbaByte COLOR_YELLOW = {(uint8_t)255, 255, 0, 255};
-static constexpr RgbaByte COLOR_MAGENTA = {(uint8_t)255, 0, 255, 255};
-static constexpr RgbaByte COLOR_CYAN = {(uint8_t)0, 255, 255, 255};
+inline constexpr RgbaByte COLOR_RED = {(uint8_t)255, 0, 0, 255};
+inline constexpr RgbaByte COLOR_GREEN = {(uint8_t)0, 255, 0, 255};
+inline constexpr RgbaByte COLOR_BLUE = {(uint8_t)0, 0, 255, 255};
+inline constexpr RgbaByte COLOR_YELLOW = {(uint8_t)255, 255, 0, 255};
+inline constexpr RgbaByte COLOR_MAGENTA = {(uint8_t)255, 0, 255, 255};
+inline constexpr RgbaByte COLOR_CYAN = {(uint8_t)0, 255, 255, 255};
 
 class GpuDebugDraw {
     FB_NO_COPY_MOVE(GpuDebugDraw);

@@ -31,7 +31,7 @@ struct GltfChannelHeader {
     size_t s_count = 0;
 };
 
-static constexpr uint32_t GLTF_NULL_NODE = ~0u;
+inline constexpr uint32_t GLTF_NULL_NODE = ~0u;
 
 class GltfModel {
   public:

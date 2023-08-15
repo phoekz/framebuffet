@@ -31,7 +31,7 @@ class GpuPipelineBuilder {
     // clang-format on
 
   private:
-    static inline constexpr size_t BUFFER_SIZE = 1024;
+    static constexpr size_t BUFFER_SIZE = 1024;
     static_assert(BUFFER_SIZE >= sizeof(CD3DX12_PIPELINE_STATE_STREAM5));
     static_assert(8 * sizeof(uint32_t) >= D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_MAX_VALID);
 
@@ -41,7 +41,7 @@ class GpuPipelineBuilder {
     uint32_t _subobject_mask = 0;
 };
 
-constexpr inline D3D12_BLEND_DESC GPU_PIPELINE_BLEND_ADDITIVE = {
+inline constexpr D3D12_BLEND_DESC GPU_PIPELINE_BLEND_ADDITIVE = {
     .AlphaToCoverageEnable = FALSE,
     .IndependentBlendEnable = FALSE,
     .RenderTarget = {D3D12_RENDER_TARGET_BLEND_DESC {
@@ -58,7 +58,7 @@ constexpr inline D3D12_BLEND_DESC GPU_PIPELINE_BLEND_ADDITIVE = {
     }},
 };
 
-constexpr inline D3D12_BLEND_DESC GPU_PIPELINE_BLEND_ALPHA = {
+inline constexpr D3D12_BLEND_DESC GPU_PIPELINE_BLEND_ALPHA = {
     .AlphaToCoverageEnable = FALSE,
     .IndependentBlendEnable = FALSE,
     .RenderTarget = {D3D12_RENDER_TARGET_BLEND_DESC {
@@ -75,7 +75,7 @@ constexpr inline D3D12_BLEND_DESC GPU_PIPELINE_BLEND_ALPHA = {
     }},
 };
 
-constexpr inline D3D12_DEPTH_STENCIL_DESC2 GPU_PIPELINE_DEPTH_DEFAULT = {
+inline constexpr D3D12_DEPTH_STENCIL_DESC2 GPU_PIPELINE_DEPTH_DEFAULT = {
     .DepthEnable = TRUE,
     .DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL,
     .DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL,
@@ -101,7 +101,7 @@ constexpr inline D3D12_DEPTH_STENCIL_DESC2 GPU_PIPELINE_DEPTH_DEFAULT = {
     .DepthBoundsTestEnable = FALSE,
 };
 
-constexpr inline D3D12_DEPTH_STENCIL_DESC2 GPU_PIPELINE_DEPTH_NONE = {
+inline constexpr D3D12_DEPTH_STENCIL_DESC2 GPU_PIPELINE_DEPTH_NONE = {
     .DepthEnable = FALSE,
     .DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO,
     .DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL,
@@ -127,7 +127,7 @@ constexpr inline D3D12_DEPTH_STENCIL_DESC2 GPU_PIPELINE_DEPTH_NONE = {
     .DepthBoundsTestEnable = FALSE,
 };
 
-constexpr inline D3D12_RASTERIZER_DESC2 GPU_PIPELINE_CULL_NONE = {
+inline constexpr D3D12_RASTERIZER_DESC2 GPU_PIPELINE_CULL_NONE = {
     .FillMode = D3D12_FILL_MODE_SOLID,
     .CullMode = D3D12_CULL_MODE_NONE,
     .FrontCounterClockwise = FALSE,

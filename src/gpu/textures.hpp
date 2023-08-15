@@ -18,7 +18,7 @@ enum class GpuTextureFlags : uint32_t {
     SrvCube = Srv | Cube,
 };
 
-constexpr auto gpu_texture_flags_is_set(GpuTextureFlags flags, GpuTextureFlags flag) -> bool {
+inline constexpr auto gpu_texture_flags_is_set(GpuTextureFlags flags, GpuTextureFlags flag) -> bool {
     return ((uint32_t)flags & (uint32_t)flag) > 0;
 }
 

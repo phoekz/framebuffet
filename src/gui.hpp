@@ -7,8 +7,8 @@
 
 namespace fb::gui {
 
-constexpr uint32_t MAX_VERTEX_COUNT = 1024 * 1024;
-constexpr uint32_t MAX_INDEX_COUNT = 1024 * 1024;
+inline constexpr uint32_t MAX_VERTEX_COUNT = 1024 * 1024;
+inline constexpr uint32_t MAX_INDEX_COUNT = 1024 * 1024;
 
 struct Constants {
     Float4x4 transform;

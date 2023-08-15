@@ -4,7 +4,7 @@
 
 namespace fb::tree {
 
-constexpr uint32_t SHADOW_MAP_SIZE = 1024;
+inline constexpr uint32_t SHADOW_MAP_SIZE = 1024;
 
 struct ShadowConstants {
     Float4x4 transform;

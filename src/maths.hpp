@@ -20,17 +20,17 @@ using Uint2 = DirectX::XMUINT2;
 using Uint3 = DirectX::XMUINT3;
 using Uint4 = DirectX::XMUINT4;
 
-constexpr float PI = DirectX::XM_PI;
+inline constexpr float PI = DirectX::XM_PI;
 
-constexpr auto rad_from_deg(float deg) -> float {
+inline constexpr auto rad_from_deg(float deg) -> float {
     return deg * PI / 180.0f;
 }
 
-constexpr auto deg_from_rad(float rad) -> float {
+inline constexpr auto deg_from_rad(float rad) -> float {
     return rad * 180.0f / PI;
 }
 
-constexpr auto dir_from_lonlat(float lon, float lat) -> Float3 {
+inline constexpr auto dir_from_lonlat(float lon, float lat) -> Float3 {
     return {
         std::cos(lat) * std::cos(lon),
         std::sin(lat),
@@ -38,7 +38,7 @@ constexpr auto dir_from_lonlat(float lon, float lat) -> Float3 {
     };
 }
 
-constexpr auto float4x4_from_trs(const Float3& t, const Quaternion& r, const Float3& s)
+inline constexpr auto float4x4_from_trs(const Float3& t, const Quaternion& r, const Float3& s)
     -> Float4x4 {
     // Note: inlined quaternion-float3x3 conversion.
     Float4x4 m;
