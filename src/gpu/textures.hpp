@@ -31,6 +31,7 @@ struct GpuTexture2dDesc {
     uint32_t sample_count = 1;
     std::optional<D3D12_CLEAR_VALUE> clear_value = std::nullopt;
     std::optional<DXGI_FORMAT> srv_format = std::nullopt;
+    std::optional<DXGI_FORMAT> uav_format = std::nullopt;
     std::optional<DXGI_FORMAT> rtv_format = std::nullopt;
     std::optional<DXGI_FORMAT> dsv_format = std::nullopt;
 };
@@ -52,6 +53,7 @@ class GpuTexture2d {
 
         // Optionally override view formats.
         _srv_format = desc.srv_format.value_or(desc.format);
+        _uav_format = desc.uav_format.value_or(desc.format);
         _rtv_format = desc.rtv_format.value_or(desc.format);
         _dsv_format = desc.dsv_format.value_or(desc.format);
 
@@ -123,6 +125,21 @@ class GpuTexture2d {
                 },
                 _srv_descriptor.cpu());
         }
+        if constexpr (gpu_texture_flags_is_set(FLAGS, GpuTextureFlags::Uav)) {
+            static_assert(
+                !gpu_texture_flags_is_set(FLAGS, GpuTextureFlags::Cube),
+                "UAV textures does not support cube maps");
+            _uav_descriptor = device.descriptors().cbv_srv_uav().alloc();
+            device.create_unordered_access_view(
+                _resource,
+                std::nullopt,
+                D3D12_UNORDERED_ACCESS_VIEW_DESC {
+                    .Format = _uav_format,
+                    .ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D,
+                    .Texture2D = {.MipSlice = 0, .PlaneSlice = 0},
+                },
+                _uav_descriptor.cpu());
+        }
         if constexpr (gpu_texture_flags_is_set(FLAGS, GpuTextureFlags::Rtv)) {
             _rtv_descriptor = device.descriptors().rtv().alloc();
             std::optional<D3D12_RENDER_TARGET_VIEW_DESC> maybe_desc = std::nullopt;
@@ -171,6 +188,12 @@ class GpuTexture2d {
             "Texture does not support SRV");
         return _srv_descriptor;
     }
+    auto uav_descriptor() const -> GpuDescriptor {
+        static_assert(
+            gpu_texture_flags_is_set(FLAGS, GpuTextureFlags::Uav),
+            "Texture does not support UAV");
+        return _uav_descriptor;
+    }
     auto rtv_descriptor() const -> GpuDescriptor {
         static_assert(
             gpu_texture_flags_is_set(FLAGS, GpuTextureFlags::Rtv),
@@ -191,14 +214,23 @@ class GpuTexture2d {
         }
     }
 
+    auto uav_barrier(const GpuCommandList& cmd) -> void {
+        static_assert(
+            gpu_texture_flags_is_set(FLAGS, GpuTextureFlags::Uav),
+            "Texture does not support UAV");
+        cmd.uav_barrier(_resource);
+    }
+
   private:
     GpuTexture2dDesc _desc;
     ComPtr<ID3D12Resource> _resource;
     D3D12_RESOURCE_STATES _resource_state = D3D12_RESOURCE_STATE_COMMON;
     DXGI_FORMAT _srv_format = DXGI_FORMAT_UNKNOWN;
+    DXGI_FORMAT _uav_format = DXGI_FORMAT_UNKNOWN;
     DXGI_FORMAT _rtv_format = DXGI_FORMAT_UNKNOWN;
     DXGI_FORMAT _dsv_format = DXGI_FORMAT_UNKNOWN;
     GpuDescriptor _srv_descriptor = {};
+    GpuDescriptor _uav_descriptor = {};
     GpuDescriptor _rtv_descriptor = {};
     GpuDescriptor _dsv_descriptor = {};
 };
