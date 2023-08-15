@@ -95,7 +95,7 @@
 			"xmemory": "cpp",
 			"xstddef": "cpp",
 			"xtr1common": "cpp",
-			"*.hlsli": "cpp",
+			"*.hlsli": "hlsl",
 			"resumable": "cpp",
 			"cinttypes": "cpp",
 			"codecvt": "cpp"
