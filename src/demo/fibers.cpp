@@ -15,6 +15,11 @@ Demo::Demo(GpuDevice& device) :
             .compute_shader(sim_cs.bytecode())
             .build(device, _sim_pipeline, dx_name(Demo::NAME, "Sim", "Pipeline"));
 
+        const auto cull_cs = sc.compile(Demo::NAME, GpuShaderType::Compute, "cull_cs", source);
+        GpuPipelineBuilder()
+            .compute_shader(cull_cs.bytecode())
+            .build(device, _cull_pipeline, dx_name(Demo::NAME, "Cull", "Pipeline"));
+
         const auto light_vs = sc.compile(Demo::NAME, GpuShaderType::Vertex, "light_vs", source);
         const auto light_ps = sc.compile(Demo::NAME, GpuShaderType::Pixel, "light_ps", source);
         GpuPipelineBuilder()
@@ -35,6 +40,17 @@ Demo::Demo(GpuDevice& device) :
             .render_target_formats({DXGI_FORMAT_R8G8B8A8_UNORM})
             .depth_stencil_format(DXGI_FORMAT_D32_FLOAT)
             .build(device, _plane_pipeline, dx_name(Demo::NAME, "Plane", "Pipeline"));
+
+        const auto debug_vs = sc.compile(Demo::NAME, GpuShaderType::Vertex, "debug_vs", source);
+        const auto debug_ps = sc.compile(Demo::NAME, GpuShaderType::Pixel, "debug_ps", source);
+        GpuPipelineBuilder()
+            .primitive_topology(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)
+            .vertex_shader(debug_vs.bytecode())
+            .pixel_shader(debug_ps.bytecode())
+            .blend(GPU_PIPELINE_BLEND_ALPHA)
+            .depth_stencil(GPU_PIPELINE_DEPTH_NONE)
+            .render_target_formats({DXGI_FORMAT_R8G8B8A8_UNORM})
+            .build(device, _debug_pipeline, dx_name(Demo::NAME, "Debug", "Pipeline"));
     }
 
     // Constants.
@@ -121,19 +137,74 @@ Demo::Demo(GpuDevice& device) :
             D3D12_RESOURCE_STATE_COMMON,
             D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
     }
+
+    _cull_texture.create(
+        device,
+        {
+            .format = DXGI_FORMAT_R32_UINT,
+            .width = CULL_DISPATCH_COUNT_X,
+            .height = CULL_DISPATCH_COUNT_Y,
+        },
+        dx_name(Demo::NAME, "Cull Texture"));
+
+    {
+        const auto magma_png = read_whole_file("assets/heatmaps/magma.png");
+        const auto magma_img = Image::load(magma_png);
+
+        const auto viridis_png = read_whole_file("assets/heatmaps/viridis.png");
+        const auto viridis_img = Image::load(viridis_png);
+
+        _magma_texture.create(
+            device,
+            GpuTexture2dDesc {
+                .format = magma_img.format(),
+                .width = magma_img.width(),
+                .height = magma_img.height(),
+            },
+            dx_name(Demo::NAME, "Magma Texture"));
+
+        _viridis_texture.create(
+            device,
+            GpuTexture2dDesc {
+                .format = viridis_img.format(),
+                .width = viridis_img.width(),
+                .height = viridis_img.height(),
+            },
+            dx_name(Demo::NAME, "Viridis Texture"));
+
+        device.easy_upload(
+            D3D12_SUBRESOURCE_DATA {
+                .pData = magma_img.data(),
+                .RowPitch = magma_img.row_pitch(),
+                .SlicePitch = magma_img.slice_pitch()},
+            _magma_texture.resource(),
+            D3D12_RESOURCE_STATE_COMMON,
+            D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+
+        device.easy_upload(
+            D3D12_SUBRESOURCE_DATA {
+                .pData = viridis_img.data(),
+                .RowPitch = viridis_img.row_pitch(),
+                .SlicePitch = viridis_img.slice_pitch()},
+            _viridis_texture.resource(),
+            D3D12_RESOURCE_STATE_COMMON,
+            D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+    }
 }
 
-static float camera_distance = 3.0f;
+static float camera_distance = 4.0f;
 static float camera_fov = rad_from_deg(45.0f);
 static float camera_latitude = rad_from_deg(0.0f);
 static float camera_longitude = rad_from_deg(90.0f);
 static Float2 camera_clip_planes = Float2(0.1f, 100.0f);
-static bool show_light_bounds = false;
+static bool show_light_bounds = true;
 static int light_intensity_pow2 = 12;
+enum class Heatmap : uint32_t { Magma, Viridis };
+static Heatmap heatmap = Heatmap::Magma;
 
 auto Demo::gui(const gui::Desc&) -> void {
     auto* cb = _constant_buffer.ptr();
-    ImGui::SliderFloat("Camera Distance", &camera_distance, 0.5f, 5.0f);
+    ImGui::SliderFloat("Camera Distance", &camera_distance, 0.5f, 10.0f);
     ImGui::SliderAngle("Camera FOV", &camera_fov, 0.0f, 90.0f);
     ImGui::SliderAngle("Camera Latitude", &camera_latitude, -90.0f, 90.0f);
     ImGui::SliderAngle("Camera Longitude", &camera_longitude, 0.0f, 360.0f);
@@ -141,11 +212,15 @@ auto Demo::gui(const gui::Desc&) -> void {
     ImGui::SliderFloat("Light Range", &cb->light_range, 0.05f, 0.5f);
     ImGui::Checkbox("Show Light Bounds", &show_light_bounds);
     ImGui::SliderInt("Light Intensity Pow2", &light_intensity_pow2, 0, 20);
+    ImGui::SliderFloat("Debug Opacity", &cb->debug_opacity, 0.0f, 1.0f);
+    ImGui::Combo("Heatmap", (int*)&heatmap, "Magma\0Viridis\0");
 }
 
 auto Demo::update(const demo::UpdateDesc& desc) -> void {
-    // Update camera transform.
-    Float4x4 camera_transform;
+    // Update transforms.
+    Float4x4 clip_from_world;
+    Float4x4 view_from_clip;
+    Float4x4 view_from_world;
     {
         auto projection = Float4x4::CreatePerspectiveFieldOfView(
             camera_fov,
@@ -154,18 +229,23 @@ auto Demo::update(const demo::UpdateDesc& desc) -> void {
             camera_clip_planes.y);
         auto eye = camera_distance * dir_from_lonlat(camera_longitude, camera_latitude);
         auto view = Float4x4::CreateLookAt(eye, Float3::Zero, Float3::Up);
-        camera_transform = view * projection;
+        clip_from_world = view * projection;
+        view_from_clip = projection.Invert();
+        view_from_world = view;
     }
 
     // Update constant buffer.
     auto* cb = _constant_buffer.ptr();
-    cb->transform = camera_transform;
+    cb->clip_from_world = clip_from_world;
+    cb->view_from_clip = view_from_clip;
+    cb->view_from_world = view_from_world;
+    cb->window_size = Float2((float)desc.window_size.x, (float)desc.window_size.y);
     cb->delta_time = desc.delta_time;
     cb->light_intensity = 1.0f / (float)(1 << light_intensity_pow2);
 
     // Update debug draw.
     _debug_draw.begin(desc.frame_index);
-    _debug_draw.transform(camera_transform);
+    _debug_draw.transform(clip_from_world);
     _debug_draw.axes();
     _debug_draw.end();
 }
@@ -173,15 +253,29 @@ auto Demo::update(const demo::UpdateDesc& desc) -> void {
 auto Demo::render(GpuDevice& device, GpuCommandList& cmd) -> void {
     // Compute.
     {
-        // Sim.
         cmd.set_compute();
+
+        // Sim.
         cmd.set_pipeline(_sim_pipeline);
         cmd.set_compute_constants({
             _constant_buffer.cbv_descriptor().index(),
             _light_buffer.uav_descriptor().index(),
+            ~0u,
+            ~0u,
         });
-        cmd.dispatch(DISPATCH_COUNT, 1, 1);
+        cmd.dispatch(SIM_DISPATCH_COUNT, 1, 1);
         _light_buffer.uav_barrier(cmd);
+
+        // Cull.
+        cmd.set_pipeline(_cull_pipeline);
+        cmd.set_compute_constants({
+            _constant_buffer.cbv_descriptor().index(),
+            _light_buffer.uav_descriptor().index(),
+            ~0u,
+            _cull_texture.uav_descriptor().index(),
+        });
+        cmd.dispatch(CULL_DISPATCH_COUNT_X, CULL_DISPATCH_COUNT_Y, 1);
+        _cull_texture.uav_barrier(cmd);
     }
 
     // Graphics.
@@ -196,6 +290,7 @@ auto Demo::render(GpuDevice& device, GpuCommandList& cmd) -> void {
                 _constant_buffer.cbv_descriptor().index(),
                 _light_buffer.srv_descriptor().index(),
                 _light_mesh.vertex_buffer.srv_descriptor().index(),
+                ~0u,
             });
             cmd.set_pipeline(_light_pipeline);
             cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -213,11 +308,29 @@ auto Demo::render(GpuDevice& device, GpuCommandList& cmd) -> void {
             _constant_buffer.cbv_descriptor().index(),
             _light_buffer.srv_descriptor().index(),
             _plane_mesh.vertex_buffer.srv_descriptor().index(),
+            ~0u,
         });
         cmd.set_pipeline(_plane_pipeline);
         cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
         cmd.set_index_buffer(_plane_mesh.index_buffer.index_buffer_view());
         cmd.draw_indexed_instanced(_plane_mesh.index_buffer.element_size(), 1, 0, 0, 0);
+
+        // Debug.
+        auto heatmap_index = 0u;
+        switch (heatmap) {
+            case Heatmap::Magma: heatmap_index = _magma_texture.srv_descriptor().index(); break;
+            case Heatmap::Viridis: heatmap_index = _viridis_texture.srv_descriptor().index(); break;
+        }
+        cmd.set_graphics_constants({
+            _constant_buffer.cbv_descriptor().index(),
+            ~0u,
+            ~0u,
+            _cull_texture.srv_descriptor().index(),
+            heatmap_index,
+        });
+        cmd.set_pipeline(_debug_pipeline);
+        cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+        cmd.draw_instanced(3, 1, 0, 0);
 
         _render_targets.end(device, cmd);
     }

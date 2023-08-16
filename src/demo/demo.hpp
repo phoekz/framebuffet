@@ -12,6 +12,7 @@
 namespace fb::demo {
 
 struct UpdateDesc {
+    Uint2 window_size;
     float aspect_ratio;
     float delta_time;
     float elapsed_time;

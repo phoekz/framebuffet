@@ -136,6 +136,7 @@ auto main() -> int {
         {
             auto timer = fb::Instant();
             fb::demo::UpdateDesc update_desc = {
+                .window_size = device->swapchain_size(),
                 .aspect_ratio = WINDOW_ASPECT_RATIO,
                 .delta_time = ft.delta_time(),
                 .elapsed_time = ft.elapsed_time(),

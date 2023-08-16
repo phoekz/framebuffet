@@ -1,4 +1,4 @@
-# `envmaps/winter_evening`
+## `envmaps/winter_evening`
 
 Source: https://polyhaven.com/a/winter_evening
 
@@ -10,18 +10,24 @@ Notes: Converted from `4k_latlon` to `1k_cube` with `exrenvmap`.
 ./exrenvmap.exe -w 1024 winter_evening_4k.exr framebuffet/src/envmaps/winter_evening_1k_%.exr
 ```
 
-# `models/stylized_crate.glb`
+## `models/stylized_crate.glb`
 
 "Stylized Crate" (https://skfb.ly/6WMOQ) by jbhannon is licensed under Creative Commons Attribution-NonCommercial (http://creativecommons.org/licenses/by-nc/4.0/).
 
-# `models/coconut_tree.glb`
+## `models/coconut_tree.glb`
 
 "Coconut Tree" (https://skfb.ly/6WGQx) by sujirour is licensed under Creative Commons Attribution (http://creativecommons.org/licenses/by/4.0/).
 
-# `models/low-poly_racoon_run_animation.glb`
+## `models/low-poly_racoon_run_animation.glb`
 
 "Low-poly Racoon Run Animation" (https://skfb.ly/6RG6Q) by avatrass is licensed under Creative Commons Attribution (http://creativecommons.org/licenses/by/4.0/).
 
-# `fonts/Roboto-Medium.ttf`
+## `fonts/Roboto-Medium.ttf`
 
 "Roboto" (https://fonts.google.com/specimen/Roboto) by Christian Robertson is licensed under Apache License 2.0 (http://www.apache.org/licenses/LICENSE-2.0).
+
+## `heatmaps/magma.png` & `heatmaps/viridis.png`
+
+Source: https://bids.github.io/colormap/
+
+Notes: Manually converted from tables into 256x1 PNGs.

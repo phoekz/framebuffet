@@ -1,14 +1,14 @@
-#if __cplusplus
 #pragma once
-namespace fb {
-#endif
 
-#define LIGHT_COUNT 32
-#define DISPATCH_SIZE 32
-#define PLANE_RADIUS_X 2.0f
-#define PLANE_RADIUS_Y 1.0f
+#include "hlsl_cpp.hlsli"
 
-#if __cplusplus
-#undef uint
-}  // namespace fb
-#endif
+FB_NAMESPACE_BEGIN
+
+FB_CONSTANT uint LIGHT_COUNT = 32;
+FB_CONSTANT uint SIM_DISPATCH_SIZE = 32;
+FB_CONSTANT uint CULL_TILE_SIZE = 16;
+FB_CONSTANT uint CULL_DISPATCH_SIZE = 16;
+FB_CONSTANT float PLANE_RADIUS_X = 2.0f;
+FB_CONSTANT float PLANE_RADIUS_Y = 1.0f;
+
+FB_NAMESPACE_END

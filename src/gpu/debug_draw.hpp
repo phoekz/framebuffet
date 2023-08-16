@@ -15,13 +15,15 @@ inline constexpr RgbaByte COLOR_BLUE = {(uint8_t)0, 0, 255, 255};
 inline constexpr RgbaByte COLOR_YELLOW = {(uint8_t)255, 255, 0, 255};
 inline constexpr RgbaByte COLOR_MAGENTA = {(uint8_t)255, 0, 255, 255};
 inline constexpr RgbaByte COLOR_CYAN = {(uint8_t)0, 255, 255, 255};
+inline constexpr RgbaByte COLOR_WHITE = {(uint8_t)255, 255, 255, 255};
+inline constexpr RgbaByte COLOR_BLACK = {(uint8_t)0, 0, 0, 255};
 
 class GpuDebugDraw {
     FB_NO_COPY_MOVE(GpuDebugDraw);
 
   public:
     static constexpr std::string_view NAME = "Debug Draw"sv;
-    static constexpr size_t MAX_LINE_COUNT = 1024;
+    static constexpr size_t MAX_LINE_COUNT = 1 << 16;
 
     GpuDebugDraw(GpuDevice& device, std::string_view name);
 

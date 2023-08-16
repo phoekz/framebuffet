@@ -13,6 +13,7 @@ enum class GpuTextureFlags : uint32_t {
     Rtv = 0x4,
     Dsv = 0x8,
     Cube = 0x10,
+    SrvUav = Srv | Uav,
     SrvRtv = Srv | Rtv,
     SrvDsv = Srv | Dsv,
     SrvCube = Srv | Cube,
@@ -240,6 +241,7 @@ using GpuTexture2dUav = GpuTexture2d<GpuTextureFlags::Uav>;
 using GpuTexture2dRtv = GpuTexture2d<GpuTextureFlags::Rtv>;
 using GpuTexture2dDsv = GpuTexture2d<GpuTextureFlags::Dsv>;
 
+using GpuTexture2dSrvUav = GpuTexture2d<GpuTextureFlags::SrvUav>;
 using GpuTexture2dSrvRtv = GpuTexture2d<GpuTextureFlags::SrvRtv>;
 using GpuTexture2dSrvDsv = GpuTexture2d<GpuTextureFlags::SrvDsv>;
 using GpuTexture2dSrvCube = GpuTexture2d<GpuTextureFlags::SrvCube>;

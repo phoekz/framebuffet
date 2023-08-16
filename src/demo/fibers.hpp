@@ -6,15 +6,24 @@
 
 namespace fb::fibers {
 
-constexpr uint32_t DISPATCH_COUNT = (LIGHT_COUNT + (DISPATCH_SIZE - 1)) / DISPATCH_SIZE;
+inline constexpr uint32_t SIM_DISPATCH_COUNT =
+    (LIGHT_COUNT + (SIM_DISPATCH_SIZE - 1)) / SIM_DISPATCH_SIZE;
+inline constexpr uint32_t CULL_DISPATCH_COUNT_X =
+    (1280 + (CULL_DISPATCH_SIZE - 1)) / CULL_DISPATCH_SIZE;
+inline constexpr uint32_t CULL_DISPATCH_COUNT_Y =
+    (800 + (CULL_DISPATCH_SIZE - 1)) / CULL_DISPATCH_SIZE;
 
 struct Constants {
-    Float4x4 transform;
+    Float4x4 clip_from_world;
+    Float4x4 view_from_clip;
+    Float4x4 view_from_world;
+    Float2 window_size;
     float delta_time = 0.0f;
     float light_speed = 0.5f;
     float light_range = 0.1f;
     float light_intensity = 0.0f;
-    float pad[44] = {};
+    float debug_opacity = 0.5f;
+    float pad[9] = {};
 };
 
 struct Vertex {
@@ -52,12 +61,17 @@ class Demo {
     GpuRenderTargets _render_targets;
     GpuDebugDraw _debug_draw;
     GpuPipeline _sim_pipeline;
+    GpuPipeline _cull_pipeline;
     GpuPipeline _light_pipeline;
     GpuPipeline _plane_pipeline;
+    GpuPipeline _debug_pipeline;
     GpuBufferHostCbv<Constants> _constant_buffer;
     Mesh _light_mesh;
     Mesh _plane_mesh;
     GpuBufferDeviceSrvUav<Light> _light_buffer;
+    GpuTexture2dSrvUav _cull_texture;
+    GpuTexture2dSrv _magma_texture;
+    GpuTexture2dSrv _viridis_texture;
 };
 
 }  // namespace fb::fibers

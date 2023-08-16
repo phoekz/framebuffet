@@ -1,8 +1,8 @@
-#if __cplusplus
 #pragma once
-namespace fb {
-#define uint uint32_t
-#endif
+
+#include "hlsl_cpp.hlsli"
+
+FB_NAMESPACE_BEGIN
 
 enum class GpuSamplerType : uint {
     LinearClamp = 0,
@@ -11,7 +11,4 @@ enum class GpuSamplerType : uint {
     Count,
 };
 
-#if __cplusplus
-#undef uint
-}  // namespace fb
-#endif
+FB_NAMESPACE_END
