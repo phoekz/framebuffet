@@ -12,15 +12,8 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 # External dependencies.
 add_subdirectory(external)
 
-# Framebuffet.
-file(GLOB_RECURSE CPP_FILES CONFIGURE_DEPENDS src/*.cpp)
-file(GLOB_RECURSE HPP_FILES CONFIGURE_DEPENDS src/*.hpp)
-file(GLOB_RECURSE HLSL_FILES CONFIGURE_DEPENDS src/*.hlsl)
-file(GLOB_RECURSE MANIFEST_FILES CONFIGURE_DEPENDS src/*.manifest)
-add_executable(${PROJECT_NAME} ${CPP_FILES} ${MANIFEST_FILES})
-target_sources(${PROJECT_NAME} PRIVATE ${HPP_FILES} ${HLSL_FILES})
-target_compile_options(
-    ${PROJECT_NAME} PRIVATE
+# Global settings.
+add_compile_options(
     /W4 /WX /MP /EHs-c- /GR-
     $<$<CONFIG:Debug>:/ZI>
     $<$<CONFIG:Release>:/Ob3>
@@ -28,8 +21,13 @@ target_compile_options(
     $<$<CONFIG:Release>:/Ot>
     $<$<CONFIG:Release>:/Zi>
 )
-target_link_options(
-    ${PROJECT_NAME} PRIVATE
+add_compile_definitions(
+    _HAS_EXCEPTIONS=0
+    WIN32_LEAN_AND_MEAN
+    NOMINMAX
+    _CRT_SECURE_NO_WARNINGS
+)
+add_link_options(
     /entry:mainCRTStartup
     /SUBSYSTEM:WINDOWS
     $<$<CONFIG:Release>:/DEBUG>
@@ -38,100 +36,10 @@ target_link_options(
 )
 string(REGEX REPLACE "/EH[a-z]+" "" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
 string(REGEX REPLACE "/Ob2" "" CMAKE_CXX_FLAGS_RELEASE ${CMAKE_CXX_FLAGS})
-target_compile_definitions(
-    ${PROJECT_NAME} PRIVATE
-    _HAS_EXCEPTIONS=0
-    WIN32_LEAN_AND_MEAN
-    NOMINMAX
-    _CRT_SECURE_NO_WARNINGS
-)
-target_include_directories(
-    ${PROJECT_NAME} PRIVATE
-    src/
-    ${DEARIMGUI_INCLUDE_DIR}
-    ${CGLTF_INCLUDE_DIR}
-    ${STB_INCLUDE_DIR}
-    ${TINYEXR_INCLUDE_DIR}
-    ${WIL_INCLUDE_DIR}
-    ${D3D12MEMALLOC_INCLUDE_DIR}
-    ${DXAGILITYSDK_INCLUDE_DIR}
-    ${DXCOMPILER_INCLUDE_DIR}
-    ${DIRECTXMATH_INCLUDE_DIR}
-    ${DIRECTXTK12_INCLUDE_DIR}
-    ${DIRECTXMESH_INCLUDE_DIR}
-    ${DIRECTXTEX_INCLUDE_DIR}
-    ${WINPIXEVENTRUNTIME_INCLUDE_DIR}
-)
-target_link_libraries(
-    ${PROJECT_NAME} PRIVATE
-    dearimgui
-    tinyexr
-    d3d12.lib
-    dxgi.lib
-    dxguid.lib
-    D3D12MemoryAllocator
-    dxagilitysdk
-    ${DXCOMPILER_LINK_DIR}/dxcompiler.lib
-    $<$<CONFIG:Debug>:${DIRECTXTK12_DEBUG_LINK_DIR}/DirectXTK12.lib>
-    $<$<CONFIG:Debug>:${DIRECTXMESH_DEBUG_LINK_DIR}/DirectXMesh.lib>
-    $<$<CONFIG:Debug>:${DIRECTXTEX_DEBUG_LINK_DIR}/DirectXTex.lib>
-    $<$<CONFIG:Release>:${DIRECTXTK12_RELEASE_LINK_DIR}/DirectXTK12.lib>
-    $<$<CONFIG:Release>:${DIRECTXMESH_RELEASE_LINK_DIR}/DirectXMesh.lib>
-    $<$<CONFIG:Release>:${DIRECTXTEX_RELEASE_LINK_DIR}/DirectXTex.lib>
-    ${WINPIXEVENTRUNTIME_LINK_DIR}/WinPixEventRuntime.lib
-)
-target_precompile_headers(${PROJECT_NAME} PRIVATE src/pch.hpp)
 
-set_property(DIRECTORY ${PROJECT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${PROJECT_NAME})
-set_target_properties(${PROJECT_NAME} PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY $<TARGET_FILE_DIR:${PROJECT_NAME}>)
-set_source_files_properties(${HLSL_FILES} PROPERTIES VS_TOOL_OVERRIDE None)
+# Libraries.
+add_subdirectory(src/common)
 
-# Copy assets to target directory.
-set(PROJECT_TARGET_DIRECTORY $<TARGET_FILE_DIR:${PROJECT_NAME}>)
-add_custom_command(
-    TARGET ${PROJECT_NAME} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_TARGET_DIRECTORY}/shaders
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/src/shaders/core.hlsli ${PROJECT_TARGET_DIRECTORY}/shaders/
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/src/shaders/hlsl_cpp.hlsli ${PROJECT_TARGET_DIRECTORY}/shaders/
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/src/shaders/samplers.hlsli ${PROJECT_TARGET_DIRECTORY}/shaders/
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/src/shaders/cube.hlsl ${PROJECT_TARGET_DIRECTORY}/shaders/
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/src/shaders/gui.hlsl ${PROJECT_TARGET_DIRECTORY}/shaders/
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/src/shaders/cards.hlsl ${PROJECT_TARGET_DIRECTORY}/shaders/
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/src/shaders/rain.compute.hlsl ${PROJECT_TARGET_DIRECTORY}/shaders/
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/src/shaders/rain.draw.hlsl ${PROJECT_TARGET_DIRECTORY}/shaders/
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/src/shaders/tree.shadow.hlsl ${PROJECT_TARGET_DIRECTORY}/shaders/
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/src/shaders/tree.main.hlsl ${PROJECT_TARGET_DIRECTORY}/shaders/
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/src/shaders/debug_draw.hlsl ${PROJECT_TARGET_DIRECTORY}/shaders/
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/src/shaders/env.hlsl ${PROJECT_TARGET_DIRECTORY}/shaders/
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/src/shaders/anim.hlsl ${PROJECT_TARGET_DIRECTORY}/shaders/
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/src/shaders/fibers.hlsl ${PROJECT_TARGET_DIRECTORY}/shaders/
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/src/shaders/fibers.hlsli ${PROJECT_TARGET_DIRECTORY}/shaders/
-    COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_TARGET_DIRECTORY}/assets
-    COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_TARGET_DIRECTORY}/assets/models
-    COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_TARGET_DIRECTORY}/assets/envmaps
-    COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_TARGET_DIRECTORY}/assets/fonts
-    COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_TARGET_DIRECTORY}/assets/heatmaps
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/src/assets/CREDITS.md ${PROJECT_TARGET_DIRECTORY}/assets/
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/src/assets/models/stylized_crate.glb ${PROJECT_TARGET_DIRECTORY}/assets/models/
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/src/assets/models/coconut_tree.glb ${PROJECT_TARGET_DIRECTORY}/assets/models/
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/src/assets/models/sand_plane.glb ${PROJECT_TARGET_DIRECTORY}/assets/models/
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/src/assets/models/low-poly_racoon_run_animation.glb ${PROJECT_TARGET_DIRECTORY}/assets/models/
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/src/assets/envmaps/winter_evening_1k_-X.exr ${PROJECT_TARGET_DIRECTORY}/assets/envmaps/
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/src/assets/envmaps/winter_evening_1k_-Y.exr ${PROJECT_TARGET_DIRECTORY}/assets/envmaps/
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/src/assets/envmaps/winter_evening_1k_-Z.exr ${PROJECT_TARGET_DIRECTORY}/assets/envmaps/
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/src/assets/envmaps/winter_evening_1k_+X.exr ${PROJECT_TARGET_DIRECTORY}/assets/envmaps/
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/src/assets/envmaps/winter_evening_1k_+Y.exr ${PROJECT_TARGET_DIRECTORY}/assets/envmaps/
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/src/assets/envmaps/winter_evening_1k_+Z.exr ${PROJECT_TARGET_DIRECTORY}/assets/envmaps/
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/src/assets/fonts/Roboto-Medium.ttf ${PROJECT_TARGET_DIRECTORY}/assets/fonts/
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/src/assets/heatmaps/magma.png ${PROJECT_TARGET_DIRECTORY}/assets/heatmaps/
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/src/assets/heatmaps/viridis.png ${PROJECT_TARGET_DIRECTORY}/assets/heatmaps/
-    COMMAND ${CMAKE_COMMAND} -E copy ${DXAGILITYSDK_SOURCE_DIR}/bin/x64/D3D12Core.dll ${PROJECT_TARGET_DIRECTORY}
-    COMMAND ${CMAKE_COMMAND} -E copy ${DXAGILITYSDK_SOURCE_DIR}/bin/x64/D3D12Core.pdb ${PROJECT_TARGET_DIRECTORY}
-    COMMAND ${CMAKE_COMMAND} -E copy ${DXAGILITYSDK_SOURCE_DIR}/bin/x64/d3d12SDKLayers.dll ${PROJECT_TARGET_DIRECTORY}
-    COMMAND ${CMAKE_COMMAND} -E copy ${DXAGILITYSDK_SOURCE_DIR}/bin/x64/d3d12SDKLayers.pdb ${PROJECT_TARGET_DIRECTORY}
-    COMMAND ${CMAKE_COMMAND} -E copy ${DXCOMPILER_SOURCE_DIR}/bin/x64/dxcompiler.dll ${PROJECT_TARGET_DIRECTORY}
-    COMMAND ${CMAKE_COMMAND} -E copy ${DXCOMPILER_SOURCE_DIR}/bin/x64/dxcompiler.pdb ${PROJECT_TARGET_DIRECTORY}
-    COMMAND ${CMAKE_COMMAND} -E copy ${DXCOMPILER_SOURCE_DIR}/bin/x64/dxil.dll ${PROJECT_TARGET_DIRECTORY}
-    COMMAND ${CMAKE_COMMAND} -E copy ${DXCOMPILER_SOURCE_DIR}/bin/x64/dxil.pdb ${PROJECT_TARGET_DIRECTORY}
-    COMMAND ${CMAKE_COMMAND} -E copy ${WINPIXEVENTRUNTIME_BIN_DIR}/WinPixEventRuntime.dll ${PROJECT_TARGET_DIRECTORY}
-)
+# Executables.
+add_subdirectory(src/baker)
+add_subdirectory(src/buffet)

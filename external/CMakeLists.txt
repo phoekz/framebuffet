@@ -12,7 +12,7 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(dearimgui)
 set(DEARIMGUI_SOURCE_DIR ${dearimgui_SOURCE_DIR} CACHE INTERNAL "Dear ImGui Source Directory")
 add_library(
-    dearimgui STATIC
+    ext_dearimgui STATIC
     ${DEARIMGUI_SOURCE_DIR}/imgui.cpp
     ${DEARIMGUI_SOURCE_DIR}/imgui_demo.cpp
     ${DEARIMGUI_SOURCE_DIR}/imgui_draw.cpp
@@ -21,13 +21,16 @@ add_library(
     ${DEARIMGUI_SOURCE_DIR}/backends/imgui_impl_win32.cpp
 )
 target_include_directories(
-    dearimgui PRIVATE
+    ext_dearimgui
+    PUBLIC
     ${DEARIMGUI_SOURCE_DIR}
+    PRIVATE
     ${DEARIMGUI_SOURCE_DIR}/backends
 )
 file(GLOB_RECURSE DEARIMGUI_INCLUDE_FILES CONFIGURE_DEPENDS ${DEARIMGUI_SOURCE_DIR}/*.h ${DEARIMGUI_SOURCE_DIR}/*.inl)
-target_sources(dearimgui PRIVATE ${DEARIMGUI_INCLUDE_FILES})
+target_sources(ext_dearimgui PRIVATE ${DEARIMGUI_INCLUDE_FILES})
 set(DEARIMGUI_INCLUDE_DIR ${DEARIMGUI_SOURCE_DIR} CACHE INTERNAL "Dear ImGui Include Directory")
+set(DEARIMGUI_LIBRARY ext_dearimgui CACHE INTERNAL "Dear ImGui Library")
 
 #
 # cgltf.
@@ -65,9 +68,24 @@ FetchContent_Declare(
     GIT_TAG 6e8cac308cdf4d717078f3f37c4aa39bf3b356b4 # v1.0.7
 )
 option(TINYEXR_BUILD_SAMPLE OFF)
-FetchContent_MakeAvailable(tinyexr)
-set(TINYEXR_SOURCE_DIR ${tinyexr_SOURCE_DIR})
-set(TINYEXR_INCLUDE_DIR ${TINYEXR_SOURCE_DIR} CACHE INTERNAL "tinyexr Include Directory")
+FetchContent_GetProperties(tinyexr)
+
+if(NOT tinyexr_POPULATED)
+    FetchContent_Populate(tinyexr)
+    add_library(
+        ext_tinyexr STATIC
+        ${tinyexr_SOURCE_DIR}/tinyexr.cc
+        ${tinyexr_SOURCE_DIR}/deps/miniz/miniz.c
+    )
+    target_include_directories(
+        ext_tinyexr
+        PUBLIC
+        ${tinyexr_SOURCE_DIR}
+        ${tinyexr_SOURCE_DIR}/deps/miniz
+    )
+endif()
+
+set(TINYEXR_LIBRARY ext_tinyexr CACHE INTERNAL "tinyexr Library")
 
 #
 # Windows Implementation Library (WIL).
@@ -94,7 +112,21 @@ FetchContent_Declare(
     GIT_REPOSITORY https://github.com/GPUOpen-LibrariesAndSDKs/D3D12MemoryAllocator
     GIT_TAG 8dc7b31598d5c89331475be1364f407ddf604f47 # Jul 11, 2023
 )
-FetchContent_MakeAvailable(d3d12memalloc)
+FetchContent_GetProperties(d3d12memalloc)
+
+if(NOT d3d12memalloc_POPULATED)
+    FetchContent_Populate(d3d12memalloc)
+    add_library(
+        ext_d3d12memalloc STATIC
+        ${d3d12memalloc_SOURCE_DIR}/src/D3D12MemAlloc.cpp
+    )
+    target_include_directories(
+        ext_d3d12memalloc
+        PUBLIC
+        ${d3d12memalloc_SOURCE_DIR}/include
+    )
+endif()
+
 set(CMAKE_MESSAGE_LOG_LEVEL ${_saved_CMAKE_MESSAGE_LOG_LEVEL})
 set(D3D12MEMALLOC_INCLUDE_DIR ${D3D12MemoryAllocator_SOURCE_DIR}/include CACHE INTERNAL "D3D12 Memory Allocator Include Directory")
 
@@ -110,16 +142,18 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(dxagilitysdk)
 set(DXAGILITYSDK_SOURCE_DIR ${FETCHCONTENT_BASE_DIR}/dxagilitysdk-src/build/native CACHE INTERNAL "DirectX Agility SDK Source Directory")
 set(DXAGILITYSDK_INCLUDE_DIR ${DXAGILITYSDK_SOURCE_DIR}/include CACHE INTERNAL "DirectX Agility SDK Include Directory")
-add_library(dxagilitysdk STATIC
+add_library(ext_dxagilitysdk STATIC
     ${DXAGILITYSDK_SOURCE_DIR}/src/d3dx12/d3dx12_property_format_table.cpp
 )
-target_include_directories(dxagilitysdk PRIVATE
+target_include_directories(
+    ext_dxagilitysdk PUBLIC
     ${DXAGILITYSDK_SOURCE_DIR}/include
     ${DXAGILITYSDK_SOURCE_DIR}/include/d3dx12
 )
 file(GLOB_RECURSE DXAGILITYSDK_INCLUDE_FILES CONFIGURE_DEPENDS ${DXAGILITYSDK_SOURCE_DIR}/include/*.h)
-target_sources(dxagilitysdk PRIVATE ${DXAGILITYSDK_INCLUDE_FILES})
-target_compile_definitions(dxagilitysdk PRIVATE WIN32)
+target_sources(ext_dxagilitysdk PRIVATE ${DXAGILITYSDK_INCLUDE_FILES})
+target_compile_definitions(ext_dxagilitysdk PRIVATE WIN32)
+set(DXAGILITYSDK_LIBRARY ext_dxagilitysdk CACHE INTERNAL "DirectX Agility SDK Library")
 
 #
 # DirectX Shader Compiler.
@@ -167,6 +201,10 @@ set(DIRECTXTK12_SOURCE_DIR ${FETCHCONTENT_BASE_DIR}/directxtk12-src CACHE INTERN
 set(DIRECTXTK12_INCLUDE_DIR ${DIRECTXTK12_SOURCE_DIR}/module-include/ CACHE INTERNAL "DirectXTK12 Include Directory")
 set(DIRECTXTK12_DEBUG_LINK_DIR ${DIRECTXTK12_SOURCE_DIR}/native/lib/x64/Debug CACHE INTERNAL "DirectXTK12 Debug Link Directory")
 set(DIRECTXTK12_RELEASE_LINK_DIR ${DIRECTXTK12_SOURCE_DIR}/native/lib/x64/Release CACHE INTERNAL "DirectXTK12 Release Link Directory")
+set(DIRECTXTK12_LIBRARY
+    $<$<CONFIG:Debug>:${DIRECTXTK12_DEBUG_LINK_DIR}/DirectXTK12.lib>
+    $<$<CONFIG:Release>:${DIRECTXTK12_RELEASE_LINK_DIR}/DirectXTK12.lib>
+    CACHE INTERNAL "DirectX Agility SDK Library")
 
 #
 # DirectXMesh.
@@ -208,7 +246,6 @@ set(DIRECTXTEX_INCLUDE_DIR ${DIRECTXTEX_SOURCE_DIR}/module-include/ CACHE INTERN
 set(DIRECTXTEX_DEBUG_LINK_DIR ${DIRECTXTEX_SOURCE_DIR}/native/lib/x64/Debug CACHE INTERNAL "DirectXTex Debug Link Directory")
 set(DIRECTXTEX_RELEASE_LINK_DIR ${DIRECTXTEX_SOURCE_DIR}/native/lib/x64/Release CACHE INTERNAL "DirectXTex Release Link Directory")
 
-#
 # WinPixEventRuntime.
 #
 message(STATUS "Fetching WinPixEventRuntime...")
@@ -222,3 +259,4 @@ set(WINPIXEVENTRUNTIME_SOURCE_DIR ${FETCHCONTENT_BASE_DIR}/winpixeventruntime-sr
 set(WINPIXEVENTRUNTIME_INCLUDE_DIR ${WINPIXEVENTRUNTIME_SOURCE_DIR}/Include CACHE INTERNAL "WinPixEventRuntime Include Directory")
 set(WINPIXEVENTRUNTIME_BIN_DIR ${WINPIXEVENTRUNTIME_SOURCE_DIR}/bin/x64 CACHE INTERNAL "WinPixEventRuntime Binary Directory")
 set(WINPIXEVENTRUNTIME_LINK_DIR ${WINPIXEVENTRUNTIME_SOURCE_DIR}/bin/x64 CACHE INTERNAL "WinPixEventRuntime Link Directory")
+set(WINPIXEVENTRUNTIME_LIBRARY ${WINPIXEVENTRUNTIME_LINK_DIR}/WinPixEventRuntime.lib CACHE INTERNAL "WinPixEventRuntime Library")
