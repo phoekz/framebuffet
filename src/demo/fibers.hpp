@@ -61,6 +61,7 @@ class Demo {
     GpuRenderTargets _render_targets;
     GpuDebugDraw _debug_draw;
     GpuPipeline _sim_pipeline;
+    GpuPipeline _reset_pipeline;
     GpuPipeline _cull_pipeline;
     GpuPipeline _light_pipeline;
     GpuPipeline _plane_pipeline;
@@ -69,9 +70,12 @@ class Demo {
     Mesh _light_mesh;
     Mesh _plane_mesh;
     GpuBufferDeviceSrvUav<Light> _light_buffer;
-    GpuTexture2dSrvUav _cull_texture;
     GpuTexture2dSrv _magma_texture;
     GpuTexture2dSrv _viridis_texture;
+    GpuTexture2dSrvUav _light_counts_texture;
+    GpuTexture2dSrvUav _light_offsets_texture;
+    GpuBufferDeviceSrvUav<uint32_t> _light_indices_buffer;
+    GpuBufferDeviceSrvUav<uint32_t> _light_indices_count;
 };
 
 }  // namespace fb::fibers

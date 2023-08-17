@@ -148,7 +148,9 @@ class GpuCommandList {
     auto set_blend_factor(Float4 factor) const -> void;
     auto set_pipeline(const GpuPipeline& pipeline) const -> void;
     auto set_graphics_constants(std::initializer_list<uint32_t> constants) const -> void;
+    auto set_graphics_constants(std::span<const uint32_t> constants) const -> void;
     auto set_compute_constants(std::initializer_list<uint32_t> constants) const -> void;
+    auto set_compute_constants(std::span<const uint32_t> constants) const -> void;
 
     auto clear_rtv(const GpuDescriptor& rtv, Float4 color) const -> void;
     auto clear_dsv(const GpuDescriptor& dsv, float depth) const -> void;

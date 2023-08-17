@@ -278,8 +278,24 @@ auto GpuCommandList::set_graphics_constants(std::initializer_list<uint32_t> cons
     _cmd->SetGraphicsRoot32BitConstants(0, bindings.capacity(), bindings.ptr(), 0);
 }
 
+auto GpuCommandList::set_graphics_constants(std::span<const uint32_t> constants) const -> void {
+    FB_ASSERT(_engine == GpuCommandEngine::Graphics);
+    GpuBindings bindings;
+    for (auto constant : constants)
+        bindings.push(constant);
+    _cmd->SetGraphicsRoot32BitConstants(0, bindings.capacity(), bindings.ptr(), 0);
+}
+
 auto GpuCommandList::set_compute_constants(std::initializer_list<uint32_t> constants) const
     -> void {
+    FB_ASSERT(_engine == GpuCommandEngine::Compute);
+    GpuBindings bindings;
+    for (auto constant : constants)
+        bindings.push(constant);
+    _cmd->SetComputeRoot32BitConstants(0, bindings.capacity(), bindings.ptr(), 0);
+}
+
+auto GpuCommandList::set_compute_constants(std::span<const uint32_t> constants) const -> void {
     FB_ASSERT(_engine == GpuCommandEngine::Compute);
     GpuBindings bindings;
     for (auto constant : constants)

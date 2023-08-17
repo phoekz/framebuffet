@@ -15,6 +15,11 @@ Demo::Demo(GpuDevice& device) :
             .compute_shader(sim_cs.bytecode())
             .build(device, _sim_pipeline, dx_name(Demo::NAME, "Sim", "Pipeline"));
 
+        const auto reset_cs = sc.compile(Demo::NAME, GpuShaderType::Compute, "reset_cs", source);
+        GpuPipelineBuilder()
+            .compute_shader(reset_cs.bytecode())
+            .build(device, _reset_pipeline, dx_name(Demo::NAME, "Reset", "Pipeline"));
+
         const auto cull_cs = sc.compile(Demo::NAME, GpuShaderType::Compute, "cull_cs", source);
         GpuPipelineBuilder()
             .compute_shader(cull_cs.bytecode())
@@ -138,14 +143,29 @@ Demo::Demo(GpuDevice& device) :
             D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
     }
 
-    _cull_texture.create(
-        device,
-        {
-            .format = DXGI_FORMAT_R32_UINT,
-            .width = CULL_DISPATCH_COUNT_X,
-            .height = CULL_DISPATCH_COUNT_Y,
-        },
-        dx_name(Demo::NAME, "Cull Texture"));
+    {
+        _light_counts_texture.create(
+            device,
+            {
+                .format = DXGI_FORMAT_R32_UINT,
+                .width = CULL_DISPATCH_COUNT_X,
+                .height = CULL_DISPATCH_COUNT_Y,
+            },
+            dx_name(Demo::NAME, "Light Counts Texture"));
+        _light_offsets_texture.create(
+            device,
+            {
+                .format = DXGI_FORMAT_R32_UINT,
+                .width = CULL_DISPATCH_COUNT_X,
+                .height = CULL_DISPATCH_COUNT_Y,
+            },
+            dx_name(Demo::NAME, "Light Offsets Texture"));
+        _light_indices_buffer.create(
+            device,
+            CULL_DISPATCH_COUNT_X * CULL_DISPATCH_COUNT_Y * LIGHT_CAPACITY_PER_TILE,
+            dx_name(Demo::NAME, "Light Indices Buffer"));
+        _light_indices_count.create(device, 1, dx_name(Demo::NAME, "Light Indices Count"));
+    }
 
     {
         const auto magma_png = read_whole_file("assets/heatmaps/magma.png");
@@ -250,6 +270,21 @@ auto Demo::update(const demo::UpdateDesc& desc) -> void {
     _debug_draw.end();
 }
 
+template<typename F>
+static auto compute_constants(GpuCommandList& cmd, F f) -> void {
+    Bindings bindings = {};
+    f(bindings);
+    cmd.set_compute_constants(std::span((uint32_t*)&bindings, sizeof(bindings) / sizeof(uint32_t)));
+}
+
+template<typename F>
+static auto graphics_constants(GpuCommandList& cmd, F f) -> void {
+    Bindings bindings = {};
+    f(bindings);
+    cmd.set_graphics_constants(
+        std::span((uint32_t*)&bindings, sizeof(bindings) / sizeof(uint32_t)));
+}
+
 auto Demo::render(GpuDevice& device, GpuCommandList& cmd) -> void {
     // Compute.
     {
@@ -257,25 +292,36 @@ auto Demo::render(GpuDevice& device, GpuCommandList& cmd) -> void {
 
         // Sim.
         cmd.set_pipeline(_sim_pipeline);
-        cmd.set_compute_constants({
-            _constant_buffer.cbv_descriptor().index(),
-            _light_buffer.uav_descriptor().index(),
-            ~0u,
-            ~0u,
+        compute_constants(cmd, [&](Bindings& bindings) {
+            bindings.constants = _constant_buffer.cbv_descriptor().index();
+            bindings.lights = _light_buffer.uav_descriptor().index();
         });
         cmd.dispatch(SIM_DISPATCH_COUNT, 1, 1);
         _light_buffer.uav_barrier(cmd);
 
+        // Reset.
+        cmd.set_pipeline(_reset_pipeline);
+        compute_constants(cmd, [&](Bindings& bindings) {
+            bindings.light_indices_count = _light_indices_count.uav_descriptor().index();
+        });
+        cmd.dispatch(1, 1, 1);
+        _light_indices_count.uav_barrier(cmd);
+
         // Cull.
         cmd.set_pipeline(_cull_pipeline);
-        cmd.set_compute_constants({
-            _constant_buffer.cbv_descriptor().index(),
-            _light_buffer.uav_descriptor().index(),
-            ~0u,
-            _cull_texture.uav_descriptor().index(),
+        compute_constants(cmd, [&](Bindings& bindings) {
+            bindings.constants = _constant_buffer.cbv_descriptor().index();
+            bindings.lights = _light_buffer.uav_descriptor().index();
+            bindings.light_counts_texture = _light_counts_texture.uav_descriptor().index();
+            bindings.light_offsets_texture = _light_offsets_texture.uav_descriptor().index();
+            bindings.light_indices = _light_indices_buffer.uav_descriptor().index();
+            bindings.light_indices_count = _light_indices_count.uav_descriptor().index();
         });
         cmd.dispatch(CULL_DISPATCH_COUNT_X, CULL_DISPATCH_COUNT_Y, 1);
-        _cull_texture.uav_barrier(cmd);
+        _light_counts_texture.uav_barrier(cmd);
+        _light_offsets_texture.uav_barrier(cmd);
+        _light_indices_buffer.uav_barrier(cmd);
+        _light_indices_count.uav_barrier(cmd);
     }
 
     // Graphics.
@@ -286,11 +332,10 @@ auto Demo::render(GpuDevice& device, GpuCommandList& cmd) -> void {
 
         // Light.
         if (show_light_bounds) {
-            cmd.set_graphics_constants({
-                _constant_buffer.cbv_descriptor().index(),
-                _light_buffer.srv_descriptor().index(),
-                _light_mesh.vertex_buffer.srv_descriptor().index(),
-                ~0u,
+            graphics_constants(cmd, [&](Bindings& bindings) {
+                bindings.constants = _constant_buffer.cbv_descriptor().index();
+                bindings.lights = _light_buffer.srv_descriptor().index();
+                bindings.vertices = _light_mesh.vertex_buffer.srv_descriptor().index();
             });
             cmd.set_pipeline(_light_pipeline);
             cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -304,11 +349,13 @@ auto Demo::render(GpuDevice& device, GpuCommandList& cmd) -> void {
         }
 
         // Plane.
-        cmd.set_graphics_constants({
-            _constant_buffer.cbv_descriptor().index(),
-            _light_buffer.srv_descriptor().index(),
-            _plane_mesh.vertex_buffer.srv_descriptor().index(),
-            ~0u,
+        graphics_constants(cmd, [&](Bindings& bindings) {
+            bindings.constants = _constant_buffer.cbv_descriptor().index();
+            bindings.lights = _light_buffer.srv_descriptor().index();
+            bindings.vertices = _plane_mesh.vertex_buffer.srv_descriptor().index();
+            bindings.light_counts_texture = _light_counts_texture.srv_descriptor().index();
+            bindings.light_offsets_texture = _light_offsets_texture.srv_descriptor().index();
+            bindings.light_indices = _light_indices_buffer.srv_descriptor().index();
         });
         cmd.set_pipeline(_plane_pipeline);
         cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -321,12 +368,10 @@ auto Demo::render(GpuDevice& device, GpuCommandList& cmd) -> void {
             case Heatmap::Magma: heatmap_index = _magma_texture.srv_descriptor().index(); break;
             case Heatmap::Viridis: heatmap_index = _viridis_texture.srv_descriptor().index(); break;
         }
-        cmd.set_graphics_constants({
-            _constant_buffer.cbv_descriptor().index(),
-            ~0u,
-            ~0u,
-            _cull_texture.srv_descriptor().index(),
-            heatmap_index,
+        graphics_constants(cmd, [&](Bindings& bindings) {
+            bindings.constants = _constant_buffer.cbv_descriptor().index();
+            bindings.light_counts_texture = _light_counts_texture.srv_descriptor().index();
+            bindings.heatmap_texture = heatmap_index;
         });
         cmd.set_pipeline(_debug_pipeline);
         cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);

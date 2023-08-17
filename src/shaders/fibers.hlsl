@@ -2,14 +2,6 @@
 #include "shaders/samplers.hlsli"
 #include "shaders/fibers.hlsli"
 
-struct Bindings {
-    uint constants;
-    uint lights;
-    uint vertices;
-    uint cull_texture;
-    uint heatmap_texture;
-};
-
 struct Constants {
     float4x4 clip_from_world;
     float4x4 view_from_clip;
@@ -54,8 +46,17 @@ void sim_cs(FbComputeInput input) {
     lights[id] = light;
 }
 
+FB_ATTRIBUTE(numthreads, 1, 1, 1)
+void reset_cs(FbComputeInput input) {
+    RWStructuredBuffer<uint> light_indices_count =
+        ResourceDescriptorHeap[g_bindings.light_indices_count];
+    light_indices_count[0] = 0;
+}
+
 groupshared float4 gs_frustum_planes[4];
-groupshared uint gs_hit_count;
+groupshared uint gs_light_indices[LIGHT_COUNT];
+groupshared uint gs_light_count;
+groupshared uint gs_light_offset;
 
 float3 view_point_from_clip(float4x4 view_from_clip, float clip_x, float clip_y) {
     const float4 clip = float4(clip_x, clip_y, -1.0f, 1.0f);
@@ -67,7 +68,13 @@ FB_ATTRIBUTE(numthreads, CULL_DISPATCH_SIZE, CULL_DISPATCH_SIZE, 1)
 void cull_cs(FbComputeInput input) {
     ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
     StructuredBuffer<Light> lights = ResourceDescriptorHeap[g_bindings.lights];
-    RWTexture2D<uint> cull_texture = ResourceDescriptorHeap[g_bindings.cull_texture];
+    RWTexture2D<uint> light_counts_texture =
+        ResourceDescriptorHeap[g_bindings.light_counts_texture];
+    RWTexture2D<uint> light_offsets_texture =
+        ResourceDescriptorHeap[g_bindings.light_offsets_texture];
+    RWStructuredBuffer<uint> light_indices = ResourceDescriptorHeap[g_bindings.light_indices];
+    RWStructuredBuffer<uint> light_indices_count =
+        ResourceDescriptorHeap[g_bindings.light_indices_count];
 
     // Compute frustum planes.
     if (input.group_index == 0) {
@@ -95,9 +102,12 @@ void cull_cs(FbComputeInput input) {
         gs_frustum_planes[2] = fb_plane_from_points(origin, view_point_0, view_point_1);
         gs_frustum_planes[3] = fb_plane_from_points(origin, view_point_3, view_point_2);
 
-        gs_hit_count = 0;
+        gs_light_count = 0;
+        gs_light_offset = 0;
     }
     GroupMemoryBarrierWithGroupSync();
+
+    // Todo: calculate min/max depth for each tile with atomic min/max.
 
     // Cull lights.
     uint hit_mask = 0;
@@ -112,14 +122,29 @@ void cull_cs(FbComputeInput input) {
             hit_mask |= (uint)hit << i;
         }
         if (hit_mask == 0) {
-            InterlockedAdd(gs_hit_count, 1);
+            uint dst = 0;
+            InterlockedAdd(gs_light_count, 1, dst);
+            if (dst < LIGHT_CAPACITY_PER_TILE) {
+                gs_light_indices[dst] = input.group_index;
+            }
         }
     }
     GroupMemoryBarrierWithGroupSync();
 
     // Write.
+    uint light_offset = 0;
     if (input.group_index == 0) {
-        cull_texture[uint2(input.group_id.xy)] = gs_hit_count;
+        if (gs_light_count != 0) {
+            InterlockedAdd(light_indices_count[0], gs_light_count, light_offset);
+        }
+        light_counts_texture[input.group_id.xy] = gs_light_count;
+        light_offsets_texture[input.group_id.xy] = light_offset;
+        gs_light_offset = light_offset;
+    }
+    GroupMemoryBarrierWithGroupSync();
+    light_offset = gs_light_offset;
+    for (uint i = input.group_index; i < gs_light_count; i += 64) {
+        light_indices[light_offset + i] = gs_light_indices[i];
     }
 }
 
@@ -159,6 +184,7 @@ struct PlaneVertexOutput {
     float3 normal: ATTRIBUTE0;
     float2 texcoord: ATTRIBUTE1;
     float3 world_position: ATTRIBUTE2;
+    float4 ndc_position: ATTRIBUTE3;
 };
 
 PlaneVertexOutput plane_vs(FbVertexInput input) {
@@ -172,17 +198,30 @@ PlaneVertexOutput plane_vs(FbVertexInput input) {
     output.normal = vertex.normal;
     output.texcoord = vertex.texcoord;
     output.world_position = vertex.position;
+    output.ndc_position = output.position;
     return output;
 }
 
 FbPixelOutput1 plane_ps(PlaneVertexOutput input) {
     ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
     StructuredBuffer<Light> lights = ResourceDescriptorHeap[g_bindings.lights];
+    Texture2D<uint> light_counts_texture = ResourceDescriptorHeap[g_bindings.light_counts_texture];
+    Texture2D<uint> light_offsets_texture =
+        ResourceDescriptorHeap[g_bindings.light_offsets_texture];
+    StructuredBuffer<uint> light_indices = ResourceDescriptorHeap[g_bindings.light_indices];
 
     float3 color = float3(0.02f, 0.02f, 0.02f);
 
-    for (uint i = 0; i < LIGHT_COUNT; i++) {
-        Light light = lights[i];
+    const float2 window_size = constants.window_size;
+    const float2 tile_size = (float2)CULL_TILE_SIZE;
+    const float2 screen_coord = fb_screen_coord_from_ndc(input.ndc_position);
+    const float2 tile_pixel = screen_coord * window_size / tile_size;
+    const uint2 tile_index = floor(tile_pixel);
+    const uint light_count = light_counts_texture[tile_index];
+    const uint light_offset = light_offsets_texture[tile_index];
+    for (uint i = 0; i < light_count; i++) {
+        const uint light_index = light_indices[light_offset + i];
+        const Light light = lights[light_index];
 
         float3 light_from_surface = light.position - input.world_position;
         float distance = max(0.001f, length(light_from_surface));
@@ -210,7 +249,8 @@ DebugVertexOutput debug_vs(FbVertexInput input) {
 
 FbPixelOutput1 debug_ps(DebugVertexOutput input) {
     ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
-    RWTexture2D<uint> cull_texture = ResourceDescriptorHeap[g_bindings.cull_texture];
+    RWTexture2D<uint> light_counts_texture =
+        ResourceDescriptorHeap[g_bindings.light_counts_texture];
     Texture2D<float3> heatmap_texture = ResourceDescriptorHeap[g_bindings.heatmap_texture];
     SamplerState heatmap_sampler = SamplerDescriptorHeap[(uint)GpuSamplerType::LinearClamp];
 
@@ -218,7 +258,7 @@ FbPixelOutput1 debug_ps(DebugVertexOutput input) {
     const float2 tile_size = (float2)CULL_TILE_SIZE;
     const float2 tile_pixel = input.texcoord * window_size / tile_size;
     const uint2 tile_index = floor(tile_pixel);
-    uint light_count = cull_texture[tile_index];
+    uint light_count = light_counts_texture[tile_index];
     float shade = saturate((float)light_count / 5.0f);
     float3 color = heatmap_texture.Sample(heatmap_sampler, float2(shade, 0.5f));
 

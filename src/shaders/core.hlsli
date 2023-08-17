@@ -73,3 +73,8 @@ void fb_fullscreen_triangle(uint vertex_id, out float4 position, out float2 texc
     texcoord = float2((vertex_id << 1) & 2, vertex_id & 2);
     position = float4(texcoord * float2(2.0f, -2.0f) + float2(-1.0f, 1.0f), 0.0f, 1.0f);
 }
+
+float2 fb_screen_coord_from_ndc(float4 ndc) {
+    // Note: Y is flipped.
+    return ndc.xy / ndc.w * float2(0.5f, -0.5f) + float2(0.5f, 0.5f);
+}
