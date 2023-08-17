@@ -57,8 +57,8 @@ Cards::Cards(GpuDevice& device, const Params& params) {
     _card_texture_descriptors = params.card_texture_descriptors;
 
     // Shaders.
-    GpuShader vertex_shader;
-    GpuShader pixel_shader;
+    GpuShaderBytecode vertex_shader;
+    GpuShaderBytecode pixel_shader;
     {
         GpuShaderCompiler sc;
         auto source = read_whole_file("shaders/cards.hlsl");
@@ -68,8 +68,8 @@ Cards::Cards(GpuDevice& device, const Params& params) {
 
     // Pipeline.
     GpuPipelineBuilder()
-        .vertex_shader(vertex_shader.bytecode())
-        .pixel_shader(pixel_shader.bytecode())
+        .vertex_shader(vertex_shader)
+        .pixel_shader(pixel_shader)
         .primitive_topology(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)
         .render_target_formats({DXGI_FORMAT_R8G8B8A8_UNORM})
         .depth_stencil(GPU_PIPELINE_DEPTH_NONE)

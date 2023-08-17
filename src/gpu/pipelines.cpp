@@ -12,28 +12,37 @@ auto GpuPipelineBuilder::primitive_topology(D3D12_PRIMITIVE_TOPOLOGY_TYPE topolo
     return *this;
 }
 
-auto GpuPipelineBuilder::vertex_shader(D3D12_SHADER_BYTECODE bytecode) -> GpuPipelineBuilder& {
+auto GpuPipelineBuilder::vertex_shader(std::span<const std::byte> dxil) -> GpuPipelineBuilder& {
     static constexpr uint32_t BIT = (1 << D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_VS);
     FB_ASSERT((_subobject_mask & BIT) == 0);
-    new (_buffer + _buffet_offset) CD3DX12_PIPELINE_STATE_STREAM_VS(bytecode);
+    new (_buffer + _buffet_offset) CD3DX12_PIPELINE_STATE_STREAM_VS(D3D12_SHADER_BYTECODE {
+        .pShaderBytecode = dxil.data(),
+        .BytecodeLength = dxil.size_bytes(),
+    });
     _buffet_offset += sizeof(CD3DX12_PIPELINE_STATE_STREAM_VS);
     _subobject_mask |= BIT;
     return *this;
 }
 
-auto GpuPipelineBuilder::pixel_shader(D3D12_SHADER_BYTECODE bytecode) -> GpuPipelineBuilder& {
+auto GpuPipelineBuilder::pixel_shader(std::span<const std::byte> dxil) -> GpuPipelineBuilder& {
     static constexpr uint32_t BIT = (1 << D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_PS);
     FB_ASSERT((_subobject_mask & BIT) == 0);
-    new (_buffer + _buffet_offset) CD3DX12_PIPELINE_STATE_STREAM_PS(bytecode);
+    new (_buffer + _buffet_offset) CD3DX12_PIPELINE_STATE_STREAM_PS(D3D12_SHADER_BYTECODE {
+        .pShaderBytecode = dxil.data(),
+        .BytecodeLength = dxil.size_bytes(),
+    });
     _buffet_offset += sizeof(CD3DX12_PIPELINE_STATE_STREAM_PS);
     _subobject_mask |= BIT;
     return *this;
 }
 
-auto GpuPipelineBuilder::compute_shader(D3D12_SHADER_BYTECODE bytecode) -> GpuPipelineBuilder& {
+auto GpuPipelineBuilder::compute_shader(std::span<const std::byte> dxil) -> GpuPipelineBuilder& {
     static constexpr uint32_t BIT = (1 << D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_CS);
     FB_ASSERT((_subobject_mask & BIT) == 0);
-    new (_buffer + _buffet_offset) CD3DX12_PIPELINE_STATE_STREAM_CS(bytecode);
+    new (_buffer + _buffet_offset) CD3DX12_PIPELINE_STATE_STREAM_CS(D3D12_SHADER_BYTECODE {
+        .pShaderBytecode = dxil.data(),
+        .BytecodeLength = dxil.size_bytes(),
+    });
     _buffet_offset += sizeof(CD3DX12_PIPELINE_STATE_STREAM_CS);
     _subobject_mask |= BIT;
     return *this;

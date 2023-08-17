@@ -12,18 +12,7 @@ enum class GpuShaderType {
     Pixel,
 };
 
-class GpuShader {
-    friend class GpuShaderCompiler;
-
-  public:
-    auto blob() const -> IDxcBlob* { return _blob.get(); }
-    auto type() const -> GpuShaderType { return _type; }
-    auto bytecode() const -> D3D12_SHADER_BYTECODE;
-
-  private:
-    ComPtr<IDxcBlob> _blob;
-    GpuShaderType _type = GpuShaderType::Unknown;
-};
+using GpuShaderBytecode = std::vector<std::byte>;
 
 class GpuShaderCompiler {
   public:
@@ -34,7 +23,7 @@ class GpuShaderCompiler {
         GpuShaderType type,
         std::string_view entry_point,
         std::span<const std::byte> source,
-        bool debug = false) -> GpuShader;
+        bool debug = false) -> GpuShaderBytecode;
 
   private:
     ComPtr<IDxcCompiler3> _compiler;

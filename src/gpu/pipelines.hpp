@@ -19,9 +19,9 @@ class GpuPipelineBuilder {
   public:
     // clang-format off
     [[nodiscard]] auto primitive_topology(D3D12_PRIMITIVE_TOPOLOGY_TYPE topology) -> GpuPipelineBuilder&;
-    [[nodiscard]] auto vertex_shader(D3D12_SHADER_BYTECODE bytecode) -> GpuPipelineBuilder&;
-    [[nodiscard]] auto pixel_shader(D3D12_SHADER_BYTECODE bytecode) -> GpuPipelineBuilder&;
-    [[nodiscard]] auto compute_shader(D3D12_SHADER_BYTECODE bytecode) -> GpuPipelineBuilder&;
+    [[nodiscard]] auto vertex_shader(std::span<const std::byte> dxil) -> GpuPipelineBuilder&;
+    [[nodiscard]] auto pixel_shader(std::span<const std::byte> dxil) -> GpuPipelineBuilder&;
+    [[nodiscard]] auto compute_shader(std::span<const std::byte> dxil) -> GpuPipelineBuilder&;
     [[nodiscard]] auto blend(D3D12_BLEND_DESC blend) -> GpuPipelineBuilder&;
     [[nodiscard]] auto depth_stencil(D3D12_DEPTH_STENCIL_DESC2 depth_stencil) -> GpuPipelineBuilder&;
     [[nodiscard]] auto rasterizer(D3D12_RASTERIZER_DESC2 rasterizer) -> GpuPipelineBuilder&;

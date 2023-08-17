@@ -22,8 +22,8 @@ Gui::Gui(const Window& window, GpuDevice& device) {
     }
 
     // Shaders.
-    GpuShader vertex_shader;
-    GpuShader pixel_shader;
+    GpuShaderBytecode vertex_shader;
+    GpuShaderBytecode pixel_shader;
     {
         GpuShaderCompiler sc;
         auto source = read_whole_file("shaders/gui.hlsl");
@@ -34,8 +34,8 @@ Gui::Gui(const Window& window, GpuDevice& device) {
     // Pipeline.
     GpuPipelineBuilder()
         .primitive_topology(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)
-        .vertex_shader(vertex_shader.bytecode())
-        .pixel_shader(pixel_shader.bytecode())
+        .vertex_shader(vertex_shader)
+        .pixel_shader(pixel_shader)
         .blend(D3D12_BLEND_DESC {
             .AlphaToCoverageEnable = FALSE,
             .IndependentBlendEnable = FALSE,

@@ -6,8 +6,8 @@ Demo::Demo(GpuDevice& device) :
     _render_targets(device, device.swapchain_size(), Demo::CLEAR_COLOR, Demo::NAME),
     _debug_draw(device, Demo::NAME) {
     // Shaders.
-    GpuShader vertex_shader;
-    GpuShader pixel_shader;
+    GpuShaderBytecode vertex_shader;
+    GpuShaderBytecode pixel_shader;
     {
         GpuShaderCompiler sc;
         auto source = read_whole_file("shaders/env.hlsl");
@@ -18,8 +18,8 @@ Demo::Demo(GpuDevice& device) :
     // Pipeline.
     GpuPipelineBuilder()
         .primitive_topology(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)
-        .vertex_shader(vertex_shader.bytecode())
-        .pixel_shader(pixel_shader.bytecode())
+        .vertex_shader(vertex_shader)
+        .pixel_shader(pixel_shader)
         .depth_stencil(GPU_PIPELINE_DEPTH_DEFAULT)
         .render_target_formats({DXGI_FORMAT_R8G8B8A8_UNORM})
         .depth_stencil_format(DXGI_FORMAT_D32_FLOAT)

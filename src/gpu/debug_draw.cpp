@@ -5,8 +5,8 @@ namespace fb {
 
 GpuDebugDraw::GpuDebugDraw(GpuDevice& device, std::string_view name) {
     // Shaders.
-    GpuShader vertex_shader;
-    GpuShader pixel_shader;
+    GpuShaderBytecode vertex_shader;
+    GpuShaderBytecode pixel_shader;
     {
         GpuShaderCompiler sc;
         auto source = read_whole_file("shaders/debug_draw.hlsl");
@@ -17,8 +17,8 @@ GpuDebugDraw::GpuDebugDraw(GpuDevice& device, std::string_view name) {
     // Pipeline.
     GpuPipelineBuilder()
         .primitive_topology(D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE)
-        .vertex_shader(vertex_shader.bytecode())
-        .pixel_shader(pixel_shader.bytecode())
+        .vertex_shader(vertex_shader)
+        .pixel_shader(pixel_shader)
         .blend(GPU_PIPELINE_BLEND_ALPHA)
         .depth_stencil(GPU_PIPELINE_DEPTH_DEFAULT)
         .rasterizer(GPU_PIPELINE_CULL_NONE)

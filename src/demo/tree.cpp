@@ -50,7 +50,7 @@ Demo::Scene::Scene(GpuDevice& device) :
 
 Demo::ShadowPass::ShadowPass(GpuDevice& device) {
     // Shaders.
-    GpuShader vertex_shader;
+    GpuShaderBytecode vertex_shader;
     {
         GpuShaderCompiler sc;
         auto path = "shaders/tree.shadow.hlsl";
@@ -65,7 +65,7 @@ Demo::ShadowPass::ShadowPass(GpuDevice& device) {
     // Pipeline.
     GpuPipelineBuilder()
         .primitive_topology(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)
-        .vertex_shader(vertex_shader.bytecode())
+        .vertex_shader(vertex_shader)
         .depth_stencil_format(DXGI_FORMAT_D32_FLOAT)
         .build(device, pipeline, dx_name(Demo::NAME, Demo::ShadowPass::NAME, "Pipeline"));
 
@@ -92,8 +92,8 @@ Demo::ShadowPass::ShadowPass(GpuDevice& device) {
 
 Demo::MainPass::MainPass(GpuDevice& device) {
     // Shaders.
-    GpuShader vertex_shader;
-    GpuShader pixel_shader;
+    GpuShaderBytecode vertex_shader;
+    GpuShaderBytecode pixel_shader;
     {
         GpuShaderCompiler sc;
         auto path = "shaders/tree.main.hlsl";
@@ -106,8 +106,8 @@ Demo::MainPass::MainPass(GpuDevice& device) {
     // Pipeline.
     GpuPipelineBuilder()
         .primitive_topology(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)
-        .vertex_shader(vertex_shader.bytecode())
-        .pixel_shader(pixel_shader.bytecode())
+        .vertex_shader(vertex_shader)
+        .pixel_shader(pixel_shader)
         .render_target_formats({DXGI_FORMAT_R8G8B8A8_UNORM})
         .depth_stencil_format(DXGI_FORMAT_D32_FLOAT)
         .build(device, pipeline, dx_name(Demo::NAME, Demo::MainPass::NAME, "Pipeline"));

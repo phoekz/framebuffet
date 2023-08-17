@@ -13,13 +13,6 @@ static auto shader_type_name(GpuShaderType type) -> std::string_view {
     }
 }
 
-auto GpuShader::bytecode() const -> D3D12_SHADER_BYTECODE {
-    return {
-        .pShaderBytecode = _blob->GetBufferPointer(),
-        .BytecodeLength = _blob->GetBufferSize(),
-    };
-}
-
 GpuShaderCompiler::GpuShaderCompiler() {
     DxcCreateInstance(CLSID_DxcCompiler, IID_PPV_ARGS(&_compiler));
     DxcCreateInstance(CLSID_DxcUtils, IID_PPV_ARGS(&_utils));
@@ -85,7 +78,7 @@ auto GpuShaderCompiler::compile(
     GpuShaderType type,
     std::string_view entry_point,
     std::span<const std::byte> source,
-    bool debug) -> GpuShader {
+    bool debug) -> GpuShaderBytecode {
     // Note: remember to set PIX PDB search path correctly for shader debugging to work.
 
     // Shader profile.
@@ -141,6 +134,29 @@ auto GpuShaderCompiler::compile(
     FB_ASSERT_HR(result->GetOutput(DXC_OUT_OBJECT, IID_PPV_ARGS(&blob), nullptr));
     FB_ASSERT_HR(result->GetOutput(DXC_OUT_PDB, IID_PPV_ARGS(&pdb), &pdb_name));
 
+    // Write DXIL.
+    {
+        ComPtr<IDxcBlob> shader_hash_blob;
+        FB_ASSERT_HR(
+            result->GetOutput(DXC_OUT_SHADER_HASH, IID_PPV_ARGS(&shader_hash_blob), nullptr));
+        DxcShaderHash* shader_hash = (DxcShaderHash*)shader_hash_blob->GetBufferPointer();
+        std::ostringstream oss;
+        for (int i = 0; i < 16; ++i) {
+            oss << std::format("{:02x}", shader_hash->HashDigest[i]);
+        }
+
+        std::wstring wpath;
+        wpath.append(L"shaders\\");
+        wpath.append(to_wstr(oss.str()));
+        wpath.append(L".dxil");
+
+        FILE* file = nullptr;
+        _wfopen_s(&file, wpath.c_str(), L"wb");
+        FB_ASSERT_MSG(file != nullptr, "Failed to create file {}", from_wstr(wpath));
+        fwrite(blob->GetBufferPointer(), blob->GetBufferSize(), 1, file);
+        fclose(file);
+    }
+
     // Write PDB.
     {
         std::wstring wpath;
@@ -168,11 +184,11 @@ auto GpuShaderCompiler::compile(
         analyze(name, type, reflection);
     }
 
-    // Result.
-    GpuShader shader;
-    shader._blob = blob;
-    shader._type = type;
-    return shader;
+    // Output.
+    GpuShaderBytecode result_blob;
+    result_blob.resize(blob->GetBufferSize());
+    memcpy(result_blob.data(), blob->GetBufferPointer(), blob->GetBufferSize());
+    return result_blob;
 }
 
 }  // namespace fb

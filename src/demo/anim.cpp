@@ -15,8 +15,8 @@ Demo::Demo(GpuDevice& device) :
     // Pipeline.
     GpuPipelineBuilder()
         .primitive_topology(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)
-        .vertex_shader(vertex_shader.bytecode())
-        .pixel_shader(pixel_shader.bytecode())
+        .vertex_shader(vertex_shader)
+        .pixel_shader(pixel_shader)
         .render_target_formats({DXGI_FORMAT_R8G8B8A8_UNORM})
         .depth_stencil_format(DXGI_FORMAT_D32_FLOAT)
         .build(device, _pipeline, dx_name(Demo::NAME, "Pipeline"));

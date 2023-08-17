@@ -12,25 +12,25 @@ Demo::Demo(GpuDevice& device) :
 
         const auto sim_cs = sc.compile(Demo::NAME, GpuShaderType::Compute, "sim_cs", source);
         GpuPipelineBuilder()
-            .compute_shader(sim_cs.bytecode())
+            .compute_shader(sim_cs)
             .build(device, _sim_pipeline, dx_name(Demo::NAME, "Sim", "Pipeline"));
 
         const auto reset_cs = sc.compile(Demo::NAME, GpuShaderType::Compute, "reset_cs", source);
         GpuPipelineBuilder()
-            .compute_shader(reset_cs.bytecode())
+            .compute_shader(reset_cs)
             .build(device, _reset_pipeline, dx_name(Demo::NAME, "Reset", "Pipeline"));
 
         const auto cull_cs = sc.compile(Demo::NAME, GpuShaderType::Compute, "cull_cs", source);
         GpuPipelineBuilder()
-            .compute_shader(cull_cs.bytecode())
+            .compute_shader(cull_cs)
             .build(device, _cull_pipeline, dx_name(Demo::NAME, "Cull", "Pipeline"));
 
         const auto light_vs = sc.compile(Demo::NAME, GpuShaderType::Vertex, "light_vs", source);
         const auto light_ps = sc.compile(Demo::NAME, GpuShaderType::Pixel, "light_ps", source);
         GpuPipelineBuilder()
             .primitive_topology(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)
-            .vertex_shader(light_vs.bytecode())
-            .pixel_shader(light_ps.bytecode())
+            .vertex_shader(light_vs)
+            .pixel_shader(light_ps)
             .rasterizer(GPU_PIPELINE_WIREFRAME)
             .render_target_formats({DXGI_FORMAT_R8G8B8A8_UNORM})
             .depth_stencil_format(DXGI_FORMAT_D32_FLOAT)
@@ -40,8 +40,8 @@ Demo::Demo(GpuDevice& device) :
         const auto plane_ps = sc.compile(Demo::NAME, GpuShaderType::Pixel, "plane_ps", source);
         GpuPipelineBuilder()
             .primitive_topology(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)
-            .vertex_shader(plane_vs.bytecode())
-            .pixel_shader(plane_ps.bytecode())
+            .vertex_shader(plane_vs)
+            .pixel_shader(plane_ps)
             .render_target_formats({DXGI_FORMAT_R8G8B8A8_UNORM})
             .depth_stencil_format(DXGI_FORMAT_D32_FLOAT)
             .build(device, _plane_pipeline, dx_name(Demo::NAME, "Plane", "Pipeline"));
@@ -50,8 +50,8 @@ Demo::Demo(GpuDevice& device) :
         const auto debug_ps = sc.compile(Demo::NAME, GpuShaderType::Pixel, "debug_ps", source);
         GpuPipelineBuilder()
             .primitive_topology(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)
-            .vertex_shader(debug_vs.bytecode())
-            .pixel_shader(debug_ps.bytecode())
+            .vertex_shader(debug_vs)
+            .pixel_shader(debug_ps)
             .blend(GPU_PIPELINE_BLEND_ALPHA)
             .depth_stencil(GPU_PIPELINE_DEPTH_NONE)
             .render_target_formats({DXGI_FORMAT_R8G8B8A8_UNORM})
