@@ -53,6 +53,7 @@ int main() {
     AttachConsole(ATTACH_PARENT_PROCESS);
 
     // Init.
+    auto init_time = Instant();
     auto window =
         std::make_unique<Window>(Window::Desc {WINDOW_TITLE, WINDOW_WIDTH, WINDOW_HEIGHT});
     auto device = std::make_unique<GpuDevice>(*window);
@@ -78,6 +79,7 @@ int main() {
             }});
     auto gui = std::make_unique<demos::gui::Gui>(*window, *device, assets, shaders);
     device->log_stats();
+    FB_LOG_INFO("Init time: {} ms", 1e3f * init_time.elapsed_time());
 
     // Main loop.
     bool running = true;

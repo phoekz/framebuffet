@@ -42,28 +42,13 @@ GpuDevice::GpuDevice(const Window& window) {
 
     // Adapter.
     ComPtr<IDXGIAdapter4> adapter;
-    {
-        IDXGIAdapter4* temp_adapter = nullptr;
-        uint32_t adapter_index = 0;
-        while (factory->EnumAdapterByGpuPreference(
-                   adapter_index,
-                   DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE,
-                   IID_PPV_ARGS(&temp_adapter))
-               != DXGI_ERROR_NOT_FOUND) {
-            if (SUCCEEDED(D3D12CreateDevice(
-                    temp_adapter,
-                    MIN_FEATURE_LEVEL,
-                    __uuidof(ID3D12Device),
-                    nullptr))) {
-                DXGI_ADAPTER_DESC3 desc;
-                temp_adapter->GetDesc3(&desc);
-                FB_LOG_INFO("Using adapter {}: {}", adapter_index, fb::from_wstr(desc.Description));
-                adapter = temp_adapter;
-                break;
-            }
-            adapter_index += 1;
-        }
-    }
+    FB_ASSERT_HR(factory->EnumAdapterByGpuPreference(
+        0,
+        DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE,
+        IID_PPV_ARGS(&adapter)));
+    DXGI_ADAPTER_DESC3 adapter_desc;
+    adapter->GetDesc3(&adapter_desc);
+    FB_LOG_INFO("Using adapter {}", fb::from_wstr(adapter_desc.Description));
 
     // Output.
     {
