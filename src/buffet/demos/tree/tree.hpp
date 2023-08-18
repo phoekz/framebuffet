@@ -46,4 +46,4 @@ class TreeDemo {
     GpuPipeline _draw_pipeline;
 };
 
-}  // namespace fb::demos::tree
+} // namespace fb::demos::tree

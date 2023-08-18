@@ -22,4 +22,4 @@ struct overloaded: Ts... {
     using Ts::operator()...;
 };
 
-}  // namespace fb
+} // namespace fb

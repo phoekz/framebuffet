@@ -20,4 +20,4 @@ auto Image::load(std::span<const std::byte> image_data) -> Image {
     return image;
 }
 
-}  // namespace fb
+} // namespace fb

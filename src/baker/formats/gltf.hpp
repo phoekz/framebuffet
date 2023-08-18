@@ -78,4 +78,4 @@ class GltfModel {
     float _animation_duration = 0.0f;
 };
 
-}  // namespace fb
+} // namespace fb

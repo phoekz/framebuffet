@@ -46,4 +46,4 @@ auto write_whole_file(std::string_view path, std::span<const std::byte> data) ->
     FB_LOG_INFO("Wrote {} bytes to {}", data.size(), path);
 }
 
-}  // namespace fb
+} // namespace fb

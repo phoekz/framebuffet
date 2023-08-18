@@ -150,4 +150,4 @@ void RainDemo::render(GpuDevice& device, GpuCommandList& cmd) {
     }
 }
 
-}  // namespace fb::demos::rain
+} // namespace fb::demos::rain

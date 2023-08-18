@@ -53,4 +53,4 @@ class DebugDraw {
     std::array<Frame, FRAME_COUNT> _frames;
 };
 
-}  // namespace fb::demos
+} // namespace fb::demos

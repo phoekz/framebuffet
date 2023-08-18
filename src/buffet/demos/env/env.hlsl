@@ -46,11 +46,11 @@ VertexOutput draw_vs(FbVertexInput input) {
 
     VertexOutput output;
     output.position = mul(constants.transform, float4(vertex.position, 1.0f));
-    output.position = output.position.xyww;  // Forces far plane.
+    output.position = output.position.xyww; // Forces far plane.
     output.normal = vertex.normal;
     output.texcoord = vertex.texcoord;
     output.direction = direction;
-    output.direction.z *= -1.0f;  // Handedness flip.
+    output.direction.z *= -1.0f; // Handedness flip.
     return output;
 }
 

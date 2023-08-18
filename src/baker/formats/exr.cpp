@@ -26,4 +26,4 @@ ExrImage::~ExrImage() {
     }
 }
 
-}  // namespace fb
+} // namespace fb

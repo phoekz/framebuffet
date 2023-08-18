@@ -95,4 +95,4 @@ class GpuCommandList {
     GpuDescriptors* _descriptors = nullptr;
 };
 
-}  // namespace fb
+} // namespace fb

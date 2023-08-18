@@ -17,4 +17,4 @@ class Instant {
     TimePoint _time_point;
 };
 
-}  // namespace fb
+} // namespace fb

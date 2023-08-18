@@ -82,4 +82,4 @@ auto GpuDescriptors::log_stats() -> void {
         _dsv_heap.capacity());
 }
 
-}  // namespace fb
+} // namespace fb

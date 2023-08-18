@@ -220,4 +220,4 @@ auto AnimDemo::render(GpuDevice& device, GpuCommandList& cmd) -> void {
     _render_targets.end(device, cmd);
 }
 
-}  // namespace fb::demos::anim
+} // namespace fb::demos::anim

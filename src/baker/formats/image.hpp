@@ -24,4 +24,4 @@ class Image {
     std::vector<std::byte> _pixels;
 };
 
-}  // namespace fb
+} // namespace fb

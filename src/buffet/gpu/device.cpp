@@ -487,4 +487,4 @@ auto GpuDevice::log_stats() -> void {
     _descriptors->log_stats();
 }
 
-}  // namespace fb
+} // namespace fb

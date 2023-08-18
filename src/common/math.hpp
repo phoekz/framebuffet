@@ -86,7 +86,7 @@ inline auto rgb_from_hsv(Float3 hsv) -> Float3 {
     }
 }
 
-}  // namespace fb
+} // namespace fb
 
 //
 // Formatters.

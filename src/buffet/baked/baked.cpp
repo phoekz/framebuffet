@@ -273,4 +273,4 @@ auto Shaders::env_draw_ps() const -> std::span<const std::byte> {
     return std::span(_data).subspan(126200, 4428);
 }
 
-}  // namespace fb::baked
+} // namespace fb::baked

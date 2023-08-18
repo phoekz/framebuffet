@@ -45,4 +45,4 @@ class Cards {
     std::array<uint32_t, CARD_COUNT> _card_indirect_indices;
 };
 
-}  // namespace fb::demos::cards
+} // namespace fb::demos::cards

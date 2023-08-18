@@ -14,4 +14,4 @@ class pcg {
     uint64_t _inc = 0xda3e39cb94b95bdb;
 };
 
-}  // namespace fb
+} // namespace fb

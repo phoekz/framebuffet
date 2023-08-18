@@ -40,7 +40,7 @@ namespace detail {
         }
         return true;
     }
-}  // namespace detail
+} // namespace detail
 
 template<typename T, GpuBufferAccessMode ACCESS_MODE, GpuBufferFlags FLAGS>
     requires(detail::buffer_type_is_valid<T, FLAGS>())
@@ -233,4 +233,4 @@ using GpuBufferDeviceIndex = GpuBuffer<T, GpuBufferAccessMode::Device, GpuBuffer
 template<typename T>
 using GpuBufferDeviceSrvUav = GpuBuffer<T, GpuBufferAccessMode::Device, GpuBufferFlags::SrvUav>;
 
-}  // namespace fb
+} // namespace fb

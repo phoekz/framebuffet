@@ -37,4 +37,4 @@ class AnimDemo {
     baked::AnimationMesh _animation_mesh;
 };
 
-}  // namespace fb::demos::anim
+} // namespace fb::demos::anim

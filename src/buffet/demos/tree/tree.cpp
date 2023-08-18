@@ -221,4 +221,4 @@ auto TreeDemo::render(GpuDevice& device, GpuCommandList& cmd) -> void {
     }
 }
 
-}  // namespace fb::demos::tree
+} // namespace fb::demos::tree

@@ -55,4 +55,4 @@ auto RenderTargets::end(GpuDevice&, const GpuCommandList& cmd) -> void {
     _color.transition(cmd, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 }
 
-}  // namespace fb::demos
+} // namespace fb::demos

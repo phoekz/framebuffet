@@ -15,4 +15,4 @@ auto Instant::elapsed_time() const -> double {
     return seconds;
 }
 
-}  // namespace fb
+} // namespace fb

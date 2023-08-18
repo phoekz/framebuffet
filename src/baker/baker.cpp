@@ -216,12 +216,12 @@ auto build_assets(std::string_view assets_dir)
 
                     // Load faces.
                     auto cube_faces = std::to_array({
-                        ExrImage::load(std::format("{}/{}", assets_dir, task.paths[0])),  // PosX
-                        ExrImage::load(std::format("{}/{}", assets_dir, task.paths[1])),  // NegX
-                        ExrImage::load(std::format("{}/{}", assets_dir, task.paths[2])),  // PosY
-                        ExrImage::load(std::format("{}/{}", assets_dir, task.paths[3])),  // NegY
-                        ExrImage::load(std::format("{}/{}", assets_dir, task.paths[4])),  // PosZ
-                        ExrImage::load(std::format("{}/{}", assets_dir, task.paths[5])),  // NegZ
+                        ExrImage::load(std::format("{}/{}", assets_dir, task.paths[0])), // PosX
+                        ExrImage::load(std::format("{}/{}", assets_dir, task.paths[1])), // NegX
+                        ExrImage::load(std::format("{}/{}", assets_dir, task.paths[2])), // PosY
+                        ExrImage::load(std::format("{}/{}", assets_dir, task.paths[3])), // NegY
+                        ExrImage::load(std::format("{}/{}", assets_dir, task.paths[4])), // PosZ
+                        ExrImage::load(std::format("{}/{}", assets_dir, task.paths[5])), // NegZ
                     });
 
                     // Swap Z faces to match DirectX convention.
@@ -388,7 +388,7 @@ auto build_assets(std::string_view assets_dir)
     return {assets, assets_bin};
 }
 
-}  // namespace fb
+} // namespace fb
 
 namespace fb {
 
@@ -483,7 +483,7 @@ auto build_shaders(std::string_view buffet_dir) -> std::vector<Shader> {
     return compiled_shaders;
 }
 
-}  // namespace fb
+} // namespace fb
 
 template<>
 struct std::formatter<DXGI_FORMAT>: std::formatter<char> {

@@ -37,4 +37,4 @@ class ExrImage {
     Uint2 _size = {};
 };
 
-}  // namespace fb
+} // namespace fb

@@ -18,7 +18,7 @@ struct GuiDesc {
     Uint2 window_size;
 };
 
-}  // namespace fb::demos
+} // namespace fb::demos
 
 #include "gui.hpp"
 #include "debug_draw.hpp"

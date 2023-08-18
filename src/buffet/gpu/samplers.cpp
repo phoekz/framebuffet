@@ -61,4 +61,4 @@ GpuSamplers::GpuSamplers(GpuDevice& device, GpuDescriptors& descriptors) {
     }
 }
 
-}  // namespace fb
+} // namespace fb

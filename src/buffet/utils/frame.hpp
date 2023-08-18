@@ -34,4 +34,4 @@ class Frame {
     float _last_delta_time = 0.0f;
 };
 
-}  // namespace fb
+} // namespace fb

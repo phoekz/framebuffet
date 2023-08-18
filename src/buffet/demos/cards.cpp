@@ -153,4 +153,4 @@ void Cards::render(GpuDevice& device, GpuCommandList& cmd) {
     }
 }
 
-}  // namespace fb::demos::cards
+} // namespace fb::demos::cards

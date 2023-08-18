@@ -56,4 +56,4 @@ auto Frame::update() -> void {
     }
 }
 
-}  // namespace fb
+} // namespace fb

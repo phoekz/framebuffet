@@ -18,4 +18,4 @@ auto to_wstr(std::string_view str) -> std::wstring {
     return wstr;
 }
 
-}  // namespace fb
+} // namespace fb

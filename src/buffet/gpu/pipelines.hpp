@@ -154,4 +154,4 @@ inline constexpr D3D12_RASTERIZER_DESC2 GPU_PIPELINE_WIREFRAME = {
     .ConservativeRaster = D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF,
 };
 
-}  // namespace fb
+} // namespace fb

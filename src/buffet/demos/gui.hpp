@@ -37,4 +37,4 @@ class Gui {
     GpuTextureSrv _texture;
 };
 
-}  // namespace fb::demos::gui
+} // namespace fb::demos::gui

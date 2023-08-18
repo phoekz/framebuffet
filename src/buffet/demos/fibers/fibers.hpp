@@ -70,4 +70,4 @@ class FibersDemo {
     GpuBufferDeviceSrvUav<uint32_t> _light_indices_count;
 };
 
-}  // namespace fb::demos::fibers
+} // namespace fb::demos::fibers

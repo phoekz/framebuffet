@@ -24,21 +24,48 @@ class GpuDevice {
     auto end_frame(GpuCommandList&& cmd) -> void;
     auto wait() -> void;
 
-    // Direct3D 12 wrappers.
-    // clang-format off
-    [[nodiscard]] auto create_root_signature(const ComPtr<ID3DBlob>& signature, std::string_view name) const -> ComPtr<ID3D12RootSignature>;
-    [[nodiscard]] auto create_descriptor_heap(const D3D12_DESCRIPTOR_HEAP_DESC& desc, std::string_view name) const -> ComPtr<ID3D12DescriptorHeap>;
-    [[nodiscard]] auto create_pipeline_state( const D3D12_PIPELINE_STATE_STREAM_DESC& desc, std::string_view name) -> ComPtr<ID3D12PipelineState>;
-    [[nodiscard]] auto create_committed_resource(const CD3DX12_HEAP_PROPERTIES& heap_props, const D3D12_RESOURCE_DESC& desc, D3D12_RESOURCE_STATES init_state, const std::optional<D3D12_CLEAR_VALUE>& clear_value, std::string_view name) const -> ComPtr<ID3D12Resource>;
-    [[nodiscard]] auto create_fence(uint64_t init_value, std::string_view name) const -> ComPtr<ID3D12Fence1>;
-    auto create_constant_buffer_view(const D3D12_CONSTANT_BUFFER_VIEW_DESC& desc, D3D12_CPU_DESCRIPTOR_HANDLE descriptor) const -> void;
-    auto create_shader_resource_view(const ComPtr<ID3D12Resource>& resource, const D3D12_SHADER_RESOURCE_VIEW_DESC& desc, D3D12_CPU_DESCRIPTOR_HANDLE descriptor) const -> void;
-    auto create_unordered_access_view(const ComPtr<ID3D12Resource>& resource, const std::optional<std::reference_wrapper<ComPtr<ID3D12Resource>>> counter, const D3D12_UNORDERED_ACCESS_VIEW_DESC& desc, D3D12_CPU_DESCRIPTOR_HANDLE descriptor) -> void;
-    auto create_render_target_view(const ComPtr<ID3D12Resource>& resource, const std::optional<D3D12_RENDER_TARGET_VIEW_DESC>& desc, D3D12_CPU_DESCRIPTOR_HANDLE descriptor) const -> void;
-    auto create_depth_stencil_view(const ComPtr<ID3D12Resource>& resource, const std::optional<D3D12_DEPTH_STENCIL_VIEW_DESC>& desc, D3D12_CPU_DESCRIPTOR_HANDLE descriptor) const -> void;
-    auto create_sampler(const D3D12_SAMPLER_DESC& desc, D3D12_CPU_DESCRIPTOR_HANDLE descriptor) const -> void;
+    // Wrappers.
+    [[nodiscard]] auto
+    create_root_signature(const ComPtr<ID3DBlob>& signature, std::string_view name) const
+        -> ComPtr<ID3D12RootSignature>;
+    [[nodiscard]] auto
+    create_descriptor_heap(const D3D12_DESCRIPTOR_HEAP_DESC& desc, std::string_view name) const
+        -> ComPtr<ID3D12DescriptorHeap>;
+    [[nodiscard]] auto
+    create_pipeline_state(const D3D12_PIPELINE_STATE_STREAM_DESC& desc, std::string_view name)
+        -> ComPtr<ID3D12PipelineState>;
+    [[nodiscard]] auto create_committed_resource(
+        const CD3DX12_HEAP_PROPERTIES& heap_props,
+        const D3D12_RESOURCE_DESC& desc,
+        D3D12_RESOURCE_STATES init_state,
+        const std::optional<D3D12_CLEAR_VALUE>& clear_value,
+        std::string_view name) const -> ComPtr<ID3D12Resource>;
+    [[nodiscard]] auto create_fence(uint64_t init_value, std::string_view name) const
+        -> ComPtr<ID3D12Fence1>;
+    auto create_constant_buffer_view(
+        const D3D12_CONSTANT_BUFFER_VIEW_DESC& desc,
+        D3D12_CPU_DESCRIPTOR_HANDLE descriptor) const -> void;
+    auto create_shader_resource_view(
+        const ComPtr<ID3D12Resource>& resource,
+        const D3D12_SHADER_RESOURCE_VIEW_DESC& desc,
+        D3D12_CPU_DESCRIPTOR_HANDLE descriptor) const -> void;
+    auto create_unordered_access_view(
+        const ComPtr<ID3D12Resource>& resource,
+        const std::optional<std::reference_wrapper<ComPtr<ID3D12Resource>>> counter,
+        const D3D12_UNORDERED_ACCESS_VIEW_DESC& desc,
+        D3D12_CPU_DESCRIPTOR_HANDLE descriptor) -> void;
+    auto create_render_target_view(
+        const ComPtr<ID3D12Resource>& resource,
+        const std::optional<D3D12_RENDER_TARGET_VIEW_DESC>& desc,
+        D3D12_CPU_DESCRIPTOR_HANDLE descriptor) const -> void;
+    auto create_depth_stencil_view(
+        const ComPtr<ID3D12Resource>& resource,
+        const std::optional<D3D12_DEPTH_STENCIL_VIEW_DESC>& desc,
+        D3D12_CPU_DESCRIPTOR_HANDLE descriptor) const -> void;
+    auto
+    create_sampler(const D3D12_SAMPLER_DESC& desc, D3D12_CPU_DESCRIPTOR_HANDLE descriptor) const
+        -> void;
     auto descriptor_size(D3D12_DESCRIPTOR_HEAP_TYPE heap_type) const -> uint32_t;
-    // clang-format on
 
     // Resource utilities.
     auto easy_upload(
@@ -83,4 +110,4 @@ class GpuDevice {
     std::unique_ptr<GpuSamplers> _samplers;
 };
 
-}  // namespace fb
+} // namespace fb

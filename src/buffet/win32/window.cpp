@@ -41,9 +41,9 @@ Window::Window(const Desc& desc) {
 
     // Register window class.
     UINT class_style = 0;
-    class_style |= CS_OWNDC;    // Allocates a unique device context for each window in the class.
-    class_style |= CS_HREDRAW;  // Redraws the client area if the width changes.
-    class_style |= CS_VREDRAW;  // Redraws the client area if the height changes.
+    class_style |= CS_OWNDC;   // Allocates a unique device context for each window in the class.
+    class_style |= CS_HREDRAW; // Redraws the client area if the width changes.
+    class_style |= CS_VREDRAW; // Redraws the client area if the height changes.
     HICON icon = LoadIconA(nullptr, IDI_WINLOGO);
     HCURSOR cursor = LoadCursorA(nullptr, IDC_ARROW);
     HBRUSH background_brush = (HBRUSH)GetStockObject(BLACK_BRUSH);
@@ -116,4 +116,4 @@ auto Window::hwnd() const -> HWND {
     return impl->handle.get();
 }
 
-}  // namespace fb
+} // namespace fb

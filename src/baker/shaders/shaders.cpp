@@ -183,4 +183,4 @@ auto ShaderCompiler::compile(
     };
 }
 
-}  // namespace fb
+} // namespace fb

@@ -91,4 +91,4 @@ class GpuBindings {
     uint32_t _count = 0;
 };
 
-}  // namespace fb
+} // namespace fb

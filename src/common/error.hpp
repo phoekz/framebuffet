@@ -10,7 +10,7 @@ namespace error_detail {
     auto hr_message(HRESULT hr) -> std::string;
     [[noreturn]] auto terminate() -> void;
 
-}  // namespace error_detail
+} // namespace error_detail
 
 #define FB_FATAL() fb::error_detail::terminate()
 
@@ -60,4 +60,4 @@ namespace error_detail {
         __debugbreak(); \
     FB_FATAL();
 
-}  // namespace fb
+} // namespace fb

@@ -121,4 +121,4 @@ auto GpuPipelineBuilder::build(GpuDevice& device, GpuPipeline& pipeline, std::st
         name);
 }
 
-}  // namespace fb
+} // namespace fb

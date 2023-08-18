@@ -200,4 +200,4 @@ auto Gui::render(const GpuDevice& device, GpuCommandList& cmd) -> void {
     }
 }
 
-}  // namespace fb::demos::gui
+} // namespace fb::demos::gui

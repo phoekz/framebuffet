@@ -61,4 +61,4 @@ auto DebugDraw::render(GpuDevice&, const GpuCommandList& cmd) -> void {
     cmd.draw_instanced((uint32_t)_lines.size(), 1, 0, 0);
 }
 
-}  // namespace fb::demos
+} // namespace fb::demos

@@ -25,4 +25,4 @@ class RenderTargets {
     GpuTextureDsv _depth;
 };
 
-}  // namespace fb::demos
+} // namespace fb::demos

@@ -246,4 +246,4 @@ using GpuTextureSrvRtv = GpuTexture<GpuTextureFlags::SrvRtv>;
 using GpuTextureSrvDsv = GpuTexture<GpuTextureFlags::SrvDsv>;
 using GpuTextureSrvCube = GpuTexture<GpuTextureFlags::SrvCube>;
 
-}  // namespace fb
+} // namespace fb

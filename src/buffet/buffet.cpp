@@ -41,7 +41,7 @@ gui_wrapper(T& demo, const demos::GuiDesc& desc, ImGuiTreeNodeFlags flags = ImGu
     ImGui::PopID();
 };
 
-}  // namespace fb
+} // namespace fb
 
 int main() {
     using namespace fb;

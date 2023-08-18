@@ -304,4 +304,4 @@ GltfModel::GltfModel(std::string_view gltf_path) {
     cgltf_free(data);
 }
 
-}  // namespace fb
+} // namespace fb

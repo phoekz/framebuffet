@@ -22,4 +22,4 @@ template<typename... Args>
     return str;
 }
 
-}  // namespace fb
+} // namespace fb

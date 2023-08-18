@@ -25,4 +25,4 @@ auto dx_set_name(const ComPtr<ID3D12Object>& object, std::string_view name) -> v
     dx_set_name(object.get(), name);
 }
 
-}  // namespace fb
+} // namespace fb

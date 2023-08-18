@@ -359,4 +359,4 @@ auto FibersDemo::render(GpuDevice& device, GpuCommandList& cmd) -> void {
     }
 }
 
-}  // namespace fb::demos::fibers
+} // namespace fb::demos::fibers

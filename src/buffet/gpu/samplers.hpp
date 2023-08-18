@@ -16,4 +16,4 @@ class GpuSamplers {
     std::array<GpuDescriptor, (size_t)GpuSamplerType::Count> _handles;
 };
 
-}  // namespace fb
+} // namespace fb

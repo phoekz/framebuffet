@@ -150,4 +150,4 @@ class Shaders {
     std::vector<std::byte> _data;
 };
 
-}  // namespace fb::baked
+} // namespace fb::baked

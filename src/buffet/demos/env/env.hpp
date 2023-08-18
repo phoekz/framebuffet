@@ -42,4 +42,4 @@ class EnvDemo {
     GpuTextureSrvCube _env_texture;
 };
 
-}  // namespace fb::demos::env
+} // namespace fb::demos::env

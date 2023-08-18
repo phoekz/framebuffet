@@ -13,6 +13,6 @@ namespace error_detail {
         std::terminate();
     }
 
-}  // namespace error_detail
+} // namespace error_detail
 
-}  // namespace fb
+} // namespace fb

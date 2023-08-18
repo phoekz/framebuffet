@@ -23,4 +23,4 @@ class Window final {
     std::unique_ptr<WindowImpl> impl;
 };
 
-}  // namespace fb
+} // namespace fb

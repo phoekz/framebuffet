@@ -50,4 +50,4 @@ class RainDemo {
     GpuBufferHostIndex<uint16_t> _draw_indices;
 };
 
-}  // namespace fb::demos::rain
+} // namespace fb::demos::rain

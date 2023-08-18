@@ -31,4 +31,4 @@ class CubeDemo {
     GpuTextureSrv _texture;
 };
 
-}  // namespace fb::demos::cube
+} // namespace fb::demos::cube

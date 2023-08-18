@@ -4,8 +4,8 @@
 namespace fb {
 
 #pragma warning(push)
-#pragma warning(disable : 4244)  // conversion from 'uint64_t' to 'uint32_t', possible loss of data
-#pragma warning(disable : 4146)  // unary minus operator applied to unsigned type
+#pragma warning(disable : 4244) // conversion from 'uint64_t' to 'uint32_t', possible loss of data
+#pragma warning(disable : 4146) // unary minus operator applied to unsigned type
 
 auto pcg::random_uint() -> uint32_t {
     uint64_t oldstate = _state;
@@ -21,4 +21,4 @@ auto pcg::random_float() -> float {
 
 #pragma warning(pop)
 
-}  // namespace fb
+} // namespace fb

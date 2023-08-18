@@ -54,6 +54,6 @@ namespace log_detail {
         log(LogLevel::Error, fmt, args...);
     }
 
-}  // namespace log_detail
+} // namespace log_detail
 
-}  // namespace fb
+} // namespace fb

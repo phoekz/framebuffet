@@ -112,4 +112,4 @@ auto EnvDemo::render(GpuDevice& device, GpuCommandList& cmd) -> void {
     _render_targets.end(device, cmd);
 }
 
-}  // namespace fb::demos::env
+} // namespace fb::demos::env

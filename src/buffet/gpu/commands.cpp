@@ -182,4 +182,4 @@ auto GpuCommandList::uav_barrier(const ComPtr<ID3D12Resource>& resource) const -
     _cmd->ResourceBarrier(1, &barrier);
 }
 
-}  // namespace fb
+} // namespace fb

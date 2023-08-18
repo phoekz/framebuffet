@@ -35,7 +35,7 @@ class ShaderCompiler {
     ComPtr<IDxcIncludeHandler> _include_handler;
 };
 
-}  // namespace fb
+} // namespace fb
 
 template<>
 struct std::formatter<fb::ShaderType>: std::formatter<char> {
