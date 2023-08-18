@@ -161,8 +161,8 @@ set(DXAGILITYSDK_LIBRARY ext_dxagilitysdk CACHE INTERNAL "DirectX Agility SDK Li
 message(STATUS "Fetching DirectX Shader Compiler...")
 FetchContent_Declare(
     dxcompiler
-    URL "https://globalcdn.nuget.org/packages/microsoft.direct3d.dxc.1.7.2212.36.nupkg"
-    URL_MD5 27673ca6b8e250e63ee5e741aeec1be4
+    URL "https://globalcdn.nuget.org/packages/microsoft.direct3d.dxc.1.7.2308.12.nupkg"
+    URL_MD5 59f6761d73ab36cda5152cb568b4bfd2
 )
 FetchContent_MakeAvailable(dxcompiler)
 set(DXCOMPILER_SOURCE_DIR ${FETCHCONTENT_BASE_DIR}/dxcompiler-src/build/native CACHE INTERNAL "DirectX Shader Compiler Source Directory")

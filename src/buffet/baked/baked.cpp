@@ -162,115 +162,115 @@ auto Assets::winter_evening_cube_texture() const -> CubeTexture {
 
 Shaders::Shaders() {
     _data = read_whole_file("fb_shaders.bin");
-    FB_ASSERT(_data.size() == 130628);
+    FB_ASSERT(_data.size() == 131148);
 }
 
 auto Shaders::gui_draw_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(0, 5252);
+    return std::span(_data).subspan(0, 5268);
 }
 
 auto Shaders::gui_draw_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(5252, 4400);
+    return std::span(_data).subspan(5268, 4424);
 }
 
 auto Shaders::debug_draw_draw_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(9652, 5100);
+    return std::span(_data).subspan(9692, 5120);
 }
 
 auto Shaders::debug_draw_draw_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(14752, 3028);
+    return std::span(_data).subspan(14812, 3052);
 }
 
 auto Shaders::cards_draw_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(17780, 4836);
+    return std::span(_data).subspan(17864, 4860);
 }
 
 auto Shaders::cards_draw_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(22616, 4208);
+    return std::span(_data).subspan(22724, 4228);
 }
 
 auto Shaders::cube_draw_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(26824, 4996);
+    return std::span(_data).subspan(26952, 5012);
 }
 
 auto Shaders::cube_draw_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(31820, 4556);
+    return std::span(_data).subspan(31964, 4580);
 }
 
 auto Shaders::tree_shadow_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(36376, 4632);
+    return std::span(_data).subspan(36544, 4652);
 }
 
 auto Shaders::tree_draw_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(41008, 5432);
+    return std::span(_data).subspan(41196, 5456);
 }
 
 auto Shaders::tree_draw_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(46440, 5196);
+    return std::span(_data).subspan(46652, 5216);
 }
 
 auto Shaders::rain_sim_cs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(51636, 3724);
+    return std::span(_data).subspan(51868, 3748);
 }
 
 auto Shaders::rain_draw_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(55360, 5040);
+    return std::span(_data).subspan(55616, 5064);
 }
 
 auto Shaders::rain_draw_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(60400, 3208);
+    return std::span(_data).subspan(60680, 3232);
 }
 
 auto Shaders::anim_draw_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(63608, 9968);
+    return std::span(_data).subspan(63912, 9988);
 }
 
 auto Shaders::anim_draw_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(73576, 4636);
+    return std::span(_data).subspan(73900, 4656);
 }
 
 auto Shaders::fibers_sim_cs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(78212, 3980);
+    return std::span(_data).subspan(78556, 4004);
 }
 
 auto Shaders::fibers_reset_cs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(82192, 3400);
+    return std::span(_data).subspan(82560, 3424);
 }
 
 auto Shaders::fibers_cull_cs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(85592, 7340);
+    return std::span(_data).subspan(85984, 7336);
 }
 
 auto Shaders::fibers_light_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(92932, 5464);
+    return std::span(_data).subspan(93320, 5484);
 }
 
 auto Shaders::fibers_light_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(98396, 3120);
+    return std::span(_data).subspan(98804, 3144);
 }
 
 auto Shaders::fibers_plane_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(101516, 5480);
+    return std::span(_data).subspan(101948, 5504);
 }
 
 auto Shaders::fibers_plane_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(106996, 5928);
+    return std::span(_data).subspan(107452, 5928);
 }
 
 auto Shaders::fibers_debug_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(112924, 3248);
+    return std::span(_data).subspan(113380, 3248);
 }
 
 auto Shaders::fibers_debug_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(116172, 4932);
+    return std::span(_data).subspan(116628, 4952);
 }
 
 auto Shaders::env_draw_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(121104, 5096);
+    return std::span(_data).subspan(121580, 5116);
 }
 
 auto Shaders::env_draw_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(126200, 4428);
+    return std::span(_data).subspan(126696, 4452);
 }
 
 } // namespace fb::baked
