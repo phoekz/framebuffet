@@ -29,7 +29,13 @@ struct GltfChannelHeader {
     size_t s_offset = 0;
     size_t s_count = 0;
 };
+
 inline constexpr uint32_t GLTF_NULL_NODE = ~0u;
+
+// Gltf spec: The base color texture MUST contain 8-bit values encoded with the
+// sRGB opto-electronic transfer function so RGB values MUST be decoded to real
+// linear values before they are used for any computations.
+inline constexpr DXGI_FORMAT GLTF_BASE_COLOR_TEXTURE_FORMAT = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
 
 class GltfModel {
   public:

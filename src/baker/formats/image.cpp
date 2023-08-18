@@ -2,7 +2,6 @@
 
 namespace fb {
 
-// Note: Forces R8G8B8A8_UNORM.
 auto Image::load(std::span<const std::byte> image_data) -> Image {
     Image image;
     int dummy;

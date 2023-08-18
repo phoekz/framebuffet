@@ -78,3 +78,8 @@ float2 fb_screen_coord_from_ndc(float4 ndc) {
     // Note: Y is flipped.
     return ndc.xy / ndc.w * float2(0.5f, -0.5f) + float2(0.5f, 0.5f);
 }
+
+float3 linear_from_srgb(float3 srgb) {
+    // https://chilliant.blogspot.com/2012/08/srgb-approximations-for-hlsl.html
+    return srgb * (srgb * (srgb * 0.305306011f + 0.682171111f) + 0.012522878f);
+}

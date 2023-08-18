@@ -198,7 +198,11 @@ GpuDevice::GpuDevice(const Window& window) {
 
             auto rtv_descriptor_handle = _rtv_descriptor_heap->GetCPUDescriptorHandleForHeapStart();
             rtv_descriptor_handle.ptr += i * this->descriptor_size(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
-            _device->CreateRenderTargetView(_rtvs[i].get(), nullptr, rtv_descriptor_handle);
+            D3D12_RENDER_TARGET_VIEW_DESC rtv_desc = {
+                .Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB,
+                .ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D,
+            };
+            _device->CreateRenderTargetView(_rtvs[i].get(), &rtv_desc, rtv_descriptor_handle);
             _rtv_descriptors[i] = rtv_descriptor_handle;
         }
     }

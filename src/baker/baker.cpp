@@ -201,7 +201,7 @@ auto build_assets(std::string_view assets_dir)
                     const auto image = Image::load(file);
                     assets.push_back(AssetTexture {
                         .name = name,
-                        .format = image.format(),
+                        .format = GLTF_BASE_COLOR_TEXTURE_FORMAT,
                         .width = image.width(),
                         .height = image.height(),
                         .channels = image.channels(),
@@ -273,7 +273,7 @@ auto build_assets(std::string_view assets_dir)
                     update_unique_names(unique_names, texture_name);
                     assets.push_back(AssetTexture {
                         .name = texture_name,
-                        .format = texture.format(),
+                        .format = GLTF_BASE_COLOR_TEXTURE_FORMAT,
                         .width = texture.width(),
                         .height = texture.height(),
                         .channels = texture.channels(),
@@ -327,7 +327,7 @@ auto build_assets(std::string_view assets_dir)
                     update_unique_names(unique_names, texture_name);
                     assets.push_back(AssetTexture {
                         .name = texture_name,
-                        .format = DXGI_FORMAT_R8G8B8A8_UNORM,
+                        .format = GLTF_BASE_COLOR_TEXTURE_FORMAT,
                         .width = texture.width(),
                         .height = texture.height(),
                         .channels = texture.channels(),
@@ -492,6 +492,8 @@ struct std::formatter<DXGI_FORMAT>: std::formatter<char> {
         switch (v) {
             case DXGI_FORMAT_R8G8B8A8_UNORM:
                 return std::format_to(fc.out(), "DXGI_FORMAT_R8G8B8A8_UNORM");
+            case DXGI_FORMAT_R8G8B8A8_UNORM_SRGB:
+                return std::format_to(fc.out(), "DXGI_FORMAT_R8G8B8A8_UNORM_SRGB");
             case DXGI_FORMAT_R32G32B32A32_FLOAT:
                 return std::format_to(fc.out(), "DXGI_FORMAT_R32G32B32A32_FLOAT");
             default: FB_FATAL();
