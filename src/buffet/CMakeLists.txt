@@ -1,31 +1,31 @@
 set(NAME fb_buffet)
 set(SOURCES
-    buffet.cpp
-    buffet.manifest
     baked/baked.cpp
     baked/baked.hpp
+    buffet.cpp
+    buffet.manifest
+    demos/anim/anim.cpp
+    demos/anim/anim.hpp
     demos/cards.cpp
     demos/cards.hpp
+    demos/cube/cube.cpp
+    demos/cube/cube.hpp
     demos/debug_draw.cpp
     demos/debug_draw.hpp
     demos/demos.hpp
-    demos/gui.cpp
-    demos/gui.hpp
-    demos/render_targets.cpp
-    demos/render_targets.hpp
-    demos/cube/cube.cpp
-    demos/cube/cube.hpp
-    demos/tree/tree.cpp
-    demos/tree/tree.hpp
-    demos/rain/rain.cpp
-    demos/rain/rain.hpp
-    demos/anim/anim.cpp
-    demos/anim/anim.hpp
+    demos/env/env.cpp
+    demos/env/env.hpp
     demos/fibers/fibers.cpp
     demos/fibers/fibers.hlsli
     demos/fibers/fibers.hpp
-    demos/env/env.cpp
-    demos/env/env.hpp
+    demos/gui.cpp
+    demos/gui.hpp
+    demos/rain/rain.cpp
+    demos/rain/rain.hpp
+    demos/render_targets.cpp
+    demos/render_targets.hpp
+    demos/tree/tree.cpp
+    demos/tree/tree.hpp
     gpu/buffers.hpp
     gpu/commands.cpp
     gpu/commands.hpp

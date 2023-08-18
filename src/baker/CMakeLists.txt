@@ -1,15 +1,15 @@
 set(NAME fb_baker)
 set(SOURCES
     baker.cpp
-    formats/stb.cpp
-    formats/tinyexr.cpp
     formats/cgltf.cpp
-    formats/image.cpp
-    formats/image.hpp
     formats/exr.cpp
     formats/exr.hpp
     formats/gltf.cpp
     formats/gltf.hpp
+    formats/image.cpp
+    formats/image.hpp
+    formats/stb.cpp
+    formats/tinyexr.cpp
     shaders/shaders.cpp
     shaders/shaders.hpp
 )
