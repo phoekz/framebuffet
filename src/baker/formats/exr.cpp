@@ -10,7 +10,7 @@ auto ExrImage::load(std::string_view path) -> ExrImage {
     const char* err = nullptr;
     int result = LoadEXRWithLayer(&pixels, &width, &height, path.data(), nullptr, &err);
     FB_ASSERT_MSG(result == TINYEXR_SUCCESS, "{}", err);
-    FB_LOG_INFO("Loaded {} ({}x{}) in {}s.", path, width, height, now.elapsed_time());
+    FB_LOG_TRACE("Loaded {} ({}x{}) in {}s.", path, width, height, now.elapsed_time());
 
     ExrImage exr_image;
     exr_image._pixels = pixels;
@@ -20,7 +20,7 @@ auto ExrImage::load(std::string_view path) -> ExrImage {
 
 ExrImage::~ExrImage() {
     if (_pixels) {
-        FB_LOG_INFO("Freeing EXR image {}.", (void*)_pixels);
+        FB_LOG_TRACE("Freeing EXR image {}.", (void*)_pixels);
         std::free((void*)_pixels);
         _pixels = nullptr;
     }

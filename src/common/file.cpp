@@ -23,7 +23,7 @@ auto read_whole_file(std::string_view path) -> std::vector<std::byte> {
         ReadFile(file.get(), buffer.data(), (DWORD)buffer.size(), &bytes_read, nullptr),
         "Failed to read file.");
 
-    FB_LOG_INFO("Read {} bytes from {}", bytes_read, path);
+    FB_LOG_TRACE("Read {} bytes from {}", bytes_read, path);
 
     return buffer;
 }
@@ -43,7 +43,7 @@ auto write_whole_file(std::string_view path, std::span<const std::byte> data) ->
         WriteFile(file.get(), data.data(), (DWORD)data.size(), nullptr, nullptr),
         "Failed to write file.");
 
-    FB_LOG_INFO("Wrote {} bytes to {}", data.size(), path);
+    FB_LOG_TRACE("Wrote {} bytes to {}", data.size(), path);
 }
 
 } // namespace fb
