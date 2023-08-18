@@ -15,14 +15,14 @@ class RenderTargets {
 
     auto begin(GpuDevice& device, const GpuCommandList& cmd) -> void;
     auto end(GpuDevice& device, const GpuCommandList& cmd) -> void;
-    auto color() const -> const GpuTexture2dSrvRtv& { return _color; }
-    auto depth() const -> const GpuTexture2dDsv& { return _depth; }
+    auto color() const -> const GpuTextureSrvRtv& { return _color; }
+    auto depth() const -> const GpuTextureDsv& { return _depth; }
 
   private:
     Uint2 _size = {};
     Float4 _clear_color;
-    GpuTexture2dSrvRtv _color;
-    GpuTexture2dDsv _depth;
+    GpuTextureSrvRtv _color;
+    GpuTextureDsv _depth;
 };
 
 }  // namespace fb::demos

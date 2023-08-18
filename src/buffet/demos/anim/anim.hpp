@@ -19,7 +19,7 @@ class AnimDemo {
     auto update(const UpdateDesc& desc) -> void;
     auto render(GpuDevice& device, GpuCommandList& cmd) -> void;
 
-    auto rt_color() const -> const GpuTexture2dSrvRtv& { return _render_targets.color(); }
+    auto rt_color() const -> const GpuTextureSrvRtv& { return _render_targets.color(); }
 
   private:
     RenderTargets _render_targets;
@@ -30,7 +30,7 @@ class AnimDemo {
     GpuBufferHostIndex<baked::Index> _indices;
     GpuBufferHostSrv<Float4x4> _joint_inverse_bind_buffer;
     GpuBufferHostSrv<Float4x4> _joint_global_transform_buffer;
-    GpuTexture2dSrv _texture;
+    GpuTextureSrv _texture;
     float _animation_time = 0.0f;
     float _animation_duration = 0.0f;
     std::vector<Float4x4> _node_global_transforms;

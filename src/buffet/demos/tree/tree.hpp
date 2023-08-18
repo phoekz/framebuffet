@@ -24,7 +24,7 @@ class TreeDemo {
     auto update(const UpdateDesc& desc) -> void;
     auto render(GpuDevice& device, GpuCommandList& cmd) -> void;
 
-    auto rt_color() const -> const GpuTexture2dSrvRtv& { return _render_targets.color(); }
+    auto rt_color() const -> const GpuTextureSrvRtv& { return _render_targets.color(); }
 
   private:
     RenderTargets _render_targets;
@@ -34,14 +34,14 @@ class TreeDemo {
 
     GpuBufferHostSrv<baked::Vertex> _tree_vertices;
     GpuBufferHostIndex<baked::Index> _tree_indices;
-    GpuTexture2dSrv _tree_texture;
+    GpuTextureSrv _tree_texture;
 
     GpuBufferHostSrv<baked::Vertex> _plane_vertices;
     GpuBufferHostIndex<baked::Index> _plane_indices;
-    GpuTexture2dSrv _plane_texture;
+    GpuTextureSrv _plane_texture;
 
     GpuPipeline _shadow_pipeline;
-    GpuTexture2dSrvDsv _shadow_depth;
+    GpuTextureSrvDsv _shadow_depth;
 
     GpuPipeline _draw_pipeline;
 };

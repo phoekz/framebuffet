@@ -31,7 +31,7 @@ EnvDemo::EnvDemo(GpuDevice& device, const baked::Assets& assets, const baked::Sh
         const auto env_texture = assets.winter_evening_cube_texture();
         _env_texture.create(
             device,
-            GpuTexture2dDesc {
+            GpuTextureDesc {
                 .format = env_texture.format,
                 .width = env_texture.width,
                 .height = env_texture.height,

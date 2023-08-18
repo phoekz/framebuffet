@@ -29,7 +29,7 @@ class EnvDemo {
     auto update(const UpdateDesc& desc) -> void;
     auto render(GpuDevice& device, GpuCommandList& cmd) -> void;
 
-    auto rt_color() const -> const GpuTexture2dSrvRtv& { return _render_targets.color(); }
+    auto rt_color() const -> const GpuTextureSrvRtv& { return _render_targets.color(); }
 
   private:
     RenderTargets _render_targets;
@@ -39,7 +39,7 @@ class EnvDemo {
     GpuBufferHostCbv<Constants> _constants;
     GpuBufferHostSrv<baked::Vertex> _vertices;
     GpuBufferHostIndex<baked::Index> _indices;
-    GpuTexture2dSrvCube _env_texture;
+    GpuTextureSrvCube _env_texture;
 };
 
 }  // namespace fb::demos::env

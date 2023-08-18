@@ -28,7 +28,7 @@ CubeDemo::CubeDemo(GpuDevice& device, const baked::Assets& assets, const baked::
         const auto texture = assets.stylized_crate_texture();
         _texture.create(
             device,
-            GpuTexture2dDesc {
+            GpuTextureDesc {
                 .format = texture.format,
                 .width = texture.width,
                 .height = texture.height,

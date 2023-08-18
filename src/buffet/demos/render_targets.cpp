@@ -22,7 +22,7 @@ RenderTargets::RenderTargets(
     _clear_color(clear_color) {
     _color.create(
         device,
-        GpuTexture2dDesc {
+        GpuTextureDesc {
             .format = COLOR_FORMAT,
             .width = size.x,
             .height = size.y,
@@ -32,7 +32,7 @@ RenderTargets::RenderTargets(
         dx_name(name, "Color Target"));
     _depth.create(
         device,
-        GpuTexture2dDesc {
+        GpuTextureDesc {
             .format = DEPTH_FORMAT,
             .width = size.x,
             .height = size.y,

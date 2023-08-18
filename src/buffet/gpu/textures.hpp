@@ -23,7 +23,7 @@ inline constexpr auto gpu_texture_flags_is_set(GpuTextureFlags flags, GpuTexture
     return ((uint32_t)flags & (uint32_t)flag) > 0;
 }
 
-struct GpuTexture2dDesc {
+struct GpuTextureDesc {
     DXGI_FORMAT format = DXGI_FORMAT_UNKNOWN;
     uint32_t width = 1;
     uint32_t height = 1;
@@ -38,9 +38,9 @@ struct GpuTexture2dDesc {
 };
 
 template<GpuTextureFlags FLAGS>
-class GpuTexture2d {
+class GpuTexture {
   public:
-    auto create(GpuDevice& device, const GpuTexture2dDesc& desc, std::string_view name) -> void {
+    auto create(GpuDevice& device, const GpuTextureDesc& desc, std::string_view name) -> void {
         // Validate.
         FB_ASSERT(desc.format != DXGI_FORMAT_UNKNOWN);
         FB_ASSERT(desc.width > 0);
@@ -223,7 +223,7 @@ class GpuTexture2d {
     }
 
   private:
-    GpuTexture2dDesc _desc;
+    GpuTextureDesc _desc;
     ComPtr<ID3D12Resource> _resource;
     D3D12_RESOURCE_STATES _resource_state = D3D12_RESOURCE_STATE_COMMON;
     DXGI_FORMAT _srv_format = DXGI_FORMAT_UNKNOWN;
@@ -236,14 +236,14 @@ class GpuTexture2d {
     GpuDescriptor _dsv_descriptor = {};
 };
 
-using GpuTexture2dSrv = GpuTexture2d<GpuTextureFlags::Srv>;
-using GpuTexture2dUav = GpuTexture2d<GpuTextureFlags::Uav>;
-using GpuTexture2dRtv = GpuTexture2d<GpuTextureFlags::Rtv>;
-using GpuTexture2dDsv = GpuTexture2d<GpuTextureFlags::Dsv>;
+using GpuTextureSrv = GpuTexture<GpuTextureFlags::Srv>;
+using GpuTextureUav = GpuTexture<GpuTextureFlags::Uav>;
+using GpuTextureRtv = GpuTexture<GpuTextureFlags::Rtv>;
+using GpuTextureDsv = GpuTexture<GpuTextureFlags::Dsv>;
 
-using GpuTexture2dSrvUav = GpuTexture2d<GpuTextureFlags::SrvUav>;
-using GpuTexture2dSrvRtv = GpuTexture2d<GpuTextureFlags::SrvRtv>;
-using GpuTexture2dSrvDsv = GpuTexture2d<GpuTextureFlags::SrvDsv>;
-using GpuTexture2dSrvCube = GpuTexture2d<GpuTextureFlags::SrvCube>;
+using GpuTextureSrvUav = GpuTexture<GpuTextureFlags::SrvUav>;
+using GpuTextureSrvRtv = GpuTexture<GpuTextureFlags::SrvRtv>;
+using GpuTextureSrvDsv = GpuTexture<GpuTextureFlags::SrvDsv>;
+using GpuTextureSrvCube = GpuTexture<GpuTextureFlags::SrvCube>;
 
 }  // namespace fb

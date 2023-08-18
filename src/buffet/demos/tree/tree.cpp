@@ -27,7 +27,7 @@ tree::TreeDemo::TreeDemo(
         const auto& texture = assets.coconut_tree_texture();
         _tree_texture.create(
             device,
-            GpuTexture2dDesc {
+            GpuTextureDesc {
                 .format = texture.format,
                 .width = texture.width,
                 .height = texture.height,
@@ -46,7 +46,7 @@ tree::TreeDemo::TreeDemo(
         const auto& texture = assets.sand_plane_texture();
         _plane_texture.create(
             device,
-            GpuTexture2dDesc {
+            GpuTextureDesc {
                 .format = texture.format,
                 .width = texture.width,
                 .height = texture.height,
@@ -80,7 +80,7 @@ tree::TreeDemo::TreeDemo(
     // Depth.
     _shadow_depth.create(
         device,
-        GpuTexture2dDesc {
+        GpuTextureDesc {
             .format = DXGI_FORMAT_R32_TYPELESS,
             .width = SHADOW_MAP_SIZE,
             .height = SHADOW_MAP_SIZE,

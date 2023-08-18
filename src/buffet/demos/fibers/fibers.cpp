@@ -159,7 +159,7 @@ FibersDemo::FibersDemo(
 
         _magma_texture.create(
             device,
-            GpuTexture2dDesc {
+            GpuTextureDesc {
                 .format = magma.format,
                 .width = magma.width,
                 .height = magma.height,
@@ -168,7 +168,7 @@ FibersDemo::FibersDemo(
 
         _viridis_texture.create(
             device,
-            GpuTexture2dDesc {
+            GpuTextureDesc {
                 .format = viridis.format,
                 .width = viridis.width,
                 .height = viridis.height,

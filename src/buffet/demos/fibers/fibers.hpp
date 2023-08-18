@@ -47,7 +47,7 @@ class FibersDemo {
     auto update(const UpdateDesc& desc) -> void;
     auto render(GpuDevice& device, GpuCommandList& cmd) -> void;
 
-    auto rt_color() const -> const GpuTexture2dSrvRtv& { return _render_targets.color(); }
+    auto rt_color() const -> const GpuTextureSrvRtv& { return _render_targets.color(); }
 
   private:
     RenderTargets _render_targets;
@@ -62,10 +62,10 @@ class FibersDemo {
     Mesh _light_mesh;
     Mesh _plane_mesh;
     GpuBufferDeviceSrvUav<Light> _lights;
-    GpuTexture2dSrv _magma_texture;
-    GpuTexture2dSrv _viridis_texture;
-    GpuTexture2dSrvUav _light_counts_texture;
-    GpuTexture2dSrvUav _light_offsets_texture;
+    GpuTextureSrv _magma_texture;
+    GpuTextureSrv _viridis_texture;
+    GpuTextureSrvUav _light_counts_texture;
+    GpuTextureSrvUav _light_offsets_texture;
     GpuBufferDeviceSrvUav<uint32_t> _light_indices;
     GpuBufferDeviceSrvUav<uint32_t> _light_indices_count;
 };

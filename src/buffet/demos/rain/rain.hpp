@@ -36,7 +36,7 @@ class RainDemo {
     void update(const UpdateDesc& desc);
     void render(GpuDevice& device, GpuCommandList& cmd);
 
-    auto rt_color() const -> const GpuTexture2dSrvRtv& { return _render_targets.color(); }
+    auto rt_color() const -> const GpuTextureSrvRtv& { return _render_targets.color(); }
 
   private:
     RenderTargets _render_targets;

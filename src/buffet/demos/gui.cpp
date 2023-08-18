@@ -66,7 +66,7 @@ Gui::Gui(
         // Texture.
         _texture.create(
             device,
-            GpuTexture2dDesc {
+            GpuTextureDesc {
                 .format = DXGI_FORMAT_R8G8B8A8_UNORM,
                 .width = (uint32_t)width,
                 .height = (uint32_t)height,

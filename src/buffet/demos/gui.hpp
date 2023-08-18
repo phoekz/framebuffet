@@ -34,7 +34,7 @@ class Gui {
         GpuBufferHostIndex<ImDrawIdx> indices;
     };
     std::array<Geometry, FRAME_COUNT> _geometries;
-    GpuTexture2dSrv _texture;
+    GpuTextureSrv _texture;
 };
 
 }  // namespace fb::demos::gui

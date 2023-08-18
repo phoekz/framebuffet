@@ -19,7 +19,7 @@ class CubeDemo {
     auto update(const UpdateDesc& desc) -> void;
     auto render(GpuDevice& device, GpuCommandList& cmd) -> void;
 
-    auto rt_color() const -> const GpuTexture2dSrvRtv& { return _render_targets.color(); }
+    auto rt_color() const -> const GpuTextureSrvRtv& { return _render_targets.color(); }
 
   private:
     RenderTargets _render_targets;
@@ -28,7 +28,7 @@ class CubeDemo {
     GpuBufferHostCbv<Constants> _constants;
     GpuBufferHostSrv<baked::Vertex> _vertices;
     GpuBufferHostIndex<baked::Index> _indices;
-    GpuTexture2dSrv _texture;
+    GpuTextureSrv _texture;
 };
 
 }  // namespace fb::demos::cube
