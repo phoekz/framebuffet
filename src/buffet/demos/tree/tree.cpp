@@ -180,7 +180,7 @@ auto TreeDemo::render(GpuDevice& device, GpuCommandList& cmd) -> void {
         cmd.set_scissor(0, 0, SHADOW_MAP_SIZE, SHADOW_MAP_SIZE);
         cmd.set_rtv_dsv(std::nullopt, _shadow_depth.dsv_descriptor());
         cmd.clear_dsv(_shadow_depth.dsv_descriptor(), 1.0f);
-        cmd.set_graphics_constants({
+        cmd.set_graphics_constants(Bindings {
             _constants.cbv_descriptor().index(),
             _tree_vertices.srv_descriptor().index(),
         });
@@ -199,7 +199,7 @@ auto TreeDemo::render(GpuDevice& device, GpuCommandList& cmd) -> void {
         cmd.set_pipeline(_draw_pipeline);
         cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-        cmd.set_graphics_constants({
+        cmd.set_graphics_constants(Bindings {
             _constants.cbv_descriptor().index(),
             _tree_vertices.srv_descriptor().index(),
             _tree_texture.srv_descriptor().index(),
@@ -208,7 +208,7 @@ auto TreeDemo::render(GpuDevice& device, GpuCommandList& cmd) -> void {
         cmd.set_index_buffer(_tree_indices.index_buffer_view());
         cmd.draw_indexed_instanced(_tree_indices.element_size(), 1, 0, 0, 0);
 
-        cmd.set_graphics_constants({
+        cmd.set_graphics_constants(Bindings {
             _constants.cbv_descriptor().index(),
             _plane_vertices.srv_descriptor().index(),
             _plane_texture.srv_descriptor().index(),

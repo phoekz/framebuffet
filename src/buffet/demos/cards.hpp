@@ -1,6 +1,7 @@
 #pragma once
 
 #include "demos.hpp"
+#include "cards.hlsli"
 
 namespace fb::demos::cards {
 

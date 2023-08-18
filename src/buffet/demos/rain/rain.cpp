@@ -124,9 +124,9 @@ void RainDemo::update(const UpdateDesc& desc) {
 void RainDemo::render(GpuDevice& device, GpuCommandList& cmd) {
     {
         cmd.set_compute();
-        cmd.set_compute_constants({
-            _constants.cbv_descriptor().index(),
-            _particles.uav_descriptor().index(),
+        cmd.set_compute_constants(Bindings {
+            .constants = _constants.cbv_descriptor().index(),
+            .particles = _particles.uav_descriptor().index(),
         });
         cmd.set_pipeline(_compute_pipeline);
         cmd.dispatch(DISPATCH_COUNT, 1, 1);
@@ -136,10 +136,10 @@ void RainDemo::render(GpuDevice& device, GpuCommandList& cmd) {
     {
         cmd.set_graphics();
         _render_targets.begin(device, cmd);
-        cmd.set_graphics_constants({
-            _constants.cbv_descriptor().index(),
-            _particles.srv_descriptor().index(),
-            _draw_vertices.srv_descriptor().index(),
+        cmd.set_graphics_constants(Bindings {
+            .constants = _constants.cbv_descriptor().index(),
+            .particles = _particles.srv_descriptor().index(),
+            .vertices = _draw_vertices.srv_descriptor().index(),
         });
         cmd.set_pipeline(_draw_pipeline);
         cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);

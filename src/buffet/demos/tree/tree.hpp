@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../demos.hpp"
+#include "tree.hlsli"
 
 namespace fb::demos::tree {
 

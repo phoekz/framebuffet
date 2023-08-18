@@ -1,6 +1,7 @@
 #pragma once
 
 #include "demos.hpp"
+#include "gui.hlsli"
 
 namespace fb::demos::gui {
 

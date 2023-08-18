@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../demos.hpp"
+#include "cube.hlsli"
 
 namespace fb::demos::cube {
 

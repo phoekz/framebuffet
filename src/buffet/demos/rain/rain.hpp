@@ -2,11 +2,12 @@
 
 #include "../demos.hpp"
 
+#include "rain.hlsli"
+
 namespace fb::demos::rain {
 
 inline constexpr uint32_t PARTICLE_COUNT = 4 * 1024;
-inline constexpr uint32_t DISPATCH_SIZE = 128;
-inline constexpr uint32_t DISPATCH_COUNT = PARTICLE_COUNT / DISPATCH_SIZE;
+inline constexpr uint32_t DISPATCH_COUNT = PARTICLE_COUNT / SIM_DISPATCH_SIZE;
 
 struct Constants {
     Float4x4 transform;

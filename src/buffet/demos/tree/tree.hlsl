@@ -1,9 +1,6 @@
 #include <gpu/samplers.hlsli>
 #include <demos/core.hlsli>
-
-//
-// Types
-//
+#include <demos/tree/tree.hlsli>
 
 struct Constants {
     float4x4 transform;
@@ -30,21 +27,7 @@ struct DrawVertexOutput {
     float4 shadow_coord: ATTRIBUTE2;
 };
 
-//
-// Bindings
-//
-
-struct Bindings {
-    uint constants;
-    uint vertices;
-    uint texture;
-    uint shadow_texture;
-};
 ConstantBuffer<Bindings> g_bindings: register(b0);
-
-//
-// Entry points
-//
 
 ShadowVertexOutput shadow_vs(FbVertexInput input) {
     ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];

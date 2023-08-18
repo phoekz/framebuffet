@@ -1,9 +1,6 @@
 #include <gpu/samplers.hlsli>
 #include <demos/core.hlsli>
-
-//
-// Types
-//
+#include <demos/cards.hlsli>
 
 struct Constants {
     float4x4 transform;
@@ -25,22 +22,7 @@ struct VertexOutput {
     float2 texcoord: ATTRIBUTE0;
 };
 
-//
-// Bindings
-//
-
-struct Bindings {
-    uint card_index;
-    uint constants;
-    uint cards;
-    uint vertices;
-    uint texture;
-};
 ConstantBuffer<Bindings> g_bindings: register(b0);
-
-//
-// Entry points
-//
 
 VertexOutput draw_vs(FbVertexInput input) {
     ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];

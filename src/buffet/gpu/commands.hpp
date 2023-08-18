@@ -48,10 +48,18 @@ class GpuCommandList {
     auto set_index_buffer(D3D12_INDEX_BUFFER_VIEW ibv) const -> void;
     auto set_blend_factor(Float4 factor) const -> void;
     auto set_pipeline(const GpuPipeline& pipeline) const -> void;
-    auto set_graphics_constants(std::initializer_list<uint32_t> constants) const -> void;
-    auto set_graphics_constants(std::span<const uint32_t> constants) const -> void;
-    auto set_compute_constants(std::initializer_list<uint32_t> constants) const -> void;
-    auto set_compute_constants(std::span<const uint32_t> constants) const -> void;
+
+    template<GpuBindable T>
+    auto set_graphics_constants(T t) const -> void {
+        const auto arr = into_dword_array(t);
+        _cmd->SetGraphicsRoot32BitConstants(0, (uint32_t)arr.size(), arr.data(), 0);
+    }
+
+    template<GpuBindable T>
+    auto set_compute_constants(T t) const -> void {
+        const auto arr = into_dword_array(t);
+        _cmd->SetComputeRoot32BitConstants(0, (uint32_t)arr.size(), arr.data(), 0);
+    }
 
     auto clear_rtv(const GpuDescriptor& rtv, Float4 color) const -> void;
     auto clear_dsv(const GpuDescriptor& dsv, float depth) const -> void;

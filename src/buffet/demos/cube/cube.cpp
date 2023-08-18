@@ -91,10 +91,10 @@ auto CubeDemo::render(GpuDevice& device, GpuCommandList& cmd) -> void {
     cmd.set_graphics();
     _render_targets.begin(device, cmd);
     _debug_draw.render(device, cmd);
-    cmd.set_graphics_constants({
-        _constants.cbv_descriptor().index(),
-        _vertices.srv_descriptor().index(),
-        _texture.srv_descriptor().index(),
+    cmd.set_graphics_constants(Bindings {
+        .constants = _constants.cbv_descriptor().index(),
+        .vertices = _vertices.srv_descriptor().index(),
+        .texture = _texture.srv_descriptor().index(),
     });
     cmd.set_pipeline(_pipeline);
     cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);

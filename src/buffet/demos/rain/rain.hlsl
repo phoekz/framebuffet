@@ -1,8 +1,5 @@
 #include <demos/core.hlsli>
-
-//
-// Types
-//
+#include <demos/rain/rain.hlsli>
 
 struct Constants {
     float4x4 transform;
@@ -25,22 +22,10 @@ struct VertexOutput {
     float2 texcoord: ATTRIBUTE0;
 };
 
-//
-// Bindings
-//
-
-struct Bindings {
-    uint constants;
-    uint particles;
-    uint vertices;
-};
 ConstantBuffer<Bindings> g_bindings: register(b0);
 
-//
-// Entry points
-//
-
-[numthreads(128, 1, 1)] void sim_cs(FbComputeInput input) {
+FB_ATTRIBUTE(numthreads, SIM_DISPATCH_SIZE, 1, 1)
+void sim_cs(FbComputeInput input) {
     ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
     RWStructuredBuffer<Particle> particles = ResourceDescriptorHeap[g_bindings.particles];
 

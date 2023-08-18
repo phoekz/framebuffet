@@ -52,9 +52,9 @@ auto DebugDraw::end() -> void {
 
 auto DebugDraw::render(GpuDevice&, const GpuCommandList& cmd) -> void {
     const auto& frame = _frames[_frame_index];
-    cmd.set_graphics_constants({
-        frame._constants.cbv_descriptor().index(),
-        frame._lines.srv_descriptor().index(),
+    cmd.set_graphics_constants(debug_draw::Bindings {
+        .constants = frame._constants.cbv_descriptor().index(),
+        .vertices = frame._lines.srv_descriptor().index(),
     });
     cmd.set_pipeline(_pipeline);
     cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);

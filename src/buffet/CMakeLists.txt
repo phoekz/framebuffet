@@ -5,26 +5,34 @@ set(SOURCES
     buffet.cpp
     buffet.manifest
     demos/anim/anim.cpp
+    demos/anim/anim.hlsli
     demos/anim/anim.hpp
     demos/cards.cpp
+    demos/cards.hlsli
     demos/cards.hpp
     demos/cube/cube.cpp
+    demos/cube/cube.hlsli
     demos/cube/cube.hpp
     demos/debug_draw.cpp
+    demos/debug_draw.hlsli
     demos/debug_draw.hpp
     demos/demos.hpp
     demos/env/env.cpp
+    demos/env/env.hlsli
     demos/env/env.hpp
     demos/fibers/fibers.cpp
     demos/fibers/fibers.hlsli
     demos/fibers/fibers.hpp
     demos/gui.cpp
+    demos/gui.hlsli
     demos/gui.hpp
     demos/rain/rain.cpp
+    demos/rain/rain.hlsli
     demos/rain/rain.hpp
     demos/render_targets.cpp
     demos/render_targets.hpp
     demos/tree/tree.cpp
+    demos/tree/tree.hlsli
     demos/tree/tree.hpp
     gpu/buffers.hpp
     gpu/commands.cpp

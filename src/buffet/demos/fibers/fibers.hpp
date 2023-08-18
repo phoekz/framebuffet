@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../demos.hpp"
-
 #include "fibers.hlsli"
 
 namespace fb::demos::fibers {

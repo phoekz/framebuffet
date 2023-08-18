@@ -1,18 +1,9 @@
 #pragma once
 
 #include "../demos.hpp"
+#include "env.hlsli"
 
 namespace fb::demos::env {
-
-enum class CubeFace : uint32_t {
-    PosX,
-    NegX,
-    PosY,
-    NegY,
-    PosZ,
-    NegZ,
-    Count,
-};
 
 struct Constants {
     Float4x4 transform;

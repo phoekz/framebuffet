@@ -142,12 +142,12 @@ void Cards::render(GpuDevice& device, GpuCommandList& cmd) {
 
     for (uint32_t card_index = 0; card_index < CARD_COUNT; ++card_index) {
         uint32_t card_indirect = _card_indirect_indices[card_index];
-        cmd.set_graphics_constants({
-            card_index,
-            _constants.cbv_descriptor().index(),
-            _cards.srv_descriptor().index(),
-            _vertices.srv_descriptor().index(),
-            _card_texture_descriptors[card_indirect].index(),
+        cmd.set_graphics_constants(Bindings {
+            .card_index = card_index,
+            .constants = _constants.cbv_descriptor().index(),
+            .cards = _cards.srv_descriptor().index(),
+            .vertices = _vertices.srv_descriptor().index(),
+            .texture = _card_texture_descriptors[card_indirect].index(),
         });
         cmd.draw_indexed_instanced(_indices.element_size(), 1, 0, 0, 0);
     }

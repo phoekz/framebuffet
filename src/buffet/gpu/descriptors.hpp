@@ -71,24 +71,24 @@ class GpuDescriptors {
     GpuDescriptorHeap _dsv_heap;
 };
 
-class GpuBindings {
-  public:
-    static constexpr uint32_t BINDINGS_CAPACITY = 16;
+inline constexpr uint32_t BINDINGS_CAPACITY = 16;
 
-    GpuBindings() { _bindings.fill(UINT32_MAX); }
+template<typename T>
+inline constexpr auto dword_count() -> uint32_t {
+    return sizeof(T) / sizeof(uint32_t);
+}
 
-    auto push(uint32_t binding) -> void {
-        assert(_count < BINDINGS_CAPACITY);
-        _bindings[_count++] = binding;
-    }
-    auto push(const GpuDescriptor& handle) -> void { push(handle.index()); }
-    auto count() const -> uint32_t { return _count; }
-    auto capacity() -> uint32_t { return BINDINGS_CAPACITY; }
-    auto ptr() const -> const uint32_t* { return _bindings.data(); }
+template<typename T>
+concept GpuBindable = (sizeof(T) > 0) && (sizeof(T) % sizeof(uint32_t) == 0)
+    && (dword_count<T>() <= BINDINGS_CAPACITY)
+    && std::is_trivially_copyable_v<T> && std::is_standard_layout_v<T>;
 
-  private:
-    std::array<uint32_t, BINDINGS_CAPACITY> _bindings;
-    uint32_t _count = 0;
-};
+template<GpuBindable T>
+using GpuBindableArray = std::array<uint32_t, dword_count<T>()>;
+
+template<GpuBindable T>
+inline constexpr auto into_dword_array(T t) -> GpuBindableArray<T> {
+    return std::bit_cast<GpuBindableArray<T>>(t);
+}
 
 } // namespace fb

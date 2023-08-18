@@ -177,11 +177,11 @@ auto Gui::render(const GpuDevice& device, GpuCommandList& cmd) -> void {
                         (uint32_t)(pcmd->ClipRect.y - clip_off.y),
                         (uint32_t)(pcmd->ClipRect.z - clip_off.x),
                         (uint32_t)(pcmd->ClipRect.w - clip_off.y));
-                    cmd.set_graphics_constants({
-                        _constants.cbv_descriptor().index(),
-                        geometry.vertices.srv_descriptor().index(),
-                        (pcmd->VtxOffset + (uint32_t)global_vtx_offset),
-                        _texture.srv_descriptor().index(),
+                    cmd.set_graphics_constants(Bindings {
+                        .constants = _constants.cbv_descriptor().index(),
+                        .vertices = geometry.vertices.srv_descriptor().index(),
+                        .base_vertex = (pcmd->VtxOffset + (uint32_t)global_vtx_offset),
+                        .texture = _texture.srv_descriptor().index(),
                     });
                     cmd.draw_indexed_instanced(
                         pcmd->ElemCount,
