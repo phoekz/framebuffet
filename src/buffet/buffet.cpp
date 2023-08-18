@@ -59,6 +59,7 @@ int main() {
     auto device = std::make_unique<GpuDevice>(*window);
     auto assets = baked::Assets();
     auto shaders = baked::Shaders();
+    device->begin_transfer();
     auto cube_demo = std::make_unique<demos::cube::CubeDemo>(*device, assets, shaders);
     auto tree_demo = std::make_unique<demos::tree::TreeDemo>(*device, assets, shaders);
     auto rain_demo = std::make_unique<demos::rain::RainDemo>(*device, assets, shaders);
@@ -78,6 +79,7 @@ int main() {
                 env_demo->rt_color().srv_descriptor(),
             }});
     auto gui = std::make_unique<demos::gui::Gui>(*window, *device, assets, shaders);
+    device->end_transfer();
     device->log_stats();
     FB_LOG_INFO("Init time: {} ms", 1e3f * init_time.elapsed_time());
 

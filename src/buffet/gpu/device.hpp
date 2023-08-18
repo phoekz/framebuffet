@@ -2,6 +2,7 @@
 
 #include "../pch.hpp"
 #include "debug.hpp"
+#include "transfer.hpp"
 
 namespace fb {
 
@@ -18,6 +19,8 @@ class GpuDevice {
   public:
     // Device state.
     GpuDevice(const Window& window);
+    auto begin_transfer() -> void;
+    auto end_transfer() -> void;
     auto begin_frame() -> GpuCommandList;
     auto begin_main_pass() -> void;
     auto end_main_pass() -> void;
@@ -68,16 +71,7 @@ class GpuDevice {
     auto descriptor_size(D3D12_DESCRIPTOR_HEAP_TYPE heap_type) const -> uint32_t;
 
     // Resource utilities.
-    auto easy_upload(
-        const D3D12_SUBRESOURCE_DATA& data,
-        const ComPtr<ID3D12Resource>& resource,
-        D3D12_RESOURCE_STATES before_state,
-        D3D12_RESOURCE_STATES after_state) const -> void;
-    auto easy_multi_upload(
-        std::span<const D3D12_SUBRESOURCE_DATA> datas,
-        const ComPtr<ID3D12Resource>& resource,
-        D3D12_RESOURCE_STATES before_state,
-        D3D12_RESOURCE_STATES after_state) const -> void;
+    auto transfer() -> GpuTransfer& { return *_transfer; }
 
     // Getters.
     auto swapchain_size() const -> Uint2 { return _swapchain_size; }
@@ -108,6 +102,7 @@ class GpuDevice {
     ComPtr<ID3D12RootSignature> _root_signature;
     std::unique_ptr<GpuDescriptors> _descriptors;
     std::unique_ptr<GpuSamplers> _samplers;
+    std::unique_ptr<GpuTransfer> _transfer;
 };
 
 } // namespace fb

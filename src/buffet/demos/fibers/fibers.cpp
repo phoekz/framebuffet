@@ -118,13 +118,13 @@ FibersDemo::FibersDemo(
         }
         FB_LOG_INFO("Light placement attempts: {}", attempts);
 
-        // Upload.
-        device.easy_upload(
+        // Transfer.
+        device.transfer().resource(
+            _lights.resource(),
             D3D12_SUBRESOURCE_DATA {
                 .pData = lights.data(),
                 .RowPitch = _lights.byte_size(),
                 .SlicePitch = _lights.byte_size()},
-            _lights.resource(),
             D3D12_RESOURCE_STATE_COMMON,
             D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
     }
@@ -175,21 +175,21 @@ FibersDemo::FibersDemo(
             },
             dx_name(NAME, "Viridis Texture"));
 
-        device.easy_upload(
+        device.transfer().resource(
+            _magma_texture.resource(),
             D3D12_SUBRESOURCE_DATA {
                 .pData = magma.data.data(),
                 .RowPitch = magma.row_pitch,
                 .SlicePitch = magma.slice_pitch},
-            _magma_texture.resource(),
             D3D12_RESOURCE_STATE_COMMON,
             D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 
-        device.easy_upload(
+        device.transfer().resource(
+            _viridis_texture.resource(),
             D3D12_SUBRESOURCE_DATA {
                 .pData = viridis.data.data(),
                 .RowPitch = viridis.row_pitch,
                 .SlicePitch = viridis.slice_pitch},
-            _viridis_texture.resource(),
             D3D12_RESOURCE_STATE_COMMON,
             D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
     }

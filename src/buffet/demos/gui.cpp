@@ -76,13 +76,10 @@ Gui::Gui(
         // ImGui Font texture ID.
         io.Fonts->SetTexID((ImTextureID)_texture.srv_descriptor().gpu().ptr);
 
-        // Upload.
-        device.easy_upload(
-            D3D12_SUBRESOURCE_DATA {
-                .pData = pixels,
-                .RowPitch = width * 4,
-                .SlicePitch = width * height * 4},
+        // Transfer.
+        device.transfer().resource(
             _texture.resource(),
+            {.pData = pixels, .RowPitch = width * 4, .SlicePitch = width * height * 4},
             D3D12_RESOURCE_STATE_COMMON,
             D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
     }

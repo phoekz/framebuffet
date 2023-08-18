@@ -43,6 +43,8 @@ set(SOURCES
     gpu/samplers.hlsli
     gpu/samplers.hpp
     gpu/textures.hpp
+    gpu/transfer.cpp
+    gpu/transfer.hpp
     utils/frame.cpp
     utils/frame.hpp
     win32/window.cpp

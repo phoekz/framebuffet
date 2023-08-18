@@ -35,13 +35,13 @@ CubeDemo::CubeDemo(GpuDevice& device, const baked::Assets& assets, const baked::
             },
             dx_name(NAME, "Texture"));
 
-        // Upload.
-        device.easy_upload(
+        // Transfer.
+        device.transfer().resource(
+            _texture.resource(),
             D3D12_SUBRESOURCE_DATA {
                 .pData = texture.data.data(),
                 .RowPitch = texture.row_pitch,
                 .SlicePitch = texture.slice_pitch},
-            _texture.resource(),
             D3D12_RESOURCE_STATE_COMMON,
             D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
     }

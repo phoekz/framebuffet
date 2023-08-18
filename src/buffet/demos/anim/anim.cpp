@@ -24,7 +24,7 @@ AnimDemo::AnimDemo(GpuDevice& device, const baked::Assets& assets, const baked::
     _vertices.create_with_data(device, mesh.skinning_vertices, dx_name(NAME, "Vertices"));
     _indices.create_with_data(device, mesh.indices, dx_name(NAME, "Indices"));
 
-    // Texture - create.
+    // Texture.
     const auto texture = assets.raccoon_texture();
     _texture.create(
         device,
@@ -34,14 +34,12 @@ AnimDemo::AnimDemo(GpuDevice& device, const baked::Assets& assets, const baked::
             .height = texture.height,
         },
         dx_name(NAME, "Texture"));
-
-    // Texture - upload.
-    device.easy_upload(
+    device.transfer().resource(
+        _texture.resource(),
         D3D12_SUBRESOURCE_DATA {
             .pData = texture.data.data(),
             .RowPitch = texture.row_pitch,
             .SlicePitch = texture.slice_pitch},
-        _texture.resource(),
         D3D12_RESOURCE_STATE_COMMON,
         D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 

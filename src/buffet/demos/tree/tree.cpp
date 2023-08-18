@@ -33,12 +33,12 @@ tree::TreeDemo::TreeDemo(
                 .height = texture.height,
             },
             dx_name(NAME, "Tree", "Texture"));
-        device.easy_upload(
+        device.transfer().resource(
+            _tree_texture.resource(),
             D3D12_SUBRESOURCE_DATA {
                 .pData = texture.data.data(),
                 .RowPitch = texture.row_pitch,
                 .SlicePitch = texture.slice_pitch},
-            _tree_texture.resource(),
             D3D12_RESOURCE_STATE_COMMON,
             D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
     }
@@ -52,12 +52,12 @@ tree::TreeDemo::TreeDemo(
                 .height = texture.height,
             },
             dx_name(NAME, "Plane", "Texture"));
-        device.easy_upload(
+        device.transfer().resource(
+            _plane_texture.resource(),
             D3D12_SUBRESOURCE_DATA {
                 .pData = texture.data.data(),
                 .RowPitch = texture.row_pitch,
                 .SlicePitch = texture.slice_pitch},
-            _plane_texture.resource(),
             D3D12_RESOURCE_STATE_COMMON,
             D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
     }

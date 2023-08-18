@@ -20,13 +20,13 @@ RainDemo::RainDemo(GpuDevice& device, const baked::Assets&, const baked::Shaders
             particle.position.z = 2.0f * rand.random_float() - 1.0f;
         }
 
-        // Upload.
-        device.easy_upload(
+        // Transfer.
+        device.transfer().resource(
+            _particles.resource(),
             D3D12_SUBRESOURCE_DATA {
                 .pData = particles.data(),
                 .RowPitch = _particles.byte_size(),
                 .SlicePitch = _particles.byte_size()},
-            _particles.resource(),
             D3D12_RESOURCE_STATE_COMMON,
             D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
     }

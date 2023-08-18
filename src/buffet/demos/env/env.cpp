@@ -39,8 +39,8 @@ EnvDemo::EnvDemo(GpuDevice& device, const baked::Assets& assets, const baked::Sh
             },
             dx_name(NAME, "Env Texture"));
 
-        // Upload faces.
-        D3D12_SUBRESOURCE_DATA subresources[6];
+        // Transfer.
+        std::array<D3D12_SUBRESOURCE_DATA, 6> subresources;
         for (uint32_t i = 0; i < 6; ++i) {
             subresources[i] = {
                 .pData = env_texture.datas[i].data(),
@@ -48,9 +48,9 @@ EnvDemo::EnvDemo(GpuDevice& device, const baked::Assets& assets, const baked::Sh
                 .SlicePitch = (int64_t)env_texture.slice_pitch,
             };
         }
-        device.easy_multi_upload(
-            subresources,
+        device.transfer().resource(
             _env_texture.resource(),
+            subresources,
             D3D12_RESOURCE_STATE_COMMON,
             D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
     }

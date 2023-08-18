@@ -248,6 +248,17 @@ GpuDevice::GpuDevice(const Window& window) {
 
     // Global samplers.
     _samplers = std::make_unique<GpuSamplers>(*this, *_descriptors);
+
+    // Global transfer.
+    _transfer = std::make_unique<GpuTransfer>(_device);
+}
+
+auto GpuDevice::begin_transfer() -> void {
+    _transfer->begin();
+}
+
+auto GpuDevice::end_transfer() -> void {
+    _transfer->end(_command_queue);
 }
 
 auto GpuDevice::begin_frame() -> GpuCommandList {
@@ -435,37 +446,6 @@ auto GpuDevice::create_constant_buffer_view(
 
 auto GpuDevice::descriptor_size(D3D12_DESCRIPTOR_HEAP_TYPE heap_type) const -> uint32_t {
     return _device->GetDescriptorHandleIncrementSize(heap_type);
-}
-
-auto GpuDevice::easy_upload(
-    const D3D12_SUBRESOURCE_DATA& data,
-    const ComPtr<ID3D12Resource>& resource,
-    D3D12_RESOURCE_STATES before_state,
-    D3D12_RESOURCE_STATES after_state) const -> void {
-    DirectX::ResourceUploadBatch rub((ID3D12Device*)_device.get());
-    rub.Begin();
-    rub.Transition(resource.get(), before_state, D3D12_RESOURCE_STATE_COPY_DEST);
-    rub.Upload(resource.get(), 0, &data, 1);
-    rub.Transition(resource.get(), D3D12_RESOURCE_STATE_COPY_DEST, after_state);
-    auto finish = rub.End(_command_queue.get());
-    finish.wait();
-}
-
-auto GpuDevice::easy_multi_upload(
-    std::span<const D3D12_SUBRESOURCE_DATA> datas,
-    const ComPtr<ID3D12Resource>& resource,
-    D3D12_RESOURCE_STATES before_state,
-    D3D12_RESOURCE_STATES after_state) const -> void {
-    DirectX::ResourceUploadBatch rub((ID3D12Device*)_device.get());
-    rub.Begin();
-    rub.Transition(resource.get(), before_state, D3D12_RESOURCE_STATE_COPY_DEST);
-    for (uint32_t i = 0; i < (uint32_t)datas.size(); i++) {
-        const auto& data = datas[i];
-        rub.Upload(resource.get(), i, &data, 1);
-    }
-    rub.Transition(resource.get(), D3D12_RESOURCE_STATE_COPY_DEST, after_state);
-    auto finish = rub.End(_command_queue.get());
-    finish.wait();
 }
 
 auto GpuDevice::log_stats() -> void {
