@@ -43,3 +43,4 @@ add_subdirectory(src/common)
 # Executables.
 add_subdirectory(src/baker)
 add_subdirectory(src/buffet)
+add_subdirectory(src/sandbox)
