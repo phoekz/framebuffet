@@ -390,6 +390,8 @@ auto build_assets(std::string_view assets_dir)
         );
     }
 
+    FB_LOG_INFO("Built {} assets ", assets.size());
+
     return {assets, assets_bin};
 }
 
@@ -484,6 +486,8 @@ auto build_shaders(std::string_view buffet_dir) -> std::vector<Shader> {
             compiled_shaders.push_back(shader);
         }
     }
+
+    FB_LOG_INFO("Built {} shaders", compiled_shaders.size());
 
     return compiled_shaders;
 }
