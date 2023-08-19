@@ -92,6 +92,7 @@ int main() {
         fibers_demo->archive(archive);
         env_demo->archive(archive);
         cards->archive(archive);
+        FB_ASSERT(archive.fully_consumed());
     }
 
     // Main loop.

@@ -15,6 +15,7 @@ struct SerializingArchive final {
 struct DeserializingArchive final {
     explicit DeserializingArchive(std::span<const std::byte> buf)
         : buf(buf) {}
+    auto fully_consumed() const -> bool { return buf.empty(); }
     std::span<const std::byte> buf;
 };
 
