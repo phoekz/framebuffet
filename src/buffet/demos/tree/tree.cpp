@@ -16,7 +16,7 @@ tree::TreeDemo::TreeDemo(
             .size = device.swapchain_size(),
             .color_format = DXGI_FORMAT_R8G8B8A8_UNORM,
             .clear_color = CLEAR_COLOR,
-            .sample_count = 1,
+            .sample_count = 4,
         },
         NAME
     )
@@ -109,6 +109,7 @@ tree::TreeDemo::TreeDemo(
         .pixel_shader(shaders.tree_draw_ps())
         .render_target_formats({_render_targets.color_format()})
         .depth_stencil_format(_render_targets.depth_format())
+        .sample_desc(_render_targets.sample_desc())
         .build(device, _draw_pipeline, dx_name(NAME, "Draw", "Pipeline"));
 }
 
