@@ -46,11 +46,8 @@ gui_wrapper(T& demo, const demos::GuiDesc& desc, ImGuiTreeNodeFlags flags = ImGu
 int main() {
     using namespace fb;
 
-    // Optimistically try to attach to the parent process console to capture
-    // stdout/stderr prints. It is useful when we run framebuffet without a
-    // debugger, but within a console instead. It's not a big deal if this
-    // fails.
-    AttachConsole(ATTACH_PARENT_PROCESS);
+    // Console.
+    attach_console();
 
     // Init.
     auto init_time = Instant();

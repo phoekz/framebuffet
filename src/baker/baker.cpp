@@ -509,10 +509,10 @@ struct std::formatter<DXGI_FORMAT>: std::formatter<char> {
 int main() {
     using namespace fb;
 
-    //
-    // build
-    //
+    // Console.
+    attach_console();
 
+    // Build.
     const auto buffet_dir = std::format("{}/src/buffet", FRAMEBUFFET_SOURCE_DIR);
     const auto assets_dir = std::format("{}/src/assets", FRAMEBUFFET_SOURCE_DIR);
     const auto compiled_shaders = build_shaders(buffet_dir);
