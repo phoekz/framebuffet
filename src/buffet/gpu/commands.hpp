@@ -80,6 +80,12 @@ public:
     ) const -> void;
     auto dispatch(uint32_t x, uint32_t y, uint32_t z) const -> void;
 
+    auto resolve_resource(
+        const ComPtr<ID3D12Resource>& dst,
+        const ComPtr<ID3D12Resource>& src,
+        DXGI_FORMAT src_format
+    ) const -> void;
+
     auto transition_barrier(
         const ComPtr<ID3D12Resource>& resource,
         D3D12_RESOURCE_STATES before,

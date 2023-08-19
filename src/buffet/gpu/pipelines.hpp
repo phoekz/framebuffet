@@ -28,6 +28,7 @@ public:
     [[nodiscard]] auto rasterizer(D3D12_RASTERIZER_DESC2 rasterizer) -> GpuPipelineBuilder&;
     [[nodiscard]] auto render_target_formats(std::initializer_list<DXGI_FORMAT> formats) -> GpuPipelineBuilder&;
     [[nodiscard]] auto depth_stencil_format(DXGI_FORMAT format) -> GpuPipelineBuilder&;
+    [[nodiscard]] auto sample_desc(DXGI_SAMPLE_DESC desc) -> GpuPipelineBuilder&;
     auto build(GpuDevice& device, GpuPipeline& pipeline, std::string_view name) -> void;
     // clang-format on
 

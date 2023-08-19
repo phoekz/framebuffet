@@ -18,6 +18,7 @@ DebugDraw::DebugDraw(
         .rasterizer(GPU_PIPELINE_CULL_NONE)
         .render_target_formats({render_targets.color_format()})
         .depth_stencil_format(render_targets.depth_format())
+        .sample_desc(render_targets.sample_desc())
         .build(device, _pipeline, dx_name(NAME, "Pipeline"));
 
     // Frame resources.

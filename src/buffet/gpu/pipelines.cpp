@@ -105,6 +105,15 @@ auto GpuPipelineBuilder::depth_stencil_format(DXGI_FORMAT format) -> GpuPipeline
     return *this;
 }
 
+auto GpuPipelineBuilder::sample_desc(DXGI_SAMPLE_DESC desc) -> GpuPipelineBuilder& {
+    static constexpr uint32_t BIT = (1 << D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_SAMPLE_DESC);
+    FB_ASSERT((_subobject_mask & BIT) == 0);
+    new (_buffer + _buffet_offset) CD3DX12_PIPELINE_STATE_STREAM_SAMPLE_DESC(desc);
+    _buffet_offset += sizeof(CD3DX12_PIPELINE_STATE_STREAM_SAMPLE_DESC);
+    _subobject_mask |= BIT;
+    return *this;
+}
+
 auto GpuPipelineBuilder::build(GpuDevice& device, GpuPipeline& pipeline, std::string_view name)
     -> void {
     // Add global root signature.

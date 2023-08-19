@@ -143,6 +143,14 @@ auto GpuCommandList::dispatch(uint32_t x, uint32_t y, uint32_t z) const -> void 
     _cmd->Dispatch(x, y, z);
 }
 
+auto GpuCommandList::resolve_resource(
+    const ComPtr<ID3D12Resource>& dst,
+    const ComPtr<ID3D12Resource>& src,
+    DXGI_FORMAT src_format
+) const -> void {
+    _cmd->ResolveSubresource(dst.get(), 0, src.get(), 0, src_format);
+}
+
 auto GpuCommandList::transition_barrier(
     const ComPtr<ID3D12Resource>& resource,
     D3D12_RESOURCE_STATES before,

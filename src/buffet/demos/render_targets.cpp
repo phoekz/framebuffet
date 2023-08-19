@@ -20,18 +20,34 @@ RenderTargets::RenderTargets(
     std::string_view name
 )
     : _size(desc.size)
-    , _clear_color(desc.clear_color) {
+    , _clear_color(desc.clear_color)
+    , _sample_count(desc.sample_count) {
+    if (desc.sample_count > 1) {
+        _multisampled_color.create(
+            device,
+            GpuTextureDesc {
+                .format = desc.color_format,
+                .width = desc.size.x,
+                .height = desc.size.y,
+                .sample_count = desc.sample_count,
+                .clear_value = make_color_clear_value(desc.color_format, _clear_color),
+            },
+            dx_name(name, "Multisampled Color Target")
+        );
+    }
+
     _color.create(
         device,
         GpuTextureDesc {
             .format = desc.color_format,
             .width = desc.size.x,
             .height = desc.size.y,
-            .sample_count = desc.sample_count,
+            .sample_count = 1,
             .clear_value = make_color_clear_value(desc.color_format, _clear_color),
         },
         dx_name(name, "Color Target")
     );
+
     _depth.create(
         device,
         GpuTextureDesc {
@@ -46,16 +62,35 @@ RenderTargets::RenderTargets(
 }
 
 auto RenderTargets::begin(GpuDevice&, const GpuCommandList& cmd) -> void {
-    _color.transition(cmd, D3D12_RESOURCE_STATE_RENDER_TARGET);
     cmd.set_viewport(0, 0, _size.x, _size.y);
     cmd.set_scissor(0, 0, _size.x, _size.y);
-    cmd.set_rtv_dsv(_color.rtv_descriptor(), _depth.dsv_descriptor());
-    cmd.clear_rtv(_color.rtv_descriptor(), _clear_color);
-    cmd.clear_dsv(_depth.dsv_descriptor(), DEPTH_VALUE);
+
+    if (_sample_count > 1) {
+        _multisampled_color.transition(cmd, D3D12_RESOURCE_STATE_RENDER_TARGET);
+        cmd.set_rtv_dsv(_multisampled_color.rtv_descriptor(), _depth.dsv_descriptor());
+        cmd.clear_rtv(_multisampled_color.rtv_descriptor(), _clear_color);
+        cmd.clear_dsv(_depth.dsv_descriptor(), DEPTH_VALUE);
+    } else {
+        _color.transition(cmd, D3D12_RESOURCE_STATE_RENDER_TARGET);
+        cmd.set_rtv_dsv(_color.rtv_descriptor(), _depth.dsv_descriptor());
+        cmd.clear_rtv(_color.rtv_descriptor(), _clear_color);
+        cmd.clear_dsv(_depth.dsv_descriptor(), DEPTH_VALUE);
+    }
 }
 
 auto RenderTargets::end(GpuDevice&, const GpuCommandList& cmd) -> void {
-    _color.transition(cmd, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+    if (_sample_count > 1) {
+        _multisampled_color.transition(cmd, D3D12_RESOURCE_STATE_RESOLVE_SOURCE);
+        _color.transition(cmd, D3D12_RESOURCE_STATE_RESOLVE_DEST);
+        cmd.resolve_resource(
+            _color.resource(),
+            _multisampled_color.resource(),
+            _multisampled_color.format()
+        );
+        _color.transition(cmd, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+    } else {
+        _color.transition(cmd, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+    }
 }
 
 } // namespace fb::demos

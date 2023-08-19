@@ -9,7 +9,7 @@ CubeDemo::CubeDemo(GpuDevice& device, const baked::Assets& assets, const baked::
             .size = device.swapchain_size(),
             .color_format = DXGI_FORMAT_R8G8B8A8_UNORM,
             .clear_color = CLEAR_COLOR,
-            .sample_count = 1,
+            .sample_count = 4,
         },
         NAME
     )
@@ -21,6 +21,7 @@ CubeDemo::CubeDemo(GpuDevice& device, const baked::Assets& assets, const baked::
         .pixel_shader(shaders.cube_draw_ps())
         .render_target_formats({_render_targets.color_format()})
         .depth_stencil_format(_render_targets.depth_format())
+        .sample_desc(_render_targets.sample_desc())
         .build(device, _pipeline, dx_name(NAME, "Pipeline"));
 
     // Constants.

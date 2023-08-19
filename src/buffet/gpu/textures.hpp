@@ -115,13 +115,21 @@ public:
         // Views.
         if constexpr (gpu_texture_flags_is_set(FLAGS, GpuTextureFlags::Srv)) {
             _srv_descriptor = device.descriptors().cbv_srv_uav().alloc();
+
+            D3D12_SRV_DIMENSION srv_dimension;
+            if (gpu_texture_flags_is_set(FLAGS, GpuTextureFlags::Cube)) {
+                srv_dimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
+            } else if (desc.sample_count > 1) {
+                srv_dimension = D3D12_SRV_DIMENSION_TEXTURE2DMS;
+            } else {
+                srv_dimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+            }
+
             device.create_shader_resource_view(
                 _resource,
                 D3D12_SHADER_RESOURCE_VIEW_DESC {
                     .Format = _srv_format,
-                    .ViewDimension = gpu_texture_flags_is_set(FLAGS, GpuTextureFlags::Cube)
-                        ? D3D12_SRV_DIMENSION_TEXTURECUBE
-                        : D3D12_SRV_DIMENSION_TEXTURE2D,
+                    .ViewDimension = srv_dimension,
                     .Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING,
                     .Texture2D = D3D12_TEX2D_SRV {.MipLevels = _desc.mip_levels},
                 },
