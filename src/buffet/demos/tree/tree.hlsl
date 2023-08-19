@@ -2,14 +2,6 @@
 #include <demos/core.hlsli>
 #include <demos/tree/tree.hlsli>
 
-struct Constants {
-    float4x4 transform;
-    float4x4 light_transform;
-    float3 light_direction;
-    float ambient_light;
-    float pad[28];
-};
-
 struct Vertex {
     float3 position;
     float3 normal;

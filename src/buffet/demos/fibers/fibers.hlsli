@@ -23,4 +23,23 @@ struct Bindings {
     uint light_indices_count;
 };
 
+struct Constants {
+    float4x4 clip_from_world;
+    float4x4 view_from_clip;
+    float4x4 view_from_world;
+    float2 window_size;
+    float delta_time;
+    float light_speed;
+    float light_range;
+    float light_intensity;
+    float heatmap_opacity;
+    float pad[9];
+};
+
+struct Light {
+    float3 position;
+    float3 color;
+    float speed_variation;
+};
+
 FB_NAMESPACE_END(fb::demos::fibers)

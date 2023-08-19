@@ -58,44 +58,37 @@ CubeDemo::CubeDemo(GpuDevice& device, const baked::Assets& assets, const baked::
     }
 }
 
-static float camera_distance = 5.0f;
-static float camera_fov = rad_from_deg(45.0f);
-static float camera_latitude = rad_from_deg(30.0f);
-static float camera_longitude = rad_from_deg(0.0f);
-static float camera_rotation_speed = 0.5f;
-
 auto CubeDemo::gui(const GuiDesc&) -> void {
-    ImGui::SliderFloat("Camera Distance", &camera_distance, 0.0f, 10.0f);
-    ImGui::SliderAngle("Camera FOV", &camera_fov, 0.0f, 90.0f);
-    ImGui::SliderAngle("Camera Latitude", &camera_latitude, -90.0f, 90.0f);
-    ImGui::SliderAngle("Camera Longitude", &camera_longitude, 0.0f, 360.0f);
-    ImGui::SliderFloat("Camera Rotation Speed", &camera_rotation_speed, 0.0f, 2.0f);
+    auto& p = _parameters;
+    ImGui::SliderFloat("Camera Distance", &p.camera_distance, 0.0f, 10.0f);
+    ImGui::SliderAngle("Camera FOV", &p.camera_fov, 0.0f, 90.0f);
+    ImGui::SliderAngle("Camera Latitude", &p.camera_latitude, -90.0f, 90.0f);
+    ImGui::SliderAngle("Camera Longitude", &p.camera_longitude, 0.0f, 360.0f);
+    ImGui::SliderFloat("Camera Rotation Speed", &p.camera_rotation_speed, 0.0f, 2.0f);
 }
 
 auto CubeDemo::update(const UpdateDesc& desc) -> void {
-    Float4x4 camera_transform;
-    {
-        camera_longitude += camera_rotation_speed * desc.delta_time;
-        if (camera_longitude > PI * 2.0f) {
-            camera_longitude -= PI * 2.0f;
-        }
+    auto& p = _parameters;
 
-        auto projection =
-            Float4x4::CreatePerspectiveFieldOfView(camera_fov, desc.aspect_ratio, 0.1f, 100.0f);
-        auto eye = camera_distance * dir_from_lonlat(camera_longitude, camera_latitude);
-        auto view = Float4x4::CreateLookAt(eye, Float3::Zero, Float3::Up);
-        camera_transform = view * projection;
-
-        auto& constants = *_constants.ptr();
-        constants.transform = camera_transform;
+    p.camera_longitude += p.camera_rotation_speed * desc.delta_time;
+    if (p.camera_longitude > PI * 2.0f) {
+        p.camera_longitude -= PI * 2.0f;
     }
 
-    {
-        _debug_draw.begin(desc.frame_index);
-        _debug_draw.transform(camera_transform);
-        _debug_draw.axes();
-        _debug_draw.end();
-    }
+    auto projection =
+        Float4x4::CreatePerspectiveFieldOfView(p.camera_fov, desc.aspect_ratio, 0.1f, 100.0f);
+    auto eye = p.camera_distance * dir_from_lonlat(p.camera_longitude, p.camera_latitude);
+    auto view = Float4x4::CreateLookAt(eye, Float3::Zero, Float3::Up);
+    auto camera_transform = view * projection;
+
+    _debug_draw.begin(desc.frame_index);
+    _debug_draw.transform(camera_transform);
+    _debug_draw.axes();
+    _debug_draw.end();
+
+    *_constants.ptr() = Constants {
+        .transform = camera_transform,
+    };
 }
 
 auto CubeDemo::render(GpuDevice& device, GpuCommandList& cmd) -> void {

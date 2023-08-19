@@ -2,21 +2,6 @@
 #include <demos/core.hlsli>
 #include <demos/cards.hlsli>
 
-struct Constants {
-    float4x4 transform;
-    float pad[48];
-};
-
-struct Card {
-    float2 position;
-    float2 size;
-};
-
-struct Vertex {
-    float2 position;
-    float2 texcoord;
-};
-
 struct VertexOutput {
     float4 position: SV_Position;
     float2 texcoord: ATTRIBUTE0;

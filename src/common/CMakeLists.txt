@@ -1,5 +1,6 @@
 set(NAME fb_common)
 set(SOURCES
+    archive.hpp
     com.hpp
     common.cpp
     common.hpp

@@ -5,9 +5,13 @@
 
 namespace fb::demos::anim {
 
-struct Constants {
-    Float4x4 transform;
-    float pad[48] = {};
+struct Parameters {
+    float camera_distance = 4.0f;
+    float camera_fov = rad_from_deg(45.0f);
+    float camera_latitude = rad_from_deg(30.0f);
+    float camera_longitude = rad_from_deg(0.0f);
+    float camera_rotation_speed = 0.5f;
+    Float2 camera_clip_planes = Float2(0.1f, 300.0f);
 };
 
 class AnimDemo {
@@ -22,7 +26,13 @@ public:
 
     auto rt_color() const -> const GpuTextureSrvRtv& { return _render_targets.color(); }
 
+    template<Archive A>
+    auto archive(A& arc) -> void {
+        arc& _parameters;
+    }
+
 private:
+    Parameters _parameters;
     RenderTargets _render_targets;
     DebugDraw _debug_draw;
     GpuPipeline _pipeline;

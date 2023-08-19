@@ -74,12 +74,25 @@ int main() {
     auto cards = std::make_unique<demos::cards::Cards>(
         *device,
         shaders,
-        demos::cards::Params {.card_descriptors = card_descriptors}
+        demos::cards::CardsDesc {.card_descriptors = card_descriptors}
     );
     auto gui = std::make_unique<demos::gui::Gui>(*window, *device, assets, shaders);
     device->end_transfer();
     device->log_stats();
     FB_LOG_INFO("Init time: {} ms", 1e3f * init_time.elapsed_time());
+
+    // Archives.
+    if (file_exists(ARCHIVE_FILE_NAME)) {
+        auto archive_buf = read_whole_file(ARCHIVE_FILE_NAME);
+        auto archive = DeserializingArchive(archive_buf);
+        cube_demo->archive(archive);
+        tree_demo->archive(archive);
+        rain_demo->archive(archive);
+        anim_demo->archive(archive);
+        fibers_demo->archive(archive);
+        env_demo->archive(archive);
+        cards->archive(archive);
+    }
 
     // Main loop.
     bool running = true;
@@ -87,6 +100,7 @@ int main() {
     Frame frame = {};
     double update_time = 0.0;
     double gui_time = 0.0;
+    double time_since_last_archive = 0.0;
     while (running) {
         // Handle window messages.
         {
@@ -102,6 +116,22 @@ int main() {
 
         // Update frame.
         frame.update();
+
+        // Update archive.
+        time_since_last_archive += frame.last_delta_time();
+        if (time_since_last_archive > 1.0) {
+            time_since_last_archive = 0.0;
+            auto archive_buf = std::vector<std::byte>();
+            auto archive = SerializingArchive(archive_buf);
+            cube_demo->archive(archive);
+            tree_demo->archive(archive);
+            rain_demo->archive(archive);
+            anim_demo->archive(archive);
+            fibers_demo->archive(archive);
+            env_demo->archive(archive);
+            cards->archive(archive);
+            write_whole_file(ARCHIVE_FILE_NAME, archive_buf);
+        }
 
         // Update gui.
         {

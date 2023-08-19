@@ -1,5 +1,6 @@
 #pragma once
 
+#include "archive.hpp"
 #include "com.hpp"
 #include "error.hpp"
 #include "file.hpp"

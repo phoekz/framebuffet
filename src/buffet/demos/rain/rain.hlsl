@@ -1,13 +1,6 @@
 #include <demos/core.hlsli>
 #include <demos/rain/rain.hlsli>
 
-struct Constants {
-    float4x4 transform;
-    float4x4 particle_transform;
-    float delta_time;
-    float speed;
-};
-
 struct Vertex {
     float3 position;
     float2 texcoord;

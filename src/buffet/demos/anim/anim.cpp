@@ -64,20 +64,14 @@ AnimDemo::AnimDemo(GpuDevice& device, const baked::Assets& assets, const baked::
     _animation_mesh = mesh;
 }
 
-static float camera_distance = 4.0f;
-static float camera_fov = rad_from_deg(45.0f);
-static float camera_latitude = rad_from_deg(30.0f);
-static float camera_longitude = rad_from_deg(0.0f);
-static float camera_rotation_speed = 0.5f;
-static Float2 camera_clip_planes = Float2(0.1f, 300.0f);
-
 auto AnimDemo::gui(const GuiDesc&) -> void {
-    ImGui::SliderFloat("Camera Distance", &camera_distance, 1.0f, 200.0f);
-    ImGui::SliderAngle("Camera FOV", &camera_fov, 0.0f, 90.0f);
-    ImGui::SliderAngle("Camera Latitude", &camera_latitude, -90.0f, 90.0f);
-    ImGui::SliderAngle("Camera Longitude", &camera_longitude, 0.0f, 360.0f);
-    ImGui::SliderFloat("Camera Rotation Speed", &camera_rotation_speed, 0.0f, 2.0f);
-    ImGui::SliderFloat2("Camera Clip Planes", &camera_clip_planes.x, 0.1f, 400.0f);
+    auto& p = _parameters;
+    ImGui::SliderFloat("Camera Distance", &p.camera_distance, 1.0f, 200.0f);
+    ImGui::SliderAngle("Camera FOV", &p.camera_fov, 0.0f, 90.0f);
+    ImGui::SliderAngle("Camera Latitude", &p.camera_latitude, -90.0f, 90.0f);
+    ImGui::SliderAngle("Camera Longitude", &p.camera_longitude, 0.0f, 360.0f);
+    ImGui::SliderFloat("Camera Rotation Speed", &p.camera_rotation_speed, 0.0f, 2.0f);
+    ImGui::SliderFloat2("Camera Clip Planes", &p.camera_clip_planes.x, 0.1f, 400.0f);
 }
 
 template<typename T, typename F>
@@ -115,6 +109,8 @@ auto keyframe_interpolation(
 }
 
 auto AnimDemo::update(const UpdateDesc& desc) -> void {
+    auto& p = _parameters;
+
     // Update animation.
     {
         _animation_time += desc.delta_time;
@@ -183,26 +179,23 @@ auto AnimDemo::update(const UpdateDesc& desc) -> void {
         }
     }
 
-    // Update Constants.
+    // Update transforms.
     Float4x4 camera_transform;
     {
-        camera_longitude += camera_rotation_speed * desc.delta_time;
-        if (camera_longitude > PI * 2.0f) {
-            camera_longitude -= PI * 2.0f;
+        p.camera_longitude += p.camera_rotation_speed * desc.delta_time;
+        if (p.camera_longitude > PI * 2.0f) {
+            p.camera_longitude -= PI * 2.0f;
         }
 
         auto projection = Float4x4::CreatePerspectiveFieldOfView(
-            camera_fov,
+            p.camera_fov,
             desc.aspect_ratio,
-            camera_clip_planes.x,
-            camera_clip_planes.y
+            p.camera_clip_planes.x,
+            p.camera_clip_planes.y
         );
-        auto eye = camera_distance * dir_from_lonlat(camera_longitude, camera_latitude);
+        auto eye = p.camera_distance * dir_from_lonlat(p.camera_longitude, p.camera_latitude);
         auto view = Float4x4::CreateLookAt(eye, Float3::Zero, Float3::Up);
         camera_transform = view * projection;
-
-        auto& constants = *_constants.ptr();
-        constants.transform = camera_transform;
     }
 
     // Update debug draw.
@@ -210,6 +203,11 @@ auto AnimDemo::update(const UpdateDesc& desc) -> void {
     _debug_draw.transform(camera_transform);
     _debug_draw.axes();
     _debug_draw.end();
+
+    // Update constants.
+    *_constants.ptr() = Constants {
+        .transform = camera_transform,
+    };
 }
 
 auto AnimDemo::render(GpuDevice& device, GpuCommandList& cmd) -> void {

@@ -67,30 +67,27 @@ EnvDemo::EnvDemo(GpuDevice& device, const baked::Assets& assets, const baked::Sh
     }
 }
 
-static float camera_fov = rad_from_deg(70.0f);
-static float camera_distance = 1.25f;
-static float camera_longitude = rad_from_deg(45.0f);
-static float camera_latitude = rad_from_deg(0.0f);
-static float camera_rotation_speed = 0.5f;
-
 auto EnvDemo::gui(const GuiDesc&) -> void {
-    ImGui::SliderAngle("Camera FOV", &camera_fov, 1.0f, 90.0f);
-    ImGui::SliderFloat("Camera Distance", &camera_distance, 1.0f, 10.0f);
-    ImGui::SliderAngle("Camera Longitude", &camera_longitude, -180.0f, 180.0f);
-    ImGui::SliderAngle("Camera Latitude", &camera_latitude, -90.0f, 90.0f);
-    ImGui::SliderFloat("Camera Rotation Speed", &camera_rotation_speed, 0.0f, 1.0f);
+    auto& p = _parameters;
+    ImGui::SliderAngle("Camera FOV", &p.camera_fov, 1.0f, 90.0f);
+    ImGui::SliderFloat("Camera Distance", &p.camera_distance, 1.0f, 10.0f);
+    ImGui::SliderAngle("Camera Longitude", &p.camera_longitude, -180.0f, 180.0f);
+    ImGui::SliderAngle("Camera Latitude", &p.camera_latitude, -90.0f, 90.0f);
+    ImGui::SliderFloat("Camera Rotation Speed", &p.camera_rotation_speed, 0.0f, 1.0f);
 }
 
 auto EnvDemo::update(const UpdateDesc& desc) -> void {
-    camera_longitude += camera_rotation_speed * desc.delta_time;
-    if (camera_longitude > PI * 2.0f) {
-        camera_longitude -= PI * 2.0f;
+    auto& p = _parameters;
+
+    p.camera_longitude += p.camera_rotation_speed * desc.delta_time;
+    if (p.camera_longitude > PI * 2.0f) {
+        p.camera_longitude -= PI * 2.0f;
     }
 
     float aspect_ratio = desc.aspect_ratio;
     Float4x4 perspective =
-        Float4x4::CreatePerspectiveFieldOfView(camera_fov, aspect_ratio, 0.1f, 100.0f);
-    Float3 eye = camera_distance * dir_from_lonlat(camera_longitude, camera_latitude);
+        Float4x4::CreatePerspectiveFieldOfView(p.camera_fov, aspect_ratio, 0.1f, 100.0f);
+    Float3 eye = p.camera_distance * dir_from_lonlat(p.camera_longitude, p.camera_latitude);
     Float4x4 view = Float4x4::CreateLookAt(eye, Float3(0.0f, 0.0f, 0.0f), Float3(0.0f, 1.0f, 0.0f));
     Float4x4 env_view = view;
     env_view.m[3][0] = 0.0f;
@@ -98,13 +95,16 @@ auto EnvDemo::update(const UpdateDesc& desc) -> void {
     env_view.m[3][2] = 0.0f;
     env_view.m[3][3] = 1.0f;
     Float4x4 env_transform = env_view * perspective;
-    _constants.ptr()->transform = env_transform;
 
     Float4x4 camera_transform = view * perspective;
     _debug_draw.begin(desc.frame_index);
     _debug_draw.transform(camera_transform);
     _debug_draw.axes();
     _debug_draw.end();
+
+    *_constants.ptr() = Constants {
+        .transform = env_transform,
+    };
 }
 
 auto EnvDemo::render(GpuDevice& device, GpuCommandList& cmd) -> void {

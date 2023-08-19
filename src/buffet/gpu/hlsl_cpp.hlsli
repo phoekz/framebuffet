@@ -21,5 +21,11 @@
 //
 
 #if __cplusplus
+namespace fb {
 using uint = uint32_t;
+using float2 = Float2;
+using float3 = Float3;
+using float4 = Float4;
+using float4x4 = Float4x4;
+} // namespace fb
 #endif

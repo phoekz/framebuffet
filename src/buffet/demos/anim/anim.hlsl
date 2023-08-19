@@ -2,11 +2,6 @@
 #include <demos/core.hlsli>
 #include <demos/anim/anim.hlsli>
 
-struct Constants {
-    float4x4 transform;
-    float pad[48];
-};
-
 struct Vertex {
     float3 position;
     float3 normal;

@@ -7,12 +7,18 @@ namespace fb::demos::tree {
 
 inline constexpr uint32_t SHADOW_MAP_SIZE = 1024;
 
-struct Constants {
-    Float4x4 transform;
-    Float4x4 light_transform;
-    Float3 light_direction;
+struct Parameters {
     float ambient_light = 0.25f;
-    float pad[28] = {};
+    float light_projection_size = 15.0f;
+    float light_longitude = 0.0f;
+    float light_latitude = rad_from_deg(30.0f);
+    float light_distance = 15.0f;
+    float shadow_near_plane = 0.1f;
+    float shadow_far_plane = 100.0f;
+    float camera_distance = 10.0f;
+    float camera_fov = rad_from_deg(45.0f);
+    float camera_latitude = rad_from_deg(30.0f);
+    float camera_longitude = rad_from_deg(0.0f);
 };
 
 class TreeDemo {
@@ -27,7 +33,13 @@ public:
 
     auto rt_color() const -> const GpuTextureSrvRtv& { return _render_targets.color(); }
 
+    template<Archive A>
+    auto archive(A& arc) -> void {
+        arc& _parameters;
+    }
+
 private:
+    Parameters _parameters;
     RenderTargets _render_targets;
     DebugDraw _debug_draw;
 

@@ -112,71 +112,59 @@ tree::TreeDemo::TreeDemo(
         .build(device, _draw_pipeline, dx_name(NAME, "Draw", "Pipeline"));
 }
 
-static float light_projection_size = 15.0f;
-static float light_longitude = 0.0f;
-static float light_latitude = rad_from_deg(30.0f);
-static float light_distance = 15.0f;
-static float shadow_near_plane = 0.1f;
-static float shadow_far_plane = 100.0f;
-static float camera_distance = 10.0f;
-static float camera_fov = rad_from_deg(45.0f);
-static float camera_latitude = rad_from_deg(30.0f);
-static float camera_longitude = rad_from_deg(0.0f);
-
 auto TreeDemo::gui(const GuiDesc& desc) -> void {
-    auto* cb = _constants.ptr();
-    ImGui::SliderFloat("Ambient", &cb->ambient_light, 0.0f, 1.0f);
-    ImGui::SliderFloat("Light Projection Size", &light_projection_size, 1.0f, 200.0f);
-    ImGui::SliderAngle("Light Longitude", &light_longitude, 0.0f, 360.0f);
-    ImGui::SliderAngle("Light Latitude", &light_latitude, 0.0f, 180.0f);
-    ImGui::SliderFloat("Light Distance", &light_distance, 1.0f, 200.0f);
-    ImGui::SliderFloat("Shadow Near Plane", &shadow_near_plane, 0.0f, 10.0f);
-    ImGui::SliderFloat("Shadow Far Plane", &shadow_far_plane, 1.0f, 100.0f);
-    ImGui::SliderFloat("Camera Distance", &camera_distance, 0.0f, 10.0f);
-    ImGui::SliderAngle("Camera FOV", &camera_fov, 0.0f, 90.0f);
-    ImGui::SliderAngle("Camera Latitude", &camera_latitude, -90.0f, 90.0f);
-    ImGui::SliderAngle("Camera Longitude", &camera_longitude, 0.0f, 360.0f);
+    auto& p = _parameters;
+    ImGui::SliderFloat("Ambient Light", &p.ambient_light, 0.0f, 1.0f);
+    ImGui::SliderFloat("Light Projection Size", &p.light_projection_size, 1.0f, 200.0f);
+    ImGui::SliderAngle("Light Longitude", &p.light_longitude, 0.0f, 360.0f);
+    ImGui::SliderAngle("Light Latitude", &p.light_latitude, 0.0f, 180.0f);
+    ImGui::SliderFloat("Light Distance", &p.light_distance, 1.0f, 200.0f);
+    ImGui::SliderFloat("Shadow Near Plane", &p.shadow_near_plane, 0.0f, 10.0f);
+    ImGui::SliderFloat("Shadow Far Plane", &p.shadow_far_plane, 1.0f, 100.0f);
+    ImGui::SliderFloat("Camera Distance", &p.camera_distance, 0.0f, 10.0f);
+    ImGui::SliderAngle("Camera FOV", &p.camera_fov, 0.0f, 90.0f);
+    ImGui::SliderAngle("Camera Latitude", &p.camera_latitude, -90.0f, 90.0f);
+    ImGui::SliderAngle("Camera Longitude", &p.camera_longitude, 0.0f, 360.0f);
 }
 
 auto TreeDemo::update(const UpdateDesc& desc) -> void {
-    auto* cb = _constants.ptr();
+    auto& p = _parameters;
 
     // Update light angle.
     {
-        light_longitude += desc.delta_time;
-        if (light_longitude > PI * 2.0f) {
-            light_longitude -= PI * 2.0f;
+        p.light_longitude += desc.delta_time;
+        if (p.light_longitude > PI * 2.0f) {
+            p.light_longitude -= PI * 2.0f;
         }
     }
 
     // Light direction.
-    cb->light_direction = dir_from_lonlat(light_longitude, light_latitude);
+    auto light_direction = dir_from_lonlat(p.light_longitude, p.light_latitude);
 
     // Shadow pass - constants.
+    Float4x4 light_transform;
     {
         auto projection = Float4x4::CreateOrthographic(
-            light_projection_size,
-            light_projection_size,
-            shadow_near_plane,
-            shadow_far_plane
+            p.light_projection_size,
+            p.light_projection_size,
+            p.shadow_near_plane,
+            p.shadow_far_plane
         );
-        auto eye = light_distance * cb->light_direction;
+        auto eye = p.light_distance * light_direction;
         auto view = Float4x4::CreateLookAt(eye, Float3::Zero, Float3::Up);
 
-        cb->light_transform = view * projection;
+        light_transform = view * projection;
     }
 
     // Main pass - constants.
     Float4x4 transform;
     {
         auto projection =
-            Float4x4::CreatePerspectiveFieldOfView(camera_fov, desc.aspect_ratio, 0.1f, 100.0f);
-        auto eye = camera_distance * dir_from_lonlat(camera_longitude, camera_latitude);
+            Float4x4::CreatePerspectiveFieldOfView(p.camera_fov, desc.aspect_ratio, 0.1f, 100.0f);
+        auto eye = p.camera_distance * dir_from_lonlat(p.camera_longitude, p.camera_latitude);
         auto at = Float3(0.0f, 3.0f, 0.0f);
         auto view = Float4x4::CreateLookAt(eye, at, Float3::Up);
         transform = view * projection;
-
-        cb->transform = transform;
     }
 
     // Debug.
@@ -184,9 +172,17 @@ auto TreeDemo::update(const UpdateDesc& desc) -> void {
         _debug_draw.begin(desc.frame_index);
         _debug_draw.transform(transform);
         _debug_draw.axes();
-        _debug_draw.line(Float3(), 16.0f * cb->light_direction, COLOR_YELLOW);
+        _debug_draw.line(Float3(), 16.0f * light_direction, COLOR_YELLOW);
         _debug_draw.end();
     }
+
+    // Update constants.
+    *_constants.ptr() = Constants {
+        .transform = transform,
+        .light_transform = light_transform,
+        .light_direction = light_direction,
+        .ambient_light = p.ambient_light,
+    };
 }
 
 auto TreeDemo::render(GpuDevice& device, GpuCommandList& cmd) -> void {

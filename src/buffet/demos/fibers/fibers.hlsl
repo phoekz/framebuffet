@@ -2,24 +2,6 @@
 #include <demos/core.hlsli>
 #include <demos/fibers/fibers.hlsli>
 
-struct Constants {
-    float4x4 clip_from_world;
-    float4x4 view_from_clip;
-    float4x4 view_from_world;
-    float2 window_size;
-    float delta_time;
-    float light_speed;
-    float light_range;
-    float light_intensity;
-    float debug_opacity;
-};
-
-struct Light {
-    float3 position;
-    float3 color;
-    float speed_variation;
-};
-
 struct Vertex {
     float3 position;
     float3 normal;
@@ -263,6 +245,6 @@ FbPixelOutput1 debug_ps(DebugVertexOutput input) {
     float3 color = heatmap_texture.Sample(heatmap_sampler, float2(shade, 0.5f));
 
     FbPixelOutput1 output;
-    output.color = float4(color, constants.debug_opacity);
+    output.color = float4(color, constants.heatmap_opacity);
     return output;
 }

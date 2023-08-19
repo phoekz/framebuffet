@@ -9,12 +9,15 @@ namespace fb::demos::rain {
 inline constexpr uint32_t PARTICLE_COUNT = 4 * 1024;
 inline constexpr uint32_t DISPATCH_COUNT = PARTICLE_COUNT / SIM_DISPATCH_SIZE;
 
-struct Constants {
-    Float4x4 transform;
-    Float4x4 particle_transform;
-    float delta_time = 0.0f;
+struct Parameters {
     float speed = 0.5f;
-    float pad[30] = {};
+    float camera_distance = 1.25f;
+    float camera_longitude = rad_from_deg(45.0f);
+    float camera_latitude = rad_from_deg(-15.0f);
+    float camera_fov = rad_from_deg(45.0f);
+    float camera_rotation_speed = 0.05f;
+    float particle_width = 0.01f;
+    float particle_height = 0.075f;
 };
 
 struct Particle {
@@ -39,7 +42,13 @@ public:
 
     auto rt_color() const -> const GpuTextureSrvRtv& { return _render_targets.color(); }
 
+    template<Archive A>
+    auto archive(A& arc) -> void {
+        arc& _parameters;
+    }
+
 private:
+    Parameters _parameters;
     RenderTargets _render_targets;
     DebugDraw _debug_draw;
     GpuBufferDeviceSrvUav<Particle> _particles;

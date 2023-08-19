@@ -5,6 +5,27 @@
 
 namespace fb::demos::fibers {
 
+enum class Heatmap : uint32_t {
+    Magma,
+    Viridis,
+};
+
+struct Parameters {
+    float camera_distance = 4.0f;
+    float camera_fov = rad_from_deg(45.0f);
+    float camera_latitude = rad_from_deg(0.0f);
+    float camera_longitude = rad_from_deg(90.0f);
+    Float2 camera_clip_planes = Float2(0.1f, 100.0f);
+    bool show_light_bounds = true;
+
+    float light_speed = 0.5f;
+    int light_intensity_pow2 = 12;
+    float light_range = 0.1f;
+
+    Heatmap heatmap = Heatmap::Magma;
+    float heatmap_opacity = 0.5f;
+};
+
 inline constexpr uint32_t SIM_DISPATCH_COUNT =
     (LIGHT_COUNT + (SIM_DISPATCH_SIZE - 1)) / SIM_DISPATCH_SIZE;
 inline constexpr uint32_t CULL_DISPATCH_COUNT_X =
@@ -12,28 +33,9 @@ inline constexpr uint32_t CULL_DISPATCH_COUNT_X =
 inline constexpr uint32_t CULL_DISPATCH_COUNT_Y =
     (800 + (CULL_DISPATCH_SIZE - 1)) / CULL_DISPATCH_SIZE;
 
-struct Constants {
-    Float4x4 clip_from_world;
-    Float4x4 view_from_clip;
-    Float4x4 view_from_world;
-    Float2 window_size;
-    float delta_time = 0.0f;
-    float light_speed = 0.5f;
-    float light_range = 0.1f;
-    float light_intensity = 0.0f;
-    float debug_opacity = 0.5f;
-    float pad[9] = {};
-};
-
 struct Mesh {
     GpuBufferHostSrv<baked::Vertex> vertices;
     GpuBufferHostIndex<baked::Index> indices;
-};
-
-struct Light {
-    Float3 position;
-    Float3 color;
-    float speed_variation;
 };
 
 class FibersDemo {
@@ -48,7 +50,13 @@ public:
 
     auto rt_color() const -> const GpuTextureSrvRtv& { return _render_targets.color(); }
 
+    template<Archive A>
+    auto archive(A& arc) -> void {
+        arc& _parameters;
+    }
+
 private:
+    Parameters _parameters;
     RenderTargets _render_targets;
     DebugDraw _debug_draw;
     GpuPipeline _sim_pipeline;

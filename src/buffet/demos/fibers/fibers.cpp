@@ -212,69 +212,65 @@ FibersDemo::FibersDemo(
     }
 }
 
-static float camera_distance = 4.0f;
-static float camera_fov = rad_from_deg(45.0f);
-static float camera_latitude = rad_from_deg(0.0f);
-static float camera_longitude = rad_from_deg(90.0f);
-static Float2 camera_clip_planes = Float2(0.1f, 100.0f);
-static bool show_light_bounds = true;
-static int light_intensity_pow2 = 12;
-enum class Heatmap : uint32_t {
-    Magma,
-    Viridis,
-};
-static Heatmap heatmap = Heatmap::Magma;
-
 auto FibersDemo::gui(const GuiDesc&) -> void {
-    auto* cb = _constants.ptr();
-    ImGui::SliderFloat("Camera Distance", &camera_distance, 0.5f, 10.0f);
-    ImGui::SliderAngle("Camera FOV", &camera_fov, 0.0f, 90.0f);
-    ImGui::SliderAngle("Camera Latitude", &camera_latitude, -90.0f, 90.0f);
-    ImGui::SliderAngle("Camera Longitude", &camera_longitude, 0.0f, 360.0f);
-    ImGui::SliderFloat2("Camera Clip Planes", &camera_clip_planes.x, 0.1f, 400.0f);
-    ImGui::SliderFloat("Light Range", &cb->light_range, 0.05f, 0.5f);
-    ImGui::Checkbox("Show Light Bounds", &show_light_bounds);
-    ImGui::SliderInt("Light Intensity Pow2", &light_intensity_pow2, 0, 20);
-    ImGui::SliderFloat("Debug Opacity", &cb->debug_opacity, 0.0f, 1.0f);
-    ImGui::Combo("Heatmap", (int*)&heatmap, "Magma\0Viridis\0");
+    auto& p = _parameters;
+    ImGui::SliderFloat("Camera Distance", &p.camera_distance, 0.5f, 10.0f);
+    ImGui::SliderAngle("Camera FOV", &p.camera_fov, 0.0f, 90.0f);
+    ImGui::SliderAngle("Camera Latitude", &p.camera_latitude, -90.0f, 90.0f);
+    ImGui::SliderAngle("Camera Longitude", &p.camera_longitude, 0.0f, 360.0f);
+    ImGui::SliderFloat2("Camera Clip Planes", &p.camera_clip_planes.x, 0.1f, 400.0f);
+    ImGui::Checkbox("Show Light Bounds", &p.show_light_bounds);
+    ImGui::SliderFloat("Light Speed", &p.light_speed, 0.0f, 2.0f);
+    ImGui::SliderFloat("Light Range", &p.light_range, 0.05f, 0.5f);
+    ImGui::SliderInt("Light Intensity Pow2", &p.light_intensity_pow2, 0, 20);
+    ImGui::Combo("Heatmap", (int*)&p.heatmap, "Magma\0Viridis\0");
+    ImGui::SliderFloat("Heatmap Opacity", &p.heatmap_opacity, 0.0f, 1.0f);
 }
 
 auto FibersDemo::update(const UpdateDesc& desc) -> void {
+    const auto& p = _parameters;
+
     // Update transforms.
     Float4x4 clip_from_world;
     Float4x4 view_from_clip;
     Float4x4 view_from_world;
     {
         auto projection = Float4x4::CreatePerspectiveFieldOfView(
-            camera_fov,
+            p.camera_fov,
             desc.aspect_ratio,
-            camera_clip_planes.x,
-            camera_clip_planes.y
+            p.camera_clip_planes.x,
+            p.camera_clip_planes.y
         );
-        auto eye = camera_distance * dir_from_lonlat(camera_longitude, camera_latitude);
+        auto eye = p.camera_distance * dir_from_lonlat(p.camera_longitude, p.camera_latitude);
         auto view = Float4x4::CreateLookAt(eye, Float3::Zero, Float3::Up);
         clip_from_world = view * projection;
         view_from_clip = projection.Invert();
         view_from_world = view;
     }
 
-    // Update Constants.
-    auto* cb = _constants.ptr();
-    cb->clip_from_world = clip_from_world;
-    cb->view_from_clip = view_from_clip;
-    cb->view_from_world = view_from_world;
-    cb->window_size = Float2((float)desc.window_size.x, (float)desc.window_size.y);
-    cb->delta_time = desc.delta_time;
-    cb->light_intensity = 1.0f / (float)(1 << light_intensity_pow2);
-
     // Update debug draw.
     _debug_draw.begin(desc.frame_index);
     _debug_draw.transform(clip_from_world);
     _debug_draw.axes();
     _debug_draw.end();
+
+    // Update constants.
+    *_constants.ptr() = Constants {
+        .clip_from_world = clip_from_world,
+        .view_from_clip = view_from_clip,
+        .view_from_world = view_from_world,
+        .window_size = Float2((float)desc.window_size.x, (float)desc.window_size.y),
+        .delta_time = desc.delta_time,
+        .light_speed = p.light_speed,
+        .light_range = p.light_range,
+        .light_intensity = 1.0f / (float)(1 << p.light_intensity_pow2),
+        .heatmap_opacity = p.heatmap_opacity,
+    };
 }
 
 auto FibersDemo::render(GpuDevice& device, GpuCommandList& cmd) -> void {
+    const auto& p = _parameters;
+
     // Compute.
     {
         cmd.set_compute();
@@ -320,7 +316,7 @@ auto FibersDemo::render(GpuDevice& device, GpuCommandList& cmd) -> void {
         _debug_draw.render(device, cmd);
 
         // Light.
-        if (show_light_bounds) {
+        if (p.show_light_bounds) {
             cmd.set_graphics_constants(Bindings {
                 .constants = _constants.cbv_descriptor().index(),
                 .lights = _lights.srv_descriptor().index(),
@@ -348,7 +344,7 @@ auto FibersDemo::render(GpuDevice& device, GpuCommandList& cmd) -> void {
 
         // Debug.
         auto heatmap_index = 0u;
-        switch (heatmap) {
+        switch (p.heatmap) {
             case Heatmap::Magma: heatmap_index = _magma_texture.srv_descriptor().index(); break;
             case Heatmap::Viridis: heatmap_index = _viridis_texture.srv_descriptor().index(); break;
         }

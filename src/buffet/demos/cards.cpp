@@ -52,9 +52,9 @@ static auto layout_vmosaic(std::span<Card> cards, Uint2 window_size) -> void {
     cards[card_count - 1].size = {hero_w, hero_h};
 }
 
-Cards::Cards(GpuDevice& device, const baked::Shaders& shaders, const Params& params) {
+Cards::Cards(GpuDevice& device, const baked::Shaders& shaders, const CardsDesc& desc) {
     // Descriptors.
-    _card_texture_descriptors = params.card_descriptors;
+    _card_texture_descriptors = desc.card_descriptors;
 
     // Pipeline.
     GpuPipelineBuilder()
@@ -87,14 +87,15 @@ Cards::Cards(GpuDevice& device, const baked::Shaders& shaders, const Params& par
         _indices.create_with_data(device, indices, dx_name(Cards::NAME, "Indices"));
     }
 
-    // Card indices.
+    // Default card indices.
     for (uint32_t i = 0; i < CARD_COUNT; i++) {
-        _card_indirect_indices[i] = i;
+        _parameters.card_indirect_indices[i] = i;
     }
 }
 
 auto Cards::gui(const demos::GuiDesc& desc) -> void {
     std::span<Card> cards = {_cards.ptr(), CARD_COUNT};
+    auto& p = _parameters;
 
     if (ImGui::Button("Grid")) {
         layout_grid(cards, desc.window_size, CARD_GRID_COLUMNS);
@@ -109,32 +110,34 @@ auto Cards::gui(const demos::GuiDesc& desc) -> void {
     }
     if (ImGui::Button("Rotate Left")) {
         std::rotate(
-            _card_indirect_indices.begin(),
-            _card_indirect_indices.begin() + 1,
-            _card_indirect_indices.end()
+            p.card_indirect_indices.begin(),
+            p.card_indirect_indices.begin() + 1,
+            p.card_indirect_indices.end()
         );
     }
     ImGui::SameLine();
     if (ImGui::Button("Rotate Right")) {
         std::rotate(
-            _card_indirect_indices.rbegin(),
-            _card_indirect_indices.rbegin() + 1,
-            _card_indirect_indices.rend()
+            p.card_indirect_indices.rbegin(),
+            p.card_indirect_indices.rbegin() + 1,
+            p.card_indirect_indices.rend()
         );
     }
 }
 
 void Cards::update(const GpuDevice& device) {
-    Uint2 swapchain_size = device.swapchain_size();
-    float width = (float)swapchain_size.x;
-    float height = (float)swapchain_size.y;
-
-    auto& constants = *_constants.ptr();
-    constants.transform =
+    const auto swapchain_size = device.swapchain_size();
+    const auto width = (float)swapchain_size.x;
+    const auto height = (float)swapchain_size.y;
+    const auto projection =
         Float4x4::CreateOrthographicOffCenter(0.0f, width, height, 0.0f, 0.0f, 1.0f);
+    *_constants.ptr() = Constants {
+        .transform = projection,
+    };
 }
 
 void Cards::render(GpuDevice& device, GpuCommandList& cmd) {
+    const auto& p = _parameters;
     cmd.set_graphics();
     cmd.set_viewport(0, 0, device.swapchain_size().x, device.swapchain_size().y);
     cmd.set_scissor(0, 0, device.swapchain_size().x, device.swapchain_size().y);
@@ -143,7 +146,7 @@ void Cards::render(GpuDevice& device, GpuCommandList& cmd) {
     cmd.set_index_buffer(_indices.index_buffer_view());
 
     for (uint32_t card_index = 0; card_index < CARD_COUNT; ++card_index) {
-        uint32_t card_indirect = _card_indirect_indices[card_index];
+        uint32_t card_indirect = p.card_indirect_indices[card_index];
         cmd.set_graphics_constants(Bindings {
             .card_index = card_index,
             .constants = _constants.cbv_descriptor().index(),

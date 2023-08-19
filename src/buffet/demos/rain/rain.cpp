@@ -74,61 +74,50 @@ RainDemo::RainDemo(GpuDevice& device, const baked::Assets&, const baked::Shaders
     }
 }
 
-static float camera_distance = 1.25f;
-static float camera_longitude = rad_from_deg(45.0f);
-static float camera_latitude = rad_from_deg(-15.0f);
-static float camera_fov = rad_from_deg(45.0f);
-static float camera_rotation_speed = 0.05f;
-static float particle_width = 0.01f;
-static float particle_height = 0.075f;
-
 auto RainDemo::gui(const GuiDesc&) -> void {
-    auto* cb = _constants.ptr();
-    ImGui::SliderFloat("Rain Speed", &cb->speed, 0.0f, 2.0f);
-    ImGui::SliderFloat("Camera Distance", &camera_distance, 1.0f, 10.0f);
-    ImGui::SliderAngle("Camera Longitude", &camera_longitude, -180.0f, 180.0f);
-    ImGui::SliderAngle("Camera Latitude", &camera_latitude, -90.0f, 90.0f);
-    ImGui::SliderAngle("Camera FOV", &camera_fov, 0.0f, 90.0f);
-    ImGui::SliderFloat("Camera Rotation Speed", &camera_rotation_speed, 0.0f, 1.0f);
-    ImGui::SliderFloat("Particle Width", &particle_width, 0.0f, 1.0f);
-    ImGui::SliderFloat("Particle Height", &particle_height, 0.0f, 1.0f);
+    auto& p = _parameters;
+    ImGui::SliderFloat("Rain Speed", &p.speed, 0.0f, 2.0f);
+    ImGui::SliderFloat("Camera Distance", &p.camera_distance, 1.0f, 10.0f);
+    ImGui::SliderAngle("Camera Longitude", &p.camera_longitude, -180.0f, 180.0f);
+    ImGui::SliderAngle("Camera Latitude", &p.camera_latitude, -90.0f, 90.0f);
+    ImGui::SliderAngle("Camera FOV", &p.camera_fov, 0.0f, 90.0f);
+    ImGui::SliderFloat("Camera Rotation Speed", &p.camera_rotation_speed, 0.0f, 1.0f);
+    ImGui::SliderFloat("Particle Width", &p.particle_width, 0.0f, 1.0f);
+    ImGui::SliderFloat("Particle Height", &p.particle_height, 0.0f, 1.0f);
 }
 
 void RainDemo::update(const UpdateDesc& desc) {
-    Float4x4 camera_transform;
-    {
-        camera_longitude += camera_rotation_speed * desc.delta_time;
-        if (camera_longitude > PI * 2.0f) {
-            camera_longitude -= PI * 2.0f;
-        }
+    auto& p = _parameters;
 
-        auto aspect_ratio = desc.aspect_ratio;
-        auto projection =
-            Float4x4::CreatePerspectiveFieldOfView(camera_fov, aspect_ratio, 0.1f, 100.0f);
-        auto eye = camera_distance * dir_from_lonlat(camera_longitude, camera_latitude);
-        auto view = Float4x4::CreateLookAt(eye, Float3::Zero, Float3::Up);
-
-        auto from_dir = Float3::UnitZ;
-        auto to_dir = Float3(eye.x, 0.0f, eye.z);
-        auto rot_quat = Quaternion::FromToRotation(from_dir, to_dir);
-        auto rot_Float4x4 = Float4x4::CreateFromQuaternion(rot_quat);
-        auto scale = Float4x4::CreateScale(particle_width, particle_height, 1.0f);
-        auto particle_transform = scale * rot_Float4x4;
-
-        camera_transform = view * projection;
-
-        auto* cb = _constants.ptr();
-        cb->delta_time = desc.delta_time;
-        cb->transform = camera_transform;
-        cb->particle_transform = particle_transform;
+    p.camera_longitude += p.camera_rotation_speed * desc.delta_time;
+    if (p.camera_longitude > PI * 2.0f) {
+        p.camera_longitude -= PI * 2.0f;
     }
 
-    {
-        _debug_draw.begin(desc.frame_index);
-        _debug_draw.transform(camera_transform);
-        _debug_draw.axes();
-        _debug_draw.end();
-    }
+    auto aspect_ratio = desc.aspect_ratio;
+    auto projection =
+        Float4x4::CreatePerspectiveFieldOfView(p.camera_fov, aspect_ratio, 0.1f, 100.0f);
+    auto eye = p.camera_distance * dir_from_lonlat(p.camera_longitude, p.camera_latitude);
+    auto view = Float4x4::CreateLookAt(eye, Float3::Zero, Float3::Up);
+    auto from_dir = Float3::UnitZ;
+    auto to_dir = Float3(eye.x, 0.0f, eye.z);
+    auto rot_quat = Quaternion::FromToRotation(from_dir, to_dir);
+    auto rot_Float4x4 = Float4x4::CreateFromQuaternion(rot_quat);
+    auto scale = Float4x4::CreateScale(p.particle_width, p.particle_height, 1.0f);
+    auto particle_transform = scale * rot_Float4x4;
+    auto camera_transform = view * projection;
+
+    _debug_draw.begin(desc.frame_index);
+    _debug_draw.transform(camera_transform);
+    _debug_draw.axes();
+    _debug_draw.end();
+
+    *_constants.ptr() = Constants {
+        .transform = camera_transform,
+        .particle_transform = particle_transform,
+        .delta_time = desc.delta_time,
+        .speed = p.speed,
+    };
 }
 
 void RainDemo::render(GpuDevice& device, GpuCommandList& cmd) {

@@ -8,11 +8,6 @@ namespace fb::demos::gui {
 inline constexpr uint32_t MAX_VERTEX_COUNT = 1024 * 1024;
 inline constexpr uint32_t MAX_INDEX_COUNT = 1024 * 1024;
 
-struct Constants {
-    Float4x4 transform;
-    float pad[48] = {};
-};
-
 class Gui {
 public:
     static constexpr std::string_view NAME = "Gui"sv;

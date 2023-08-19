@@ -12,4 +12,19 @@ struct Bindings {
     uint texture;
 };
 
+struct Constants {
+    float4x4 transform;
+    float pad[48];
+};
+
+struct Card {
+    float2 position;
+    float2 size;
+};
+
+struct Vertex {
+    float2 position;
+    float2 texcoord;
+};
+
 FB_NAMESPACE_END(fb::demos::cards)

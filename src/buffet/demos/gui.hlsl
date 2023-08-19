@@ -2,10 +2,6 @@
 #include <demos/core.hlsli>
 #include <demos/gui.hlsli>
 
-struct Constants {
-    float4x4 transform;
-};
-
 struct Vertex {
     float2 position;
     float2 texcoord;
