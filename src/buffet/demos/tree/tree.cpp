@@ -9,8 +9,16 @@ tree::TreeDemo::TreeDemo(
     GpuDevice& device,
     const baked::Assets& assets,
     const baked::Shaders& shaders) :
-    _render_targets(device, device.swapchain_size(), CLEAR_COLOR, NAME),
-    _debug_draw(device, shaders, NAME) {
+    _render_targets(
+        device,
+        {
+            .size = device.swapchain_size(),
+            .color_format = DXGI_FORMAT_R8G8B8A8_UNORM,
+            .clear_color = CLEAR_COLOR,
+            .sample_count = 1,
+        },
+        NAME),
+    _debug_draw(device, shaders, _render_targets, NAME) {
     // Constants.
     _constants.create(device, 1, dx_name(NAME, "Constants"));
 
@@ -62,37 +70,39 @@ tree::TreeDemo::TreeDemo(
             D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
     }
 
-    // Pipelines.
-    GpuPipelineBuilder()
-        .primitive_topology(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)
-        .vertex_shader(shaders.tree_shadow_vs())
-        .depth_stencil_format(DXGI_FORMAT_D32_FLOAT)
-        .build(device, _shadow_pipeline, dx_name(NAME, "Shadow", "Pipeline"));
-    // Pipeline.
-    GpuPipelineBuilder()
-        .primitive_topology(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)
-        .vertex_shader(shaders.tree_draw_vs())
-        .pixel_shader(shaders.tree_draw_ps())
-        .render_target_formats({DXGI_FORMAT_R8G8B8A8_UNORM})
-        .depth_stencil_format(DXGI_FORMAT_D32_FLOAT)
-        .build(device, _draw_pipeline, dx_name(NAME, "Draw", "Pipeline"));
-
     // Depth.
+    constexpr DXGI_FORMAT DEPTH_RAW_FORMAT = DXGI_FORMAT_R32_TYPELESS;
+    constexpr DXGI_FORMAT DEPTH_SRV_FORMAT = DXGI_FORMAT_R32_FLOAT;
+    constexpr DXGI_FORMAT DEPTH_DSV_FORMAT = DXGI_FORMAT_D32_FLOAT;
     _shadow_depth.create(
         device,
         GpuTextureDesc {
-            .format = DXGI_FORMAT_R32_TYPELESS,
+            .format = DEPTH_RAW_FORMAT,
             .width = SHADOW_MAP_SIZE,
             .height = SHADOW_MAP_SIZE,
             .clear_value =
                 D3D12_CLEAR_VALUE {
-                    .Format = DXGI_FORMAT_D32_FLOAT,
+                    .Format = DEPTH_DSV_FORMAT,
                     .DepthStencil = {1.0f, 0},
                 },
-            .srv_format = DXGI_FORMAT_R32_FLOAT,
-            .dsv_format = DXGI_FORMAT_D32_FLOAT,
+            .srv_format = DEPTH_SRV_FORMAT,
+            .dsv_format = DEPTH_DSV_FORMAT,
         },
         dx_name(NAME, "Shadow", "Depth"));
+
+    // Pipelines.
+    GpuPipelineBuilder()
+        .primitive_topology(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)
+        .vertex_shader(shaders.tree_shadow_vs())
+        .depth_stencil_format(DEPTH_DSV_FORMAT)
+        .build(device, _shadow_pipeline, dx_name(NAME, "Shadow", "Pipeline"));
+    GpuPipelineBuilder()
+        .primitive_topology(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)
+        .vertex_shader(shaders.tree_draw_vs())
+        .pixel_shader(shaders.tree_draw_ps())
+        .render_target_formats({_render_targets.color_format()})
+        .depth_stencil_format(_render_targets.depth_format())
+        .build(device, _draw_pipeline, dx_name(NAME, "Draw", "Pipeline"));
 }
 
 static float light_projection_size = 15.0f;

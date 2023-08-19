@@ -3,16 +3,24 @@
 namespace fb::demos::env {
 
 EnvDemo::EnvDemo(GpuDevice& device, const baked::Assets& assets, const baked::Shaders& shaders) :
-    _render_targets(device, device.swapchain_size(), CLEAR_COLOR, NAME),
-    _debug_draw(device, shaders, NAME) {
+    _render_targets(
+        device,
+        {
+            .size = device.swapchain_size(),
+            .color_format = DXGI_FORMAT_R8G8B8A8_UNORM,
+            .clear_color = CLEAR_COLOR,
+            .sample_count = 1,
+        },
+        NAME),
+    _debug_draw(device, shaders, _render_targets, NAME) {
     // Pipeline.
     GpuPipelineBuilder()
         .primitive_topology(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)
         .vertex_shader(shaders.env_draw_vs())
         .pixel_shader(shaders.env_draw_ps())
         .depth_stencil(GPU_PIPELINE_DEPTH_DEFAULT)
-        .render_target_formats({DXGI_FORMAT_R8G8B8A8_UNORM})
-        .depth_stencil_format(DXGI_FORMAT_D32_FLOAT)
+        .render_target_formats({_render_targets.color_format()})
+        .depth_stencil_format(_render_targets.depth_format())
         .build(device, _pipeline, dx_name(NAME, "Pipeline"));
 
     // Constants.

@@ -8,6 +8,7 @@ namespace fb {
 
 inline constexpr uint32_t FRAME_COUNT = 2;
 inline constexpr D3D_FEATURE_LEVEL MIN_FEATURE_LEVEL = D3D_FEATURE_LEVEL_12_2;
+inline constexpr DXGI_FORMAT SWAPCHAIN_RTV_FORMAT = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
 
 class GpuCommandList;
 class GpuDescriptors;

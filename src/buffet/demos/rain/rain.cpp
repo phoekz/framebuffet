@@ -3,8 +3,16 @@
 namespace fb::demos::rain {
 
 RainDemo::RainDemo(GpuDevice& device, const baked::Assets&, const baked::Shaders& shaders) :
-    _render_targets(device, device.swapchain_size(), CLEAR_COLOR, NAME),
-    _debug_draw(device, shaders, NAME) {
+    _render_targets(
+        device,
+        {
+            .size = device.swapchain_size(),
+            .color_format = DXGI_FORMAT_R8G8B8A8_UNORM,
+            .clear_color = CLEAR_COLOR,
+            .sample_count = 1,
+        },
+        NAME),
+    _debug_draw(device, shaders, _render_targets, NAME) {
     // Particles.
     {
         // Buffer.
@@ -46,8 +54,8 @@ RainDemo::RainDemo(GpuDevice& device, const baked::Assets&, const baked::Shaders
         .pixel_shader(shaders.rain_draw_ps())
         .blend(GPU_PIPELINE_BLEND_ADDITIVE)
         .depth_stencil(GPU_PIPELINE_DEPTH_NONE)
-        .render_target_formats({DXGI_FORMAT_R8G8B8A8_UNORM})
-        .depth_stencil_format(DXGI_FORMAT_D32_FLOAT)
+        .render_target_formats({_render_targets.color_format()})
+        .depth_stencil_format(_render_targets.depth_format())
         .build(device, _draw_pipeline, dx_name(NAME, "Draw", "Pipeline"));
 
     // Draw - Geometry.

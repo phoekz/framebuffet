@@ -48,7 +48,7 @@ Gui::Gui(
                 .RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL,
             }}})
         .depth_stencil(GPU_PIPELINE_DEPTH_NONE)
-        .render_target_formats({DXGI_FORMAT_R8G8B8A8_UNORM_SRGB})
+        .render_target_formats({SWAPCHAIN_RTV_FORMAT})
         .rasterizer(GPU_PIPELINE_CULL_NONE)
         .build(device, _pipeline, dx_name(Gui::NAME, "Pipeline"));
 

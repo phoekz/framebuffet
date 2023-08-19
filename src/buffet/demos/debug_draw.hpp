@@ -14,6 +14,7 @@ inline constexpr RgbaByte COLOR_CYAN = {(uint8_t)0, 255, 255, 255};
 inline constexpr RgbaByte COLOR_WHITE = {(uint8_t)255, 255, 255, 255};
 inline constexpr RgbaByte COLOR_BLACK = {(uint8_t)0, 0, 0, 255};
 
+class RenderTargets;
 class DebugDraw {
     FB_NO_COPY_MOVE(DebugDraw);
 
@@ -21,7 +22,11 @@ class DebugDraw {
     static constexpr std::string_view NAME = "Debug Draw"sv;
     static constexpr size_t MAX_LINE_COUNT = 1 << 16;
 
-    DebugDraw(GpuDevice& device, const baked::Shaders& shaders, std::string_view name);
+    DebugDraw(
+        GpuDevice& device,
+        const baked::Shaders& shaders,
+        const RenderTargets& render_targets,
+        std::string_view name);
 
     auto begin(uint32_t frame_index) -> void;
     auto transform(const Float4x4& transform) -> void;

@@ -15,29 +15,28 @@ static auto make_depth_stencil_clear_value(DXGI_FORMAT format, float depth, uint
 
 RenderTargets::RenderTargets(
     GpuDevice& device,
-    Uint2 size,
-    Float4 clear_color,
+    const RenderTargetsDesc& desc,
     std::string_view name) :
-    _size(size),
-    _clear_color(clear_color) {
+    _size(desc.size),
+    _clear_color(desc.clear_color) {
     _color.create(
         device,
         GpuTextureDesc {
-            .format = COLOR_FORMAT,
-            .width = size.x,
-            .height = size.y,
-            .sample_count = SAMPLE_COUNT,
-            .clear_value = make_color_clear_value(COLOR_FORMAT, _clear_color),
+            .format = desc.color_format,
+            .width = desc.size.x,
+            .height = desc.size.y,
+            .sample_count = desc.sample_count,
+            .clear_value = make_color_clear_value(desc.color_format, _clear_color),
         },
         dx_name(name, "Color Target"));
     _depth.create(
         device,
         GpuTextureDesc {
             .format = DEPTH_FORMAT,
-            .width = size.x,
-            .height = size.y,
-            .sample_count = SAMPLE_COUNT,
-            .clear_value = make_depth_stencil_clear_value(DEPTH_FORMAT, 1.0f, 0),
+            .width = desc.size.x,
+            .height = desc.size.y,
+            .sample_count = desc.sample_count,
+            .clear_value = make_depth_stencil_clear_value(DEPTH_FORMAT, DEPTH_VALUE, 0),
         },
         dx_name(name, "Depth Target"));
 }

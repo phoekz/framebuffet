@@ -6,8 +6,16 @@ FibersDemo::FibersDemo(
     GpuDevice& device,
     const baked::Assets& assets,
     const baked::Shaders& shaders) :
-    _render_targets(device, device.swapchain_size(), CLEAR_COLOR, NAME),
-    _debug_draw(device, shaders, NAME) {
+    _render_targets(
+        device,
+        {
+            .size = device.swapchain_size(),
+            .color_format = DXGI_FORMAT_R8G8B8A8_UNORM,
+            .clear_color = CLEAR_COLOR,
+            .sample_count = 1,
+        },
+        NAME),
+    _debug_draw(device, shaders, _render_targets, NAME) {
     // Pipelines.
     {
         GpuPipelineBuilder()
@@ -27,16 +35,16 @@ FibersDemo::FibersDemo(
             .vertex_shader(shaders.fibers_light_vs())
             .pixel_shader(shaders.fibers_light_ps())
             .rasterizer(GPU_PIPELINE_WIREFRAME)
-            .render_target_formats({DXGI_FORMAT_R8G8B8A8_UNORM})
-            .depth_stencil_format(DXGI_FORMAT_D32_FLOAT)
+            .render_target_formats({_render_targets.color_format()})
+            .depth_stencil_format(_render_targets.depth_format())
             .build(device, _light_pipeline, dx_name(NAME, "Light", "Pipeline"));
 
         GpuPipelineBuilder()
             .primitive_topology(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)
             .vertex_shader(shaders.fibers_plane_vs())
             .pixel_shader(shaders.fibers_plane_ps())
-            .render_target_formats({DXGI_FORMAT_R8G8B8A8_UNORM})
-            .depth_stencil_format(DXGI_FORMAT_D32_FLOAT)
+            .render_target_formats({_render_targets.color_format()})
+            .depth_stencil_format(_render_targets.depth_format())
             .build(device, _plane_pipeline, dx_name(NAME, "Plane", "Pipeline"));
 
         GpuPipelineBuilder()
@@ -45,7 +53,7 @@ FibersDemo::FibersDemo(
             .pixel_shader(shaders.fibers_debug_ps())
             .blend(GPU_PIPELINE_BLEND_ALPHA)
             .depth_stencil(GPU_PIPELINE_DEPTH_NONE)
-            .render_target_formats({DXGI_FORMAT_R8G8B8A8_UNORM})
+            .render_target_formats({_render_targets.color_format()})
             .build(device, _debug_pipeline, dx_name(NAME, "Debug", "Pipeline"));
     }
 

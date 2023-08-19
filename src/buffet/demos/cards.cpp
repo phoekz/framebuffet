@@ -61,7 +61,7 @@ Cards::Cards(GpuDevice& device, const baked::Shaders& shaders, const Params& par
         .vertex_shader(shaders.cards_draw_vs())
         .pixel_shader(shaders.cards_draw_ps())
         .primitive_topology(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)
-        .render_target_formats({DXGI_FORMAT_R8G8B8A8_UNORM_SRGB})
+        .render_target_formats({SWAPCHAIN_RTV_FORMAT})
         .depth_stencil(GPU_PIPELINE_DEPTH_NONE)
         .build(device, _pipeline, dx_name(Cards::NAME, "Pipeline"));
 

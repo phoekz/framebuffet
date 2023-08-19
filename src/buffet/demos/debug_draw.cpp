@@ -2,7 +2,11 @@
 
 namespace fb::demos {
 
-DebugDraw::DebugDraw(GpuDevice& device, const baked::Shaders& shaders, std::string_view name) {
+DebugDraw::DebugDraw(
+    GpuDevice& device,
+    const baked::Shaders& shaders,
+    const RenderTargets& render_targets,
+    std::string_view name) {
     // Pipeline.
     GpuPipelineBuilder()
         .primitive_topology(D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE)
@@ -11,8 +15,8 @@ DebugDraw::DebugDraw(GpuDevice& device, const baked::Shaders& shaders, std::stri
         .blend(GPU_PIPELINE_BLEND_ALPHA)
         .depth_stencil(GPU_PIPELINE_DEPTH_DEFAULT)
         .rasterizer(GPU_PIPELINE_CULL_NONE)
-        .render_target_formats({DXGI_FORMAT_R8G8B8A8_UNORM})
-        .depth_stencil_format(DXGI_FORMAT_D32_FLOAT)
+        .render_target_formats({render_targets.color_format()})
+        .depth_stencil_format(render_targets.depth_format())
         .build(device, _pipeline, dx_name(NAME, "Pipeline"));
 
     // Frame resources.
