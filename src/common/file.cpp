@@ -50,4 +50,8 @@ auto write_whole_file(std::string_view path, std::span<const std::byte> data) ->
     FB_LOG_TRACE("Wrote {} bytes to {}", data.size(), path);
 }
 
+auto file_exists(std::string_view path) -> bool {
+    return std::filesystem::exists(path);
+}
+
 } // namespace fb
