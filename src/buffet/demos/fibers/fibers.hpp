@@ -11,14 +11,14 @@ enum class Heatmap : uint32_t {
 };
 
 struct Parameters {
-    float camera_distance = 4.0f;
+    float camera_distance = 2.2f;
     float camera_fov = rad_from_deg(45.0f);
     float camera_latitude = rad_from_deg(0.0f);
     float camera_longitude = rad_from_deg(90.0f);
     Float2 camera_clip_planes = Float2(0.1f, 100.0f);
     bool show_light_bounds = true;
 
-    float light_speed = 0.5f;
+    float light_speed = 0.25f;
     int light_intensity_pow2 = 12;
     float light_range = 0.1f;
 
