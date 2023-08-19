@@ -12,7 +12,7 @@ struct RenderTargetsDesc {
 };
 
 class RenderTargets {
-  public:
+public:
     RenderTargets(GpuDevice& device, const RenderTargetsDesc& desc, std::string_view name);
 
     auto begin(GpuDevice& device, const GpuCommandList& cmd) -> void;
@@ -22,7 +22,7 @@ class RenderTargets {
     auto color_format() const -> DXGI_FORMAT { return _color.format(); }
     auto depth_format() const -> DXGI_FORMAT { return _depth.format(); }
 
-  private:
+private:
     static constexpr DXGI_FORMAT DEPTH_FORMAT = DXGI_FORMAT_D32_FLOAT;
     static constexpr float DEPTH_VALUE = 1.0f;
 

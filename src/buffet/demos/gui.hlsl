@@ -32,7 +32,7 @@ VertexOutput draw_vs(FbVertexInput input) {
     output.color.xyz = linear_from_srgb(output.color.xyz);
     output.texcoord = vertex.texcoord;
     return output;
-};
+}
 
 FbPixelOutput1 draw_ps(VertexOutput input) {
     Texture2D texture = ResourceDescriptorHeap[g_bindings.texture];
@@ -41,4 +41,4 @@ FbPixelOutput1 draw_ps(VertexOutput input) {
     FbPixelOutput1 output;
     output.color = input.color * texture.Sample(samp, input.texcoord);
     return output;
-};
+}

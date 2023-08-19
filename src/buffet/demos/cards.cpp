@@ -54,7 +54,7 @@ static auto layout_vmosaic(std::span<Card> cards, Uint2 window_size) -> void {
 
 Cards::Cards(GpuDevice& device, const baked::Shaders& shaders, const Params& params) {
     // Descriptors.
-    _card_texture_descriptors = params.card_texture_descriptors;
+    _card_texture_descriptors = params.card_descriptors;
 
     // Pipeline.
     GpuPipelineBuilder()
@@ -111,14 +111,16 @@ auto Cards::gui(const demos::GuiDesc& desc) -> void {
         std::rotate(
             _card_indirect_indices.begin(),
             _card_indirect_indices.begin() + 1,
-            _card_indirect_indices.end());
+            _card_indirect_indices.end()
+        );
     }
     ImGui::SameLine();
     if (ImGui::Button("Rotate Right")) {
         std::rotate(
             _card_indirect_indices.rbegin(),
             _card_indirect_indices.rbegin() + 1,
-            _card_indirect_indices.rend());
+            _card_indirect_indices.rend()
+        );
     }
 }
 

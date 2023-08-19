@@ -37,7 +37,7 @@ struct Light {
 };
 
 class FibersDemo {
-  public:
+public:
     static constexpr std::string_view NAME = "Fibers"sv;
     static constexpr Float4 CLEAR_COLOR = {0.05f, 0.05f, 0.05f, 1.0f};
 
@@ -48,7 +48,7 @@ class FibersDemo {
 
     auto rt_color() const -> const GpuTextureSrvRtv& { return _render_targets.color(); }
 
-  private:
+private:
     RenderTargets _render_targets;
     DebugDraw _debug_draw;
     GpuPipeline _sim_pipeline;

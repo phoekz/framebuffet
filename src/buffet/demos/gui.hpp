@@ -14,7 +14,7 @@ struct Constants {
 };
 
 class Gui {
-  public:
+public:
     static constexpr std::string_view NAME = "Gui"sv;
 
     Gui(const Window& window,
@@ -26,7 +26,7 @@ class Gui {
     auto end_frame() -> void;
     auto render(const GpuDevice& device, GpuCommandList& cmd) -> void;
 
-  private:
+private:
     ImGuiContext* _imgui_ctx = nullptr;
     GpuPipeline _pipeline;
     GpuBufferHostCbv<Constants> _constants;

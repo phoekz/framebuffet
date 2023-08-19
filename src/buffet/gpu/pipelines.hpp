@@ -9,15 +9,15 @@ class GpuDevice;
 class GpuPipeline {
     friend class GpuPipelineBuilder;
 
-  public:
+public:
     auto get() const -> ID3D12PipelineState* { return _state.get(); }
 
-  private:
+private:
     ComPtr<ID3D12PipelineState> _state;
 };
 
 class GpuPipelineBuilder {
-  public:
+public:
     // clang-format off
     [[nodiscard]] auto primitive_topology(D3D12_PRIMITIVE_TOPOLOGY_TYPE topology) -> GpuPipelineBuilder&;
     [[nodiscard]] auto vertex_shader(std::span<const std::byte> dxil) -> GpuPipelineBuilder&;
@@ -31,7 +31,7 @@ class GpuPipelineBuilder {
     auto build(GpuDevice& device, GpuPipeline& pipeline, std::string_view name) -> void;
     // clang-format on
 
-  private:
+private:
     static constexpr size_t BUFFER_SIZE = 1024;
     static_assert(BUFFER_SIZE >= sizeof(CD3DX12_PIPELINE_STATE_STREAM5));
     static_assert(8 * sizeof(uint32_t) >= D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_MAX_VALID);

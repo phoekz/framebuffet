@@ -32,8 +32,9 @@ void sim_cs(FbComputeInput input) {
     uint i = input.dispatch_thread_id.x;
     Particle p = particles[i];
     p.position.y -= constants.speed * constants.delta_time;
-    if (p.position.y < -1.0f)
+    if (p.position.y < -1.0f) {
         p.position.y = 1.0f;
+    }
     particles[i] = p;
 }
 

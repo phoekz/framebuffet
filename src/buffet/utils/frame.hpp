@@ -5,7 +5,7 @@
 namespace fb {
 
 class Frame {
-  public:
+public:
     static constexpr size_t MAX_DELTA_TIME_HISTORY = 128;
     static constexpr float DELTA_TIME_UPDATE_INTERVAL = 1.0f / 8.0f;
 
@@ -20,7 +20,7 @@ class Frame {
         return _last_delta_time != 0.0f ? 1.0f / _last_delta_time : 0.0f;
     }
 
-  private:
+private:
     uint64_t _frequency = 0;
     uint64_t _prev_time = 0;
     uint64_t _curr_time = 0;

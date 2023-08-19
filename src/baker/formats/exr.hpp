@@ -5,7 +5,7 @@
 namespace fb {
 
 class ExrImage {
-  public:
+public:
     static auto load(std::string_view path) -> ExrImage;
 
     ~ExrImage();
@@ -30,7 +30,7 @@ class ExrImage {
     ExrImage(const ExrImage&) = delete;
     ExrImage& operator=(const ExrImage&) = delete;
 
-  private:
+private:
     ExrImage() {}
 
     const float* _pixels = nullptr;

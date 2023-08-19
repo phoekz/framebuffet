@@ -5,8 +5,8 @@
 
 // Setup DirectX Agility SDK.
 extern "C" {
-__declspec(dllexport) extern const UINT D3D12SDKVersion = 610;
-__declspec(dllexport) extern const char* D3D12SDKPath = ".\\";
+    __declspec(dllexport) extern const UINT D3D12SDKVersion = 610;
+    __declspec(dllexport) extern const char* D3D12SDKPath = ".\\";
 }
 
 namespace fb {
@@ -24,14 +24,10 @@ GpuDevice::GpuDevice(const Window& window) {
 
         ComPtr<IDXGIInfoQueue> info_queue;
         FB_ASSERT_HR(DXGIGetDebugInterface1(0, IID_PPV_ARGS(&info_queue)));
-        info_queue->SetBreakOnSeverity(
-            DXGI_DEBUG_ALL,
-            DXGI_INFO_QUEUE_MESSAGE_SEVERITY_ERROR,
-            true);
-        info_queue->SetBreakOnSeverity(
-            DXGI_DEBUG_ALL,
-            DXGI_INFO_QUEUE_MESSAGE_SEVERITY_CORRUPTION,
-            true);
+        info_queue
+            ->SetBreakOnSeverity(DXGI_DEBUG_ALL, DXGI_INFO_QUEUE_MESSAGE_SEVERITY_ERROR, true);
+        info_queue
+            ->SetBreakOnSeverity(DXGI_DEBUG_ALL, DXGI_INFO_QUEUE_MESSAGE_SEVERITY_CORRUPTION, true);
 
 #endif
     }
@@ -45,7 +41,8 @@ GpuDevice::GpuDevice(const Window& window) {
     FB_ASSERT_HR(factory->EnumAdapterByGpuPreference(
         0,
         DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE,
-        IID_PPV_ARGS(&adapter)));
+        IID_PPV_ARGS(&adapter)
+    ));
     DXGI_ADAPTER_DESC3 adapter_desc;
     adapter->GetDesc3(&adapter_desc);
     FB_LOG_INFO("Using adapter {}", fb::from_wstr(adapter_desc.Description));
@@ -68,7 +65,8 @@ GpuDevice::GpuDevice(const Window& window) {
                 desktop_rect.height,
                 desc.BitsPerColor,
                 desc.MinLuminance,
-                desc.MaxLuminance);
+                desc.MaxLuminance
+            );
 
             ++i;
         }
@@ -105,7 +103,8 @@ GpuDevice::GpuDevice(const Window& window) {
             },
             D3D12_MESSAGE_CALLBACK_FLAG_NONE,
             nullptr,
-            &callback_cookie);
+            &callback_cookie
+        );
 #endif
     }
 
@@ -116,7 +115,8 @@ GpuDevice::GpuDevice(const Window& window) {
         FB_ASSERT_HR(_device->CheckFeatureSupport(
             D3D12_FEATURE_ROOT_SIGNATURE,
             &feature_data,
-            sizeof(feature_data)));
+            sizeof(feature_data)
+        ));
     }
 
     // Command queue.
@@ -135,7 +135,8 @@ GpuDevice::GpuDevice(const Window& window) {
     for (uint32_t i = 0; i < FRAME_COUNT; i++) {
         FB_ASSERT_HR(_device->CreateCommandAllocator(
             D3D12_COMMAND_LIST_TYPE_DIRECT,
-            IID_PPV_ARGS(&_command_allocators[i])));
+            IID_PPV_ARGS(&_command_allocators[i])
+        ));
         dx_set_name(_command_allocators[i], dx_name("Command Allocator", i));
     }
 
@@ -144,7 +145,8 @@ GpuDevice::GpuDevice(const Window& window) {
         0,
         D3D12_COMMAND_LIST_TYPE_DIRECT,
         D3D12_COMMAND_LIST_FLAG_NONE,
-        IID_PPV_ARGS(&_command_list)));
+        IID_PPV_ARGS(&_command_list)
+    ));
     dx_set_name(_command_list, "Command List");
 
     // Swapchain.
@@ -173,7 +175,8 @@ GpuDevice::GpuDevice(const Window& window) {
             &desc,
             nullptr,
             nullptr,
-            &swapchain1));
+            &swapchain1
+        ));
         swapchain1.query_to(&_swapchain);
     }
 
@@ -190,7 +193,8 @@ GpuDevice::GpuDevice(const Window& window) {
             D3D12_DESCRIPTOR_HEAP_DESC {
                 .Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV,
                 .NumDescriptors = FRAME_COUNT},
-            dx_name("Render Target", "Descriptor Heap"));
+            dx_name("Render Target", "Descriptor Heap")
+        );
 
         for (uint32_t i = 0; i < FRAME_COUNT; i++) {
             FB_ASSERT_HR(_swapchain->GetBuffer(i, IID_PPV_ARGS(&_rtvs[i])));
@@ -235,7 +239,8 @@ GpuDevice::GpuDevice(const Window& window) {
             &desc,
             D3D_ROOT_SIGNATURE_VERSION_1_2,
             &signature,
-            &error);
+            &error
+        );
         if (FAILED(hr)) {
             if (error) {
                 FB_LOG_ERROR("{}", (char*)error->GetBufferPointer());
@@ -281,7 +286,8 @@ auto GpuDevice::begin_main_pass() -> void {
     auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(
         _rtvs[_frame_index].get(),
         D3D12_RESOURCE_STATE_PRESENT,
-        D3D12_RESOURCE_STATE_RENDER_TARGET);
+        D3D12_RESOURCE_STATE_RENDER_TARGET
+    );
     _command_list->ResourceBarrier(1, &barrier);
 
     static constexpr float CLEAR_COLOR[4] = {0.1f, 0.1f, 0.1f, 1.0f};
@@ -293,7 +299,8 @@ auto GpuDevice::end_main_pass() -> void {
     auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(
         _rtvs[_frame_index].get(),
         D3D12_RESOURCE_STATE_RENDER_TARGET,
-        D3D12_RESOURCE_STATE_PRESENT);
+        D3D12_RESOURCE_STATE_PRESENT
+    );
     _command_list->ResourceBarrier(1, &barrier);
 }
 
@@ -342,14 +349,16 @@ auto GpuDevice::create_root_signature(const ComPtr<ID3DBlob>& signature, std::st
         0,
         signature->GetBufferPointer(),
         signature->GetBufferSize(),
-        IID_PPV_ARGS(&result)));
+        IID_PPV_ARGS(&result)
+    ));
     dx_set_name(result, name);
     return result;
 }
 
 auto GpuDevice::create_descriptor_heap(
     const D3D12_DESCRIPTOR_HEAP_DESC& desc,
-    std::string_view name) const -> ComPtr<ID3D12DescriptorHeap> {
+    std::string_view name
+) const -> ComPtr<ID3D12DescriptorHeap> {
     ComPtr<ID3D12DescriptorHeap> result;
     FB_ASSERT_HR(_device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&result)));
     dx_set_name(result, name);
@@ -358,7 +367,8 @@ auto GpuDevice::create_descriptor_heap(
 
 auto GpuDevice::create_pipeline_state(
     const D3D12_PIPELINE_STATE_STREAM_DESC& desc,
-    std::string_view name) -> ComPtr<ID3D12PipelineState> {
+    std::string_view name
+) -> ComPtr<ID3D12PipelineState> {
     ComPtr<ID3D12PipelineState> result;
     FB_ASSERT_HR(_device->CreatePipelineState(&desc, IID_PPV_ARGS(&result)));
     dx_set_name(result, name);
@@ -370,7 +380,8 @@ auto GpuDevice::create_committed_resource(
     const D3D12_RESOURCE_DESC& desc,
     D3D12_RESOURCE_STATES init_state,
     const std::optional<D3D12_CLEAR_VALUE>& clear_value,
-    std::string_view name) const -> ComPtr<ID3D12Resource> {
+    std::string_view name
+) const -> ComPtr<ID3D12Resource> {
     ComPtr<ID3D12Resource> result;
     const D3D12_CLEAR_VALUE* clear_value_ptr = nullptr;
     if (clear_value) {
@@ -382,7 +393,8 @@ auto GpuDevice::create_committed_resource(
         &desc,
         init_state,
         clear_value_ptr,
-        IID_PPV_ARGS(&result)));
+        IID_PPV_ARGS(&result)
+    ));
     dx_set_name(result, name);
     return result;
 }
@@ -398,7 +410,8 @@ auto GpuDevice::create_fence(uint64_t init_value, std::string_view name) const
 auto GpuDevice::create_render_target_view(
     const ComPtr<ID3D12Resource>& resource,
     const std::optional<D3D12_RENDER_TARGET_VIEW_DESC>& desc,
-    D3D12_CPU_DESCRIPTOR_HANDLE descriptor) const -> void {
+    D3D12_CPU_DESCRIPTOR_HANDLE descriptor
+) const -> void {
     const D3D12_RENDER_TARGET_VIEW_DESC* desc_ptr = nullptr;
     if (desc) {
         desc_ptr = &desc.value();
@@ -409,7 +422,8 @@ auto GpuDevice::create_render_target_view(
 auto GpuDevice::create_depth_stencil_view(
     const ComPtr<ID3D12Resource>& resource,
     const std::optional<D3D12_DEPTH_STENCIL_VIEW_DESC>& desc,
-    D3D12_CPU_DESCRIPTOR_HANDLE descriptor) const -> void {
+    D3D12_CPU_DESCRIPTOR_HANDLE descriptor
+) const -> void {
     const D3D12_DEPTH_STENCIL_VIEW_DESC* desc_ptr = nullptr;
     if (desc) {
         desc_ptr = &desc.value();
@@ -420,7 +434,8 @@ auto GpuDevice::create_depth_stencil_view(
 auto GpuDevice::create_shader_resource_view(
     const ComPtr<ID3D12Resource>& resource,
     const D3D12_SHADER_RESOURCE_VIEW_DESC& desc,
-    D3D12_CPU_DESCRIPTOR_HANDLE descriptor) const -> void {
+    D3D12_CPU_DESCRIPTOR_HANDLE descriptor
+) const -> void {
     _device->CreateShaderResourceView(resource.get(), &desc, descriptor);
 }
 
@@ -428,23 +443,27 @@ auto GpuDevice::create_unordered_access_view(
     const ComPtr<ID3D12Resource>& resource,
     const std::optional<std::reference_wrapper<ComPtr<ID3D12Resource>>> counter,
     const D3D12_UNORDERED_ACCESS_VIEW_DESC& desc,
-    D3D12_CPU_DESCRIPTOR_HANDLE descriptor) -> void {
+    D3D12_CPU_DESCRIPTOR_HANDLE descriptor
+) -> void {
     _device->CreateUnorderedAccessView(
         resource.get(),
         counter ? counter->get().get() : nullptr,
         &desc,
-        descriptor);
+        descriptor
+    );
 }
 
 auto GpuDevice::create_sampler(
     const D3D12_SAMPLER_DESC& desc,
-    D3D12_CPU_DESCRIPTOR_HANDLE descriptor) const -> void {
+    D3D12_CPU_DESCRIPTOR_HANDLE descriptor
+) const -> void {
     _device->CreateSampler(&desc, descriptor);
 }
 
 auto GpuDevice::create_constant_buffer_view(
     const D3D12_CONSTANT_BUFFER_VIEW_DESC& desc,
-    D3D12_CPU_DESCRIPTOR_HANDLE descriptor) const -> void {
+    D3D12_CPU_DESCRIPTOR_HANDLE descriptor
+) const -> void {
     _device->CreateConstantBufferView(&desc, descriptor);
 }
 

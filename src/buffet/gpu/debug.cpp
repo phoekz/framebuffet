@@ -6,7 +6,8 @@ LeakTracker::~LeakTracker() {
 #if defined(_DEBUG)
     if (debug_device) {
         debug_device->ReportLiveDeviceObjects(
-            D3D12_RLDO_SUMMARY | D3D12_RLDO_DETAIL | D3D12_RLDO_IGNORE_INTERNAL);
+            D3D12_RLDO_SUMMARY | D3D12_RLDO_DETAIL | D3D12_RLDO_IGNORE_INTERNAL
+        );
     }
 #endif
 }

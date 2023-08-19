@@ -87,7 +87,7 @@ struct AnimationMesh {
 };
 
 class Assets {
-  public:
+public:
     Assets();
 
     auto imgui_font() const -> Copy;
@@ -105,7 +105,7 @@ class Assets {
     auto skybox_mesh() const -> Mesh;
     auto winter_evening_cube_texture() const -> CubeTexture;
 
-  private:
+private:
     template<typename T>
     auto transmuted_span(size_t offset, size_t element_size) const -> std::span<const T> {
         return std::span((const T*)(_data.data() + offset), element_size);
@@ -115,7 +115,7 @@ class Assets {
 };
 
 class Shaders {
-  public:
+public:
     Shaders();
 
     auto gui_draw_vs() const -> std::span<const std::byte>;
@@ -146,7 +146,7 @@ class Shaders {
     auto env_draw_vs() const -> std::span<const std::byte>;
     auto env_draw_ps() const -> std::span<const std::byte>;
 
-  private:
+private:
     std::vector<std::byte> _data;
 };
 

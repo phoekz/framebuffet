@@ -11,8 +11,9 @@ namespace fb {
 static auto CALLBACK win32_window_proc(HWND window, UINT message, WPARAM w_param, LPARAM l_param)
     -> LRESULT {
     // ImGui input handling.
-    if (ImGui_ImplWin32_WndProcHandler(window, message, w_param, l_param))
+    if (ImGui_ImplWin32_WndProcHandler(window, message, w_param, l_param)) {
         return true;
+    }
 
     // Window messages.
     switch (message) {
@@ -31,7 +32,7 @@ static auto CALLBACK win32_window_proc(HWND window, UINT message, WPARAM w_param
 }
 
 class WindowImpl {
-  public:
+public:
     wil::unique_hwnd handle;
 };
 
@@ -93,7 +94,8 @@ Window::Window(const Desc& desc) {
         nullptr,
         nullptr,
         module_handle,
-        nullptr);
+        nullptr
+    );
     FB_ASSERT_MSG(window_handle != nullptr, "Failed to create window.");
 
     // Show window.

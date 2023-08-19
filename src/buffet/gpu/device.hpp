@@ -17,7 +17,7 @@ class GpuSamplers;
 class GpuDevice {
     FB_NO_COPY_MOVE(GpuDevice);
 
-  public:
+public:
     // Device state.
     GpuDevice(const Window& window);
     auto begin_transfer() -> void;
@@ -43,29 +43,35 @@ class GpuDevice {
         const D3D12_RESOURCE_DESC& desc,
         D3D12_RESOURCE_STATES init_state,
         const std::optional<D3D12_CLEAR_VALUE>& clear_value,
-        std::string_view name) const -> ComPtr<ID3D12Resource>;
+        std::string_view name
+    ) const -> ComPtr<ID3D12Resource>;
     [[nodiscard]] auto create_fence(uint64_t init_value, std::string_view name) const
         -> ComPtr<ID3D12Fence1>;
     auto create_constant_buffer_view(
         const D3D12_CONSTANT_BUFFER_VIEW_DESC& desc,
-        D3D12_CPU_DESCRIPTOR_HANDLE descriptor) const -> void;
+        D3D12_CPU_DESCRIPTOR_HANDLE descriptor
+    ) const -> void;
     auto create_shader_resource_view(
         const ComPtr<ID3D12Resource>& resource,
         const D3D12_SHADER_RESOURCE_VIEW_DESC& desc,
-        D3D12_CPU_DESCRIPTOR_HANDLE descriptor) const -> void;
+        D3D12_CPU_DESCRIPTOR_HANDLE descriptor
+    ) const -> void;
     auto create_unordered_access_view(
         const ComPtr<ID3D12Resource>& resource,
         const std::optional<std::reference_wrapper<ComPtr<ID3D12Resource>>> counter,
         const D3D12_UNORDERED_ACCESS_VIEW_DESC& desc,
-        D3D12_CPU_DESCRIPTOR_HANDLE descriptor) -> void;
+        D3D12_CPU_DESCRIPTOR_HANDLE descriptor
+    ) -> void;
     auto create_render_target_view(
         const ComPtr<ID3D12Resource>& resource,
         const std::optional<D3D12_RENDER_TARGET_VIEW_DESC>& desc,
-        D3D12_CPU_DESCRIPTOR_HANDLE descriptor) const -> void;
+        D3D12_CPU_DESCRIPTOR_HANDLE descriptor
+    ) const -> void;
     auto create_depth_stencil_view(
         const ComPtr<ID3D12Resource>& resource,
         const std::optional<D3D12_DEPTH_STENCIL_VIEW_DESC>& desc,
-        D3D12_CPU_DESCRIPTOR_HANDLE descriptor) const -> void;
+        D3D12_CPU_DESCRIPTOR_HANDLE descriptor
+    ) const -> void;
     auto
     create_sampler(const D3D12_SAMPLER_DESC& desc, D3D12_CPU_DESCRIPTOR_HANDLE descriptor) const
         -> void;
@@ -83,7 +89,7 @@ class GpuDevice {
     // Debugging.
     auto log_stats() -> void;
 
-  private:
+private:
     LeakTracker _leak_tracker;
     ComPtr<ID3D12Device12> _device;
     ComPtr<ID3D12CommandQueue> _command_queue;

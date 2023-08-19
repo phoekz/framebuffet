@@ -28,7 +28,7 @@ struct Vertex {
 };
 
 class RainDemo {
-  public:
+public:
     static constexpr std::string_view NAME = "Rain"sv;
     static constexpr Float4 CLEAR_COLOR = {0.2f, 0.2f, 0.2f, 1.0f};
 
@@ -39,7 +39,7 @@ class RainDemo {
 
     auto rt_color() const -> const GpuTextureSrvRtv& { return _render_targets.color(); }
 
-  private:
+private:
     RenderTargets _render_targets;
     DebugDraw _debug_draw;
     GpuBufferDeviceSrvUav<Particle> _particles;

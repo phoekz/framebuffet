@@ -33,7 +33,8 @@ namespace detail {
         if constexpr (gpu_buffer_flags_is_set(FLAGS, GpuBufferFlags::Index)) {
             static_assert(
                 std::is_same_v<T, uint16_t> || std::is_same_v<T, uint32_t>,
-                "Index buffer only supports 16-bit and 32-bit unsigned formats");
+                "Index buffer only supports 16-bit and 32-bit unsigned formats"
+            );
         }
         if constexpr (gpu_buffer_flags_is_set(FLAGS, GpuBufferFlags::Cbv)) {
             static_assert(sizeof(T) % size_t(256) == 0, "Constants must be 256-byte aligned");
@@ -45,7 +46,7 @@ namespace detail {
 template<typename T, GpuBufferAccessMode ACCESS_MODE, GpuBufferFlags FLAGS>
     requires(detail::buffer_type_is_valid<T, FLAGS>())
 class GpuBuffer {
-  public:
+public:
     auto create(GpuDevice& device, uint32_t element_size, std::string_view name) -> void {
         // Format.
         if constexpr (gpu_buffer_flags_is_set(FLAGS, GpuBufferFlags::Index)) {
@@ -77,7 +78,8 @@ class GpuBuffer {
             _resource_desc,
             _resource_state,
             std::nullopt,
-            name);
+            name
+        );
 
         // Prepare host visible pointer.
         if (host_visible) {
@@ -105,7 +107,8 @@ class GpuBuffer {
                     .BufferLocation = _gpu_address,
                     .SizeInBytes = _byte_size,
                 },
-                _cbv_descriptor.cpu());
+                _cbv_descriptor.cpu()
+            );
         }
         if constexpr (gpu_buffer_flags_is_set(FLAGS, GpuBufferFlags::Srv)) {
             _srv_descriptor = device.descriptors().cbv_srv_uav().alloc();
@@ -123,7 +126,8 @@ class GpuBuffer {
                             .Flags = D3D12_BUFFER_SRV_FLAG_NONE,
                         },
                 },
-                _srv_descriptor.cpu());
+                _srv_descriptor.cpu()
+            );
         }
         if constexpr (gpu_buffer_flags_is_set(FLAGS, GpuBufferFlags::Uav)) {
             _uav_descriptor = device.descriptors().cbv_srv_uav().alloc();
@@ -142,7 +146,8 @@ class GpuBuffer {
                             .Flags = D3D12_BUFFER_UAV_FLAG_NONE,
                         },
                 },
-                _uav_descriptor.cpu());
+                _uav_descriptor.cpu()
+            );
         }
     }
     auto create_with_data(GpuDevice& device, std::span<const T> data, std::string_view name)
@@ -160,7 +165,8 @@ class GpuBuffer {
     auto index_buffer_view() const -> D3D12_INDEX_BUFFER_VIEW {
         static_assert(
             gpu_buffer_flags_is_set(FLAGS, GpuBufferFlags::Index),
-            "Buffer is not an index buffer");
+            "Buffer is not an index buffer"
+        );
         return D3D12_INDEX_BUFFER_VIEW {
             .BufferLocation = _gpu_address,
             .SizeInBytes = _byte_size,
@@ -170,19 +176,22 @@ class GpuBuffer {
     auto cbv_descriptor() const -> GpuDescriptor {
         static_assert(
             gpu_buffer_flags_is_set(FLAGS, GpuBufferFlags::Cbv),
-            "Buffer does not support CBV");
+            "Buffer does not support CBV"
+        );
         return _cbv_descriptor;
     }
     auto srv_descriptor() const -> GpuDescriptor {
         static_assert(
             gpu_buffer_flags_is_set(FLAGS, GpuBufferFlags::Srv),
-            "Buffer does not support SRV");
+            "Buffer does not support SRV"
+        );
         return _srv_descriptor;
     }
     auto uav_descriptor() const -> GpuDescriptor {
         static_assert(
             gpu_buffer_flags_is_set(FLAGS, GpuBufferFlags::Uav),
-            "Buffer does not support UAV");
+            "Buffer does not support UAV"
+        );
         return _uav_descriptor;
     }
 
@@ -196,11 +205,12 @@ class GpuBuffer {
     auto uav_barrier(const GpuCommandList& cmd) -> void {
         static_assert(
             gpu_buffer_flags_is_set(FLAGS, GpuBufferFlags::Uav),
-            "Buffer does not support UAV");
+            "Buffer does not support UAV"
+        );
         cmd.uav_barrier(_resource);
     }
 
-  private:
+private:
     uint32_t _element_byte_size = (uint32_t)sizeof(T);
     uint32_t _element_size = 0;
     uint32_t _byte_size = 0;

@@ -8,8 +8,9 @@ namespace fb::demos::tree {
 tree::TreeDemo::TreeDemo(
     GpuDevice& device,
     const baked::Assets& assets,
-    const baked::Shaders& shaders) :
-    _render_targets(
+    const baked::Shaders& shaders
+)
+    : _render_targets(
         device,
         {
             .size = device.swapchain_size(),
@@ -17,8 +18,9 @@ tree::TreeDemo::TreeDemo(
             .clear_color = CLEAR_COLOR,
             .sample_count = 1,
         },
-        NAME),
-    _debug_draw(device, shaders, _render_targets, NAME) {
+        NAME
+    )
+    , _debug_draw(device, shaders, _render_targets, NAME) {
     // Constants.
     _constants.create(device, 1, dx_name(NAME, "Constants"));
 
@@ -40,7 +42,8 @@ tree::TreeDemo::TreeDemo(
                 .width = texture.width,
                 .height = texture.height,
             },
-            dx_name(NAME, "Tree", "Texture"));
+            dx_name(NAME, "Tree", "Texture")
+        );
         device.transfer().resource(
             _tree_texture.resource(),
             D3D12_SUBRESOURCE_DATA {
@@ -48,7 +51,8 @@ tree::TreeDemo::TreeDemo(
                 .RowPitch = texture.row_pitch,
                 .SlicePitch = texture.slice_pitch},
             D3D12_RESOURCE_STATE_COMMON,
-            D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+            D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE
+        );
     }
     {
         const auto& texture = assets.sand_plane_texture();
@@ -59,7 +63,8 @@ tree::TreeDemo::TreeDemo(
                 .width = texture.width,
                 .height = texture.height,
             },
-            dx_name(NAME, "Plane", "Texture"));
+            dx_name(NAME, "Plane", "Texture")
+        );
         device.transfer().resource(
             _plane_texture.resource(),
             D3D12_SUBRESOURCE_DATA {
@@ -67,7 +72,8 @@ tree::TreeDemo::TreeDemo(
                 .RowPitch = texture.row_pitch,
                 .SlicePitch = texture.slice_pitch},
             D3D12_RESOURCE_STATE_COMMON,
-            D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+            D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE
+        );
     }
 
     // Depth.
@@ -88,7 +94,8 @@ tree::TreeDemo::TreeDemo(
             .srv_format = DEPTH_SRV_FORMAT,
             .dsv_format = DEPTH_DSV_FORMAT,
         },
-        dx_name(NAME, "Shadow", "Depth"));
+        dx_name(NAME, "Shadow", "Depth")
+    );
 
     // Pipelines.
     GpuPipelineBuilder()
@@ -151,7 +158,8 @@ auto TreeDemo::update(const UpdateDesc& desc) -> void {
             light_projection_size,
             light_projection_size,
             shadow_near_plane,
-            shadow_far_plane);
+            shadow_far_plane
+        );
         auto eye = light_distance * cb->light_direction;
         auto view = Float4x4::CreateLookAt(eye, Float3::Zero, Float3::Up);
 

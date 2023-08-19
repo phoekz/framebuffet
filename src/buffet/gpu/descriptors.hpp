@@ -9,7 +9,7 @@ class GpuDevice;
 class GpuDescriptor {
     friend class GpuDescriptorHeap;
 
-  public:
+public:
     auto type() const -> D3D12_DESCRIPTOR_HEAP_TYPE { return _type; }
     auto index() const -> uint32_t { return _index; }
     auto cpu() const -> D3D12_CPU_DESCRIPTOR_HANDLE { return _cpu_handle; }
@@ -17,7 +17,7 @@ class GpuDescriptor {
     auto gpu() const -> D3D12_GPU_DESCRIPTOR_HANDLE { return _gpu_handle; }
     auto gpu_ptr() const -> const D3D12_GPU_DESCRIPTOR_HANDLE* { return &_gpu_handle; }
 
-  private:
+private:
     D3D12_DESCRIPTOR_HEAP_TYPE _type = D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES;
     uint32_t _index = UINT32_MAX;
     D3D12_CPU_DESCRIPTOR_HANDLE _cpu_handle = {};
@@ -25,12 +25,13 @@ class GpuDescriptor {
 };
 
 class GpuDescriptorHeap {
-  public:
+public:
     GpuDescriptorHeap(
         GpuDevice& device,
         std::string_view name,
         D3D12_DESCRIPTOR_HEAP_TYPE type,
-        uint32_t capacity);
+        uint32_t capacity
+    );
 
     auto alloc() -> GpuDescriptor;
     auto type() const -> D3D12_DESCRIPTOR_HEAP_TYPE { return _type; }
@@ -39,7 +40,7 @@ class GpuDescriptorHeap {
     auto heap() const -> ID3D12DescriptorHeap* { return _heap.get(); }
     auto heap_ptr() const -> ID3D12DescriptorHeap* const* { return _heap.addressof(); }
 
-  private:
+private:
     D3D12_DESCRIPTOR_HEAP_TYPE _type = D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES;
     uint32_t _descriptor_size = 0;
     uint32_t _count = 0;
@@ -50,7 +51,7 @@ class GpuDescriptorHeap {
 };
 
 class GpuDescriptors {
-  public:
+public:
     static constexpr uint32_t CBV_SRV_UAV_DESCRIPTOR_CAPACITY = 128;
     static constexpr uint32_t SAMPLER_DESCRIPTOR_CAPACITY = 6;
     static constexpr uint32_t RTV_DESCRIPTOR_CAPACITY = 16;
@@ -64,7 +65,7 @@ class GpuDescriptors {
     auto sampler() -> GpuDescriptorHeap& { return _sampler_heap; }
     auto log_stats() -> void;
 
-  private:
+private:
     GpuDescriptorHeap _cbv_srv_uav_heap;
     GpuDescriptorHeap _sampler_heap;
     GpuDescriptorHeap _rtv_heap;

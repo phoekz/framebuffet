@@ -11,7 +11,7 @@ struct Constants {
 };
 
 class AnimDemo {
-  public:
+public:
     static constexpr std::string_view NAME = "Anim"sv;
     static constexpr Float4 CLEAR_COLOR = {0.6f, 0.2f, 0.6f, 1.0f};
 
@@ -22,7 +22,7 @@ class AnimDemo {
 
     auto rt_color() const -> const GpuTextureSrvRtv& { return _render_targets.color(); }
 
-  private:
+private:
     RenderTargets _render_targets;
     DebugDraw _debug_draw;
     GpuPipeline _pipeline;

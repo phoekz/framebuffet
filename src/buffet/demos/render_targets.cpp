@@ -10,15 +10,17 @@ static auto make_depth_stencil_clear_value(DXGI_FORMAT format, float depth, uint
     -> D3D12_CLEAR_VALUE {
     return D3D12_CLEAR_VALUE {
         .Format = format,
-        .DepthStencil = {.Depth = depth, .Stencil = stencil}};
+        .DepthStencil = {.Depth = depth, .Stencil = stencil},
+    };
 }
 
 RenderTargets::RenderTargets(
     GpuDevice& device,
     const RenderTargetsDesc& desc,
-    std::string_view name) :
-    _size(desc.size),
-    _clear_color(desc.clear_color) {
+    std::string_view name
+)
+    : _size(desc.size)
+    , _clear_color(desc.clear_color) {
     _color.create(
         device,
         GpuTextureDesc {
@@ -28,7 +30,8 @@ RenderTargets::RenderTargets(
             .sample_count = desc.sample_count,
             .clear_value = make_color_clear_value(desc.color_format, _clear_color),
         },
-        dx_name(name, "Color Target"));
+        dx_name(name, "Color Target")
+    );
     _depth.create(
         device,
         GpuTextureDesc {
@@ -38,7 +41,8 @@ RenderTargets::RenderTargets(
             .sample_count = desc.sample_count,
             .clear_value = make_depth_stencil_clear_value(DEPTH_FORMAT, DEPTH_VALUE, 0),
         },
-        dx_name(name, "Depth Target"));
+        dx_name(name, "Depth Target")
+    );
 }
 
 auto RenderTargets::begin(GpuDevice&, const GpuCommandList& cmd) -> void {

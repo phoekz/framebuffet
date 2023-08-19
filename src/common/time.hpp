@@ -8,12 +8,12 @@ using Clock = std::chrono::high_resolution_clock;
 using TimePoint = Clock::time_point;
 
 class Instant {
-  public:
+public:
     Instant();
 
     auto elapsed_time() const -> double;
 
-  private:
+private:
     TimePoint _time_point;
 };
 

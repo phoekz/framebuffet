@@ -28,7 +28,8 @@ analyze(std::string_view name, ShaderType shader_type, ComPtr<ID3D12ShaderReflec
         "Shader: {}, Type: {}, InstructionCount: {}",
         name,
         shader_type_name(shader_type),
-        shader_desc.InstructionCount);
+        shader_desc.InstructionCount
+    );
 
     for (UINT cb_index = 0; cb_index < shader_desc.ConstantBuffers; ++cb_index) {
         auto cb = reflection->GetConstantBufferByIndex(cb_index);
@@ -38,7 +39,8 @@ analyze(std::string_view name, ShaderType shader_type, ComPtr<ID3D12ShaderReflec
             "  ConstantBuffer: {}, Variables: {}, Size: {}",
             shader_buffer_desc.Name,
             shader_buffer_desc.Variables,
-            shader_buffer_desc.Size);
+            shader_buffer_desc.Size
+        );
         for (UINT var_index = 0; var_index < shader_buffer_desc.Variables; ++var_index) {
             auto var = cb->GetVariableByIndex(var_index);
             D3D12_SHADER_VARIABLE_DESC shader_variable_desc;
@@ -46,7 +48,8 @@ analyze(std::string_view name, ShaderType shader_type, ComPtr<ID3D12ShaderReflec
             FB_LOG_INFO(
                 "    Name: {}, Size: {}",
                 shader_variable_desc.Name,
-                shader_variable_desc.Size);
+                shader_variable_desc.Size
+            );
 
             auto type = var->GetType();
             D3D12_SHADER_TYPE_DESC shader_type_desc;
@@ -54,7 +57,8 @@ analyze(std::string_view name, ShaderType shader_type, ComPtr<ID3D12ShaderReflec
             FB_LOG_INFO(
                 "      Name: {}, Members: {}",
                 shader_type_desc.Name,
-                shader_type_desc.Members);
+                shader_type_desc.Members
+            );
             for (UINT member_index = 0; member_index < shader_type_desc.Members; ++member_index) {
                 auto member = type->GetMemberTypeByIndex(member_index);
                 auto member_name = type->GetMemberTypeName(member_index);
@@ -65,7 +69,8 @@ analyze(std::string_view name, ShaderType shader_type, ComPtr<ID3D12ShaderReflec
                     shader_member_type_desc.Name,
                     member_name,
                     member_index,
-                    shader_member_type_desc.Offset);
+                    shader_member_type_desc.Offset
+                );
             }
         }
     }
@@ -77,7 +82,8 @@ auto ShaderCompiler::compile(
     ShaderType type,
     std::string_view entry_point,
     std::span<const std::byte> source,
-    bool debug) const -> Shader {
+    bool debug
+) const -> Shader {
     // Note: remember to set PIX PDB search path correctly for shader debugging to work.
 
     // Shader profile.
@@ -122,7 +128,8 @@ auto ShaderCompiler::compile(
         shader_args.data(),
         (uint32_t)shader_args.size(),
         _include_handler.get(),
-        IID_PPV_ARGS(&result)));
+        IID_PPV_ARGS(&result)
+    ));
     FB_ASSERT_HR(result->GetOutput(DXC_OUT_ERRORS, IID_PPV_ARGS(&errors), nullptr));
     if (errors && errors->GetStringLength() != 0) {
         FB_LOG_ERROR("Failed to compile {}", errors->GetStringPointer());
@@ -140,7 +147,8 @@ auto ShaderCompiler::compile(
 
         ComPtr<IDxcBlob> shader_hash_blob;
         FB_ASSERT_HR(
-            result->GetOutput(DXC_OUT_SHADER_HASH, IID_PPV_ARGS(&shader_hash_blob), nullptr));
+            result->GetOutput(DXC_OUT_SHADER_HASH, IID_PPV_ARGS(&shader_hash_blob), nullptr)
+        );
         DxcShaderHash* shader_hash = (DxcShaderHash*)shader_hash_blob->GetBufferPointer();
         std::ostringstream oss;
         for (int i = 0; i < 16; ++i) {
@@ -163,8 +171,8 @@ auto ShaderCompiler::compile(
     // Reflection.
     if (debug) {
         ComPtr<IDxcBlob> reflection_blob;
-        FB_ASSERT_HR(
-            result->GetOutput(DXC_OUT_REFLECTION, IID_PPV_ARGS(&reflection_blob), nullptr));
+        FB_ASSERT_HR(result->GetOutput(DXC_OUT_REFLECTION, IID_PPV_ARGS(&reflection_blob), nullptr)
+        );
         DxcBuffer reflection_buffer;
         reflection_buffer.Encoding = DXC_CP_ACP;
         reflection_buffer.Ptr = reflection_blob->GetBufferPointer();

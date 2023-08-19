@@ -18,7 +18,7 @@ class RenderTargets;
 class DebugDraw {
     FB_NO_COPY_MOVE(DebugDraw);
 
-  public:
+public:
     static constexpr std::string_view NAME = "Debug Draw"sv;
     static constexpr size_t MAX_LINE_COUNT = 1 << 16;
 
@@ -26,7 +26,8 @@ class DebugDraw {
         GpuDevice& device,
         const baked::Shaders& shaders,
         const RenderTargets& render_targets,
-        std::string_view name);
+        std::string_view name
+    );
 
     auto begin(uint32_t frame_index) -> void;
     auto transform(const Float4x4& transform) -> void;
@@ -35,7 +36,7 @@ class DebugDraw {
     auto end() -> void;
     auto render(GpuDevice& device, const GpuCommandList& cmd) -> void;
 
-  private:
+private:
     GpuPipeline _pipeline;
 
     uint32_t _frame_index = 0;

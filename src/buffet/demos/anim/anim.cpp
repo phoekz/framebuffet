@@ -2,8 +2,8 @@
 
 namespace fb::demos::anim {
 
-AnimDemo::AnimDemo(GpuDevice& device, const baked::Assets& assets, const baked::Shaders& shaders) :
-    _render_targets(
+AnimDemo::AnimDemo(GpuDevice& device, const baked::Assets& assets, const baked::Shaders& shaders)
+    : _render_targets(
         device,
         {
             .size = device.swapchain_size(),
@@ -11,8 +11,9 @@ AnimDemo::AnimDemo(GpuDevice& device, const baked::Assets& assets, const baked::
             .clear_color = CLEAR_COLOR,
             .sample_count = 1,
         },
-        NAME),
-    _debug_draw(device, shaders, _render_targets, NAME) {
+        NAME
+    )
+    , _debug_draw(device, shaders, _render_targets, NAME) {
     // Pipeline.
     GpuPipelineBuilder()
         .primitive_topology(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)
@@ -41,7 +42,8 @@ AnimDemo::AnimDemo(GpuDevice& device, const baked::Assets& assets, const baked::
             .width = texture.width,
             .height = texture.height,
         },
-        dx_name(NAME, "Texture"));
+        dx_name(NAME, "Texture")
+    );
     device.transfer().resource(
         _texture.resource(),
         D3D12_SUBRESOURCE_DATA {
@@ -49,17 +51,14 @@ AnimDemo::AnimDemo(GpuDevice& device, const baked::Assets& assets, const baked::
             .RowPitch = texture.row_pitch,
             .SlicePitch = texture.slice_pitch},
         D3D12_RESOURCE_STATE_COMMON,
-        D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+        D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE
+    );
 
     // Animations.
-    _joint_inverse_bind_buffer.create_with_data(
-        device,
-        mesh.joint_inverse_binds,
-        dx_name(NAME, "Joint Inverse Binds"));
-    _joint_global_transform_buffer.create(
-        device,
-        mesh.joint_count,
-        dx_name(NAME, "Joint Global Transforms"));
+    _joint_inverse_bind_buffer
+        .create_with_data(device, mesh.joint_inverse_binds, dx_name(NAME, "Joint Inverse Binds"));
+    _joint_global_transform_buffer
+        .create(device, mesh.joint_count, dx_name(NAME, "Joint Global Transforms"));
     _animation_duration = mesh.duration;
     _node_global_transforms.resize(mesh.node_count);
     _animation_mesh = mesh;
@@ -87,7 +86,8 @@ auto keyframe_interpolation(
     std::span<const float> times,
     std::span<const T> values,
     const T default_value,
-    F interpolate) -> T {
+    F interpolate
+) -> T {
     FB_ASSERT(time >= 0.0f);
     FB_ASSERT(times.size() == values.size());
 
@@ -112,7 +112,7 @@ auto keyframe_interpolation(
         }
     }
     return return_value;
-};
+}
 
 auto AnimDemo::update(const UpdateDesc& desc) -> void {
     // Update animation.
@@ -145,7 +145,8 @@ auto AnimDemo::update(const UpdateDesc& desc) -> void {
                 Float3::Zero,
                 [](const Float3& lhs, const Float3& rhs, float t) {
                     return Float3::Lerp(lhs, rhs, t);
-                });
+                }
+            );
             const auto r = keyframe_interpolation(
                 _animation_time,
                 times_r,
@@ -153,7 +154,8 @@ auto AnimDemo::update(const UpdateDesc& desc) -> void {
                 Quaternion::Identity,
                 [](const Quaternion& lhs, const Quaternion& rhs, float t) {
                     return Quaternion::Slerp(lhs, rhs, t);
-                });
+                }
+            );
             const auto s = keyframe_interpolation(
                 _animation_time,
                 times_s,
@@ -161,7 +163,8 @@ auto AnimDemo::update(const UpdateDesc& desc) -> void {
                 Float3::One,
                 [](const Float3& lhs, const Float3& rhs, float t) {
                     return Float3::Lerp(lhs, rhs, t);
-                });
+                }
+            );
 
             const auto transform = float4x4_from_trs(t, r, s);
 
@@ -192,7 +195,8 @@ auto AnimDemo::update(const UpdateDesc& desc) -> void {
             camera_fov,
             desc.aspect_ratio,
             camera_clip_planes.x,
-            camera_clip_planes.y);
+            camera_clip_planes.y
+        );
         auto eye = camera_distance * dir_from_lonlat(camera_longitude, camera_latitude);
         auto view = Float4x4::CreateLookAt(eye, Float3::Zero, Float3::Up);
         camera_transform = view * projection;

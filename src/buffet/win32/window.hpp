@@ -7,7 +7,7 @@ namespace fb {
 class WindowImpl;
 
 class Window final {
-  public:
+public:
     struct Desc {
         std::string_view title;
         uint32_t width;
@@ -19,7 +19,7 @@ class Window final {
 
     auto hwnd() const -> HWND;
 
-  private:
+private:
     std::unique_ptr<WindowImpl> impl;
 };
 

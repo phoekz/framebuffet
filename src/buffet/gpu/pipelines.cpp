@@ -118,7 +118,8 @@ auto GpuPipelineBuilder::build(GpuDevice& device, GpuPipeline& pipeline, std::st
             .SizeInBytes = _buffet_offset,
             .pPipelineStateSubobjectStream = _buffer,
         },
-        name);
+        name
+    );
 }
 
 } // namespace fb

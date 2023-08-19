@@ -9,7 +9,7 @@ inline constexpr uint32_t CARD_COUNT = 6;
 inline constexpr uint32_t CARD_GRID_COLUMNS = 3;
 
 struct Params {
-    std::array<GpuDescriptor, CARD_COUNT> card_texture_descriptors;
+    std::array<GpuDescriptor, CARD_COUNT> card_descriptors;
 };
 
 struct Constants {
@@ -28,7 +28,7 @@ struct Vertex {
 };
 
 class Cards {
-  public:
+public:
     static constexpr std::string_view NAME = "Cards"sv;
 
     Cards(GpuDevice& device, const baked::Shaders& shaders, const Params& params);
@@ -36,7 +36,7 @@ class Cards {
     auto update(const GpuDevice& device) -> void;
     auto render(GpuDevice& device, GpuCommandList& cmd) -> void;
 
-  private:
+private:
     GpuPipeline _pipeline;
     GpuBufferHostCbv<Constants> _constants;
     GpuBufferHostSrv<Card> _cards;

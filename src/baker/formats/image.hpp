@@ -5,7 +5,7 @@
 namespace fb {
 
 class Image {
-  public:
+public:
     static auto load(std::span<const std::byte> image_data) -> Image;
 
     auto width() const -> uint32_t { return _width; }
@@ -15,7 +15,7 @@ class Image {
     auto slice_pitch() const -> uint32_t { return row_pitch() * height(); }
     auto data() const -> std::span<const std::byte> { return _pixels; }
 
-  private:
+private:
     uint32_t _width = 0;
     uint32_t _height = 0;
     uint32_t _channels = 4;

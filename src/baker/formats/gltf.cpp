@@ -53,7 +53,8 @@ GltfModel::GltfModel(std::string_view gltf_path) {
     FB_ASSERT(texcoord_accessor->type == cgltf_type_vec2);
     FB_ASSERT(
         index_accessor->component_type == cgltf_component_type_r_16u
-        || index_accessor->component_type == cgltf_component_type_r_32u);
+        || index_accessor->component_type == cgltf_component_type_r_32u
+    );
     const auto vertex_count = position_accessor->count;
     FB_ASSERT(vertex_count > 0);
     FB_ASSERT(normal_accessor->count == vertex_count);
@@ -109,7 +110,8 @@ GltfModel::GltfModel(std::string_view gltf_path) {
             FB_ASSERT(joints_accessor != nullptr);
             FB_ASSERT(
                 joints_accessor->component_type == cgltf_component_type_r_16u
-                || joints_accessor->component_type == cgltf_component_type_r_32u);
+                || joints_accessor->component_type == cgltf_component_type_r_32u
+            );
             FB_ASSERT(joints_accessor->type == cgltf_type_vec4);
             FB_ASSERT(joints_accessor->count == vertex_count);
 
@@ -138,7 +140,8 @@ GltfModel::GltfModel(std::string_view gltf_path) {
                 FB_ASSERT(
                     channel.target_path == cgltf_animation_path_type_translation
                     || channel.target_path == cgltf_animation_path_type_rotation
-                    || channel.target_path == cgltf_animation_path_type_scale);
+                    || channel.target_path == cgltf_animation_path_type_scale
+                );
                 FB_ASSERT(sampler.interpolation == cgltf_interpolation_type_linear);
                 FB_ASSERT(sampler.input->component_type == cgltf_component_type_r_32f);
                 FB_ASSERT(sampler.input->type == cgltf_type_scalar);
@@ -166,7 +169,8 @@ GltfModel::GltfModel(std::string_view gltf_path) {
                 std::span(animation.samplers, animation.samplers_count),
                 [&](const auto& sampler) {
                     return animation.samplers[0].input->max[0] == sampler.input->max[0];
-                }));
+                }
+            ));
         }
 
         // Read skinning vertex data.

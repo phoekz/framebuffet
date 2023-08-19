@@ -2,8 +2,8 @@
 
 namespace fb::demos::env {
 
-EnvDemo::EnvDemo(GpuDevice& device, const baked::Assets& assets, const baked::Shaders& shaders) :
-    _render_targets(
+EnvDemo::EnvDemo(GpuDevice& device, const baked::Assets& assets, const baked::Shaders& shaders)
+    : _render_targets(
         device,
         {
             .size = device.swapchain_size(),
@@ -11,8 +11,9 @@ EnvDemo::EnvDemo(GpuDevice& device, const baked::Assets& assets, const baked::Sh
             .clear_color = CLEAR_COLOR,
             .sample_count = 1,
         },
-        NAME),
-    _debug_draw(device, shaders, _render_targets, NAME) {
+        NAME
+    )
+    , _debug_draw(device, shaders, _render_targets, NAME) {
     // Pipeline.
     GpuPipelineBuilder()
         .primitive_topology(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)
@@ -45,7 +46,8 @@ EnvDemo::EnvDemo(GpuDevice& device, const baked::Assets& assets, const baked::Sh
                 .height = env_texture.height,
                 .depth = 6,
             },
-            dx_name(NAME, "Env Texture"));
+            dx_name(NAME, "Env Texture")
+        );
 
         // Transfer.
         std::array<D3D12_SUBRESOURCE_DATA, 6> subresources;
@@ -60,7 +62,8 @@ EnvDemo::EnvDemo(GpuDevice& device, const baked::Assets& assets, const baked::Sh
             _env_texture.resource(),
             subresources,
             D3D12_RESOURCE_STATE_COMMON,
-            D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+            D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE
+        );
     }
 }
 

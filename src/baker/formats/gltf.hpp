@@ -38,7 +38,7 @@ inline constexpr uint32_t GLTF_NULL_NODE = ~0u;
 inline constexpr DXGI_FORMAT GLTF_BASE_COLOR_TEXTURE_FORMAT = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
 
 class GltfModel {
-  public:
+public:
     GltfModel(std::string_view gltf_path);
 
     // clang-format off
@@ -64,7 +64,7 @@ class GltfModel {
     auto node_channels_values_s() const -> std::span<const Float3> { return _node_channels_values_s; };
     // clang-format on
 
-  private:
+private:
     std::vector<GltfVertex> _vertices;
     std::vector<uint32_t> _indices;
     Image _base_color_texture;

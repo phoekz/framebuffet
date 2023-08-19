@@ -2,8 +2,8 @@
 
 namespace fb::demos::cube {
 
-CubeDemo::CubeDemo(GpuDevice& device, const baked::Assets& assets, const baked::Shaders& shaders) :
-    _render_targets(
+CubeDemo::CubeDemo(GpuDevice& device, const baked::Assets& assets, const baked::Shaders& shaders)
+    : _render_targets(
         device,
         {
             .size = device.swapchain_size(),
@@ -11,8 +11,9 @@ CubeDemo::CubeDemo(GpuDevice& device, const baked::Assets& assets, const baked::
             .clear_color = CLEAR_COLOR,
             .sample_count = 1,
         },
-        NAME),
-    _debug_draw(device, shaders, _render_targets, NAME) {
+        NAME
+    )
+    , _debug_draw(device, shaders, _render_targets, NAME) {
     // Pipeline.
     GpuPipelineBuilder()
         .primitive_topology(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)
@@ -41,7 +42,8 @@ CubeDemo::CubeDemo(GpuDevice& device, const baked::Assets& assets, const baked::
                 .width = texture.width,
                 .height = texture.height,
             },
-            dx_name(NAME, "Texture"));
+            dx_name(NAME, "Texture")
+        );
 
         // Transfer.
         device.transfer().resource(
@@ -51,7 +53,8 @@ CubeDemo::CubeDemo(GpuDevice& device, const baked::Assets& assets, const baked::
                 .RowPitch = texture.row_pitch,
                 .SlicePitch = texture.slice_pitch},
             D3D12_RESOURCE_STATE_COMMON,
-            D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+            D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE
+        );
     }
 }
 

@@ -41,8 +41,9 @@ auto Frame::update() -> void {
     // Update smoothed delta time.
     if (!_delta_time_history.empty()) {
         float sum = 0.0f;
-        for (auto dt : _delta_time_history)
+        for (auto dt : _delta_time_history) {
             sum += dt;
+        }
         _smoothed_delta_time = sum / (float)_delta_time_history.size();
     }
 

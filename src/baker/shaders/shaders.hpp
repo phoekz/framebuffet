@@ -19,7 +19,7 @@ struct Shader {
 };
 
 class ShaderCompiler {
-  public:
+public:
     ShaderCompiler();
 
     auto compile(
@@ -27,9 +27,10 @@ class ShaderCompiler {
         ShaderType type,
         std::string_view entry_point,
         std::span<const std::byte> source,
-        bool debug = false) const -> Shader;
+        bool debug = false
+    ) const -> Shader;
 
-  private:
+private:
     ComPtr<IDxcCompiler3> _compiler;
     ComPtr<IDxcUtils> _utils;
     ComPtr<IDxcIncludeHandler> _include_handler;

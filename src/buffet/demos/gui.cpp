@@ -6,7 +6,8 @@ Gui::Gui(
     const Window& window,
     GpuDevice& device,
     const baked::Assets& assets,
-    const baked::Shaders& shaders) {
+    const baked::Shaders& shaders
+) {
     // ImGui.
     {
         IMGUI_CHECKVERSION();
@@ -24,7 +25,8 @@ Gui::Gui(
             (void*)imgui_font.data.data(),
             (int)imgui_font.data.size(),
             16.0f,
-            &font_cfg);
+            &font_cfg
+        );
     }
 
     // Pipeline.
@@ -71,7 +73,8 @@ Gui::Gui(
                 .width = (uint32_t)width,
                 .height = (uint32_t)height,
             },
-            dx_name(Gui::NAME, "Font Texture"));
+            dx_name(Gui::NAME, "Font Texture")
+        );
 
         // ImGui Font texture ID.
         io.Fonts->SetTexID((ImTextureID)_texture.srv_descriptor().gpu().ptr);
@@ -79,9 +82,14 @@ Gui::Gui(
         // Transfer.
         device.transfer().resource(
             _texture.resource(),
-            {.pData = pixels, .RowPitch = width * 4, .SlicePitch = width * height * 4},
+            {
+                .pData = pixels,
+                .RowPitch = width * 4,
+                .SlicePitch = width * height * 4,
+            },
             D3D12_RESOURCE_STATE_COMMON,
-            D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+            D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE
+        );
     }
 
     // Geometry.
@@ -127,7 +135,8 @@ auto Gui::render(const GpuDevice& device, GpuCommandList& cmd) -> void {
             memcpy(
                 vertices,
                 cmd_list->VtxBuffer.Data,
-                cmd_list->VtxBuffer.Size * sizeof(ImDrawVert));
+                cmd_list->VtxBuffer.Size * sizeof(ImDrawVert)
+            );
             memcpy(indices, cmd_list->IdxBuffer.Data, cmd_list->IdxBuffer.Size * sizeof(ImDrawIdx));
             vertices += cmd_list->VtxBuffer.Size;
             indices += cmd_list->IdxBuffer.Size;
@@ -156,7 +165,8 @@ auto Gui::render(const GpuDevice& device, GpuCommandList& cmd) -> void {
             0,
             0,
             (uint32_t)draw_data->DisplaySize.x,
-            (uint32_t)draw_data->DisplaySize.y);
+            (uint32_t)draw_data->DisplaySize.y
+        );
         cmd.set_blend_factor(Float4(0.0f, 0.0f, 0.0f, 0.0f));
         cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
         cmd.set_index_buffer(geometry.indices.index_buffer_view());
@@ -176,7 +186,8 @@ auto Gui::render(const GpuDevice& device, GpuCommandList& cmd) -> void {
                         (uint32_t)(pcmd->ClipRect.x - clip_off.x),
                         (uint32_t)(pcmd->ClipRect.y - clip_off.y),
                         (uint32_t)(pcmd->ClipRect.z - clip_off.x),
-                        (uint32_t)(pcmd->ClipRect.w - clip_off.y));
+                        (uint32_t)(pcmd->ClipRect.w - clip_off.y)
+                    );
                     cmd.set_graphics_constants(Bindings {
                         .constants = _constants.cbv_descriptor().index(),
                         .vertices = geometry.vertices.srv_descriptor().index(),
@@ -188,7 +199,8 @@ auto Gui::render(const GpuDevice& device, GpuCommandList& cmd) -> void {
                         1,
                         pcmd->IdxOffset + global_idx_offset,
                         0,
-                        0);
+                        0
+                    );
                 }
             }
             global_idx_offset += cmd_list->IdxBuffer.Size;

@@ -134,7 +134,8 @@ struct std::formatter<fb::Float4x4>: std::formatter<char> {
             m.m[0][3],
             m.m[1][3],
             m.m[2][3],
-            m.m[3][3]);
+            m.m[3][3]
+        );
     }
 };
 

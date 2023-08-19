@@ -16,7 +16,7 @@ struct Constants {
 };
 
 class TreeDemo {
-  public:
+public:
     static constexpr std::string_view NAME = "Tree"sv;
     static constexpr Float4 CLEAR_COLOR = {0.32549f, 0.51373f, 0.56078f, 1.0f};
 
@@ -27,7 +27,7 @@ class TreeDemo {
 
     auto rt_color() const -> const GpuTextureSrvRtv& { return _render_targets.color(); }
 
-  private:
+private:
     RenderTargets _render_targets;
     DebugDraw _debug_draw;
 

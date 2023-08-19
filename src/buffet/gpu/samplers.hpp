@@ -9,10 +9,10 @@ namespace fb {
 class GpuDevice;
 
 class GpuSamplers {
-  public:
+public:
     GpuSamplers(GpuDevice& device, GpuDescriptors& descriptors);
 
-  private:
+private:
     std::array<GpuDescriptor, (size_t)GpuSamplerType::Count> _handles;
 };
 

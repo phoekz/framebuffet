@@ -20,16 +20,18 @@ auto GpuCommandList::set_global_descriptor_heap() -> void {
 }
 
 auto GpuCommandList::set_graphics() -> void {
-    if (_engine == GpuCommandEngine::Graphics)
+    if (_engine == GpuCommandEngine::Graphics) {
         return;
+    }
     _engine = GpuCommandEngine::Graphics;
     set_global_descriptor_heap();
     _cmd->SetGraphicsRootSignature(_root_signature);
 }
 
 auto GpuCommandList::set_compute() -> void {
-    if (_engine == GpuCommandEngine::Compute)
+    if (_engine == GpuCommandEngine::Compute) {
         return;
+    }
     _engine = GpuCommandEngine::Compute;
     set_global_descriptor_heap();
     _cmd->SetComputeRootSignature(_root_signature);
@@ -41,7 +43,8 @@ auto GpuCommandList::set_viewport(
     uint32_t right,
     uint32_t bottom,
     float min_depth,
-    float max_depth) const -> void {
+    float max_depth
+) const -> void {
     FB_ASSERT(_engine == GpuCommandEngine::Graphics);
     D3D12_VIEWPORT viewport {
         .TopLeftX = (FLOAT)left,
@@ -68,13 +71,15 @@ auto GpuCommandList::set_scissor(uint32_t left, uint32_t top, uint32_t right, ui
 
 auto GpuCommandList::set_rtv_dsv(
     const std::optional<GpuDescriptor>& rtv,
-    const std::optional<GpuDescriptor>& dsv) const -> void {
+    const std::optional<GpuDescriptor>& dsv
+) const -> void {
     FB_ASSERT(_engine == GpuCommandEngine::Graphics);
     _cmd->OMSetRenderTargets(
         rtv.has_value() ? 1 : 0,
         rtv.has_value() ? rtv.value().cpu_ptr() : nullptr,
         false,
-        dsv.has_value() ? dsv.value().cpu_ptr() : nullptr);
+        dsv.has_value() ? dsv.value().cpu_ptr() : nullptr
+    );
 }
 
 auto GpuCommandList::set_topology(D3D12_PRIMITIVE_TOPOLOGY topology) const -> void {
@@ -110,7 +115,8 @@ auto GpuCommandList::draw_instanced(
     uint32_t vertex_count,
     uint32_t instance_count,
     uint32_t start_vertex,
-    uint32_t start_instance) const -> void {
+    uint32_t start_instance
+) const -> void {
     FB_ASSERT(_engine == GpuCommandEngine::Graphics);
     _cmd->DrawInstanced(vertex_count, instance_count, start_vertex, start_instance);
 }
@@ -120,14 +126,16 @@ auto GpuCommandList::draw_indexed_instanced(
     uint32_t instance_count,
     uint32_t start_index,
     int32_t base_vertex,
-    uint32_t start_instance) const -> void {
+    uint32_t start_instance
+) const -> void {
     FB_ASSERT(_engine == GpuCommandEngine::Graphics);
     _cmd->DrawIndexedInstanced(
         index_count,
         instance_count,
         start_index,
         base_vertex,
-        start_instance);
+        start_instance
+    );
 }
 
 auto GpuCommandList::dispatch(uint32_t x, uint32_t y, uint32_t z) const -> void {
@@ -138,7 +146,8 @@ auto GpuCommandList::dispatch(uint32_t x, uint32_t y, uint32_t z) const -> void 
 auto GpuCommandList::transition_barrier(
     const ComPtr<ID3D12Resource>& resource,
     D3D12_RESOURCE_STATES before,
-    D3D12_RESOURCE_STATES after) const -> void {
+    D3D12_RESOURCE_STATES after
+) const -> void {
     auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(resource.get(), before, after);
     _cmd->ResourceBarrier(1, &barrier);
 }

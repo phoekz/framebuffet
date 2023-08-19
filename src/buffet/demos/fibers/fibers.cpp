@@ -5,8 +5,9 @@ namespace fb::demos::fibers {
 FibersDemo::FibersDemo(
     GpuDevice& device,
     const baked::Assets& assets,
-    const baked::Shaders& shaders) :
-    _render_targets(
+    const baked::Shaders& shaders
+)
+    : _render_targets(
         device,
         {
             .size = device.swapchain_size(),
@@ -14,8 +15,9 @@ FibersDemo::FibersDemo(
             .clear_color = CLEAR_COLOR,
             .sample_count = 1,
         },
-        NAME),
-    _debug_draw(device, shaders, _render_targets, NAME) {
+        NAME
+    )
+    , _debug_draw(device, shaders, _render_targets, NAME) {
     // Pipelines.
     {
         GpuPipelineBuilder()
@@ -63,14 +65,10 @@ FibersDemo::FibersDemo(
     // Geometry.
     {
         const auto mesh = assets.light_bounds_mesh();
-        _light_mesh.vertices.create_with_data(
-            device,
-            mesh.vertices,
-            dx_name(NAME, "Light", "Vertices"));
-        _light_mesh.indices.create_with_data(
-            device,
-            mesh.indices,
-            dx_name(NAME, "Light", "Indices"));
+        _light_mesh.vertices
+            .create_with_data(device, mesh.vertices, dx_name(NAME, "Light", "Vertices"));
+        _light_mesh.indices
+            .create_with_data(device, mesh.indices, dx_name(NAME, "Light", "Indices"));
     }
     {
         const auto vertices = std::to_array<baked::Vertex>({
@@ -83,11 +81,13 @@ FibersDemo::FibersDemo(
         _plane_mesh.vertices.create_with_data(
             device,
             std::span(vertices.data(), vertices.size()),
-            dx_name(NAME, "Plane", "Vertices"));
+            dx_name(NAME, "Plane", "Vertices")
+        );
         _plane_mesh.indices.create_with_data(
             device,
             std::span(indices.data(), indices.size()),
-            dx_name(NAME, "Plane", "Indices"));
+            dx_name(NAME, "Plane", "Indices")
+        );
     }
 
     // Lights.
@@ -113,8 +113,9 @@ FibersDemo::FibersDemo(
                     const auto distance = Float3::Distance(light.position, other.position);
                     min_distance = std::min(min_distance, distance);
                 }
-                if (min_distance > 0.4f)
+                if (min_distance > 0.4f) {
                     break;
+                }
             }
 
             const auto h = (float)i / (float)LIGHT_COUNT * 360.0f;
@@ -134,7 +135,8 @@ FibersDemo::FibersDemo(
                 .RowPitch = _lights.byte_size(),
                 .SlicePitch = _lights.byte_size()},
             D3D12_RESOURCE_STATE_COMMON,
-            D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+            D3D12_RESOURCE_STATE_UNORDERED_ACCESS
+        );
     }
 
     {
@@ -145,7 +147,8 @@ FibersDemo::FibersDemo(
                 .width = CULL_DISPATCH_COUNT_X,
                 .height = CULL_DISPATCH_COUNT_Y,
             },
-            dx_name(NAME, "Light Counts Texture"));
+            dx_name(NAME, "Light Counts Texture")
+        );
         _light_offsets_texture.create(
             device,
             {
@@ -153,11 +156,13 @@ FibersDemo::FibersDemo(
                 .width = CULL_DISPATCH_COUNT_X,
                 .height = CULL_DISPATCH_COUNT_Y,
             },
-            dx_name(NAME, "Light Offsets Texture"));
+            dx_name(NAME, "Light Offsets Texture")
+        );
         _light_indices.create(
             device,
             CULL_DISPATCH_COUNT_X * CULL_DISPATCH_COUNT_Y * LIGHT_CAPACITY_PER_TILE,
-            dx_name(NAME, "Light Indices"));
+            dx_name(NAME, "Light Indices")
+        );
         _light_indices_count.create(device, 1, dx_name(NAME, "Light Indices Count"));
     }
 
@@ -172,7 +177,8 @@ FibersDemo::FibersDemo(
                 .width = magma.width,
                 .height = magma.height,
             },
-            dx_name(NAME, "Magma Texture"));
+            dx_name(NAME, "Magma Texture")
+        );
 
         _viridis_texture.create(
             device,
@@ -181,7 +187,8 @@ FibersDemo::FibersDemo(
                 .width = viridis.width,
                 .height = viridis.height,
             },
-            dx_name(NAME, "Viridis Texture"));
+            dx_name(NAME, "Viridis Texture")
+        );
 
         device.transfer().resource(
             _magma_texture.resource(),
@@ -190,7 +197,8 @@ FibersDemo::FibersDemo(
                 .RowPitch = magma.row_pitch,
                 .SlicePitch = magma.slice_pitch},
             D3D12_RESOURCE_STATE_COMMON,
-            D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+            D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE
+        );
 
         device.transfer().resource(
             _viridis_texture.resource(),
@@ -199,7 +207,8 @@ FibersDemo::FibersDemo(
                 .RowPitch = viridis.row_pitch,
                 .SlicePitch = viridis.slice_pitch},
             D3D12_RESOURCE_STATE_COMMON,
-            D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+            D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE
+        );
     }
 }
 
@@ -210,7 +219,10 @@ static float camera_longitude = rad_from_deg(90.0f);
 static Float2 camera_clip_planes = Float2(0.1f, 100.0f);
 static bool show_light_bounds = true;
 static int light_intensity_pow2 = 12;
-enum class Heatmap : uint32_t { Magma, Viridis };
+enum class Heatmap : uint32_t {
+    Magma,
+    Viridis,
+};
 static Heatmap heatmap = Heatmap::Magma;
 
 auto FibersDemo::gui(const GuiDesc&) -> void {
@@ -237,7 +249,8 @@ auto FibersDemo::update(const UpdateDesc& desc) -> void {
             camera_fov,
             desc.aspect_ratio,
             camera_clip_planes.x,
-            camera_clip_planes.y);
+            camera_clip_planes.y
+        );
         auto eye = camera_distance * dir_from_lonlat(camera_longitude, camera_latitude);
         auto view = Float4x4::CreateLookAt(eye, Float3::Zero, Float3::Up);
         clip_from_world = view * projection;

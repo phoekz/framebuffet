@@ -39,7 +39,7 @@ gui_wrapper(T& demo, const demos::GuiDesc& desc, ImGuiTreeNodeFlags flags = ImGu
         demo->gui(desc);
     }
     ImGui::PopID();
-};
+}
 
 } // namespace fb
 
@@ -66,18 +66,19 @@ int main() {
     auto anim_demo = std::make_unique<demos::anim::AnimDemo>(*device, assets, shaders);
     auto fibers_demo = std::make_unique<demos::fibers::FibersDemo>(*device, assets, shaders);
     auto env_demo = std::make_unique<demos::env::EnvDemo>(*device, assets, shaders);
+    auto card_descriptors = std::to_array({
+        cube_demo->rt_color().srv_descriptor(),
+        tree_demo->rt_color().srv_descriptor(),
+        rain_demo->rt_color().srv_descriptor(),
+        anim_demo->rt_color().srv_descriptor(),
+        fibers_demo->rt_color().srv_descriptor(),
+        env_demo->rt_color().srv_descriptor(),
+    });
     auto cards = std::make_unique<demos::cards::Cards>(
         *device,
         shaders,
-        demos::cards::Params {
-            .card_texture_descriptors = {
-                cube_demo->rt_color().srv_descriptor(),
-                tree_demo->rt_color().srv_descriptor(),
-                rain_demo->rt_color().srv_descriptor(),
-                anim_demo->rt_color().srv_descriptor(),
-                fibers_demo->rt_color().srv_descriptor(),
-                env_demo->rt_color().srv_descriptor(),
-            }});
+        demos::cards::Params {.card_descriptors = card_descriptors}
+    );
     auto gui = std::make_unique<demos::gui::Gui>(*window, *device, assets, shaders);
     device->end_transfer();
     device->log_stats();
@@ -114,7 +115,8 @@ int main() {
                 ImGui::Text(
                     "Frame time: %.3f ms (%.3f fps)",
                     1e3f * frame.last_delta_time(),
-                    frame.last_fps());
+                    frame.last_fps()
+                );
                 ImGui::Text("Update time: %.3f ms", 1e3f * update_time);
                 ImGui::Text("GUI time: %.3f ms", 1e3f * gui_time);
 

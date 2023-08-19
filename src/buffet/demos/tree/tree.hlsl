@@ -65,7 +65,8 @@ FbPixelOutput1 draw_ps(DrawVertexOutput input) {
     float shadow = (float)shadow_texture.SampleCmpLevelZero(
         shadow_samp,
         shadow_texcoord.xy,
-        shadow_coord.z - shadow_bias);
+        shadow_coord.z - shadow_bias
+    );
 
     float3 color = texture.Sample(samp, input.texcoord).rgb;
     float n_dot_l = shadow * saturate(dot(input.normal, constants.light_direction));

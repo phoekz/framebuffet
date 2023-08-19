@@ -147,8 +147,9 @@ using Asset =
 //
 
 class AssetWriter {
-  public:
-    AssetWriter(std::vector<std::byte>& data) : _data(data) {}
+public:
+    AssetWriter(std::vector<std::byte>& data)
+        : _data(data) {}
 
     template<typename T>
     auto write(std::string_view type, std::span<const T> elements) -> AssetSpan {
@@ -163,7 +164,7 @@ class AssetWriter {
         };
     }
 
-  private:
+private:
     std::vector<std::byte>& _data;
 };
 
@@ -191,7 +192,8 @@ auto build_assets(std::string_view assets_dir)
                     const auto file = read_whole_file(path);
                     assets.push_back(AssetCopy {
                         .name = name,
-                        .data = assets_writer.write("std::byte", std::span(file))});
+                        .data = assets_writer.write("std::byte", std::span(file)),
+                    });
                 },
                 [&](const AssetTaskTexture& task) {
                     const auto name = std::format("{}_texture", task.name);
@@ -207,7 +209,8 @@ auto build_assets(std::string_view assets_dir)
                         .channels = image.channels(),
                         .row_pitch = image.row_pitch(),
                         .slice_pitch = image.slice_pitch(),
-                        .data = assets_writer.write("std::byte", std::span(image.data()))});
+                        .data = assets_writer.write("std::byte", std::span(image.data())),
+                    });
                 },
                 [&](const AssetTaskCubeTexture& task) {
                     // Name.
@@ -348,7 +351,8 @@ auto build_assets(std::string_view assets_dir)
                         dxtk_indices,
                         {task.extents, task.extents, task.extents},
                         !task.inverted,
-                        task.inverted);
+                        task.inverted
+                    );
 
                     // Convert.
                     struct AssetVertex {
@@ -382,7 +386,8 @@ auto build_assets(std::string_view assets_dir)
                     });
                 },
             },
-            asset_task);
+            asset_task
+        );
     }
 
     return {assets, assets_bin};
@@ -671,7 +676,8 @@ int main() {
                         asset.name,
                         asset.data.type,
                         asset.data.offset,
-                        asset.data.byte_size);
+                        asset.data.byte_size
+                    );
                 },
                 [&](const AssetMesh& asset) {
                     assets_decls << std::format("auto {}() const -> Mesh;", asset.name);
@@ -688,7 +694,8 @@ int main() {
                         asset.vertices.element_size,
                         asset.indices.type,
                         asset.indices.offset,
-                        asset.indices.element_size);
+                        asset.indices.element_size
+                    );
                 },
                 [&](const AssetTexture& asset) {
                     assets_decls << std::format("auto {}() const -> Texture;", asset.name);
@@ -713,7 +720,8 @@ int main() {
                         asset.slice_pitch,
                         asset.data.type,
                         asset.data.offset,
-                        asset.data.element_size);
+                        asset.data.element_size
+                    );
                 },
                 [&](const AssetCubeTexture& asset) {
                     assets_decls << std::format("auto {}() const -> CubeTexture;", asset.name);
@@ -760,7 +768,8 @@ int main() {
                         asset.datas[4].element_size,
                         asset.datas[5].type,
                         asset.datas[5].offset,
-                        asset.datas[5].element_size);
+                        asset.datas[5].element_size
+                    );
                 },
                 [&](const AssetAnimationMesh& asset) {
                     assets_decls << std::format("auto {}() const -> AnimationMesh;", asset.name);
@@ -827,10 +836,12 @@ int main() {
                         asset.node_channels_values_r.element_size,
                         asset.node_channels_values_s.type,
                         asset.node_channels_values_s.offset,
-                        asset.node_channels_values_s.element_size);
+                        asset.node_channels_values_s.element_size
+                    );
                 },
             },
-            asset);
+            asset
+        );
         assets_defns << "\n\n";
     }
 
@@ -847,7 +858,8 @@ int main() {
             )",
             shader.name,
             shaders_bin.size(),
-            shader.dxil.size());
+            shader.dxil.size()
+        );
         shaders_bin.insert(shaders_bin.end(), shader.dxil.begin(), shader.dxil.end());
     }
 
@@ -876,18 +888,21 @@ int main() {
 
     write_whole_file(
         std::format("{}/fb_shaders.bin", FRAMEBUFFET_OUTPUT_DIR),
-        std::as_bytes(std::span(shaders_bin)));
+        std::as_bytes(std::span(shaders_bin))
+    );
 
     write_whole_file(
         std::format("{}/fb_assets.bin", FRAMEBUFFET_OUTPUT_DIR),
-        std::as_bytes(std::span(assets_bin)));
+        std::as_bytes(std::span(assets_bin))
+    );
 
     const auto pdb_dir = std::format("{}/shaders", FRAMEBUFFET_OUTPUT_DIR);
     std::filesystem::create_directory(pdb_dir);
     for (const auto& shader : compiled_shaders) {
         write_whole_file(
             std::format("{}/{}.pdb", pdb_dir, shader.hash),
-            std::as_bytes(std::span(shader.pdb)));
+            std::as_bytes(std::span(shader.pdb))
+        );
     }
 
     return 0;

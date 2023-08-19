@@ -13,7 +13,8 @@ auto output_console_string(std::string_view str) -> void {
             str.data(),
             (DWORD)str.size(),
             nullptr,
-            NULL);
+            NULL
+        );
     }
 }
 

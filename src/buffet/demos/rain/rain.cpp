@@ -2,8 +2,8 @@
 
 namespace fb::demos::rain {
 
-RainDemo::RainDemo(GpuDevice& device, const baked::Assets&, const baked::Shaders& shaders) :
-    _render_targets(
+RainDemo::RainDemo(GpuDevice& device, const baked::Assets&, const baked::Shaders& shaders)
+    : _render_targets(
         device,
         {
             .size = device.swapchain_size(),
@@ -11,8 +11,9 @@ RainDemo::RainDemo(GpuDevice& device, const baked::Assets&, const baked::Shaders
             .clear_color = CLEAR_COLOR,
             .sample_count = 1,
         },
-        NAME),
-    _debug_draw(device, shaders, _render_targets, NAME) {
+        NAME
+    )
+    , _debug_draw(device, shaders, _render_targets, NAME) {
     // Particles.
     {
         // Buffer.
@@ -36,7 +37,8 @@ RainDemo::RainDemo(GpuDevice& device, const baked::Assets&, const baked::Shaders
                 .RowPitch = _particles.byte_size(),
                 .SlicePitch = _particles.byte_size()},
             D3D12_RESOURCE_STATE_COMMON,
-            D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
+            D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER
+        );
     }
 
     // Constants.
