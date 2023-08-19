@@ -228,6 +228,8 @@ auto FibersDemo::gui(const GuiDesc&) -> void {
 }
 
 auto FibersDemo::update(const UpdateDesc& desc) -> void {
+    PIXScopedEvent(PIX_COLOR_DEFAULT, dx_name(NAME, "Update").data());
+
     const auto& p = _parameters;
 
     // Update transforms.

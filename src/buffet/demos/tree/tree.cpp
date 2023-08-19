@@ -129,6 +129,8 @@ auto TreeDemo::gui(const GuiDesc& desc) -> void {
 }
 
 auto TreeDemo::update(const UpdateDesc& desc) -> void {
+    PIXScopedEvent(PIX_COLOR_DEFAULT, dx_name(NAME, "Update").data());
+
     auto& p = _parameters;
 
     // Update light angle.

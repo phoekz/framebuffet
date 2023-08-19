@@ -103,8 +103,13 @@ int main() {
     double gui_time = 0.0;
     double time_since_last_archive = 0.0;
     while (running) {
+        const auto frame_name = std::format("Frame {}", frame_count);
+        PIXScopedEvent(PIX_COLOR_DEFAULT, dx_name("Main", frame_name).data());
+
         // Handle window messages.
         {
+            PIXScopedEvent(PIX_COLOR_DEFAULT, "Events");
+
             MSG msg = {};
             if (PeekMessageA(&msg, nullptr, 0, 0, PM_REMOVE)) {
                 TranslateMessage(&msg);
@@ -121,6 +126,8 @@ int main() {
         // Update archive.
         time_since_last_archive += frame.last_delta_time();
         if (time_since_last_archive > 1.0) {
+            PIXSetMarker(PIX_COLOR_DEFAULT, "Archive");
+
             time_since_last_archive = 0.0;
             auto archive_buf = std::vector<std::byte>();
             auto archive = SerializingArchive(archive_buf);
@@ -136,6 +143,8 @@ int main() {
 
         // Update gui.
         {
+            PIXScopedEvent(PIX_COLOR_DEFAULT, "Gui");
+
             auto timer = fb::Instant();
             gui->begin_frame();
             ImGui::SetNextWindowSize({300, 300}, ImGuiCond_FirstUseEver);
@@ -164,6 +173,8 @@ int main() {
 
         // Update demos.
         {
+            PIXScopedEvent(PIX_COLOR_DEFAULT, "Update");
+
             auto timer = Instant();
             const auto update_desc = demos::UpdateDesc {
                 .window_size = device->swapchain_size(),
@@ -182,61 +193,74 @@ int main() {
             update_time = timer.elapsed_time();
         }
 
-        // Begin frame.
-        auto cmd = device->begin_frame();
-        cmd.begin_pix(std::format("Frame {}", frame_count));
-
-        // Demo pass.
+        // Graphics.
         {
-            cmd.begin_pix("Demo pass");
+            PIXBeginEvent(PIX_COLOR_DEFAULT, "Graphics");
 
-            cmd.begin_pix(cube_demo->NAME);
-            cube_demo->render(*device, cmd);
-            cmd.end_pix();
+            PIXBeginEvent(PIX_COLOR_DEFAULT, "Prepare");
+            auto cmd = device->begin_frame();
+            PIXEndEvent();
 
-            cmd.begin_pix(tree_demo->NAME);
-            tree_demo->render(*device, cmd);
-            cmd.end_pix();
+            PIXBeginEvent(PIX_COLOR_DEFAULT, "Commands");
+            {
+                cmd.begin_pix(frame_name);
 
-            cmd.begin_pix(rain_demo->NAME);
-            rain_demo->render(*device, cmd);
-            cmd.end_pix();
+                {
+                    cmd.begin_pix("Demo pass");
 
-            cmd.begin_pix(anim_demo->NAME);
-            anim_demo->render(*device, cmd);
-            cmd.end_pix();
+                    cmd.begin_pix(cube_demo->NAME);
+                    cube_demo->render(*device, cmd);
+                    cmd.end_pix();
 
-            cmd.begin_pix(fibers_demo->NAME);
-            fibers_demo->render(*device, cmd);
-            cmd.end_pix();
+                    cmd.begin_pix(tree_demo->NAME);
+                    tree_demo->render(*device, cmd);
+                    cmd.end_pix();
 
-            cmd.begin_pix(env_demo->NAME);
-            env_demo->render(*device, cmd);
-            cmd.end_pix();
+                    cmd.begin_pix(rain_demo->NAME);
+                    rain_demo->render(*device, cmd);
+                    cmd.end_pix();
 
-            cmd.end_pix();
+                    cmd.begin_pix(anim_demo->NAME);
+                    anim_demo->render(*device, cmd);
+                    cmd.end_pix();
+
+                    cmd.begin_pix(fibers_demo->NAME);
+                    fibers_demo->render(*device, cmd);
+                    cmd.end_pix();
+
+                    cmd.begin_pix(env_demo->NAME);
+                    env_demo->render(*device, cmd);
+                    cmd.end_pix();
+
+                    cmd.end_pix();
+                }
+
+                {
+                    cmd.begin_pix("Main pass");
+                    device->begin_main_pass();
+
+                    cmd.begin_pix(cards->NAME);
+                    cards->render(*device, cmd);
+                    cmd.end_pix();
+
+                    cmd.begin_pix(gui->NAME);
+                    gui->render(*device, cmd);
+                    cmd.end_pix();
+
+                    device->end_main_pass();
+                    cmd.end_pix();
+                }
+
+                cmd.end_pix();
+            }
+            PIXEndEvent();
+
+            PIXBeginEvent(PIX_COLOR_DEFAULT, "Present");
+            device->end_frame(std::move(cmd));
+            PIXEndEvent();
+
+            PIXEndEvent();
         }
-
-        // Main pass.
-        {
-            cmd.begin_pix("Main pass");
-            device->begin_main_pass();
-
-            cmd.begin_pix("Cards");
-            cards->render(*device, cmd);
-            cmd.end_pix();
-
-            cmd.begin_pix("Gui");
-            gui->render(*device, cmd);
-            cmd.end_pix();
-
-            device->end_main_pass();
-            cmd.end_pix();
-        }
-
-        // End frame.
-        cmd.end_pix();
-        device->end_frame(std::move(cmd));
 
         // Update frame count.
         frame_count++;

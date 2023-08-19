@@ -69,6 +69,8 @@ auto CubeDemo::gui(const GuiDesc&) -> void {
 }
 
 auto CubeDemo::update(const UpdateDesc& desc) -> void {
+    PIXScopedEvent(PIX_COLOR_DEFAULT, dx_name(NAME, "Update").data());
+
     auto& p = _parameters;
 
     p.camera_longitude += p.camera_rotation_speed * desc.delta_time;
