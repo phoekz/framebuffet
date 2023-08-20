@@ -17,12 +17,13 @@ else
     cmake -S . -B build -G "Visual Studio 17 2022" -T host=x64 -A x64
 fi
 
-echo "Building..."
-cmake --build ./build --config $FB_VARIANT
 
 if [ -z "$FB_BAKE" ]; then
     echo "Skipping bake..."
 else
+    echo "Building..."
+    cmake --build ./build --config $FB_VARIANT --target fb_baker
+
     echo "Baking..."
     pushd build/src/baker/$FB_VARIANT
     ./fb_baker.exe
@@ -32,6 +33,9 @@ fi
 if [ -z "$FB_RUN" ]; then
     echo "Skipping run..."
 else
+    echo "Building..."
+    cmake --build ./build --config $FB_VARIANT --target fb_buffet
+
     echo "Running..."
     pushd build/src/buffet/$FB_VARIANT
     ./fb_buffet.exe
