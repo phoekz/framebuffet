@@ -96,7 +96,7 @@ FibersDemo::FibersDemo(
         _lights.create(device, LIGHT_COUNT, dx_name(NAME, "Lights"));
 
         // Data.
-        pcg rand;
+        Pcg rand;
         auto lights = std::vector<Light>(LIGHT_COUNT);
         uint32_t attempts = 0;
         for (uint32_t i = 0; i < LIGHT_COUNT; i++) {

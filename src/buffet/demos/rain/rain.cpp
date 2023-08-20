@@ -20,7 +20,7 @@ RainDemo::RainDemo(GpuDevice& device, const baked::Assets&, const baked::Shaders
         _particles.create(device, PARTICLE_COUNT, dx_name(NAME, "Particles"));
 
         // Data.
-        pcg rand;
+        Pcg rand;
         std::vector<Particle> particles(PARTICLE_COUNT);
         for (uint32_t i = 0; i < PARTICLE_COUNT; i++) {
             Particle& particle = particles[i];

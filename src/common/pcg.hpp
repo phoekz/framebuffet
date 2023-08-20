@@ -4,7 +4,7 @@
 
 namespace fb {
 
-class pcg {
+class Pcg {
 public:
     auto random_uint() -> uint32_t;
     auto random_float() -> float;
