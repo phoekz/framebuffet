@@ -29,7 +29,11 @@ else
     popd
 fi
 
-echo "Running..."
-pushd build/src/buffet/$FB_VARIANT
-./fb_buffet.exe
-popd
+if [ -z "$FB_RUN" ]; then
+    echo "Skipping run..."
+else
+    echo "Running..."
+    pushd build/src/buffet/$FB_VARIANT
+    ./fb_buffet.exe
+    popd
+fi
