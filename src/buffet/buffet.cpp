@@ -12,8 +12,12 @@
 // Constants.
 inline constexpr std::string_view WINDOW_TITLE = "framebuffet 😎"sv;
 inline constexpr int WINDOW_WIDTH = 1280;
-inline constexpr int WINDOW_HEIGHT = 800;
+inline constexpr int WINDOW_HEIGHT = 832;
 inline constexpr float WINDOW_ASPECT_RATIO = (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT;
+static_assert(
+    WINDOW_WIDTH % 64 == 0 && WINDOW_HEIGHT % 64 == 0,
+    "Window sizes must be a multiple of 64 due to SPD limitations."
+);
 
 //
 // GUI.
