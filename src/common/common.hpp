@@ -5,6 +5,7 @@
 #include "error.hpp"
 #include "file.hpp"
 #include "half.hpp"
+#include "hash.hpp"
 #include "log.hpp"
 #include "macros.hpp"
 #include "math.hpp"

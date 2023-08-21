@@ -10,6 +10,8 @@ set(SOURCES
     file.hpp
     half.cpp
     half.hpp
+    hash.cpp
+    hash.hpp
     log.cpp
     log.hpp
     macros.hpp
@@ -24,7 +26,12 @@ set(SOURCES
 )
 add_library(${NAME} STATIC ${SOURCES})
 target_precompile_headers(${NAME} PRIVATE pch.hpp)
-target_link_libraries(${NAME} PRIVATE ${FP16_LIBRARY})
+target_link_libraries(
+    ${NAME}
+    PRIVATE
+    ${FP16_LIBRARY}
+    ${XXHASH_LIBRARY}
+)
 target_include_directories(
     ${NAME}
     PUBLIC

@@ -113,6 +113,32 @@ endif()
 set(FP16_LIBRARY ext_fp16 CACHE INTERNAL "fp16 Library")
 
 #
+# xxHash
+#
+message(STATUS "Fetching xxHash...")
+FetchContent_Declare(
+    xxhash
+    GIT_REPOSITORY https://github.com/Cyan4973/xxHash.git
+    GIT_TAG bbb27a5efb85b92a0486cf361a8635715a53f6ba # v0.8.2
+)
+FetchContent_GetProperties(xxhash)
+
+if(NOT xxhash_POPULATED)
+    FetchContent_Populate(xxhash)
+    add_library(
+        ext_xxhash STATIC
+        ${xxhash_SOURCE_DIR}/xxhash.c
+    )
+    target_include_directories(
+        ext_xxhash
+        PUBLIC
+        ${xxhash_SOURCE_DIR}
+    )
+endif()
+
+set(XXHASH_LIBRARY ext_xxhash CACHE INTERNAL "xxhash Library")
+
+#
 # Windows Implementation Library (WIL).
 #
 message(STATUS "Fetching WIL...")
