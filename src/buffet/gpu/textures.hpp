@@ -40,13 +40,15 @@ struct GpuTextureDesc {
 template<GpuTextureFlags FLAGS>
 class GpuTexture {
 public:
+    static inline constexpr auto MAX_MIP_LEVELS = 16;
+
     auto create(GpuDevice& device, const GpuTextureDesc& desc, std::string_view name) -> void {
         // Validate.
         FB_ASSERT(desc.format != DXGI_FORMAT_UNKNOWN);
         FB_ASSERT(desc.width > 0);
         FB_ASSERT(desc.height > 0);
         FB_ASSERT(desc.depth > 0);
-        FB_ASSERT(desc.mip_levels > 0);
+        FB_ASSERT(desc.mip_levels > 0 && desc.mip_levels <= MAX_MIP_LEVELS);
         FB_ASSERT(desc.sample_count > 0);
         if (gpu_texture_flags_is_set(FLAGS, GpuTextureFlags::Cube)) {
             FB_ASSERT(desc.depth == 6);
@@ -131,7 +133,7 @@ public:
                     .Format = _srv_format,
                     .ViewDimension = srv_dimension,
                     .Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING,
-                    .Texture2D = D3D12_TEX2D_SRV {.MipLevels = _desc.mip_levels},
+                    .Texture2D = D3D12_TEX2D_SRV {.MipLevels = desc.mip_levels},
                 },
                 _srv_descriptor.cpu()
             );
@@ -141,17 +143,19 @@ public:
                 !gpu_texture_flags_is_set(FLAGS, GpuTextureFlags::Cube),
                 "UAV textures does not support cube maps"
             );
-            _uav_descriptor = device.descriptors().cbv_srv_uav().alloc();
-            device.create_unordered_access_view(
-                _resource,
-                std::nullopt,
-                D3D12_UNORDERED_ACCESS_VIEW_DESC {
-                    .Format = _uav_format,
-                    .ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D,
-                    .Texture2D = {.MipSlice = 0, .PlaneSlice = 0},
-                },
-                _uav_descriptor.cpu()
-            );
+            for (uint32_t mip = 0; mip < desc.mip_levels; mip++) {
+                _uav_descriptors[mip] = device.descriptors().cbv_srv_uav().alloc();
+                device.create_unordered_access_view(
+                    _resource,
+                    std::nullopt,
+                    D3D12_UNORDERED_ACCESS_VIEW_DESC {
+                        .Format = _uav_format,
+                        .ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D,
+                        .Texture2D = {.MipSlice = mip, .PlaneSlice = 0},
+                    },
+                    _uav_descriptors[mip].cpu()
+                );
+            }
         }
         if constexpr (gpu_texture_flags_is_set(FLAGS, GpuTextureFlags::Rtv)) {
             _rtv_descriptor = device.descriptors().rtv().alloc();
@@ -188,6 +192,7 @@ public:
     auto width() const -> uint32_t { return _desc.width; }
     auto height() const -> uint32_t { return _desc.height; }
     auto format() const -> DXGI_FORMAT { return _desc.format; }
+    auto mip_levels() const -> uint32_t { return _desc.mip_levels; }
     auto bits_per_unit() const -> uint32_t {
         return D3D12_PROPERTY_LAYOUT_FORMAT_TABLE::GetBitsPerUnit(_desc.format);
     }
@@ -207,7 +212,7 @@ public:
             gpu_texture_flags_is_set(FLAGS, GpuTextureFlags::Uav),
             "Texture does not support UAV"
         );
-        return _uav_descriptor;
+        return _uav_descriptors[0];
     }
     auto rtv_descriptor() const -> GpuDescriptor {
         static_assert(
@@ -248,7 +253,7 @@ private:
     DXGI_FORMAT _rtv_format = DXGI_FORMAT_UNKNOWN;
     DXGI_FORMAT _dsv_format = DXGI_FORMAT_UNKNOWN;
     GpuDescriptor _srv_descriptor = {};
-    GpuDescriptor _uav_descriptor = {};
+    std::array<GpuDescriptor, MAX_MIP_LEVELS> _uav_descriptors = {};
     GpuDescriptor _rtv_descriptor = {};
     GpuDescriptor _dsv_descriptor = {};
 };
@@ -262,5 +267,9 @@ using GpuTextureSrvUav = GpuTexture<GpuTextureFlags::SrvUav>;
 using GpuTextureSrvRtv = GpuTexture<GpuTextureFlags::SrvRtv>;
 using GpuTextureSrvDsv = GpuTexture<GpuTextureFlags::SrvDsv>;
 using GpuTextureSrvCube = GpuTexture<GpuTextureFlags::SrvCube>;
+
+inline auto mipmap_count_from_size(uint32_t width, uint32_t height) -> uint32_t {
+    return 1 + (uint32_t)std::floor(std::log2(float(std::max(width, height))));
+}
 
 } // namespace fb
