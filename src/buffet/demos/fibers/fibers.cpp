@@ -139,13 +139,17 @@ FibersDemo::FibersDemo(
         );
     }
 
+    const auto swapchain_size = device.swapchain_size();
+    _cull_dispatch_count_x = (swapchain_size.x + (CULL_DISPATCH_SIZE - 1)) / CULL_DISPATCH_SIZE;
+    _cull_dispatch_count_y = (swapchain_size.y + (CULL_DISPATCH_SIZE - 1)) / CULL_DISPATCH_SIZE;
+
     {
         _light_counts_texture.create(
             device,
             {
                 .format = DXGI_FORMAT_R32_UINT,
-                .width = CULL_DISPATCH_COUNT_X,
-                .height = CULL_DISPATCH_COUNT_Y,
+                .width = _cull_dispatch_count_x,
+                .height = _cull_dispatch_count_y,
             },
             dx_name(NAME, "Light Counts Texture")
         );
@@ -153,14 +157,14 @@ FibersDemo::FibersDemo(
             device,
             {
                 .format = DXGI_FORMAT_R32_UINT,
-                .width = CULL_DISPATCH_COUNT_X,
-                .height = CULL_DISPATCH_COUNT_Y,
+                .width = _cull_dispatch_count_x,
+                .height = _cull_dispatch_count_y,
             },
             dx_name(NAME, "Light Offsets Texture")
         );
         _light_indices.create(
             device,
-            CULL_DISPATCH_COUNT_X * CULL_DISPATCH_COUNT_Y * LIGHT_CAPACITY_PER_TILE,
+            _cull_dispatch_count_x * _cull_dispatch_count_y * LIGHT_CAPACITY_PER_TILE,
             dx_name(NAME, "Light Indices")
         );
         _light_indices_count.create(device, 1, dx_name(NAME, "Light Indices Count"));
@@ -304,7 +308,7 @@ auto FibersDemo::render(GpuDevice& device, GpuCommandList& cmd) -> void {
             .light_indices = _light_indices.uav_descriptor().index(),
             .light_indices_count = _light_indices_count.uav_descriptor().index(),
         });
-        cmd.dispatch(CULL_DISPATCH_COUNT_X, CULL_DISPATCH_COUNT_Y, 1);
+        cmd.dispatch(_cull_dispatch_count_x, _cull_dispatch_count_y, 1);
         _light_counts_texture.uav_barrier(cmd);
         _light_offsets_texture.uav_barrier(cmd);
         _light_indices.uav_barrier(cmd);

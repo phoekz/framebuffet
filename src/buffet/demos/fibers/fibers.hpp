@@ -28,10 +28,6 @@ struct Parameters {
 
 inline constexpr uint32_t SIM_DISPATCH_COUNT =
     (LIGHT_COUNT + (SIM_DISPATCH_SIZE - 1)) / SIM_DISPATCH_SIZE;
-inline constexpr uint32_t CULL_DISPATCH_COUNT_X =
-    (1280 + (CULL_DISPATCH_SIZE - 1)) / CULL_DISPATCH_SIZE;
-inline constexpr uint32_t CULL_DISPATCH_COUNT_Y =
-    (800 + (CULL_DISPATCH_SIZE - 1)) / CULL_DISPATCH_SIZE;
 
 struct Mesh {
     GpuBufferHostSrv<baked::Vertex> vertices;
@@ -75,6 +71,8 @@ private:
     GpuTextureSrvUav _light_offsets_texture;
     GpuBufferDeviceSrvUav<uint32_t> _light_indices;
     GpuBufferDeviceSrvUav<uint32_t> _light_indices_count;
+    uint32_t _cull_dispatch_count_x = 0;
+    uint32_t _cull_dispatch_count_y = 0;
 };
 
 } // namespace fb::demos::fibers
