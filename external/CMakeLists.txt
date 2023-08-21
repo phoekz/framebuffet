@@ -94,7 +94,7 @@ message(STATUS "Fetching fp16...")
 FetchContent_Declare(
     fp16
     GIT_REPOSITORY https://github.com/Maratyszcza/FP16.git
-    GIT TAG 0a92994d729ff76a58f692d3028ca1b64b145d91 # Mar 20, 2021
+    GIT_TAG 0a92994d729ff76a58f692d3028ca1b64b145d91 # Mar 20, 2021
 )
 option(FP16_BUILD_TESTS OFF)
 option(FP16_BUILD_BENCHMARKS OFF)
