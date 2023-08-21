@@ -93,6 +93,14 @@ inline auto rgb_from_hsv(Float3 hsv) -> Float3 {
 //
 
 template<>
+struct std::formatter<fb::Float2>: std::formatter<char> {
+    template<class FormatContext>
+    auto format(fb::Float2 v, FormatContext& fc) const {
+        return std::format_to(fc.out(), "({:6.3f} {:6.3f})", v.x, v.y);
+    }
+};
+
+template<>
 struct std::formatter<fb::Float3>: std::formatter<char> {
     template<class FormatContext>
     auto format(fb::Float3 v, FormatContext& fc) const {
@@ -136,6 +144,22 @@ struct std::formatter<fb::Float4x4>: std::formatter<char> {
             m.m[2][3],
             m.m[3][3]
         );
+    }
+};
+
+template<>
+struct std::formatter<fb::Uint2>: std::formatter<char> {
+    template<class FormatContext>
+    auto format(fb::Uint2 v, FormatContext& fc) const {
+        return std::format_to(fc.out(), "({} {})", v.x, v.y);
+    }
+};
+
+template<>
+struct std::formatter<fb::Uint3>: std::formatter<char> {
+    template<class FormatContext>
+    auto format(fb::Uint3 v, FormatContext& fc) const {
+        return std::format_to(fc.out(), "({} {} {})", v.x, v.y, v.z);
     }
 };
 
