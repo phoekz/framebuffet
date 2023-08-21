@@ -162,115 +162,147 @@ auto Assets::winter_evening_cube_texture() const -> CubeTexture {
 
 Shaders::Shaders() {
     _data = read_whole_file("fb_shaders.bin");
-    FB_ASSERT(_data.size() == 131192);
+    FB_ASSERT(_data.size() == 145056);
 }
 
+// a2b037e929fa47e82668128ef69b5d3c
 auto Shaders::gui_draw_vs() const -> std::span<const std::byte> {
     return std::span(_data).subspan(0, 5352);
 }
 
+// 78391642d962dafe09fcb897ff0baef4
 auto Shaders::gui_draw_ps() const -> std::span<const std::byte> {
     return std::span(_data).subspan(5352, 4416);
 }
 
+// 90b108a0f53edc3edf0fdbdf347b5003
 auto Shaders::debug_draw_draw_vs() const -> std::span<const std::byte> {
     return std::span(_data).subspan(9768, 5120);
 }
 
+// 28a5f694ad5b0a73913b0a924d402ba0
 auto Shaders::debug_draw_draw_ps() const -> std::span<const std::byte> {
     return std::span(_data).subspan(14888, 3056);
 }
 
+// 5792fbf56668c072f9917d0d52e90c6d
 auto Shaders::cards_draw_vs() const -> std::span<const std::byte> {
     return std::span(_data).subspan(17944, 4860);
 }
 
+// 0277dbed47bb3692b278d7e759af728f
 auto Shaders::cards_draw_ps() const -> std::span<const std::byte> {
     return std::span(_data).subspan(22804, 4220);
 }
 
+// 6529e616c34b9ecea94c7de26fa74cbd
+auto Shaders::spd_downsample_cs() const -> std::span<const std::byte> {
+    return std::span(_data).subspan(27024, 13864);
+}
+
+// eb171dcf4f4765588cbae395cc5f4f1b
 auto Shaders::cube_draw_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(27024, 5012);
+    return std::span(_data).subspan(40888, 5012);
 }
 
+// e13d6d1479c22aeab4a2a5829bf6fcb5
 auto Shaders::cube_draw_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(32036, 4580);
+    return std::span(_data).subspan(45900, 4580);
 }
 
+// 52d81722531e4e31a574f5108c7dc8cc
 auto Shaders::tree_shadow_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(36616, 4652);
+    return std::span(_data).subspan(50480, 4652);
 }
 
+// b16cdb28805a6c6c6f2a881598c33d0f
 auto Shaders::tree_draw_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(41268, 5456);
+    return std::span(_data).subspan(55132, 5456);
 }
 
+// d8fc468d518d682e1b21e1879a32d5e3
 auto Shaders::tree_draw_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(46724, 5216);
+    return std::span(_data).subspan(60588, 5216);
 }
 
+// d7bde9ff419de59f4788f766651525ae
 auto Shaders::rain_sim_cs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(51940, 3748);
+    return std::span(_data).subspan(65804, 3748);
 }
 
+// 0820cea972058c552f588fd8ea7b324e
 auto Shaders::rain_draw_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(55688, 5064);
+    return std::span(_data).subspan(69552, 5064);
 }
 
+// 785867d3fd40ec288756abc5b7fa1a8a
 auto Shaders::rain_draw_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(60752, 3228);
+    return std::span(_data).subspan(74616, 3228);
 }
 
+// ca3a84f0a01636d33e0c4153728e0809
 auto Shaders::anim_draw_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(63980, 9980);
+    return std::span(_data).subspan(77844, 9980);
 }
 
+// fe2bea0daccf11ac7a446e39cfcfca3c
 auto Shaders::anim_draw_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(73960, 4656);
+    return std::span(_data).subspan(87824, 4656);
 }
 
+// 38367bd0b1752e4ca0df66b75c2c3e42
 auto Shaders::fibers_sim_cs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(78616, 4004);
+    return std::span(_data).subspan(92480, 4004);
 }
 
+// 27a8754335d1b1087f852a95afe6cf98
 auto Shaders::fibers_reset_cs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(82620, 3424);
+    return std::span(_data).subspan(96484, 3424);
 }
 
+// 6948df21d6f52241ffd77c4cc5ae1817
 auto Shaders::fibers_cull_cs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(86044, 7328);
+    return std::span(_data).subspan(99908, 7328);
 }
 
+// 8a903181a4162e088ae222bb818e2c0a
 auto Shaders::fibers_light_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(93372, 5484);
+    return std::span(_data).subspan(107236, 5484);
 }
 
+// 0d545b607d54aea303eb4a8db4cf31da
 auto Shaders::fibers_light_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(98856, 3144);
+    return std::span(_data).subspan(112720, 3144);
 }
 
+// d3df05d793876fd814042ac2ee4c7520
 auto Shaders::fibers_plane_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(102000, 5504);
+    return std::span(_data).subspan(115864, 5504);
 }
 
+// bf043e6ca1fc244f4228b30f10d7a497
 auto Shaders::fibers_plane_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(107504, 5928);
+    return std::span(_data).subspan(121368, 5928);
 }
 
+// 774cf19def534ea19fa2c04206753609
 auto Shaders::fibers_debug_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(113432, 3256);
+    return std::span(_data).subspan(127296, 3256);
 }
 
+// fba11f278d24921065a7ff897de265ce
 auto Shaders::fibers_debug_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(116688, 4944);
+    return std::span(_data).subspan(130552, 4944);
 }
 
+// a41014911328d2204ae9cccf7210a09a
 auto Shaders::env_draw_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(121632, 5116);
+    return std::span(_data).subspan(135496, 5116);
 }
 
+// 34759f4385b2a6b7410f8378fc3e6341
 auto Shaders::env_draw_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(126748, 4444);
+    return std::span(_data).subspan(140612, 4444);
 }
 
 } // namespace fb::baked

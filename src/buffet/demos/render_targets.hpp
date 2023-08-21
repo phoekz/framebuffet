@@ -12,12 +12,14 @@ struct RenderTargetsDesc {
 };
 
 class RenderTargets {
+    FB_NO_COPY_MOVE(RenderTargets);
+
 public:
     RenderTargets(GpuDevice& device, const RenderTargetsDesc& desc, std::string_view name);
 
     auto begin(GpuDevice& device, const GpuCommandList& cmd) -> void;
     auto end(GpuDevice& device, const GpuCommandList& cmd) -> void;
-    auto color() const -> const GpuTextureSrvRtv& { return _color; }
+    auto color() const -> const GpuTextureSrvUavRtv& { return _color; }
     auto depth() const -> const GpuTextureDsv& { return _depth; }
     auto color_format() const -> DXGI_FORMAT { return _color.format(); }
     auto depth_format() const -> DXGI_FORMAT { return _depth.format(); }
@@ -30,7 +32,7 @@ private:
     Uint2 _size = {};
     Float4 _clear_color;
     GpuTextureRtv _multisampled_color;
-    GpuTextureSrvRtv _color;
+    GpuTextureSrvUavRtv _color;
     GpuTextureDsv _depth;
     uint32_t _sample_count = 1;
 };

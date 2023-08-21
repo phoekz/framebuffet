@@ -67,18 +67,18 @@ int main() {
     auto anim_demo = std::make_unique<demos::anim::AnimDemo>(*device, assets, shaders);
     auto fibers_demo = std::make_unique<demos::fibers::FibersDemo>(*device, assets, shaders);
     auto env_demo = std::make_unique<demos::env::EnvDemo>(*device, assets, shaders);
-    auto card_descriptors = std::to_array({
-        cube_demo->rt_color().srv_descriptor(),
-        tree_demo->rt_color().srv_descriptor(),
-        rain_demo->rt_color().srv_descriptor(),
-        anim_demo->rt_color().srv_descriptor(),
-        fibers_demo->rt_color().srv_descriptor(),
-        env_demo->rt_color().srv_descriptor(),
-    });
     auto cards = std::make_unique<demos::cards::Cards>(
         *device,
         shaders,
-        demos::cards::CardsDesc {.card_descriptors = card_descriptors}
+        demos::cards::CardsDesc {
+            .card_render_targets = std::to_array({
+                std::ref(cube_demo->rt()),
+                std::ref(tree_demo->rt()),
+                std::ref(rain_demo->rt()),
+                std::ref(anim_demo->rt()),
+                std::ref(fibers_demo->rt()),
+                std::ref(env_demo->rt()),
+            })}
     );
     auto gui = std::make_unique<demos::gui::Gui>(*window, *device, assets, shaders);
     device->end_transfer();

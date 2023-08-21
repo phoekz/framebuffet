@@ -16,6 +16,7 @@ enum class GpuTextureFlags : uint32_t {
     SrvRtv = Srv | Rtv,
     SrvDsv = Srv | Dsv,
     SrvCube = Srv | Cube,
+    SrvUavRtv = Srv | Uav | Rtv,
 };
 
 inline constexpr auto gpu_texture_flags_is_set(GpuTextureFlags flags, GpuTextureFlags flag)
@@ -28,7 +29,7 @@ struct GpuTextureDesc {
     uint32_t width = 1;
     uint32_t height = 1;
     uint32_t depth = 1;
-    uint32_t mip_levels = 1;
+    uint32_t mip_count = 1;
     uint32_t sample_count = 1;
     std::optional<D3D12_CLEAR_VALUE> clear_value = std::nullopt;
     std::optional<DXGI_FORMAT> srv_format = std::nullopt;
@@ -40,7 +41,7 @@ struct GpuTextureDesc {
 template<GpuTextureFlags FLAGS>
 class GpuTexture {
 public:
-    static inline constexpr auto MAX_MIP_LEVELS = 16;
+    static inline constexpr auto MAX_MIP_COUNT = 16;
 
     auto create(GpuDevice& device, const GpuTextureDesc& desc, std::string_view name) -> void {
         // Validate.
@@ -48,7 +49,7 @@ public:
         FB_ASSERT(desc.width > 0);
         FB_ASSERT(desc.height > 0);
         FB_ASSERT(desc.depth > 0);
-        FB_ASSERT(desc.mip_levels > 0 && desc.mip_levels <= MAX_MIP_LEVELS);
+        FB_ASSERT(desc.mip_count > 0 && desc.mip_count <= MAX_MIP_COUNT);
         FB_ASSERT(desc.sample_count > 0);
         if (gpu_texture_flags_is_set(FLAGS, GpuTextureFlags::Cube)) {
             FB_ASSERT(desc.depth == 6);
@@ -85,7 +86,7 @@ public:
             .Width = (uint64_t)desc.width,
             .Height = desc.height,
             .DepthOrArraySize = (uint16_t)desc.depth,
-            .MipLevels = (uint16_t)desc.mip_levels,
+            .MipLevels = (uint16_t)desc.mip_count,
             .Format = desc.format,
             .SampleDesc = DXGI_SAMPLE_DESC {.Count = desc.sample_count, .Quality = 0},
             .Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN,
@@ -133,7 +134,7 @@ public:
                     .Format = _srv_format,
                     .ViewDimension = srv_dimension,
                     .Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING,
-                    .Texture2D = D3D12_TEX2D_SRV {.MipLevels = desc.mip_levels},
+                    .Texture2D = D3D12_TEX2D_SRV {.MipLevels = desc.mip_count},
                 },
                 _srv_descriptor.cpu()
             );
@@ -143,7 +144,7 @@ public:
                 !gpu_texture_flags_is_set(FLAGS, GpuTextureFlags::Cube),
                 "UAV textures does not support cube maps"
             );
-            for (uint32_t mip = 0; mip < desc.mip_levels; mip++) {
+            for (uint32_t mip = 0; mip < desc.mip_count; mip++) {
                 _uav_descriptors[mip] = device.descriptors().cbv_srv_uav().alloc();
                 device.create_unordered_access_view(
                     _resource,
@@ -192,7 +193,7 @@ public:
     auto width() const -> uint32_t { return _desc.width; }
     auto height() const -> uint32_t { return _desc.height; }
     auto format() const -> DXGI_FORMAT { return _desc.format; }
-    auto mip_levels() const -> uint32_t { return _desc.mip_levels; }
+    auto mip_count() const -> uint32_t { return _desc.mip_count; }
     auto bits_per_unit() const -> uint32_t {
         return D3D12_PROPERTY_LAYOUT_FORMAT_TABLE::GetBitsPerUnit(_desc.format);
     }
@@ -253,7 +254,7 @@ private:
     DXGI_FORMAT _rtv_format = DXGI_FORMAT_UNKNOWN;
     DXGI_FORMAT _dsv_format = DXGI_FORMAT_UNKNOWN;
     GpuDescriptor _srv_descriptor = {};
-    std::array<GpuDescriptor, MAX_MIP_LEVELS> _uav_descriptors = {};
+    std::array<GpuDescriptor, MAX_MIP_COUNT> _uav_descriptors = {};
     GpuDescriptor _rtv_descriptor = {};
     GpuDescriptor _dsv_descriptor = {};
 };
@@ -268,8 +269,14 @@ using GpuTextureSrvRtv = GpuTexture<GpuTextureFlags::SrvRtv>;
 using GpuTextureSrvDsv = GpuTexture<GpuTextureFlags::SrvDsv>;
 using GpuTextureSrvCube = GpuTexture<GpuTextureFlags::SrvCube>;
 
-inline auto mipmap_count_from_size(uint32_t width, uint32_t height) -> uint32_t {
+using GpuTextureSrvUavRtv = GpuTexture<GpuTextureFlags::SrvUavRtv>;
+
+inline auto mip_count_from_size(uint32_t width, uint32_t height) -> uint32_t {
     return 1 + (uint32_t)std::floor(std::log2(float(std::max(width, height))));
+}
+
+inline auto mip_count_from_size(Uint2 size) -> uint32_t {
+    return mip_count_from_size(size.x, size.y);
 }
 
 } // namespace fb

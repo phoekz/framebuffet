@@ -54,7 +54,14 @@ static auto layout_vmosaic(std::span<Card> cards, Uint2 window_size) -> void {
 
 Cards::Cards(GpuDevice& device, const baked::Shaders& shaders, const CardsDesc& desc) {
     // Descriptors.
-    _card_texture_descriptors = desc.card_descriptors;
+    for (uint32_t i = 0; i < CARD_COUNT; i++) {
+        const auto& color = desc.card_render_targets[i].get().color();
+        _card_descriptors[i] = CardDescriptors {
+            .src = color.srv_descriptor().index(),
+            .mid = color.uav_descriptor().index() + 6,
+            .dst_begin = color.uav_descriptor().index(),
+        };
+    }
 
     // Pipeline.
     GpuPipelineBuilder()
@@ -90,6 +97,46 @@ Cards::Cards(GpuDevice& device, const baked::Shaders& shaders, const CardsDesc& 
     // Default card indices.
     for (uint32_t i = 0; i < CARD_COUNT; i++) {
         _parameters.card_indirect_indices[i] = i;
+    }
+
+    // Single pass downsampler.
+    {
+        const auto width = device.swapchain_size().x;
+        const auto height = device.swapchain_size().y;
+        const auto mip_count = mip_count_from_size(width, height);
+        const auto end_index_x = (width - 1u) / 64u;
+        const auto end_index_y = (height - 1u) / 64u;
+        const auto threadgroup_count_x = end_index_x + 1u;
+        const auto threadgroup_count_y = end_index_y + 1u;
+        const auto threadgroup_count = threadgroup_count_x * threadgroup_count_y;
+        const auto inv_texture_size = Float2(1.0f / (float)width, 1.0f / (float)height);
+        _spd_dispatch = Uint3(threadgroup_count_x, threadgroup_count_y, 1);
+
+        // Constants.
+        _spd_constants.create(device, 1, dx_name(NAME, "Spd", "Constants"));
+        *_spd_constants.ptr() = spd::Constants {
+            .mip_count = mip_count,
+            .threadgroup_count = threadgroup_count,
+            .inv_texture_size = inv_texture_size,
+        };
+
+        // Atomics.
+        _spd_atomics.create(device, 1, dx_name(NAME, "Spd", "Slice Atomics"));
+        spd::Atomics atomics = {};
+        device.transfer().resource(
+            _spd_atomics.resource(),
+            D3D12_SUBRESOURCE_DATA {
+                .pData = &atomics,
+                .RowPitch = sizeof(atomics),
+                .SlicePitch = sizeof(atomics)},
+            D3D12_RESOURCE_STATE_COMMON,
+            D3D12_RESOURCE_STATE_UNORDERED_ACCESS
+        );
+
+        // Pipeline.
+        GpuPipelineBuilder()
+            .compute_shader(shaders.spd_downsample_cs())
+            .build(device, _spd_pipeline, dx_name(NAME, "Spd", "Pipeline"));
     }
 }
 
@@ -139,6 +186,20 @@ void Cards::update(const GpuDevice& device) {
 }
 
 void Cards::render(GpuDevice& device, GpuCommandList& cmd) {
+    cmd.set_compute();
+    cmd.set_pipeline(_spd_pipeline);
+    for (uint32_t i = 0; i < CARD_COUNT; i++) {
+        const auto& card = _card_descriptors[i];
+        cmd.set_compute_constants(spd::Bindings {
+            .constants = _spd_constants.cbv_descriptor().index(),
+            .atomics = _spd_atomics.uav_descriptor().index(),
+            .texture_src = card.src,
+            .texture_mid = card.mid,
+            .texture_dst_begin = card.dst_begin,
+        });
+        cmd.dispatch(_spd_dispatch.x, _spd_dispatch.y, _spd_dispatch.z);
+    }
+
     const auto& p = _parameters;
     cmd.set_graphics();
     cmd.set_viewport(0, 0, device.swapchain_size().x, device.swapchain_size().y);
@@ -154,7 +215,7 @@ void Cards::render(GpuDevice& device, GpuCommandList& cmd) {
             .constants = _constants.cbv_descriptor().index(),
             .cards = _cards.srv_descriptor().index(),
             .vertices = _vertices.srv_descriptor().index(),
-            .texture = _card_texture_descriptors[card_indirect].index(),
+            .texture = _card_descriptors[card_indirect].src,
         });
         cmd.draw_indexed_instanced(_indices.element_size(), 1, 0, 0, 0);
     }

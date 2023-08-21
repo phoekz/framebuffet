@@ -2,6 +2,7 @@
 
 #include "demos.hpp"
 #include "cards.hlsli"
+#include "spd.hlsli"
 
 namespace fb::demos::cards {
 
@@ -13,7 +14,13 @@ struct Parameters {
 };
 
 struct CardsDesc {
-    std::array<GpuDescriptor, CARD_COUNT> card_descriptors;
+    std::array<std::reference_wrapper<const RenderTargets>, CARD_COUNT> card_render_targets;
+};
+
+struct CardDescriptors {
+    uint32_t src;
+    uint32_t mid;
+    uint32_t dst_begin;
 };
 
 class Cards {
@@ -37,7 +44,12 @@ private:
     GpuBufferHostSrv<Card> _cards;
     GpuBufferHostSrv<Vertex> _vertices;
     GpuBufferHostIndex<uint16_t> _indices;
-    std::array<GpuDescriptor, CARD_COUNT> _card_texture_descriptors;
+    std::array<CardDescriptors, CARD_COUNT> _card_descriptors;
+
+    GpuBufferHostCbv<spd::Constants> _spd_constants;
+    GpuBufferDeviceUav<spd::Atomics> _spd_atomics;
+    GpuPipeline _spd_pipeline;
+    Uint3 _spd_dispatch;
 };
 
 } // namespace fb::demos::cards

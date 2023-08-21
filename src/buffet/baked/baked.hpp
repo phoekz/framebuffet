@@ -124,6 +124,7 @@ public:
     auto debug_draw_draw_ps() const -> std::span<const std::byte>;
     auto cards_draw_vs() const -> std::span<const std::byte>;
     auto cards_draw_ps() const -> std::span<const std::byte>;
+    auto spd_downsample_cs() const -> std::span<const std::byte>;
     auto cube_draw_vs() const -> std::span<const std::byte>;
     auto cube_draw_ps() const -> std::span<const std::byte>;
     auto tree_shadow_vs() const -> std::span<const std::byte>;

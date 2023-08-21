@@ -23,8 +23,7 @@ public:
     auto gui(const GuiDesc& desc) -> void;
     auto update(const UpdateDesc& desc) -> void;
     auto render(GpuDevice& device, GpuCommandList& cmd) -> void;
-
-    auto rt_color() const -> const GpuTextureSrvRtv& { return _render_targets.color(); }
+    auto rt() const -> const RenderTargets& { return _render_targets; }
 
     template<Archive A>
     auto archive(A& arc) -> void {

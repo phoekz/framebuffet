@@ -52,7 +52,7 @@ private:
 
 class GpuDescriptors {
 public:
-    static constexpr uint32_t CBV_SRV_UAV_DESCRIPTOR_CAPACITY = 128;
+    static constexpr uint32_t CBV_SRV_UAV_DESCRIPTOR_CAPACITY = 256;
     static constexpr uint32_t SAMPLER_DESCRIPTOR_CAPACITY = 6;
     static constexpr uint32_t RTV_DESCRIPTOR_CAPACITY = 16;
     static constexpr uint32_t DSV_DESCRIPTOR_CAPACITY = 16;

@@ -42,6 +42,7 @@ RenderTargets::RenderTargets(
             .format = desc.color_format,
             .width = desc.size.x,
             .height = desc.size.y,
+            .mip_count = mip_count_from_size(desc.size),
             .sample_count = 1,
             .clear_value = make_color_clear_value(desc.color_format, _clear_color),
         },
