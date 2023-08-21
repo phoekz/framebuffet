@@ -8,6 +8,8 @@ set(SOURCES
     error.hpp
     file.cpp
     file.hpp
+    half.cpp
+    half.hpp
     log.cpp
     log.hpp
     macros.hpp
@@ -22,6 +24,7 @@ set(SOURCES
 )
 add_library(${NAME} STATIC ${SOURCES})
 target_precompile_headers(${NAME} PRIVATE pch.hpp)
+target_link_libraries(${NAME} PRIVATE ${FP16_LIBRARY})
 target_include_directories(
     ${NAME}
     PUBLIC

@@ -88,6 +88,31 @@ endif()
 set(TINYEXR_LIBRARY ext_tinyexr CACHE INTERNAL "tinyexr Library")
 
 #
+# fp16
+#
+message(STATUS "Fetching fp16...")
+FetchContent_Declare(
+    fp16
+    GIT_REPOSITORY https://github.com/Maratyszcza/FP16.git
+    GIT TAG 0a92994d729ff76a58f692d3028ca1b64b145d91 # Mar 20, 2021
+)
+option(FP16_BUILD_TESTS OFF)
+option(FP16_BUILD_BENCHMARKS OFF)
+FetchContent_GetProperties(fp16)
+
+if(NOT fp16_POPULATED)
+    FetchContent_Populate(fp16)
+    add_library(ext_fp16 INTERFACE)
+    target_include_directories(
+        ext_fp16
+        INTERFACE
+        ${fp16_SOURCE_DIR}/include
+    )
+endif()
+
+set(FP16_LIBRARY ext_fp16 CACHE INTERNAL "fp16 Library")
+
+#
 # Windows Implementation Library (WIL).
 #
 message(STATUS "Fetching WIL...")

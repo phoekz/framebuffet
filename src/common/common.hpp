@@ -4,6 +4,7 @@
 #include "com.hpp"
 #include "error.hpp"
 #include "file.hpp"
+#include "half.hpp"
 #include "log.hpp"
 #include "macros.hpp"
 #include "math.hpp"
