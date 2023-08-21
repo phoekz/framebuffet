@@ -856,10 +856,12 @@ int main() {
         shader_decls += std::format("auto {}() const -> std::span<const std::byte>;", shader.name);
         shader_defns += std::format(
             R"(
+                // {}
                 auto Shaders::{}() const -> std::span<const std::byte> {{
                     return std::span(_data).subspan({}, {});
                 }}
             )",
+            shader.hash,
             shader.name,
             shaders_bin.size(),
             shader.dxil.size()
