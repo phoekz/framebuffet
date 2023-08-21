@@ -32,3 +32,6 @@
 
 # CMake
 /build/
+
+# Framebuffet
+/temp/
