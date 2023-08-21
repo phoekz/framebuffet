@@ -111,6 +111,7 @@ auto ShaderCompiler::compile(
         L"-Fd", L".\\shaders\\",
         L"-WX",
         L"-all_resources_bound",
+        L"-enable-16bit-types",
         L"-I", FRAMEBUFFET_SOURCE_DIR_WIDE "/src/buffet",
         // clang-format on
     });
