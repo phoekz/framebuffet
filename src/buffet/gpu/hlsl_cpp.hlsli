@@ -23,6 +23,9 @@
 #if __cplusplus
 namespace fb {
 using uint = uint32_t;
+using uint2 = Uint2;
+using uint3 = Uint3;
+using uint4 = Uint4;
 using float2 = Float2;
 using float3 = Float3;
 using float4 = Float4;
