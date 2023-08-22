@@ -139,6 +139,32 @@ endif()
 set(XXHASH_LIBRARY ext_xxhash CACHE INTERNAL "xxhash Library")
 
 #
+# mikktspace
+#
+message(STATUS "Fetching mikktspace...")
+FetchContent_Declare(
+    mikktspace
+    GIT_REPOSITORY https://github.com/mmikk/MikkTSpace.git
+    GIT_TAG 3e895b49d05ea07e4c2133156cfa94369e19e409 # Mar 25, 2020
+)
+FetchContent_GetProperties(mikktspace)
+
+if(NOT mikktspace_POPULATED)
+    FetchContent_Populate(mikktspace)
+    add_library(
+        ext_mikktspace STATIC
+        ${mikktspace_SOURCE_DIR}/mikktspace.c
+    )
+    target_include_directories(
+        ext_mikktspace
+        PUBLIC
+        ${mikktspace_SOURCE_DIR}
+    )
+endif()
+
+set(MIKKTSPACE_LIBRARY ext_mikktspace CACHE INTERNAL "mikktspace Library")
+
+#
 # Windows Implementation Library (WIL).
 #
 message(STATUS "Fetching WIL...")
