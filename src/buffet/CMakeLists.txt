@@ -10,9 +10,9 @@ set(SOURCES
     demos/cards.cpp
     demos/cards.hlsli
     demos/cards.hpp
-    demos/cube/cube.cpp
-    demos/cube/cube.hlsli
-    demos/cube/cube.hpp
+    demos/crate/crate.cpp
+    demos/crate/crate.hlsli
+    demos/crate/crate.hpp
     demos/debug_draw.cpp
     demos/debug_draw.hlsli
     demos/debug_draw.hpp

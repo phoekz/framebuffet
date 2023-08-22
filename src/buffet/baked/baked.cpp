@@ -237,12 +237,12 @@ auto Shaders::spd_downsample_cs() const -> std::span<const std::byte> {
 }
 
 // c4b0581028f8eefd8b952b6e173d5ae5
-auto Shaders::cube_draw_vs() const -> std::span<const std::byte> {
+auto Shaders::crate_draw_vs() const -> std::span<const std::byte> {
     return std::span(_data).subspan(40888, 5496);
 }
 
 // 6158498296bc586661a7985a0159d664
-auto Shaders::cube_draw_ps() const -> std::span<const std::byte> {
+auto Shaders::crate_draw_ps() const -> std::span<const std::byte> {
     return std::span(_data).subspan(46384, 5976);
 }
 

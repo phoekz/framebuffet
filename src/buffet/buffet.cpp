@@ -2,7 +2,7 @@
 #include "gpu/gpu.hpp"
 #include "demos/demos.hpp"
 #include "demos/cards.hpp"
-#include "demos/cube/cube.hpp"
+#include "demos/crate/crate.hpp"
 #include "demos/tree/tree.hpp"
 #include "demos/rain/rain.hpp"
 #include "demos/anim/anim.hpp"
@@ -61,7 +61,7 @@ int main() {
     auto assets = baked::Assets();
     auto shaders = baked::Shaders();
     device->begin_transfer();
-    auto cube_demo = std::make_unique<demos::cube::CubeDemo>(*device, assets, shaders);
+    auto crate_demo = std::make_unique<demos::crate::CrateDemo>(*device, assets, shaders);
     auto tree_demo = std::make_unique<demos::tree::TreeDemo>(*device, assets, shaders);
     auto rain_demo = std::make_unique<demos::rain::RainDemo>(*device, assets, shaders);
     auto anim_demo = std::make_unique<demos::anim::AnimDemo>(*device, assets, shaders);
@@ -72,7 +72,7 @@ int main() {
         shaders,
         demos::cards::CardsDesc {
             .card_render_targets = std::to_array({
-                std::ref(cube_demo->rt()),
+                std::ref(crate_demo->rt()),
                 std::ref(tree_demo->rt()),
                 std::ref(rain_demo->rt()),
                 std::ref(anim_demo->rt()),
@@ -89,7 +89,7 @@ int main() {
     if (file_exists(ARCHIVE_FILE_NAME)) {
         auto archive_buf = read_whole_file(ARCHIVE_FILE_NAME);
         auto archive = DeserializingArchive(archive_buf);
-        cube_demo->archive(archive);
+        crate_demo->archive(archive);
         tree_demo->archive(archive);
         rain_demo->archive(archive);
         anim_demo->archive(archive);
@@ -135,7 +135,7 @@ int main() {
             time_since_last_archive = 0.0;
             auto archive_buf = std::vector<std::byte>();
             auto archive = SerializingArchive(archive_buf);
-            cube_demo->archive(archive);
+            crate_demo->archive(archive);
             tree_demo->archive(archive);
             rain_demo->archive(archive);
             anim_demo->archive(archive);
@@ -163,7 +163,7 @@ int main() {
 
                 const auto desc = demos::GuiDesc {.window_size = device->swapchain_size()};
                 gui_wrapper(cards, desc, ImGuiTreeNodeFlags_DefaultOpen);
-                gui_wrapper(cube_demo, desc);
+                gui_wrapper(crate_demo, desc);
                 gui_wrapper(tree_demo, desc);
                 gui_wrapper(rain_demo, desc);
                 gui_wrapper(anim_demo, desc);
@@ -187,7 +187,7 @@ int main() {
                 .elapsed_time = frame.elapsed_time(),
                 .frame_index = device->frame_index(),
             };
-            cube_demo->update(update_desc);
+            crate_demo->update(update_desc);
             tree_demo->update(update_desc);
             rain_demo->update(update_desc);
             anim_demo->update(update_desc);
@@ -212,8 +212,8 @@ int main() {
                 {
                     cmd.begin_pix("Demo pass");
 
-                    cmd.begin_pix(cube_demo->NAME);
-                    cube_demo->render(*device, cmd);
+                    cmd.begin_pix(crate_demo->NAME);
+                    crate_demo->render(*device, cmd);
                     cmd.end_pix();
 
                     cmd.begin_pix(tree_demo->NAME);

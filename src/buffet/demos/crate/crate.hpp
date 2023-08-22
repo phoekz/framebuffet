@@ -1,9 +1,9 @@
 #pragma once
 
 #include "../demos.hpp"
-#include "cube.hlsli"
+#include "crate.hlsli"
 
-namespace fb::demos::cube {
+namespace fb::demos::crate {
 
 struct Parameters {
     float camera_distance = 5.0f;
@@ -18,12 +18,12 @@ struct Parameters {
     OutputMode output_mode = OutputMode::Shaded;
 };
 
-class CubeDemo {
+class CrateDemo {
 public:
-    static constexpr std::string_view NAME = "Cube"sv;
+    static constexpr std::string_view NAME = "Crate"sv;
     static constexpr Float4 CLEAR_COLOR = {0.1f, 0.1f, 0.4f, 1.0f};
 
-    CubeDemo(GpuDevice& device, const baked::Assets& assets, const baked::Shaders& shaders);
+    CrateDemo(GpuDevice& device, const baked::Assets& assets, const baked::Shaders& shaders);
     auto gui(const GuiDesc& desc) -> void;
     auto update(const UpdateDesc& desc) -> void;
     auto render(GpuDevice& device, GpuCommandList& cmd) -> void;
@@ -47,4 +47,4 @@ private:
     GpuTextureSrv _metallic_roughness_texture;
 };
 
-} // namespace fb::demos::cube
+} // namespace fb::demos::crate

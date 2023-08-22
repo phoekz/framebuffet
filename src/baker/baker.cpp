@@ -559,7 +559,7 @@ static auto shader_tasks = std::to_array<ShaderTask>({
     {"demos/debug_draw.hlsl", "debug_draw", {"draw_vs", "draw_ps"}},
     {"demos/cards.hlsl", "cards", {"draw_vs", "draw_ps"}},
     {"demos/spd.hlsl", "spd", {"downsample_cs"}},
-    {"demos/cube/cube.hlsl", "cube", {"draw_vs", "draw_ps"}},
+    {"demos/crate/crate.hlsl", "crate", {"draw_vs", "draw_ps"}},
     {"demos/tree/tree.hlsl", "tree", {"shadow_vs", "draw_vs", "draw_ps"}},
     {"demos/rain/rain.hlsl", "rain", {"sim_cs", "draw_vs", "draw_ps"}},
     {"demos/anim/anim.hlsl", "anim", {"draw_vs", "draw_ps"}},

@@ -2,7 +2,7 @@
 
 #include <gpu/hlsl_cpp.hlsli>
 
-FB_NAMESPACE_BEGIN(fb::demos::cube)
+FB_NAMESPACE_BEGIN(fb::demos::crate)
 
 struct Bindings {
     uint constants;
@@ -35,4 +35,4 @@ struct Constants {
     float pad[43];
 };
 
-FB_NAMESPACE_END(fb::demos::cube)
+FB_NAMESPACE_END(fb::demos::crate)

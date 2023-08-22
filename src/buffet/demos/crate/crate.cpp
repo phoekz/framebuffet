@@ -1,8 +1,8 @@
-#include "cube.hpp"
+#include "crate.hpp"
 
-namespace fb::demos::cube {
+namespace fb::demos::crate {
 
-CubeDemo::CubeDemo(GpuDevice& device, const baked::Assets& assets, const baked::Shaders& shaders)
+CrateDemo::CrateDemo(GpuDevice& device, const baked::Assets& assets, const baked::Shaders& shaders)
     : _render_targets(
         device,
         {
@@ -17,8 +17,8 @@ CubeDemo::CubeDemo(GpuDevice& device, const baked::Assets& assets, const baked::
     // Pipeline.
     GpuPipelineBuilder()
         .primitive_topology(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)
-        .vertex_shader(shaders.cube_draw_vs())
-        .pixel_shader(shaders.cube_draw_ps())
+        .vertex_shader(shaders.crate_draw_vs())
+        .pixel_shader(shaders.crate_draw_ps())
         .render_target_formats({_render_targets.color_format()})
         .depth_stencil_format(_render_targets.depth_format())
         .sample_desc(_render_targets.sample_desc())
@@ -69,7 +69,7 @@ CubeDemo::CubeDemo(GpuDevice& device, const baked::Assets& assets, const baked::
     }
 }
 
-auto CubeDemo::gui(const GuiDesc&) -> void {
+auto CrateDemo::gui(const GuiDesc&) -> void {
     auto& p = _parameters;
     ImGui::Combo(
         "Output Mode",
@@ -100,7 +100,7 @@ auto CubeDemo::gui(const GuiDesc&) -> void {
     ImGui::SliderFloat("Light Ambient", &p.light_ambient, 0.0f, 1.0f);
 }
 
-auto CubeDemo::update(const UpdateDesc& desc) -> void {
+auto CrateDemo::update(const UpdateDesc& desc) -> void {
     PIXScopedEvent(PIX_COLOR_DEFAULT, dx_name(NAME, "Update").data());
 
     auto& p = _parameters;
@@ -139,7 +139,7 @@ auto CubeDemo::update(const UpdateDesc& desc) -> void {
     };
 }
 
-auto CubeDemo::render(GpuDevice& device, GpuCommandList& cmd) -> void {
+auto CrateDemo::render(GpuDevice& device, GpuCommandList& cmd) -> void {
     cmd.set_graphics();
     _render_targets.begin(device, cmd);
     _debug_draw.render(device, cmd);
@@ -157,4 +157,4 @@ auto CubeDemo::render(GpuDevice& device, GpuCommandList& cmd) -> void {
     _render_targets.end(device, cmd);
 }
 
-} // namespace fb::demos::cube
+} // namespace fb::demos::crate
