@@ -30,10 +30,17 @@ VertexOutput draw_vs(FbVertexInput input) {
 
 FbPixelOutput1 draw_ps(VertexOutput input) {
     ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
-    Texture2D texture = ResourceDescriptorHeap[g_bindings.texture];
+    Texture2D<float4> base_color_texture = ResourceDescriptorHeap[g_bindings.base_color_texture];
+    Texture2D<float4> normal_texture = ResourceDescriptorHeap[g_bindings.normal_texture];
+    Texture2D<float4> metallic_roughness_texture =
+        ResourceDescriptorHeap[g_bindings.metallic_roughness_texture];
     SamplerState linear_clamp = SamplerDescriptorHeap[(uint)GpuSamplerType::LinearClamp];
 
-    const float3 base_color = texture.Sample(linear_clamp, input.texcoord).rgb;
+    const float3 base_color = base_color_texture.Sample(linear_clamp, input.texcoord).rgb;
+    const float3 normal =
+        normalize(normal_texture.Sample(linear_clamp, input.texcoord).rgb * 2.0f - 1.0f);
+    const float metallic = metallic_roughness_texture.Sample(linear_clamp, input.texcoord).b;
+    const float roughness = metallic_roughness_texture.Sample(linear_clamp, input.texcoord).g;
     const float n_dot_l = saturate(dot(input.normal, constants.light_direction));
     const float lighting = constants.light_ambient + n_dot_l * (1.0f - constants.light_ambient);
 
@@ -47,11 +54,23 @@ FbPixelOutput1 draw_ps(VertexOutput input) {
             final_color = lighting.xxx;
             break;
         }
-        case OutputMode::BaseColor: {
+        case OutputMode::BaseColorTexture: {
             final_color = base_color;
             break;
         }
-        case OutputMode::TexCoord: {
+        case OutputMode::NormalTexture: {
+            final_color = 0.5f * (normal + 1.0f);
+            break;
+        }
+        case OutputMode::Metallic: {
+            final_color = metallic.xxx;
+            break;
+        }
+        case OutputMode::Roughness: {
+            final_color = roughness.xxx;
+            break;
+        }
+        case OutputMode::VertexTexCoord: {
             final_color = float3(input.texcoord, 0.0f);
             break;
         }

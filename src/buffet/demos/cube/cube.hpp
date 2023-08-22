@@ -42,7 +42,9 @@ private:
     GpuBufferHostCbv<Constants> _constants;
     GpuBufferHostSrv<baked::Vertex> _vertices;
     GpuBufferHostIndex<baked::Index> _indices;
-    GpuTextureSrv _texture;
+    GpuTextureSrv _base_color_texture;
+    GpuTextureSrv _normal_texture;
+    GpuTextureSrv _metallic_roughness_texture;
 };
 
 } // namespace fb::demos::cube

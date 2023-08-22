@@ -34,7 +34,7 @@ tree::TreeDemo::TreeDemo(
 
     // Texture.
     {
-        const auto& texture = assets.coconut_tree_texture();
+        const auto& texture = assets.coconut_tree_base_color_texture();
         _tree_texture.create(
             device,
             GpuTextureDesc {
@@ -55,7 +55,7 @@ tree::TreeDemo::TreeDemo(
         );
     }
     {
-        const auto& texture = assets.sand_plane_texture();
+        const auto& texture = assets.sand_plane_base_color_texture();
         _plane_texture.create(
             device,
             GpuTextureDesc {

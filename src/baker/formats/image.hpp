@@ -15,6 +15,29 @@ public:
     auto slice_pitch() const -> uint32_t { return row_pitch() * height(); }
     auto data() const -> std::span<const std::byte> { return _pixels; }
 
+    template<typename F>
+    auto map(F f) -> Image {
+        Image image;
+        image._width = width();
+        image._height = height();
+        image._channels = channels();
+        image._pixels = std::move(_pixels);
+
+        for (uint32_t y = 0; y < height(); ++y) {
+            for (uint32_t x = 0; x < width(); ++x) {
+                const auto i = (y * width() + x) * channels();
+                f(x,
+                  y,
+                  image._pixels[i + 0],
+                  image._pixels[i + 1],
+                  image._pixels[i + 2],
+                  image._pixels[i + 3]);
+            }
+        }
+
+        return image;
+    }
+
 private:
     uint32_t _width = 0;
     uint32_t _height = 0;

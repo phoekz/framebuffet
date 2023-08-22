@@ -35,7 +35,7 @@ AnimDemo::AnimDemo(GpuDevice& device, const baked::Assets& assets, const baked::
     _indices.create_with_data(device, mesh.indices, dx_name(NAME, "Indices"));
 
     // Texture.
-    const auto texture = assets.raccoon_texture();
+    const auto texture = assets.raccoon_base_color_texture();
     _texture.create(
         device,
         GpuTextureDesc {

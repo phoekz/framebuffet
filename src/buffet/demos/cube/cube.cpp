@@ -32,35 +32,60 @@ CubeDemo::CubeDemo(GpuDevice& device, const baked::Assets& assets, const baked::
     _vertices.create_with_data(device, mesh.vertices, dx_name(NAME, "Vertices"));
     _indices.create_with_data(device, mesh.indices, dx_name(NAME, "Indices"));
 
-    // Texture.
+    // Textures.
     {
-        // Create.
-        const auto texture = assets.sci_fi_case_texture();
-        _texture.create(
-            device,
-            GpuTextureDesc {
-                .format = texture.format,
-                .width = texture.width,
-                .height = texture.height,
-            },
-            dx_name(NAME, "Texture")
-        );
-
-        // Transfer.
-        device.transfer().resource(
-            _texture.resource(),
-            D3D12_SUBRESOURCE_DATA {
-                .pData = texture.data.data(),
-                .RowPitch = texture.row_pitch,
-                .SlicePitch = texture.slice_pitch},
-            D3D12_RESOURCE_STATE_COMMON,
-            D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE
-        );
+        for (auto& [texture, gpu_texture, name] : std::to_array({
+                 std::make_tuple(
+                     assets.sci_fi_case_base_color_texture(),
+                     &_base_color_texture,
+                     "Base Color"
+                 ),
+                 std::make_tuple(assets.sci_fi_case_normal_texture(), &_normal_texture, "Normal"),
+                 std::make_tuple(
+                     assets.sci_fi_case_metallic_roughness_texture(),
+                     &_metallic_roughness_texture,
+                     "Metallic Roughness"
+                 ),
+             })) {
+            gpu_texture->create(
+                device,
+                GpuTextureDesc {
+                    .format = texture.format,
+                    .width = texture.width,
+                    .height = texture.height,
+                },
+                dx_name(NAME, name)
+            );
+            device.transfer().resource(
+                gpu_texture->resource(),
+                D3D12_SUBRESOURCE_DATA {
+                    .pData = texture.data.data(),
+                    .RowPitch = texture.row_pitch,
+                    .SlicePitch = texture.slice_pitch},
+                D3D12_RESOURCE_STATE_COMMON,
+                D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE
+            );
+        }
     }
 }
 
 auto CubeDemo::gui(const GuiDesc&) -> void {
     auto& p = _parameters;
+    ImGui::Combo(
+        "Output Mode",
+        (int*)&p.output_mode,
+        "Shaded\0"
+        "Lighting\0"
+        "BaseColorTexture\0"
+        "NormalTexture\0"
+        "Metallic\0"
+        "Roughness\0"
+        "VertexTexCoord\0"
+        "VertexNormal\0"
+        "VertexTangent\0"
+        "VertexBitangent\0"
+    );
+
     ImGui::SliderFloat("Camera Distance", &p.camera_distance, 0.0f, 10.0f);
     ImGui::SliderAngle("Camera FOV", &p.camera_fov, 0.0f, 90.0f);
     ImGui::SliderAngle("Camera Latitude", &p.camera_latitude, -90.0f, 90.0f);
@@ -71,18 +96,6 @@ auto CubeDemo::gui(const GuiDesc&) -> void {
     ImGui::SliderAngle("Light Longitude", &p.light_longitude, 0.0f, 360.0f);
     ImGui::SliderFloat("Light Rotation Speed", &p.light_rotation_speed, 0.0f, 2.0f);
     ImGui::SliderFloat("Light Ambient", &p.light_ambient, 0.0f, 1.0f);
-
-    ImGui::Combo(
-        "Output Mode",
-        (int*)&p.output_mode,
-        "Shaded\0"
-        "Lighting\0"
-        "BaseColor\0"
-        "TexCoord\0"
-        "VertexNormal\0"
-        "VertexTangent\0"
-        "VertexBitangent\0"
-    );
 }
 
 auto CubeDemo::update(const UpdateDesc& desc) -> void {
@@ -131,7 +144,9 @@ auto CubeDemo::render(GpuDevice& device, GpuCommandList& cmd) -> void {
     cmd.set_graphics_constants(Bindings {
         .constants = _constants.cbv_descriptor().index(),
         .vertices = _vertices.srv_descriptor().index(),
-        .texture = _texture.srv_descriptor().index(),
+        .base_color_texture = _base_color_texture.srv_descriptor().index(),
+        .normal_texture = _normal_texture.srv_descriptor().index(),
+        .metallic_roughness_texture = _metallic_roughness_texture.srv_descriptor().index(),
     });
     cmd.set_pipeline(_pipeline);
     cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);

@@ -27,6 +27,8 @@ inline constexpr uint32_t GLTF_NULL_NODE = ~0u;
 // sRGB opto-electronic transfer function so RGB values MUST be decoded to real
 // linear values before they are used for any computations.
 inline constexpr DXGI_FORMAT GLTF_BASE_COLOR_TEXTURE_FORMAT = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+inline constexpr DXGI_FORMAT GLTF_NORMAL_TEXTURE_FORMAT = DXGI_FORMAT_R8G8B8A8_UNORM;
+inline constexpr DXGI_FORMAT GLTF_METALLIC_ROUGHNESS_TEXTURE_FORMAT = DXGI_FORMAT_R8G8B8A8_UNORM;
 
 class GltfModel {
 public:
@@ -41,6 +43,18 @@ public:
     auto indices() const -> std::span<const uint32_t> { return _indices; }
 
     auto base_color_texture() const -> const Image& { return _base_color_texture; }
+    auto normal_texture() const -> const std::optional<std::reference_wrapper<const Image>> {
+        if (_normal_texture.data().empty()) {
+            return std::nullopt;
+        }
+        return _normal_texture;
+    }
+    auto metallic_roughness_texture() const -> const std::optional<std::reference_wrapper<const Image>> {
+        if (_metallic_roughness_texture.data().empty()) {
+            return std::nullopt;
+        }
+        return _metallic_roughness_texture;
+    }
 
     auto node_count() const -> uint32_t { return (uint32_t)_node_transforms.size(); }
     auto joint_count() const -> uint32_t { return (uint32_t)_joint_nodes.size(); }
@@ -66,7 +80,13 @@ private:
     std::vector<GltfVertexJoint> _vertex_joints;
     std::vector<GltfVertexWeight> _vertex_weights;
     std::vector<uint32_t> _indices;
+
     Image _base_color_texture;
+    Image _normal_texture;
+    Image _metallic_roughness_texture;
+
+    float _metallic_factor = 1.0f;
+    float _roughness_factor = 1.0f;
 
     std::vector<uint32_t> _joint_nodes;
     std::vector<Float4x4> _joint_inverse_binds;

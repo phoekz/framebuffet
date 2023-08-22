@@ -7,14 +7,19 @@ FB_NAMESPACE_BEGIN(fb::demos::cube)
 struct Bindings {
     uint constants;
     uint vertices;
-    uint texture;
+    uint base_color_texture;
+    uint normal_texture;
+    uint metallic_roughness_texture;
 };
 
 enum class OutputMode : uint {
     Shaded = 0,
     Lighting,
-    BaseColor,
-    TexCoord,
+    BaseColorTexture,
+    NormalTexture,
+    Metallic,
+    Roughness,
+    VertexTexCoord,
     VertexNormal,
     VertexTangent,
     VertexBitangent,

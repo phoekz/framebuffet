@@ -101,14 +101,45 @@ GltfModel::GltfModel(std::string_view gltf_path) {
     const auto& material = data->materials[0];
     FB_ASSERT(material.has_pbr_metallic_roughness);
     const auto& pbr = material.pbr_metallic_roughness;
+    _metallic_factor = pbr.metallic_factor;
+    _roughness_factor = pbr.roughness_factor;
     FB_ASSERT(pbr.base_color_texture.texture != nullptr);
     FB_ASSERT(pbr.base_color_texture.texture->image != nullptr);
     {
+        FB_ASSERT(pbr.base_color_texture.has_transform == false);
+        FB_ASSERT(pbr.base_color_texture.texture->image != nullptr);
         const auto& image = *pbr.base_color_texture.texture->image;
         const auto image_view = image.buffer_view;
         const auto image_data = (const std::byte*)cgltf_buffer_view_data(image_view);
         const auto image_span = std::span(image_data, image_view->size);
         _base_color_texture = Image::load(image_span);
+    }
+    if (material.normal_texture.texture != nullptr) {
+        FB_ASSERT(material.normal_texture.has_transform == false);
+        FB_ASSERT(material.normal_texture.texture->image != nullptr);
+        const auto& image = *material.normal_texture.texture->image;
+        const auto image_view = image.buffer_view;
+        const auto image_data = (const std::byte*)cgltf_buffer_view_data(image_view);
+        const auto image_span = std::span(image_data, image_view->size);
+        _normal_texture = Image::load(image_span);
+    }
+    if (pbr.metallic_roughness_texture.texture != nullptr) {
+        FB_ASSERT(pbr.metallic_roughness_texture.has_transform == false);
+        FB_ASSERT(pbr.metallic_roughness_texture.texture->image != nullptr);
+        const auto& image = *pbr.metallic_roughness_texture.texture->image;
+        const auto image_view = image.buffer_view;
+        const auto image_data = (const std::byte*)cgltf_buffer_view_data(image_view);
+        const auto image_span = std::span(image_data, image_view->size);
+        const auto map_fn =
+            [](uint32_t, uint32_t, std::byte& r, std::byte& /*g*/, std::byte& /*b*/, std::byte& a) {
+                // Note: GLTF's metallic is defined in the blue channel,
+                // roughness in the green channel. Since GLTF allows different
+                // channels to overlap, for example occlusion might be in the
+                // red channel, we have to mask out the other channels.
+                r = (std::byte)0;
+                a = (std::byte)255;
+            };
+        _metallic_roughness_texture = Image::load(image_span).map(map_fn);
     }
 
     if (data->skins_count > 0) {

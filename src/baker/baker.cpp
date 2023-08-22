@@ -310,20 +310,53 @@ auto build_assets(std::string_view assets_dir)
                         .indices = assets_writer.write("Index", indices),
                     });
 
-                    // Texture.
-                    const auto texture = model.base_color_texture();
-                    const auto texture_name = std::format("{}_texture", task.name);
-                    update_unique_names(unique_names, texture_name);
-                    assets.push_back(AssetTexture {
-                        .name = texture_name,
-                        .format = GLTF_BASE_COLOR_TEXTURE_FORMAT,
-                        .width = texture.width(),
-                        .height = texture.height(),
-                        .channels = texture.channels(),
-                        .row_pitch = texture.row_pitch(),
-                        .slice_pitch = texture.slice_pitch(),
-                        .data = assets_writer.write("std::byte", texture.data()),
-                    });
+                    // Textures.
+                    {
+                        const auto texture = model.base_color_texture();
+                        const auto texture_name = std::format("{}_base_color_texture", task.name);
+                        update_unique_names(unique_names, texture_name);
+                        assets.push_back(AssetTexture {
+                            .name = texture_name,
+                            .format = GLTF_BASE_COLOR_TEXTURE_FORMAT,
+                            .width = texture.width(),
+                            .height = texture.height(),
+                            .channels = texture.channels(),
+                            .row_pitch = texture.row_pitch(),
+                            .slice_pitch = texture.slice_pitch(),
+                            .data = assets_writer.write("std::byte", texture.data()),
+                        });
+                    }
+                    if (model.normal_texture().has_value()) {
+                        const auto texture = model.normal_texture().value().get();
+                        const auto texture_name = std::format("{}_normal_texture", task.name);
+                        update_unique_names(unique_names, texture_name);
+                        assets.push_back(AssetTexture {
+                            .name = texture_name,
+                            .format = GLTF_NORMAL_TEXTURE_FORMAT,
+                            .width = texture.width(),
+                            .height = texture.height(),
+                            .channels = texture.channels(),
+                            .row_pitch = texture.row_pitch(),
+                            .slice_pitch = texture.slice_pitch(),
+                            .data = assets_writer.write("std::byte", texture.data()),
+                        });
+                    }
+                    if (model.metallic_roughness_texture().has_value()) {
+                        const auto texture = model.metallic_roughness_texture().value().get();
+                        const auto texture_name =
+                            std::format("{}_metallic_roughness_texture", task.name);
+                        update_unique_names(unique_names, texture_name);
+                        assets.push_back(AssetTexture {
+                            .name = texture_name,
+                            .format = GLTF_METALLIC_ROUGHNESS_TEXTURE_FORMAT,
+                            .width = texture.width(),
+                            .height = texture.height(),
+                            .channels = texture.channels(),
+                            .row_pitch = texture.row_pitch(),
+                            .slice_pitch = texture.slice_pitch(),
+                            .data = assets_writer.write("std::byte", texture.data()),
+                        });
+                    }
                 },
                 [&](const AssetTaskGltfAnimation& task) {
                     // Load GLTF.
@@ -390,20 +423,53 @@ auto build_assets(std::string_view assets_dir)
                             assets_writer.write("Float3", model.node_channels_values_s()),
                     });
 
-                    // Texture.
-                    const auto texture = model.base_color_texture();
-                    const auto texture_name = std::format("{}_texture", task.name);
-                    update_unique_names(unique_names, texture_name);
-                    assets.push_back(AssetTexture {
-                        .name = texture_name,
-                        .format = GLTF_BASE_COLOR_TEXTURE_FORMAT,
-                        .width = texture.width(),
-                        .height = texture.height(),
-                        .channels = texture.channels(),
-                        .row_pitch = texture.row_pitch(),
-                        .slice_pitch = texture.slice_pitch(),
-                        .data = assets_writer.write("std::byte", texture.data()),
-                    });
+                    // Textures.
+                    {
+                        const auto texture = model.base_color_texture();
+                        const auto texture_name = std::format("{}_base_color_texture", task.name);
+                        update_unique_names(unique_names, texture_name);
+                        assets.push_back(AssetTexture {
+                            .name = texture_name,
+                            .format = GLTF_BASE_COLOR_TEXTURE_FORMAT,
+                            .width = texture.width(),
+                            .height = texture.height(),
+                            .channels = texture.channels(),
+                            .row_pitch = texture.row_pitch(),
+                            .slice_pitch = texture.slice_pitch(),
+                            .data = assets_writer.write("std::byte", texture.data()),
+                        });
+                    }
+                    if (model.normal_texture().has_value()) {
+                        const auto texture = model.normal_texture().value().get();
+                        const auto texture_name = std::format("{}_normal_texture", task.name);
+                        update_unique_names(unique_names, texture_name);
+                        assets.push_back(AssetTexture {
+                            .name = texture_name,
+                            .format = GLTF_NORMAL_TEXTURE_FORMAT,
+                            .width = texture.width(),
+                            .height = texture.height(),
+                            .channels = texture.channels(),
+                            .row_pitch = texture.row_pitch(),
+                            .slice_pitch = texture.slice_pitch(),
+                            .data = assets_writer.write("std::byte", texture.data()),
+                        });
+                    }
+                    if (model.metallic_roughness_texture().has_value()) {
+                        const auto texture = model.metallic_roughness_texture().value().get();
+                        const auto texture_name =
+                            std::format("{}_metallic_roughness_texture", task.name);
+                        update_unique_names(unique_names, texture_name);
+                        assets.push_back(AssetTexture {
+                            .name = texture_name,
+                            .format = GLTF_METALLIC_ROUGHNESS_TEXTURE_FORMAT,
+                            .width = texture.width(),
+                            .height = texture.height(),
+                            .channels = texture.channels(),
+                            .row_pitch = texture.row_pitch(),
+                            .slice_pitch = texture.slice_pitch(),
+                            .data = assets_writer.write("std::byte", texture.data()),
+                        });
+                    }
                 },
                 [&](const AssetTaskProceduralCube& task) {
                     // Generate cube.
