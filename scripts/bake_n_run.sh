@@ -30,6 +30,13 @@ else
     popd
 fi
 
+if [ -z "$FB_CLEAN_ARCHIVE" ]; then
+    echo "Skipping archive cleaning..."
+else
+    echo "Cleaning archive files..."
+    fd -I "fb_archive.bin" -X rm
+fi
+
 if [ -z "$FB_RUN" ]; then
     echo "Skipping run..."
 else
