@@ -7,7 +7,7 @@ CubeDemo::CubeDemo(GpuDevice& device, const baked::Assets& assets, const baked::
         device,
         {
             .size = device.swapchain_size(),
-            .color_format = DXGI_FORMAT_R8G8B8A8_UNORM,
+            .color_format = DXGI_FORMAT_R16G16B16A16_FLOAT,
             .clear_color = CLEAR_COLOR,
             .sample_count = 4,
         },
