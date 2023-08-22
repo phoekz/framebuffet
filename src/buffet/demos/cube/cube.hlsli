@@ -10,9 +10,22 @@ struct Bindings {
     uint texture;
 };
 
+enum class OutputMode : uint {
+    Shaded = 0,
+    Lighting,
+    BaseColor,
+    TexCoord,
+    VertexNormal,
+    VertexTangent,
+    VertexBitangent,
+};
+
 struct Constants {
     float4x4 transform;
-    float pad[48];
+    float3 light_direction;
+    float light_ambient;
+    OutputMode output_mode;
+    float pad[43];
 };
 
 FB_NAMESPACE_END(fb::demos::cube)

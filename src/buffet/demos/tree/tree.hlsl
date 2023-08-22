@@ -2,12 +2,6 @@
 #include <demos/core.hlsli>
 #include <demos/tree/tree.hlsli>
 
-struct Vertex {
-    float3 position;
-    float3 normal;
-    float2 texcoord;
-};
-
 struct ShadowVertexOutput {
     float4 position: SV_Position;
 };
@@ -23,8 +17,8 @@ ConstantBuffer<Bindings> g_bindings: register(b0);
 
 ShadowVertexOutput shadow_vs(FbVertexInput input) {
     ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
-    StructuredBuffer<Vertex> vertices = ResourceDescriptorHeap[g_bindings.vertices];
-    Vertex vertex = vertices[input.vertex_id];
+    StructuredBuffer<FbVertex> vertices = ResourceDescriptorHeap[g_bindings.vertices];
+    FbVertex vertex = vertices[input.vertex_id];
 
     ShadowVertexOutput output;
     output.position = mul(constants.light_transform, float4(vertex.position, 1.0f));
@@ -33,8 +27,8 @@ ShadowVertexOutput shadow_vs(FbVertexInput input) {
 
 DrawVertexOutput draw_vs(FbVertexInput input) {
     ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
-    StructuredBuffer<Vertex> vertices = ResourceDescriptorHeap[g_bindings.vertices];
-    Vertex vertex = vertices[input.vertex_id];
+    StructuredBuffer<FbVertex> vertices = ResourceDescriptorHeap[g_bindings.vertices];
+    FbVertex vertex = vertices[input.vertex_id];
 
     DrawVertexOutput output;
     output.position = mul(constants.transform, float4(vertex.position, 1.0f));

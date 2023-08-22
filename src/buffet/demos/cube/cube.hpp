@@ -10,13 +10,18 @@ struct Parameters {
     float camera_fov = rad_from_deg(45.0f);
     float camera_latitude = rad_from_deg(30.0f);
     float camera_longitude = rad_from_deg(0.0f);
-    float camera_rotation_speed = 0.5f;
+    float camera_rotation_speed = 0.1f;
+    float light_latitude = rad_from_deg(60.0f);
+    float light_longitude = rad_from_deg(0.0f);
+    float light_rotation_speed = 0.5f;
+    float light_ambient = 0.25f;
+    OutputMode output_mode = OutputMode::Shaded;
 };
 
 class CubeDemo {
 public:
     static constexpr std::string_view NAME = "Cube"sv;
-    static constexpr Float4 CLEAR_COLOR = {0.6f, 0.3f, 0.0f, 1.0f};
+    static constexpr Float4 CLEAR_COLOR = {0.1f, 0.1f, 0.4f, 1.0f};
 
     CubeDemo(GpuDevice& device, const baked::Assets& assets, const baked::Shaders& shaders);
     auto gui(const GuiDesc& desc) -> void;

@@ -2,12 +2,6 @@
 #include <demos/core.hlsli>
 #include <demos/env/env.hlsli>
 
-struct Vertex {
-    float3 position;
-    float3 normal;
-    float2 texcoord;
-};
-
 struct VertexOutput {
     float4 position: SV_Position;
     float3 normal: ATTRIBUTE0;
@@ -19,8 +13,8 @@ ConstantBuffer<Bindings> g_bindings: register(b0);
 
 VertexOutput draw_vs(FbVertexInput input) {
     ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
-    StructuredBuffer<Vertex> vertices = ResourceDescriptorHeap[g_bindings.vertices];
-    Vertex vertex = vertices[input.vertex_id];
+    StructuredBuffer<FbVertex> vertices = ResourceDescriptorHeap[g_bindings.vertices];
+    FbVertex vertex = vertices[input.vertex_id];
     float3 direction = vertex.position;
 
     VertexOutput output;

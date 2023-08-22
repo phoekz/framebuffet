@@ -5,21 +5,12 @@
 
 namespace fb {
 
-struct GltfVertex {
-    Float3 position;
-    Float3 normal;
-    Float2 texcoord;
-};
-
+using GltfVertexPosition = Float3;
+using GltfVertexNormal = Float3;
+using GltfVertexTexcoord = Float2;
+using GltfVertexJoint = Uint4;
+using GltfVertexWeight = Float4;
 using GltfIndex = uint32_t;
-
-struct GltfSkinningVertex {
-    Float3 position;
-    Float3 normal;
-    Float2 texcoord;
-    Uint4 joints;
-    Float4 weights;
-};
 
 struct GltfChannelHeader {
     size_t t_offset = 0;
@@ -42,10 +33,14 @@ public:
     GltfModel(std::string_view gltf_path);
 
     // clang-format off
-    auto vertices() const -> std::span<const GltfVertex> { return _vertices; }
+    auto vertex_positions() const -> std::span<const GltfVertexPosition> { return _vertex_positions; }
+    auto vertex_normals() const -> std::span<const GltfVertexNormal> { return _vertex_normals; }
+    auto vertex_texcoords() const -> std::span<const GltfVertexTexcoord> { return _vertex_texcoords; }
+    auto vertex_joints() const -> std::span<const GltfVertexJoint> { return _vertex_joints; }
+    auto vertex_weights() const -> std::span<const GltfVertexWeight> { return _vertex_weights; }
     auto indices() const -> std::span<const uint32_t> { return _indices; }
+
     auto base_color_texture() const -> const Image& { return _base_color_texture; }
-    auto skinning_vertices() const -> std::span<const GltfSkinningVertex> { return _skinning_vertices; };
 
     auto node_count() const -> uint32_t { return (uint32_t)_node_transforms.size(); }
     auto joint_count() const -> uint32_t { return (uint32_t)_joint_nodes.size(); }
@@ -65,11 +60,14 @@ public:
     // clang-format on
 
 private:
-    std::vector<GltfVertex> _vertices;
+    std::vector<GltfVertexPosition> _vertex_positions;
+    std::vector<GltfVertexNormal> _vertex_normals;
+    std::vector<GltfVertexTexcoord> _vertex_texcoords;
+    std::vector<GltfVertexJoint> _vertex_joints;
+    std::vector<GltfVertexWeight> _vertex_weights;
     std::vector<uint32_t> _indices;
     Image _base_color_texture;
 
-    std::vector<GltfSkinningVertex> _skinning_vertices;
     std::vector<uint32_t> _joint_nodes;
     std::vector<Float4x4> _joint_inverse_binds;
     std::vector<uint32_t> _node_parents;

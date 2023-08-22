@@ -28,14 +28,14 @@ CubeDemo::CubeDemo(GpuDevice& device, const baked::Assets& assets, const baked::
     _constants.create(device, 1, dx_name(NAME, "Constants"));
 
     // Geometry.
-    const auto mesh = assets.stylized_crate_mesh();
+    const auto mesh = assets.sci_fi_case_mesh();
     _vertices.create_with_data(device, mesh.vertices, dx_name(NAME, "Vertices"));
     _indices.create_with_data(device, mesh.indices, dx_name(NAME, "Indices"));
 
     // Texture.
     {
         // Create.
-        const auto texture = assets.stylized_crate_texture();
+        const auto texture = assets.sci_fi_case_texture();
         _texture.create(
             device,
             GpuTextureDesc {
@@ -66,6 +66,23 @@ auto CubeDemo::gui(const GuiDesc&) -> void {
     ImGui::SliderAngle("Camera Latitude", &p.camera_latitude, -90.0f, 90.0f);
     ImGui::SliderAngle("Camera Longitude", &p.camera_longitude, 0.0f, 360.0f);
     ImGui::SliderFloat("Camera Rotation Speed", &p.camera_rotation_speed, 0.0f, 2.0f);
+
+    ImGui::SliderAngle("Light Latitude", &p.light_latitude, -90.0f, 90.0f);
+    ImGui::SliderAngle("Light Longitude", &p.light_longitude, 0.0f, 360.0f);
+    ImGui::SliderFloat("Light Rotation Speed", &p.light_rotation_speed, 0.0f, 2.0f);
+    ImGui::SliderFloat("Light Ambient", &p.light_ambient, 0.0f, 1.0f);
+
+    ImGui::Combo(
+        "Output Mode",
+        (int*)&p.output_mode,
+        "Shaded\0"
+        "Lighting\0"
+        "BaseColor\0"
+        "TexCoord\0"
+        "VertexNormal\0"
+        "VertexTangent\0"
+        "VertexBitangent\0"
+    );
 }
 
 auto CubeDemo::update(const UpdateDesc& desc) -> void {
@@ -73,24 +90,37 @@ auto CubeDemo::update(const UpdateDesc& desc) -> void {
 
     auto& p = _parameters;
 
+    // Update camera.
     p.camera_longitude += p.camera_rotation_speed * desc.delta_time;
     if (p.camera_longitude > PI * 2.0f) {
         p.camera_longitude -= PI * 2.0f;
     }
-
-    auto projection =
+    const auto projection =
         Float4x4::CreatePerspectiveFieldOfView(p.camera_fov, desc.aspect_ratio, 0.1f, 100.0f);
-    auto eye = p.camera_distance * dir_from_lonlat(p.camera_longitude, p.camera_latitude);
-    auto view = Float4x4::CreateLookAt(eye, Float3::Zero, Float3::Up);
-    auto camera_transform = view * projection;
+    const auto eye = p.camera_distance * dir_from_lonlat(p.camera_longitude, p.camera_latitude);
+    const auto view = Float4x4::CreateLookAt(eye, Float3::Zero, Float3::Up);
+    const auto camera_transform = view * projection;
 
+    // Update light.
+    p.light_longitude += p.light_rotation_speed * desc.delta_time;
+    if (p.light_longitude > PI * 2.0f) {
+        p.light_longitude -= PI * 2.0f;
+    }
+    const auto light_direction = dir_from_lonlat(p.light_longitude, p.light_latitude);
+
+    // Update debug draw.
     _debug_draw.begin(desc.frame_index);
     _debug_draw.transform(camera_transform);
     _debug_draw.axes();
+    _debug_draw.line(Float3::Zero, light_direction, COLOR_YELLOW);
     _debug_draw.end();
 
+    // Update constants.
     *_constants.ptr() = Constants {
         .transform = camera_transform,
+        .light_direction = light_direction,
+        .light_ambient = p.light_ambient,
+        .output_mode = p.output_mode,
     };
 }
 

@@ -8,6 +8,8 @@ set(SOURCES
     formats/gltf.hpp
     formats/image.cpp
     formats/image.hpp
+    formats/mikktspace.cpp
+    formats/mikktspace.hpp
     formats/stb.cpp
     formats/tinyexr.cpp
     shaders/shaders.cpp
@@ -15,7 +17,11 @@ set(SOURCES
 )
 
 add_executable(${NAME} ${SOURCES})
-target_link_libraries(${NAME} PRIVATE fb_common)
+target_link_libraries(
+    ${NAME} PRIVATE
+    fb_common
+    ${MIKKTSPACE_LIBRARY}
+)
 target_precompile_headers(${NAME} PRIVATE pch.hpp)
 target_include_directories(
     ${NAME} PRIVATE

@@ -2,28 +2,21 @@
 #include <demos/core.hlsli>
 #include <demos/anim/anim.hlsli>
 
-struct Vertex {
-    float3 position;
-    float3 normal;
-    float2 texcoord;
-    uint4 joints;
-    float4 weights;
-};
-
 struct VertexOutput {
     float4 position: SV_Position;
     float3 normal: ATTRIBUTE0;
     float2 texcoord: ATTRIBUTE1;
+    float4 tangent: ATTRIBUTE2;
 };
 
 ConstantBuffer<Bindings> g_bindings: register(b0);
 
 VertexOutput draw_vs(FbVertexInput input) {
     ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
-    StructuredBuffer<Vertex> vertices = ResourceDescriptorHeap[g_bindings.vertices];
+    StructuredBuffer<FbSkinningVertex> vertices = ResourceDescriptorHeap[g_bindings.vertices];
     StructuredBuffer<float4x4> ibms = ResourceDescriptorHeap[g_bindings.joints_inverse_binds];
     StructuredBuffer<float4x4> gts = ResourceDescriptorHeap[g_bindings.joints_global_transforms];
-    Vertex vertex = vertices[input.vertex_id];
+    FbSkinningVertex vertex = vertices[input.vertex_id];
     uint j0 = vertex.joints[0];
     uint j1 = vertex.joints[1];
     uint j2 = vertex.joints[2];
@@ -39,6 +32,7 @@ VertexOutput draw_vs(FbVertexInput input) {
     output.position = mul(constants.transform, mul(transform, float4(vertex.position, 1.0f)));
     output.normal = vertex.normal;
     output.texcoord = vertex.texcoord;
+    output.tangent = vertex.tangent;
     return output;
 }
 

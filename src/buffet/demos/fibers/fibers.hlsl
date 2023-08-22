@@ -2,12 +2,6 @@
 #include <demos/core.hlsli>
 #include <demos/fibers/fibers.hlsli>
 
-struct Vertex {
-    float3 position;
-    float3 normal;
-    float2 texcoord;
-};
-
 ConstantBuffer<Bindings> g_bindings: register(b0);
 
 FB_ATTRIBUTE(numthreads, SIM_DISPATCH_SIZE, 1, 1)
@@ -140,10 +134,10 @@ struct LightVertexOutput {
 LightVertexOutput light_vs(FbVertexInput input) {
     ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
     StructuredBuffer<Light> lights = ResourceDescriptorHeap[g_bindings.lights];
-    StructuredBuffer<Vertex> vertices = ResourceDescriptorHeap[g_bindings.vertices];
+    StructuredBuffer<FbVertex> vertices = ResourceDescriptorHeap[g_bindings.vertices];
 
     Light light = lights[input.instance_id];
-    Vertex vertex = vertices[input.vertex_id];
+    FbVertex vertex = vertices[input.vertex_id];
 
     float3 position = vertex.position * constants.light_range + light.position;
 
@@ -171,9 +165,9 @@ struct PlaneVertexOutput {
 
 PlaneVertexOutput plane_vs(FbVertexInput input) {
     ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
-    StructuredBuffer<Vertex> vertices = ResourceDescriptorHeap[g_bindings.vertices];
+    StructuredBuffer<FbVertex> vertices = ResourceDescriptorHeap[g_bindings.vertices];
 
-    Vertex vertex = vertices[input.vertex_id];
+    FbVertex vertex = vertices[input.vertex_id];
 
     PlaneVertexOutput output;
     output.position = mul(constants.clip_from_world, float4(vertex.position, 1.0f));

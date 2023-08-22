@@ -2,6 +2,7 @@
 #include "shaders/shaders.hpp"
 #include "formats/gltf.hpp"
 #include "formats/exr.hpp"
+#include "formats/mikktspace.hpp"
 
 namespace fb {
 
@@ -52,7 +53,7 @@ static auto asset_tasks = std::to_array<AssetTask>({
     AssetTaskCopy {"imgui_font", "fonts/Roboto-Medium.ttf"},
     AssetTaskTexture {"heatmap_magma", "heatmaps/magma.png"},
     AssetTaskTexture {"heatmap_viridis", "heatmaps/viridis.png"},
-    AssetTaskGltfBasic {"stylized_crate", "models/stylized_crate.glb"},
+    AssetTaskGltfBasic {"sci_fi_case", "models/sci_fi_case.glb"},
     AssetTaskGltfBasic {"coconut_tree", "models/coconut_tree.glb"},
     AssetTaskGltfBasic {"sand_plane", "models/sand_plane.glb"},
     AssetTaskGltfAnimation {"raccoon", "models/low-poly_racoon_run_animation.glb"},
@@ -85,6 +86,24 @@ struct AssetCopy {
     std::string name;
     AssetSpan data;
 };
+
+struct AssetVertex {
+    Float3 position;
+    Float3 normal;
+    Float2 texcoord;
+    Float4 tangent;
+};
+
+struct AssetSkinningVertex {
+    Float3 position;
+    Float3 normal;
+    Float2 texcoord;
+    Float4 tangent;
+    Uint4 joint;
+    Float4 weight;
+};
+
+using AssetIndex = uint32_t;
 
 struct AssetMesh {
     std::string name;
@@ -260,13 +279,34 @@ auto build_assets(std::string_view assets_dir)
                     GltfModel model(path);
 
                     // Mesh.
-                    const auto vertices = model.vertices();
+                    const auto positions = model.vertex_positions();
+                    const auto normals = model.vertex_normals();
+                    const auto texcoords = model.vertex_texcoords();
                     const auto indices = model.indices();
+                    auto tangents = std::vector<Float4>(positions.size());
+                    generate_tangents(GenerateTangentsDesc {
+                        .positions = positions,
+                        .normals = normals,
+                        .texcoords = texcoords,
+                        .indices = indices,
+                        .tangents = std::span(tangents),
+                    });
+                    auto vertices = std::vector<AssetVertex>(positions.size());
+                    for (auto i = 0; i < vertices.size(); ++i) {
+                        vertices[i] = AssetVertex {
+                            .position = positions[i],
+                            .normal = normals[i],
+                            .texcoord = texcoords[i],
+                            .tangent = tangents[i],
+                        };
+                    }
+
                     const auto mesh_name = std::format("{}_mesh", task.name);
                     update_unique_names(unique_names, mesh_name);
                     assets.push_back(AssetMesh {
                         .name = mesh_name,
-                        .vertices = assets_writer.write("Vertex", vertices),
+                        .vertices =
+                            assets_writer.write("Vertex", std::span<const AssetVertex>(vertices)),
                         .indices = assets_writer.write("Index", indices),
                     });
 
@@ -291,8 +331,32 @@ auto build_assets(std::string_view assets_dir)
                     GltfModel model(path);
 
                     // Animated mesh.
-                    const auto skinning_vertices = model.skinning_vertices();
+                    const auto positions = model.vertex_positions();
+                    const auto normals = model.vertex_normals();
+                    const auto texcoords = model.vertex_texcoords();
+                    const auto joints = model.vertex_joints();
+                    const auto weights = model.vertex_weights();
                     const auto indices = model.indices();
+                    auto tangents = std::vector<Float4>(positions.size());
+                    generate_tangents(GenerateTangentsDesc {
+                        .positions = positions,
+                        .normals = normals,
+                        .texcoords = texcoords,
+                        .indices = indices,
+                        .tangents = std::span(tangents),
+                    });
+                    auto vertices = std::vector<AssetSkinningVertex>(positions.size());
+                    for (auto i = 0; i < vertices.size(); ++i) {
+                        vertices[i] = AssetSkinningVertex {
+                            .position = positions[i],
+                            .normal = normals[i],
+                            .texcoord = texcoords[i],
+                            .tangent = tangents[i],
+                            .joint = joints[i],
+                            .weight = weights[i],
+                        };
+                    }
+
                     const auto mesh_name = std::format("{}_animation_mesh", task.name);
                     update_unique_names(unique_names, mesh_name);
                     assets.push_back(AssetAnimationMesh {
@@ -300,8 +364,10 @@ auto build_assets(std::string_view assets_dir)
                         .node_count = model.node_count(),
                         .joint_count = model.joint_count(),
                         .duration = model.animation_duration(),
-                        .skinning_vertices =
-                            assets_writer.write("SkinningVertex", skinning_vertices),
+                        .skinning_vertices = assets_writer.write(
+                            "SkinningVertex",
+                            std::span<const AssetSkinningVertex>(vertices)
+                        ),
                         .indices = assets_writer.write("Index", indices),
                         .joint_nodes = assets_writer.write("uint32_t", model.joint_nodes()),
                         .joint_inverse_binds =
@@ -354,24 +420,41 @@ auto build_assets(std::string_view assets_dir)
                         task.inverted
                     );
 
-                    // Convert.
-                    struct AssetVertex {
-                        Float3 position;
-                        Float3 normal;
-                        Float2 texcoord;
-                    };
-                    using AssetIndex = uint32_t;
-                    std::vector<AssetVertex> vertices;
-                    std::vector<AssetIndex> indices;
-                    for (const auto& dxtk : dxtk_vertices) {
-                        vertices.push_back(AssetVertex {
-                            .position = dxtk.position,
-                            .normal = dxtk.normal,
-                            .texcoord = dxtk.textureCoordinate,
-                        });
+                    // Flatten vertex attributes.
+                    auto vertex_positions = std::vector<Float3>(dxtk_vertices.size());
+                    auto vertex_normals = std::vector<Float3>(dxtk_vertices.size());
+                    auto vertex_texcoords = std::vector<Float2>(dxtk_vertices.size());
+                    for (auto i = 0; i < dxtk_vertices.size(); ++i) {
+                        vertex_positions[i] = dxtk_vertices[i].position;
+                        vertex_normals[i] = dxtk_vertices[i].normal;
+                        vertex_texcoords[i] = dxtk_vertices[i].textureCoordinate;
                     }
-                    for (const auto dxtk : dxtk_indices) {
-                        indices.push_back((AssetIndex)dxtk);
+
+                    // Convert indices.
+                    auto indices = std::vector<uint32_t>(dxtk_indices.size());
+                    for (auto i = 0; i < dxtk_indices.size(); ++i) {
+                        indices[i] = (uint32_t)dxtk_indices[i];
+                    }
+
+                    // Compute tangents.
+                    auto vertex_tangents = std::vector<Float4>(dxtk_vertices.size());
+                    generate_tangents(GenerateTangentsDesc {
+                        .positions = vertex_positions,
+                        .normals = vertex_normals,
+                        .texcoords = vertex_texcoords,
+                        .indices = indices,
+                        .tangents = std::span(vertex_tangents),
+                    });
+
+                    // Convert.
+                    auto vertices = std::vector<AssetVertex>(dxtk_vertices.size());
+                    for (auto i = 0; i < vertices.size(); ++i) {
+                        vertices[i] = AssetVertex {
+                            .position = vertex_positions[i],
+                            .normal = vertex_normals[i],
+                            .texcoord = vertex_texcoords[i],
+                            .tangent = vertex_tangents[i],
+                        };
                     }
 
                     // Mesh.
@@ -542,12 +625,14 @@ int main() {
             Float3 position;
             Float3 normal;
             Float2 texcoord;
+            Float4 tangent;
         };
 
         struct SkinningVertex {
             Float3 position;
             Float3 normal;
             Float2 texcoord;
+            Float4 tangent;
             Uint4 joints;
             Float4 weights;
         };

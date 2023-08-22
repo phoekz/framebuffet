@@ -45,6 +45,26 @@ struct FbComputeInput {
 };
 
 //
+// Mesh.
+//
+
+struct FbVertex {
+    float3 position;
+    float3 normal;
+    float2 texcoord;
+    float4 tangent;
+};
+
+struct FbSkinningVertex {
+    float3 position;
+    float3 normal;
+    float2 texcoord;
+    float4 tangent;
+    uint4 joints;
+    float4 weights;
+};
+
+//
 // Utilities.
 //
 

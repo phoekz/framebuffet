@@ -9,11 +9,7 @@ GltfModel::GltfModel(std::string_view gltf_path) {
     FB_ASSERT(cgltf_parse_file(&options, gltf_path.data(), &data) == cgltf_result_success);
     FB_ASSERT(cgltf_load_buffers(&options, data, gltf_path.data()) == cgltf_result_success);
     FB_ASSERT(cgltf_validate(data) == cgltf_result_success);
-    FB_ASSERT(data->meshes_count == 1);
-    const auto& mesh = data->meshes[0];
-    FB_ASSERT(mesh.primitives_count == 1);
-    const auto& primitive = mesh.primitives[0];
-    FB_ASSERT(primitive.type == cgltf_primitive_type_triangles);
+    FB_ASSERT(data->materials_count == 1);
 
     // Ensure parent are initialized before children when iterating in order.
     {
@@ -29,59 +25,82 @@ GltfModel::GltfModel(std::string_view gltf_path) {
         }
     }
 
-    // Read geometries.
-    const cgltf_accessor* position_accessor = nullptr;
-    const cgltf_accessor* normal_accessor = nullptr;
-    const cgltf_accessor* texcoord_accessor = nullptr;
-    const cgltf_accessor* index_accessor = primitive.indices;
-    for (size_t i = 0; i < primitive.attributes_count; i++) {
-        const auto& attribute = primitive.attributes[i];
-        if (attribute.type == cgltf_attribute_type_position) {
-            position_accessor = attribute.data;
-        } else if (attribute.type == cgltf_attribute_type_normal) {
-            normal_accessor = attribute.data;
-        } else if (attribute.type == cgltf_attribute_type_texcoord) {
-            texcoord_accessor = attribute.data;
+    // Read and merge meshes.
+    for (const auto& mesh : std::span(data->meshes, data->meshes_count)) {
+        FB_ASSERT(mesh.primitives_count == 1);
+        const auto& primitive = mesh.primitives[0];
+        FB_ASSERT(primitive.type == cgltf_primitive_type_triangles);
+        const cgltf_accessor* position_accessor = nullptr;
+        const cgltf_accessor* normal_accessor = nullptr;
+        const cgltf_accessor* texcoord_accessor = nullptr;
+        const cgltf_accessor* index_accessor = primitive.indices;
+        for (size_t i = 0; i < primitive.attributes_count; i++) {
+            const auto& attribute = primitive.attributes[i];
+            if (attribute.type == cgltf_attribute_type_position) {
+                position_accessor = attribute.data;
+            } else if (attribute.type == cgltf_attribute_type_normal) {
+                normal_accessor = attribute.data;
+            } else if (attribute.type == cgltf_attribute_type_texcoord) {
+                texcoord_accessor = attribute.data;
+            }
         }
-    }
-    FB_ASSERT(position_accessor != nullptr);
-    FB_ASSERT(normal_accessor != nullptr);
-    FB_ASSERT(texcoord_accessor != nullptr);
-    FB_ASSERT(index_accessor != nullptr);
-    FB_ASSERT(position_accessor->type == cgltf_type_vec3);
-    FB_ASSERT(normal_accessor->type == cgltf_type_vec3);
-    FB_ASSERT(texcoord_accessor->type == cgltf_type_vec2);
-    FB_ASSERT(
-        index_accessor->component_type == cgltf_component_type_r_16u
-        || index_accessor->component_type == cgltf_component_type_r_32u
-    );
-    const auto vertex_count = position_accessor->count;
-    FB_ASSERT(vertex_count > 0);
-    FB_ASSERT(normal_accessor->count == vertex_count);
-    FB_ASSERT(texcoord_accessor->count == vertex_count);
-    const auto index_count = index_accessor->count;
-    FB_ASSERT(index_count > 0);
-    FB_ASSERT(index_count % 3 == 0);
-    _vertices.resize(vertex_count);
-    _indices.resize(index_count);
-    for (size_t i = 0; i < vertex_count; i++) {
-        auto& v = _vertices[i];
-        FB_ASSERT(cgltf_accessor_read_float(position_accessor, i, (float*)&v.position, 3));
-        FB_ASSERT(cgltf_accessor_read_float(normal_accessor, i, (float*)&v.normal, 3));
-        FB_ASSERT(cgltf_accessor_read_float(texcoord_accessor, i, (float*)&v.texcoord, 2));
-    }
-    for (size_t i = 0; i < index_count; i += 3) {
-        FB_ASSERT(cgltf_accessor_read_uint(index_accessor, i + 0, &_indices[i + 0], 1));
-        FB_ASSERT(cgltf_accessor_read_uint(index_accessor, i + 1, &_indices[i + 1], 1));
-        FB_ASSERT(cgltf_accessor_read_uint(index_accessor, i + 2, &_indices[i + 2], 1));
-        std::swap(_indices[i + 0], _indices[i + 2]);
+        FB_ASSERT(position_accessor != nullptr);
+        FB_ASSERT(normal_accessor != nullptr);
+        FB_ASSERT(texcoord_accessor != nullptr);
+        FB_ASSERT(index_accessor != nullptr);
+        FB_ASSERT(position_accessor->type == cgltf_type_vec3);
+        FB_ASSERT(normal_accessor->type == cgltf_type_vec3);
+        FB_ASSERT(texcoord_accessor->type == cgltf_type_vec2);
+        FB_ASSERT(
+            index_accessor->component_type == cgltf_component_type_r_16u
+            || index_accessor->component_type == cgltf_component_type_r_32u
+        );
+        const auto vertex_count = position_accessor->count;
+        FB_ASSERT(vertex_count > 0);
+        FB_ASSERT(normal_accessor->count == vertex_count);
+        FB_ASSERT(texcoord_accessor->count == vertex_count);
+        const auto index_count = index_accessor->count;
+        FB_ASSERT(index_count > 0);
+        FB_ASSERT(index_count % 3 == 0);
+
+        const auto vertex_offset = _vertex_positions.size();
+        const auto index_offset = _indices.size();
+        _vertex_positions.resize(vertex_offset + vertex_count);
+        _vertex_normals.resize(vertex_offset + vertex_count);
+        _vertex_texcoords.resize(vertex_offset + vertex_count);
+        _indices.resize(index_offset + index_count);
+        const auto vertex_positions =
+            std::span(_vertex_positions).subspan(vertex_offset, vertex_count);
+        const auto vertex_normals = std::span(_vertex_normals).subspan(vertex_offset, vertex_count);
+        const auto vertex_texcoords =
+            std::span(_vertex_texcoords).subspan(vertex_offset, vertex_count);
+        const auto indices = std::span(_indices).subspan(index_offset, index_count);
+        for (size_t i = 0; i < vertex_count; i++) {
+            auto& vp = vertex_positions[i];
+            auto& vn = vertex_normals[i];
+            auto& vt = vertex_texcoords[i];
+            FB_ASSERT(cgltf_accessor_read_float(position_accessor, i, (float*)&vp, 3));
+            FB_ASSERT(cgltf_accessor_read_float(normal_accessor, i, (float*)&vn, 3));
+            FB_ASSERT(cgltf_accessor_read_float(texcoord_accessor, i, (float*)&vt, 2));
+        }
+        for (size_t i = 0; i < index_count; i += 3) {
+            auto& i0 = indices[i + 0];
+            auto& i1 = indices[i + 1];
+            auto& i2 = indices[i + 2];
+            FB_ASSERT(cgltf_accessor_read_uint(index_accessor, i + 0, &i0, 1));
+            FB_ASSERT(cgltf_accessor_read_uint(index_accessor, i + 1, &i1, 1));
+            FB_ASSERT(cgltf_accessor_read_uint(index_accessor, i + 2, &i2, 1));
+            i0 += (uint32_t)vertex_offset;
+            i1 += (uint32_t)vertex_offset;
+            i2 += (uint32_t)vertex_offset;
+            std::swap(i0, i2);
+        }
     }
 
     // Read material.
-    const auto* material = primitive.material;
-    FB_ASSERT(material != nullptr);
-    FB_ASSERT(material->has_pbr_metallic_roughness);
-    const auto& pbr = material->pbr_metallic_roughness;
+    const auto& material = data->materials[0];
+    FB_ASSERT(material.has_pbr_metallic_roughness);
+    const auto& pbr = material.pbr_metallic_roughness;
     FB_ASSERT(pbr.base_color_texture.texture != nullptr);
     FB_ASSERT(pbr.base_color_texture.texture->image != nullptr);
     {
@@ -93,6 +112,14 @@ GltfModel::GltfModel(std::string_view gltf_path) {
     }
 
     if (data->skins_count > 0) {
+        // Get the mesh.
+        FB_ASSERT(data->meshes_count == 1);
+        const auto& mesh = data->meshes[0];
+        FB_ASSERT(mesh.primitives_count == 1);
+        const auto& primitive = mesh.primitives[0];
+        FB_ASSERT(primitive.type == cgltf_primitive_type_triangles);
+        const auto vertex_count = primitive.attributes[0].data->count;
+
         // Find accessors.
         const cgltf_accessor* joints_accessor = nullptr;
         const cgltf_accessor* weights_accessor = nullptr;
@@ -174,15 +201,13 @@ GltfModel::GltfModel(std::string_view gltf_path) {
         }
 
         // Read skinning vertex data.
-        auto skinning_vertices = std::vector<GltfSkinningVertex>(vertex_count);
+        _vertex_joints.resize(vertex_count);
+        _vertex_weights.resize(vertex_count);
         for (size_t i = 0; i < vertex_count; i++) {
-            auto* joints = (cgltf_uint*)&skinning_vertices[i].joints;
-            auto* weights = (cgltf_float*)&skinning_vertices[i].weights;
-            FB_ASSERT(cgltf_accessor_read_uint(joints_accessor, i, joints, 4));
-            FB_ASSERT(cgltf_accessor_read_float(weights_accessor, i, weights, 4));
-            skinning_vertices[i].position = _vertices[i].position;
-            skinning_vertices[i].normal = _vertices[i].normal;
-            skinning_vertices[i].texcoord = _vertices[i].texcoord;
+            auto& vj = _vertex_joints[i];
+            auto& vw = _vertex_weights[i];
+            FB_ASSERT(cgltf_accessor_read_uint(joints_accessor, i, (uint32_t*)&vj, 4));
+            FB_ASSERT(cgltf_accessor_read_float(weights_accessor, i, (float*)&vw, 4));
         }
 
         // Read additional node data.
@@ -289,7 +314,6 @@ GltfModel::GltfModel(std::string_view gltf_path) {
         const auto animation_duration = animation.samplers[0].input->max[0];
 
         // Save.
-        std::swap(_skinning_vertices, skinning_vertices);
         std::swap(_joint_nodes, joint_nodes);
         std::swap(_joint_inverse_binds, joint_inverse_binds);
         std::swap(_node_parents, node_parents);
@@ -302,6 +326,14 @@ GltfModel::GltfModel(std::string_view gltf_path) {
         std::swap(_node_channels_values_r, node_channels_values_r);
         std::swap(_node_channels_values_s, node_channels_values_s);
         _animation_duration = animation_duration;
+    }
+
+    // Validate.
+    FB_ASSERT(_vertex_positions.size() == _vertex_normals.size());
+    FB_ASSERT(_vertex_positions.size() == _vertex_texcoords.size());
+    if (_vertex_joints.size() > 0) {
+        FB_ASSERT(_vertex_positions.size() == _vertex_joints.size());
+        FB_ASSERT(_vertex_positions.size() == _vertex_weights.size());
     }
 
     // Cleanup.

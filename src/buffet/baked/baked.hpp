@@ -12,12 +12,14 @@ struct Vertex {
     Float3 position;
     Float3 normal;
     Float2 texcoord;
+    Float4 tangent;
 };
 
 struct SkinningVertex {
     Float3 position;
     Float3 normal;
     Float2 texcoord;
+    Float4 tangent;
     Uint4 joints;
     Float4 weights;
 };
@@ -93,8 +95,8 @@ public:
     auto imgui_font() const -> Copy;
     auto heatmap_magma_texture() const -> Texture;
     auto heatmap_viridis_texture() const -> Texture;
-    auto stylized_crate_mesh() const -> Mesh;
-    auto stylized_crate_texture() const -> Texture;
+    auto sci_fi_case_mesh() const -> Mesh;
+    auto sci_fi_case_texture() const -> Texture;
     auto coconut_tree_mesh() const -> Mesh;
     auto coconut_tree_texture() const -> Texture;
     auto sand_plane_mesh() const -> Mesh;
