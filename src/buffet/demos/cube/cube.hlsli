@@ -14,7 +14,9 @@ struct Bindings {
 
 enum class OutputMode : uint {
     Shaded = 0,
+    ShadingNormal,
     Lighting,
+    VertexLighting,
     BaseColorTexture,
     NormalTexture,
     Metallic,

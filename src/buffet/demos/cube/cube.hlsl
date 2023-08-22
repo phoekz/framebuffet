@@ -37,12 +37,16 @@ FbPixelOutput1 draw_ps(VertexOutput input) {
     SamplerState linear_clamp = SamplerDescriptorHeap[(uint)GpuSamplerType::LinearClamp];
 
     const float3 base_color = base_color_texture.Sample(linear_clamp, input.texcoord).rgb;
-    const float3 normal =
+    const float3 normal_sample =
         normalize(normal_texture.Sample(linear_clamp, input.texcoord).rgb * 2.0f - 1.0f);
     const float metallic = metallic_roughness_texture.Sample(linear_clamp, input.texcoord).b;
     const float roughness = metallic_roughness_texture.Sample(linear_clamp, input.texcoord).g;
-    const float n_dot_l = saturate(dot(input.normal, constants.light_direction));
-    const float lighting = constants.light_ambient + n_dot_l * (1.0f - constants.light_ambient);
+
+    const float3x3 tbn_basis = float3x3(input.tangent.xyz, input.bitangent, input.normal);
+    const float3 shading_normal = mul(normal_sample, tbn_basis);
+
+    const float ndotl = saturate(dot(shading_normal, constants.light_direction));
+    const float lighting = constants.light_ambient + ndotl * (1.0f - constants.light_ambient);
 
     float3 final_color;
     switch (constants.output_mode) {
@@ -50,8 +54,19 @@ FbPixelOutput1 draw_ps(VertexOutput input) {
             final_color = base_color * lighting;
             break;
         }
+        case OutputMode::ShadingNormal: {
+            final_color = 0.5f * (shading_normal + 1.0f);
+            break;
+        }
         case OutputMode::Lighting: {
             final_color = lighting.xxx;
+            break;
+        }
+        case OutputMode::VertexLighting: {
+            const float vertex_ndotl = saturate(dot(input.normal, constants.light_direction));
+            const float vertex_lighting =
+                constants.light_ambient + vertex_ndotl * (1.0f - constants.light_ambient);
+            final_color = vertex_lighting.xxx;
             break;
         }
         case OutputMode::BaseColorTexture: {
@@ -59,7 +74,7 @@ FbPixelOutput1 draw_ps(VertexOutput input) {
             break;
         }
         case OutputMode::NormalTexture: {
-            final_color = 0.5f * (normal + 1.0f);
+            final_color = 0.5f * (normal_sample + 1.0f);
             break;
         }
         case OutputMode::Metallic: {

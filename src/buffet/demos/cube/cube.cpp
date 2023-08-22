@@ -75,7 +75,9 @@ auto CubeDemo::gui(const GuiDesc&) -> void {
         "Output Mode",
         (int*)&p.output_mode,
         "Shaded\0"
+        "ShadingNormal\0"
         "Lighting\0"
+        "VertexLighting\0"
         "BaseColorTexture\0"
         "NormalTexture\0"
         "Metallic\0"
