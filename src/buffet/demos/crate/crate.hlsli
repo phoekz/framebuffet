@@ -10,6 +10,7 @@ struct Bindings {
     uint base_color_texture;
     uint normal_texture;
     uint metallic_roughness_texture;
+    uint sampler;
 };
 
 enum class OutputMode : uint {

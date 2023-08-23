@@ -54,6 +54,7 @@ static auto asset_tasks = std::to_array<AssetTask>({
     AssetTaskTexture {"heatmap_magma", "heatmaps/magma.png"},
     AssetTaskTexture {"heatmap_viridis", "heatmaps/viridis.png"},
     AssetTaskGltfBasic {"sci_fi_case", "models/sci_fi_case.glb"},
+    AssetTaskGltfBasic {"metal_plane", "models/metal_plane.glb"},
     AssetTaskGltfBasic {"coconut_tree", "models/coconut_tree.glb"},
     AssetTaskGltfBasic {"sand_plane", "models/sand_plane.glb"},
     AssetTaskGltfAnimation {"raccoon", "models/low-poly_racoon_run_animation.glb"},

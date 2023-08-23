@@ -1,4 +1,5 @@
 #include "crate.hpp"
+#include <gpu/samplers.hlsli>
 
 namespace fb::demos::crate {
 
@@ -27,41 +28,54 @@ CrateDemo::CrateDemo(GpuDevice& device, const baked::Assets& assets, const baked
     // Constants.
     _constants.create(device, 1, dx_name(NAME, "Constants"));
 
-    // Geometry.
-    const auto mesh = assets.sci_fi_case_mesh();
-    _vertices.create_with_data(device, mesh.vertices, dx_name(NAME, "Vertices"));
-    _indices.create_with_data(device, mesh.indices, dx_name(NAME, "Indices"));
+    // Models.
+    for (auto& [model_name, model, mesh, base_color, normal, metallic_roughness] :
+         {std::make_tuple(
+              "Sci-Fi Crate",
+              std::ref(_sci_fi_crate),
+              assets.sci_fi_case_mesh(),
+              assets.sci_fi_case_base_color_texture(),
+              assets.sci_fi_case_normal_texture(),
+              assets.sci_fi_case_metallic_roughness_texture()
+          ),
+          std::make_tuple(
+              "Metal Plane",
+              std::ref(_metal_plane),
+              assets.metal_plane_mesh(),
+              assets.metal_plane_base_color_texture(),
+              assets.metal_plane_normal_texture(),
+              assets.metal_plane_metallic_roughness_texture()
+          )}) {
+        // Geometry.
+        model.vertices
+            .create_with_data(device, mesh.vertices, dx_name(NAME, model_name, "Vertices"));
+        model.indices.create_with_data(device, mesh.indices, dx_name(NAME, model_name, "Indices"));
 
-    // Textures.
-    {
-        for (auto& [texture, gpu_texture, name] : std::to_array({
+        // Textures.
+        for (auto& [texture_name, dst_texture, src_texture] : {
+                 std::make_tuple("Base Color", std::ref(model.base_color), base_color),
+                 std::make_tuple("Normal", std::ref(model.normal), normal),
                  std::make_tuple(
-                     assets.sci_fi_case_base_color_texture(),
-                     &_base_color_texture,
-                     "Base Color"
+                     "Metallic Roughness",
+                     std::ref(model.metallic_roughness),
+                     metallic_roughness
                  ),
-                 std::make_tuple(assets.sci_fi_case_normal_texture(), &_normal_texture, "Normal"),
-                 std::make_tuple(
-                     assets.sci_fi_case_metallic_roughness_texture(),
-                     &_metallic_roughness_texture,
-                     "Metallic Roughness"
-                 ),
-             })) {
-            gpu_texture->create(
+             }) {
+            dst_texture.create(
                 device,
                 GpuTextureDesc {
-                    .format = texture.format,
-                    .width = texture.width,
-                    .height = texture.height,
+                    .format = src_texture.format,
+                    .width = src_texture.width,
+                    .height = src_texture.height,
                 },
-                dx_name(NAME, name)
+                dx_name(NAME, model_name, texture_name)
             );
             device.transfer().resource(
-                gpu_texture->resource(),
+                dst_texture.resource(),
                 D3D12_SUBRESOURCE_DATA {
-                    .pData = texture.data.data(),
-                    .RowPitch = texture.row_pitch,
-                    .SlicePitch = texture.slice_pitch},
+                    .pData = src_texture.data.data(),
+                    .RowPitch = src_texture.row_pitch,
+                    .SlicePitch = src_texture.slice_pitch},
                 D3D12_RESOURCE_STATE_COMMON,
                 D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE
             );
@@ -126,7 +140,7 @@ auto CrateDemo::update(const UpdateDesc& desc) -> void {
     // Update debug draw.
     _debug_draw.begin(desc.frame_index);
     _debug_draw.transform(camera_transform);
-    _debug_draw.axes();
+    _debug_draw.scaled_axes(4.0f);
     _debug_draw.line(Float3::Zero, light_direction, COLOR_YELLOW);
     _debug_draw.end();
 
@@ -143,17 +157,24 @@ auto CrateDemo::render(GpuDevice& device, GpuCommandList& cmd) -> void {
     cmd.set_graphics();
     _render_targets.begin(device, cmd);
     _debug_draw.render(device, cmd);
-    cmd.set_graphics_constants(Bindings {
-        .constants = _constants.cbv_descriptor().index(),
-        .vertices = _vertices.srv_descriptor().index(),
-        .base_color_texture = _base_color_texture.srv_descriptor().index(),
-        .normal_texture = _normal_texture.srv_descriptor().index(),
-        .metallic_roughness_texture = _metallic_roughness_texture.srv_descriptor().index(),
-    });
+
     cmd.set_pipeline(_pipeline);
     cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-    cmd.set_index_buffer(_indices.index_buffer_view());
-    cmd.draw_indexed_instanced(_indices.element_size(), 1, 0, 0, 0);
+    for (const auto& [model, sampler] :
+         {std::make_tuple(std::cref(_sci_fi_crate), GpuSamplerType::LinearClamp),
+          std::make_tuple(std::cref(_metal_plane), GpuSamplerType::LinearWrap)}) {
+        cmd.set_graphics_constants(Bindings {
+            .constants = _constants.cbv_descriptor().index(),
+            .vertices = model.vertices.srv_descriptor().index(),
+            .base_color_texture = model.base_color.srv_descriptor().index(),
+            .normal_texture = model.normal.srv_descriptor().index(),
+            .metallic_roughness_texture = model.metallic_roughness.srv_descriptor().index(),
+            .sampler = (uint32_t)sampler,
+        });
+        cmd.set_index_buffer(model.indices.index_buffer_view());
+        cmd.draw_indexed_instanced(model.indices.element_size(), 1, 0, 0, 0);
+    }
+
     _render_targets.end(device, cmd);
 }
 

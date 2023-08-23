@@ -99,6 +99,10 @@ public:
     auto sci_fi_case_base_color_texture() const -> Texture;
     auto sci_fi_case_normal_texture() const -> Texture;
     auto sci_fi_case_metallic_roughness_texture() const -> Texture;
+    auto metal_plane_mesh() const -> Mesh;
+    auto metal_plane_base_color_texture() const -> Texture;
+    auto metal_plane_normal_texture() const -> Texture;
+    auto metal_plane_metallic_roughness_texture() const -> Texture;
     auto coconut_tree_mesh() const -> Mesh;
     auto coconut_tree_base_color_texture() const -> Texture;
     auto sand_plane_mesh() const -> Mesh;

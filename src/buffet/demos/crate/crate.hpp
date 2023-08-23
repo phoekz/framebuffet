@@ -18,6 +18,14 @@ struct Parameters {
     OutputMode output_mode = OutputMode::Shaded;
 };
 
+struct Model {
+    GpuBufferHostSrv<baked::Vertex> vertices;
+    GpuBufferHostIndex<baked::Index> indices;
+    GpuTextureSrv base_color;
+    GpuTextureSrv normal;
+    GpuTextureSrv metallic_roughness;
+};
+
 class CrateDemo {
 public:
     static constexpr std::string_view NAME = "Crate"sv;
@@ -40,11 +48,8 @@ private:
     DebugDraw _debug_draw;
     GpuPipeline _pipeline;
     GpuBufferHostCbv<Constants> _constants;
-    GpuBufferHostSrv<baked::Vertex> _vertices;
-    GpuBufferHostIndex<baked::Index> _indices;
-    GpuTextureSrv _base_color_texture;
-    GpuTextureSrv _normal_texture;
-    GpuTextureSrv _metallic_roughness_texture;
+    Model _sci_fi_crate;
+    Model _metal_plane;
 };
 
 } // namespace fb::demos::crate

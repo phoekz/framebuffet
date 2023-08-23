@@ -34,13 +34,13 @@ FbPixelOutput1 draw_ps(VertexOutput input) {
     Texture2D<float4> normal_texture = ResourceDescriptorHeap[g_bindings.normal_texture];
     Texture2D<float4> metallic_roughness_texture =
         ResourceDescriptorHeap[g_bindings.metallic_roughness_texture];
-    SamplerState linear_clamp = SamplerDescriptorHeap[(uint)GpuSamplerType::LinearClamp];
+    SamplerState sampler = SamplerDescriptorHeap[g_bindings.sampler];
 
-    const float3 base_color = base_color_texture.Sample(linear_clamp, input.texcoord).rgb;
+    const float3 base_color = base_color_texture.Sample(sampler, input.texcoord).rgb;
     const float3 normal_sample =
-        normalize(normal_texture.Sample(linear_clamp, input.texcoord).rgb * 2.0f - 1.0f);
-    const float metallic = metallic_roughness_texture.Sample(linear_clamp, input.texcoord).b;
-    const float roughness = metallic_roughness_texture.Sample(linear_clamp, input.texcoord).g;
+        normalize(normal_texture.Sample(sampler, input.texcoord).rgb * 2.0f - 1.0f);
+    const float metallic = metallic_roughness_texture.Sample(sampler, input.texcoord).b;
+    const float roughness = metallic_roughness_texture.Sample(sampler, input.texcoord).g;
 
     const float3x3 tbn_basis = float3x3(input.tangent.xyz, input.bitangent, input.normal);
     const float3 shading_normal = mul(normal_sample, tbn_basis);
