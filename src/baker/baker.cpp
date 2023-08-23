@@ -25,12 +25,7 @@ struct AssetTaskCubeTexture {
     std::array<std::string_view, 6> paths;
 };
 
-struct AssetTaskGltfBasic {
-    std::string_view name;
-    std::string_view path;
-};
-
-struct AssetTaskGltfAnimation {
+struct AssetTaskGltf {
     std::string_view name;
     std::string_view path;
 };
@@ -45,19 +40,18 @@ using AssetTask = std::variant<
     AssetTaskCopy,
     AssetTaskTexture,
     AssetTaskCubeTexture,
-    AssetTaskGltfBasic,
-    AssetTaskGltfAnimation,
+    AssetTaskGltf,
     AssetTaskProceduralCube>;
 
 static auto asset_tasks = std::to_array<AssetTask>({
     AssetTaskCopy {"imgui_font", "fonts/Roboto-Medium.ttf"},
     AssetTaskTexture {"heatmap_magma", "heatmaps/magma.png"},
     AssetTaskTexture {"heatmap_viridis", "heatmaps/viridis.png"},
-    AssetTaskGltfBasic {"sci_fi_case", "models/sci_fi_case.glb"},
-    AssetTaskGltfBasic {"metal_plane", "models/metal_plane.glb"},
-    AssetTaskGltfBasic {"coconut_tree", "models/coconut_tree.glb"},
-    AssetTaskGltfBasic {"sand_plane", "models/sand_plane.glb"},
-    AssetTaskGltfAnimation {"raccoon", "models/low-poly_racoon_run_animation.glb"},
+    AssetTaskGltf {"sci_fi_case", "models/sci_fi_case.glb"},
+    AssetTaskGltf {"metal_plane", "models/metal_plane.glb"},
+    AssetTaskGltf {"coconut_tree", "models/coconut_tree.glb"},
+    AssetTaskGltf {"sand_plane", "models/sand_plane.glb"},
+    AssetTaskGltf {"raccoon", "models/low-poly_racoon_run_animation.glb"},
     AssetTaskProceduralCube {"light_bounds", 2.0f, false},
     AssetTaskProceduralCube {"skybox", 2.0f, true},
     AssetTaskCubeTexture {
@@ -274,97 +268,10 @@ auto build_assets(std::string_view assets_dir)
                         .datas = datas,
                     });
                 },
-                [&](const AssetTaskGltfBasic& task) {
+                [&](const AssetTaskGltf& task) {
                     // Load GLTF.
                     const auto path = std::format("{}/{}", assets_dir, task.path);
                     GltfModel model(path);
-
-                    // Mesh.
-                    const auto positions = model.vertex_positions();
-                    const auto normals = model.vertex_normals();
-                    const auto texcoords = model.vertex_texcoords();
-                    const auto indices = model.indices();
-                    auto tangents = std::vector<Float4>(positions.size());
-                    generate_tangents(GenerateTangentsDesc {
-                        .positions = positions,
-                        .normals = normals,
-                        .texcoords = texcoords,
-                        .indices = indices,
-                        .tangents = std::span(tangents),
-                    });
-                    auto vertices = std::vector<AssetVertex>(positions.size());
-                    for (auto i = 0; i < vertices.size(); ++i) {
-                        vertices[i] = AssetVertex {
-                            .position = positions[i],
-                            .normal = normals[i],
-                            .texcoord = texcoords[i],
-                            .tangent = tangents[i],
-                        };
-                    }
-
-                    const auto mesh_name = std::format("{}_mesh", task.name);
-                    update_unique_names(unique_names, mesh_name);
-                    assets.push_back(AssetMesh {
-                        .name = mesh_name,
-                        .vertices =
-                            assets_writer.write("Vertex", std::span<const AssetVertex>(vertices)),
-                        .indices = assets_writer.write("Index", indices),
-                    });
-
-                    // Textures.
-                    {
-                        const auto texture = model.base_color_texture();
-                        const auto texture_name = std::format("{}_base_color_texture", task.name);
-                        update_unique_names(unique_names, texture_name);
-                        assets.push_back(AssetTexture {
-                            .name = texture_name,
-                            .format = GLTF_BASE_COLOR_TEXTURE_FORMAT,
-                            .width = texture.width(),
-                            .height = texture.height(),
-                            .channels = texture.channels(),
-                            .row_pitch = texture.row_pitch(),
-                            .slice_pitch = texture.slice_pitch(),
-                            .data = assets_writer.write("std::byte", texture.data()),
-                        });
-                    }
-                    if (model.normal_texture().has_value()) {
-                        const auto texture = model.normal_texture().value().get();
-                        const auto texture_name = std::format("{}_normal_texture", task.name);
-                        update_unique_names(unique_names, texture_name);
-                        assets.push_back(AssetTexture {
-                            .name = texture_name,
-                            .format = GLTF_NORMAL_TEXTURE_FORMAT,
-                            .width = texture.width(),
-                            .height = texture.height(),
-                            .channels = texture.channels(),
-                            .row_pitch = texture.row_pitch(),
-                            .slice_pitch = texture.slice_pitch(),
-                            .data = assets_writer.write("std::byte", texture.data()),
-                        });
-                    }
-                    if (model.metallic_roughness_texture().has_value()) {
-                        const auto texture = model.metallic_roughness_texture().value().get();
-                        const auto texture_name =
-                            std::format("{}_metallic_roughness_texture", task.name);
-                        update_unique_names(unique_names, texture_name);
-                        assets.push_back(AssetTexture {
-                            .name = texture_name,
-                            .format = GLTF_METALLIC_ROUGHNESS_TEXTURE_FORMAT,
-                            .width = texture.width(),
-                            .height = texture.height(),
-                            .channels = texture.channels(),
-                            .row_pitch = texture.row_pitch(),
-                            .slice_pitch = texture.slice_pitch(),
-                            .data = assets_writer.write("std::byte", texture.data()),
-                        });
-                    }
-                },
-                [&](const AssetTaskGltfAnimation& task) {
-                    // Load GLTF.
-                    const auto path = std::format("{}/{}", assets_dir, task.path);
-                    GltfModel model(path);
-
-                    // Animated mesh.
                     const auto positions = model.vertex_positions();
                     const auto normals = model.vertex_normals();
                     const auto texcoords = model.vertex_texcoords();
@@ -379,50 +286,76 @@ auto build_assets(std::string_view assets_dir)
                         .indices = indices,
                         .tangents = std::span(tangents),
                     });
-                    auto vertices = std::vector<AssetSkinningVertex>(positions.size());
-                    for (auto i = 0; i < vertices.size(); ++i) {
-                        vertices[i] = AssetSkinningVertex {
-                            .position = positions[i],
-                            .normal = normals[i],
-                            .texcoord = texcoords[i],
-                            .tangent = tangents[i],
-                            .joint = joints[i],
-                            .weight = weights[i],
-                        };
-                    }
 
-                    const auto mesh_name = std::format("{}_animation_mesh", task.name);
-                    update_unique_names(unique_names, mesh_name);
-                    assets.push_back(AssetAnimationMesh {
-                        .name = mesh_name,
-                        .node_count = model.node_count(),
-                        .joint_count = model.joint_count(),
-                        .duration = model.animation_duration(),
-                        .skinning_vertices = assets_writer.write(
-                            "SkinningVertex",
-                            std::span<const AssetSkinningVertex>(vertices)
-                        ),
-                        .indices = assets_writer.write("Index", indices),
-                        .joint_nodes = assets_writer.write("uint32_t", model.joint_nodes()),
-                        .joint_inverse_binds =
-                            assets_writer.write("Float4x4", model.joint_inverse_binds()),
-                        .node_parents = assets_writer.write("uint32_t", model.node_parents()),
-                        .node_transforms = assets_writer.write("Float4x4", model.node_transforms()),
-                        .node_channels =
-                            assets_writer.write("AnimationChannel", model.node_channels()),
-                        .node_channels_times_t =
-                            assets_writer.write("float", model.node_channels_times_t()),
-                        .node_channels_times_r =
-                            assets_writer.write("float", model.node_channels_times_r()),
-                        .node_channels_times_s =
-                            assets_writer.write("float", model.node_channels_times_s()),
-                        .node_channels_values_t =
-                            assets_writer.write("Float3", model.node_channels_values_t()),
-                        .node_channels_values_r =
-                            assets_writer.write("Quaternion", model.node_channels_values_r()),
-                        .node_channels_values_s =
-                            assets_writer.write("Float3", model.node_channels_values_s()),
-                    });
+                    // Animated vs non-animated.
+                    if (joints.empty()) {
+                        auto vertices = std::vector<AssetVertex>(positions.size());
+                        for (auto i = 0; i < vertices.size(); ++i) {
+                            vertices[i] = AssetVertex {
+                                .position = positions[i],
+                                .normal = normals[i],
+                                .texcoord = texcoords[i],
+                                .tangent = tangents[i],
+                            };
+                        }
+
+                        const auto mesh_name = std::format("{}_mesh", task.name);
+                        update_unique_names(unique_names, mesh_name);
+                        assets.push_back(AssetMesh {
+                            .name = mesh_name,
+                            .vertices = assets_writer.write(
+                                "Vertex",
+                                std::span<const AssetVertex>(vertices)
+                            ),
+                            .indices = assets_writer.write("Index", indices),
+                        });
+                    } else {
+                        auto vertices = std::vector<AssetSkinningVertex>(positions.size());
+                        for (auto i = 0; i < vertices.size(); ++i) {
+                            vertices[i] = AssetSkinningVertex {
+                                .position = positions[i],
+                                .normal = normals[i],
+                                .texcoord = texcoords[i],
+                                .tangent = tangents[i],
+                                .joint = joints[i],
+                                .weight = weights[i],
+                            };
+                        }
+
+                        const auto mesh_name = std::format("{}_animation_mesh", task.name);
+                        update_unique_names(unique_names, mesh_name);
+                        assets.push_back(AssetAnimationMesh {
+                            .name = mesh_name,
+                            .node_count = model.node_count(),
+                            .joint_count = model.joint_count(),
+                            .duration = model.animation_duration(),
+                            .skinning_vertices = assets_writer.write(
+                                "SkinningVertex",
+                                std::span<const AssetSkinningVertex>(vertices)
+                            ),
+                            .indices = assets_writer.write("Index", indices),
+                            .joint_nodes = assets_writer.write("uint32_t", model.joint_nodes()),
+                            .joint_inverse_binds =
+                                assets_writer.write("Float4x4", model.joint_inverse_binds()),
+                            .node_parents = assets_writer.write("uint32_t", model.node_parents()),
+                            .node_transforms =
+                                assets_writer.write("Float4x4", model.node_transforms()),
+                            .node_channels =
+                                assets_writer.write("AnimationChannel", model.node_channels()),
+                            .node_channels_times_t =
+                                assets_writer.write("float", model.node_channels_times_t()),
+                            .node_channels_times_r =
+                                assets_writer.write("float", model.node_channels_times_r()),
+                            .node_channels_times_s =
+                                assets_writer.write("float", model.node_channels_times_s()),
+                            .node_channels_values_t =
+                                assets_writer.write("Float3", model.node_channels_values_t()),
+                            .node_channels_values_r =
+                                assets_writer.write("Quaternion", model.node_channels_values_r()),
+                            .node_channels_values_s =
+                                assets_writer.write("Float3", model.node_channels_values_s()),
+                        });
+                    }
 
                     // Textures.
                     {
