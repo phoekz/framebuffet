@@ -9,6 +9,7 @@ Assets::Assets() {
 
 auto Assets::imgui_font() const -> Copy {
     return Copy {
+        // 799fc360204416196536a93c9eff68ae
         .data = transmuted_span<std::byte>(0, 162588),
     };
 }
@@ -21,6 +22,7 @@ auto Assets::heatmap_magma_texture() const -> Texture {
         .channels = 4,
         .row_pitch = 1024,
         .slice_pitch = 1024,
+        // 33e2d2ee5bc875a573dd90c6f664a91c
         .data = transmuted_span<std::byte>(162588, 1024),
     };
 }
@@ -33,13 +35,16 @@ auto Assets::heatmap_viridis_texture() const -> Texture {
         .channels = 4,
         .row_pitch = 1024,
         .slice_pitch = 1024,
+        // 68bceaeffeb954c3304af1cdb4a1e5fc
         .data = transmuted_span<std::byte>(163612, 1024),
     };
 }
 
 auto Assets::sci_fi_case_mesh() const -> Mesh {
     return Mesh {
+        // 46dfa41b2805d9f78f0058483fdae3cc
         .vertices = transmuted_span<Vertex>(164636, 2025),
+        // f00fba0022e45d0bae44c3c65770372c
         .indices = transmuted_span<Index>(261836, 5301),
     };
 }
@@ -52,6 +57,7 @@ auto Assets::sci_fi_case_base_color_texture() const -> Texture {
         .channels = 4,
         .row_pitch = 4096,
         .slice_pitch = 4194304,
+        // 1c0cad906e975f6b2b0f9d24de7c4926
         .data = transmuted_span<std::byte>(283040, 4194304),
     };
 }
@@ -64,6 +70,7 @@ auto Assets::sci_fi_case_normal_texture() const -> Texture {
         .channels = 4,
         .row_pitch = 4096,
         .slice_pitch = 4194304,
+        // d5c691d45d7f61290eb8b12ed954e8f1
         .data = transmuted_span<std::byte>(4477344, 4194304),
     };
 }
@@ -76,13 +83,16 @@ auto Assets::sci_fi_case_metallic_roughness_texture() const -> Texture {
         .channels = 4,
         .row_pitch = 4096,
         .slice_pitch = 4194304,
+        // ed04eb3dfe14725c0ad06ee90e903d7b
         .data = transmuted_span<std::byte>(8671648, 4194304),
     };
 }
 
 auto Assets::metal_plane_mesh() const -> Mesh {
     return Mesh {
+        // 3a00cc1c02935599829c5692e6b36bc1
         .vertices = transmuted_span<Vertex>(12865952, 4),
+        // d0af1ef28fef810ebe92063f244f24d2
         .indices = transmuted_span<Index>(12866144, 6),
     };
 }
@@ -95,6 +105,7 @@ auto Assets::metal_plane_base_color_texture() const -> Texture {
         .channels = 4,
         .row_pitch = 4096,
         .slice_pitch = 4194304,
+        // b01e0981487f9386f14d7e555623c2ba
         .data = transmuted_span<std::byte>(12866168, 4194304),
     };
 }
@@ -107,6 +118,7 @@ auto Assets::metal_plane_normal_texture() const -> Texture {
         .channels = 4,
         .row_pitch = 4096,
         .slice_pitch = 4194304,
+        // 2c3220bc625827e8a3a07df006fd2577
         .data = transmuted_span<std::byte>(17060472, 4194304),
     };
 }
@@ -119,13 +131,16 @@ auto Assets::metal_plane_metallic_roughness_texture() const -> Texture {
         .channels = 4,
         .row_pitch = 4096,
         .slice_pitch = 4194304,
+        // a0a8987101c3763d88cded178f004edc
         .data = transmuted_span<std::byte>(21254776, 4194304),
     };
 }
 
 auto Assets::coconut_tree_mesh() const -> Mesh {
     return Mesh {
+        // 1fa0c357d6258a02f56e143e69f9a1a3
         .vertices = transmuted_span<Vertex>(25449080, 725),
+        // 1baf1b518291c89e5c6e721974e09c51
         .indices = transmuted_span<Index>(25483880, 2034),
     };
 }
@@ -138,13 +153,16 @@ auto Assets::coconut_tree_base_color_texture() const -> Texture {
         .channels = 4,
         .row_pitch = 2048,
         .slice_pitch = 1048576,
+        // 61b50bca3a05bbee4e3297d007f5fc25
         .data = transmuted_span<std::byte>(25492016, 1048576),
     };
 }
 
 auto Assets::sand_plane_mesh() const -> Mesh {
     return Mesh {
+        // dcacea845fb251ef7fac317ebd188929
         .vertices = transmuted_span<Vertex>(26540592, 4),
+        // d0af1ef28fef810ebe92063f244f24d2
         .indices = transmuted_span<Index>(26540784, 6),
     };
 }
@@ -157,6 +175,7 @@ auto Assets::sand_plane_base_color_texture() const -> Texture {
         .channels = 4,
         .row_pitch = 256,
         .slice_pitch = 16384,
+        // cd9c6abea5eb3cc9b5846ab373f9d5d8
         .data = transmuted_span<std::byte>(26540808, 16384),
     };
 }
@@ -166,18 +185,31 @@ auto Assets::raccoon_animation_mesh() const -> AnimationMesh {
         .node_count = 72,
         .joint_count = 63,
         .duration = 0.7916667f,
+        // e65e9d279ecf4a2eac69f51658a72576
         .skinning_vertices = transmuted_span<SkinningVertex>(26557192, 2430),
+        // 8968eb8789a4261c4f435a57217ab6fa
         .indices = transmuted_span<Index>(26751592, 3102),
+        // d730e286c5631c1fdfa6f0f7191ddd3b
         .joint_nodes = transmuted_span<uint32_t>(26764000, 63),
+        // ee0ff01354a210fae3930c7992929c24
         .joint_inverse_binds = transmuted_span<Float4x4>(26764252, 63),
+        // e95d90faa9a34f6172c2c7b88a91046c
         .node_parents = transmuted_span<uint32_t>(26768284, 72),
+        // a3ce072a99fe8139419ff55378991f51
         .node_transforms = transmuted_span<Float4x4>(26768572, 72),
+        // 2ba2f2a43abbd5968d77adad334f5682
         .node_channels = transmuted_span<AnimationChannel>(26773180, 72),
+        // 3b153cfb6ae1bff95aa6dce90c05c435
         .node_channels_times_t = transmuted_span<float>(26776636, 2256),
+        // c2293a9e0414fc79c6d7cd00d4c1ba87
         .node_channels_times_r = transmuted_span<float>(26785660, 2274),
+        // 4d32d6eb8afd6df010a01af960891484
         .node_channels_times_s = transmuted_span<float>(26794756, 369),
+        // 1defd6ee1077f6a108951a438abf4c61
         .node_channels_values_t = transmuted_span<Float3>(26796232, 2256),
+        // f00545a5efeaef5e3e8a97a62d2ae87a
         .node_channels_values_r = transmuted_span<Quaternion>(26823304, 2274),
+        // f56ee25392a3504e5a600f0f847638e4
         .node_channels_values_s = transmuted_span<Float3>(26859688, 369),
     };
 }
@@ -190,6 +222,7 @@ auto Assets::raccoon_base_color_texture() const -> Texture {
         .channels = 4,
         .row_pitch = 16,
         .slice_pitch = 64,
+        // f46411895f74b52626f359cce1525b8e
         .data = transmuted_span<std::byte>(26864116, 64),
     };
 }
@@ -202,20 +235,25 @@ auto Assets::raccoon_metallic_roughness_texture() const -> Texture {
         .channels = 4,
         .row_pitch = 16,
         .slice_pitch = 64,
+        // 22771420d888fb100e7450610145f45d
         .data = transmuted_span<std::byte>(26864180, 64),
     };
 }
 
 auto Assets::light_bounds_mesh() const -> Mesh {
     return Mesh {
+        // df492a0ab1c96806e2e0d1b0cf89141e
         .vertices = transmuted_span<Vertex>(26864244, 24),
+        // 0bbe6ec9d4b61b792981857b935d2c96
         .indices = transmuted_span<Index>(26865396, 36),
     };
 }
 
 auto Assets::skybox_mesh() const -> Mesh {
     return Mesh {
+        // b0d3d0c5a54476148eb9eb0df8b84d8c
         .vertices = transmuted_span<Vertex>(26865540, 24),
+        // 616e076015f03b0288fd27d32b7bf256
         .indices = transmuted_span<Index>(26866692, 36),
     };
 }
@@ -229,11 +267,17 @@ auto Assets::winter_evening_cube_texture() const -> CubeTexture {
         .row_pitch = 16384,
         .slice_pitch = 16777216,
         .datas = std::to_array({
+            // 918af87792513fcb47721c6bb751b8ab
             transmuted_span<float>(26866836, 4194304),
+            // ea87830a0e05072d855f1850fd3f22b1
             transmuted_span<float>(43644052, 4194304),
+            // da32c3251997b5da09b8f00ed97cfe1d
             transmuted_span<float>(60421268, 4194304),
+            // 8181516c3622f6119a276a7e317fe2d5
             transmuted_span<float>(77198484, 4194304),
+            // 38d65d00389eb7511870cb5439ea27c0
             transmuted_span<float>(93975700, 4194304),
+            // 49f7ddd4345a3fe231d2f04a4d7074ef
             transmuted_span<float>(110752916, 4194304),
         }),
     };

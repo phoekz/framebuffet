@@ -750,6 +750,31 @@ int main() {
         } // namespace fb::baked
     )";
 
+    const auto format_asset_span = [&assets_bin](AssetSpan span) -> std::string {
+        const auto bytes = std::span(assets_bin.data() + span.offset, span.byte_size);
+        const auto hash = hash128(bytes);
+        return std::format(
+            "// {}\n transmuted_span<{}>({}, {})",
+            hash,
+            span.type,
+            span.offset,
+            span.element_size
+        );
+    };
+    const auto format_named_asset_span =
+        [&assets_bin](std::string_view name, AssetSpan span) -> std::string {
+        const auto bytes = std::span(assets_bin.data() + span.offset, span.byte_size);
+        const auto hash = hash128(bytes);
+        return std::format(
+            "// {}\n .{} = transmuted_span<{}>({}, {})",
+            hash,
+            name,
+            span.type,
+            span.offset,
+            span.element_size
+        );
+    };
+
     std::ostringstream assets_decls;
     std::ostringstream assets_defns;
     for (const auto& asset : assets) {
@@ -760,13 +785,11 @@ int main() {
                     assets_defns << std::format(
                         R"(auto Assets::{}() const -> Copy {{
                             return Copy {{
-                                .data = transmuted_span<{}>({}, {}),
+                                {},
                             }};
                         }})",
                         asset.name,
-                        asset.data.type,
-                        asset.data.offset,
-                        asset.data.byte_size
+                        format_named_asset_span("data"sv, asset.data)
                     );
                 },
                 [&](const AssetMesh& asset) {
@@ -774,17 +797,13 @@ int main() {
                     assets_defns << std::format(
                         R"(auto Assets::{}() const -> Mesh {{
                             return Mesh {{
-                                .vertices = transmuted_span<{}>({}, {}),
-                                .indices = transmuted_span<{}>({}, {}),
+                                {},
+                                {},
                             }};
                         }})",
                         asset.name,
-                        asset.vertices.type,
-                        asset.vertices.offset,
-                        asset.vertices.element_size,
-                        asset.indices.type,
-                        asset.indices.offset,
-                        asset.indices.element_size
+                        format_named_asset_span("vertices"sv, asset.vertices),
+                        format_named_asset_span("indices"sv, asset.indices)
                     );
                 },
                 [&](const AssetTexture& asset) {
@@ -798,7 +817,7 @@ int main() {
                                 .channels = {},
                                 .row_pitch = {},
                                 .slice_pitch = {},
-                                .data = transmuted_span<{}>({}, {}),
+                                {},
                             }};
                         }})",
                         asset.name,
@@ -808,9 +827,7 @@ int main() {
                         asset.channels,
                         asset.row_pitch,
                         asset.slice_pitch,
-                        asset.data.type,
-                        asset.data.offset,
-                        asset.data.element_size
+                        format_named_asset_span("data"sv, asset.data)
                     );
                 },
                 [&](const AssetCubeTexture& asset) {
@@ -825,12 +842,12 @@ int main() {
                                 .row_pitch = {},
                                 .slice_pitch = {},
                                 .datas = std::to_array({{
-                                    transmuted_span<{}>({}, {}),
-                                    transmuted_span<{}>({}, {}),
-                                    transmuted_span<{}>({}, {}),
-                                    transmuted_span<{}>({}, {}),
-                                    transmuted_span<{}>({}, {}),
-                                    transmuted_span<{}>({}, {}),
+                                    {},
+                                    {},
+                                    {},
+                                    {},
+                                    {},
+                                    {},
                                 }}),
                             }};
                         }})",
@@ -841,24 +858,12 @@ int main() {
                         asset.channels,
                         asset.row_pitch,
                         asset.slice_pitch,
-                        asset.datas[0].type,
-                        asset.datas[0].offset,
-                        asset.datas[0].element_size,
-                        asset.datas[1].type,
-                        asset.datas[1].offset,
-                        asset.datas[1].element_size,
-                        asset.datas[2].type,
-                        asset.datas[2].offset,
-                        asset.datas[2].element_size,
-                        asset.datas[3].type,
-                        asset.datas[3].offset,
-                        asset.datas[3].element_size,
-                        asset.datas[4].type,
-                        asset.datas[4].offset,
-                        asset.datas[4].element_size,
-                        asset.datas[5].type,
-                        asset.datas[5].offset,
-                        asset.datas[5].element_size
+                        format_asset_span(asset.datas[0]),
+                        format_asset_span(asset.datas[1]),
+                        format_asset_span(asset.datas[2]),
+                        format_asset_span(asset.datas[3]),
+                        format_asset_span(asset.datas[4]),
+                        format_asset_span(asset.datas[5])
                     );
                 },
                 [&](const AssetAnimationMesh& asset) {
@@ -869,64 +874,56 @@ int main() {
                                 .node_count = {},
                                 .joint_count = {},
                                 .duration = {}f,
-                                .skinning_vertices = transmuted_span<{}>({}, {}),
-                                .indices = transmuted_span<{}>({}, {}),
-                                .joint_nodes = transmuted_span<{}>({}, {}),
-                                .joint_inverse_binds = transmuted_span<{}>({}, {}),
-                                .node_parents = transmuted_span<{}>({}, {}),
-                                .node_transforms = transmuted_span<{}>({}, {}),
-                                .node_channels = transmuted_span<{}>({}, {}),
-                                .node_channels_times_t = transmuted_span<{}>({}, {}),
-                                .node_channels_times_r = transmuted_span<{}>({}, {}),
-                                .node_channels_times_s = transmuted_span<{}>({}, {}),
-                                .node_channels_values_t = transmuted_span<{}>({}, {}),
-                                .node_channels_values_r = transmuted_span<{}>({}, {}),
-                                .node_channels_values_s = transmuted_span<{}>({}, {}),
+                                {},
+                                {},
+                                {},
+                                {},
+                                {},
+                                {},
+                                {},
+                                {},
+                                {},
+                                {},
+                                {},
+                                {},
+                                {},
                             }};
                         }})",
                         asset.name,
                         asset.node_count,
                         asset.joint_count,
                         asset.duration,
-                        asset.skinning_vertices.type,
-                        asset.skinning_vertices.offset,
-                        asset.skinning_vertices.element_size,
-                        asset.indices.type,
-                        asset.indices.offset,
-                        asset.indices.element_size,
-                        asset.joint_nodes.type,
-                        asset.joint_nodes.offset,
-                        asset.joint_nodes.element_size,
-                        asset.joint_inverse_binds.type,
-                        asset.joint_inverse_binds.offset,
-                        asset.joint_inverse_binds.element_size,
-                        asset.node_parents.type,
-                        asset.node_parents.offset,
-                        asset.node_parents.element_size,
-                        asset.node_transforms.type,
-                        asset.node_transforms.offset,
-                        asset.node_transforms.element_size,
-                        asset.node_channels.type,
-                        asset.node_channels.offset,
-                        asset.node_channels.element_size,
-                        asset.node_channels_times_t.type,
-                        asset.node_channels_times_t.offset,
-                        asset.node_channels_times_t.element_size,
-                        asset.node_channels_times_r.type,
-                        asset.node_channels_times_r.offset,
-                        asset.node_channels_times_r.element_size,
-                        asset.node_channels_times_s.type,
-                        asset.node_channels_times_s.offset,
-                        asset.node_channels_times_s.element_size,
-                        asset.node_channels_values_t.type,
-                        asset.node_channels_values_t.offset,
-                        asset.node_channels_values_t.element_size,
-                        asset.node_channels_values_r.type,
-                        asset.node_channels_values_r.offset,
-                        asset.node_channels_values_r.element_size,
-                        asset.node_channels_values_s.type,
-                        asset.node_channels_values_s.offset,
-                        asset.node_channels_values_s.element_size
+                        format_named_asset_span("skinning_vertices"sv, asset.skinning_vertices),
+                        format_named_asset_span("indices"sv, asset.indices),
+                        format_named_asset_span("joint_nodes"sv, asset.joint_nodes),
+                        format_named_asset_span("joint_inverse_binds"sv, asset.joint_inverse_binds),
+                        format_named_asset_span("node_parents"sv, asset.node_parents),
+                        format_named_asset_span("node_transforms"sv, asset.node_transforms),
+                        format_named_asset_span("node_channels"sv, asset.node_channels),
+                        format_named_asset_span(
+                            "node_channels_times_t"sv,
+                            asset.node_channels_times_t
+                        ),
+                        format_named_asset_span(
+                            "node_channels_times_r"sv,
+                            asset.node_channels_times_r
+                        ),
+                        format_named_asset_span(
+                            "node_channels_times_s"sv,
+                            asset.node_channels_times_s
+                        ),
+                        format_named_asset_span(
+                            "node_channels_values_t"sv,
+                            asset.node_channels_values_t
+                        ),
+                        format_named_asset_span(
+                            "node_channels_values_r"sv,
+                            asset.node_channels_values_r
+                        ),
+                        format_named_asset_span(
+                            "node_channels_values_s"sv,
+                            asset.node_channels_values_s
+                        )
                     );
                 },
             },
