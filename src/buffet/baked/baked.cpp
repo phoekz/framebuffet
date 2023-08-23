@@ -288,142 +288,336 @@ Shaders::Shaders() {
     FB_ASSERT(_data.size() == 147328);
 }
 
-// a2b037e929fa47e82668128ef69b5d3c
+// shader_hash: a2b037e929fa47e82668128ef69b5d3c
+// constant_buffers: 1
+// bound_resources: 1
+// input_parameters: 2
+// output_parameters: 3
+// instruction_count: 86
+// float_instruction_count: 31
+// int_instruction_count: 1
+// texture_load_instructions: 3
 auto Shaders::gui_draw_vs() const -> std::span<const std::byte> {
     return std::span(_data).subspan(0, 5352);
 }
 
-// 78391642d962dafe09fcb897ff0baef4
+// shader_hash: 78391642d962dafe09fcb897ff0baef4
+// constant_buffers: 1
+// bound_resources: 1
+// input_parameters: 3
+// output_parameters: 1
+// instruction_count: 28
+// float_instruction_count: 4
+// texture_normal_instructions: 1
 auto Shaders::gui_draw_ps() const -> std::span<const std::byte> {
     return std::span(_data).subspan(5352, 4416);
 }
 
-// 90b108a0f53edc3edf0fdbdf347b5003
+// shader_hash: 90b108a0f53edc3edf0fdbdf347b5003
+// constant_buffers: 1
+// bound_resources: 1
+// input_parameters: 2
+// output_parameters: 2
+// instruction_count: 74
+// float_instruction_count: 16
+// texture_load_instructions: 2
 auto Shaders::debug_draw_draw_vs() const -> std::span<const std::byte> {
     return std::span(_data).subspan(9768, 5120);
 }
 
-// 28a5f694ad5b0a73913b0a924d402ba0
+// shader_hash: 28a5f694ad5b0a73913b0a924d402ba0
+// input_parameters: 2
+// output_parameters: 1
+// instruction_count: 9
 auto Shaders::debug_draw_draw_ps() const -> std::span<const std::byte> {
     return std::span(_data).subspan(14888, 3056);
 }
 
-// 5792fbf56668c072f9917d0d52e90c6d
+// shader_hash: 5792fbf56668c072f9917d0d52e90c6d
+// constant_buffers: 1
+// bound_resources: 1
+// input_parameters: 2
+// output_parameters: 2
+// instruction_count: 64
+// float_instruction_count: 12
+// texture_load_instructions: 4
 auto Shaders::cards_draw_vs() const -> std::span<const std::byte> {
     return std::span(_data).subspan(17944, 4860);
 }
 
-// 0277dbed47bb3692b278d7e759af728f
+// shader_hash: 0277dbed47bb3692b278d7e759af728f
+// constant_buffers: 1
+// bound_resources: 1
+// input_parameters: 2
+// output_parameters: 1
+// instruction_count: 20
+// texture_normal_instructions: 1
 auto Shaders::cards_draw_ps() const -> std::span<const std::byte> {
     return std::span(_data).subspan(22804, 4220);
 }
 
-// 6529e616c34b9ecea94c7de26fa74cbd
+// shader_hash: 6529e616c34b9ecea94c7de26fa74cbd
+// constant_buffers: 1
+// bound_resources: 1
+// instruction_count: 1478
+// temp_array_count: 2048
+// dynamic_flow_control_count: 30
+// array_instruction_count: 76
+// float_instruction_count: 449
+// int_instruction_count: 347
+// uint_instruction_count: 78
+// texture_normal_instructions: 4
+// texture_load_instructions: 16
+// barrier_instructions: 9
+// interlocked_instructions: 1
+// texture_store_instructions: 22
 auto Shaders::spd_downsample_cs() const -> std::span<const std::byte> {
     return std::span(_data).subspan(27024, 13864);
 }
 
-// 47aeb2be7e36a430ebf09731c029cbf2
+// shader_hash: 47aeb2be7e36a430ebf09731c029cbf2
+// constant_buffers: 1
+// bound_resources: 1
+// input_parameters: 2
+// output_parameters: 5
+// instruction_count: 91
+// float_instruction_count: 20
+// texture_load_instructions: 4
 auto Shaders::crate_draw_vs() const -> std::span<const std::byte> {
     return std::span(_data).subspan(40888, 5524);
 }
 
-// 3ba2216aac1d6ff4d4a37fdbf7ee4ec3
+// shader_hash: 3ba2216aac1d6ff4d4a37fdbf7ee4ec3
+// constant_buffers: 1
+// bound_resources: 1
+// input_parameters: 5
+// output_parameters: 1
+// instruction_count: 131
+// float_instruction_count: 56
+// texture_normal_instructions: 3
 auto Shaders::crate_draw_ps() const -> std::span<const std::byte> {
     return std::span(_data).subspan(46412, 6004);
 }
 
-// bb318ca5796644e7a6c68671f7011d41
+// shader_hash: bb318ca5796644e7a6c68671f7011d41
+// constant_buffers: 1
+// bound_resources: 1
+// input_parameters: 2
+// output_parameters: 1
+// instruction_count: 55
+// float_instruction_count: 8
+// texture_load_instructions: 1
 auto Shaders::tree_shadow_vs() const -> std::span<const std::byte> {
     return std::span(_data).subspan(52416, 4652);
 }
 
-// 4f92468768d022e91d050a21946f749f
+// shader_hash: 4f92468768d022e91d050a21946f749f
+// constant_buffers: 1
+// bound_resources: 1
+// input_parameters: 2
+// output_parameters: 4
+// instruction_count: 107
+// float_instruction_count: 16
+// texture_load_instructions: 3
 auto Shaders::tree_draw_vs() const -> std::span<const std::byte> {
     return std::span(_data).subspan(57068, 5456);
 }
 
-// d8fc468d518d682e1b21e1879a32d5e3
+// shader_hash: d8fc468d518d682e1b21e1879a32d5e3
+// constant_buffers: 1
+// bound_resources: 1
+// input_parameters: 4
+// output_parameters: 1
+// instruction_count: 58
+// float_instruction_count: 17
+// texture_normal_instructions: 1
+// texture_comp_instructions: 1
 auto Shaders::tree_draw_ps() const -> std::span<const std::byte> {
     return std::span(_data).subspan(62524, 5216);
 }
 
-// d7bde9ff419de59f4788f766651525ae
+// shader_hash: d7bde9ff419de59f4788f766651525ae
+// constant_buffers: 1
+// bound_resources: 1
+// instruction_count: 23
+// float_instruction_count: 3
+// texture_load_instructions: 1
+// texture_store_instructions: 1
 auto Shaders::rain_sim_cs() const -> std::span<const std::byte> {
     return std::span(_data).subspan(67740, 3748);
 }
 
-// 0820cea972058c552f588fd8ea7b324e
+// shader_hash: 0820cea972058c552f588fd8ea7b324e
+// constant_buffers: 1
+// bound_resources: 1
+// input_parameters: 2
+// output_parameters: 2
+// instruction_count: 92
+// float_instruction_count: 14
+// texture_load_instructions: 3
 auto Shaders::rain_draw_vs() const -> std::span<const std::byte> {
     return std::span(_data).subspan(71488, 5064);
 }
 
-// 785867d3fd40ec288756abc5b7fa1a8a
+// shader_hash: 785867d3fd40ec288756abc5b7fa1a8a
+// input_parameters: 2
+// output_parameters: 1
+// instruction_count: 20
+// float_instruction_count: 13
 auto Shaders::rain_draw_ps() const -> std::span<const std::byte> {
     return std::span(_data).subspan(76552, 3228);
 }
 
-// 375a5653c5bb68d44e67412aa73d0ae3
+// shader_hash: 375a5653c5bb68d44e67412aa73d0ae3
+// constant_buffers: 1
+// bound_resources: 1
+// input_parameters: 2
+// output_parameters: 4
+// instruction_count: 636
+// float_instruction_count: 188
+// texture_load_instructions: 38
 auto Shaders::anim_draw_vs() const -> std::span<const std::byte> {
     return std::span(_data).subspan(79780, 10188);
 }
 
-// 3451eb25b73e7f9e7038c3afaf0e67a6
+// shader_hash: 3451eb25b73e7f9e7038c3afaf0e67a6
+// constant_buffers: 1
+// bound_resources: 1
+// input_parameters: 4
+// output_parameters: 1
+// instruction_count: 29
+// float_instruction_count: 7
+// texture_normal_instructions: 1
 auto Shaders::anim_draw_ps() const -> std::span<const std::byte> {
     return std::span(_data).subspan(89968, 4776);
 }
 
-// 38367bd0b1752e4ca0df66b75c2c3e42
+// shader_hash: 38367bd0b1752e4ca0df66b75c2c3e42
+// constant_buffers: 1
+// bound_resources: 1
+// instruction_count: 32
+// float_instruction_count: 4
+// texture_load_instructions: 3
+// texture_store_instructions: 3
 auto Shaders::fibers_sim_cs() const -> std::span<const std::byte> {
     return std::span(_data).subspan(94744, 4004);
 }
 
-// 27a8754335d1b1087f852a95afe6cf98
+// shader_hash: 27a8754335d1b1087f852a95afe6cf98
+// constant_buffers: 1
+// bound_resources: 1
+// instruction_count: 8
+// texture_store_instructions: 1
 auto Shaders::fibers_reset_cs() const -> std::span<const std::byte> {
     return std::span(_data).subspan(98748, 3424);
 }
 
-// 6948df21d6f52241ffd77c4cc5ae1817
+// shader_hash: 6948df21d6f52241ffd77c4cc5ae1817
+// constant_buffers: 1
+// bound_resources: 1
+// instruction_count: 322
+// temp_array_count: 192
+// dynamic_flow_control_count: 9
+// array_instruction_count: 22
+// float_instruction_count: 124
+// int_instruction_count: 19
+// uint_instruction_count: 5
+// texture_load_instructions: 1
+// barrier_instructions: 3
+// interlocked_instructions: 2
+// texture_store_instructions: 3
 auto Shaders::fibers_cull_cs() const -> std::span<const std::byte> {
     return std::span(_data).subspan(102172, 7328);
 }
 
-// 00bdae7a717783ec01c1587d7fe7f16b
+// shader_hash: 00bdae7a717783ec01c1587d7fe7f16b
+// constant_buffers: 1
+// bound_resources: 1
+// input_parameters: 2
+// output_parameters: 4
+// instruction_count: 90
+// float_instruction_count: 14
+// texture_load_instructions: 5
 auto Shaders::fibers_light_vs() const -> std::span<const std::byte> {
     return std::span(_data).subspan(109500, 5488);
 }
 
-// 0d545b607d54aea303eb4a8db4cf31da
+// shader_hash: 0d545b607d54aea303eb4a8db4cf31da
+// input_parameters: 4
+// output_parameters: 1
+// instruction_count: 5
 auto Shaders::fibers_light_ps() const -> std::span<const std::byte> {
     return std::span(_data).subspan(114988, 3144);
 }
 
-// 67ce76c1b8cef37afea87f3af4e63980
+// shader_hash: 67ce76c1b8cef37afea87f3af4e63980
+// constant_buffers: 1
+// bound_resources: 1
+// input_parameters: 2
+// output_parameters: 5
+// instruction_count: 74
+// float_instruction_count: 8
+// texture_load_instructions: 3
 auto Shaders::fibers_plane_vs() const -> std::span<const std::byte> {
     return std::span(_data).subspan(118132, 5508);
 }
 
-// bf043e6ca1fc244f4228b30f10d7a497
+// shader_hash: bf043e6ca1fc244f4228b30f10d7a497
+// constant_buffers: 1
+// bound_resources: 1
+// input_parameters: 5
+// output_parameters: 1
+// instruction_count: 105
+// dynamic_flow_control_count: 2
+// float_instruction_count: 40
+// int_instruction_count: 4
+// texture_load_instructions: 5
 auto Shaders::fibers_plane_ps() const -> std::span<const std::byte> {
     return std::span(_data).subspan(123640, 5928);
 }
 
-// 774cf19def534ea19fa2c04206753609
+// shader_hash: 774cf19def534ea19fa2c04206753609
+// input_parameters: 2
+// output_parameters: 2
+// instruction_count: 17
+// float_instruction_count: 6
+// uint_instruction_count: 3
 auto Shaders::fibers_debug_vs() const -> std::span<const std::byte> {
     return std::span(_data).subspan(129568, 3256);
 }
 
-// fba11f278d24921065a7ff897de265ce
+// shader_hash: fba11f278d24921065a7ff897de265ce
+// constant_buffers: 1
+// bound_resources: 1
+// input_parameters: 2
+// output_parameters: 1
+// instruction_count: 44
+// float_instruction_count: 11
+// texture_normal_instructions: 1
+// texture_load_instructions: 1
 auto Shaders::fibers_debug_ps() const -> std::span<const std::byte> {
     return std::span(_data).subspan(132824, 4944);
 }
 
-// 22751d6713db53a95263c35d46c1dc99
+// shader_hash: 22751d6713db53a95263c35d46c1dc99
+// constant_buffers: 1
+// bound_resources: 1
+// input_parameters: 2
+// output_parameters: 4
+// instruction_count: 63
+// float_instruction_count: 7
+// texture_load_instructions: 3
 auto Shaders::env_draw_vs() const -> std::span<const std::byte> {
     return std::span(_data).subspan(137768, 5116);
 }
 
-// 34759f4385b2a6b7410f8378fc3e6341
+// shader_hash: 34759f4385b2a6b7410f8378fc3e6341
+// constant_buffers: 1
+// bound_resources: 1
+// input_parameters: 4
+// output_parameters: 1
+// instruction_count: 20
+// texture_normal_instructions: 1
 auto Shaders::env_draw_ps() const -> std::span<const std::byte> {
     return std::span(_data).subspan(142884, 4444);
 }

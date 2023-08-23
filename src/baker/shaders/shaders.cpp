@@ -2,6 +2,42 @@
 
 namespace fb {
 
+auto ShaderCounters::to_comment_string() const -> std::string {
+    std::ostringstream oss;
+    uint32_t lines = 0;
+#define add_if_not_zero(name)                  \
+    if (name != 0) {                           \
+        if (lines > 0) {                       \
+            oss << "\n";                       \
+        }                                      \
+        oss << "// " << #name << ": " << name; \
+        lines++;                               \
+    }
+    add_if_not_zero(constant_buffers);
+    add_if_not_zero(bound_resources);
+    add_if_not_zero(input_parameters);
+    add_if_not_zero(output_parameters);
+    add_if_not_zero(instruction_count);
+    add_if_not_zero(temp_array_count);
+    add_if_not_zero(dynamic_flow_control_count);
+    add_if_not_zero(array_instruction_count);
+    add_if_not_zero(float_instruction_count);
+    add_if_not_zero(int_instruction_count);
+    add_if_not_zero(uint_instruction_count);
+    add_if_not_zero(texture_normal_instructions);
+    add_if_not_zero(texture_load_instructions);
+    add_if_not_zero(texture_comp_instructions);
+    add_if_not_zero(texture_bias_instructions);
+    add_if_not_zero(texture_gradient_instructions);
+    add_if_not_zero(cut_instruction_count);
+    add_if_not_zero(emit_instruction_count);
+    add_if_not_zero(barrier_instructions);
+    add_if_not_zero(interlocked_instructions);
+    add_if_not_zero(texture_store_instructions);
+#undef add_if_not_zero
+    return oss.str();
+}
+
 static auto shader_type_name(ShaderType type) -> std::string_view {
     switch (type) {
         using enum ShaderType;
@@ -170,16 +206,47 @@ auto ShaderCompiler::compile(
     }
 
     // Reflection.
+    ComPtr<ID3D12ShaderReflection> reflection;
+    {
+        ComPtr<IDxcBlob> blob;
+        FB_ASSERT_HR(result->GetOutput(DXC_OUT_REFLECTION, IID_PPV_ARGS(&blob), nullptr));
+        DxcBuffer buffer;
+        buffer.Encoding = DXC_CP_ACP;
+        buffer.Ptr = blob->GetBufferPointer();
+        buffer.Size = blob->GetBufferSize();
+        FB_ASSERT_HR(_utils->CreateReflection(&buffer, IID_PPV_ARGS(&reflection)));
+    }
+
+    // Shader desc.
+    ShaderCounters counters;
+    {
+        D3D12_SHADER_DESC desc;
+        reflection->GetDesc(&desc);
+        counters.constant_buffers = desc.ConstantBuffers;
+        counters.bound_resources = desc.BoundResources;
+        counters.input_parameters = desc.InputParameters;
+        counters.output_parameters = desc.OutputParameters;
+        counters.instruction_count = desc.InstructionCount;
+        counters.temp_array_count = desc.TempArrayCount;
+        counters.dynamic_flow_control_count = desc.DynamicFlowControlCount;
+        counters.array_instruction_count = desc.ArrayInstructionCount;
+        counters.float_instruction_count = desc.FloatInstructionCount;
+        counters.int_instruction_count = desc.IntInstructionCount;
+        counters.uint_instruction_count = desc.UintInstructionCount;
+        counters.texture_normal_instructions = desc.TextureNormalInstructions;
+        counters.texture_load_instructions = desc.TextureLoadInstructions;
+        counters.texture_comp_instructions = desc.TextureCompInstructions;
+        counters.texture_bias_instructions = desc.TextureBiasInstructions;
+        counters.texture_gradient_instructions = desc.TextureGradientInstructions;
+        counters.cut_instruction_count = desc.CutInstructionCount;
+        counters.emit_instruction_count = desc.EmitInstructionCount;
+        counters.barrier_instructions = desc.cBarrierInstructions;
+        counters.interlocked_instructions = desc.cInterlockedInstructions;
+        counters.texture_store_instructions = desc.cTextureStoreInstructions;
+    }
+
+    // Debug.
     if (debug) {
-        ComPtr<IDxcBlob> reflection_blob;
-        FB_ASSERT_HR(result->GetOutput(DXC_OUT_REFLECTION, IID_PPV_ARGS(&reflection_blob), nullptr)
-        );
-        DxcBuffer reflection_buffer;
-        reflection_buffer.Encoding = DXC_CP_ACP;
-        reflection_buffer.Ptr = reflection_blob->GetBufferPointer();
-        reflection_buffer.Size = reflection_blob->GetBufferSize();
-        ComPtr<ID3D12ShaderReflection> reflection;
-        FB_ASSERT_HR(_utils->CreateReflection(&reflection_buffer, IID_PPV_ARGS(&reflection)));
         analyze(name, type, reflection);
     }
 
@@ -189,6 +256,7 @@ auto ShaderCompiler::compile(
         .hash = hash,
         .dxil = std::move(dxil),
         .pdb = std::move(pdb),
+        .counters = counters,
     };
 }
 

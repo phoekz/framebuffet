@@ -11,11 +11,38 @@ enum class ShaderType {
     Pixel,
 };
 
+struct ShaderCounters {
+    auto to_comment_string() const -> std::string;
+
+    uint32_t constant_buffers = 0;
+    uint32_t bound_resources = 0;
+    uint32_t input_parameters = 0;
+    uint32_t output_parameters = 0;
+    uint32_t instruction_count = 0;
+    uint32_t temp_array_count = 0;
+    uint32_t dynamic_flow_control_count = 0;
+    uint32_t array_instruction_count = 0;
+    uint32_t float_instruction_count = 0;
+    uint32_t int_instruction_count = 0;
+    uint32_t uint_instruction_count = 0;
+    uint32_t texture_normal_instructions = 0;
+    uint32_t texture_load_instructions = 0;
+    uint32_t texture_comp_instructions = 0;
+    uint32_t texture_bias_instructions = 0;
+    uint32_t texture_gradient_instructions = 0;
+    uint32_t cut_instruction_count = 0;
+    uint32_t emit_instruction_count = 0;
+    uint32_t barrier_instructions = 0;
+    uint32_t interlocked_instructions = 0;
+    uint32_t texture_store_instructions = 0;
+};
+
 struct Shader {
     std::string name;
     std::string hash;
     std::vector<std::byte> dxil;
     std::vector<std::byte> pdb;
+    ShaderCounters counters;
 };
 
 class ShaderCompiler {
