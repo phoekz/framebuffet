@@ -60,6 +60,8 @@ set(SOURCES
     gpu/transfer.hpp
     utils/frame.cpp
     utils/frame.hpp
+    utils/trap.cpp
+    utils/trap.hpp
     win32/window.cpp
     win32/window.hpp
 )

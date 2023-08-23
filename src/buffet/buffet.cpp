@@ -8,8 +8,16 @@
 #include "demos/anim/anim.hpp"
 #include "demos/fibers/fibers.hpp"
 #include "demos/env/env.hpp"
+#include "utils/frame.hpp"
+#include "utils/trap.hpp"
+#include "win32/window.hpp"
 
+namespace fb {
+
+//
 // Constants.
+//
+
 inline constexpr std::string_view WINDOW_TITLE = "framebuffet 😎"sv;
 inline constexpr int WINDOW_WIDTH = 1280;
 inline constexpr int WINDOW_HEIGHT = 832;
@@ -20,10 +28,8 @@ static_assert(
 );
 
 //
-// GUI.
+// Gui.
 //
-
-namespace fb {
 
 template<typename T>
 concept GuiWrappable = requires(T demo, const demos::GuiDesc& desc) {
@@ -46,6 +52,10 @@ gui_wrapper(T& demo, const demos::GuiDesc& desc, ImGuiTreeNodeFlags flags = ImGu
 }
 
 } // namespace fb
+
+//
+// Main.
+//
 
 int main() {
     using namespace fb;
@@ -112,9 +122,11 @@ int main() {
     double update_time = 0.0;
     double gui_time = 0.0;
     double time_since_last_archive = 0.0;
+    auto archive_buf = std::vector<std::byte>();
+    archive_buf.reserve(1024);
+    FRAME_ALLOCATION_TRAP = true;
     while (running) {
-        const auto frame_name = std::format("Frame {}", frame_count);
-        PIXScopedEvent(PIX_COLOR_DEFAULT, dx_name("Main", frame_name).data());
+        PIXScopedEvent(PIX_COLOR_DEFAULT, "Main - Frame %zu", frame_count);
 
         // Handle window messages.
         {
@@ -139,11 +151,11 @@ int main() {
             PIXSetMarker(PIX_COLOR_DEFAULT, "Archive");
 
             time_since_last_archive = 0.0;
-            auto archive_buf = std::vector<std::byte>();
             auto archive = SerializingArchive(archive_buf);
             every_demo([&archive](auto& demo) { demo->archive(archive); });
             cards->archive(archive);
             write_whole_file(ARCHIVE_FILE_NAME, archive_buf);
+            archive_buf.clear();
         }
 
         // Update gui.
@@ -187,8 +199,14 @@ int main() {
                 .elapsed_time = frame.elapsed_time(),
                 .frame_index = device->frame_index(),
             };
-            every_demo([&update_desc](auto& demo) { demo->update(update_desc); });
-            cards->update(*device);
+            every_demo([&update_desc](auto& demo) {
+                PIXScopedEvent(PIX_COLOR_DEFAULT, "%s - %s", demo->NAME.data(), "Update");
+                demo->update(update_desc);
+            });
+            {
+                PIXScopedEvent(PIX_COLOR_DEFAULT, "%s - %s", cards->NAME.data(), "Update");
+                cards->update(*device);
+            }
             update_time = timer.elapsed_time();
         }
 
@@ -202,7 +220,7 @@ int main() {
 
             PIXBeginEvent(PIX_COLOR_DEFAULT, "Commands");
             {
-                cmd.begin_pix(frame_name);
+                cmd.begin_pix("Frame %zu", frame_count);
 
                 {
                     cmd.begin_pix("Clear render targets");
@@ -216,7 +234,7 @@ int main() {
                 {
                     cmd.begin_pix("Demo pass");
                     every_demo([&device, &cmd](auto& demo) {
-                        cmd.begin_pix(demo->NAME);
+                        cmd.begin_pix(demo->NAME.data());
                         demo->render(*device, cmd);
                         cmd.end_pix();
                     });
@@ -246,11 +264,11 @@ int main() {
                     swapchain.clear_render_target(cmd, frame_index);
                     swapchain.set_render_target(cmd, frame_index);
 
-                    cmd.begin_pix(cards->NAME);
+                    cmd.begin_pix(cards->NAME.data());
                     cards->render(*device, cmd);
                     cmd.end_pix();
 
-                    cmd.begin_pix(gui->NAME);
+                    cmd.begin_pix(gui->NAME.data());
                     gui->render(*device, cmd);
                     cmd.end_pix();
 
@@ -274,13 +292,13 @@ int main() {
         // Update frame count.
         frame_count++;
     }
+    FRAME_ALLOCATION_TRAP = false;
 
     // Wait for pending GPU work to complete before running destructors.
     device->wait();
 
     // Archive one more time.
     {
-        auto archive_buf = std::vector<std::byte>();
         auto archive = SerializingArchive(archive_buf);
         every_demo([&archive](auto& demo) { demo->archive(archive); });
         cards->archive(archive);

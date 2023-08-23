@@ -3,18 +3,6 @@
 
 namespace fb {
 
-auto GpuCommandList::begin_pix(std::string_view name) const -> void {
-    PIXBeginEvent(_cmd, PIX_COLOR_DEFAULT, name.data());
-}
-
-auto GpuCommandList::end_pix() const -> void {
-    PIXEndEvent(_cmd);
-}
-
-auto GpuCommandList::set_pix_marker(std::string_view name) const -> void {
-    PIXSetMarker(_cmd, PIX_COLOR_DEFAULT, name.data());
-}
-
 auto GpuCommandList::set_global_descriptor_heap() -> void {
     const auto heaps = std::to_array<ID3D12DescriptorHeap*>({
         _descriptors->cbv_srv_uav().heap(),

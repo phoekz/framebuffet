@@ -28,7 +28,8 @@ private:
     uint64_t _elapsed_time = 0;
     float _delta_time_sec = 0.0f;
     float _elapsed_time_sec = 0.0f;
-    std::deque<float> _delta_time_history;
+    std::array<float, MAX_DELTA_TIME_HISTORY> _delta_time_history = {};
+    size_t _delta_time_history_index = 0;
     float _smoothed_delta_time = 0.0f;
     float _since_last_delta_time_update = 0.0f;
     float _last_delta_time = 0.0f;

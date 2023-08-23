@@ -170,8 +170,6 @@ auto Cards::gui(const demos::GuiDesc& desc) -> void {
 }
 
 void Cards::update(const GpuDevice& device) {
-    PIXScopedEvent(PIX_COLOR_DEFAULT, dx_name(NAME, "Update").data());
-
     const auto swapchain_size = device.swapchain().size();
     const auto width = (float)swapchain_size.x;
     const auto height = (float)swapchain_size.y;

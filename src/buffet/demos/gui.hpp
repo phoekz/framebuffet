@@ -3,6 +3,8 @@
 #include "demos.hpp"
 #include "gui.hlsli"
 
+class fb::Window;
+
 namespace fb::demos::gui {
 
 inline constexpr uint32_t MAX_VERTEX_COUNT = 1024 * 1024;

@@ -1,4 +1,5 @@
 #include "gui.hpp"
+#include "../win32/window.hpp"
 
 namespace fb::demos::gui {
 

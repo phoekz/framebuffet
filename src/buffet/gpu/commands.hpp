@@ -31,9 +31,11 @@ public:
         return *this;
     }
 
-    auto begin_pix(std::string_view name) const -> void;
-    auto end_pix() const -> void;
-    auto set_pix_marker(std::string_view name) const -> void;
+    template<typename... Args>
+    auto begin_pix(const char* fmt, Args... args) const -> void {
+        PIXBeginEvent(_cmd, PIX_COLOR_DEFAULT, fmt, args...);
+    }
+    auto end_pix() const -> void { PIXEndEvent(_cmd); }
 
     auto set_graphics() -> void;
     auto set_compute() -> void;

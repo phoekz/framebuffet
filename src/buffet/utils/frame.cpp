@@ -30,21 +30,19 @@ auto Frame::update() -> void {
         _elapsed_time_sec = (float)((double)_elapsed_time / (double)_frequency);
     }
 
-    // Update delta time history.
+    // Update delta time history ring buffer.
     {
-        _delta_time_history.push_back(_delta_time_sec);
-        if (_delta_time_history.size() > MAX_DELTA_TIME_HISTORY) {
-            _delta_time_history.pop_front();
-        }
+        _delta_time_history[_delta_time_history_index] = _delta_time_sec;
+        _delta_time_history_index = (_delta_time_history_index + 1) % MAX_DELTA_TIME_HISTORY;
     }
 
     // Update smoothed delta time.
-    if (!_delta_time_history.empty()) {
+    {
         float sum = 0.0f;
-        for (auto dt : _delta_time_history) {
+        for (float dt : _delta_time_history) {
             sum += dt;
         }
-        _smoothed_delta_time = sum / (float)_delta_time_history.size();
+        _smoothed_delta_time = sum / (float)MAX_DELTA_TIME_HISTORY;
     }
 
     // Update FPS.

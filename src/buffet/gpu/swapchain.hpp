@@ -10,6 +10,7 @@ inline constexpr uint32_t FRAME_COUNT = 2;
 inline constexpr DXGI_FORMAT SWAPCHAIN_RTV_FORMAT = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
 
 class GpuDevice;
+class Window;
 
 class GpuSwapchain {
     FB_NO_COPY_MOVE(GpuSwapchain);

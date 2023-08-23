@@ -10,6 +10,8 @@ namespace fb {
 
 inline constexpr D3D_FEATURE_LEVEL MIN_FEATURE_LEVEL = D3D_FEATURE_LEVEL_12_2;
 
+class Window;
+
 class GpuDevice {
     FB_NO_COPY_MOVE(GpuDevice);
 

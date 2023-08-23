@@ -121,8 +121,6 @@ auto CrateDemo::gui(const GuiDesc&) -> void {
 }
 
 auto CrateDemo::update(const UpdateDesc& desc) -> void {
-    PIXScopedEvent(PIX_COLOR_DEFAULT, dx_name(NAME, "Update").data());
-
     auto& p = _parameters;
 
     // Update camera.

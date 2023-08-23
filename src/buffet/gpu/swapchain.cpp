@@ -1,5 +1,6 @@
 #include "swapchain.hpp"
 #include "debug.hpp"
+#include "../win32/window.hpp"
 
 namespace fb {
 

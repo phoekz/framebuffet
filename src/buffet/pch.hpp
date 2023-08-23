@@ -16,10 +16,7 @@
 
 // Standard library.
 #include <array>
-#include <deque>
 
 // Framebuffet.
 #include <common/pch.hpp>
 #include <common/common.hpp>
-#include <buffet/utils/frame.hpp>
-#include <buffet/win32/window.hpp>
