@@ -236,7 +236,7 @@ GpuDevice::GpuDevice(const Window& window) {
     {
         // Allocate constants for binding slots.
         CD3DX12_ROOT_PARAMETER1 root_parameter = {};
-        root_parameter.InitAsConstants(BINDINGS_CAPACITY, 0, 0);
+        root_parameter.InitAsConstants(MAX_BINDINGS, 0, 0);
 
         // Create the root signature description.
         auto flags = D3D12_ROOT_SIGNATURE_FLAG_NONE;

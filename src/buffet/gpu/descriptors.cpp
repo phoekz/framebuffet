@@ -64,11 +64,11 @@ GpuDescriptors::GpuDescriptors(GpuDevice& device, std::string_view name)
         device,
         name,
         D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV,
-        CBV_SRV_UAV_DESCRIPTOR_CAPACITY
+        MAX_CBV_SRV_UAV_DESCRIPTOR
     )
-    , _sampler_heap(device, name, D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER, SAMPLER_DESCRIPTOR_CAPACITY)
-    , _rtv_heap(device, name, D3D12_DESCRIPTOR_HEAP_TYPE_RTV, RTV_DESCRIPTOR_CAPACITY)
-    , _dsv_heap(device, name, D3D12_DESCRIPTOR_HEAP_TYPE_DSV, DSV_DESCRIPTOR_CAPACITY) {}
+    , _sampler_heap(device, name, D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER, MAX_SAMPLER_DESCRIPTOR)
+    , _rtv_heap(device, name, D3D12_DESCRIPTOR_HEAP_TYPE_RTV, MAX_RTV_DESCRIPTOR)
+    , _dsv_heap(device, name, D3D12_DESCRIPTOR_HEAP_TYPE_DSV, MAX_DSV_DESCRIPTOR) {}
 
 auto GpuDescriptors::log_stats() -> void {
     FB_LOG_INFO(

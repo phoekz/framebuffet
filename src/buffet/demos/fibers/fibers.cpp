@@ -164,7 +164,7 @@ FibersDemo::FibersDemo(
         );
         _light_indices.create(
             device,
-            _cull_dispatch_count_x * _cull_dispatch_count_y * LIGHT_CAPACITY_PER_TILE,
+            _cull_dispatch_count_x * _cull_dispatch_count_y * MAX_LIGHT_PER_TILE,
             dx_name(NAME, "Light Indices")
         );
         _light_indices_count.create(device, 1, dx_name(NAME, "Light Indices Count"));

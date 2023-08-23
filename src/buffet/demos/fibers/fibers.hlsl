@@ -100,7 +100,7 @@ void cull_cs(FbComputeInput input) {
         if (hit_mask == 0) {
             uint dst = 0;
             InterlockedAdd(gs_light_count, 1, dst);
-            if (dst < LIGHT_CAPACITY_PER_TILE) {
+            if (dst < MAX_LIGHT_PER_TILE) {
                 gs_light_indices[dst] = input.group_index;
             }
         }

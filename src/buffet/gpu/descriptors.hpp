@@ -52,10 +52,10 @@ private:
 
 class GpuDescriptors {
 public:
-    static constexpr uint32_t CBV_SRV_UAV_DESCRIPTOR_CAPACITY = 256;
-    static constexpr uint32_t SAMPLER_DESCRIPTOR_CAPACITY = 6;
-    static constexpr uint32_t RTV_DESCRIPTOR_CAPACITY = 16;
-    static constexpr uint32_t DSV_DESCRIPTOR_CAPACITY = 16;
+    static constexpr uint32_t MAX_CBV_SRV_UAV_DESCRIPTOR = 256;
+    static constexpr uint32_t MAX_SAMPLER_DESCRIPTOR = 6;
+    static constexpr uint32_t MAX_RTV_DESCRIPTOR = 16;
+    static constexpr uint32_t MAX_DSV_DESCRIPTOR = 16;
 
     GpuDescriptors(GpuDevice& device, std::string_view name);
 
@@ -72,7 +72,7 @@ private:
     GpuDescriptorHeap _dsv_heap;
 };
 
-inline constexpr uint32_t BINDINGS_CAPACITY = 16;
+inline constexpr uint32_t MAX_BINDINGS = 16;
 
 template<typename T>
 inline constexpr auto dword_count() -> uint32_t {
@@ -80,8 +80,8 @@ inline constexpr auto dword_count() -> uint32_t {
 }
 
 template<typename T>
-concept GpuBindable = (sizeof(T) > 0) && (sizeof(T) % sizeof(uint32_t) == 0)
-    && (dword_count<T>() <= BINDINGS_CAPACITY)
+concept GpuBindable =
+    (sizeof(T) > 0) && (sizeof(T) % sizeof(uint32_t) == 0) && (dword_count<T>() <= MAX_BINDINGS)
     && std::is_trivially_copyable_v<T> && std::is_standard_layout_v<T>;
 
 template<GpuBindable T>
