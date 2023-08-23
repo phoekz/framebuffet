@@ -166,7 +166,7 @@ int main() {
                     device->pix_capture();
                 }
 
-                const auto desc = demos::GuiDesc {.window_size = device->swapchain_size()};
+                const auto desc = demos::GuiDesc {.window_size = device->swapchain().size()};
                 gui_wrapper(cards, desc, ImGuiTreeNodeFlags_DefaultOpen);
                 every_demo([&desc](auto& demo) { gui_wrapper(demo, desc); });
             }
@@ -181,7 +181,7 @@ int main() {
 
             auto timer = Instant();
             const auto update_desc = demos::UpdateDesc {
-                .window_size = device->swapchain_size(),
+                .window_size = device->swapchain().size(),
                 .aspect_ratio = WINDOW_ASPECT_RATIO,
                 .delta_time = frame.delta_time(),
                 .elapsed_time = frame.elapsed_time(),
@@ -236,8 +236,15 @@ int main() {
                 }
 
                 {
+                    auto& swapchain = device->swapchain();
+                    const auto frame_index = device->frame_index();
+
                     cmd.begin_pix("Main pass");
-                    device->begin_main_pass();
+
+                    swapchain.transition_to_render_target(cmd, frame_index);
+                    cmd.flush_barriers();
+                    swapchain.clear_render_target(cmd, frame_index);
+                    swapchain.set_render_target(cmd, frame_index);
 
                     cmd.begin_pix(cards->NAME);
                     cards->render(*device, cmd);
@@ -247,7 +254,9 @@ int main() {
                     gui->render(*device, cmd);
                     cmd.end_pix();
 
-                    device->end_main_pass();
+                    swapchain.transition_to_present(cmd, frame_index);
+                    cmd.flush_barriers();
+
                     cmd.end_pix();
                 }
 

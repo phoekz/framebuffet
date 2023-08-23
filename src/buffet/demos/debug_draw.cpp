@@ -2,12 +2,12 @@
 
 namespace fb::demos {
 
-DebugDraw::DebugDraw(
+auto DebugDraw::create(
     GpuDevice& device,
     const baked::Shaders& shaders,
     const RenderTargets& render_targets,
     std::string_view name
-) {
+) -> void {
     // Pipeline.
     GpuPipelineBuilder()
         .primitive_topology(D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE)

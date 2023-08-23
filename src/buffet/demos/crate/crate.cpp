@@ -3,18 +3,26 @@
 
 namespace fb::demos::crate {
 
-CrateDemo::CrateDemo(GpuDevice& device, const baked::Assets& assets, const baked::Shaders& shaders)
-    : _render_targets(
+CrateDemo::CrateDemo(
+    GpuDevice& device,
+    const baked::Assets& assets,
+    const baked::Shaders& shaders
+) {
+    // Render targets.
+    _render_targets.create(
         device,
         {
-            .size = device.swapchain_size(),
+            .size = device.swapchain().size(),
             .color_format = DXGI_FORMAT_R16G16B16A16_FLOAT,
             .clear_color = CLEAR_COLOR,
             .sample_count = 4,
         },
         NAME
-    )
-    , _debug_draw(device, shaders, _render_targets, NAME) {
+    );
+
+    // Debug draw.
+    _debug_draw.create(device, shaders, _render_targets, NAME);
+
     // Pipeline.
     GpuPipelineBuilder()
         .primitive_topology(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)
@@ -61,23 +69,21 @@ CrateDemo::CrateDemo(GpuDevice& device, const baked::Assets& assets, const baked
                      metallic_roughness
                  ),
              }) {
-            dst_texture.create(
+            dst_texture.create_and_transfer(
                 device,
                 GpuTextureDesc {
                     .format = src_texture.format,
                     .width = src_texture.width,
                     .height = src_texture.height,
                 },
-                dx_name(NAME, model_name, texture_name)
-            );
-            device.transfer().resource(
-                dst_texture.resource(),
-                D3D12_SUBRESOURCE_DATA {
-                    .pData = src_texture.data.data(),
-                    .RowPitch = src_texture.row_pitch,
-                    .SlicePitch = src_texture.slice_pitch},
+                GpuTextureTransferDesc {
+                    .data = src_texture.data.data(),
+                    .row_pitch = src_texture.row_pitch,
+                    .slice_pitch = src_texture.slice_pitch,
+                },
                 D3D12_RESOURCE_STATE_COMMON,
-                D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE
+                D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
+                dx_name(NAME, model_name, texture_name)
             );
         }
     }

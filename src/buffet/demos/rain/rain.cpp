@@ -2,23 +2,24 @@
 
 namespace fb::demos::rain {
 
-RainDemo::RainDemo(GpuDevice& device, const baked::Assets&, const baked::Shaders& shaders)
-    : _render_targets(
+RainDemo::RainDemo(GpuDevice& device, const baked::Assets&, const baked::Shaders& shaders) {
+    // Render targets.
+    _render_targets.create(
         device,
         {
-            .size = device.swapchain_size(),
+            .size = device.swapchain().size(),
             .color_format = DXGI_FORMAT_R8G8B8A8_UNORM,
             .clear_color = CLEAR_COLOR,
             .sample_count = 1,
         },
         NAME
-    )
-    , _debug_draw(device, shaders, _render_targets, NAME) {
+    );
+
+    // Debug draw.
+    _debug_draw.create(device, shaders, _render_targets, NAME);
+
     // Particles.
     {
-        // Buffer.
-        _particles.create(device, PARTICLE_COUNT, dx_name(NAME, "Particles"));
-
         // Data.
         Pcg rand;
         std::vector<Particle> particles(PARTICLE_COUNT);
@@ -29,15 +30,13 @@ RainDemo::RainDemo(GpuDevice& device, const baked::Assets&, const baked::Shaders
             particle.position.z = 2.0f * rand.random_float() - 1.0f;
         }
 
-        // Transfer.
-        device.transfer().resource(
-            _particles.resource(),
-            D3D12_SUBRESOURCE_DATA {
-                .pData = particles.data(),
-                .RowPitch = _particles.byte_size(),
-                .SlicePitch = _particles.byte_size()},
+        // Buffer.
+        _particles.create_and_transfer(
+            device,
+            particles,
             D3D12_RESOURCE_STATE_COMMON,
-            D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER
+            D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER,
+            dx_name(NAME, "Particles")
         );
     }
 

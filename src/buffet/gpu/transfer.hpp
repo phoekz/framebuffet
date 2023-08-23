@@ -5,8 +5,12 @@
 namespace fb {
 
 class GpuTransfer {
+    FB_NO_COPY_MOVE(GpuTransfer);
+
 public:
-    GpuTransfer(const ComPtr<ID3D12Device>& device);
+    GpuTransfer() = default;
+
+    auto create(const ComPtr<ID3D12Device>& device) -> void;
     auto begin() -> void;
     auto resource(
         const ComPtr<ID3D12Resource>& resource,
@@ -28,7 +32,7 @@ private:
         uint64_t bytes = 0;
     } _stats;
 
-    DirectX::ResourceUploadBatch _batch;
+    std::unique_ptr<DirectX::ResourceUploadBatch> _batch;
 };
 
 } // namespace fb

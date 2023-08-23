@@ -2,18 +2,22 @@
 
 namespace fb::demos::anim {
 
-AnimDemo::AnimDemo(GpuDevice& device, const baked::Assets& assets, const baked::Shaders& shaders)
-    : _render_targets(
+AnimDemo::AnimDemo(GpuDevice& device, const baked::Assets& assets, const baked::Shaders& shaders) {
+    // Render targets.
+    _render_targets.create(
         device,
         {
-            .size = device.swapchain_size(),
+            .size = device.swapchain().size(),
             .color_format = DXGI_FORMAT_R8G8B8A8_UNORM,
             .clear_color = CLEAR_COLOR,
             .sample_count = 4,
         },
         NAME
-    )
-    , _debug_draw(device, shaders, _render_targets, NAME) {
+    );
+
+    // Debug draw.
+    _debug_draw.create(device, shaders, _render_targets, NAME);
+
     // Pipeline.
     GpuPipelineBuilder()
         .primitive_topology(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)
@@ -36,23 +40,20 @@ AnimDemo::AnimDemo(GpuDevice& device, const baked::Assets& assets, const baked::
 
     // Texture.
     const auto texture = assets.raccoon_base_color_texture();
-    _texture.create(
+    _texture.create_and_transfer(
         device,
         GpuTextureDesc {
             .format = texture.format,
             .width = texture.width,
             .height = texture.height,
         },
-        dx_name(NAME, "Texture")
-    );
-    device.transfer().resource(
-        _texture.resource(),
-        D3D12_SUBRESOURCE_DATA {
-            .pData = texture.data.data(),
-            .RowPitch = texture.row_pitch,
-            .SlicePitch = texture.slice_pitch},
+        GpuTextureTransferDesc {
+            .data = texture.data.data(),
+            .row_pitch = texture.row_pitch,
+            .slice_pitch = texture.slice_pitch},
         D3D12_RESOURCE_STATE_COMMON,
-        D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE
+        D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
+        dx_name(NAME, "Texture")
     );
 
     // Animations.

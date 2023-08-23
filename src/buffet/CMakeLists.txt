@@ -53,6 +53,8 @@ set(SOURCES
     gpu/samplers.cpp
     gpu/samplers.hlsli
     gpu/samplers.hpp
+    gpu/swapchain.cpp
+    gpu/swapchain.hpp
     gpu/textures.hpp
     gpu/transfer.cpp
     gpu/transfer.hpp

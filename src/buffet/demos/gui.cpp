@@ -62,34 +62,29 @@ Gui::Gui(
         // Raw data.
         auto& io = ImGui::GetIO();
         uint8_t* pixels;
-        int width, height;
-        io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);
+        uint32_t width, height;
+        io.Fonts->GetTexDataAsRGBA32(&pixels, (int*)&width, (int*)&height);
 
         // Texture.
-        _texture.create(
+        _texture.create_and_transfer(
             device,
             GpuTextureDesc {
                 .format = DXGI_FORMAT_R8G8B8A8_UNORM,
-                .width = (uint32_t)width,
-                .height = (uint32_t)height,
+                .width = width,
+                .height = height,
             },
+            GpuTextureTransferDesc {
+                .data = pixels,
+                .row_pitch = width * 4,
+                .slice_pitch = width * height * 4,
+            },
+            D3D12_RESOURCE_STATE_COMMON,
+            D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
             dx_name(Gui::NAME, "Font Texture")
         );
 
-        // ImGui Font texture ID.
+        // Font texture ID.
         io.Fonts->SetTexID((ImTextureID)_texture.srv_descriptor().gpu().ptr);
-
-        // Transfer.
-        device.transfer().resource(
-            _texture.resource(),
-            {
-                .pData = pixels,
-                .RowPitch = width * 4,
-                .SlicePitch = width * height * 4,
-            },
-            D3D12_RESOURCE_STATE_COMMON,
-            D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE
-        );
     }
 
     // Geometry.

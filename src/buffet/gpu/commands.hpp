@@ -15,6 +15,8 @@ enum class GpuCommandEngine {
 };
 
 class GpuCommandList {
+    FB_NO_COPY(GpuCommandList);
+
     friend class GpuDevice;
 
 public:
@@ -108,8 +110,6 @@ private:
         , _engine(engine)
         , _root_signature(root_signature)
         , _descriptors(descriptors) {}
-    GpuCommandList(GpuCommandList& o) = delete;
-    GpuCommandList& operator=(GpuCommandList& o) = delete;
 
     auto set_global_descriptor_heap() -> void;
 

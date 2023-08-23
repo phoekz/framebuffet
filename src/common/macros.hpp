@@ -1,5 +1,9 @@
 #pragma once
 
+#define FB_NO_COPY(T)     \
+    T(const T&) = delete; \
+    auto operator=(const T&)->T& = delete;
+
 #define FB_NO_COPY_MOVE(T)                 \
     T(const T&) = delete;                  \
     T(T&&) = delete;                       \

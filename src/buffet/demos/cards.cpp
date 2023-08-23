@@ -79,7 +79,7 @@ Cards::Cards(GpuDevice& device, const baked::Shaders& shaders, const CardsDesc& 
     _cards.create(device, CARD_COUNT, dx_name(Cards::NAME, "Cards"));
 
     // Default card layout.
-    layout_hmosaic(_cards.span(), device.swapchain_size());
+    layout_hmosaic(_cards.span(), device.swapchain().size());
 
     // Geometry.
     {
@@ -101,8 +101,8 @@ Cards::Cards(GpuDevice& device, const baked::Shaders& shaders, const CardsDesc& 
 
     // Single pass downsampler.
     {
-        const auto width = device.swapchain_size().x;
-        const auto height = device.swapchain_size().y;
+        const auto width = device.swapchain().size().x;
+        const auto height = device.swapchain().size().y;
         const auto mip_count = mip_count_from_size(width, height);
         const auto end_index_x = (width - 1u) / 64u;
         const auto end_index_y = (height - 1u) / 64u;
@@ -121,16 +121,13 @@ Cards::Cards(GpuDevice& device, const baked::Shaders& shaders, const CardsDesc& 
         };
 
         // Atomics.
-        _spd_atomics.create(device, 1, dx_name(NAME, "Spd", "Slice Atomics"));
         spd::Atomics atomics = {};
-        device.transfer().resource(
-            _spd_atomics.resource(),
-            D3D12_SUBRESOURCE_DATA {
-                .pData = &atomics,
-                .RowPitch = sizeof(atomics),
-                .SlicePitch = sizeof(atomics)},
+        _spd_atomics.create_and_transfer(
+            device,
+            std::span(&atomics, 1),
             D3D12_RESOURCE_STATE_COMMON,
-            D3D12_RESOURCE_STATE_UNORDERED_ACCESS
+            D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
+            dx_name(NAME, "Spd", "Slice Atomics")
         );
 
         // Pipeline.
@@ -175,7 +172,7 @@ auto Cards::gui(const demos::GuiDesc& desc) -> void {
 void Cards::update(const GpuDevice& device) {
     PIXScopedEvent(PIX_COLOR_DEFAULT, dx_name(NAME, "Update").data());
 
-    const auto swapchain_size = device.swapchain_size();
+    const auto swapchain_size = device.swapchain().size();
     const auto width = (float)swapchain_size.x;
     const auto height = (float)swapchain_size.y;
     const auto projection =
@@ -201,9 +198,12 @@ void Cards::render(GpuDevice& device, GpuCommandList& cmd) {
     }
 
     const auto& p = _parameters;
+    const auto swapchain_size = device.swapchain().size();
+    const auto width = swapchain_size.x;
+    const auto height = swapchain_size.y;
     cmd.set_graphics();
-    cmd.set_viewport(0, 0, device.swapchain_size().x, device.swapchain_size().y);
-    cmd.set_scissor(0, 0, device.swapchain_size().x, device.swapchain_size().y);
+    cmd.set_viewport(0, 0, width, height);
+    cmd.set_scissor(0, 0, width, height);
     cmd.set_pipeline(_pipeline);
     cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
     cmd.set_index_buffer(_indices.index_buffer_view());

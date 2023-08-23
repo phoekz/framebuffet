@@ -22,13 +22,14 @@ public:
     static constexpr std::string_view NAME = "Debug Draw"sv;
     static constexpr size_t MAX_LINE_COUNT = 1 << 16;
 
-    DebugDraw(
+    DebugDraw() = default;
+
+    auto create(
         GpuDevice& device,
         const baked::Shaders& shaders,
         const RenderTargets& render_targets,
         std::string_view name
-    );
-
+    ) -> void;
     auto begin(uint32_t frame_index) -> void;
     auto transform(const Float4x4& transform) -> void;
     auto line(const Float3& a, const Float3& b, RgbaByte color) -> void;

@@ -25,14 +25,17 @@ private:
 };
 
 class GpuDescriptorHeap {
+    FB_NO_COPY_MOVE(GpuDescriptorHeap);
+
 public:
-    GpuDescriptorHeap(
+    GpuDescriptorHeap() = default;
+
+    auto create(
         GpuDevice& device,
         std::string_view name,
         D3D12_DESCRIPTOR_HEAP_TYPE type,
         uint32_t capacity
-    );
-
+    ) -> void;
     auto alloc() -> GpuDescriptor;
     auto type() const -> D3D12_DESCRIPTOR_HEAP_TYPE { return _type; }
     auto count() const -> uint32_t { return _count; }
@@ -51,18 +54,21 @@ private:
 };
 
 class GpuDescriptors {
+    FB_NO_COPY_MOVE(GpuDescriptors);
+
 public:
     static constexpr uint32_t MAX_CBV_SRV_UAV_DESCRIPTOR = 256;
     static constexpr uint32_t MAX_SAMPLER_DESCRIPTOR = 6;
     static constexpr uint32_t MAX_RTV_DESCRIPTOR = 16;
     static constexpr uint32_t MAX_DSV_DESCRIPTOR = 16;
 
-    GpuDescriptors(GpuDevice& device, std::string_view name);
+    GpuDescriptors() = default;
 
-    auto rtv() -> GpuDescriptorHeap& { return _rtv_heap; }
-    auto dsv() -> GpuDescriptorHeap& { return _dsv_heap; }
+    auto create(GpuDevice& device, std::string_view name) -> void;
     auto cbv_srv_uav() -> GpuDescriptorHeap& { return _cbv_srv_uav_heap; }
     auto sampler() -> GpuDescriptorHeap& { return _sampler_heap; }
+    auto rtv() -> GpuDescriptorHeap& { return _rtv_heap; }
+    auto dsv() -> GpuDescriptorHeap& { return _dsv_heap; }
     auto log_stats() -> void;
 
 private:

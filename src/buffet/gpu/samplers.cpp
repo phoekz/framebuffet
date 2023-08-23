@@ -3,7 +3,7 @@
 
 namespace fb {
 
-GpuSamplers::GpuSamplers(GpuDevice& device, GpuDescriptors& descriptors) {
+auto GpuSamplers::create(GpuDevice& device, GpuDescriptors& descriptors) -> void {
     std::tuple<GpuSamplerType, D3D12_SAMPLER_DESC, GpuDescriptor> samplers[] = {
         {
             GpuSamplerType::LinearClamp,

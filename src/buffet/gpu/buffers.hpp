@@ -19,8 +19,8 @@ enum class GpuBufferFlags : uint32_t {
     Index = 0x8,
 };
 
-inline constexpr auto gpu_buffer_flags_is_set(GpuBufferFlags flags, GpuBufferFlags flag) -> bool {
-    return ((uint32_t)flags & (uint32_t)flag) > 0;
+inline constexpr auto gpu_buffer_flags_contains(GpuBufferFlags flags, GpuBufferFlags flag) -> bool {
+    return ((uint32_t)flags & (uint32_t)flag) == (uint32_t)flag;
 }
 
 namespace detail {
@@ -30,13 +30,13 @@ namespace detail {
         static_assert(std::is_trivially_copyable_v<T>, "Buffer type must be trivially copyable");
         static_assert(std::is_constructible_v<T>, "Buffer type must be constructible");
         static_assert(std::is_pointer_v<T> == false, "Buffer type cannot be a pointer");
-        if constexpr (gpu_buffer_flags_is_set(FLAGS, GpuBufferFlags::Index)) {
+        if constexpr (gpu_buffer_flags_contains(FLAGS, GpuBufferFlags::Index)) {
             static_assert(
                 std::is_same_v<T, uint16_t> || std::is_same_v<T, uint32_t>,
                 "Index buffer only supports 16-bit and 32-bit unsigned formats"
             );
         }
-        if constexpr (gpu_buffer_flags_is_set(FLAGS, GpuBufferFlags::Cbv)) {
+        if constexpr (gpu_buffer_flags_contains(FLAGS, GpuBufferFlags::Cbv)) {
             static_assert(sizeof(T) % size_t(256) == 0, "Constants must be 256-byte aligned");
         }
         return true;
@@ -46,10 +46,17 @@ namespace detail {
 template<typename T, GpuBufferAccessMode ACCESS_MODE, GpuBufferFlags FLAGS>
     requires(detail::buffer_type_is_valid<T, FLAGS>())
 class GpuBuffer {
+    FB_NO_COPY_MOVE(GpuBuffer);
+
 public:
+    using enum GpuBufferAccessMode;
+    using enum GpuBufferFlags;
+
+    GpuBuffer() = default;
+
     auto create(GpuDevice& device, uint32_t element_size, std::string_view name) -> void {
         // Format.
-        if constexpr (gpu_buffer_flags_is_set(FLAGS, GpuBufferFlags::Index)) {
+        if constexpr (gpu_buffer_flags_contains(FLAGS, Index)) {
             if (std::is_same_v<T, uint16_t>) {
                 _format = DXGI_FORMAT_R16_UINT;
             } else if (std::is_same_v<T, uint32_t>) {
@@ -59,12 +66,12 @@ public:
 
         // Resource flags.
         auto resource_flags = D3D12_RESOURCE_FLAG_NONE;
-        if constexpr (gpu_buffer_flags_is_set(FLAGS, GpuBufferFlags::Uav)) {
+        if constexpr (gpu_buffer_flags_contains(FLAGS, Uav)) {
             resource_flags |= D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
         }
 
         // Resource properties.
-        auto host_visible = ACCESS_MODE == GpuBufferAccessMode::Host;
+        auto host_visible = ACCESS_MODE == Host;
         auto heap_type = host_visible ? D3D12_HEAP_TYPE_UPLOAD : D3D12_HEAP_TYPE_DEFAULT;
         _element_size = element_size;
         _byte_size = _element_byte_size * element_size;
@@ -100,7 +107,7 @@ public:
         _gpu_address = _resource->GetGPUVirtualAddress();
 
         // Views.
-        if constexpr (gpu_buffer_flags_is_set(FLAGS, GpuBufferFlags::Cbv)) {
+        if constexpr (gpu_buffer_flags_contains(FLAGS, Cbv)) {
             _cbv_descriptor = device.descriptors().cbv_srv_uav().alloc();
             device.create_constant_buffer_view(
                 D3D12_CONSTANT_BUFFER_VIEW_DESC {
@@ -110,7 +117,7 @@ public:
                 _cbv_descriptor.cpu()
             );
         }
-        if constexpr (gpu_buffer_flags_is_set(FLAGS, GpuBufferFlags::Srv)) {
+        if constexpr (gpu_buffer_flags_contains(FLAGS, Srv)) {
             _srv_descriptor = device.descriptors().cbv_srv_uav().alloc();
             device.create_shader_resource_view(
                 _resource,
@@ -129,7 +136,7 @@ public:
                 _srv_descriptor.cpu()
             );
         }
-        if constexpr (gpu_buffer_flags_is_set(FLAGS, GpuBufferFlags::Uav)) {
+        if constexpr (gpu_buffer_flags_contains(FLAGS, Uav)) {
             _uav_descriptor = device.descriptors().cbv_srv_uav().alloc();
             device.create_unordered_access_view(
                 _resource,
@@ -152,8 +159,29 @@ public:
     }
     auto create_with_data(GpuDevice& device, std::span<const T> data, std::string_view name)
         -> void {
+        static_assert(ACCESS_MODE == Host);
         create(device, (uint32_t)data.size(), name);
         memcpy(_raw, data.data(), data.size_bytes());
+    }
+    auto create_and_transfer(
+        GpuDevice& device,
+        std::span<const T> data,
+        D3D12_RESOURCE_STATES before_state,
+        D3D12_RESOURCE_STATES after_state,
+        std::string_view name
+    ) -> void {
+        static_assert(ACCESS_MODE == Device);
+        create(device, (uint32_t)data.size(), name);
+        device.transfer().resource(
+            _resource,
+            D3D12_SUBRESOURCE_DATA {
+                .pData = data.data(),
+                .RowPitch = (LONG_PTR)data.size_bytes(),
+                .SlicePitch = (LONG_PTR)data.size_bytes(),
+            },
+            before_state,
+            after_state
+        );
     }
 
     auto element_size() const -> uint32_t { return _element_size; }
@@ -163,10 +191,7 @@ public:
     auto ptr() const -> T* { return reinterpret_cast<T*>(raw()); }
     auto span() const -> std::span<T> { return std::span<T>(ptr(), element_size()); }
     auto index_buffer_view() const -> D3D12_INDEX_BUFFER_VIEW {
-        static_assert(
-            gpu_buffer_flags_is_set(FLAGS, GpuBufferFlags::Index),
-            "Buffer is not an index buffer"
-        );
+        static_assert(gpu_buffer_flags_contains(FLAGS, Index));
         return D3D12_INDEX_BUFFER_VIEW {
             .BufferLocation = _gpu_address,
             .SizeInBytes = _byte_size,
@@ -174,24 +199,15 @@ public:
         };
     }
     auto cbv_descriptor() const -> GpuDescriptor {
-        static_assert(
-            gpu_buffer_flags_is_set(FLAGS, GpuBufferFlags::Cbv),
-            "Buffer does not support CBV"
-        );
+        static_assert(gpu_buffer_flags_contains(FLAGS, Cbv));
         return _cbv_descriptor;
     }
     auto srv_descriptor() const -> GpuDescriptor {
-        static_assert(
-            gpu_buffer_flags_is_set(FLAGS, GpuBufferFlags::Srv),
-            "Buffer does not support SRV"
-        );
+        static_assert(gpu_buffer_flags_contains(FLAGS, Srv));
         return _srv_descriptor;
     }
     auto uav_descriptor() const -> GpuDescriptor {
-        static_assert(
-            gpu_buffer_flags_is_set(FLAGS, GpuBufferFlags::Uav),
-            "Buffer does not support UAV"
-        );
+        static_assert(gpu_buffer_flags_contains(FLAGS, Uav));
         return _uav_descriptor;
     }
 
@@ -203,10 +219,7 @@ public:
     }
 
     auto uav_barrier(GpuCommandList& cmd) -> void {
-        static_assert(
-            gpu_buffer_flags_is_set(FLAGS, GpuBufferFlags::Uav),
-            "Buffer does not support UAV"
-        );
+        static_assert(gpu_buffer_flags_contains(FLAGS, Uav));
         cmd.uav_barrier(_resource);
     }
 

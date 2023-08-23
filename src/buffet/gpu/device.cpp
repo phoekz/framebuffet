@@ -162,71 +162,15 @@ GpuDevice::GpuDevice(const Window& window) {
     ));
     dx_set_name(_command_list, "Command List");
 
+    // Global descriptor heap.
+    _descriptors.create(*this, "Global Descriptor Heap");
+
     // Swapchain.
-    {
-        ComPtr<IDXGISwapChain1> swapchain1;
-        DXGI_SWAP_CHAIN_DESC1 desc = {
-            .Width = 0,
-            .Height = 0,
-            .Format = DXGI_FORMAT_R8G8B8A8_UNORM,
-            .Stereo = FALSE,
-            .SampleDesc =
-                {
-                    .Count = 1,
-                    .Quality = 0,
-                },
-            .BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT,
-            .BufferCount = FRAME_COUNT,
-            .Scaling = DXGI_SCALING_STRETCH,
-            .SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD,
-            .AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED,
-            .Flags = DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT,
-        };
-        FB_ASSERT_HR(factory->CreateSwapChainForHwnd(
-            _command_queue.get(),
-            window.hwnd(),
-            &desc,
-            nullptr,
-            nullptr,
-            &swapchain1
-        ));
-        swapchain1.query_to(&_swapchain);
-    }
-
-    // Swapchain size.
-    {
-        DXGI_SWAP_CHAIN_DESC1 desc;
-        _swapchain->GetDesc1(&desc);
-        _swapchain_size = {desc.Width, desc.Height};
-    }
-
-    // Render target views.
-    {
-        _rtv_descriptor_heap = this->create_descriptor_heap(
-            D3D12_DESCRIPTOR_HEAP_DESC {
-                .Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV,
-                .NumDescriptors = FRAME_COUNT},
-            dx_name("Render Target", "Descriptor Heap")
-        );
-
-        for (uint32_t i = 0; i < FRAME_COUNT; i++) {
-            FB_ASSERT_HR(_swapchain->GetBuffer(i, IID_PPV_ARGS(&_rtvs[i])));
-            dx_set_name(_rtvs[i], dx_name("Render Target", i));
-
-            auto rtv_descriptor_handle = _rtv_descriptor_heap->GetCPUDescriptorHandleForHeapStart();
-            rtv_descriptor_handle.ptr += i * this->descriptor_size(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
-            D3D12_RENDER_TARGET_VIEW_DESC rtv_desc = {
-                .Format = SWAPCHAIN_RTV_FORMAT,
-                .ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D,
-            };
-            _device->CreateRenderTargetView(_rtvs[i].get(), &rtv_desc, rtv_descriptor_handle);
-            _rtv_descriptors[i] = rtv_descriptor_handle;
-        }
-    }
+    _swapchain.create(factory, _device, _command_queue, window, _descriptors);
 
     // Synchronization.
     {
-        _frame_index = _swapchain->GetCurrentBackBufferIndex();
+        _frame_index = _swapchain.backbuffer_index();
         _fence = this->create_fence(0, "Fence");
         _fence_event = wil::unique_handle(CreateEvent(nullptr, FALSE, FALSE, nullptr));
         FB_ASSERT_MSG(_fence_event != nullptr, "Failed to create fence event.");
@@ -265,22 +209,19 @@ GpuDevice::GpuDevice(const Window& window) {
         _root_signature = this->create_root_signature(signature, "Global Root Signature");
     }
 
-    // Global descriptor heap.
-    _descriptors = std::make_unique<GpuDescriptors>(*this, "Global Descriptor Heap");
-
     // Global samplers.
-    _samplers = std::make_unique<GpuSamplers>(*this, *_descriptors);
+    _samplers.create(*this, _descriptors);
 
     // Global transfer.
-    _transfer = std::make_unique<GpuTransfer>(_device);
+    _transfer.create(_device);
 }
 
 auto GpuDevice::begin_transfer() -> void {
-    _transfer->begin();
+    _transfer.begin();
 }
 
 auto GpuDevice::end_transfer() -> void {
-    _transfer->end(_command_queue);
+    _transfer.end(_command_queue);
 }
 
 auto GpuDevice::begin_frame() -> GpuCommandList {
@@ -291,30 +232,8 @@ auto GpuDevice::begin_frame() -> GpuCommandList {
         _command_list.get(),
         GpuCommandEngine::Unknown,
         _root_signature.get(),
-        _descriptors.get(),
+        &_descriptors,
     };
-}
-
-auto GpuDevice::begin_main_pass() -> void {
-    auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(
-        _rtvs[_frame_index].get(),
-        D3D12_RESOURCE_STATE_PRESENT,
-        D3D12_RESOURCE_STATE_RENDER_TARGET
-    );
-    _command_list->ResourceBarrier(1, &barrier);
-
-    static constexpr float CLEAR_COLOR[4] = {0.1f, 0.1f, 0.1f, 1.0f};
-    _command_list->ClearRenderTargetView(_rtv_descriptors[_frame_index], CLEAR_COLOR, 0, nullptr);
-    _command_list->OMSetRenderTargets(1, &_rtv_descriptors[_frame_index], FALSE, nullptr);
-}
-
-auto GpuDevice::end_main_pass() -> void {
-    auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(
-        _rtvs[_frame_index].get(),
-        D3D12_RESOURCE_STATE_RENDER_TARGET,
-        D3D12_RESOURCE_STATE_PRESENT
-    );
-    _command_list->ResourceBarrier(1, &barrier);
 }
 
 auto GpuDevice::end_frame(GpuCommandList&&) -> void {
@@ -326,14 +245,14 @@ auto GpuDevice::end_frame(GpuCommandList&&) -> void {
     _command_queue->ExecuteCommandLists(_countof(command_lists), command_lists);
 
     // Present.
-    _swapchain->Present(1, 0);
+    _swapchain.present();
 
     // Schedule a Signal command in the queue.
     uint64_t current_fence_value = _fence_values[_frame_index];
     FB_ASSERT_HR(_command_queue->Signal(_fence.get(), _fence_values[_frame_index]));
 
     // Update the frame index.
-    _frame_index = _swapchain->GetCurrentBackBufferIndex();
+    _frame_index = _swapchain.backbuffer_index();
     uint64_t* fence_value = &_fence_values[_frame_index];
 
     // If the next frame is not ready to be rendered yet, wait until it is ready.
@@ -485,7 +404,7 @@ auto GpuDevice::descriptor_size(D3D12_DESCRIPTOR_HEAP_TYPE heap_type) const -> u
 }
 
 auto GpuDevice::log_stats() -> void {
-    _descriptors->log_stats();
+    _descriptors.log_stats();
 }
 
 auto GpuDevice::pix_capture() -> void {

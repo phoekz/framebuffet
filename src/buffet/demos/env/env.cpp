@@ -2,18 +2,22 @@
 
 namespace fb::demos::env {
 
-EnvDemo::EnvDemo(GpuDevice& device, const baked::Assets& assets, const baked::Shaders& shaders)
-    : _render_targets(
+EnvDemo::EnvDemo(GpuDevice& device, const baked::Assets& assets, const baked::Shaders& shaders) {
+    // Render targets.
+    _render_targets.create(
         device,
         {
-            .size = device.swapchain_size(),
+            .size = device.swapchain().size(),
             .color_format = DXGI_FORMAT_R8G8B8A8_UNORM,
             .clear_color = CLEAR_COLOR,
             .sample_count = 1,
         },
         NAME
-    )
-    , _debug_draw(device, shaders, _render_targets, NAME) {
+    );
+
+    // Debug draw.
+    _debug_draw.create(device, shaders, _render_targets, NAME);
+
     // Pipeline.
     GpuPipelineBuilder()
         .primitive_topology(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)
@@ -38,7 +42,15 @@ EnvDemo::EnvDemo(GpuDevice& device, const baked::Assets& assets, const baked::Sh
     {
         // Create texture.
         const auto env_texture = assets.winter_evening_cube_texture();
-        _env_texture.create(
+        std::array<GpuTextureTransferDesc, 6> transfers;
+        for (uint32_t i = 0; i < 6; ++i) {
+            transfers[i] = {
+                .data = env_texture.datas[i].data(),
+                .row_pitch = env_texture.row_pitch,
+                .slice_pitch = env_texture.slice_pitch,
+            };
+        }
+        _env_texture.create_and_transfer(
             device,
             GpuTextureDesc {
                 .format = env_texture.format,
@@ -46,23 +58,10 @@ EnvDemo::EnvDemo(GpuDevice& device, const baked::Assets& assets, const baked::Sh
                 .height = env_texture.height,
                 .depth = 6,
             },
-            dx_name(NAME, "Env Texture")
-        );
-
-        // Transfer.
-        std::array<D3D12_SUBRESOURCE_DATA, 6> subresources;
-        for (uint32_t i = 0; i < 6; ++i) {
-            subresources[i] = {
-                .pData = env_texture.datas[i].data(),
-                .RowPitch = (int64_t)env_texture.row_pitch,
-                .SlicePitch = (int64_t)env_texture.slice_pitch,
-            };
-        }
-        device.transfer().resource(
-            _env_texture.resource(),
-            subresources,
+            transfers,
             D3D12_RESOURCE_STATE_COMMON,
-            D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE
+            D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
+            dx_name(NAME, "Env Texture")
         );
     }
 }

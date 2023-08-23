@@ -19,9 +19,9 @@ enum class GpuTextureFlags : uint32_t {
     SrvUavRtv = Srv | Uav | Rtv,
 };
 
-inline constexpr auto gpu_texture_flags_is_set(GpuTextureFlags flags, GpuTextureFlags flag)
+inline constexpr auto gpu_texture_flags_contains(GpuTextureFlags flags, GpuTextureFlags flag)
     -> bool {
-    return ((uint32_t)flags & (uint32_t)flag) > 0;
+    return ((uint32_t)flags & (uint32_t)flag) == (uint32_t)flag;
 }
 
 struct GpuTextureDesc {
@@ -38,10 +38,22 @@ struct GpuTextureDesc {
     std::optional<DXGI_FORMAT> dsv_format = std::nullopt;
 };
 
+struct GpuTextureTransferDesc {
+    const void* data = nullptr;
+    uint32_t row_pitch = 0;
+    uint32_t slice_pitch = 0;
+};
+
 template<GpuTextureFlags FLAGS>
 class GpuTexture {
+    FB_NO_COPY_MOVE(GpuTexture);
+
 public:
+    using enum GpuTextureFlags;
+
     static inline constexpr auto MAX_MIP_COUNT = 16;
+
+    GpuTexture() = default;
 
     auto create(GpuDevice& device, const GpuTextureDesc& desc, std::string_view name) -> void {
         // Validate.
@@ -51,7 +63,7 @@ public:
         FB_ASSERT(desc.depth > 0);
         FB_ASSERT(desc.mip_count > 0 && desc.mip_count <= MAX_MIP_COUNT);
         FB_ASSERT(desc.sample_count > 0);
-        if (gpu_texture_flags_is_set(FLAGS, GpuTextureFlags::Cube)) {
+        if (gpu_texture_flags_contains(FLAGS, Cube)) {
             FB_ASSERT(desc.depth == 6);
         }
 
@@ -67,14 +79,14 @@ public:
         // Texture flags.
         D3D12_RESOURCE_FLAGS resource_flags = D3D12_RESOURCE_FLAG_NONE;
         D3D12_RESOURCE_STATES init_state = D3D12_RESOURCE_STATE_COMMON;
-        if (gpu_texture_flags_is_set(FLAGS, GpuTextureFlags::Uav)) {
+        if (gpu_texture_flags_contains(FLAGS, Uav)) {
             resource_flags |= D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
         }
-        if (gpu_texture_flags_is_set(FLAGS, GpuTextureFlags::Rtv)) {
+        if (gpu_texture_flags_contains(FLAGS, Rtv)) {
             resource_flags |= D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
             init_state = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
         }
-        if (gpu_texture_flags_is_set(FLAGS, GpuTextureFlags::Dsv)) {
+        if (gpu_texture_flags_contains(FLAGS, Dsv)) {
             resource_flags |= D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
             init_state = D3D12_RESOURCE_STATE_DEPTH_WRITE;
         }
@@ -95,10 +107,10 @@ public:
 
         // Clear value.
         std::optional<D3D12_CLEAR_VALUE> clear_value = std::nullopt;
-        if (gpu_texture_flags_is_set(FLAGS, GpuTextureFlags::Rtv)) {
+        if (gpu_texture_flags_contains(FLAGS, Rtv)) {
             FB_ASSERT(desc.clear_value.has_value());
             clear_value = desc.clear_value;
-        } else if (gpu_texture_flags_is_set(FLAGS, GpuTextureFlags::Dsv)) {
+        } else if (gpu_texture_flags_contains(FLAGS, Dsv)) {
             FB_ASSERT(desc.clear_value.has_value());
             clear_value = desc.clear_value;
         } else {
@@ -116,11 +128,11 @@ public:
         _resource_state = init_state;
 
         // Views.
-        if constexpr (gpu_texture_flags_is_set(FLAGS, GpuTextureFlags::Srv)) {
+        if constexpr (gpu_texture_flags_contains(FLAGS, Srv)) {
             _srv_descriptor = device.descriptors().cbv_srv_uav().alloc();
 
             D3D12_SRV_DIMENSION srv_dimension;
-            if (gpu_texture_flags_is_set(FLAGS, GpuTextureFlags::Cube)) {
+            if (gpu_texture_flags_contains(FLAGS, Cube)) {
                 srv_dimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
             } else if (desc.sample_count > 1) {
                 srv_dimension = D3D12_SRV_DIMENSION_TEXTURE2DMS;
@@ -139,11 +151,8 @@ public:
                 _srv_descriptor.cpu()
             );
         }
-        if constexpr (gpu_texture_flags_is_set(FLAGS, GpuTextureFlags::Uav)) {
-            static_assert(
-                !gpu_texture_flags_is_set(FLAGS, GpuTextureFlags::Cube),
-                "UAV textures does not support cube maps"
-            );
+        if constexpr (gpu_texture_flags_contains(FLAGS, Uav)) {
+            static_assert(!gpu_texture_flags_contains(FLAGS, Cube));
             for (uint32_t mip = 0; mip < desc.mip_count; mip++) {
                 _uav_descriptors[mip] = device.descriptors().cbv_srv_uav().alloc();
                 device.create_unordered_access_view(
@@ -158,7 +167,7 @@ public:
                 );
             }
         }
-        if constexpr (gpu_texture_flags_is_set(FLAGS, GpuTextureFlags::Rtv)) {
+        if constexpr (gpu_texture_flags_contains(FLAGS, Rtv)) {
             _rtv_descriptor = device.descriptors().rtv().alloc();
             std::optional<D3D12_RENDER_TARGET_VIEW_DESC> maybe_desc = std::nullopt;
             if (D3D12_PROPERTY_LAYOUT_FORMAT_TABLE::GetTypeLevel(desc.format)
@@ -171,7 +180,7 @@ public:
             }
             device.create_render_target_view(_resource, maybe_desc, _rtv_descriptor.cpu());
         }
-        if constexpr (gpu_texture_flags_is_set(FLAGS, GpuTextureFlags::Dsv)) {
+        if constexpr (gpu_texture_flags_contains(FLAGS, Dsv)) {
             _dsv_descriptor = device.descriptors().dsv().alloc();
             std::optional<D3D12_DEPTH_STENCIL_VIEW_DESC> maybe_desc = std::nullopt;
             if (D3D12_PROPERTY_LAYOUT_FORMAT_TABLE::GetTypeLevel(desc.format)
@@ -189,6 +198,42 @@ public:
         // Copy desc.
         _desc = desc;
     }
+    auto create_and_transfer(
+        GpuDevice& device,
+        const GpuTextureDesc& desc,
+        std::span<const GpuTextureTransferDesc> transfer_descs,
+        D3D12_RESOURCE_STATES before_state,
+        D3D12_RESOURCE_STATES after_state,
+        std::string_view name
+    ) -> void {
+        create(device, desc, name);
+        std::vector<D3D12_SUBRESOURCE_DATA> subresources(transfer_descs.size());
+        for (uint32_t i = 0; i < transfer_descs.size(); i++) {
+            subresources[i] = D3D12_SUBRESOURCE_DATA {
+                .pData = transfer_descs[i].data,
+                .RowPitch = (int64_t)transfer_descs[i].row_pitch,
+                .SlicePitch = (int64_t)transfer_descs[i].slice_pitch,
+            };
+        }
+        device.transfer().resource(_resource, subresources, before_state, after_state);
+    }
+    auto create_and_transfer(
+        GpuDevice& device,
+        const GpuTextureDesc& desc,
+        const GpuTextureTransferDesc& transfer_desc,
+        D3D12_RESOURCE_STATES before_state,
+        D3D12_RESOURCE_STATES after_state,
+        std::string_view name
+    ) -> void {
+        create_and_transfer(
+            device,
+            desc,
+            std::span<const GpuTextureTransferDesc>(&transfer_desc, 1),
+            before_state,
+            after_state,
+            name
+        );
+    }
 
     auto width() const -> uint32_t { return _desc.width; }
     auto height() const -> uint32_t { return _desc.height; }
@@ -202,31 +247,19 @@ public:
     auto row_pitch() const -> uint32_t { return bytes_per_unit() * _desc.width; }
     auto slice_pitch() const -> uint32_t { return row_pitch() * _desc.height; }
     auto srv_descriptor() const -> GpuDescriptor {
-        static_assert(
-            gpu_texture_flags_is_set(FLAGS, GpuTextureFlags::Srv),
-            "Texture does not support SRV"
-        );
+        static_assert(gpu_texture_flags_contains(FLAGS, Srv));
         return _srv_descriptor;
     }
     auto uav_descriptor() const -> GpuDescriptor {
-        static_assert(
-            gpu_texture_flags_is_set(FLAGS, GpuTextureFlags::Uav),
-            "Texture does not support UAV"
-        );
+        static_assert(gpu_texture_flags_contains(FLAGS, Uav));
         return _uav_descriptors[0];
     }
     auto rtv_descriptor() const -> GpuDescriptor {
-        static_assert(
-            gpu_texture_flags_is_set(FLAGS, GpuTextureFlags::Rtv),
-            "Texture does not support RTV"
-        );
+        static_assert(gpu_texture_flags_contains(FLAGS, Rtv));
         return _rtv_descriptor;
     }
     auto dsv_descriptor() const -> GpuDescriptor {
-        static_assert(
-            gpu_texture_flags_is_set(FLAGS, GpuTextureFlags::Dsv),
-            "Texture does not support DSV"
-        );
+        static_assert(gpu_texture_flags_contains(FLAGS, Dsv));
         return _dsv_descriptor;
     }
 
@@ -238,10 +271,7 @@ public:
     }
 
     auto uav_barrier(GpuCommandList& cmd) -> void {
-        static_assert(
-            gpu_texture_flags_is_set(FLAGS, GpuTextureFlags::Uav),
-            "Texture does not support UAV"
-        );
+        static_assert(gpu_texture_flags_contains(FLAGS, Uav));
         cmd.uav_barrier(_resource);
     }
 

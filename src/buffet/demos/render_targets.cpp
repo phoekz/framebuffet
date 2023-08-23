@@ -14,14 +14,12 @@ static auto make_depth_stencil_clear_value(DXGI_FORMAT format, float depth, uint
     };
 }
 
-RenderTargets::RenderTargets(
-    GpuDevice& device,
-    const RenderTargetsDesc& desc,
-    std::string_view name
-)
-    : _size(desc.size)
-    , _clear_color(desc.clear_color)
-    , _sample_count(desc.sample_count) {
+auto RenderTargets::create(GpuDevice& device, const RenderTargetsDesc& desc, std::string_view name)
+    -> void {
+    _size = desc.size;
+    _clear_color = desc.clear_color;
+    _sample_count = desc.sample_count;
+
     if (desc.sample_count > 1) {
         _multisampled_color.create(
             device,
@@ -66,7 +64,10 @@ auto RenderTargets::transition_to_render_target(GpuCommandList& cmd) -> void {
     if (_sample_count > 1) {
         _multisampled_color.transition(cmd, D3D12_RESOURCE_STATE_RENDER_TARGET);
     } else {
-        _color.transition(cmd, D3D12_RESOURCE_STATE_RENDER_TARGET); // this is transitioning too much
+        _color.transition(
+            cmd,
+            D3D12_RESOURCE_STATE_RENDER_TARGET
+        ); // this is transitioning too much
     }
 }
 

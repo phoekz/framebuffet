@@ -9,18 +9,22 @@ tree::TreeDemo::TreeDemo(
     GpuDevice& device,
     const baked::Assets& assets,
     const baked::Shaders& shaders
-)
-    : _render_targets(
+) {
+    // Render targets.
+    _render_targets.create(
         device,
         {
-            .size = device.swapchain_size(),
+            .size = device.swapchain().size(),
             .color_format = DXGI_FORMAT_R8G8B8A8_UNORM,
             .clear_color = CLEAR_COLOR,
             .sample_count = 4,
         },
         NAME
-    )
-    , _debug_draw(device, shaders, _render_targets, NAME) {
+    );
+
+    // Debug draw.
+    _debug_draw.create(device, shaders, _render_targets, NAME);
+
     // Constants.
     _constants.create(device, 1, dx_name(NAME, "Constants"));
 
@@ -35,44 +39,40 @@ tree::TreeDemo::TreeDemo(
     // Texture.
     {
         const auto& texture = assets.coconut_tree_base_color_texture();
-        _tree_texture.create(
+        _tree_texture.create_and_transfer(
             device,
             GpuTextureDesc {
                 .format = texture.format,
                 .width = texture.width,
                 .height = texture.height,
             },
-            dx_name(NAME, "Tree", "Texture")
-        );
-        device.transfer().resource(
-            _tree_texture.resource(),
-            D3D12_SUBRESOURCE_DATA {
-                .pData = texture.data.data(),
-                .RowPitch = texture.row_pitch,
-                .SlicePitch = texture.slice_pitch},
+            GpuTextureTransferDesc {
+                .data = texture.data.data(),
+                .row_pitch = texture.row_pitch,
+                .slice_pitch = texture.slice_pitch,
+            },
             D3D12_RESOURCE_STATE_COMMON,
-            D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE
+            D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
+            dx_name(NAME, "Tree", "Texture")
         );
     }
     {
         const auto& texture = assets.sand_plane_base_color_texture();
-        _plane_texture.create(
+        _plane_texture.create_and_transfer(
             device,
             GpuTextureDesc {
                 .format = texture.format,
                 .width = texture.width,
                 .height = texture.height,
             },
-            dx_name(NAME, "Plane", "Texture")
-        );
-        device.transfer().resource(
-            _plane_texture.resource(),
-            D3D12_SUBRESOURCE_DATA {
-                .pData = texture.data.data(),
-                .RowPitch = texture.row_pitch,
-                .SlicePitch = texture.slice_pitch},
+            GpuTextureTransferDesc {
+                .data = texture.data.data(),
+                .row_pitch = texture.row_pitch,
+                .slice_pitch = texture.slice_pitch,
+            },
             D3D12_RESOURCE_STATE_COMMON,
-            D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE
+            D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
+            dx_name(NAME, "Plane", "Texture")
         );
     }
 

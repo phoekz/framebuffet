@@ -2,17 +2,13 @@
 
 #include "../pch.hpp"
 #include "debug.hpp"
+#include "samplers.hpp"
 #include "transfer.hpp"
+#include "swapchain.hpp"
 
 namespace fb {
 
-inline constexpr uint32_t FRAME_COUNT = 2;
 inline constexpr D3D_FEATURE_LEVEL MIN_FEATURE_LEVEL = D3D_FEATURE_LEVEL_12_2;
-inline constexpr DXGI_FORMAT SWAPCHAIN_RTV_FORMAT = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
-
-class GpuCommandList;
-class GpuDescriptors;
-class GpuSamplers;
 
 class GpuDevice {
     FB_NO_COPY_MOVE(GpuDevice);
@@ -23,8 +19,6 @@ public:
     auto begin_transfer() -> void;
     auto end_transfer() -> void;
     auto begin_frame() -> GpuCommandList;
-    auto begin_main_pass() -> void;
-    auto end_main_pass() -> void;
     auto end_frame(GpuCommandList&& cmd) -> void;
     auto wait() -> void;
 
@@ -77,14 +71,13 @@ public:
         -> void;
     auto descriptor_size(D3D12_DESCRIPTOR_HEAP_TYPE heap_type) const -> uint32_t;
 
-    // Resource utilities.
-    auto transfer() -> GpuTransfer& { return *_transfer; }
-
     // Getters.
-    auto swapchain_size() const -> Uint2 { return _swapchain_size; }
+    auto transfer() -> GpuTransfer& { return _transfer; }
+    auto swapchain() -> GpuSwapchain& { return _swapchain; }
+    auto swapchain() const -> const GpuSwapchain& { return _swapchain; }
     auto frame_index() const -> uint32_t { return _frame_index; }
     auto root_signature() const -> ID3D12RootSignature* { return _root_signature.get(); }
-    auto descriptors() -> GpuDescriptors& { return *_descriptors; }
+    auto descriptors() -> GpuDescriptors& { return _descriptors; }
 
     // Debugging.
     auto log_stats() -> void;
@@ -97,11 +90,7 @@ private:
     ComPtr<ID3D12CommandQueue> _command_queue;
     std::array<ComPtr<ID3D12CommandAllocator>, FRAME_COUNT> _command_allocators;
     ComPtr<ID3D12GraphicsCommandList9> _command_list;
-    ComPtr<IDXGISwapChain4> _swapchain;
-    Uint2 _swapchain_size = {};
-    ComPtr<ID3D12DescriptorHeap> _rtv_descriptor_heap;
-    std::array<D3D12_CPU_DESCRIPTOR_HANDLE, FRAME_COUNT> _rtv_descriptors = {};
-    std::array<ComPtr<ID3D12Resource>, FRAME_COUNT> _rtvs = {};
+    GpuSwapchain _swapchain;
 
     uint32_t _frame_index = 0;
     ComPtr<ID3D12Fence1> _fence;
@@ -109,9 +98,9 @@ private:
     std::array<uint64_t, FRAME_COUNT> _fence_values = {};
 
     ComPtr<ID3D12RootSignature> _root_signature;
-    std::unique_ptr<GpuDescriptors> _descriptors;
-    std::unique_ptr<GpuSamplers> _samplers;
-    std::unique_ptr<GpuTransfer> _transfer;
+    GpuDescriptors _descriptors;
+    GpuSamplers _samplers;
+    GpuTransfer _transfer;
 };
 
 } // namespace fb

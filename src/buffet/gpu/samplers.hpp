@@ -9,8 +9,12 @@ namespace fb {
 class GpuDevice;
 
 class GpuSamplers {
+    FB_NO_COPY_MOVE(GpuSamplers);
+
 public:
-    GpuSamplers(GpuDevice& device, GpuDescriptors& descriptors);
+    GpuSamplers() = default;
+
+    auto create(GpuDevice& device, GpuDescriptors& descriptors) -> void;
 
 private:
     std::array<GpuDescriptor, (size_t)GpuSamplerType::Count> _handles;

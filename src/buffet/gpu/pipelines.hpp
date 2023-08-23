@@ -7,9 +7,13 @@ namespace fb {
 class GpuDevice;
 
 class GpuPipeline {
+    FB_NO_COPY_MOVE(GpuPipeline);
+
     friend class GpuPipelineBuilder;
 
 public:
+    GpuPipeline() = default;
+
     auto get() const -> ID3D12PipelineState* { return _state.get(); }
 
 private:
@@ -17,7 +21,11 @@ private:
 };
 
 class GpuPipelineBuilder {
+    FB_NO_COPY_MOVE(GpuPipelineBuilder);
+
 public:
+    GpuPipelineBuilder() = default;
+
     // clang-format off
     [[nodiscard]] auto primitive_topology(D3D12_PRIMITIVE_TOPOLOGY_TYPE topology) -> GpuPipelineBuilder&;
     [[nodiscard]] auto vertex_shader(std::span<const std::byte> dxil) -> GpuPipelineBuilder&;

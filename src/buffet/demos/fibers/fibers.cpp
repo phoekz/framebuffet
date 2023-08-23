@@ -6,18 +6,22 @@ FibersDemo::FibersDemo(
     GpuDevice& device,
     const baked::Assets& assets,
     const baked::Shaders& shaders
-)
-    : _render_targets(
+) {
+    // Render targets.
+    _render_targets.create(
         device,
         {
-            .size = device.swapchain_size(),
+            .size = device.swapchain().size(),
             .color_format = DXGI_FORMAT_R16G16B16A16_FLOAT,
             .clear_color = CLEAR_COLOR,
             .sample_count = 1,
         },
         NAME
-    )
-    , _debug_draw(device, shaders, _render_targets, NAME) {
+    );
+
+    // Debug draw.
+    _debug_draw.create(device, shaders, _render_targets, NAME);
+
     // Pipelines.
     {
         GpuPipelineBuilder()
@@ -92,9 +96,6 @@ FibersDemo::FibersDemo(
 
     // Lights.
     {
-        // Buffer.
-        _lights.create(device, LIGHT_COUNT, dx_name(NAME, "Lights"));
-
         // Data.
         Pcg rand;
         auto lights = std::vector<Light>(LIGHT_COUNT);
@@ -127,19 +128,17 @@ FibersDemo::FibersDemo(
         }
         FB_LOG_INFO("Light placement attempts: {}", attempts);
 
-        // Transfer.
-        device.transfer().resource(
-            _lights.resource(),
-            D3D12_SUBRESOURCE_DATA {
-                .pData = lights.data(),
-                .RowPitch = _lights.byte_size(),
-                .SlicePitch = _lights.byte_size()},
+        // Buffer.
+        _lights.create_and_transfer(
+            device,
+            lights,
             D3D12_RESOURCE_STATE_COMMON,
-            D3D12_RESOURCE_STATE_UNORDERED_ACCESS
+            D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
+            dx_name(NAME, "Lights")
         );
     }
 
-    const auto swapchain_size = device.swapchain_size();
+    const auto swapchain_size = device.swapchain().size();
     _cull_dispatch_count_x = (swapchain_size.x + (CULL_DISPATCH_SIZE - 1)) / CULL_DISPATCH_SIZE;
     _cull_dispatch_count_y = (swapchain_size.y + (CULL_DISPATCH_SIZE - 1)) / CULL_DISPATCH_SIZE;
 
@@ -174,44 +173,38 @@ FibersDemo::FibersDemo(
         const auto magma = assets.heatmap_magma_texture();
         const auto viridis = assets.heatmap_viridis_texture();
 
-        _magma_texture.create(
+        _magma_texture.create_and_transfer(
             device,
             GpuTextureDesc {
                 .format = magma.format,
                 .width = magma.width,
                 .height = magma.height,
             },
+            GpuTextureTransferDesc {
+                .data = magma.data.data(),
+                .row_pitch = magma.row_pitch,
+                .slice_pitch = magma.slice_pitch,
+            },
+            D3D12_RESOURCE_STATE_COMMON,
+            D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
             dx_name(NAME, "Magma Texture")
         );
 
-        _viridis_texture.create(
+        _viridis_texture.create_and_transfer(
             device,
             GpuTextureDesc {
                 .format = viridis.format,
                 .width = viridis.width,
                 .height = viridis.height,
             },
+            GpuTextureTransferDesc {
+                .data = viridis.data.data(),
+                .row_pitch = viridis.row_pitch,
+                .slice_pitch = viridis.slice_pitch,
+            },
+            D3D12_RESOURCE_STATE_COMMON,
+            D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
             dx_name(NAME, "Viridis Texture")
-        );
-
-        device.transfer().resource(
-            _magma_texture.resource(),
-            D3D12_SUBRESOURCE_DATA {
-                .pData = magma.data.data(),
-                .RowPitch = magma.row_pitch,
-                .SlicePitch = magma.slice_pitch},
-            D3D12_RESOURCE_STATE_COMMON,
-            D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE
-        );
-
-        device.transfer().resource(
-            _viridis_texture.resource(),
-            D3D12_SUBRESOURCE_DATA {
-                .pData = viridis.data.data(),
-                .RowPitch = viridis.row_pitch,
-                .SlicePitch = viridis.slice_pitch},
-            D3D12_RESOURCE_STATE_COMMON,
-            D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE
         );
     }
 }
