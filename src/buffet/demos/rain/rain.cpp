@@ -132,11 +132,12 @@ void RainDemo::render(GpuDevice& device, GpuCommandList& cmd) {
         cmd.set_pipeline(_compute_pipeline);
         cmd.dispatch(DISPATCH_COUNT, 1, 1);
         _particles.uav_barrier(cmd);
+        cmd.flush_barriers();
     }
 
     {
         cmd.set_graphics();
-        _render_targets.begin(device, cmd);
+        _render_targets.set(cmd);
         cmd.set_graphics_constants(Bindings {
             .constants = _constants.cbv_descriptor().index(),
             .particles = _particles.srv_descriptor().index(),
@@ -147,7 +148,6 @@ void RainDemo::render(GpuDevice& device, GpuCommandList& cmd) {
         cmd.set_index_buffer(_draw_indices.index_buffer_view());
         cmd.draw_indexed_instanced(6, PARTICLE_COUNT, 0, 0, 0);
         _debug_draw.render(device, cmd);
-        _render_targets.end(device, cmd);
     }
 }
 

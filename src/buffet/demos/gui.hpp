@@ -9,6 +9,8 @@ inline constexpr uint32_t MAX_VERTEX_COUNT = 1024 * 1024;
 inline constexpr uint32_t MAX_INDEX_COUNT = 1024 * 1024;
 
 class Gui {
+    FB_NO_COPY_MOVE(Gui);
+
 public:
     static constexpr std::string_view NAME = "Gui"sv;
 

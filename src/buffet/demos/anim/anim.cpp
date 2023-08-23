@@ -215,7 +215,7 @@ auto AnimDemo::update(const UpdateDesc& desc) -> void {
 
 auto AnimDemo::render(GpuDevice& device, GpuCommandList& cmd) -> void {
     cmd.set_graphics();
-    _render_targets.begin(device, cmd);
+    _render_targets.set(cmd);
     _debug_draw.render(device, cmd);
     cmd.set_graphics_constants(Bindings {
         .constants = _constants.cbv_descriptor().index(),
@@ -228,7 +228,6 @@ auto AnimDemo::render(GpuDevice& device, GpuCommandList& cmd) -> void {
     cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
     cmd.set_index_buffer(_indices.index_buffer_view());
     cmd.draw_indexed_instanced(_indices.element_size(), 1, 0, 0, 0);
-    _render_targets.end(device, cmd);
 }
 
 } // namespace fb::demos::anim

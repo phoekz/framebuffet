@@ -11,6 +11,10 @@ auto GpuCommandList::end_pix() const -> void {
     PIXEndEvent(_cmd);
 }
 
+auto GpuCommandList::set_pix_marker(std::string_view name) const -> void {
+    PIXSetMarker(_cmd, PIX_COLOR_DEFAULT, name.data());
+}
+
 auto GpuCommandList::set_global_descriptor_heap() -> void {
     const auto heaps = std::to_array<ID3D12DescriptorHeap*>({
         _descriptors->cbv_srv_uav().heap(),
@@ -155,14 +159,24 @@ auto GpuCommandList::transition_barrier(
     const ComPtr<ID3D12Resource>& resource,
     D3D12_RESOURCE_STATES before,
     D3D12_RESOURCE_STATES after
-) const -> void {
+) -> void {
+    FB_ASSERT(_pending_barrier_count < MAX_PENDING_BARRIERS);
     auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(resource.get(), before, after);
-    _cmd->ResourceBarrier(1, &barrier);
+    _pending_barriers[_pending_barrier_count++] = barrier;
 }
 
-auto GpuCommandList::uav_barrier(const ComPtr<ID3D12Resource>& resource) const -> void {
+auto GpuCommandList::uav_barrier(const ComPtr<ID3D12Resource>& resource) -> void {
+    FB_ASSERT(_pending_barrier_count < MAX_PENDING_BARRIERS);
     auto barrier = CD3DX12_RESOURCE_BARRIER::UAV(resource.get());
-    _cmd->ResourceBarrier(1, &barrier);
+    _pending_barriers[_pending_barrier_count++] = barrier;
+}
+
+auto GpuCommandList::flush_barriers() -> void {
+    if (_pending_barrier_count == 0) {
+        return;
+    }
+    _cmd->ResourceBarrier((uint32_t)_pending_barrier_count, _pending_barriers.data());
+    _pending_barrier_count = 0;
 }
 
 } // namespace fb

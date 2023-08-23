@@ -35,6 +35,8 @@ struct Mesh {
 };
 
 class FibersDemo {
+    FB_NO_COPY_MOVE(FibersDemo);
+
 public:
     static constexpr std::string_view NAME = "Fibers"sv;
     static constexpr Float4 CLEAR_COLOR = {0.05f, 0.05f, 0.05f, 1.0f};
@@ -43,7 +45,7 @@ public:
     auto gui(const GuiDesc& desc) -> void;
     auto update(const UpdateDesc& desc) -> void;
     auto render(GpuDevice& device, GpuCommandList& cmd) -> void;
-    auto rt() const -> const RenderTargets& { return _render_targets; }
+    auto rt() -> RenderTargets& { return _render_targets; }
 
     template<Archive A>
     auto archive(A& arc) -> void {

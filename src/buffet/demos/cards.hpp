@@ -14,7 +14,7 @@ struct Parameters {
 };
 
 struct CardsDesc {
-    std::array<std::reference_wrapper<const RenderTargets>, CARD_COUNT> card_render_targets;
+    std::array<std::reference_wrapper<RenderTargets>, CARD_COUNT> card_render_targets;
 };
 
 struct CardDescriptors {
@@ -24,6 +24,8 @@ struct CardDescriptors {
 };
 
 class Cards {
+    FB_NO_COPY_MOVE(Cards);
+
 public:
     static constexpr std::string_view NAME = "Cards"sv;
 

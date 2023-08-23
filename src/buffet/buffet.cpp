@@ -85,16 +85,22 @@ int main() {
     device->log_stats();
     FB_LOG_INFO("Init time: {} ms", 1e3f * init_time.elapsed_time());
 
+    auto every_demo =
+        [&crate_demo, &tree_demo, &rain_demo, &anim_demo, &fibers_demo, &env_demo](auto f) {
+            f(crate_demo);
+            f(tree_demo);
+            f(rain_demo);
+            f(anim_demo);
+            f(fibers_demo);
+            f(env_demo);
+        };
+
     // Archives.
     if (file_exists(ARCHIVE_FILE_NAME)) {
         auto archive_buf = read_whole_file(ARCHIVE_FILE_NAME);
+        FB_LOG_INFO("Archive size: {} bytes", archive_buf.size());
         auto archive = DeserializingArchive(archive_buf);
-        crate_demo->archive(archive);
-        tree_demo->archive(archive);
-        rain_demo->archive(archive);
-        anim_demo->archive(archive);
-        fibers_demo->archive(archive);
-        env_demo->archive(archive);
+        every_demo([&archive](auto& demo) { demo->archive(archive); });
         cards->archive(archive);
         FB_ASSERT(archive.fully_consumed());
     }
@@ -135,12 +141,7 @@ int main() {
             time_since_last_archive = 0.0;
             auto archive_buf = std::vector<std::byte>();
             auto archive = SerializingArchive(archive_buf);
-            crate_demo->archive(archive);
-            tree_demo->archive(archive);
-            rain_demo->archive(archive);
-            anim_demo->archive(archive);
-            fibers_demo->archive(archive);
-            env_demo->archive(archive);
+            every_demo([&archive](auto& demo) { demo->archive(archive); });
             cards->archive(archive);
             write_whole_file(ARCHIVE_FILE_NAME, archive_buf);
         }
@@ -167,12 +168,7 @@ int main() {
 
                 const auto desc = demos::GuiDesc {.window_size = device->swapchain_size()};
                 gui_wrapper(cards, desc, ImGuiTreeNodeFlags_DefaultOpen);
-                gui_wrapper(crate_demo, desc);
-                gui_wrapper(tree_demo, desc);
-                gui_wrapper(rain_demo, desc);
-                gui_wrapper(anim_demo, desc);
-                gui_wrapper(fibers_demo, desc);
-                gui_wrapper(env_demo, desc);
+                every_demo([&desc](auto& demo) { gui_wrapper(demo, desc); });
             }
             ImGui::End();
             gui->end_frame();
@@ -191,12 +187,7 @@ int main() {
                 .elapsed_time = frame.elapsed_time(),
                 .frame_index = device->frame_index(),
             };
-            crate_demo->update(update_desc);
-            tree_demo->update(update_desc);
-            rain_demo->update(update_desc);
-            anim_demo->update(update_desc);
-            fibers_demo->update(update_desc);
-            env_demo->update(update_desc);
+            every_demo([&update_desc](auto& demo) { demo->update(update_desc); });
             cards->update(*device);
             update_time = timer.elapsed_time();
         }
@@ -214,32 +205,33 @@ int main() {
                 cmd.begin_pix(frame_name);
 
                 {
+                    cmd.begin_pix("Clear render targets");
+                    cmd.set_graphics();
+                    every_demo([&cmd](auto& demo) { demo->rt().transition_to_render_target(cmd); });
+                    cmd.flush_barriers();
+                    every_demo([&cmd](auto& demo) { demo->rt().clear_all(cmd); });
+                    cmd.end_pix();
+                }
+
+                {
                     cmd.begin_pix("Demo pass");
-
-                    cmd.begin_pix(crate_demo->NAME);
-                    crate_demo->render(*device, cmd);
+                    every_demo([&device, &cmd](auto& demo) {
+                        cmd.begin_pix(demo->NAME);
+                        demo->render(*device, cmd);
+                        cmd.end_pix();
+                    });
                     cmd.end_pix();
+                }
 
-                    cmd.begin_pix(tree_demo->NAME);
-                    tree_demo->render(*device, cmd);
-                    cmd.end_pix();
-
-                    cmd.begin_pix(rain_demo->NAME);
-                    rain_demo->render(*device, cmd);
-                    cmd.end_pix();
-
-                    cmd.begin_pix(anim_demo->NAME);
-                    anim_demo->render(*device, cmd);
-                    cmd.end_pix();
-
-                    cmd.begin_pix(fibers_demo->NAME);
-                    fibers_demo->render(*device, cmd);
-                    cmd.end_pix();
-
-                    cmd.begin_pix(env_demo->NAME);
-                    env_demo->render(*device, cmd);
-                    cmd.end_pix();
-
+                {
+                    cmd.begin_pix("Resolve render targets");
+                    every_demo([&cmd](auto& demo) { demo->rt().transition_to_resolve(cmd); });
+                    cmd.flush_barriers();
+                    every_demo([&cmd](auto& demo) { demo->rt().resolve_all(cmd); });
+                    every_demo([&cmd](auto& demo) {
+                        demo->rt().transition_to_pixel_shader_resource(cmd);
+                    });
+                    cmd.flush_barriers();
                     cmd.end_pix();
                 }
 
@@ -276,6 +268,16 @@ int main() {
 
     // Wait for pending GPU work to complete before running destructors.
     device->wait();
+
+    // Archive one more time.
+    {
+        auto archive_buf = std::vector<std::byte>();
+        auto archive = SerializingArchive(archive_buf);
+        every_demo([&archive](auto& demo) { demo->archive(archive); });
+        cards->archive(archive);
+        write_whole_file(ARCHIVE_FILE_NAME, archive_buf);
+        FB_LOG_INFO("Final archive size: {} bytes", archive_buf.size());
+    }
 
     return 0;
 }

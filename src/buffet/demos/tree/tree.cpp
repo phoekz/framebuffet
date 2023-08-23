@@ -193,6 +193,7 @@ auto TreeDemo::render(GpuDevice& device, GpuCommandList& cmd) -> void {
     {
         cmd.set_graphics();
         _shadow_depth.transition(cmd, D3D12_RESOURCE_STATE_DEPTH_WRITE);
+        cmd.flush_barriers();
         cmd.set_viewport(0, 0, SHADOW_MAP_SIZE, SHADOW_MAP_SIZE);
         cmd.set_scissor(0, 0, SHADOW_MAP_SIZE, SHADOW_MAP_SIZE);
         cmd.set_rtv_dsv(std::nullopt, _shadow_depth.dsv_descriptor());
@@ -206,12 +207,13 @@ auto TreeDemo::render(GpuDevice& device, GpuCommandList& cmd) -> void {
         cmd.set_index_buffer(_tree_indices.index_buffer_view());
         cmd.draw_indexed_instanced(_tree_indices.element_size(), 1, 0, 0, 0);
         _shadow_depth.transition(cmd, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+        cmd.flush_barriers();
     }
 
     // Main pass.
     {
         cmd.set_graphics();
-        _render_targets.begin(device, cmd);
+        _render_targets.set(cmd);
         _debug_draw.render(device, cmd);
         cmd.set_pipeline(_draw_pipeline);
         cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -233,8 +235,6 @@ auto TreeDemo::render(GpuDevice& device, GpuCommandList& cmd) -> void {
         });
         cmd.set_index_buffer(_plane_indices.index_buffer_view());
         cmd.draw_indexed_instanced(_plane_indices.element_size(), 1, 0, 0, 0);
-
-        _render_targets.end(device, cmd);
     }
 }
 

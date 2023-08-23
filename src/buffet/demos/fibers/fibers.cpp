@@ -289,6 +289,7 @@ auto FibersDemo::render(GpuDevice& device, GpuCommandList& cmd) -> void {
         });
         cmd.dispatch(SIM_DISPATCH_COUNT, 1, 1);
         _lights.uav_barrier(cmd);
+        cmd.flush_barriers();
 
         // Reset.
         cmd.set_pipeline(_reset_pipeline);
@@ -297,6 +298,7 @@ auto FibersDemo::render(GpuDevice& device, GpuCommandList& cmd) -> void {
         });
         cmd.dispatch(1, 1, 1);
         _light_indices_count.uav_barrier(cmd);
+        cmd.flush_barriers();
 
         // Cull.
         cmd.set_pipeline(_cull_pipeline);
@@ -313,12 +315,13 @@ auto FibersDemo::render(GpuDevice& device, GpuCommandList& cmd) -> void {
         _light_offsets_texture.uav_barrier(cmd);
         _light_indices.uav_barrier(cmd);
         _light_indices_count.uav_barrier(cmd);
+        cmd.flush_barriers();
     }
 
     // Graphics.
     {
         cmd.set_graphics();
-        _render_targets.begin(device, cmd);
+        _render_targets.set(cmd);
         _debug_draw.render(device, cmd);
 
         // Light.
@@ -362,8 +365,6 @@ auto FibersDemo::render(GpuDevice& device, GpuCommandList& cmd) -> void {
         cmd.set_pipeline(_debug_pipeline);
         cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
         cmd.draw_instanced(3, 1, 0, 0);
-
-        _render_targets.end(device, cmd);
     }
 }
 

@@ -155,7 +155,7 @@ auto CrateDemo::update(const UpdateDesc& desc) -> void {
 
 auto CrateDemo::render(GpuDevice& device, GpuCommandList& cmd) -> void {
     cmd.set_graphics();
-    _render_targets.begin(device, cmd);
+    _render_targets.set(cmd);
     _debug_draw.render(device, cmd);
 
     cmd.set_pipeline(_pipeline);
@@ -174,8 +174,6 @@ auto CrateDemo::render(GpuDevice& device, GpuCommandList& cmd) -> void {
         cmd.set_index_buffer(model.indices.index_buffer_view());
         cmd.draw_indexed_instanced(model.indices.element_size(), 1, 0, 0, 0);
     }
-
-    _render_targets.end(device, cmd);
 }
 
 } // namespace fb::demos::crate

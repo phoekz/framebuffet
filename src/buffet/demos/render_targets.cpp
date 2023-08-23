@@ -62,35 +62,52 @@ RenderTargets::RenderTargets(
     );
 }
 
-auto RenderTargets::begin(GpuDevice&, const GpuCommandList& cmd) -> void {
-    cmd.set_viewport(0, 0, _size.x, _size.y);
-    cmd.set_scissor(0, 0, _size.x, _size.y);
-
+auto RenderTargets::transition_to_render_target(GpuCommandList& cmd) -> void {
     if (_sample_count > 1) {
         _multisampled_color.transition(cmd, D3D12_RESOURCE_STATE_RENDER_TARGET);
-        cmd.set_rtv_dsv(_multisampled_color.rtv_descriptor(), _depth.dsv_descriptor());
-        cmd.clear_rtv(_multisampled_color.rtv_descriptor(), _clear_color);
-        cmd.clear_dsv(_depth.dsv_descriptor(), DEPTH_VALUE);
     } else {
-        _color.transition(cmd, D3D12_RESOURCE_STATE_RENDER_TARGET);
-        cmd.set_rtv_dsv(_color.rtv_descriptor(), _depth.dsv_descriptor());
-        cmd.clear_rtv(_color.rtv_descriptor(), _clear_color);
-        cmd.clear_dsv(_depth.dsv_descriptor(), DEPTH_VALUE);
+        _color.transition(cmd, D3D12_RESOURCE_STATE_RENDER_TARGET); // this is transitioning too much
     }
 }
 
-auto RenderTargets::end(GpuDevice&, const GpuCommandList& cmd) -> void {
+auto RenderTargets::clear_all(GpuCommandList& cmd) -> void {
+    if (_sample_count > 1) {
+        cmd.clear_rtv(_multisampled_color.rtv_descriptor(), _clear_color);
+    } else {
+        cmd.clear_rtv(_color.rtv_descriptor(), _clear_color);
+    }
+    cmd.clear_dsv(_depth.dsv_descriptor(), DEPTH_VALUE);
+}
+
+auto RenderTargets::transition_to_resolve(GpuCommandList& cmd) -> void {
     if (_sample_count > 1) {
         _multisampled_color.transition(cmd, D3D12_RESOURCE_STATE_RESOLVE_SOURCE);
         _color.transition(cmd, D3D12_RESOURCE_STATE_RESOLVE_DEST);
+    }
+}
+
+auto RenderTargets::resolve_all(GpuCommandList& cmd) -> void {
+    if (_sample_count > 1) {
         cmd.resolve_resource(
             _color.resource(),
             _multisampled_color.resource(),
             _multisampled_color.format()
         );
-        _color.transition(cmd, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+    }
+}
+
+auto RenderTargets::transition_to_pixel_shader_resource(GpuCommandList& cmd) -> void {
+    _color.transition(cmd, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+}
+
+auto RenderTargets::set(GpuCommandList& cmd) -> void {
+    cmd.set_viewport(0, 0, _size.x, _size.y);
+    cmd.set_scissor(0, 0, _size.x, _size.y);
+
+    if (_sample_count > 1) {
+        cmd.set_rtv_dsv(_multisampled_color.rtv_descriptor(), _depth.dsv_descriptor());
     } else {
-        _color.transition(cmd, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+        cmd.set_rtv_dsv(_color.rtv_descriptor(), _depth.dsv_descriptor());
     }
 }
 

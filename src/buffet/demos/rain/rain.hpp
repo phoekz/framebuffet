@@ -31,6 +31,8 @@ struct Vertex {
 };
 
 class RainDemo {
+    FB_NO_COPY_MOVE(RainDemo);
+
 public:
     static constexpr std::string_view NAME = "Rain"sv;
     static constexpr Float4 CLEAR_COLOR = {0.2f, 0.2f, 0.2f, 1.0f};
@@ -39,7 +41,7 @@ public:
     auto gui(const GuiDesc& desc) -> void;
     void update(const UpdateDesc& desc);
     void render(GpuDevice& device, GpuCommandList& cmd);
-    auto rt() const -> const RenderTargets& { return _render_targets; }
+    auto rt() -> RenderTargets& { return _render_targets; }
 
     template<Archive A>
     auto archive(A& arc) -> void {

@@ -230,14 +230,14 @@ public:
         return _dsv_descriptor;
     }
 
-    auto transition(const GpuCommandList& cmd, D3D12_RESOURCE_STATES after) -> void {
+    auto transition(GpuCommandList& cmd, D3D12_RESOURCE_STATES after) -> void {
         if (_resource_state != after) {
             cmd.transition_barrier(_resource, _resource_state, after);
             _resource_state = after;
         }
     }
 
-    auto uav_barrier(const GpuCommandList& cmd) -> void {
+    auto uav_barrier(GpuCommandList& cmd) -> void {
         static_assert(
             gpu_texture_flags_is_set(FLAGS, GpuTextureFlags::Uav),
             "Texture does not support UAV"

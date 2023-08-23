@@ -24,11 +24,14 @@ public:
         _engine = std::exchange(o._engine, GpuCommandEngine::Unknown);
         _root_signature = std::exchange(o._root_signature, nullptr);
         _descriptors = std::exchange(o._descriptors, nullptr);
+        _pending_barriers = std::exchange(o._pending_barriers, {});
+        _pending_barrier_count = std::exchange(o._pending_barrier_count, 0);
         return *this;
     }
 
     auto begin_pix(std::string_view name) const -> void;
     auto end_pix() const -> void;
+    auto set_pix_marker(std::string_view name) const -> void;
 
     auto set_graphics() -> void;
     auto set_compute() -> void;
@@ -90,8 +93,9 @@ public:
         const ComPtr<ID3D12Resource>& resource,
         D3D12_RESOURCE_STATES before,
         D3D12_RESOURCE_STATES after
-    ) const -> void;
-    auto uav_barrier(const ComPtr<ID3D12Resource>& resource) const -> void;
+    ) -> void;
+    auto uav_barrier(const ComPtr<ID3D12Resource>& resource) -> void;
+    auto flush_barriers() -> void;
 
 private:
     GpuCommandList(
@@ -113,6 +117,10 @@ private:
     GpuCommandEngine _engine = GpuCommandEngine::Unknown;
     ID3D12RootSignature* _root_signature = nullptr;
     GpuDescriptors* _descriptors = nullptr;
+
+    static constexpr size_t MAX_PENDING_BARRIERS = 32;
+    std::array<D3D12_RESOURCE_BARRIER, MAX_PENDING_BARRIERS> _pending_barriers;
+    size_t _pending_barrier_count = 0;
 };
 
 } // namespace fb

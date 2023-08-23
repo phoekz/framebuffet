@@ -17,8 +17,14 @@ class RenderTargets {
 public:
     RenderTargets(GpuDevice& device, const RenderTargetsDesc& desc, std::string_view name);
 
-    auto begin(GpuDevice& device, const GpuCommandList& cmd) -> void;
-    auto end(GpuDevice& device, const GpuCommandList& cmd) -> void;
+    auto transition_to_render_target(GpuCommandList& cmd) -> void;
+    auto clear_all(GpuCommandList& cmd) -> void;
+    auto transition_to_resolve(GpuCommandList& cmd) -> void;
+    auto resolve_all(GpuCommandList& cmd) -> void;
+    auto transition_to_pixel_shader_resource(GpuCommandList& cmd) -> void;
+
+    auto set(GpuCommandList& cmd) -> void;
+
     auto color() const -> const GpuTextureSrvUavRtv& { return _color; }
     auto depth() const -> const GpuTextureDsv& { return _depth; }
     auto color_format() const -> DXGI_FORMAT { return _color.format(); }
