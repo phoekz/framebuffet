@@ -1,3 +1,6 @@
+#
+# Configure fb_buffet.
+#
 set(NAME fb_buffet)
 set(SOURCES
     baked/baked.cpp
@@ -77,6 +80,34 @@ target_include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${WINPIXEVENTRUNTIME_INCLUDE_DIR}
 )
+target_compile_definitions(
+    ${NAME} PRIVATE
+    FB_PIX_GPU_CAPTURER_NAME="WinPixGpuCapturer.dll"
+    FB_PIX_GPU_CAPTURER_DLL_PATH="C:/Program Files/Microsoft PIX Preview/2306.21-preview/WinPixGpuCapturer.dll"
+    FB_PIX_TIMING_CAPTURER_NAME="WinPixTimingCapturer.dll"
+    FB_PIX_TIMING_CAPTURER_DLL_PATH="C:/Program Files/Microsoft PIX Preview/2306.21-preview/WinPixTimingCapturer.dll"
+)
+
+#
+# Find PIX DLLs.
+#
+function(find_pix_dll OUT_DLL_FILE DLL_NAME SEARCH_PATHS)
+    set(DLL_FILE "")
+    find_library(${DLL_FILE}
+        NAMES ${DLL_NAME}
+        PATHS ${SEARCH_PATHS}
+        NO_DEFAULT_PATH
+        NO_CACHE
+    )
+
+    if(${DLL_NAME})
+        message(STATUS "Found ${DLL_NAME} at ${DLL_FILE}")
+    else()
+        message(FATAL_ERROR "${DLL_NAME} not found")
+    endif()
+
+    set(${OUT_DLL_FILE} ${DLL_FILE} PARENT_SCOPE)
+endfunction()
 
 set_target_properties(${NAME} PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY $<TARGET_FILE_DIR:${NAME}>)
 

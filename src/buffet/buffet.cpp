@@ -161,6 +161,10 @@ int main() {
                 ImGui::Text("Update time: %.3f ms", 1e3f * update_time);
                 ImGui::Text("GUI time: %.3f ms", 1e3f * gui_time);
 
+                if (ImGui::Button("PIX Capture")) {
+                    device->pix_capture();
+                }
+
                 const auto desc = demos::GuiDesc {.window_size = device->swapchain_size()};
                 gui_wrapper(cards, desc, ImGuiTreeNodeFlags_DefaultOpen);
                 gui_wrapper(crate_demo, desc);

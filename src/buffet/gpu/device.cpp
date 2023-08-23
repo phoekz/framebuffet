@@ -72,6 +72,19 @@ GpuDevice::GpuDevice(const Window& window) {
         }
     }
 
+    // Load PIX GPU Capturer.
+    {
+        HMODULE module = GetModuleHandleA(FB_PIX_GPU_CAPTURER_NAME);
+        if (!module) {
+            module = LoadLibraryA(FB_PIX_GPU_CAPTURER_DLL_PATH);
+        }
+        _pix_gpu_capturer = wil::unique_hmodule(module);
+        FB_LOG_INFO(
+            FB_PIX_GPU_CAPTURER_NAME ": {}",
+            _pix_gpu_capturer.get() ? "Loaded" : "Not loaded"
+        );
+    }
+
     // Device.
     FB_ASSERT_HR(D3D12CreateDevice(adapter.get(), MIN_FEATURE_LEVEL, IID_PPV_ARGS(&_device)));
     dx_set_name(_device, "Device");
@@ -473,6 +486,12 @@ auto GpuDevice::descriptor_size(D3D12_DESCRIPTOR_HEAP_TYPE heap_type) const -> u
 
 auto GpuDevice::log_stats() -> void {
     _descriptors->log_stats();
+}
+
+auto GpuDevice::pix_capture() -> void {
+    constexpr auto CAPTURE_FILE_NAME = L"framebuffet.wpix_preview";
+    FB_ASSERT_HR(PIXGpuCaptureNextFrames(CAPTURE_FILE_NAME, 1));
+    ShellExecuteW(nullptr, L"open", CAPTURE_FILE_NAME, nullptr, nullptr, SW_SHOW);
 }
 
 } // namespace fb

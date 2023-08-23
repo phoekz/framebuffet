@@ -88,9 +88,11 @@ public:
 
     // Debugging.
     auto log_stats() -> void;
+    auto pix_capture() -> void;
 
 private:
     LeakTracker _leak_tracker;
+    wil::unique_hmodule _pix_gpu_capturer;
     ComPtr<ID3D12Device12> _device;
     ComPtr<ID3D12CommandQueue> _command_queue;
     std::array<ComPtr<ID3D12CommandAllocator>, FRAME_COUNT> _command_allocators;
