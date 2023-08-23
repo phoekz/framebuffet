@@ -33,6 +33,7 @@ public:
     auto transform(const Float4x4& transform) -> void;
     auto line(const Float3& a, const Float3& b, RgbaByte color) -> void;
     auto axes() -> void;
+    auto scaled_axes(float scale) -> void;
     auto end() -> void;
     auto render(GpuDevice& device, const GpuCommandList& cmd) -> void;
 

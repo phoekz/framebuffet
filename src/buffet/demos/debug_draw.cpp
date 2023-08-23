@@ -45,9 +45,14 @@ auto DebugDraw::line(const Float3& a, const Float3& b, RgbaByte color) -> void {
 }
 
 auto DebugDraw::axes() -> void {
-    line(Float3(0.0f, 0.0f, 0.0f), Float3(1.0f, 0.0f, 0.0f), COLOR_RED);
-    line(Float3(0.0f, 0.0f, 0.0f), Float3(0.0f, 1.0f, 0.0f), COLOR_GREEN);
-    line(Float3(0.0f, 0.0f, 0.0f), Float3(0.0f, 0.0f, 1.0f), COLOR_BLUE);
+    scaled_axes(1.0f);
+}
+
+auto DebugDraw::scaled_axes(float scale) -> void {
+    const auto s = scale;
+    line(Float3(0.0f, 0.0f, 0.0f), Float3(s, 0.0f, 0.0f), COLOR_RED);
+    line(Float3(0.0f, 0.0f, 0.0f), Float3(0.0f, s, 0.0f), COLOR_GREEN);
+    line(Float3(0.0f, 0.0f, 0.0f), Float3(0.0f, 0.0f, s), COLOR_BLUE);
 }
 
 auto DebugDraw::end() -> void {
