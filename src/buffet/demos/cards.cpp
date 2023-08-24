@@ -52,6 +52,13 @@ static auto layout_vmosaic(std::span<Card> cards, Uint2 window_size) -> void {
     cards[card_count - 1].size = {hero_w, hero_h};
 }
 
+static auto layout_exclusive(std::span<Card> cards, Uint2 window_size) -> void {
+    for (auto& card : cards) {
+        card.position = {0.0f, 0.0f};
+        card.size = {(float)window_size.x, (float)window_size.y};
+    }
+}
+
 auto Cards::create(GpuDevice& device, const baked::Shaders& shaders, const CardsDesc& desc)
     -> void {
     // Descriptors.
@@ -152,6 +159,10 @@ auto Cards::gui(const demos::GuiDesc& desc) -> void {
     ImGui::SameLine();
     if (ImGui::Button("VMosaic")) {
         layout_vmosaic(cards, desc.window_size);
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Exclusive")) {
+        layout_exclusive(cards, desc.window_size);
     }
     if (ImGui::Button("Rotate Left")) {
         std::rotate(
