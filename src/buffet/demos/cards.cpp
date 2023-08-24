@@ -77,7 +77,10 @@ auto Cards::create(GpuDevice& device, const baked::Shaders& shaders, const Cards
         .pixel_shader(shaders.cards_draw_ps())
         .primitive_topology(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)
         .render_target_formats({SWAPCHAIN_RTV_FORMAT})
-        .depth_stencil(GPU_PIPELINE_DEPTH_NONE)
+        .depth_stencil(GpuDepthStencilDesc {
+            .depth_read = false,
+            .depth_write = false,
+        })
         .build(device, _pipeline, dx_name(Cards::NAME, "Pipeline"));
 
     // Constants.

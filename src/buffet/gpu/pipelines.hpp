@@ -6,20 +6,6 @@ namespace fb {
 
 class GpuDevice;
 
-class GpuPipeline {
-    FB_NO_COPY_MOVE(GpuPipeline);
-
-    friend class GpuPipelineBuilder;
-
-public:
-    GpuPipeline() = default;
-
-    auto get() const -> ID3D12PipelineState* { return _state.get(); }
-
-private:
-    ComPtr<ID3D12PipelineState> _state;
-};
-
 enum class GpuFillMode {
     Solid,
     Wireframe,
@@ -36,6 +22,37 @@ struct GpuRasterizerDesc {
     GpuCullMode cull_mode = GpuCullMode::Back;
 };
 
+enum class GpuComparisonFunc {
+    Never,
+    Less,
+    Equal,
+    LessEqual,
+    Greater,
+    NotEqual,
+    GreaterEqual,
+    Always,
+};
+
+struct GpuDepthStencilDesc {
+    bool depth_read = true;
+    bool depth_write = true;
+    GpuComparisonFunc depth_func = GpuComparisonFunc::LessEqual;
+};
+
+class GpuPipeline {
+    FB_NO_COPY_MOVE(GpuPipeline);
+
+    friend class GpuPipelineBuilder;
+
+public:
+    GpuPipeline() = default;
+
+    auto get() const -> ID3D12PipelineState* { return _state.get(); }
+
+private:
+    ComPtr<ID3D12PipelineState> _state;
+};
+
 class GpuPipelineBuilder {
     FB_NO_COPY_MOVE(GpuPipelineBuilder);
 
@@ -48,7 +65,7 @@ public:
     [[nodiscard]] auto pixel_shader(std::span<const std::byte> dxil) -> GpuPipelineBuilder&;
     [[nodiscard]] auto compute_shader(std::span<const std::byte> dxil) -> GpuPipelineBuilder&;
     [[nodiscard]] auto blend(D3D12_BLEND_DESC blend) -> GpuPipelineBuilder&;
-    [[nodiscard]] auto depth_stencil(D3D12_DEPTH_STENCIL_DESC2 depth_stencil) -> GpuPipelineBuilder&;
+    [[nodiscard]] auto depth_stencil(GpuDepthStencilDesc desc) -> GpuPipelineBuilder&;
     [[nodiscard]] auto rasterizer(GpuRasterizerDesc desc) -> GpuPipelineBuilder&;
     [[nodiscard]] auto render_target_formats(std::initializer_list<DXGI_FORMAT> formats) -> GpuPipelineBuilder&;
     [[nodiscard]] auto depth_stencil_format(DXGI_FORMAT format) -> GpuPipelineBuilder&;
@@ -66,6 +83,7 @@ private:
     size_t _buffet_offset = 0;
     uint32_t _subobject_mask = 0;
     GpuRasterizerDesc _rasterizer_desc = {};
+    GpuDepthStencilDesc _depth_stencil_desc = {};
 };
 
 inline constexpr D3D12_BLEND_DESC GPU_PIPELINE_BLEND_ADDITIVE = {
@@ -100,58 +118,6 @@ inline constexpr D3D12_BLEND_DESC GPU_PIPELINE_BLEND_ALPHA = {
         .LogicOp = D3D12_LOGIC_OP_NOOP,
         .RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL,
     }},
-};
-
-inline constexpr D3D12_DEPTH_STENCIL_DESC2 GPU_PIPELINE_DEPTH_DEFAULT = {
-    .DepthEnable = TRUE,
-    .DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL,
-    .DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL,
-    .StencilEnable = FALSE,
-    .FrontFace =
-        D3D12_DEPTH_STENCILOP_DESC1 {
-            .StencilFailOp = D3D12_STENCIL_OP_KEEP,
-            .StencilDepthFailOp = D3D12_STENCIL_OP_KEEP,
-            .StencilPassOp = D3D12_STENCIL_OP_KEEP,
-            .StencilFunc = D3D12_COMPARISON_FUNC_ALWAYS,
-            .StencilReadMask = D3D12_DEFAULT_STENCIL_READ_MASK,
-            .StencilWriteMask = D3D12_DEFAULT_STENCIL_WRITE_MASK,
-        },
-    .BackFace =
-        D3D12_DEPTH_STENCILOP_DESC1 {
-            .StencilFailOp = D3D12_STENCIL_OP_KEEP,
-            .StencilDepthFailOp = D3D12_STENCIL_OP_KEEP,
-            .StencilPassOp = D3D12_STENCIL_OP_KEEP,
-            .StencilFunc = D3D12_COMPARISON_FUNC_ALWAYS,
-            .StencilReadMask = D3D12_DEFAULT_STENCIL_READ_MASK,
-            .StencilWriteMask = D3D12_DEFAULT_STENCIL_WRITE_MASK,
-        },
-    .DepthBoundsTestEnable = FALSE,
-};
-
-inline constexpr D3D12_DEPTH_STENCIL_DESC2 GPU_PIPELINE_DEPTH_NONE = {
-    .DepthEnable = FALSE,
-    .DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO,
-    .DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL,
-    .StencilEnable = FALSE,
-    .FrontFace =
-        D3D12_DEPTH_STENCILOP_DESC1 {
-            .StencilFailOp = D3D12_STENCIL_OP_KEEP,
-            .StencilDepthFailOp = D3D12_STENCIL_OP_KEEP,
-            .StencilPassOp = D3D12_STENCIL_OP_KEEP,
-            .StencilFunc = D3D12_COMPARISON_FUNC_ALWAYS,
-            .StencilReadMask = D3D12_DEFAULT_STENCIL_READ_MASK,
-            .StencilWriteMask = D3D12_DEFAULT_STENCIL_WRITE_MASK,
-        },
-    .BackFace =
-        D3D12_DEPTH_STENCILOP_DESC1 {
-            .StencilFailOp = D3D12_STENCIL_OP_KEEP,
-            .StencilDepthFailOp = D3D12_STENCIL_OP_KEEP,
-            .StencilPassOp = D3D12_STENCIL_OP_KEEP,
-            .StencilFunc = D3D12_COMPARISON_FUNC_ALWAYS,
-            .StencilReadMask = D3D12_DEFAULT_STENCIL_READ_MASK,
-            .StencilWriteMask = D3D12_DEFAULT_STENCIL_WRITE_MASK,
-        },
-    .DepthBoundsTestEnable = FALSE,
 };
 
 } // namespace fb

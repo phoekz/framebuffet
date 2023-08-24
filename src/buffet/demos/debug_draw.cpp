@@ -17,7 +17,6 @@ auto DebugDraw::create(
         .vertex_shader(shaders.debug_draw_draw_vs())
         .pixel_shader(shaders.debug_draw_draw_ps())
         .blend(GPU_PIPELINE_BLEND_ALPHA)
-        .depth_stencil(GPU_PIPELINE_DEPTH_DEFAULT)
         .rasterizer(GpuRasterizerDesc {
             .cull_mode = GpuCullMode::None,
         })

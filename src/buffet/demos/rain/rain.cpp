@@ -55,7 +55,10 @@ auto RainDemo::create(GpuDevice& device, const baked::Assets&, const baked::Shad
         .vertex_shader(shaders.rain_draw_vs())
         .pixel_shader(shaders.rain_draw_ps())
         .blend(GPU_PIPELINE_BLEND_ADDITIVE)
-        .depth_stencil(GPU_PIPELINE_DEPTH_NONE)
+        .depth_stencil(GpuDepthStencilDesc {
+            .depth_read = false,
+            .depth_write = false,
+        })
         .render_target_formats({_render_targets.color_format()})
         .depth_stencil_format(_render_targets.depth_format())
         .build(device, _draw_pipeline, dx_name(NAME, "Draw", "Pipeline"));

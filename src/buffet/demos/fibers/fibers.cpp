@@ -60,7 +60,10 @@ auto FibersDemo::create(
             .vertex_shader(shaders.fibers_debug_vs())
             .pixel_shader(shaders.fibers_debug_ps())
             .blend(GPU_PIPELINE_BLEND_ALPHA)
-            .depth_stencil(GPU_PIPELINE_DEPTH_NONE)
+            .depth_stencil(GpuDepthStencilDesc {
+                .depth_read = false,
+                .depth_write = false,
+            })
             .render_target_formats({_render_targets.color_format()})
             .build(device, _debug_pipeline, dx_name(NAME, "Debug", "Pipeline"));
     }

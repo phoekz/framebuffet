@@ -59,13 +59,10 @@ auto GpuPipelineBuilder::blend(D3D12_BLEND_DESC blend) -> GpuPipelineBuilder& {
     return *this;
 }
 
-auto GpuPipelineBuilder::depth_stencil(D3D12_DEPTH_STENCIL_DESC2 depth_stencil)
-    -> GpuPipelineBuilder& {
+auto GpuPipelineBuilder::depth_stencil(GpuDepthStencilDesc desc) -> GpuPipelineBuilder& {
     static constexpr uint32_t BIT = (1 << D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_DEPTH_STENCIL2);
     FB_ASSERT((_subobject_mask & BIT) == 0);
-    CD3DX12_DEPTH_STENCIL_DESC2 cdesc(depth_stencil);
-    new (_buffer + _buffet_offset) CD3DX12_PIPELINE_STATE_STREAM_DEPTH_STENCIL2(cdesc);
-    _buffet_offset += sizeof(CD3DX12_PIPELINE_STATE_STREAM_DEPTH_STENCIL2);
+    _depth_stencil_desc = desc;
     _subobject_mask |= BIT;
     return *this;
 }
@@ -121,9 +118,9 @@ auto GpuPipelineBuilder::build(GpuDevice& device, GpuPipeline& pipeline, std::st
         _buffet_offset += sizeof(CD3DX12_PIPELINE_STATE_STREAM_ROOT_SIGNATURE);
     }
 
-    // Add rasterizer desc.
+    // Rasterizer.
     {
-        // Defaults.
+        // D3D12 defaults.
         D3D12_RASTERIZER_DESC2 d3d12_desc = {
             .FillMode = D3D12_FILL_MODE_SOLID,
             .CullMode = D3D12_CULL_MODE_BACK,
@@ -137,22 +134,77 @@ auto GpuPipelineBuilder::build(GpuDevice& device, GpuPipeline& pipeline, std::st
             .ConservativeRaster = D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF,
         };
 
-        // Override fill mode.
+        // Override `FillMode`.
         switch (_rasterizer_desc.fill_mode) {
             case GpuFillMode::Solid: d3d12_desc.FillMode = D3D12_FILL_MODE_SOLID; break;
             case GpuFillMode::Wireframe: d3d12_desc.FillMode = D3D12_FILL_MODE_WIREFRAME; break;
         }
 
-        // Override cull mode.
+        // Override `CullMode`.
         switch (_rasterizer_desc.cull_mode) {
             case GpuCullMode::None: d3d12_desc.CullMode = D3D12_CULL_MODE_NONE; break;
             case GpuCullMode::Front: d3d12_desc.CullMode = D3D12_CULL_MODE_FRONT; break;
             case GpuCullMode::Back: d3d12_desc.CullMode = D3D12_CULL_MODE_BACK; break;
         }
 
+        // Add.
         CD3DX12_RASTERIZER_DESC2 cdesc(d3d12_desc);
         new (_buffer + _buffet_offset) CD3DX12_PIPELINE_STATE_STREAM_RASTERIZER2(cdesc);
         _buffet_offset += sizeof(CD3DX12_PIPELINE_STATE_STREAM_RASTERIZER2);
+    }
+
+    // Depth stencil.
+    {
+        // D3D12 defaults.
+        const D3D12_DEPTH_STENCILOP_DESC1 stencil_op_desc = {
+            .StencilFailOp = D3D12_STENCIL_OP_KEEP,
+            .StencilDepthFailOp = D3D12_STENCIL_OP_KEEP,
+            .StencilPassOp = D3D12_STENCIL_OP_KEEP,
+            .StencilFunc = D3D12_COMPARISON_FUNC_ALWAYS,
+            .StencilReadMask = D3D12_DEFAULT_STENCIL_READ_MASK,
+            .StencilWriteMask = D3D12_DEFAULT_STENCIL_WRITE_MASK,
+        };
+        D3D12_DEPTH_STENCIL_DESC2 d3d12_desc = {
+            .DepthEnable = TRUE,
+            .DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL,
+            .DepthFunc = D3D12_COMPARISON_FUNC_LESS,
+            .StencilEnable = FALSE,
+            .FrontFace = stencil_op_desc,
+            .BackFace = stencil_op_desc,
+            .DepthBoundsTestEnable = FALSE,
+        };
+
+        // Override `DepthEnable`.
+        if (_depth_stencil_desc.depth_read) {
+            d3d12_desc.DepthEnable = TRUE;
+        } else {
+            d3d12_desc.DepthEnable = FALSE;
+        }
+
+        // Override `DepthWriteMask`.
+        if (_depth_stencil_desc.depth_write) {
+            d3d12_desc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
+        } else {
+            d3d12_desc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
+        }
+
+        // Override `DepthFunc`.
+        switch (_depth_stencil_desc.depth_func) {
+            using enum GpuComparisonFunc;
+            case Never: d3d12_desc.DepthFunc = D3D12_COMPARISON_FUNC_NEVER; break;
+            case Less: d3d12_desc.DepthFunc = D3D12_COMPARISON_FUNC_LESS; break;
+            case Equal: d3d12_desc.DepthFunc = D3D12_COMPARISON_FUNC_EQUAL; break;
+            case LessEqual: d3d12_desc.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL; break;
+            case Greater: d3d12_desc.DepthFunc = D3D12_COMPARISON_FUNC_GREATER; break;
+            case NotEqual: d3d12_desc.DepthFunc = D3D12_COMPARISON_FUNC_NOT_EQUAL; break;
+            case GreaterEqual: d3d12_desc.DepthFunc = D3D12_COMPARISON_FUNC_GREATER_EQUAL; break;
+            case Always: d3d12_desc.DepthFunc = D3D12_COMPARISON_FUNC_ALWAYS; break;
+        }
+
+        // Add.
+        CD3DX12_DEPTH_STENCIL_DESC2 cdesc(d3d12_desc);
+        new (_buffer + _buffet_offset) CD3DX12_PIPELINE_STATE_STREAM_DEPTH_STENCIL2(cdesc);
+        _buffet_offset += sizeof(CD3DX12_PIPELINE_STATE_STREAM_DEPTH_STENCIL2);
     }
 
     // Create pipeline state.

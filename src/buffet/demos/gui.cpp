@@ -50,7 +50,10 @@ auto Gui::create(
                 .LogicOp = D3D12_LOGIC_OP_NOOP,
                 .RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL,
             }}})
-        .depth_stencil(GPU_PIPELINE_DEPTH_NONE)
+        .depth_stencil(GpuDepthStencilDesc {
+            .depth_read = false,
+            .depth_write = false,
+        })
         .render_target_formats({SWAPCHAIN_RTV_FORMAT})
         .rasterizer(GpuRasterizerDesc {
             .cull_mode = GpuCullMode::None,

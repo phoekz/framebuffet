@@ -24,7 +24,11 @@ auto EnvDemo::create(GpuDevice& device, const baked::Assets& assets, const baked
         .primitive_topology(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)
         .vertex_shader(shaders.env_draw_vs())
         .pixel_shader(shaders.env_draw_ps())
-        .depth_stencil(GPU_PIPELINE_DEPTH_DEFAULT)
+        .depth_stencil(GpuDepthStencilDesc {
+            .depth_read = true,
+            .depth_write = true,
+            .depth_func = GpuComparisonFunc::LessEqual,
+        })
         .render_target_formats({_render_targets.color_format()})
         .depth_stencil_format(_render_targets.depth_format())
         .build(device, _pipeline, dx_name(NAME, "Pipeline"));
