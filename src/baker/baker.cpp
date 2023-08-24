@@ -4,11 +4,18 @@
 #include "formats/exr.hpp"
 #include "formats/mikktspace.hpp"
 
+#include <stb_image_resize.h>
+
 namespace fb {
 
 //
 // Asset tasks.
 //
+
+enum class AssetColorSpace {
+    Srgb,
+    Linear,
+};
 
 struct AssetTaskCopy {
     std::string_view name;
@@ -18,6 +25,8 @@ struct AssetTaskCopy {
 struct AssetTaskTexture {
     std::string_view name;
     std::string_view path;
+    DXGI_FORMAT format;
+    AssetColorSpace color_space;
 };
 
 struct AssetTaskCubeTexture {
@@ -45,8 +54,16 @@ using AssetTask = std::variant<
 
 static auto asset_tasks = std::to_array<AssetTask>({
     AssetTaskCopy {"imgui_font", "fonts/Roboto-Medium.ttf"},
-    AssetTaskTexture {"heatmap_magma", "heatmaps/magma.png"},
-    AssetTaskTexture {"heatmap_viridis", "heatmaps/viridis.png"},
+    AssetTaskTexture {
+        "heatmap_magma",
+        "heatmaps/magma.png",
+        GLTF_BASE_COLOR_TEXTURE_FORMAT,
+        AssetColorSpace::Srgb},
+    AssetTaskTexture {
+        "heatmap_viridis",
+        "heatmaps/viridis.png",
+        GLTF_BASE_COLOR_TEXTURE_FORMAT,
+        AssetColorSpace::Srgb},
     AssetTaskGltf {"sci_fi_case", "models/sci_fi_case.glb"},
     AssetTaskGltf {"metal_plane", "models/metal_plane.glb"},
     AssetTaskGltf {"coconut_tree", "models/coconut_tree.glb"},
@@ -167,9 +184,9 @@ using Asset =
 // Asset builder.
 //
 
-class AssetWriter {
+class AssetsWriter {
 public:
-    AssetWriter(std::vector<std::byte>& data)
+    AssetsWriter(std::vector<std::byte>& data)
         : _data(data) {}
 
     template<typename T>
@@ -189,11 +206,104 @@ private:
     std::vector<std::byte>& _data;
 };
 
+auto compute_mipmaps_and_write(
+    AssetsWriter& assets_writer,
+    std::vector<Asset>& assets,
+    const std::string& texture_name,
+    const Image& texture,
+    DXGI_FORMAT texture_format,
+    AssetColorSpace color_space
+) -> void {
+    // Mipmapper state.
+    std::array<AssetTextureData, MAX_MIP_COUNT> texture_datas = {};
+    uint32_t texture_data_count = 0;
+    const uint32_t mip_count = mip_count_from_size(texture.size());
+    FB_ASSERT(mip_count <= MAX_MIP_COUNT);
+    uint32_t src_width = 0;
+    uint32_t src_height = 0;
+    std::vector<std::byte> src_buffer;
+    uint32_t dst_width = 0;
+    uint32_t dst_height = 0;
+    std::vector<std::byte> dst_buffer;
+
+    // First mip can simply be copied.
+    dst_width = texture.width();
+    dst_height = texture.height();
+    dst_buffer.assign(texture.data().begin(), texture.data().end());
+    texture_datas[texture_data_count++] = AssetTextureData {
+        .row_pitch = dst_width * texture.channel_count(),
+        .slice_pitch = dst_width * dst_height * texture.channel_count(),
+        .data = assets_writer.write("std::byte", std::span<const std::byte>(dst_buffer)),
+    };
+
+    // Compute the rest of the mip levels.
+    for (uint32_t mip = 1; mip < mip_count; mip++) {
+        // Start by copying the previous mip level into the source buffer.
+        src_width = dst_width;
+        src_height = dst_height;
+        src_buffer = dst_buffer;
+
+        // Calculate the size of the next mip level.
+        dst_width = std::max(1u, src_width / 2);
+        dst_height = std::max(1u, src_height / 2);
+
+        // Resize the destination buffer to fit the next mip level.
+        dst_buffer.resize(dst_width * dst_height * texture.channel_count());
+
+        // Resize the image.
+        if (color_space == AssetColorSpace::Srgb) {
+            stbir_resize_uint8_srgb(
+                (const uint8_t*)src_buffer.data(),
+                (int)src_width,
+                (int)src_height,
+                (int)(src_width * texture.channel_count()),
+                (uint8_t*)dst_buffer.data(),
+                (int)dst_width,
+                (int)dst_height,
+                (int)(dst_width * texture.channel_count()),
+                (int)texture.channel_count(),
+                3,
+                0
+            );
+        } else {
+            stbir_resize_uint8(
+                (const uint8_t*)src_buffer.data(),
+                (int)src_width,
+                (int)src_height,
+                (int)(src_width * texture.channel_count()),
+                (uint8_t*)dst_buffer.data(),
+                (int)dst_width,
+                (int)dst_height,
+                (int)(dst_width * texture.channel_count()),
+                (int)texture.channel_count()
+            );
+        }
+
+        // Write mip.
+        texture_datas[texture_data_count++] = AssetTextureData {
+            .row_pitch = dst_width * texture.channel_count(),
+            .slice_pitch = dst_width * dst_height * texture.channel_count(),
+            .data = assets_writer.write("std::byte", std::span<const std::byte>(dst_buffer)),
+        };
+    }
+
+    // Write asset.
+    assets.push_back(AssetTexture {
+        .name = texture_name,
+        .format = texture_format,
+        .width = texture.width(),
+        .height = texture.height(),
+        .channel_count = texture.channel_count(),
+        .mip_count = mip_count,
+        .datas = texture_datas,
+    });
+}
+
 auto build_assets(std::string_view assets_dir)
     -> std::tuple<std::vector<Asset>, std::vector<std::byte>> {
     auto assets = std::vector<Asset>();
     auto assets_bin = std::vector<std::byte>();
-    auto assets_writer = AssetWriter(assets_bin);
+    auto assets_writer = AssetsWriter(assets_bin);
     auto unique_names = std::unordered_set<std::string>();
     auto update_unique_names = [](std::unordered_set<std::string>& uniques,
                                   const std::string& name) {
@@ -222,19 +332,14 @@ auto build_assets(std::string_view assets_dir)
                     const auto path = std::format("{}/{}", assets_dir, task.path);
                     const auto file = read_whole_file(path);
                     const auto image = Image::load(file);
-                    assets.push_back(AssetTexture {
-                        .name = name,
-                        .format = GLTF_BASE_COLOR_TEXTURE_FORMAT,
-                        .width = image.width(),
-                        .height = image.height(),
-                        .channel_count = image.channel_count(),
-                        .mip_count = 1,
-                        .datas = {AssetTextureData {
-                            .row_pitch = image.row_pitch(),
-                            .slice_pitch = image.slice_pitch(),
-                            .data = assets_writer.write("std::byte", std::span(image.data())),
-                        }},
-                    });
+                    compute_mipmaps_and_write(
+                        assets_writer,
+                        assets,
+                        name,
+                        image,
+                        task.format,
+                        task.color_space
+                    );
                 },
                 [&](const AssetTaskCubeTexture& task) {
                     // Name.
@@ -372,56 +477,41 @@ auto build_assets(std::string_view assets_dir)
                         const auto texture = model.base_color_texture();
                         const auto texture_name = std::format("{}_base_color_texture", task.name);
                         update_unique_names(unique_names, texture_name);
-                        assets.push_back(AssetTexture {
-                            .name = texture_name,
-                            .format = GLTF_BASE_COLOR_TEXTURE_FORMAT,
-                            .width = texture.width(),
-                            .height = texture.height(),
-                            .channel_count = texture.channel_count(),
-                            .mip_count = 1,
-                            .datas = {AssetTextureData {
-                                .row_pitch = texture.row_pitch(),
-                                .slice_pitch = texture.slice_pitch(),
-                                .data = assets_writer.write("std::byte", texture.data()),
-                            }},
-                        });
+                        compute_mipmaps_and_write(
+                            assets_writer,
+                            assets,
+                            texture_name,
+                            texture,
+                            GLTF_BASE_COLOR_TEXTURE_FORMAT,
+                            AssetColorSpace::Srgb
+                        );
                     }
                     if (model.normal_texture().has_value()) {
                         const auto texture = model.normal_texture().value().get();
                         const auto texture_name = std::format("{}_normal_texture", task.name);
                         update_unique_names(unique_names, texture_name);
-                        assets.push_back(AssetTexture {
-                            .name = texture_name,
-                            .format = GLTF_NORMAL_TEXTURE_FORMAT,
-                            .width = texture.width(),
-                            .height = texture.height(),
-                            .channel_count = texture.channel_count(),
-                            .mip_count = 1,
-                            .datas = {AssetTextureData {
-                                .row_pitch = texture.row_pitch(),
-                                .slice_pitch = texture.slice_pitch(),
-                                .data = assets_writer.write("std::byte", texture.data()),
-                            }},
-                        });
+                        compute_mipmaps_and_write(
+                            assets_writer,
+                            assets,
+                            texture_name,
+                            texture,
+                            GLTF_NORMAL_TEXTURE_FORMAT,
+                            AssetColorSpace::Linear
+                        );
                     }
                     if (model.metallic_roughness_texture().has_value()) {
                         const auto texture = model.metallic_roughness_texture().value().get();
                         const auto texture_name =
                             std::format("{}_metallic_roughness_texture", task.name);
                         update_unique_names(unique_names, texture_name);
-                        assets.push_back(AssetTexture {
-                            .name = texture_name,
-                            .format = GLTF_METALLIC_ROUGHNESS_TEXTURE_FORMAT,
-                            .width = texture.width(),
-                            .height = texture.height(),
-                            .channel_count = texture.channel_count(),
-                            .mip_count = 1,
-                            .datas = {AssetTextureData {
-                                .row_pitch = texture.row_pitch(),
-                                .slice_pitch = texture.slice_pitch(),
-                                .data = assets_writer.write("std::byte", texture.data()),
-                            }},
-                        });
+                        compute_mipmaps_and_write(
+                            assets_writer,
+                            assets,
+                            texture_name,
+                            texture,
+                            GLTF_METALLIC_ROUGHNESS_TEXTURE_FORMAT,
+                            AssetColorSpace::Linear
+                        );
                     }
                 },
                 [&](const AssetTaskProceduralCube& task) {
@@ -834,6 +924,34 @@ int main() {
                 },
                 [&](const AssetTexture& asset) {
                     assets_decls << std::format("auto {}() const -> Texture;", asset.name);
+
+                    std::ostringstream texture_datas;
+                    uint32_t texture_width = asset.width;
+                    uint32_t texture_height = asset.height;
+                    for (uint32_t i = 0; i < asset.mip_count; ++i) {
+                        texture_datas << std::format(
+                            R"(TextureData {{
+                                // mip_level: {}
+                                // width: {}
+                                // height: {}
+                                .row_pitch = {},
+                                .slice_pitch = {},
+                                {},
+                            }})",
+                            i,
+                            texture_width,
+                            texture_height,
+                            asset.datas[i].row_pitch,
+                            asset.datas[i].slice_pitch,
+                            format_named_asset_span("data"sv, asset.datas[i].data)
+                        );
+                        texture_width = std::max(1u, texture_width / 2);
+                        texture_height = std::max(1u, texture_height / 2);
+                        if (i != asset.mip_count - 1) {
+                            texture_datas << ",\n";
+                        }
+                    }
+
                     assets_defns << std::format(
                         R"(auto Assets::{}() const -> Texture {{
                             return Texture {{
@@ -842,11 +960,7 @@ int main() {
                                 .height = {},
                                 .channel_count = {},
                                 .mip_count = {},
-                                .datas = {{TextureData {{
-                                    .row_pitch = {},
-                                    .slice_pitch = {},
-                                    {},
-                                }}}},
+                                .datas = {{{}}},
                             }};
                         }})",
                         asset.name,
@@ -855,9 +969,7 @@ int main() {
                         asset.height,
                         asset.channel_count,
                         asset.mip_count,
-                        asset.datas[0].row_pitch,
-                        asset.datas[0].slice_pitch,
-                        format_named_asset_span("data"sv, asset.datas[0].data)
+                        texture_datas.str()
                     );
                 },
                 [&](const AssetCubeTexture& asset) {

@@ -335,12 +335,4 @@ using GpuTextureSrvCube = GpuTexture<GpuTextureFlags::SrvCube>;
 
 using GpuTextureSrvUavRtv = GpuTexture<GpuTextureFlags::SrvUavRtv>;
 
-inline auto mip_count_from_size(uint32_t width, uint32_t height) -> uint32_t {
-    return 1 + (uint32_t)std::floor(std::log2(float(std::max(width, height))));
-}
-
-inline auto mip_count_from_size(Uint2 size) -> uint32_t {
-    return mip_count_from_size(size.x, size.y);
-}
-
 } // namespace fb

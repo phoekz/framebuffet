@@ -10,6 +10,7 @@ public:
 
     auto width() const -> uint32_t { return _width; }
     auto height() const -> uint32_t { return _height; }
+    auto size() const -> Uint2 { return Uint2(_width, _height); }
     auto channel_count() const -> uint32_t { return _channel_count; }
     auto row_pitch() const -> uint32_t { return width() * channel_count(); }
     auto slice_pitch() const -> uint32_t { return row_pitch() * height(); }
