@@ -136,7 +136,15 @@ auto CrateDemo::update(const UpdateDesc& desc) -> void {
     _debug_draw.begin(desc.frame_index);
     _debug_draw.transform(camera_transform);
     _debug_draw.scaled_axes(4.0f);
-    _debug_draw.line(Float3::Zero, light_direction, COLOR_YELLOW);
+    {
+        // Visualize light direction.
+        const auto xyz = light_direction;
+        const auto xz = xyz * Float3(1.0f, 0.0f, 1.0f);
+        const auto scale = 2.0f;
+        _debug_draw.line(Float3::Zero, scale * xyz, COLOR_YELLOW);
+        _debug_draw.line(Float3::Zero, scale * xz, COLOR_YELLOW);
+        _debug_draw.line(scale * xyz, scale * xz, COLOR_YELLOW);
+    }
     _debug_draw.end();
 
     // Update constants.
