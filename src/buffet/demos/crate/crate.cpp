@@ -97,6 +97,7 @@ auto CrateDemo::gui(const GuiDesc&) -> void {
         "VertexNormal\0"
         "VertexTangent\0"
         "VertexBitangent\0"
+        "LevelOfDetail\0"
     );
 
     ImGui::SliderFloat("Camera Distance", &p.camera_distance, 0.0f, 10.0f);

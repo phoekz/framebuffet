@@ -26,6 +26,7 @@ enum class OutputMode : uint {
     VertexNormal,
     VertexTangent,
     VertexBitangent,
+    LevelOfDetail,
 };
 
 struct Constants {

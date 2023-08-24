@@ -106,6 +106,12 @@ FbPixelOutput1 draw_ps(VertexOutput input) {
             final_color = 0.5f * (input.bitangent + 1.0f);
             break;
         }
+        case OutputMode::LevelOfDetail: {
+            float lod = base_color_texture.CalculateLevelOfDetail(sampler, input.texcoord);
+            lod = frac(lod);
+            final_color = lod.xxx;
+            break;
+        }
     }
 
     FbPixelOutput1 output;
