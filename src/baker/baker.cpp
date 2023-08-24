@@ -977,6 +977,8 @@ int main() {
     // Write output files.
     //
 
+    std::filesystem::create_directories(FRAMEBUFFET_OUTPUT_DIR);
+
     write_whole_file(
         std::format("{}/fb_shaders.bin", FRAMEBUFFET_OUTPUT_DIR),
         std::as_bytes(std::span(shaders_bin))
