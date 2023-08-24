@@ -196,6 +196,7 @@ auto AnimDemo::update(const UpdateDesc& desc) -> void {
     // Update debug draw.
     _debug_draw.begin(desc.frame_index);
     _debug_draw.transform(camera_transform);
+    _debug_draw.grid(50);
     _debug_draw.axes();
     _debug_draw.end();
 

@@ -58,6 +58,16 @@ auto DebugDraw::scaled_axes(float scale) -> void {
     line(Float3(0.0f, 0.0f, 0.0f), Float3(0.0f, 0.0f, s), COLOR_BLUE);
 }
 
+auto DebugDraw::grid(uint32_t size) -> void {
+    const auto half_size = (int)(size / 2);
+    const auto h = (float)half_size;
+    for (int i = -half_size; i <= half_size; i++) {
+        const auto v = (float)i;
+        line(Float3(v, 0.0f, -h), Float3(v, 0.0f, h), COLOR_WHITE);
+        line(Float3(-h, 0.0f, v), Float3(h, 0.0f, v), COLOR_WHITE);
+    }
+}
+
 auto DebugDraw::end() -> void {
     auto& frame = _frames[_frame_index];
     memcpy(frame._constants.ptr(), &_constants, sizeof(_constants));
