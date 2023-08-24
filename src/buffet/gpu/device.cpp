@@ -2,6 +2,7 @@
 #include "descriptors.hpp"
 #include "commands.hpp"
 #include "samplers.hpp"
+#include "../utils/trap.hpp"
 
 // Setup DirectX Agility SDK.
 extern "C" {
@@ -106,6 +107,7 @@ auto GpuDevice::create(const Window& window) -> void {
                D3D12_MESSAGE_ID,
                const char* description,
                void*) {
+                FRAME_ALLOCATION_TRAP = false;
                 switch (severity) {
                     case D3D12_MESSAGE_SEVERITY_CORRUPTION: FB_LOG_ERROR("[{}", description); break;
                     case D3D12_MESSAGE_SEVERITY_ERROR: FB_LOG_ERROR("{}", description); break;
@@ -113,6 +115,7 @@ auto GpuDevice::create(const Window& window) -> void {
                     case D3D12_MESSAGE_SEVERITY_INFO: FB_LOG_INFO("{}", description); break;
                     default: break;
                 }
+                FRAME_ALLOCATION_TRAP = true;
             },
             D3D12_MESSAGE_CALLBACK_FLAG_NONE,
             nullptr,
