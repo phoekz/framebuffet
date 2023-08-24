@@ -69,18 +69,9 @@ auto CrateDemo::create(
                      metallic_roughness
                  ),
              }) {
-            dst_texture.create_and_transfer(
+            dst_texture.create_and_transfer_baked(
                 device,
-                GpuTextureDesc {
-                    .format = src_texture.format,
-                    .width = src_texture.width,
-                    .height = src_texture.height,
-                },
-                GpuTextureTransferDesc {
-                    .data = src_texture.data.data(),
-                    .row_pitch = src_texture.row_pitch,
-                    .slice_pitch = src_texture.slice_pitch,
-                },
+                src_texture,
                 D3D12_RESOURCE_STATE_COMMON,
                 D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
                 dx_name(NAME, model_name, texture_name)

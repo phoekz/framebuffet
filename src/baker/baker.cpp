@@ -107,16 +107,23 @@ struct AssetMesh {
     AssetSpan indices;
 };
 
+struct AssetTextureData {
+    uint32_t row_pitch;
+    uint32_t slice_pitch;
+    AssetSpan data;
+};
+
+inline constexpr uint32_t MAX_MIP_COUNT = 12;
+
 struct AssetTexture {
     std::string name;
 
     DXGI_FORMAT format;
     uint32_t width;
     uint32_t height;
-    uint32_t channels;
-    uint32_t row_pitch;
-    uint32_t slice_pitch;
-    AssetSpan data;
+    uint32_t channel_count;
+    uint32_t mip_count;
+    std::array<AssetTextureData, MAX_MIP_COUNT> datas;
 };
 
 struct AssetCubeTexture {
@@ -125,7 +132,7 @@ struct AssetCubeTexture {
     DXGI_FORMAT format;
     uint32_t width;
     uint32_t height;
-    uint32_t channels;
+    uint32_t channel_count;
     uint32_t row_pitch;
     uint32_t slice_pitch;
     std::array<AssetSpan, 6> datas;
@@ -220,10 +227,13 @@ auto build_assets(std::string_view assets_dir)
                         .format = GLTF_BASE_COLOR_TEXTURE_FORMAT,
                         .width = image.width(),
                         .height = image.height(),
-                        .channels = image.channels(),
-                        .row_pitch = image.row_pitch(),
-                        .slice_pitch = image.slice_pitch(),
-                        .data = assets_writer.write("std::byte", std::span(image.data())),
+                        .channel_count = image.channel_count(),
+                        .mip_count = 1,
+                        .datas = {AssetTextureData {
+                            .row_pitch = image.row_pitch(),
+                            .slice_pitch = image.slice_pitch(),
+                            .data = assets_writer.write("std::byte", std::span(image.data())),
+                        }},
                     });
                 },
                 [&](const AssetTaskCubeTexture& task) {
@@ -262,7 +272,7 @@ auto build_assets(std::string_view assets_dir)
                         .format = cube_format,
                         .width = cube_face_size.x,
                         .height = cube_face_size.y,
-                        .channels = cube_faces[0].channels(),
+                        .channel_count = cube_faces[0].channel_count(),
                         .row_pitch = cube_faces[0].row_pitch(),
                         .slice_pitch = cube_faces[0].slice_pitch(),
                         .datas = datas,
@@ -367,10 +377,13 @@ auto build_assets(std::string_view assets_dir)
                             .format = GLTF_BASE_COLOR_TEXTURE_FORMAT,
                             .width = texture.width(),
                             .height = texture.height(),
-                            .channels = texture.channels(),
-                            .row_pitch = texture.row_pitch(),
-                            .slice_pitch = texture.slice_pitch(),
-                            .data = assets_writer.write("std::byte", texture.data()),
+                            .channel_count = texture.channel_count(),
+                            .mip_count = 1,
+                            .datas = {AssetTextureData {
+                                .row_pitch = texture.row_pitch(),
+                                .slice_pitch = texture.slice_pitch(),
+                                .data = assets_writer.write("std::byte", texture.data()),
+                            }},
                         });
                     }
                     if (model.normal_texture().has_value()) {
@@ -382,10 +395,13 @@ auto build_assets(std::string_view assets_dir)
                             .format = GLTF_NORMAL_TEXTURE_FORMAT,
                             .width = texture.width(),
                             .height = texture.height(),
-                            .channels = texture.channels(),
-                            .row_pitch = texture.row_pitch(),
-                            .slice_pitch = texture.slice_pitch(),
-                            .data = assets_writer.write("std::byte", texture.data()),
+                            .channel_count = texture.channel_count(),
+                            .mip_count = 1,
+                            .datas = {AssetTextureData {
+                                .row_pitch = texture.row_pitch(),
+                                .slice_pitch = texture.slice_pitch(),
+                                .data = assets_writer.write("std::byte", texture.data()),
+                            }},
                         });
                     }
                     if (model.metallic_roughness_texture().has_value()) {
@@ -398,10 +414,13 @@ auto build_assets(std::string_view assets_dir)
                             .format = GLTF_METALLIC_ROUGHNESS_TEXTURE_FORMAT,
                             .width = texture.width(),
                             .height = texture.height(),
-                            .channels = texture.channels(),
-                            .row_pitch = texture.row_pitch(),
-                            .slice_pitch = texture.slice_pitch(),
-                            .data = assets_writer.write("std::byte", texture.data()),
+                            .channel_count = texture.channel_count(),
+                            .mip_count = 1,
+                            .datas = {AssetTextureData {
+                                .row_pitch = texture.row_pitch(),
+                                .slice_pitch = texture.slice_pitch(),
+                                .data = assets_writer.write("std::byte", texture.data()),
+                            }},
                         });
                     }
                 },
@@ -644,14 +663,21 @@ int main() {
             std::span<const Index> indices;
         };
 
+        inline constexpr uint32_t MAX_MIP_COUNT = {{max_mip_count}};
+
+        struct TextureData {
+            uint32_t row_pitch;
+            uint32_t slice_pitch;
+            std::span<const std::byte> data;
+        };
+
         struct Texture {
             DXGI_FORMAT format;
             uint32_t width;
             uint32_t height;
-            uint32_t channels;
-            uint32_t row_pitch;
-            uint32_t slice_pitch;
-            std::span<const std::byte> data;
+            uint32_t channel_count;
+            uint32_t mip_count;
+            std::array<TextureData, MAX_MIP_COUNT> datas;
         };
 
         enum class CubeFace : uint32_t {
@@ -667,7 +693,7 @@ int main() {
             DXGI_FORMAT format;
             uint32_t width;
             uint32_t height;
-            uint32_t channels;
+            uint32_t channel_count;
             uint32_t row_pitch;
             uint32_t slice_pitch;
             std::array<std::span<const float>, 6> datas;
@@ -754,7 +780,7 @@ int main() {
         const auto bytes = std::span(assets_bin.data() + span.offset, span.byte_size);
         const auto hash = hash128(bytes);
         return std::format(
-            "// {}\n transmuted_span<{}>({}, {})",
+            "// hash: {}\n transmuted_span<{}>({}, {})",
             hash,
             span.type,
             span.offset,
@@ -766,7 +792,7 @@ int main() {
         const auto bytes = std::span(assets_bin.data() + span.offset, span.byte_size);
         const auto hash = hash128(bytes);
         return std::format(
-            "// {}\n .{} = transmuted_span<{}>({}, {})",
+            "// hash: {}\n .{} = transmuted_span<{}>({}, {})",
             hash,
             name,
             span.type,
@@ -814,20 +840,24 @@ int main() {
                                 .format = {},
                                 .width = {},
                                 .height = {},
-                                .channels = {},
-                                .row_pitch = {},
-                                .slice_pitch = {},
-                                {},
+                                .channel_count = {},
+                                .mip_count = {},
+                                .datas = {{TextureData {{
+                                    .row_pitch = {},
+                                    .slice_pitch = {},
+                                    {},
+                                }}}},
                             }};
                         }})",
                         asset.name,
                         asset.format,
                         asset.width,
                         asset.height,
-                        asset.channels,
-                        asset.row_pitch,
-                        asset.slice_pitch,
-                        format_named_asset_span("data"sv, asset.data)
+                        asset.channel_count,
+                        asset.mip_count,
+                        asset.datas[0].row_pitch,
+                        asset.datas[0].slice_pitch,
+                        format_named_asset_span("data"sv, asset.datas[0].data)
                     );
                 },
                 [&](const AssetCubeTexture& asset) {
@@ -838,7 +868,7 @@ int main() {
                                 .format = {},
                                 .width = {},
                                 .height = {},
-                                .channels = {},
+                                .channel_count = {},
                                 .row_pitch = {},
                                 .slice_pitch = {},
                                 .datas = std::to_array({{
@@ -855,7 +885,7 @@ int main() {
                         asset.format,
                         asset.width,
                         asset.height,
-                        asset.channels,
+                        asset.channel_count,
                         asset.row_pitch,
                         asset.slice_pitch,
                         format_asset_span(asset.datas[0]),
@@ -954,6 +984,7 @@ int main() {
         shaders_bin.insert(shaders_bin.end(), shader.dxil.begin(), shader.dxil.end());
     }
 
+    baked_hpp = string_replace(baked_hpp, "{{max_mip_count}}", std::format("{}", MAX_MIP_COUNT));
     baked_hpp = string_replace(baked_hpp, "{{asset_decls}}", assets_decls.str());
     baked_cpp = string_replace(baked_cpp, "{{asset_defns}}", assets_defns.str());
     baked_cpp =

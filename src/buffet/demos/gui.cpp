@@ -75,9 +75,9 @@ auto Gui::create(
                 .height = height,
             },
             GpuTextureTransferDesc {
-                .data = pixels,
                 .row_pitch = width * 4,
                 .slice_pitch = width * height * 4,
+                .data = pixels,
             },
             D3D12_RESOURCE_STATE_COMMON,
             D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,

@@ -170,38 +170,16 @@ auto FibersDemo::create(
     }
 
     {
-        const auto magma = assets.heatmap_magma_texture();
-        const auto viridis = assets.heatmap_viridis_texture();
-
-        _magma_texture.create_and_transfer(
+        _magma_texture.create_and_transfer_baked(
             device,
-            GpuTextureDesc {
-                .format = magma.format,
-                .width = magma.width,
-                .height = magma.height,
-            },
-            GpuTextureTransferDesc {
-                .data = magma.data.data(),
-                .row_pitch = magma.row_pitch,
-                .slice_pitch = magma.slice_pitch,
-            },
+            assets.heatmap_magma_texture(),
             D3D12_RESOURCE_STATE_COMMON,
             D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
             dx_name(NAME, "Magma Texture")
         );
-
-        _viridis_texture.create_and_transfer(
+        _viridis_texture.create_and_transfer_baked(
             device,
-            GpuTextureDesc {
-                .format = viridis.format,
-                .width = viridis.width,
-                .height = viridis.height,
-            },
-            GpuTextureTransferDesc {
-                .data = viridis.data.data(),
-                .row_pitch = viridis.row_pitch,
-                .slice_pitch = viridis.slice_pitch,
-            },
+            assets.heatmap_viridis_texture(),
             D3D12_RESOURCE_STATE_COMMON,
             D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
             dx_name(NAME, "Viridis Texture")

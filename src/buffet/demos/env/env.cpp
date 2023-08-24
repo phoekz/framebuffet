@@ -46,9 +46,9 @@ auto EnvDemo::create(GpuDevice& device, const baked::Assets& assets, const baked
         std::array<GpuTextureTransferDesc, 6> transfers;
         for (uint32_t i = 0; i < 6; ++i) {
             transfers[i] = {
-                .data = env_texture.datas[i].data(),
                 .row_pitch = env_texture.row_pitch,
                 .slice_pitch = env_texture.slice_pitch,
+                .data = env_texture.datas[i].data(),
             };
         }
         _env_texture.create_and_transfer(

@@ -41,17 +41,9 @@ auto AnimDemo::create(GpuDevice& device, const baked::Assets& assets, const bake
 
     // Texture.
     const auto texture = assets.raccoon_base_color_texture();
-    _texture.create_and_transfer(
+    _texture.create_and_transfer_baked(
         device,
-        GpuTextureDesc {
-            .format = texture.format,
-            .width = texture.width,
-            .height = texture.height,
-        },
-        GpuTextureTransferDesc {
-            .data = texture.data.data(),
-            .row_pitch = texture.row_pitch,
-            .slice_pitch = texture.slice_pitch},
+        texture,
         D3D12_RESOURCE_STATE_COMMON,
         D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
         dx_name(NAME, "Texture")

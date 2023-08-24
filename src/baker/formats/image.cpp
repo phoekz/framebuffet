@@ -11,10 +11,10 @@ auto Image::load(std::span<const std::byte> image_data) -> Image {
         (int*)&image._width,
         (int*)&image._height,
         &dummy,
-        image._channels
+        image._channel_count
     );
     FB_ASSERT(pixels != nullptr);
-    image._pixels.resize(image._width * image._height * image._channels);
+    image._pixels.resize(image._width * image._height * image._channel_count);
     memcpy(image._pixels.data(), pixels, image._pixels.size());
     stbi_image_free(pixels);
     return image;

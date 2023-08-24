@@ -31,14 +31,21 @@ struct Mesh {
     std::span<const Index> indices;
 };
 
+inline constexpr uint32_t MAX_MIP_COUNT = 12;
+
+struct TextureData {
+    uint32_t row_pitch;
+    uint32_t slice_pitch;
+    std::span<const std::byte> data;
+};
+
 struct Texture {
     DXGI_FORMAT format;
     uint32_t width;
     uint32_t height;
-    uint32_t channels;
-    uint32_t row_pitch;
-    uint32_t slice_pitch;
-    std::span<const std::byte> data;
+    uint32_t channel_count;
+    uint32_t mip_count;
+    std::array<TextureData, MAX_MIP_COUNT> datas;
 };
 
 enum class CubeFace : uint32_t {
@@ -54,7 +61,7 @@ struct CubeTexture {
     DXGI_FORMAT format;
     uint32_t width;
     uint32_t height;
-    uint32_t channels;
+    uint32_t channel_count;
     uint32_t row_pitch;
     uint32_t slice_pitch;
     std::array<std::span<const float>, 6> datas;

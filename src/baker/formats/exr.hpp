@@ -17,14 +17,14 @@ public:
     }
 
     auto data() const -> std::span<const float> {
-        return std::span(_pixels, width() * height() * channels());
+        return std::span(_pixels, width() * height() * channel_count());
     }
     auto size() const -> Uint2 { return _size; }
     auto width() const -> uint32_t { return _size.x; }
     auto height() const -> uint32_t { return _size.y; }
-    auto channels() const -> uint32_t { return 4; }
+    auto channel_count() const -> uint32_t { return 4; }
     auto format() const -> DXGI_FORMAT { return DXGI_FORMAT_R32G32B32A32_FLOAT; }
-    auto row_pitch() const -> uint32_t { return width() * sizeof(float) * channels(); }
+    auto row_pitch() const -> uint32_t { return width() * sizeof(float) * channel_count(); }
     auto slice_pitch() const -> uint32_t { return row_pitch() * height(); }
 
     ExrImage(const ExrImage&) = delete;

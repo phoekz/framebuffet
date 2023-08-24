@@ -35,38 +35,16 @@ auto TreeDemo::create(GpuDevice& device, const baked::Assets& assets, const bake
 
     // Texture.
     {
-        const auto& texture = assets.coconut_tree_base_color_texture();
-        _tree_texture.create_and_transfer(
+        _tree_texture.create_and_transfer_baked(
             device,
-            GpuTextureDesc {
-                .format = texture.format,
-                .width = texture.width,
-                .height = texture.height,
-            },
-            GpuTextureTransferDesc {
-                .data = texture.data.data(),
-                .row_pitch = texture.row_pitch,
-                .slice_pitch = texture.slice_pitch,
-            },
+            assets.coconut_tree_base_color_texture(),
             D3D12_RESOURCE_STATE_COMMON,
             D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
             dx_name(NAME, "Tree", "Texture")
         );
-    }
-    {
-        const auto& texture = assets.sand_plane_base_color_texture();
-        _plane_texture.create_and_transfer(
+        _plane_texture.create_and_transfer_baked(
             device,
-            GpuTextureDesc {
-                .format = texture.format,
-                .width = texture.width,
-                .height = texture.height,
-            },
-            GpuTextureTransferDesc {
-                .data = texture.data.data(),
-                .row_pitch = texture.row_pitch,
-                .slice_pitch = texture.slice_pitch,
-            },
+            assets.sand_plane_base_color_texture(),
             D3D12_RESOURCE_STATE_COMMON,
             D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
             dx_name(NAME, "Plane", "Texture")
