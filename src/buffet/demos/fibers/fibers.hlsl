@@ -228,7 +228,7 @@ FbPixelOutput1 debug_ps(DebugVertexOutput input) {
     RWTexture2D<uint> light_counts_texture =
         ResourceDescriptorHeap[g_bindings.light_counts_texture];
     Texture2D<float3> heatmap_texture = ResourceDescriptorHeap[g_bindings.heatmap_texture];
-    SamplerState heatmap_sampler = SamplerDescriptorHeap[(uint)GpuSamplerType::LinearClamp];
+    SamplerState heatmap_sampler = SamplerDescriptorHeap[(uint)GpuSampler::LinearClamp];
 
     const float2 window_size = constants.window_size;
     const float2 tile_size = (float2)CULL_TILE_SIZE;

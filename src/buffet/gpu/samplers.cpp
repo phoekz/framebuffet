@@ -4,9 +4,9 @@
 namespace fb {
 
 auto GpuSamplers::create(GpuDevice& device, GpuDescriptors& descriptors) -> void {
-    std::tuple<GpuSamplerType, D3D12_SAMPLER_DESC2, GpuDescriptor> samplers[] = {
+    std::tuple<GpuSampler, D3D12_SAMPLER_DESC2, GpuDescriptor> samplers[] = {
         {
-            GpuSamplerType::LinearClamp,
+            GpuSampler::LinearClamp,
             {
                 .Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR,
                 .AddressU = D3D12_TEXTURE_ADDRESS_MODE_CLAMP,
@@ -23,7 +23,7 @@ auto GpuSamplers::create(GpuDevice& device, GpuDescriptors& descriptors) -> void
             descriptors.sampler().alloc(),
         },
         {
-            GpuSamplerType::LinearWrap,
+            GpuSampler::LinearWrap,
             {
                 .Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR,
                 .AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP,
@@ -40,7 +40,7 @@ auto GpuSamplers::create(GpuDevice& device, GpuDescriptors& descriptors) -> void
             descriptors.sampler().alloc(),
         },
         {
-            GpuSamplerType::AnisotropicLinearClamp,
+            GpuSampler::AnisotropicLinearClamp,
             {
                 .Filter = D3D12_FILTER_ANISOTROPIC,
                 .AddressU = D3D12_TEXTURE_ADDRESS_MODE_CLAMP,
@@ -57,7 +57,7 @@ auto GpuSamplers::create(GpuDevice& device, GpuDescriptors& descriptors) -> void
             descriptors.sampler().alloc(),
         },
         {
-            GpuSamplerType::AnisotropicLinearWrap,
+            GpuSampler::AnisotropicLinearWrap,
             {
                 .Filter = D3D12_FILTER_ANISOTROPIC,
                 .AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP,
@@ -74,7 +74,7 @@ auto GpuSamplers::create(GpuDevice& device, GpuDescriptors& descriptors) -> void
             descriptors.sampler().alloc(),
         },
         {
-            GpuSamplerType::Shadow,
+            GpuSampler::Shadow,
             {
                 .Filter = D3D12_FILTER_COMPARISON_MIN_MAG_MIP_POINT,
                 .AddressU = D3D12_TEXTURE_ADDRESS_MODE_BORDER,

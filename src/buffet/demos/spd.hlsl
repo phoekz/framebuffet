@@ -21,7 +21,7 @@ ConstantBuffer<Bindings> g_bindings: register(b0);
 #define G_TEXTURE_SRC(name) Texture2DArray<float4> name = ResourceDescriptorHeap[g_bindings.texture_src]
 #define G_TEXTURE_MID(name) globallycoherent RWTexture2DArray<float4> name = ResourceDescriptorHeap[g_bindings.texture_mid]
 #define G_TEXTURE_DST(name, mip) RWTexture2DArray<float4> name = ResourceDescriptorHeap[g_bindings.texture_dst_begin + (mip)]
-#define G_SAMPLER(name, type) SamplerState name = SamplerDescriptorHeap[(uint)GpuSamplerType::type]
+#define G_SAMPLER(name, type) SamplerState name = SamplerDescriptorHeap[(uint)GpuSampler::type]
 // clang-format on
 
 //

@@ -29,7 +29,7 @@ VertexOutput draw_vs(FbVertexInput input) {
 
 FbPixelOutput1 draw_ps(VertexOutput input) {
     TextureCube<float4> texture = ResourceDescriptorHeap[g_bindings.texture];
-    SamplerState samp = SamplerDescriptorHeap[(uint)GpuSamplerType::LinearWrap];
+    SamplerState samp = SamplerDescriptorHeap[(uint)GpuSampler::LinearWrap];
     float3 color = texture.Sample(samp, input.direction).rgb;
 
     FbPixelOutput1 output;

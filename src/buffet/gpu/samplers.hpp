@@ -17,7 +17,7 @@ public:
     auto create(GpuDevice& device, GpuDescriptors& descriptors) -> void;
 
 private:
-    std::array<GpuDescriptor, (size_t)GpuSamplerType::Count> _handles;
+    std::array<GpuDescriptor, (size_t)GpuSampler::Count> _handles;
 };
 
 } // namespace fb

@@ -42,8 +42,8 @@ FbPixelOutput1 draw_ps(DrawVertexOutput input) {
     ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
     Texture2D texture = ResourceDescriptorHeap[g_bindings.texture];
     Texture2D shadow_texture = ResourceDescriptorHeap[g_bindings.shadow_texture];
-    SamplerState samp = SamplerDescriptorHeap[(uint)GpuSamplerType::LinearClamp];
-    SamplerComparisonState shadow_samp = SamplerDescriptorHeap[(uint)GpuSamplerType::Shadow];
+    SamplerState samp = SamplerDescriptorHeap[(uint)GpuSampler::LinearClamp];
+    SamplerComparisonState shadow_samp = SamplerDescriptorHeap[(uint)GpuSampler::Shadow];
 
     float3 shadow_coord = input.shadow_coord.xyz / input.shadow_coord.w;
     float2 shadow_texcoord = shadow_coord.xy * float2(0.5f, -0.5f) + 0.5f;

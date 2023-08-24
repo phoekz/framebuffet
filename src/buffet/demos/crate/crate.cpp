@@ -170,8 +170,8 @@ auto CrateDemo::render(GpuDevice& device, GpuCommandList& cmd) -> void {
     cmd.set_pipeline(_pipeline);
     cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
     for (const auto& [model, sampler] :
-         {std::make_tuple(std::cref(_sci_fi_crate), GpuSamplerType::AnisotropicLinearClamp),
-          std::make_tuple(std::cref(_metal_plane), GpuSamplerType::AnisotropicLinearWrap)}) {
+         {std::make_tuple(std::cref(_sci_fi_crate), GpuSampler::AnisotropicLinearClamp),
+          std::make_tuple(std::cref(_metal_plane), GpuSampler::AnisotropicLinearWrap)}) {
         cmd.set_graphics_constants(Bindings {
             .constants = _constants.cbv_descriptor().index(),
             .vertices = model.vertices.srv_descriptor().index(),
