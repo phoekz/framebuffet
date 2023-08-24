@@ -274,14 +274,19 @@ auto Buffet::run() -> void {
 
             PIXBeginEvent(PIX_COLOR_DEFAULT, "Commands");
             {
+                auto& swapchain = device.swapchain();
+                const auto frame_index = device.frame_index();
+
                 cmd.begin_pix("Frame %zu", frame.count());
 
                 {
                     cmd.begin_pix("Clear render targets");
                     cmd.set_graphics();
                     every_demo([&cmd](auto& demo) { demo.rt().transition_to_render_target(cmd); });
+                    swapchain.transition_to_render_target(cmd, frame_index);
                     cmd.flush_barriers();
                     every_demo([&cmd](auto& demo) { demo.rt().clear_all(cmd); });
+                    swapchain.clear_render_target(cmd, frame_index);
                     cmd.end_pix();
                 }
 
@@ -308,14 +313,8 @@ auto Buffet::run() -> void {
                 }
 
                 {
-                    auto& swapchain = device.swapchain();
-                    const auto frame_index = device.frame_index();
-
                     cmd.begin_pix("Main pass");
 
-                    swapchain.transition_to_render_target(cmd, frame_index);
-                    cmd.flush_barriers();
-                    swapchain.clear_render_target(cmd, frame_index);
                     swapchain.set_render_target(cmd, frame_index);
 
                     cmd.begin_pix(cards.NAME.data());
