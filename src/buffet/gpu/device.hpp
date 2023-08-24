@@ -71,7 +71,7 @@ public:
         D3D12_CPU_DESCRIPTOR_HANDLE descriptor
     ) const -> void;
     auto
-    create_sampler(const D3D12_SAMPLER_DESC& desc, D3D12_CPU_DESCRIPTOR_HANDLE descriptor) const
+    create_sampler(const D3D12_SAMPLER_DESC2& desc, D3D12_CPU_DESCRIPTOR_HANDLE descriptor) const
         -> void;
     auto descriptor_size(D3D12_DESCRIPTOR_HEAP_TYPE heap_type) const -> uint32_t;
 

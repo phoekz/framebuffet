@@ -1364,7 +1364,7 @@ auto Shaders::tree_draw_vs() const -> std::span<const std::byte> {
     return std::span(_data).subspan(58560, 5456);
 }
 
-// shader_hash: d8fc468d518d682e1b21e1879a32d5e3
+// shader_hash: e662510b7848f5cc9d83ae16ddd08141
 // constant_buffers: 1
 // bound_resources: 1
 // input_parameters: 4

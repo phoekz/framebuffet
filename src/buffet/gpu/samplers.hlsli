@@ -7,6 +7,8 @@ FB_NAMESPACE_BEGIN(fb)
 enum class GpuSamplerType : uint {
     LinearClamp = 0,
     LinearWrap,
+    AnisotropicLinearClamp,
+    AnisotropicLinearWrap,
     Shadow,
     Count,
 };

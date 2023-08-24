@@ -389,10 +389,10 @@ auto GpuDevice::create_unordered_access_view(
 }
 
 auto GpuDevice::create_sampler(
-    const D3D12_SAMPLER_DESC& desc,
+    const D3D12_SAMPLER_DESC2& desc,
     D3D12_CPU_DESCRIPTOR_HANDLE descriptor
 ) const -> void {
-    _device->CreateSampler(&desc, descriptor);
+    _device->CreateSampler2(&desc, descriptor);
 }
 
 auto GpuDevice::create_constant_buffer_view(
