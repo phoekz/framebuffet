@@ -39,6 +39,37 @@ struct GpuDepthStencilDesc {
     GpuComparisonFunc depth_func = GpuComparisonFunc::LessEqual;
 };
 
+enum class GpuBlend {
+    Zero,
+    One,
+    SrcColor,
+    InvSrcColor,
+    SrcAlpha,
+    InvSrcAlpha,
+    DstAlpha,
+    InvDstAlpha,
+    DstColor,
+    InvDstColor,
+};
+
+enum class GpuBlendOp {
+    Add,
+    Subtract,
+    RevSubtract,
+    Min,
+    Max,
+};
+
+struct GpuBlendDesc {
+    bool blend_enable = false;
+    GpuBlend rgb_blend_src = GpuBlend::One;
+    GpuBlend rgb_blend_dst = GpuBlend::Zero;
+    GpuBlendOp rgb_blend_op = GpuBlendOp::Add;
+    GpuBlend alpha_blend_src = GpuBlend::One;
+    GpuBlend alpha_blend_dst = GpuBlend::Zero;
+    GpuBlendOp alpha_blend_op = GpuBlendOp::Add;
+};
+
 class GpuPipeline {
     FB_NO_COPY_MOVE(GpuPipeline);
 
@@ -64,7 +95,7 @@ public:
     [[nodiscard]] auto vertex_shader(std::span<const std::byte> dxil) -> GpuPipelineBuilder&;
     [[nodiscard]] auto pixel_shader(std::span<const std::byte> dxil) -> GpuPipelineBuilder&;
     [[nodiscard]] auto compute_shader(std::span<const std::byte> dxil) -> GpuPipelineBuilder&;
-    [[nodiscard]] auto blend(D3D12_BLEND_DESC blend) -> GpuPipelineBuilder&;
+    [[nodiscard]] auto blend(GpuBlendDesc desc) -> GpuPipelineBuilder&;
     [[nodiscard]] auto depth_stencil(GpuDepthStencilDesc desc) -> GpuPipelineBuilder&;
     [[nodiscard]] auto rasterizer(GpuRasterizerDesc desc) -> GpuPipelineBuilder&;
     [[nodiscard]] auto render_target_formats(std::initializer_list<DXGI_FORMAT> formats) -> GpuPipelineBuilder&;
@@ -84,40 +115,7 @@ private:
     uint32_t _subobject_mask = 0;
     GpuRasterizerDesc _rasterizer_desc = {};
     GpuDepthStencilDesc _depth_stencil_desc = {};
-};
-
-inline constexpr D3D12_BLEND_DESC GPU_PIPELINE_BLEND_ADDITIVE = {
-    .AlphaToCoverageEnable = FALSE,
-    .IndependentBlendEnable = FALSE,
-    .RenderTarget = {D3D12_RENDER_TARGET_BLEND_DESC {
-        .BlendEnable = TRUE,
-        .LogicOpEnable = FALSE,
-        .SrcBlend = D3D12_BLEND_SRC_ALPHA,
-        .DestBlend = D3D12_BLEND_ONE,
-        .BlendOp = D3D12_BLEND_OP_ADD,
-        .SrcBlendAlpha = D3D12_BLEND_SRC_ALPHA,
-        .DestBlendAlpha = D3D12_BLEND_ONE,
-        .BlendOpAlpha = D3D12_BLEND_OP_ADD,
-        .LogicOp = D3D12_LOGIC_OP_NOOP,
-        .RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL,
-    }},
-};
-
-inline constexpr D3D12_BLEND_DESC GPU_PIPELINE_BLEND_ALPHA = {
-    .AlphaToCoverageEnable = FALSE,
-    .IndependentBlendEnable = FALSE,
-    .RenderTarget = {D3D12_RENDER_TARGET_BLEND_DESC {
-        .BlendEnable = TRUE,
-        .LogicOpEnable = FALSE,
-        .SrcBlend = D3D12_BLEND_SRC_ALPHA,
-        .DestBlend = D3D12_BLEND_INV_SRC_ALPHA,
-        .BlendOp = D3D12_BLEND_OP_ADD,
-        .SrcBlendAlpha = D3D12_BLEND_ONE,
-        .DestBlendAlpha = D3D12_BLEND_INV_SRC_ALPHA,
-        .BlendOpAlpha = D3D12_BLEND_OP_ADD,
-        .LogicOp = D3D12_LOGIC_OP_NOOP,
-        .RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL,
-    }},
+    GpuBlendDesc _blend_desc = {};
 };
 
 } // namespace fb

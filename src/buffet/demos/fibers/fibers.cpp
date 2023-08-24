@@ -59,7 +59,15 @@ auto FibersDemo::create(
             .primitive_topology(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)
             .vertex_shader(shaders.fibers_debug_vs())
             .pixel_shader(shaders.fibers_debug_ps())
-            .blend(GPU_PIPELINE_BLEND_ALPHA)
+            .blend(GpuBlendDesc {
+                .blend_enable = true,
+                .rgb_blend_src = GpuBlend::SrcAlpha,
+                .rgb_blend_dst = GpuBlend::InvSrcAlpha,
+                .rgb_blend_op = GpuBlendOp::Add,
+                .alpha_blend_src = GpuBlend::One,
+                .alpha_blend_dst = GpuBlend::InvSrcAlpha,
+                .alpha_blend_op = GpuBlendOp::Add,
+            })
             .depth_stencil(GpuDepthStencilDesc {
                 .depth_read = false,
                 .depth_write = false,

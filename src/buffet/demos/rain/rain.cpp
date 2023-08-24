@@ -54,7 +54,15 @@ auto RainDemo::create(GpuDevice& device, const baked::Assets&, const baked::Shad
         .primitive_topology(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)
         .vertex_shader(shaders.rain_draw_vs())
         .pixel_shader(shaders.rain_draw_ps())
-        .blend(GPU_PIPELINE_BLEND_ADDITIVE)
+        .blend(GpuBlendDesc {
+            .blend_enable = true,
+            .rgb_blend_src = GpuBlend::SrcAlpha,
+            .rgb_blend_dst = GpuBlend::One,
+            .rgb_blend_op = GpuBlendOp::Add,
+            .alpha_blend_src = GpuBlend::SrcAlpha,
+            .alpha_blend_dst = GpuBlend::One,
+            .alpha_blend_op = GpuBlendOp::Add,
+        })
         .depth_stencil(GpuDepthStencilDesc {
             .depth_read = false,
             .depth_write = false,

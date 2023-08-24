@@ -49,12 +49,10 @@ auto GpuPipelineBuilder::compute_shader(std::span<const std::byte> dxil) -> GpuP
     return *this;
 }
 
-auto GpuPipelineBuilder::blend(D3D12_BLEND_DESC blend) -> GpuPipelineBuilder& {
+auto GpuPipelineBuilder::blend(GpuBlendDesc desc) -> GpuPipelineBuilder& {
     static constexpr uint32_t BIT = (1 << D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_BLEND);
     FB_ASSERT((_subobject_mask & BIT) == 0);
-    CD3DX12_BLEND_DESC cdesc(blend);
-    new (_buffer + _buffet_offset) CD3DX12_PIPELINE_STATE_STREAM_BLEND_DESC(cdesc);
-    _buffet_offset += sizeof(CD3DX12_PIPELINE_STATE_STREAM_BLEND_DESC);
+    _blend_desc = desc;
     _subobject_mask |= BIT;
     return *this;
 }
@@ -205,6 +203,82 @@ auto GpuPipelineBuilder::build(GpuDevice& device, GpuPipeline& pipeline, std::st
         CD3DX12_DEPTH_STENCIL_DESC2 cdesc(d3d12_desc);
         new (_buffer + _buffet_offset) CD3DX12_PIPELINE_STATE_STREAM_DEPTH_STENCIL2(cdesc);
         _buffet_offset += sizeof(CD3DX12_PIPELINE_STATE_STREAM_DEPTH_STENCIL2);
+    }
+
+    // Blend.
+    {
+        // D3D12 defaults.
+        const D3D12_RENDER_TARGET_BLEND_DESC render_target_blend_desc = {
+            .BlendEnable = FALSE,
+            .LogicOpEnable = FALSE,
+            .SrcBlend = D3D12_BLEND_ONE,
+            .DestBlend = D3D12_BLEND_ZERO,
+            .BlendOp = D3D12_BLEND_OP_ADD,
+            .SrcBlendAlpha = D3D12_BLEND_ONE,
+            .DestBlendAlpha = D3D12_BLEND_ZERO,
+            .BlendOpAlpha = D3D12_BLEND_OP_ADD,
+            .LogicOp = D3D12_LOGIC_OP_NOOP,
+            .RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL,
+        };
+        D3D12_BLEND_DESC d3d12_desc = {
+            .AlphaToCoverageEnable = FALSE,
+            .IndependentBlendEnable = FALSE,
+            .RenderTarget = {render_target_blend_desc},
+        };
+
+        // Conversions.
+        auto d3d12_from_gpu_blend = [](GpuBlend blend) {
+            using enum GpuBlend;
+            switch (blend) {
+                case Zero: return D3D12_BLEND_ZERO;
+                case One: return D3D12_BLEND_ONE;
+                case SrcColor: return D3D12_BLEND_SRC_COLOR;
+                case InvSrcColor: return D3D12_BLEND_INV_SRC_COLOR;
+                case SrcAlpha: return D3D12_BLEND_SRC_ALPHA;
+                case InvSrcAlpha: return D3D12_BLEND_INV_SRC_ALPHA;
+                case DstAlpha: return D3D12_BLEND_DEST_ALPHA;
+                case InvDstAlpha: return D3D12_BLEND_INV_DEST_ALPHA;
+                case DstColor: return D3D12_BLEND_DEST_COLOR;
+                case InvDstColor: return D3D12_BLEND_INV_DEST_COLOR;
+                default: FB_FATAL();
+            }
+        };
+        auto d3d12_from_gpu_blend_op = [](GpuBlendOp blend_op) {
+            using enum GpuBlendOp;
+            switch (blend_op) {
+                case Add: return D3D12_BLEND_OP_ADD;
+                case Subtract: return D3D12_BLEND_OP_SUBTRACT;
+                case RevSubtract: return D3D12_BLEND_OP_REV_SUBTRACT;
+                case Min: return D3D12_BLEND_OP_MIN;
+                case Max: return D3D12_BLEND_OP_MAX;
+                default: FB_FATAL();
+            }
+        };
+
+        // Override `BlendEnable`.
+        if (_blend_desc.blend_enable) {
+            d3d12_desc.RenderTarget[0].BlendEnable = TRUE;
+        } else {
+            d3d12_desc.RenderTarget[0].BlendEnable = FALSE;
+        }
+
+        // Override `SrcBlend`, `DestBlend`, `BlendOp`.
+        d3d12_desc.RenderTarget[0].SrcBlend = d3d12_from_gpu_blend(_blend_desc.rgb_blend_src);
+        d3d12_desc.RenderTarget[0].DestBlend = d3d12_from_gpu_blend(_blend_desc.rgb_blend_dst);
+        d3d12_desc.RenderTarget[0].BlendOp = d3d12_from_gpu_blend_op(_blend_desc.rgb_blend_op);
+
+        // Override `SrcBlendAlpha`, `DestBlendAlpha`, `BlendOpAlpha`.
+        d3d12_desc.RenderTarget[0].SrcBlendAlpha =
+            d3d12_from_gpu_blend(_blend_desc.alpha_blend_src);
+        d3d12_desc.RenderTarget[0].DestBlendAlpha =
+            d3d12_from_gpu_blend(_blend_desc.alpha_blend_dst);
+        d3d12_desc.RenderTarget[0].BlendOpAlpha =
+            d3d12_from_gpu_blend_op(_blend_desc.alpha_blend_op);
+
+        // Add.
+        CD3DX12_BLEND_DESC cdesc(d3d12_desc);
+        new (_buffer + _buffet_offset) CD3DX12_PIPELINE_STATE_STREAM_BLEND_DESC(cdesc);
+        _buffet_offset += sizeof(CD3DX12_PIPELINE_STATE_STREAM_BLEND_DESC);
     }
 
     // Create pipeline state.

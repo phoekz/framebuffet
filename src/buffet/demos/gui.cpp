@@ -35,21 +35,15 @@ auto Gui::create(
         .primitive_topology(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)
         .vertex_shader(shaders.gui_draw_vs())
         .pixel_shader(shaders.gui_draw_ps())
-        .blend(D3D12_BLEND_DESC {
-            .AlphaToCoverageEnable = FALSE,
-            .IndependentBlendEnable = FALSE,
-            .RenderTarget = {{
-                .BlendEnable = TRUE,
-                .LogicOpEnable = FALSE,
-                .SrcBlend = D3D12_BLEND_SRC_ALPHA,
-                .DestBlend = D3D12_BLEND_INV_SRC_ALPHA,
-                .BlendOp = D3D12_BLEND_OP_ADD,
-                .SrcBlendAlpha = D3D12_BLEND_ONE,
-                .DestBlendAlpha = D3D12_BLEND_INV_SRC_ALPHA,
-                .BlendOpAlpha = D3D12_BLEND_OP_ADD,
-                .LogicOp = D3D12_LOGIC_OP_NOOP,
-                .RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL,
-            }}})
+        .blend(GpuBlendDesc {
+            .blend_enable = true,
+            .rgb_blend_src = GpuBlend::SrcAlpha,
+            .rgb_blend_dst = GpuBlend::InvSrcAlpha,
+            .rgb_blend_op = GpuBlendOp::Add,
+            .alpha_blend_src = GpuBlend::One,
+            .alpha_blend_dst = GpuBlend::InvSrcAlpha,
+            .alpha_blend_op = GpuBlendOp::Add,
+        })
         .depth_stencil(GpuDepthStencilDesc {
             .depth_read = false,
             .depth_write = false,
