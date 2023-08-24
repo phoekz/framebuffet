@@ -270,6 +270,7 @@ auto FibersDemo::render(GpuDevice& device, GpuCommandList& cmd) -> void {
 
     // Compute.
     {
+        cmd.begin_pix("Compute");
         cmd.set_compute();
 
         // Sim.
@@ -307,10 +308,12 @@ auto FibersDemo::render(GpuDevice& device, GpuCommandList& cmd) -> void {
         _light_indices.uav_barrier(cmd);
         _light_indices_count.uav_barrier(cmd);
         cmd.flush_barriers();
+        cmd.end_pix();
     }
 
-    // Graphics.
+    // Draw.
     {
+        cmd.begin_pix("Draw");
         cmd.set_graphics();
         _render_targets.set(cmd);
         _debug_draw.render(device, cmd);
@@ -356,6 +359,7 @@ auto FibersDemo::render(GpuDevice& device, GpuCommandList& cmd) -> void {
         cmd.set_pipeline(_debug_pipeline);
         cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
         cmd.draw_instanced(3, 1, 0, 0);
+        cmd.end_pix();
     }
 }
 

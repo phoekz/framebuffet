@@ -186,6 +186,7 @@ auto TreeDemo::update(const UpdateDesc& desc) -> void {
 auto TreeDemo::render(GpuDevice& device, GpuCommandList& cmd) -> void {
     // Shadow pass.
     {
+        cmd.begin_pix("Shadow");
         cmd.set_graphics();
         _shadow_depth.transition(cmd, D3D12_RESOURCE_STATE_DEPTH_WRITE);
         cmd.flush_barriers();
@@ -203,10 +204,12 @@ auto TreeDemo::render(GpuDevice& device, GpuCommandList& cmd) -> void {
         cmd.draw_indexed_instanced(_tree_indices.element_size(), 1, 0, 0, 0);
         _shadow_depth.transition(cmd, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
         cmd.flush_barriers();
+        cmd.end_pix();
     }
 
-    // Main pass.
+    // Draw pass.
     {
+        cmd.begin_pix("Draw");
         cmd.set_graphics();
         _render_targets.set(cmd);
         _debug_draw.render(device, cmd);
@@ -230,6 +233,7 @@ auto TreeDemo::render(GpuDevice& device, GpuCommandList& cmd) -> void {
         });
         cmd.set_index_buffer(_plane_indices.index_buffer_view());
         cmd.draw_indexed_instanced(_plane_indices.element_size(), 1, 0, 0, 0);
+        cmd.end_pix();
     }
 }
 

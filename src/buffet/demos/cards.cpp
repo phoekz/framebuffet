@@ -182,6 +182,7 @@ void Cards::update(const GpuDevice& device) {
 }
 
 void Cards::render(GpuDevice& device, GpuCommandList& cmd) {
+    cmd.begin_pix("Spd");
     cmd.set_compute();
     cmd.set_pipeline(_spd_pipeline);
     for (uint32_t i = 0; i < CARD_COUNT; i++) {
@@ -195,7 +196,9 @@ void Cards::render(GpuDevice& device, GpuCommandList& cmd) {
         });
         cmd.dispatch(_spd_dispatch.x, _spd_dispatch.y, _spd_dispatch.z);
     }
+    cmd.end_pix();
 
+    cmd.begin_pix("Quads");
     const auto& p = _parameters;
     const auto swapchain_size = device.swapchain().size();
     const auto width = swapchain_size.x;
@@ -218,6 +221,7 @@ void Cards::render(GpuDevice& device, GpuCommandList& cmd) {
         });
         cmd.draw_indexed_instanced(_indices.element_size(), 1, 0, 0, 0);
     }
+    cmd.end_pix();
 }
 
 } // namespace fb::demos::cards
