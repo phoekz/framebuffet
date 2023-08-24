@@ -86,7 +86,7 @@ FbPixelOutput1 draw_ps(VertexOutput input) {
             break;
         }
         case OutputMode::VertexTexCoord: {
-            final_color = float3(input.texcoord, 0.0f);
+            final_color = float3(frac(input.texcoord), 0.0f);
             break;
         }
         case OutputMode::VertexNormal: {
