@@ -59,6 +59,7 @@ namespace error_detail {
 
 #define FB_INTERNAL_POST_ASSERTION(msg) \
     fb::output_debug_string(msg);       \
+    fb::output_console_string(msg);     \
     if (IsDebuggerPresent())            \
         __debugbreak();                 \
     FB_FATAL();
