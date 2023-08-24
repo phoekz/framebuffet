@@ -52,7 +52,9 @@ auto Gui::create(
             }}})
         .depth_stencil(GPU_PIPELINE_DEPTH_NONE)
         .render_target_formats({SWAPCHAIN_RTV_FORMAT})
-        .rasterizer(GPU_PIPELINE_CULL_NONE)
+        .rasterizer(GpuRasterizerDesc {
+            .cull_mode = GpuCullMode::None,
+        })
         .build(device, _pipeline, dx_name(Gui::NAME, "Pipeline"));
 
     // Constants.

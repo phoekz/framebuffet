@@ -93,7 +93,6 @@ GltfModel::GltfModel(std::string_view gltf_path) {
             i0 += (uint32_t)vertex_offset;
             i1 += (uint32_t)vertex_offset;
             i2 += (uint32_t)vertex_offset;
-            std::swap(i0, i2);
         }
     }
 

@@ -20,6 +20,22 @@ private:
     ComPtr<ID3D12PipelineState> _state;
 };
 
+enum class GpuFillMode {
+    Solid,
+    Wireframe,
+};
+
+enum class GpuCullMode {
+    None,
+    Front,
+    Back,
+};
+
+struct GpuRasterizerDesc {
+    GpuFillMode fill_mode = GpuFillMode::Solid;
+    GpuCullMode cull_mode = GpuCullMode::Back;
+};
+
 class GpuPipelineBuilder {
     FB_NO_COPY_MOVE(GpuPipelineBuilder);
 
@@ -33,7 +49,7 @@ public:
     [[nodiscard]] auto compute_shader(std::span<const std::byte> dxil) -> GpuPipelineBuilder&;
     [[nodiscard]] auto blend(D3D12_BLEND_DESC blend) -> GpuPipelineBuilder&;
     [[nodiscard]] auto depth_stencil(D3D12_DEPTH_STENCIL_DESC2 depth_stencil) -> GpuPipelineBuilder&;
-    [[nodiscard]] auto rasterizer(D3D12_RASTERIZER_DESC2 rasterizer) -> GpuPipelineBuilder&;
+    [[nodiscard]] auto rasterizer(GpuRasterizerDesc desc) -> GpuPipelineBuilder&;
     [[nodiscard]] auto render_target_formats(std::initializer_list<DXGI_FORMAT> formats) -> GpuPipelineBuilder&;
     [[nodiscard]] auto depth_stencil_format(DXGI_FORMAT format) -> GpuPipelineBuilder&;
     [[nodiscard]] auto sample_desc(DXGI_SAMPLE_DESC desc) -> GpuPipelineBuilder&;
@@ -49,6 +65,7 @@ private:
     std::byte _buffer[BUFFER_SIZE] = {};
     size_t _buffet_offset = 0;
     uint32_t _subobject_mask = 0;
+    GpuRasterizerDesc _rasterizer_desc = {};
 };
 
 inline constexpr D3D12_BLEND_DESC GPU_PIPELINE_BLEND_ADDITIVE = {
@@ -135,32 +152,6 @@ inline constexpr D3D12_DEPTH_STENCIL_DESC2 GPU_PIPELINE_DEPTH_NONE = {
             .StencilWriteMask = D3D12_DEFAULT_STENCIL_WRITE_MASK,
         },
     .DepthBoundsTestEnable = FALSE,
-};
-
-inline constexpr D3D12_RASTERIZER_DESC2 GPU_PIPELINE_CULL_NONE = {
-    .FillMode = D3D12_FILL_MODE_SOLID,
-    .CullMode = D3D12_CULL_MODE_NONE,
-    .FrontCounterClockwise = FALSE,
-    .DepthBias = D3D12_DEFAULT_DEPTH_BIAS,
-    .DepthBiasClamp = D3D12_DEFAULT_DEPTH_BIAS_CLAMP,
-    .SlopeScaledDepthBias = D3D12_DEFAULT_SLOPE_SCALED_DEPTH_BIAS,
-    .DepthClipEnable = TRUE,
-    .LineRasterizationMode = D3D12_LINE_RASTERIZATION_MODE_ALIASED,
-    .ForcedSampleCount = 0,
-    .ConservativeRaster = D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF,
-};
-
-inline constexpr D3D12_RASTERIZER_DESC2 GPU_PIPELINE_WIREFRAME = {
-    .FillMode = D3D12_FILL_MODE_WIREFRAME,
-    .CullMode = D3D12_CULL_MODE_NONE,
-    .FrontCounterClockwise = FALSE,
-    .DepthBias = D3D12_DEFAULT_DEPTH_BIAS,
-    .DepthBiasClamp = D3D12_DEFAULT_DEPTH_BIAS_CLAMP,
-    .SlopeScaledDepthBias = D3D12_DEFAULT_SLOPE_SCALED_DEPTH_BIAS,
-    .DepthClipEnable = TRUE,
-    .LineRasterizationMode = D3D12_LINE_RASTERIZATION_MODE_ALIASED,
-    .ForcedSampleCount = 0,
-    .ConservativeRaster = D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF,
 };
 
 } // namespace fb

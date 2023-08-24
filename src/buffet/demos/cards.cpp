@@ -93,9 +93,9 @@ auto Cards::create(GpuDevice& device, const baked::Shaders& shaders, const Cards
     {
         const auto vertices = std::to_array<Vertex>({
             {{0.0f, 0.0f}, {0.0f, 0.0f}},
-            {{1.0f, 0.0f}, {1.0f, 0.0f}},
-            {{1.0f, 1.0f}, {1.0f, 1.0f}},
             {{0.0f, 1.0f}, {0.0f, 1.0f}},
+            {{1.0f, 1.0f}, {1.0f, 1.0f}},
+            {{1.0f, 0.0f}, {1.0f, 0.0f}},
         });
         const auto indices = std::to_array<uint16_t>({0, 1, 2, 0, 2, 3});
         _vertices.create_with_data(device, vertices, dx_name(Cards::NAME, "Vertices"));

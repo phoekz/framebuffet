@@ -525,7 +525,7 @@ auto build_assets(std::string_view assets_dir)
                         dxtk_vertices,
                         dxtk_indices,
                         {task.extents, task.extents, task.extents},
-                        !task.inverted,
+                        task.inverted,
                         task.inverted
                     );
 

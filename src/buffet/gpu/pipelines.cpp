@@ -70,12 +70,10 @@ auto GpuPipelineBuilder::depth_stencil(D3D12_DEPTH_STENCIL_DESC2 depth_stencil)
     return *this;
 }
 
-auto GpuPipelineBuilder::rasterizer(D3D12_RASTERIZER_DESC2 rasterizer) -> GpuPipelineBuilder& {
+auto GpuPipelineBuilder::rasterizer(GpuRasterizerDesc desc) -> GpuPipelineBuilder& {
     static constexpr uint32_t BIT = (1 << D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_RASTERIZER2);
     FB_ASSERT((_subobject_mask & BIT) == 0);
-    CD3DX12_RASTERIZER_DESC2 cdesc(rasterizer);
-    new (_buffer + _buffet_offset) CD3DX12_PIPELINE_STATE_STREAM_RASTERIZER2(cdesc);
-    _buffet_offset += sizeof(CD3DX12_PIPELINE_STATE_STREAM_RASTERIZER2);
+    _rasterizer_desc = desc;
     _subobject_mask |= BIT;
     return *this;
 }
@@ -117,9 +115,45 @@ auto GpuPipelineBuilder::sample_desc(DXGI_SAMPLE_DESC desc) -> GpuPipelineBuilde
 auto GpuPipelineBuilder::build(GpuDevice& device, GpuPipeline& pipeline, std::string_view name)
     -> void {
     // Add global root signature.
-    new (_buffer + _buffet_offset)
-        CD3DX12_PIPELINE_STATE_STREAM_ROOT_SIGNATURE(device.root_signature());
-    _buffet_offset += sizeof(CD3DX12_PIPELINE_STATE_STREAM_ROOT_SIGNATURE);
+    {
+        new (_buffer + _buffet_offset)
+            CD3DX12_PIPELINE_STATE_STREAM_ROOT_SIGNATURE(device.root_signature());
+        _buffet_offset += sizeof(CD3DX12_PIPELINE_STATE_STREAM_ROOT_SIGNATURE);
+    }
+
+    // Add rasterizer desc.
+    {
+        // Defaults.
+        D3D12_RASTERIZER_DESC2 d3d12_desc = {
+            .FillMode = D3D12_FILL_MODE_SOLID,
+            .CullMode = D3D12_CULL_MODE_BACK,
+            .FrontCounterClockwise = TRUE,
+            .DepthBias = D3D12_DEFAULT_DEPTH_BIAS,
+            .DepthBiasClamp = D3D12_DEFAULT_DEPTH_BIAS_CLAMP,
+            .SlopeScaledDepthBias = D3D12_DEFAULT_SLOPE_SCALED_DEPTH_BIAS,
+            .DepthClipEnable = TRUE,
+            .LineRasterizationMode = D3D12_LINE_RASTERIZATION_MODE_ALIASED,
+            .ForcedSampleCount = 0,
+            .ConservativeRaster = D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF,
+        };
+
+        // Override fill mode.
+        switch (_rasterizer_desc.fill_mode) {
+            case GpuFillMode::Solid: d3d12_desc.FillMode = D3D12_FILL_MODE_SOLID; break;
+            case GpuFillMode::Wireframe: d3d12_desc.FillMode = D3D12_FILL_MODE_WIREFRAME; break;
+        }
+
+        // Override cull mode.
+        switch (_rasterizer_desc.cull_mode) {
+            case GpuCullMode::None: d3d12_desc.CullMode = D3D12_CULL_MODE_NONE; break;
+            case GpuCullMode::Front: d3d12_desc.CullMode = D3D12_CULL_MODE_FRONT; break;
+            case GpuCullMode::Back: d3d12_desc.CullMode = D3D12_CULL_MODE_BACK; break;
+        }
+
+        CD3DX12_RASTERIZER_DESC2 cdesc(d3d12_desc);
+        new (_buffer + _buffet_offset) CD3DX12_PIPELINE_STATE_STREAM_RASTERIZER2(cdesc);
+        _buffet_offset += sizeof(CD3DX12_PIPELINE_STATE_STREAM_RASTERIZER2);
+    }
 
     // Create pipeline state.
     pipeline._state = device.create_pipeline_state(

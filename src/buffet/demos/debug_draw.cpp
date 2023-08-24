@@ -18,7 +18,9 @@ auto DebugDraw::create(
         .pixel_shader(shaders.debug_draw_draw_ps())
         .blend(GPU_PIPELINE_BLEND_ALPHA)
         .depth_stencil(GPU_PIPELINE_DEPTH_DEFAULT)
-        .rasterizer(GPU_PIPELINE_CULL_NONE)
+        .rasterizer(GpuRasterizerDesc {
+            .cull_mode = GpuCullMode::None,
+        })
         .render_target_formats({render_targets.color_format()})
         .depth_stencil_format(render_targets.depth_format())
         .sample_desc(render_targets.sample_desc())

@@ -27,6 +27,8 @@ enum class OutputMode : uint {
     VertexTangent,
     VertexBitangent,
     LevelOfDetail,
+    DirectionToViewer,
+    DirectionToLight,
 };
 
 struct Constants {
@@ -34,8 +36,9 @@ struct Constants {
     float3 light_direction;
     float light_ambient;
     float light_intensity;
+    float3 camera_position;
     OutputMode output_mode;
-    float pad[42];
+    float pad[39];
 };
 
 FB_NAMESPACE_END(fb::demos::crate)

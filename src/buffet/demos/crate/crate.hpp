@@ -11,9 +11,9 @@ struct Parameters {
     float camera_latitude = rad_from_deg(30.0f);
     float camera_longitude = rad_from_deg(0.0f);
     float camera_rotation_speed = 0.1f;
-    float light_latitude = rad_from_deg(60.0f);
+    float light_latitude = rad_from_deg(35.0f);
     float light_longitude = rad_from_deg(0.0f);
-    float light_rotation_speed = 0.5f;
+    float light_rotation_speed = 1.0f;
     float light_ambient = 0.25f;
     float light_intensity = 2.0f;
     OutputMode output_mode = OutputMode::Shaded;

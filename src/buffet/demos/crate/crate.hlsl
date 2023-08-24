@@ -1,6 +1,7 @@
 #include <gpu/samplers.hlsli>
 #include <demos/core.hlsli>
 #include <demos/crate/crate.hlsli>
+#include <demos/crate/brdf.hlsli>
 
 struct VertexOutput {
     float4 position: SV_Position;
@@ -8,6 +9,7 @@ struct VertexOutput {
     float2 texcoord: ATTRIBUTE1;
     float4 tangent: ATTRIBUTE2;
     float3 bitangent: ATTRIBUTE3;
+    float3 world_position: ATTRIBUTE4;
 };
 
 ConstantBuffer<Bindings> g_bindings: register(b0);
@@ -25,6 +27,7 @@ VertexOutput draw_vs(FbVertexInput input) {
     output.texcoord = vertex.texcoord;
     output.tangent = vertex.tangent;
     output.bitangent = bitangent;
+    output.world_position = vertex.position;
     return output;
 }
 
@@ -42,6 +45,9 @@ FbPixelOutput1 draw_ps(VertexOutput input) {
         ResourceDescriptorHeap[g_bindings.metallic_roughness_texture];
     SamplerState sampler = SamplerDescriptorHeap[g_bindings.sampler];
 
+    const float3 direction_to_viewer = normalize(constants.camera_position - input.world_position);
+    const float3 direction_to_light = constants.light_direction;
+
     const float3 base_color = base_color_texture.Sample(sampler, input.texcoord).rgb;
     const float3 normal_sample =
         normalize(normal_texture.Sample(sampler, input.texcoord).rgb * 2.0f - 1.0f);
@@ -51,13 +57,20 @@ FbPixelOutput1 draw_ps(VertexOutput input) {
     const float3x3 tbn_basis = float3x3(input.tangent.xyz, input.bitangent, input.normal);
     const float3 shading_normal = mul(normal_sample, tbn_basis);
 
-    const float ndotl = saturate(dot(shading_normal, constants.light_direction));
+    MaterialProperties material;
+    material.base_color = base_color;
+    material.metalness = metallic;
+    material.roughness = roughness;
+    float3 brdf =
+        evaluate_combined_brdf(shading_normal, direction_to_light, direction_to_viewer, material);
+
+    const float ndotl = saturate(dot(shading_normal, direction_to_light));
     const float lighting = compute_lighting(constants, ndotl);
 
     float3 final_color;
     switch (constants.output_mode) {
         case OutputMode::Shaded: {
-            final_color = base_color * lighting;
+            final_color = brdf * lighting;
             break;
         }
         case OutputMode::ShadingNormal: {
@@ -69,7 +82,7 @@ FbPixelOutput1 draw_ps(VertexOutput input) {
             break;
         }
         case OutputMode::VertexLighting: {
-            const float vertex_ndotl = saturate(dot(input.normal, constants.light_direction));
+            const float vertex_ndotl = saturate(dot(input.normal, direction_to_light));
             const float vertex_lighting = compute_lighting(constants, vertex_ndotl);
             final_color = vertex_lighting.xxx;
             break;
@@ -110,6 +123,14 @@ FbPixelOutput1 draw_ps(VertexOutput input) {
             float lod = base_color_texture.CalculateLevelOfDetail(sampler, input.texcoord);
             lod = frac(lod);
             final_color = lod.xxx;
+            break;
+        }
+        case OutputMode::DirectionToViewer: {
+            final_color = 0.5f * (direction_to_viewer + 1.0f);
+            break;
+        }
+        case OutputMode::DirectionToLight: {
+            final_color = 0.5f * (direction_to_light + 1.0f);
             break;
         }
     }

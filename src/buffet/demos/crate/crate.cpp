@@ -98,6 +98,8 @@ auto CrateDemo::gui(const GuiDesc&) -> void {
         "VertexTangent\0"
         "VertexBitangent\0"
         "LevelOfDetail\0"
+        "DirectionToViewer\0"
+        "DirectionToLight\0"
     );
 
     ImGui::SliderFloat("Camera Distance", &p.camera_distance, 0.0f, 10.0f);
@@ -155,6 +157,7 @@ auto CrateDemo::update(const UpdateDesc& desc) -> void {
         .light_direction = light_direction,
         .light_ambient = p.light_ambient,
         .light_intensity = p.light_intensity,
+        .camera_position = eye,
         .output_mode = p.output_mode,
     };
 }

@@ -40,7 +40,9 @@ auto FibersDemo::create(
             .primitive_topology(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)
             .vertex_shader(shaders.fibers_light_vs())
             .pixel_shader(shaders.fibers_light_ps())
-            .rasterizer(GPU_PIPELINE_WIREFRAME)
+            .rasterizer(GpuRasterizerDesc {
+                .fill_mode = GpuFillMode::Wireframe,
+            })
             .render_target_formats({_render_targets.color_format()})
             .depth_stencil_format(_render_targets.depth_format())
             .build(device, _light_pipeline, dx_name(NAME, "Light", "Pipeline"));
@@ -77,9 +79,9 @@ auto FibersDemo::create(
     {
         const auto vertices = std::to_array<baked::Vertex>({
             {{-PLANE_RADIUS_X, -PLANE_RADIUS_Y, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}},
-            {{-PLANE_RADIUS_X, +PLANE_RADIUS_Y, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
-            {{+PLANE_RADIUS_X, +PLANE_RADIUS_Y, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},
             {{+PLANE_RADIUS_X, -PLANE_RADIUS_Y, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 0.0f}},
+            {{+PLANE_RADIUS_X, +PLANE_RADIUS_Y, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},
+            {{-PLANE_RADIUS_X, +PLANE_RADIUS_Y, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
         });
         const auto indices = std::to_array<baked::Index>({0, 1, 2, 0, 2, 3});
         _plane_mesh.vertices.create_with_data(
