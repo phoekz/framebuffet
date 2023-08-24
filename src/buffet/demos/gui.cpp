@@ -3,12 +3,12 @@
 
 namespace fb::demos::gui {
 
-Gui::Gui(
+auto Gui::create(
     const Window& window,
     GpuDevice& device,
     const baked::Assets& assets,
     const baked::Shaders& shaders
-) {
+) -> void {
     // ImGui.
     {
         IMGUI_CHECKVERSION();
@@ -99,7 +99,7 @@ Gui::Gui(
     ImGui_ImplWin32_Init(window.hwnd());
 }
 
-Gui::~Gui() {
+auto Gui::destroy() -> void {
     ImGui_ImplWin32_Shutdown();
     ImGui::DestroyContext(_imgui_ctx);
 }

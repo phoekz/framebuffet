@@ -29,7 +29,9 @@ class Cards {
 public:
     static constexpr std::string_view NAME = "Cards"sv;
 
-    Cards(GpuDevice& device, const baked::Shaders& shaders, const CardsDesc& desc);
+    Cards() = default;
+
+    auto create(GpuDevice& device, const baked::Shaders& shaders, const CardsDesc& desc) -> void;
     auto gui(const demos::GuiDesc& desc) -> void;
     auto update(const GpuDevice& device) -> void;
     auto render(GpuDevice& device, GpuCommandList& cmd) -> void;

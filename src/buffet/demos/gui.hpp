@@ -16,11 +16,15 @@ class Gui {
 public:
     static constexpr std::string_view NAME = "Gui"sv;
 
-    Gui(const Window& window,
+    Gui() = default;
+
+    auto create(
+        const Window& window,
         GpuDevice& device,
         const baked::Assets& assets,
-        const baked::Shaders& shaders);
-    ~Gui();
+        const baked::Shaders& shaders
+    ) -> void;
+    auto destroy() -> void;
     auto begin_frame() -> void;
     auto end_frame() -> void;
     auto render(const GpuDevice& device, GpuCommandList& cmd) -> void;

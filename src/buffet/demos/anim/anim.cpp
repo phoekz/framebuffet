@@ -2,7 +2,8 @@
 
 namespace fb::demos::anim {
 
-AnimDemo::AnimDemo(GpuDevice& device, const baked::Assets& assets, const baked::Shaders& shaders) {
+auto AnimDemo::create(GpuDevice& device, const baked::Assets& assets, const baked::Shaders& shaders)
+    -> void {
     // Render targets.
     _render_targets.create(
         device,

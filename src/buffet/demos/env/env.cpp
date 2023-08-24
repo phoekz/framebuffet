@@ -2,7 +2,8 @@
 
 namespace fb::demos::env {
 
-EnvDemo::EnvDemo(GpuDevice& device, const baked::Assets& assets, const baked::Shaders& shaders) {
+auto EnvDemo::create(GpuDevice& device, const baked::Assets& assets, const baked::Shaders& shaders)
+    -> void {
     // Render targets.
     _render_targets.create(
         device,

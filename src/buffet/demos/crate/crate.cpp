@@ -3,11 +3,11 @@
 
 namespace fb::demos::crate {
 
-CrateDemo::CrateDemo(
+auto CrateDemo::create(
     GpuDevice& device,
     const baked::Assets& assets,
     const baked::Shaders& shaders
-) {
+) -> void {
     // Render targets.
     _render_targets.create(
         device,

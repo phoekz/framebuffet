@@ -20,7 +20,10 @@ public:
     static constexpr std::string_view NAME = "Env"sv;
     static constexpr Float4 CLEAR_COLOR = {0.3f, 0.6f, 0.0f, 1.0f};
 
-    EnvDemo(GpuDevice& device, const baked::Assets& assets, const baked::Shaders& shaders);
+    EnvDemo() = default;
+
+    auto create(GpuDevice& device, const baked::Assets& assets, const baked::Shaders& shaders)
+        -> void;
     auto gui(const GuiDesc& desc) -> void;
     auto update(const UpdateDesc& desc) -> void;
     auto render(GpuDevice& device, GpuCommandList& cmd) -> void;

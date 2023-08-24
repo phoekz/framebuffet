@@ -9,9 +9,9 @@ public:
     static constexpr size_t MAX_DELTA_TIME_HISTORY = 128;
     static constexpr float DELTA_TIME_UPDATE_INTERVAL = 1.0f / 8.0f;
 
-    Frame();
-
+    auto create() -> void;
     auto update() -> void;
+    auto count() const -> uint64_t { return _count; }
     auto delta_time() const -> float { return _delta_time_sec; }
     auto smoothed_delta_time() const -> float { return _smoothed_delta_time; }
     auto elapsed_time() const -> float { return _elapsed_time_sec; }
@@ -21,6 +21,7 @@ public:
     }
 
 private:
+    uint64_t _count = 0;
     uint64_t _frequency = 0;
     uint64_t _prev_time = 0;
     uint64_t _curr_time = 0;

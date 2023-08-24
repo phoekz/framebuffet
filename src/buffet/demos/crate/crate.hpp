@@ -33,7 +33,10 @@ public:
     static constexpr std::string_view NAME = "Crate"sv;
     static constexpr Float4 CLEAR_COLOR = {0.1f, 0.1f, 0.4f, 1.0f};
 
-    CrateDemo(GpuDevice& device, const baked::Assets& assets, const baked::Shaders& shaders);
+    CrateDemo() = default;
+
+    auto create(GpuDevice& device, const baked::Assets& assets, const baked::Shaders& shaders)
+        -> void;
     auto gui(const GuiDesc& desc) -> void;
     auto update(const UpdateDesc& desc) -> void;
     auto render(GpuDevice& device, GpuCommandList& cmd) -> void;

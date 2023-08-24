@@ -16,8 +16,10 @@ class GpuDevice {
     FB_NO_COPY_MOVE(GpuDevice);
 
 public:
+    GpuDevice() = default;
+
     // Device state.
-    GpuDevice(const Window& window);
+    auto create(const Window& window) -> void;
     auto begin_transfer() -> void;
     auto end_transfer() -> void;
     auto begin_frame() -> GpuCommandList;

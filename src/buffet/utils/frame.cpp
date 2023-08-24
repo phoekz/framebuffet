@@ -14,12 +14,15 @@ static auto win32_get_performance_counter() -> uint64_t {
     return counter.QuadPart;
 }
 
-Frame::Frame() {
+auto Frame::create() -> void {
     _frequency = win32_get_frequency();
     _curr_time = win32_get_performance_counter();
 }
 
 auto Frame::update() -> void {
+    // Update count.
+    _count++;
+
     // Update timing values.
     {
         _prev_time = _curr_time;

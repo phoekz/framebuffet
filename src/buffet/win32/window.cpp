@@ -31,12 +31,7 @@ static auto CALLBACK win32_window_proc(HWND window, UINT message, WPARAM w_param
     return DefWindowProcA(window, message, w_param, l_param);
 }
 
-class WindowImpl {
-public:
-    wil::unique_hwnd handle;
-};
-
-Window::Window(const Desc& desc) {
+auto Window::create(const Desc& desc) -> void {
     // Module handle.
     HMODULE module_handle = GetModuleHandleA(nullptr);
 
@@ -105,17 +100,12 @@ Window::Window(const Desc& desc) {
     // Logging.
     FB_LOG_INFO("Created window: {}", desc.title);
 
-    // Create window implementation.
-    impl = std::make_unique<WindowImpl>();
-    impl->handle.reset(window_handle);
-}
-
-Window::~Window() {
-    impl = nullptr;
+    // Store window handle.
+    _handle = wil::unique_hwnd(window_handle);
 }
 
 auto Window::hwnd() const -> HWND {
-    return impl->handle.get();
+    return _handle.get();
 }
 
 } // namespace fb

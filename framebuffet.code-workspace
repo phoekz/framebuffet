@@ -98,7 +98,11 @@
 			"*.hlsli": "hlsl",
 			"resumable": "cpp",
 			"cinttypes": "cpp",
-			"codecvt": "cpp"
+			"codecvt": "cpp",
+			"bitset": "cpp",
+			"complex": "cpp",
+			"queue": "cpp",
+			"typeindex": "cpp"
 		},
 		"C_Cpp.inlayHints.autoDeclarationTypes.enabled": true,
 		"C_Cpp.inlayHints.parameterNames.enabled": true,

@@ -11,7 +11,7 @@ extern "C" {
 
 namespace fb {
 
-GpuDevice::GpuDevice(const Window& window) {
+auto GpuDevice::create(const Window& window) -> void {
     // Debug layer.
     UINT factory_flags = 0;
     {

@@ -28,7 +28,10 @@ public:
     static constexpr std::string_view NAME = "Tree"sv;
     static constexpr Float4 CLEAR_COLOR = {0.32549f, 0.51373f, 0.56078f, 1.0f};
 
-    TreeDemo(GpuDevice& device, const baked::Assets& assets, const baked::Shaders& shaders);
+    TreeDemo() = default;
+
+    auto create(GpuDevice& device, const baked::Assets& assets, const baked::Shaders& shaders)
+        -> void;
     auto gui(const GuiDesc& desc) -> void;
     auto update(const UpdateDesc& desc) -> void;
     auto render(GpuDevice& device, GpuCommandList& cmd) -> void;

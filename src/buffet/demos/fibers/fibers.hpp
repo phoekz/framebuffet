@@ -41,7 +41,10 @@ public:
     static constexpr std::string_view NAME = "Fibers"sv;
     static constexpr Float4 CLEAR_COLOR = {0.05f, 0.05f, 0.05f, 1.0f};
 
-    FibersDemo(GpuDevice& device, const baked::Assets& assets, const baked::Shaders& shaders);
+    FibersDemo() = default;
+
+    auto create(GpuDevice& device, const baked::Assets& assets, const baked::Shaders& shaders)
+        -> void;
     auto gui(const GuiDesc& desc) -> void;
     auto update(const UpdateDesc& desc) -> void;
     auto render(GpuDevice& device, GpuCommandList& cmd) -> void;

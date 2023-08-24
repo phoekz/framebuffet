@@ -52,7 +52,8 @@ static auto layout_vmosaic(std::span<Card> cards, Uint2 window_size) -> void {
     cards[card_count - 1].size = {hero_w, hero_h};
 }
 
-Cards::Cards(GpuDevice& device, const baked::Shaders& shaders, const CardsDesc& desc) {
+auto Cards::create(GpuDevice& device, const baked::Shaders& shaders, const CardsDesc& desc)
+    -> void {
     // Descriptors.
     for (uint32_t i = 0; i < CARD_COUNT; i++) {
         const auto& color = desc.card_render_targets[i].get().color();

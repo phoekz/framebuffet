@@ -4,9 +4,9 @@
 
 namespace fb {
 
-class WindowImpl;
-
 class Window final {
+    FB_NO_COPY_MOVE(Window);
+
 public:
     struct Desc {
         std::string_view title;
@@ -14,13 +14,13 @@ public:
         uint32_t height;
     };
 
-    Window(const Desc& desc);
-    ~Window();
+    Window() = default;
 
+    auto create(const Desc& desc) -> void;
     auto hwnd() const -> HWND;
 
 private:
-    std::unique_ptr<WindowImpl> impl;
+    wil::unique_hwnd _handle;
 };
 
 } // namespace fb

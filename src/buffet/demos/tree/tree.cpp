@@ -5,11 +5,8 @@
 
 namespace fb::demos::tree {
 
-tree::TreeDemo::TreeDemo(
-    GpuDevice& device,
-    const baked::Assets& assets,
-    const baked::Shaders& shaders
-) {
+auto TreeDemo::create(GpuDevice& device, const baked::Assets& assets, const baked::Shaders& shaders)
+    -> void {
     // Render targets.
     _render_targets.create(
         device,

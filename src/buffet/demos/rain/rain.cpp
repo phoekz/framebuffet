@@ -2,7 +2,8 @@
 
 namespace fb::demos::rain {
 
-RainDemo::RainDemo(GpuDevice& device, const baked::Assets&, const baked::Shaders& shaders) {
+auto RainDemo::create(GpuDevice& device, const baked::Assets&, const baked::Shaders& shaders)
+    -> void {
     // Render targets.
     _render_targets.create(
         device,

@@ -37,7 +37,10 @@ public:
     static constexpr std::string_view NAME = "Rain"sv;
     static constexpr Float4 CLEAR_COLOR = {0.2f, 0.2f, 0.2f, 1.0f};
 
-    RainDemo(GpuDevice& device, const baked::Assets& assets, const baked::Shaders& shaders);
+    RainDemo() = default;
+
+    auto create(GpuDevice& device, const baked::Assets& assets, const baked::Shaders& shaders)
+        -> void;
     auto gui(const GuiDesc& desc) -> void;
     void update(const UpdateDesc& desc);
     void render(GpuDevice& device, GpuCommandList& cmd);

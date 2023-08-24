@@ -21,7 +21,10 @@ public:
     static constexpr std::string_view NAME = "Anim"sv;
     static constexpr Float4 CLEAR_COLOR = {0.6f, 0.2f, 0.6f, 1.0f};
 
-    AnimDemo(GpuDevice& device, const baked::Assets& assets, const baked::Shaders& shaders);
+    AnimDemo() = default;
+
+    auto create(GpuDevice& device, const baked::Assets& assets, const baked::Shaders& shaders)
+        -> void;
     auto gui(const GuiDesc& desc) -> void;
     auto update(const UpdateDesc& desc) -> void;
     auto render(GpuDevice& device, GpuCommandList& cmd) -> void;
