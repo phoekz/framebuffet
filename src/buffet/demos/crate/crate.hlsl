@@ -28,6 +28,12 @@ VertexOutput draw_vs(FbVertexInput input) {
     return output;
 }
 
+float compute_lighting(Constants constants, float ndotl) {
+    float lighting = constants.light_ambient + ndotl * (1.0f - constants.light_ambient);
+    lighting *= constants.light_intensity;
+    return lighting;
+}
+
 FbPixelOutput1 draw_ps(VertexOutput input) {
     ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
     Texture2D<float4> base_color_texture = ResourceDescriptorHeap[g_bindings.base_color_texture];
@@ -46,7 +52,7 @@ FbPixelOutput1 draw_ps(VertexOutput input) {
     const float3 shading_normal = mul(normal_sample, tbn_basis);
 
     const float ndotl = saturate(dot(shading_normal, constants.light_direction));
-    const float lighting = constants.light_ambient + ndotl * (1.0f - constants.light_ambient);
+    const float lighting = compute_lighting(constants, ndotl);
 
     float3 final_color;
     switch (constants.output_mode) {
@@ -64,8 +70,7 @@ FbPixelOutput1 draw_ps(VertexOutput input) {
         }
         case OutputMode::VertexLighting: {
             const float vertex_ndotl = saturate(dot(input.normal, constants.light_direction));
-            const float vertex_lighting =
-                constants.light_ambient + vertex_ndotl * (1.0f - constants.light_ambient);
+            const float vertex_lighting = compute_lighting(constants, vertex_ndotl);
             final_color = vertex_lighting.xxx;
             break;
         }

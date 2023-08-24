@@ -15,6 +15,7 @@ struct Parameters {
     float light_longitude = rad_from_deg(0.0f);
     float light_rotation_speed = 0.5f;
     float light_ambient = 0.25f;
+    float light_intensity = 2.0f;
     OutputMode output_mode = OutputMode::Shaded;
 };
 

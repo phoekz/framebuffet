@@ -109,6 +109,7 @@ auto CrateDemo::gui(const GuiDesc&) -> void {
     ImGui::SliderAngle("Light Longitude", &p.light_longitude, 0.0f, 360.0f);
     ImGui::SliderFloat("Light Rotation Speed", &p.light_rotation_speed, 0.0f, 2.0f);
     ImGui::SliderFloat("Light Ambient", &p.light_ambient, 0.0f, 1.0f);
+    ImGui::SliderFloat("Light Intensity", &p.light_intensity, 0.0f, 8.0f);
 }
 
 auto CrateDemo::update(const UpdateDesc& desc) -> void {
@@ -152,6 +153,7 @@ auto CrateDemo::update(const UpdateDesc& desc) -> void {
         .transform = camera_transform,
         .light_direction = light_direction,
         .light_ambient = p.light_ambient,
+        .light_intensity = p.light_intensity,
         .output_mode = p.output_mode,
     };
 }

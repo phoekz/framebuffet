@@ -32,8 +32,9 @@ struct Constants {
     float4x4 transform;
     float3 light_direction;
     float light_ambient;
+    float light_intensity;
     OutputMode output_mode;
-    float pad[43];
+    float pad[42];
 };
 
 FB_NAMESPACE_END(fb::demos::crate)
