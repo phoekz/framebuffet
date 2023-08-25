@@ -73,6 +73,7 @@ auto EnvDemo::create(GpuDevice& device, const baked::Assets& assets, const baked
 
 auto EnvDemo::gui(const GuiDesc&) -> void {
     auto& p = _parameters;
+    ImGui::Checkbox("Tonemap", (bool*)&p.tonemap);
     ImGui::SliderAngle("Camera FOV", &p.camera_fov, 1.0f, 90.0f);
     ImGui::SliderFloat("Camera Distance", &p.camera_distance, 1.0f, 10.0f);
     ImGui::SliderAngle("Camera Longitude", &p.camera_longitude, -180.0f, 180.0f);
@@ -108,6 +109,7 @@ auto EnvDemo::update(const UpdateDesc& desc) -> void {
 
     *_constants.ptr() = Constants {
         .transform = env_transform,
+        .tonemap = p.tonemap,
     };
 }
 

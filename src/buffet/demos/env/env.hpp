@@ -6,6 +6,7 @@
 namespace fb::demos::env {
 
 struct Parameters {
+    uint32_t tonemap = (uint32_t)true;
     float camera_fov = rad_from_deg(70.0f);
     float camera_distance = 1.25f;
     float camera_longitude = rad_from_deg(45.0f);

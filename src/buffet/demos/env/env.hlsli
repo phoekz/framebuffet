@@ -12,7 +12,8 @@ struct Bindings {
 
 struct Constants {
     float4x4 transform;
-    float pad[48];
+    uint tonemap;
+    float pad[47];
 };
 
 FB_NAMESPACE_END(fb::demos::env)

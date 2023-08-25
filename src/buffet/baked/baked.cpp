@@ -1224,7 +1224,7 @@ auto Assets::winter_evening_cube_texture() const -> CubeTexture {
 
 Shaders::Shaders() {
     _data = read_whole_file("fb_shaders.bin");
-    FB_ASSERT(_data.size() == 148820);
+    FB_ASSERT(_data.size() == 149200);
 }
 
 // shader_hash: a2b037e929fa47e82668128ef69b5d3c
@@ -1552,15 +1552,18 @@ auto Shaders::env_draw_vs() const -> std::span<const std::byte> {
     return std::span(_data).subspan(139260, 5116);
 }
 
-// shader_hash: 34759f4385b2a6b7410f8378fc3e6341
+// shader_hash: 188e6e7c7b42987d6c520c4af735c117
 // constant_buffers: 1
 // bound_resources: 1
 // input_parameters: 4
 // output_parameters: 1
-// instruction_count: 20
+// instruction_count: 58
+// dynamic_flow_control_count: 1
+// float_instruction_count: 27
+// int_instruction_count: 1
 // texture_normal_instructions: 1
 auto Shaders::env_draw_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(144376, 4444);
+    return std::span(_data).subspan(144376, 4824);
 }
 
 } // namespace fb::baked
