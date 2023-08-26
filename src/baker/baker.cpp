@@ -28,6 +28,11 @@ struct AssetTaskTexture {
     AssetColorSpace color_space;
 };
 
+struct AssetTaskHdrTexture {
+    std::string_view name;
+    std::string_view path;
+};
+
 struct AssetTaskCubeTexture {
     std::string_view name;
     std::array<std::string_view, 6> paths;
@@ -47,6 +52,7 @@ struct AssetTaskProceduralCube {
 using AssetTask = std::variant<
     AssetTaskCopy,
     AssetTaskTexture,
+    AssetTaskHdrTexture,
     AssetTaskCubeTexture,
     AssetTaskGltf,
     AssetTaskProceduralCube>;
@@ -344,6 +350,24 @@ auto build_assets(std::string_view assets_dir)
                         task.format,
                         task.color_space
                     );
+                },
+                [&](const AssetTaskHdrTexture& task) {
+                    const auto name = names.unique(std::format("{}_hdr_texture", task.name));
+                    const auto file = read_whole_file(std::format("{}/{}", assets_dir, task.path));
+                    const auto image = HdrImage::load(file);
+                    assets.push_back(AssetTexture {
+                        .name = name,
+                        .format = image.format(),
+                        .width = image.width(),
+                        .height = image.height(),
+                        .channel_count = image.channel_count(),
+                        .mip_count = 1,
+                        .datas = {AssetTextureData {
+                            .row_pitch = image.row_pitch(),
+                            .slice_pitch = image.slice_pitch(),
+                            .data = assets_writer.write("float", image.data()),
+                        }},
+                    });
                 },
                 [&](const AssetTaskCubeTexture& task) {
                     // Name.
