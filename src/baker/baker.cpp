@@ -205,6 +205,21 @@ private:
     std::vector<std::byte>& _data;
 };
 
+class UniqueNames {
+public:
+    auto unique(std::string_view name) -> std::string {
+        if (_names.contains(name)) {
+            FB_LOG_ERROR("Duplicate asset name: {}", name);
+            FB_FATAL();
+        }
+        _names.insert(name);
+        return std::string(name);
+    }
+
+private:
+    std::unordered_set<std::string_view> _names;
+};
+
 auto compute_mipmaps_and_write(
     AssetsWriter& assets_writer,
     std::vector<Asset>& assets,
@@ -303,21 +318,12 @@ auto build_assets(std::string_view assets_dir)
     auto assets = std::vector<Asset>();
     auto assets_bin = std::vector<std::byte>();
     auto assets_writer = AssetsWriter(assets_bin);
-    auto unique_names = std::unordered_set<std::string>();
-    auto update_unique_names = [](std::unordered_set<std::string>& uniques,
-                                  const std::string& name) {
-        if (uniques.contains(name)) {
-            FB_LOG_ERROR("Duplicate asset name: {}", name);
-            FB_FATAL();
-        }
-        uniques.insert(name);
-    };
+    auto names = UniqueNames();
     for (const auto& asset_task : asset_tasks) {
         std::visit(
             overloaded {
                 [&](const AssetTaskCopy& task) {
-                    const auto name = std::string(task.name);
-                    update_unique_names(unique_names, name);
+                    const auto name = names.unique(std::string(task.name));
                     const auto path = std::format("{}/{}", assets_dir, task.path);
                     const auto file = read_whole_file(path);
                     assets.push_back(AssetCopy {
@@ -326,8 +332,7 @@ auto build_assets(std::string_view assets_dir)
                     });
                 },
                 [&](const AssetTaskTexture& task) {
-                    const auto name = std::format("{}_texture", task.name);
-                    update_unique_names(unique_names, name);
+                    const auto name = names.unique(std::format("{}_texture", task.name));
                     const auto path = std::format("{}/{}", assets_dir, task.path);
                     const auto file = read_whole_file(path);
                     const auto image = LdrImage::load(file);
@@ -342,8 +347,7 @@ auto build_assets(std::string_view assets_dir)
                 },
                 [&](const AssetTaskCubeTexture& task) {
                     // Name.
-                    const auto name = std::format("{}_cube_texture", task.name);
-                    update_unique_names(unique_names, name);
+                    const auto name = names.unique(std::format("{}_cube_texture", task.name));
 
                     // Read face files.
                     const auto cube_face_datas = std::to_array({
@@ -423,8 +427,7 @@ auto build_assets(std::string_view assets_dir)
                             };
                         }
 
-                        const auto mesh_name = std::format("{}_mesh", task.name);
-                        update_unique_names(unique_names, mesh_name);
+                        const auto mesh_name = names.unique(std::format("{}_mesh", task.name));
                         assets.push_back(AssetMesh {
                             .name = mesh_name,
                             .vertices = assets_writer.write(
@@ -446,8 +449,8 @@ auto build_assets(std::string_view assets_dir)
                             };
                         }
 
-                        const auto mesh_name = std::format("{}_animation_mesh", task.name);
-                        update_unique_names(unique_names, mesh_name);
+                        const auto mesh_name =
+                            names.unique(std::format("{}_animation_mesh", task.name));
                         assets.push_back(AssetAnimationMesh {
                             .name = mesh_name,
                             .node_count = model.node_count(),
@@ -484,8 +487,8 @@ auto build_assets(std::string_view assets_dir)
                     // Textures.
                     {
                         const auto texture = model.base_color_texture();
-                        const auto texture_name = std::format("{}_base_color_texture", task.name);
-                        update_unique_names(unique_names, texture_name);
+                        const auto texture_name =
+                            names.unique(std::format("{}_base_color_texture", task.name));
                         compute_mipmaps_and_write(
                             assets_writer,
                             assets,
@@ -497,8 +500,8 @@ auto build_assets(std::string_view assets_dir)
                     }
                     if (model.normal_texture().has_value()) {
                         const auto texture = model.normal_texture().value().get();
-                        const auto texture_name = std::format("{}_normal_texture", task.name);
-                        update_unique_names(unique_names, texture_name);
+                        const auto texture_name =
+                            names.unique(std::format("{}_normal_texture", task.name));
                         compute_mipmaps_and_write(
                             assets_writer,
                             assets,
@@ -511,8 +514,7 @@ auto build_assets(std::string_view assets_dir)
                     if (model.metallic_roughness_texture().has_value()) {
                         const auto texture = model.metallic_roughness_texture().value().get();
                         const auto texture_name =
-                            std::format("{}_metallic_roughness_texture", task.name);
-                        update_unique_names(unique_names, texture_name);
+                            names.unique(std::format("{}_metallic_roughness_texture", task.name));
                         compute_mipmaps_and_write(
                             assets_writer,
                             assets,
@@ -576,8 +578,7 @@ auto build_assets(std::string_view assets_dir)
                     }
 
                     // Mesh.
-                    const auto mesh_name = std::format("{}_mesh", task.name);
-                    update_unique_names(unique_names, mesh_name);
+                    const auto mesh_name = names.unique(std::format("{}_mesh", task.name));
                     assets.push_back(AssetMesh {
                         .name = mesh_name,
                         .vertices =
