@@ -4,7 +4,7 @@ namespace fb::baked {
 
 Assets::Assets() {
     _data = read_whole_file("fb_assets.bin");
-    FB_ASSERT(_data.size() == 136275796);
+    FB_ASSERT(_data.size() == 169830228);
 }
 
 auto Assets::imgui_font() const -> Copy {
@@ -1219,6 +1219,25 @@ auto Assets::winter_evening_cube_texture() const -> CubeTexture {
             // hash: 49f7ddd4345a3fe231d2f04a4d7074ef
             transmuted_span<float>(119498580, 4194304),
         }),
+    };
+}
+
+auto Assets::farm_field_hdr_texture() const -> Texture {
+    return Texture {
+        .format = DXGI_FORMAT_R32G32B32A32_FLOAT,
+        .width = 2048,
+        .height = 1024,
+        .channel_count = 4,
+        .mip_count = 1,
+        .datas = {TextureData {
+            // mip_level: 0
+            // width: 2048
+            // height: 1024
+            .row_pitch = 32768,
+            .slice_pitch = 33554432,
+            // hash: a842b81a2d1fa45a1b9debea55afd255
+            .data = transmuted_span<float>(136275796, 8388608),
+        }},
     };
 }
 

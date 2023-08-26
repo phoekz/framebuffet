@@ -78,14 +78,19 @@ static auto asset_tasks = std::to_array<AssetTask>({
     AssetTaskProceduralCube {"skybox", 2.0f, true},
     AssetTaskCubeTexture {
         "winter_evening",
-        std::to_array({
-            "envmaps/winter_evening_1k_+X.exr"sv,
-            "envmaps/winter_evening_1k_-X.exr"sv,
-            "envmaps/winter_evening_1k_+Y.exr"sv,
-            "envmaps/winter_evening_1k_-Y.exr"sv,
-            "envmaps/winter_evening_1k_+Z.exr"sv,
-            "envmaps/winter_evening_1k_-Z.exr"sv,
-        })},
+        {
+            "envmaps/winter_evening_1k_+X.exr",
+            "envmaps/winter_evening_1k_-X.exr",
+            "envmaps/winter_evening_1k_+Y.exr",
+            "envmaps/winter_evening_1k_-Y.exr",
+            "envmaps/winter_evening_1k_+Z.exr",
+            "envmaps/winter_evening_1k_-Z.exr",
+        },
+    },
+    AssetTaskHdrTexture {
+        "farm_field",
+        "envmaps/farm_field_puresky_2k.exr",
+    },
 });
 
 //

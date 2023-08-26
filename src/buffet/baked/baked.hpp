@@ -120,6 +120,7 @@ public:
     auto light_bounds_mesh() const -> Mesh;
     auto skybox_mesh() const -> Mesh;
     auto winter_evening_cube_texture() const -> CubeTexture;
+    auto farm_field_hdr_texture() const -> Texture;
 
 private:
     template<typename T>

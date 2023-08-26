@@ -10,6 +10,12 @@ Notes: Converted from `4k_latlon` to `1k_cube` with `exrenvmap`.
 ./exrenvmap.exe -w 1024 winter_evening_4k.exr framebuffet/src/envmaps/winter_evening_1k_%.exr
 ```
 
+## `envmaps/farm_field`
+
+Source: https://polyhaven.com/a/farm_field
+
+Authors: Dimitrios Savva, Jarod Guest
+
 ## `models/sci_fi_case.glb`
 
 "Sci fi Case" (https://skfb.ly/6CJOW) by KonstantinaBeratze is licensed under Creative Commons Attribution (http://creativecommons.org/licenses/by/4.0/).
