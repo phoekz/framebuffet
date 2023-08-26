@@ -370,7 +370,7 @@ auto build_assets(std::string_view assets_dir)
                         .datas = {AssetTextureData {
                             .row_pitch = image.row_pitch(),
                             .slice_pitch = image.slice_pitch(),
-                            .data = assets_writer.write("float", image.data()),
+                            .data = assets_writer.write("std::byte", image.data()),
                         }},
                     });
                 },
@@ -412,7 +412,7 @@ auto build_assets(std::string_view assets_dir)
                     // Write.
                     std::array<AssetSpan, 6> datas;
                     for (auto i = 0; i < 6; ++i) {
-                        datas[i] = assets_writer.write("float", cube_faces[i].data());
+                        datas[i] = assets_writer.write("std::byte", cube_faces[i].data());
                     }
                     assets.push_back(AssetCubeTexture {
                         .name = name,
@@ -825,7 +825,7 @@ int main() {
             uint32_t channel_count;
             uint32_t row_pitch;
             uint32_t slice_pitch;
-            std::array<std::span<const float>, 6> datas;
+            std::array<std::span<const std::byte>, 6> datas;
         };
 
         struct AnimationChannel {

@@ -19,7 +19,9 @@ public:
     auto format() const -> DXGI_FORMAT { return _format; }
     auto row_pitch() const -> uint32_t { return _width * _element_byte_size; }
     auto slice_pitch() const -> uint32_t { return _width * _height * _element_byte_size; }
-    auto data() const -> std::span<const T> { return _data; }
+    auto data() const -> std::span<const std::byte> {
+        return std::span((const std::byte*)_data.data(), slice_pitch());
+    }
 
     template<typename F>
     auto map(F f) -> Image {

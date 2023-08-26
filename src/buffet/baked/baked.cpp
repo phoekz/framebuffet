@@ -1207,17 +1207,17 @@ auto Assets::winter_evening_cube_texture() const -> CubeTexture {
         .slice_pitch = 16777216,
         .datas = std::to_array({
             // hash: 918af87792513fcb47721c6bb751b8ab
-            transmuted_span<float>(35612500, 4194304),
+            transmuted_span<std::byte>(35612500, 16777216),
             // hash: ea87830a0e05072d855f1850fd3f22b1
-            transmuted_span<float>(52389716, 4194304),
+            transmuted_span<std::byte>(52389716, 16777216),
             // hash: da32c3251997b5da09b8f00ed97cfe1d
-            transmuted_span<float>(69166932, 4194304),
+            transmuted_span<std::byte>(69166932, 16777216),
             // hash: 8181516c3622f6119a276a7e317fe2d5
-            transmuted_span<float>(85944148, 4194304),
+            transmuted_span<std::byte>(85944148, 16777216),
             // hash: 38d65d00389eb7511870cb5439ea27c0
-            transmuted_span<float>(102721364, 4194304),
+            transmuted_span<std::byte>(102721364, 16777216),
             // hash: 49f7ddd4345a3fe231d2f04a4d7074ef
-            transmuted_span<float>(119498580, 4194304),
+            transmuted_span<std::byte>(119498580, 16777216),
         }),
     };
 }
@@ -1236,7 +1236,7 @@ auto Assets::farm_field_hdr_texture() const -> Texture {
             .row_pitch = 32768,
             .slice_pitch = 33554432,
             // hash: a842b81a2d1fa45a1b9debea55afd255
-            .data = transmuted_span<float>(136275796, 8388608),
+            .data = transmuted_span<std::byte>(136275796, 33554432),
         }},
     };
 }

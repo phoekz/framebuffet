@@ -64,7 +64,7 @@ struct CubeTexture {
     uint32_t channel_count;
     uint32_t row_pitch;
     uint32_t slice_pitch;
-    std::array<std::span<const float>, 6> datas;
+    std::array<std::span<const std::byte>, 6> datas;
 };
 
 struct AnimationChannel {
