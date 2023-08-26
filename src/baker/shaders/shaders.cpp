@@ -169,7 +169,7 @@ auto ShaderCompiler::compile(
     ));
     FB_ASSERT_HR(result->GetOutput(DXC_OUT_ERRORS, IID_PPV_ARGS(&errors), nullptr));
     if (errors && errors->GetStringLength() != 0) {
-        FB_LOG_ERROR("Failed to compile {}", errors->GetStringPointer());
+        FB_LOG_ERROR("Failed to compile {}:\n{}", name, errors->GetStringPointer());
         FB_FATAL();
     }
 
