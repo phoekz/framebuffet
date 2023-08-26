@@ -6,7 +6,7 @@ namespace fb {
 
 class ExrImage {
 public:
-    static auto load(std::string_view path) -> ExrImage;
+    static auto load(std::span<const std::byte> image_data) -> ExrImage;
 
     ~ExrImage();
     ExrImage(ExrImage&& o) { *this = std::move(o); }

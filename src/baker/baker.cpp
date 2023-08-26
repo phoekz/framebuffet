@@ -346,14 +346,24 @@ auto build_assets(std::string_view assets_dir)
                     const auto name = std::format("{}_cube_texture", task.name);
                     update_unique_names(unique_names, name);
 
+                    // Read face files.
+                    const auto cube_face_datas = std::to_array({
+                        read_whole_file(std::format("{}/{}", assets_dir, task.paths[0])),
+                        read_whole_file(std::format("{}/{}", assets_dir, task.paths[1])),
+                        read_whole_file(std::format("{}/{}", assets_dir, task.paths[2])),
+                        read_whole_file(std::format("{}/{}", assets_dir, task.paths[3])),
+                        read_whole_file(std::format("{}/{}", assets_dir, task.paths[4])),
+                        read_whole_file(std::format("{}/{}", assets_dir, task.paths[5])),
+                    });
+
                     // Load faces.
                     auto cube_faces = std::to_array({
-                        ExrImage::load(std::format("{}/{}", assets_dir, task.paths[0])), // PosX
-                        ExrImage::load(std::format("{}/{}", assets_dir, task.paths[1])), // NegX
-                        ExrImage::load(std::format("{}/{}", assets_dir, task.paths[2])), // PosY
-                        ExrImage::load(std::format("{}/{}", assets_dir, task.paths[3])), // NegY
-                        ExrImage::load(std::format("{}/{}", assets_dir, task.paths[4])), // PosZ
-                        ExrImage::load(std::format("{}/{}", assets_dir, task.paths[5])), // NegZ
+                        ExrImage::load(cube_face_datas[0]), // PosX
+                        ExrImage::load(cube_face_datas[1]), // NegX
+                        ExrImage::load(cube_face_datas[2]), // PosY
+                        ExrImage::load(cube_face_datas[3]), // NegY
+                        ExrImage::load(cube_face_datas[4]), // PosZ
+                        ExrImage::load(cube_face_datas[5]), // NegZ
                     });
 
                     // Swap Z faces to match DirectX convention.

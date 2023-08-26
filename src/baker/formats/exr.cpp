@@ -2,13 +2,20 @@
 
 namespace fb {
 
-auto ExrImage::load(std::string_view path) -> ExrImage {
+auto ExrImage::load(std::span<const std::byte> image_data) -> ExrImage {
     Instant now;
     float* pixels = nullptr;
     int width = 0;
     int height = 0;
     const char* err = nullptr;
-    int result = LoadEXRWithLayer(&pixels, &width, &height, path.data(), nullptr, &err);
+    int result = LoadEXRFromMemory(
+        &pixels,
+        &width,
+        &height,
+        (const uint8_t*)image_data.data(),
+        image_data.size(),
+        &err
+    );
     FB_ASSERT_MSG(result == TINYEXR_SUCCESS, "{}", err);
     FB_LOG_TRACE("Loaded {} ({}x{}) in {}s.", path, width, height, now.elapsed_time());
 
