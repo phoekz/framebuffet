@@ -1,7 +1,6 @@
 #include <common/common.hpp>
 #include "shaders/shaders.hpp"
 #include "formats/gltf.hpp"
-#include "formats/exr.hpp"
 #include "formats/mikktspace.hpp"
 
 #include <stb_image_resize.h>
@@ -210,7 +209,7 @@ auto compute_mipmaps_and_write(
     AssetsWriter& assets_writer,
     std::vector<Asset>& assets,
     const std::string& texture_name,
-    const Image& texture,
+    const LdrImage& texture,
     DXGI_FORMAT texture_format,
     AssetColorSpace color_space
 ) -> void {
@@ -331,7 +330,7 @@ auto build_assets(std::string_view assets_dir)
                     update_unique_names(unique_names, name);
                     const auto path = std::format("{}/{}", assets_dir, task.path);
                     const auto file = read_whole_file(path);
-                    const auto image = Image::load(file);
+                    const auto image = LdrImage::load(file);
                     compute_mipmaps_and_write(
                         assets_writer,
                         assets,
@@ -358,12 +357,12 @@ auto build_assets(std::string_view assets_dir)
 
                     // Load faces.
                     auto cube_faces = std::to_array({
-                        ExrImage::load(cube_face_datas[0]), // PosX
-                        ExrImage::load(cube_face_datas[1]), // NegX
-                        ExrImage::load(cube_face_datas[2]), // PosY
-                        ExrImage::load(cube_face_datas[3]), // NegY
-                        ExrImage::load(cube_face_datas[4]), // PosZ
-                        ExrImage::load(cube_face_datas[5]), // NegZ
+                        HdrImage::load(cube_face_datas[0]), // PosX
+                        HdrImage::load(cube_face_datas[1]), // NegX
+                        HdrImage::load(cube_face_datas[2]), // PosY
+                        HdrImage::load(cube_face_datas[3]), // NegY
+                        HdrImage::load(cube_face_datas[4]), // PosZ
+                        HdrImage::load(cube_face_datas[5]), // NegZ
                     });
 
                     // Swap Z faces to match DirectX convention.

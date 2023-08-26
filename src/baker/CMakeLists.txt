@@ -2,8 +2,6 @@ set(NAME fb_baker)
 set(SOURCES
     baker.cpp
     formats/cgltf.cpp
-    formats/exr.cpp
-    formats/exr.hpp
     formats/gltf.cpp
     formats/gltf.hpp
     formats/image.cpp

@@ -42,14 +42,14 @@ public:
     auto vertex_weights() const -> std::span<const GltfVertexWeight> { return _vertex_weights; }
     auto indices() const -> std::span<const uint32_t> { return _indices; }
 
-    auto base_color_texture() const -> const Image& { return _base_color_texture; }
-    auto normal_texture() const -> const std::optional<std::reference_wrapper<const Image>> {
+    auto base_color_texture() const -> const LdrImage& { return _base_color_texture; }
+    auto normal_texture() const -> const std::optional<std::reference_wrapper<const LdrImage>> {
         if (_normal_texture.data().empty()) {
             return std::nullopt;
         }
         return _normal_texture;
     }
-    auto metallic_roughness_texture() const -> const std::optional<std::reference_wrapper<const Image>> {
+    auto metallic_roughness_texture() const -> const std::optional<std::reference_wrapper<const LdrImage>> {
         if (_metallic_roughness_texture.data().empty()) {
             return std::nullopt;
         }
@@ -81,9 +81,9 @@ private:
     std::vector<GltfVertexWeight> _vertex_weights;
     std::vector<uint32_t> _indices;
 
-    Image _base_color_texture;
-    Image _normal_texture;
-    Image _metallic_roughness_texture;
+    LdrImage _base_color_texture;
+    LdrImage _normal_texture;
+    LdrImage _metallic_roughness_texture;
 
     float _metallic_factor = 1.0f;
     float _roughness_factor = 1.0f;
