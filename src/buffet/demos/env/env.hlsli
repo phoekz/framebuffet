@@ -8,9 +8,9 @@ FB_NAMESPACE_BEGIN(fb::demos::env)
 // Compute.
 //
 
-FB_CONSTANT uint CUBE_FROM_RECT_DISPATCH_X = 8;
-FB_CONSTANT uint CUBE_FROM_RECT_DISPATCH_Y = 8;
-FB_CONSTANT uint CUBE_FROM_RECT_DISPATCH_Z = 1;
+FB_CONSTANT uint CFR_DISPATCH_X = 8;
+FB_CONSTANT uint CFR_DISPATCH_Y = 8;
+FB_CONSTANT uint CFR_DISPATCH_Z = 1;
 
 struct ComputeBindings {
     uint constants;

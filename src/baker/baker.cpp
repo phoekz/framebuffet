@@ -664,7 +664,7 @@ static auto shader_tasks = std::to_array<ShaderTask>({
         "demos/env/env.hlsl",
         "env",
         {
-            "cube_from_rect_cs",
+            "cfr_cs",
             "background_vs",
             "background_ps",
             "screen_vs",

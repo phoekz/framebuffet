@@ -55,7 +55,10 @@ private:
         GpuBufferHostCbv<ComputeConstants> constants;
         GpuTextureSrv rect_texture;
         GpuTextureSrvUavCube cube_texture;
-        GpuPipeline pipeline;
+
+        GpuPipeline cfr_pipeline;
+
+        bool completed = false;
     } _compute;
 
     struct {

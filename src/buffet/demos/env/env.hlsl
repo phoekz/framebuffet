@@ -18,13 +18,8 @@ float3 tonemap_aces(float3 x) {
 
 ConstantBuffer<ComputeBindings> g_compute_bindings: register(b0);
 
-FB_ATTRIBUTE(
-    numthreads,
-    CUBE_FROM_RECT_DISPATCH_X,
-    CUBE_FROM_RECT_DISPATCH_Y,
-    CUBE_FROM_RECT_DISPATCH_Z
-)
-void cube_from_rect_cs(FbComputeInput input) {
+FB_ATTRIBUTE(numthreads, CFR_DISPATCH_X, CFR_DISPATCH_Y, CFR_DISPATCH_Z)
+void cfr_cs(FbComputeInput input) {
     // Global resources.
     ConstantBuffer<ComputeConstants> constants =
         ResourceDescriptorHeap[g_compute_bindings.constants];

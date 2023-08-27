@@ -106,8 +106,8 @@ auto EnvDemo::create(GpuDevice& device, const baked::Assets& assets, const baked
 
         // Pipeline.
         GpuPipelineBuilder()
-            .compute_shader(shaders.env_cube_from_rect_cs())
-            .build(device, pass.pipeline, dx_name(NAME, PASS_NAME, "Pipeline"));
+            .compute_shader(shaders.env_cfr_cs())
+            .build(device, pass.cfr_pipeline, dx_name(NAME, PASS_NAME, "Pipeline"));
     }
 
     // Screen.
@@ -257,7 +257,7 @@ auto EnvDemo::update(const UpdateDesc& desc) -> void {
 
 auto EnvDemo::render(GpuDevice& device, GpuCommandList& cmd) -> void {
     // Compute pass.
-    {
+    if (!_compute.completed) {
         auto& pass = _compute;
 
         pass.cube_texture.transition(cmd, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
@@ -269,15 +269,17 @@ auto EnvDemo::render(GpuDevice& device, GpuCommandList& cmd) -> void {
             .rect_texture = pass.rect_texture.srv_descriptor().index(),
             .cube_texture = pass.cube_texture.uav_descriptor().index(),
         });
-        cmd.set_pipeline(pass.pipeline);
+        cmd.set_pipeline(pass.cfr_pipeline);
         cmd.dispatch(
-            pass.cube_texture_size.x / CUBE_FROM_RECT_DISPATCH_X,
-            pass.cube_texture_size.y / CUBE_FROM_RECT_DISPATCH_Y,
+            pass.cube_texture_size.x / CFR_DISPATCH_X,
+            pass.cube_texture_size.y / CFR_DISPATCH_Y,
             6
         );
 
         pass.cube_texture.transition(cmd, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
         cmd.flush_barriers();
+
+        _compute.completed = true;
     }
 
     // Graphics passes.
