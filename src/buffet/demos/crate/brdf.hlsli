@@ -1,7 +1,8 @@
 // This implementation is adapted from https://github.com/boksajak/brdf.
 //
-// The implementation remains identical to the original, except for the naming
-// conventions and contains direct lighting only, for now.
+// The implementation remains mostly identical to the original, except for
+// naming conventions and some variants are removed. All comments are replaced
+// with my own.
 
 #pragma once
 
@@ -14,6 +15,7 @@ struct MaterialProperties {
     float metalness;
     float roughness;
 };
+
 struct BrdfData {
     float3 specular_f0;
     float3 diffuse_reflectance;
@@ -121,4 +123,157 @@ float3 evaluate_combined_brdf(float3 n, float3 l, float3 v, MaterialProperties m
     float3 specular = evaluate_microfacet(data);
     float3 diffuse = evaluate_disney_diffuse(data);
     return (float3(1.0f, 1.0f, 1.0f) - data.f) * diffuse + specular;
+}
+
+float4 get_rotation_to_z_axis(float3 input) {
+    if (input.z < -0.99999f) {
+        return float4(1.0f, 0.0f, 0.0f, 0.0f);
+    }
+    return normalize(float4(input.y, -input.x, 0.0f, 1.0f + input.z));
+}
+
+float4 invert_rotation(float4 q) {
+    return float4(-q.x, -q.y, -q.z, q.w);
+}
+
+float3 rotate_point(float4 q, float3 v) {
+    float3 q_axis = float3(q.x, q.y, q.z);
+    return 2.0f * dot(q_axis, v) * q_axis + (q.w * q.w - dot(q_axis, q_axis)) * v
+        + 2.0f * q.w * cross(q_axis, v);
+}
+
+float3 sample_hemisphere(float2 u, out float pdf) {
+    float a = sqrt(u.x);
+    float b = FB_TWO_PI * u.y;
+    float3 result = float3(a * cos(b), a * sin(b), sqrt(1.0f - u.x));
+    pdf = result.z * FB_ONE_OVER_PI;
+    return result;
+}
+
+float3 sample_hemisphere(float2 u) {
+    float pdf;
+    return sample_hemisphere(u, pdf);
+}
+
+float3 sample_ggx_vndf(float3 ve, float2 alpha_2d, float2 u) {
+    float3 vh = normalize(float3(alpha_2d.x * ve.x, alpha_2d.y * ve.y, ve.z));
+    float phi = FB_TWO_PI * u.x;
+    float z = ((1.0f - u.y) * (1.0f + vh.z)) - vh.z;
+    float sin_theta = sqrt(clamp(1.0f - z * z, 0.0f, 1.0f));
+    float x = sin_theta * cos(phi);
+    float y = sin_theta * sin(phi);
+    float3 nh = float3(x, y, z) + vh;
+    return normalize(float3(alpha_2d.x * nh.x, alpha_2d.y * nh.y, max(0.0f, nh.z)));
+}
+
+float smith_g1_ggx(float alpha, float ndots, float alpha_squared) {
+    float ndots_squared = ndots * ndots;
+    return 2.0f
+        / (sqrt(((alpha_squared * (1.0f - ndots_squared)) + ndots_squared) / ndots_squared) + 1.0f);
+}
+
+float smith_g2_over_g1_height_correlated(
+    float alpha,
+    float alpha_squared,
+    float ndotl,
+    float ndotv
+) {
+    float g1v = smith_g1_ggx(alpha, ndotv, alpha_squared);
+    float g1l = smith_g1_ggx(alpha, ndotl, alpha_squared);
+    return g1l / (g1v + g1l - g1v * g1l);
+}
+
+float specular_sample_weight_ggx_vndf(
+    float alpha,
+    float alphasquared,
+    float ndotl,
+    float ndotv,
+    float hdotl,
+    float ndoth
+) {
+    return smith_g2_over_g1_height_correlated(alpha, alphasquared, ndotl, ndotv);
+}
+
+float3 sample_specular_microfacet(
+    float3 local_v,
+    float alpha,
+    float alpha_squared,
+    float3 specular_f0,
+    float2 u,
+    out float3 weight
+) {
+    float3 local_h;
+    if (alpha == 0.0f) {
+        local_h = float3(0.0f, 0.0f, 1.0f);
+    } else {
+        local_h = sample_ggx_vndf(local_v, float2(alpha, alpha), u);
+    }
+    float3 local_l = reflect(-local_v, local_h);
+    float hdotl = max(0.00001f, min(1.0f, dot(local_h, local_l)));
+    float3 local_n = float3(0.0f, 0.0f, 1.0f);
+    float ndotl = max(0.00001f, min(1.0f, dot(local_n, local_l)));
+    float ndotv = max(0.00001f, min(1.0f, dot(local_n, local_v)));
+    float ndoth = max(0.00001f, min(1.0f, dot(local_n, local_h)));
+    float3 f = evaluate_fresnel(specular_f0, shadowed_f90(specular_f0), hdotl);
+    weight = f * specular_sample_weight_ggx_vndf(alpha, alpha_squared, ndotl, ndotv, hdotl, ndoth);
+    return local_l;
+}
+
+enum class IndirectBrdfType {
+    Diffuse,
+    Specular,
+};
+
+bool evaluate_indirect_combined_brdf(
+    float2 u,
+    float3 shading_normal,
+    float3 geometry_normal,
+    float3 v,
+    MaterialProperties material,
+    IndirectBrdfType brdf_type,
+    out float3 ray_dir,
+    out float3 weight
+) {
+    if (dot(shading_normal, v) <= 0.0f) {
+        return false;
+    }
+
+    float4 q_rotation_to_z = get_rotation_to_z_axis(shading_normal);
+    float3 local_v = rotate_point(q_rotation_to_z, v);
+    float3 local_n = float3(0.0f, 0.0f, 1.0f);
+    float3 local_ray_dir = float3(0.0f, 0.0f, 0.0f);
+
+    switch (brdf_type) {
+        case IndirectBrdfType::Diffuse: {
+            local_ray_dir = sample_hemisphere(u);
+            BrdfData data = prepare_brdf_data(local_n, local_ray_dir, local_v, material);
+            weight = data.diffuse_reflectance * disney_diffuse(data);
+            float3 h_specular = sample_ggx_vndf(local_v, float2(data.alpha, data.alpha), u);
+            float vdoth = max(0.00001f, min(1.0f, dot(local_v, h_specular)));
+            float3 f = evaluate_fresnel(data.specular_f0, shadowed_f90(data.specular_f0), vdoth);
+            weight *= (float3(1.0f, 1.0f, 1.0f) - f);
+            break;
+        }
+        case IndirectBrdfType::Specular: {
+            BrdfData data = prepare_brdf_data(local_n, float3(0.0f, 0.0f, 1.0f), local_v, material);
+            local_ray_dir = sample_specular_microfacet(
+                local_v,
+                data.alpha,
+                data.alpha_squared,
+                data.specular_f0,
+                u,
+                weight
+            );
+            break;
+        }
+    }
+
+    if (luminance(weight) == 0.0f) {
+        return false;
+    }
+    ray_dir = normalize(rotate_point(invert_rotation(q_rotation_to_z), local_ray_dir));
+    if (dot(geometry_normal, ray_dir) <= 0.0f) {
+        return false;
+    }
+    return true;
 }

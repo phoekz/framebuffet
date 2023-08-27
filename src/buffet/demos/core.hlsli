@@ -5,6 +5,7 @@
 //
 
 static const float FB_PI = 3.141592654f;
+static const float FB_TWO_PI = 6.283185307f;
 static const float FB_ONE_OVER_PI = 0.318309886f;
 
 //
