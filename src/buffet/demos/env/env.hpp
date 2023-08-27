@@ -6,7 +6,7 @@
 namespace fb::demos::env {
 
 struct Parameters {
-    uint32_t tonemap = (uint32_t)true;
+    uint32_t tonemap = (uint32_t)(true);
     float camera_fov = rad_from_deg(70.0f);
     float camera_distance = 1.25f;
     float camera_longitude = rad_from_deg(45.0f);
@@ -40,11 +40,36 @@ private:
     RenderTargets _render_targets;
     DebugDraw _debug_draw;
 
-    GpuPipeline _pipeline;
-    GpuBufferHostCbv<Constants> _constants;
-    GpuBufferHostSrv<baked::Vertex> _vertices;
-    GpuBufferHostIndex<baked::Index> _indices;
-    GpuTextureSrvCube _env_texture;
+    struct {
+        GpuPipeline pipeline;
+        GpuBufferHostCbv<BackgroundConstants> constants;
+        GpuBufferHostSrv<baked::Vertex> vertices;
+        GpuBufferHostIndex<baked::Index> indices;
+        GpuTextureSrvCube texture;
+    } _background;
+
+    struct {
+        Uint2 rect_texture_size;
+        Uint2 cube_texture_size;
+
+        GpuBufferHostCbv<ComputeConstants> constants;
+        GpuTextureSrv rect_texture;
+        GpuTextureSrvUavCube cube_texture;
+        GpuPipeline pipeline;
+    } _compute;
+
+    struct {
+        Float2 input_offset;
+        Float2 input_scale;
+
+        std::array<Float2, 6> output_offsets;
+        Float2 output_scale;
+
+        GpuBufferHostCbv<ScreenConstants> constants;
+        GpuBufferHostSrv<ScreenVertex> vertices;
+        GpuBufferHostIndex<baked::Index> indices;
+        GpuPipeline pipeline;
+    } _screen;
 };
 
 } // namespace fb::demos::env

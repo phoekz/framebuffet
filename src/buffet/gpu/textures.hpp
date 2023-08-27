@@ -17,6 +17,7 @@ enum class GpuTextureFlags : uint32_t {
     SrvRtv = Srv | Rtv,
     SrvDsv = Srv | Dsv,
     SrvCube = Srv | Cube,
+    SrvUavCube = Srv | Uav | Cube,
     SrvUavRtv = Srv | Uav | Rtv,
 };
 
@@ -65,7 +66,9 @@ public:
         FB_ASSERT(desc.mip_count > 0 && desc.mip_count <= MAX_MIP_COUNT);
         FB_ASSERT(desc.sample_count > 0);
         if (gpu_texture_flags_contains(FLAGS, Cube)) {
-            FB_ASSERT(desc.depth == 6);
+            FB_ASSERT(desc.depth > 0);
+            FB_ASSERT((desc.depth % 6) == 0);
+            FB_ASSERT(desc.sample_count == 1);
         }
 
         // Optionally override view formats.
@@ -78,8 +81,8 @@ public:
         const auto heap_props = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
 
         // Texture flags.
-        D3D12_RESOURCE_FLAGS resource_flags = D3D12_RESOURCE_FLAG_NONE;
-        D3D12_RESOURCE_STATES init_state = D3D12_RESOURCE_STATE_COMMON;
+        auto resource_flags = D3D12_RESOURCE_FLAG_NONE;
+        auto init_state = D3D12_RESOURCE_STATE_COMMON;
         if (gpu_texture_flags_contains(FLAGS, Uav)) {
             resource_flags |= D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
         }
@@ -107,7 +110,7 @@ public:
         };
 
         // Clear value.
-        std::optional<D3D12_CLEAR_VALUE> clear_value = std::nullopt;
+        auto clear_value = std::optional<D3D12_CLEAR_VALUE>(std::nullopt);
         if (gpu_texture_flags_contains(FLAGS, Rtv)) {
             FB_ASSERT(desc.clear_value.has_value());
             clear_value = desc.clear_value;
@@ -130,47 +133,208 @@ public:
 
         // Views.
         if constexpr (gpu_texture_flags_contains(FLAGS, Srv)) {
-            _srv_descriptor = device.descriptors().cbv_srv_uav().alloc();
-
-            D3D12_SRV_DIMENSION srv_dimension;
-            if (gpu_texture_flags_contains(FLAGS, Cube)) {
-                srv_dimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
-            } else if (desc.sample_count > 1) {
-                srv_dimension = D3D12_SRV_DIMENSION_TEXTURE2DMS;
-            } else {
-                srv_dimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+            // Multisampling texture arrays.
+            if (desc.sample_count > 1 && desc.depth > 1) {
+                _srv_descriptor = device.descriptors().cbv_srv_uav().alloc();
+                device.create_shader_resource_view(
+                    _resource,
+                    D3D12_SHADER_RESOURCE_VIEW_DESC {
+                        .Format = _srv_format,
+                        .ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2DMSARRAY,
+                        .Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING,
+                        .Texture2DMSArray =
+                            D3D12_TEX2DMS_ARRAY_SRV {
+                                .FirstArraySlice = 0,
+                                .ArraySize = desc.depth,
+                            },
+                    },
+                    _srv_descriptor.cpu()
+                );
             }
+            // Multisampling texture.
+            else if (desc.sample_count > 1 && desc.depth == 1) {
+                _srv_descriptor = device.descriptors().cbv_srv_uav().alloc();
+                device.create_shader_resource_view(
+                    _resource,
+                    D3D12_SHADER_RESOURCE_VIEW_DESC {
+                        .Format = _srv_format,
+                        .ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2DMS,
+                        .Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING,
+                        .Texture2DMS =
+                            D3D12_TEX2DMS_SRV {
+                                .UnusedField_NothingToDefine = 0,
+                            },
+                    },
+                    _srv_descriptor.cpu()
+                );
+            }
+            // Cube texture arrays.
+            else if (gpu_texture_flags_contains(FLAGS, Cube) && desc.depth > 6) {
+                _srv_descriptor = device.descriptors().cbv_srv_uav().alloc();
+                device.create_shader_resource_view(
+                    _resource,
+                    D3D12_SHADER_RESOURCE_VIEW_DESC {
+                        .Format = _srv_format,
+                        .ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBEARRAY,
+                        .Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING,
+                        .TextureCubeArray =
+                            D3D12_TEXCUBE_ARRAY_SRV {
+                                .MostDetailedMip = 0,
+                                .MipLevels = desc.mip_count,
+                                .First2DArrayFace = 0,
+                                .NumCubes = desc.depth / 6,
+                                .ResourceMinLODClamp = 0.0f,
+                            },
+                    },
+                    _srv_descriptor.cpu()
+                );
 
-            device.create_shader_resource_view(
-                _resource,
-                D3D12_SHADER_RESOURCE_VIEW_DESC {
-                    .Format = _srv_format,
-                    .ViewDimension = srv_dimension,
-                    .Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING,
-                    .Texture2D = D3D12_TEX2D_SRV {.MipLevels = desc.mip_count},
-                },
-                _srv_descriptor.cpu()
-            );
+                _alt_srv_descriptor = device.descriptors().cbv_srv_uav().alloc();
+                device.create_shader_resource_view(
+                    _resource,
+                    D3D12_SHADER_RESOURCE_VIEW_DESC {
+                        .Format = _srv_format,
+                        .ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2DARRAY,
+                        .Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING,
+                        .Texture2DArray =
+                            D3D12_TEX2D_ARRAY_SRV {
+                                .MostDetailedMip = 0,
+                                .MipLevels = desc.mip_count,
+                                .FirstArraySlice = 0,
+                                .ArraySize = desc.depth,
+                                .PlaneSlice = 0,
+                                .ResourceMinLODClamp = 0.0f,
+                            },
+                    },
+                    _alt_srv_descriptor.cpu()
+                );
+            }
+            // Cube textures.
+            else if (gpu_texture_flags_contains(FLAGS, Cube) && desc.depth == 6) {
+                _srv_descriptor = device.descriptors().cbv_srv_uav().alloc();
+                device.create_shader_resource_view(
+                    _resource,
+                    D3D12_SHADER_RESOURCE_VIEW_DESC {
+                        .Format = _srv_format,
+                        .ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE,
+                        .Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING,
+                        .TextureCube =
+                            D3D12_TEXCUBE_SRV {
+                                .MostDetailedMip = 0,
+                                .MipLevels = desc.mip_count,
+                                .ResourceMinLODClamp = 0.0f,
+                            },
+                    },
+                    _srv_descriptor.cpu()
+                );
+
+                _alt_srv_descriptor = device.descriptors().cbv_srv_uav().alloc();
+                device.create_shader_resource_view(
+                    _resource,
+                    D3D12_SHADER_RESOURCE_VIEW_DESC {
+                        .Format = _srv_format,
+                        .ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2DARRAY,
+                        .Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING,
+                        .Texture2DArray =
+                            D3D12_TEX2D_ARRAY_SRV {
+                                .MostDetailedMip = 0,
+                                .MipLevels = desc.mip_count,
+                                .FirstArraySlice = 0,
+                                .ArraySize = desc.depth,
+                                .PlaneSlice = 0,
+                                .ResourceMinLODClamp = 0.0f,
+                            },
+                    },
+                    _alt_srv_descriptor.cpu()
+                );
+            }
+            // Texture arrays.
+            else if (desc.depth > 1) {
+                _srv_descriptor = device.descriptors().cbv_srv_uav().alloc();
+                device.create_shader_resource_view(
+                    _resource,
+                    D3D12_SHADER_RESOURCE_VIEW_DESC {
+                        .Format = _srv_format,
+                        .ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2DARRAY,
+                        .Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING,
+                        .Texture2DArray =
+                            D3D12_TEX2D_ARRAY_SRV {
+                                .MostDetailedMip = 0,
+                                .MipLevels = desc.mip_count,
+                                .FirstArraySlice = 0,
+                                .ArraySize = desc.depth,
+                                .PlaneSlice = 0,
+                                .ResourceMinLODClamp = 0.0f,
+                            },
+                    },
+                    _srv_descriptor.cpu()
+                );
+            }
+            // Textures.
+            else {
+                _srv_descriptor = device.descriptors().cbv_srv_uav().alloc();
+                device.create_shader_resource_view(
+                    _resource,
+                    D3D12_SHADER_RESOURCE_VIEW_DESC {
+                        .Format = _srv_format,
+                        .ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D,
+                        .Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING,
+                        .Texture2D =
+                            D3D12_TEX2D_SRV {
+                                .MostDetailedMip = 0,
+                                .MipLevels = desc.mip_count,
+                                .PlaneSlice = 0,
+                                .ResourceMinLODClamp = 0.0f,
+                            },
+                    },
+                    _srv_descriptor.cpu()
+                );
+            }
         }
         if constexpr (gpu_texture_flags_contains(FLAGS, Uav)) {
-            static_assert(!gpu_texture_flags_contains(FLAGS, Cube));
-            for (uint32_t mip = 0; mip < desc.mip_count; mip++) {
-                _uav_descriptors[mip] = device.descriptors().cbv_srv_uav().alloc();
-                device.create_unordered_access_view(
-                    _resource,
-                    std::nullopt,
-                    D3D12_UNORDERED_ACCESS_VIEW_DESC {
-                        .Format = _uav_format,
-                        .ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D,
-                        .Texture2D = {.MipSlice = mip, .PlaneSlice = 0},
-                    },
-                    _uav_descriptors[mip].cpu()
-                );
+            if (desc.depth > 1) {
+                for (uint32_t mip = 0; mip < desc.mip_count; mip++) {
+                    _uav_descriptors[mip] = device.descriptors().cbv_srv_uav().alloc();
+                    device.create_unordered_access_view(
+                        _resource,
+                        std::nullopt,
+                        D3D12_UNORDERED_ACCESS_VIEW_DESC {
+                            .Format = _uav_format,
+                            .ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2DARRAY,
+                            .Texture2DArray =
+                                {
+                                    .MipSlice = mip,
+                                    .FirstArraySlice = 0,
+                                    .ArraySize = desc.depth,
+                                    .PlaneSlice = 0,
+                                },
+                        },
+                        _uav_descriptors[mip].cpu()
+                    );
+                }
+            } else {
+                for (uint32_t mip = 0; mip < desc.mip_count; mip++) {
+                    _uav_descriptors[mip] = device.descriptors().cbv_srv_uav().alloc();
+                    device.create_unordered_access_view(
+                        _resource,
+                        std::nullopt,
+                        D3D12_UNORDERED_ACCESS_VIEW_DESC {
+                            .Format = _uav_format,
+                            .ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D,
+                            .Texture2D =
+                                {
+                                    .MipSlice = mip,
+                                    .PlaneSlice = 0,
+                                },
+                        },
+                        _uav_descriptors[mip].cpu()
+                    );
+                }
             }
         }
         if constexpr (gpu_texture_flags_contains(FLAGS, Rtv)) {
             _rtv_descriptor = device.descriptors().rtv().alloc();
-            std::optional<D3D12_RENDER_TARGET_VIEW_DESC> maybe_desc = std::nullopt;
+            auto maybe_desc = std::optional<D3D12_RENDER_TARGET_VIEW_DESC>(std::nullopt);
             if (D3D12_PROPERTY_LAYOUT_FORMAT_TABLE::GetTypeLevel(desc.format)
                 == D3DFTL_PARTIAL_TYPE) {
                 maybe_desc = D3D12_RENDER_TARGET_VIEW_DESC {
@@ -183,7 +347,7 @@ public:
         }
         if constexpr (gpu_texture_flags_contains(FLAGS, Dsv)) {
             _dsv_descriptor = device.descriptors().dsv().alloc();
-            std::optional<D3D12_DEPTH_STENCIL_VIEW_DESC> maybe_desc = std::nullopt;
+            auto maybe_desc = std::optional<D3D12_DEPTH_STENCIL_VIEW_DESC>(std::nullopt);
             if (D3D12_PROPERTY_LAYOUT_FORMAT_TABLE::GetTypeLevel(desc.format)
                 == D3DFTL_PARTIAL_TYPE) {
                 maybe_desc = D3D12_DEPTH_STENCIL_VIEW_DESC {
@@ -284,6 +448,10 @@ public:
         static_assert(gpu_texture_flags_contains(FLAGS, Srv));
         return _srv_descriptor;
     }
+    auto alt_srv_descriptor() const -> GpuDescriptor {
+        static_assert(gpu_texture_flags_contains(FLAGS, SrvCube));
+        return _alt_srv_descriptor;
+    }
     auto uav_descriptor() const -> GpuDescriptor {
         static_assert(gpu_texture_flags_contains(FLAGS, Uav));
         return _uav_descriptors[0];
@@ -318,6 +486,7 @@ private:
     DXGI_FORMAT _rtv_format = DXGI_FORMAT_UNKNOWN;
     DXGI_FORMAT _dsv_format = DXGI_FORMAT_UNKNOWN;
     GpuDescriptor _srv_descriptor = {};
+    GpuDescriptor _alt_srv_descriptor = {};
     std::array<GpuDescriptor, MAX_MIP_COUNT> _uav_descriptors = {};
     GpuDescriptor _rtv_descriptor = {};
     GpuDescriptor _dsv_descriptor = {};
@@ -333,6 +502,7 @@ using GpuTextureSrvRtv = GpuTexture<GpuTextureFlags::SrvRtv>;
 using GpuTextureSrvDsv = GpuTexture<GpuTextureFlags::SrvDsv>;
 using GpuTextureSrvCube = GpuTexture<GpuTextureFlags::SrvCube>;
 
+using GpuTextureSrvUavCube = GpuTexture<GpuTextureFlags::SrvUavCube>;
 using GpuTextureSrvUavRtv = GpuTexture<GpuTextureFlags::SrvUavRtv>;
 
 } // namespace fb

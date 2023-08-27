@@ -161,8 +161,11 @@ public:
     auto fibers_plane_ps() const -> std::span<const std::byte>;
     auto fibers_debug_vs() const -> std::span<const std::byte>;
     auto fibers_debug_ps() const -> std::span<const std::byte>;
-    auto env_draw_vs() const -> std::span<const std::byte>;
-    auto env_draw_ps() const -> std::span<const std::byte>;
+    auto env_cube_from_rect_cs() const -> std::span<const std::byte>;
+    auto env_background_vs() const -> std::span<const std::byte>;
+    auto env_background_ps() const -> std::span<const std::byte>;
+    auto env_screen_vs() const -> std::span<const std::byte>;
+    auto env_screen_ps() const -> std::span<const std::byte>;
 
 private:
     std::vector<std::byte> _data;

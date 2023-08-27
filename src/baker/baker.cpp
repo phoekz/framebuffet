@@ -89,7 +89,7 @@ static auto asset_tasks = std::to_array<AssetTask>({
     },
     AssetTaskHdrTexture {
         "farm_field",
-        "envmaps/farm_field_puresky_2k.exr",
+        "envmaps/farm_field_2k.exr",
     },
 });
 
@@ -660,7 +660,17 @@ static auto shader_tasks = std::to_array<ShaderTask>({
             "debug_ps",
         },
     },
-    {"demos/env/env.hlsl", "env", {"draw_vs", "draw_ps"}},
+    {
+        "demos/env/env.hlsl",
+        "env",
+        {
+            "cube_from_rect_cs",
+            "background_vs",
+            "background_ps",
+            "screen_vs",
+            "screen_ps",
+        },
+    },
 });
 
 auto shader_type_from_entry_point(std::string_view entry_point) -> ShaderType {
