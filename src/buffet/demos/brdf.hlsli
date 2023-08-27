@@ -100,8 +100,8 @@ BrdfData prepare_brdf_data(float3 n, float3 l, float3 v, MaterialProperties mate
     float ndotv = dot(n, v);
     data.v_backfacing = (ndotv <= 0.0f);
     data.l_backfacing = (ndotl <= 0.0f);
-    data.ndotl = min(max(0.00001f, ndotl), 1.0f);
-    data.ndotv = min(max(0.00001f, ndotv), 1.0f);
+    data.ndotl = clamp(ndotl, 0.00001f, 1.0f);
+    data.ndotv = clamp(ndotv, 0.00001f, 1.0f);
     data.ldoth = saturate(dot(l, data.h));
     data.ndoth = saturate(dot(n, data.h));
     data.vdoth = saturate(dot(v, data.h));
@@ -185,13 +185,13 @@ float smith_g2_over_g1_height_correlated(
 
 float specular_sample_weight_ggx_vndf(
     float alpha,
-    float alphasquared,
+    float alpha_squared,
     float ndotl,
     float ndotv,
     float hdotl,
     float ndoth
 ) {
-    return smith_g2_over_g1_height_correlated(alpha, alphasquared, ndotl, ndotv);
+    return smith_g2_over_g1_height_correlated(alpha, alpha_squared, ndotl, ndotv);
 }
 
 float3 sample_specular_microfacet(
@@ -209,11 +209,11 @@ float3 sample_specular_microfacet(
         local_h = sample_ggx_vndf(local_v, float2(alpha, alpha), u);
     }
     float3 local_l = reflect(-local_v, local_h);
-    float hdotl = max(0.00001f, min(1.0f, dot(local_h, local_l)));
     float3 local_n = float3(0.0f, 0.0f, 1.0f);
-    float ndotl = max(0.00001f, min(1.0f, dot(local_n, local_l)));
-    float ndotv = max(0.00001f, min(1.0f, dot(local_n, local_v)));
-    float ndoth = max(0.00001f, min(1.0f, dot(local_n, local_h)));
+    float hdotl = clamp(dot(local_h, local_l), 0.00001f, 1.0f);
+    float ndotl = clamp(dot(local_n, local_l), 0.00001f, 1.0f);
+    float ndotv = clamp(dot(local_n, local_v), 0.00001f, 1.0f);
+    float ndoth = clamp(dot(local_n, local_h), 0.00001f, 1.0f);
     float3 f = evaluate_fresnel(specular_f0, shadowed_f90(specular_f0), hdotl);
     weight = f * specular_sample_weight_ggx_vndf(alpha, alpha_squared, ndotl, ndotv, hdotl, ndoth);
     return local_l;
@@ -249,7 +249,7 @@ bool evaluate_indirect_combined_brdf(
             BrdfData data = prepare_brdf_data(local_n, local_ray_dir, local_v, material);
             weight = data.diffuse_reflectance * disney_diffuse(data);
             float3 h_specular = sample_ggx_vndf(local_v, float2(data.alpha, data.alpha), u);
-            float vdoth = max(0.00001f, min(1.0f, dot(local_v, h_specular)));
+            float vdoth = clamp(dot(local_v, h_specular), 0.00001f, 1.0f);
             float3 f = evaluate_fresnel(data.specular_f0, shadowed_f90(data.specular_f0), vdoth);
             weight *= (float3(1.0f, 1.0f, 1.0f) - f);
             break;
