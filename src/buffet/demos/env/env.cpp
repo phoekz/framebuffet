@@ -104,10 +104,27 @@ auto EnvDemo::create(GpuDevice& device, const baked::Assets& assets, const baked
         );
         pass.cube_texture_size = cube_texture_size;
 
-        // Pipeline.
+        // LUT texture.
+        const auto lut_texture_size = Uint2(512, 512);
+        pass.lut_texture.create(
+            device,
+            GpuTextureDesc {
+                .format = DXGI_FORMAT_R16G16_FLOAT,
+                .width = lut_texture_size.x,
+                .height = lut_texture_size.y,
+                .depth = 1,
+            },
+            dx_name(NAME, PASS_NAME, "LUT Texture")
+        );
+        pass.lut_texture_size = lut_texture_size;
+
+        // Pipelines.
         GpuPipelineBuilder()
             .compute_shader(shaders.env_cfr_cs())
-            .build(device, pass.cfr_pipeline, dx_name(NAME, PASS_NAME, "Pipeline"));
+            .build(device, pass.cfr_pipeline, dx_name(NAME, PASS_NAME, "CFR Pipeline"));
+        GpuPipelineBuilder()
+            .compute_shader(shaders.env_lut_cs())
+            .build(device, pass.lut_pipeline, dx_name(NAME, PASS_NAME, "LUT Pipeline"));
     }
 
     // Screen.
@@ -115,15 +132,15 @@ auto EnvDemo::create(GpuDevice& device, const baked::Assets& assets, const baked
         static constexpr auto PASS_NAME = "Screen"sv;
         auto& pass = _screen;
 
-        // Input rect layout.
-        pass.input_offset = Float2(0.0f, 0.0f);
-        pass.input_scale = Float2(400.0f, 200.0f);
+        // Rect layout.
+        pass.rect_offset = Float2(0.0f, 0.0f);
+        pass.rect_scale = Float2(400.0f, 200.0f);
 
         // Cube face layout (left-handed).
         //    +y
         // -x +z +x -z
         //    -y
-        pass.output_offsets = {
+        pass.cube_offsets = {
             Float2(200.0f, 200.0f), // +x
             Float2(0.0f, 200.0f),   // -x
             Float2(100.0f, 100.0f), // +y
@@ -131,10 +148,14 @@ auto EnvDemo::create(GpuDevice& device, const baked::Assets& assets, const baked
             Float2(100.0f, 200.0f), // +z
             Float2(300.0f, 200.0f), // -z
         };
-        for (auto& offset : pass.output_offsets) {
+        for (auto& offset : pass.cube_offsets) {
             offset += Float2(0.0f, 100.0f);
         }
-        pass.output_scale = Float2(100.0f, 100.0f);
+        pass.cube_scale = Float2(100.0f, 100.0f);
+
+        // LUT layout.
+        pass.lut_offset = Float2(0.0f, 500.0f);
+        pass.lut_scale = Float2(200.0f, 200.0f);
 
         // Constants.
         pass.constants.create(device, 1, dx_name(NAME, PASS_NAME, "Constants"));
@@ -167,7 +188,7 @@ auto EnvDemo::create(GpuDevice& device, const baked::Assets& assets, const baked
     }
 }
 
-auto EnvDemo::gui(const GuiDesc& desc) -> void {
+auto EnvDemo::gui(const GuiDesc&) -> void {
     auto& p = _parameters;
     ImGui::Checkbox("Tonemap", (bool*)&p.tonemap);
     ImGui::SliderAngle("Camera FOV", &p.camera_fov, 1.0f, 90.0f);
@@ -175,15 +196,6 @@ auto EnvDemo::gui(const GuiDesc& desc) -> void {
     ImGui::SliderAngle("Camera Longitude", &p.camera_longitude, -180.0f, 180.0f);
     ImGui::SliderAngle("Camera Latitude", &p.camera_latitude, -90.0f, 90.0f);
     ImGui::SliderFloat("Camera Rotation Speed", &p.camera_rotation_speed, 0.0f, 1.0f);
-
-    {
-        auto& pass = _screen;
-        const auto w = (float)desc.window_size.x;
-        const auto h = (float)desc.window_size.y;
-        const auto s = std::max(w, h);
-        ImGui::SliderFloat2("Input Offset", &pass.input_offset.x, 0.0f, s);
-        ImGui::SliderFloat2("Input Scale", &pass.input_scale.x, 0.0f, s);
-    }
 }
 
 auto EnvDemo::update(const UpdateDesc& desc) -> void {
@@ -230,11 +242,11 @@ auto EnvDemo::update(const UpdateDesc& desc) -> void {
 
     // Update compute constants.
     {
+        auto cast = [](Uint2 v) { return Float2((float)v.x, (float)v.y); };
         *_compute.constants.ptr() = ComputeConstants {
-            .rect_texture_size =
-                Float2((float)_compute.rect_texture_size.x, (float)_compute.rect_texture_size.y),
-            .cube_texture_size =
-                Float2((float)_compute.cube_texture_size.x, (float)_compute.cube_texture_size.y),
+            .rect_texture_size = cast(_compute.rect_texture_size),
+            .cube_texture_size = cast(_compute.cube_texture_size),
+            .lut_texture_size = cast(_compute.lut_texture_size),
         };
     }
 
@@ -259,24 +271,37 @@ auto EnvDemo::render(GpuDevice& device, GpuCommandList& cmd) -> void {
     // Compute pass.
     if (!_compute.completed) {
         auto& pass = _compute;
+        cmd.set_compute();
 
         pass.cube_texture.transition(cmd, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+        pass.lut_texture.transition(cmd, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
         cmd.flush_barriers();
 
-        cmd.set_compute();
+        cmd.set_pipeline(pass.cfr_pipeline);
         cmd.set_compute_constants(ComputeBindings {
             .constants = pass.constants.cbv_descriptor().index(),
             .rect_texture = pass.rect_texture.srv_descriptor().index(),
             .cube_texture = pass.cube_texture.uav_descriptor().index(),
         });
-        cmd.set_pipeline(pass.cfr_pipeline);
         cmd.dispatch(
             pass.cube_texture_size.x / CFR_DISPATCH_X,
             pass.cube_texture_size.y / CFR_DISPATCH_Y,
             6
         );
 
+        cmd.set_pipeline(pass.lut_pipeline);
+        cmd.set_compute_constants(ComputeBindings {
+            .constants = pass.constants.cbv_descriptor().index(),
+            .lut_texture = pass.lut_texture.uav_descriptor().index(),
+        });
+        cmd.dispatch(
+            pass.lut_texture_size.x / LUT_DISPATCH_X,
+            pass.lut_texture_size.y / LUT_DISPATCH_Y,
+            1
+        );
+
         pass.cube_texture.transition(cmd, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+        pass.lut_texture.transition(cmd, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
         cmd.flush_barriers();
 
         _compute.completed = true;
@@ -312,27 +337,40 @@ auto EnvDemo::render(GpuDevice& device, GpuCommandList& cmd) -> void {
         cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
         cmd.set_index_buffer(screen_pass.indices.index_buffer_view());
 
+        // Rect texture.
         cmd.set_graphics_constants(ScreenBindings {
             .constants = screen_pass.constants.cbv_descriptor().index(),
             .vertices = screen_pass.vertices.srv_descriptor().index(),
             .texture = compute_pass.rect_texture.srv_descriptor().index(),
             .texture_slice = 0,
-            .screen_offset = screen_pass.input_offset,
-            .screen_scale = screen_pass.input_scale,
+            .screen_offset = screen_pass.rect_offset,
+            .screen_scale = screen_pass.rect_scale,
         });
         cmd.draw_indexed_instanced(screen_pass.indices.element_size(), 1, 0, 0, 0);
 
+        // Cube textures.
         for (uint32_t i = 0; i < 6; ++i) {
             cmd.set_graphics_constants(ScreenBindings {
                 .constants = screen_pass.constants.cbv_descriptor().index(),
                 .vertices = screen_pass.vertices.srv_descriptor().index(),
                 .texture = compute_pass.cube_texture.alt_srv_descriptor().index(),
                 .texture_slice = i,
-                .screen_offset = screen_pass.output_offsets[i],
-                .screen_scale = screen_pass.output_scale,
+                .screen_offset = screen_pass.cube_offsets[i],
+                .screen_scale = screen_pass.cube_scale,
             });
             cmd.draw_indexed_instanced(screen_pass.indices.element_size(), 1, 0, 0, 0);
         }
+
+        // LUT texture.
+        cmd.set_graphics_constants(ScreenBindings {
+            .constants = screen_pass.constants.cbv_descriptor().index(),
+            .vertices = screen_pass.vertices.srv_descriptor().index(),
+            .texture = compute_pass.lut_texture.srv_descriptor().index(),
+            .texture_slice = 0,
+            .screen_offset = screen_pass.lut_offset,
+            .screen_scale = screen_pass.lut_scale,
+        });
+        cmd.draw_indexed_instanced(screen_pass.indices.element_size(), 1, 0, 0, 0);
     }
 }
 

@@ -12,16 +12,22 @@ FB_CONSTANT uint CFR_DISPATCH_X = 8;
 FB_CONSTANT uint CFR_DISPATCH_Y = 8;
 FB_CONSTANT uint CFR_DISPATCH_Z = 1;
 
+FB_CONSTANT uint LUT_DISPATCH_X = 8;
+FB_CONSTANT uint LUT_DISPATCH_Y = 8;
+FB_CONSTANT uint LUT_DISPATCH_Z = 1;
+
 struct ComputeBindings {
     uint constants;
     uint rect_texture;
     uint cube_texture;
+    uint lut_texture;
 };
 
 struct ComputeConstants {
     float2 rect_texture_size;
     float2 cube_texture_size;
-    float pad[60];
+    float2 lut_texture_size;
+    float pad[58];
 };
 
 //

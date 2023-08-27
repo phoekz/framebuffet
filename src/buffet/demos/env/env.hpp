@@ -49,24 +49,32 @@ private:
     } _background;
 
     struct {
-        Uint2 rect_texture_size;
-        Uint2 cube_texture_size;
-
         GpuBufferHostCbv<ComputeConstants> constants;
+
+        Uint2 rect_texture_size;
         GpuTextureSrv rect_texture;
+
+        Uint2 cube_texture_size;
         GpuTextureSrvUavCube cube_texture;
 
+        Uint2 lut_texture_size;
+        GpuTextureSrvUav lut_texture;
+
         GpuPipeline cfr_pipeline;
+        GpuPipeline lut_pipeline;
 
         bool completed = false;
     } _compute;
 
     struct {
-        Float2 input_offset;
-        Float2 input_scale;
+        Float2 rect_offset;
+        Float2 rect_scale;
 
-        std::array<Float2, 6> output_offsets;
-        Float2 output_scale;
+        std::array<Float2, 6> cube_offsets;
+        Float2 cube_scale;
+
+        Float2 lut_offset;
+        Float2 lut_scale;
 
         GpuBufferHostCbv<ScreenConstants> constants;
         GpuBufferHostSrv<ScreenVertex> vertices;

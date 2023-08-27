@@ -53,9 +53,9 @@ float3 evaluate_fresnel(float3 f0, float f90, float ndots) {
     return f0 + (f90 - f0) * pow(1.0f - ndots, 5.0f);
 }
 
-float shadowed_f90(float3 F0) {
+float shadowed_f90(float3 f0) {
     float t = (1.0f / MIN_DIELECTRICS_F0);
-    return min(1.0f, t * luminance(F0));
+    return min(1.0f, t * luminance(f0));
 }
 
 float disney_diffuse(BrdfData data) {

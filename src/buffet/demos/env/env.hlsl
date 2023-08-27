@@ -1,5 +1,6 @@
 #include <gpu/samplers.hlsli>
 #include <demos/core.hlsli>
+#include <demos/brdf.hlsli>
 #include <demos/env/env.hlsli>
 
 // Source: https://knarkowicz.wordpress.com/2016/01/06/aces-filmic-tone-mapping-curve/
@@ -57,6 +58,64 @@ void cfr_cs(FbComputeInput input) {
 
     // Write to cube texture.
     cube_texture[dst_id] = float4(color, 1.0f);
+}
+
+float2 hammersley2d(uint i, uint n) {
+    // From: http://holger.dammertz.org/stuff/notes_HammersleyOnHemisphere.html
+    uint bits = (i << 16u) | (i >> 16u);
+    bits = ((bits & 0x55555555u) << 1u) | ((bits & 0xaaaaaaaau) >> 1u);
+    bits = ((bits & 0x33333333u) << 2u) | ((bits & 0xccccccccu) >> 2u);
+    bits = ((bits & 0x0f0f0f0fu) << 4u) | ((bits & 0xf0f0f0f0u) >> 4u);
+    bits = ((bits & 0x00ff00ffu) << 8u) | ((bits & 0xff00ff00u) >> 8u);
+    return float2(float(i) / float(n), float(bits) * 2.3283064365386963e-10f);
+}
+
+FB_ATTRIBUTE(numthreads, LUT_DISPATCH_X, LUT_DISPATCH_Y, LUT_DISPATCH_Z)
+void lut_cs(FbComputeInput input) {
+    // Global resources.
+    ConstantBuffer<ComputeConstants> constants =
+        ResourceDescriptorHeap[g_compute_bindings.constants];
+    RWTexture2D<float2> lut_texture = ResourceDescriptorHeap[g_compute_bindings.lut_texture];
+
+    // Indices.
+    const uint2 dst_id = input.dispatch_thread_id.xy;
+
+    // Texcoords.
+    const float2 size = (float2)constants.lut_texture_size;
+    const float2 texcoord = (float2(dst_id) + 0.5f) / size;
+    const float ndotv = texcoord.x;
+    const float roughness = 1.0f - texcoord.y;
+
+    // Compute LUT: scale and bias for F0.
+    const uint sample_count = 1024;
+    const float3 specular_f0 = 0.04f.xxx;
+    const float specular_f90 = shadowed_f90(specular_f0);
+    const float3 v = float3(sqrt(1.0f - ndotv * ndotv), 0.0f, ndotv);
+    const float3 n = float3(0.0f, 0.0f, 1.0f);
+    const float alpha = roughness * roughness;
+    const float alpha_squared = alpha * alpha;
+    float sum_scale = 0.0f;
+    float sum_bias = 0.0f;
+    for (uint i = 0; i < sample_count; i++) {
+        const float2 u = hammersley2d(i, sample_count);
+        const float3 h = sample_ggx_vndf(v, alpha.xx, u);
+        const float3 l = reflect(-v, h);
+        const float hdotl = clamp(dot(h, l), 0.00001f, 1.0f);
+        const float ndotl = clamp(dot(n, l), 0.00001f, 1.0f);
+        const float ndoth = clamp(dot(n, h), 0.00001f, 1.0f);
+        const float vdoth = clamp(dot(v, h), 0.00001f, 1.0f);
+        if (ndotl > 0.0f) {
+            const float fresnel = evaluate_fresnel(specular_f0, specular_f90, vdoth).x;
+            const float weight =
+                specular_sample_weight_ggx_vndf(alpha, alpha_squared, ndotl, ndotv, hdotl, ndoth);
+            sum_scale += (1.0 - fresnel) * weight;
+            sum_bias += fresnel * weight;
+        }
+    }
+    sum_scale /= float(sample_count);
+    sum_bias /= float(sample_count);
+
+    lut_texture[dst_id] = float2(sum_scale, sum_bias);
 }
 
 //
