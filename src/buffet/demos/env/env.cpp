@@ -187,57 +187,76 @@ auto EnvDemo::gui(const GuiDesc& desc) -> void {
 }
 
 auto EnvDemo::update(const UpdateDesc& desc) -> void {
-    auto& p = _parameters;
-
-    p.camera_longitude += p.camera_rotation_speed * desc.delta_time;
-    if (p.camera_longitude > PI * 2.0f) {
-        p.camera_longitude -= PI * 2.0f;
+    // Update camera rotation.
+    {
+        auto& p = _parameters;
+        p.camera_longitude += p.camera_rotation_speed * desc.delta_time;
+        if (p.camera_longitude > PI * 2.0f) {
+            p.camera_longitude -= PI * 2.0f;
+        }
     }
 
-    float aspect_ratio = desc.aspect_ratio;
-    Float4x4 perspective =
+    // Update camera transforms.
+    const auto& p = _parameters;
+    const auto aspect_ratio = desc.aspect_ratio;
+    const auto perspective =
         Float4x4::CreatePerspectiveFieldOfView(p.camera_fov, aspect_ratio, 0.1f, 100.0f);
-    Float3 eye = p.camera_distance * dir_from_lonlat(p.camera_longitude, p.camera_latitude);
-    Float4x4 view = Float4x4::CreateLookAt(eye, Float3(0.0f, 0.0f, 0.0f), Float3(0.0f, 1.0f, 0.0f));
-    Float4x4 env_view = view;
-    env_view.m[3][0] = 0.0f;
-    env_view.m[3][1] = 0.0f;
-    env_view.m[3][2] = 0.0f;
-    env_view.m[3][3] = 1.0f;
-    Float4x4 env_transform = env_view * perspective;
+    const auto eye = p.camera_distance * dir_from_lonlat(p.camera_longitude, p.camera_latitude);
+    const auto view = Float4x4::CreateLookAt(eye, Float3::Zero, Float3::Up);
 
-    Float4x4 camera_transform = view * perspective;
-    _debug_draw.begin(desc.frame_index);
-    _debug_draw.transform(camera_transform);
-    _debug_draw.axes();
-    _debug_draw.end();
+    // Update debug.
+    {
+        const auto camera_transform = view * perspective;
+        _debug_draw.begin(desc.frame_index);
+        _debug_draw.transform(camera_transform);
+        _debug_draw.axes();
+        _debug_draw.end();
+    }
 
-    const auto w = (float)desc.window_size.x;
-    const auto h = (float)desc.window_size.y;
-    Float4x4 screen_transform = Float4x4(
-        Float4(2.0f / w, 0.0f, 0.0f, 0.0f),
-        Float4(0.0f, -2.0f / h, 0.0f, 0.0f),
-        Float4(0.0f, 0.0f, 1.0f, 0.0f),
-        Float4(-1.0f, 1.0f, 0.0f, 1.0f)
-    );
+    // Update background constants.
+    {
+        auto env_view = view;
+        env_view.m[3][0] = 0.0f;
+        env_view.m[3][1] = 0.0f;
+        env_view.m[3][2] = 0.0f;
+        env_view.m[3][3] = 1.0f;
+        const auto env_transform = env_view * perspective;
 
-    *_background.constants.ptr() = BackgroundConstants {
-        .transform = env_transform,
-        .tonemap = p.tonemap,
-    };
-    *_compute.constants.ptr() = ComputeConstants {
-        .rect_texture_size =
-            Float2((float)_compute.rect_texture_size.x, (float)_compute.rect_texture_size.y),
-        .cube_texture_size =
-            Float2((float)_compute.cube_texture_size.x, (float)_compute.cube_texture_size.y),
-    };
-    *_screen.constants.ptr() = ScreenConstants {
-        .transform = screen_transform,
-        .tonemap = p.tonemap,
-    };
+        *_background.constants.ptr() = BackgroundConstants {
+            .transform = env_transform,
+            .tonemap = p.tonemap,
+        };
+    }
+
+    // Update compute constants.
+    {
+        *_compute.constants.ptr() = ComputeConstants {
+            .rect_texture_size =
+                Float2((float)_compute.rect_texture_size.x, (float)_compute.rect_texture_size.y),
+            .cube_texture_size =
+                Float2((float)_compute.cube_texture_size.x, (float)_compute.cube_texture_size.y),
+        };
+    }
+
+    // Update screen constants.
+    {
+        const auto w = (float)desc.window_size.x;
+        const auto h = (float)desc.window_size.y;
+        Float4x4 screen_transform = Float4x4(
+            Float4(2.0f / w, 0.0f, 0.0f, 0.0f),
+            Float4(0.0f, -2.0f / h, 0.0f, 0.0f),
+            Float4(0.0f, 0.0f, 1.0f, 0.0f),
+            Float4(-1.0f, 1.0f, 0.0f, 1.0f)
+        );
+        *_screen.constants.ptr() = ScreenConstants {
+            .transform = screen_transform,
+            .tonemap = p.tonemap,
+        };
+    }
 }
 
 auto EnvDemo::render(GpuDevice& device, GpuCommandList& cmd) -> void {
+    // Compute pass.
     {
         auto& pass = _compute;
 
@@ -261,10 +280,14 @@ auto EnvDemo::render(GpuDevice& device, GpuCommandList& cmd) -> void {
         cmd.flush_barriers();
     }
 
+    // Graphics passes.
     cmd.set_graphics();
     _render_targets.set(cmd);
+
+    // Debug.
     _debug_draw.render(device, cmd);
 
+    // Background.
     {
         const auto& background_pass = _background;
         const auto& compute_pass = _compute;
@@ -279,6 +302,7 @@ auto EnvDemo::render(GpuDevice& device, GpuCommandList& cmd) -> void {
         cmd.draw_indexed_instanced(background_pass.indices.element_size(), 1, 0, 0, 0);
     }
 
+    // Screen.
     {
         const auto& compute_pass = _compute;
         const auto& screen_pass = _screen;
