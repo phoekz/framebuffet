@@ -1,7 +1,7 @@
 #include <gpu/samplers.hlsli>
 #include <demos/core.hlsli>
+#include <demos/brdf.hlsli>
 #include <demos/crate/crate.hlsli>
-#include <demos/crate/brdf.hlsli>
 
 struct VertexOutput {
     float4 position: SV_Position;
