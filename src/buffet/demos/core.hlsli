@@ -98,7 +98,7 @@ bool fb_sphere_inside_plane(float4 plane, float3 sphere_center, float sphere_rad
 }
 
 void fb_fullscreen_triangle(uint vertex_id, out float4 position, out float2 texcoord) {
-    texcoord = float2((vertex_id << 1) & 2, vertex_id & 2);
+    texcoord = float2(vertex_id & 2, (vertex_id << 1) & 2);
     position = float4(texcoord * float2(2.0f, -2.0f) + float2(-1.0f, 1.0f), 0.0f, 1.0f);
 }
 
