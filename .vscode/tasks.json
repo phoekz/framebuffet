@@ -1,0 +1,153 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Debug - Configure + Bake + Run",
+            "type": "shell",
+            "command": "./scripts/bake_n_run.sh",
+            "problemMatcher": [
+                "$msCompile"
+            ],
+            "options": {
+                "env": {
+                    "FB_VARIANT": "Debug",
+                    "FB_CONFIGURE": "1",
+                    "FB_BAKE": "1",
+                    "FB_RUN": "1"
+                }
+            }
+        },
+        {
+            "label": "Debug - Bake + Run",
+            "type": "shell",
+            "command": "./scripts/bake_n_run.sh",
+            "problemMatcher": [
+                "$msCompile"
+            ],
+            "options": {
+                "env": {
+                    "FB_VARIANT": "Debug",
+                    "FB_BAKE": "1",
+                    "FB_RUN": "1"
+                }
+            }
+        },
+        {
+            "label": "Debug - Only Bake",
+            "type": "shell",
+            "command": "./scripts/bake_n_run.sh",
+            "problemMatcher": [
+                "$msCompile"
+            ],
+            "options": {
+                "env": {
+                    "FB_VARIANT": "Debug",
+                    "FB_BAKE": "1"
+                }
+            }
+        },
+        {
+            "label": "Debug - Only Run",
+            "type": "shell",
+            "command": "./scripts/bake_n_run.sh",
+            "problemMatcher": [
+                "$msCompile"
+            ],
+            "options": {
+                "env": {
+                    "FB_VARIANT": "Debug",
+                    "FB_RUN": "1"
+                }
+            }
+        },
+        {
+            "label": "Debug - Clear Archive",
+            "type": "shell",
+            "command": "./scripts/bake_n_run.sh",
+            "problemMatcher": [
+                "$msCompile"
+            ],
+            "options": {
+                "env": {
+                    "FB_VARIANT": "Debug",
+                    "FB_CLEAN_ARCHIVE": "1"
+                }
+            }
+        },
+        {
+            "label": "Release - Configure + Bake + Run",
+            "type": "shell",
+            "command": "./scripts/bake_n_run.sh",
+            "problemMatcher": [
+                "$msCompile"
+            ],
+            "options": {
+                "env": {
+                    "FB_VARIANT": "Release",
+                    "FB_CONFIGURE": "1",
+                    "FB_BAKE": "1",
+                    "FB_RUN": "1"
+                }
+            }
+        },
+        {
+            "label": "Release - Bake + Run",
+            "type": "shell",
+            "command": "./scripts/bake_n_run.sh",
+            "problemMatcher": [
+                "$msCompile"
+            ],
+            "options": {
+                "env": {
+                    "FB_VARIANT": "Release",
+                    "FB_BAKE": "1",
+                    "FB_RUN": "1"
+                }
+            }
+        },
+        {
+            "label": "Release - Only Bake",
+            "type": "shell",
+            "command": "./scripts/bake_n_run.sh",
+            "problemMatcher": [
+                "$msCompile"
+            ],
+            "options": {
+                "env": {
+                    "FB_VARIANT": "Release",
+                    "FB_BAKE": "1"
+                }
+            }
+        },
+        {
+            "label": "Release - Only Run",
+            "type": "shell",
+            "command": "./scripts/bake_n_run.sh",
+            "problemMatcher": [
+                "$msCompile"
+            ],
+            "options": {
+                "env": {
+                    "FB_VARIANT": "Release",
+                    "FB_RUN": "1"
+                }
+            }
+        },
+        {
+            "label": "Release - Clear Archive",
+            "type": "shell",
+            "command": "./scripts/bake_n_run.sh",
+            "problemMatcher": [
+                "$msCompile"
+            ],
+            "options": {
+                "env": {
+                    "FB_VARIANT": "Release",
+                    "FB_CLEAN_ARCHIVE": "1"
+                }
+            }
+        }
+    ]
+}
