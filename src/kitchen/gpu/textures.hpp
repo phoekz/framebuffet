@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../pch.hpp"
-#include "../baked/baked.hpp"
 #include "device.hpp"
 
 namespace fb {
@@ -394,39 +393,6 @@ public:
             device,
             desc,
             std::span<const GpuTextureTransferDesc>(&transfer_desc, 1),
-            before_state,
-            after_state,
-            name
-        );
-    }
-    auto create_and_transfer_baked(
-        GpuDevice& device,
-        const baked::Texture& texture,
-        D3D12_RESOURCE_STATES before_state,
-        D3D12_RESOURCE_STATES after_state,
-        std::string_view name
-    ) -> void {
-        GpuTextureDesc desc = {
-            .format = texture.format,
-            .width = texture.width,
-            .height = texture.height,
-            .mip_count = texture.mip_count,
-            .sample_count = 1,
-        };
-
-        std::array<GpuTextureTransferDesc, baked::MAX_MIP_COUNT> transfer_descs = {};
-        for (uint32_t i = 0; i < texture.mip_count; i++) {
-            transfer_descs[i] = GpuTextureTransferDesc {
-                .row_pitch = texture.datas[i].row_pitch,
-                .slice_pitch = texture.datas[i].slice_pitch,
-                .data = texture.datas[i].data.data(),
-            };
-        }
-
-        create_and_transfer(
-            device,
-            desc,
-            std::span(transfer_descs.data(), texture.mip_count),
             before_state,
             after_state,
             name

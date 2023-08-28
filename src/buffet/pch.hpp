@@ -18,6 +18,5 @@
 #include <array>
 
 // Framebuffet.
-#include <common/pch.hpp>
 #include <common/common.hpp>
-#include "utils/trap.hpp"
+#include <kitchen/kitchen.hpp>

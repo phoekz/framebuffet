@@ -1,13 +1,12 @@
 #include "gui.hpp"
-#include "../win32/window.hpp"
 
-namespace fb::demos::gui {
+namespace fb::graphics::gui {
 
 auto Gui::create(
     const Window& window,
     GpuDevice& device,
-    const baked::Assets& assets,
-    const baked::Shaders& shaders
+    const baked::kitchen::Assets& assets,
+    const baked::kitchen::Shaders& shaders
 ) -> void {
     // ImGui.
     {
@@ -204,4 +203,4 @@ auto Gui::render(const GpuDevice& device, GpuCommandList& cmd) -> void {
     }
 }
 
-} // namespace fb::demos::gui
+} // namespace fb::graphics::gui

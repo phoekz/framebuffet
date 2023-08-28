@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include <demos/core.hlsli>
+#include <graphics/core.hlsli>
 
 #define MIN_DIELECTRICS_F0 0.04f
 

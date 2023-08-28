@@ -18,4 +18,14 @@ auto to_wstr(std::string_view str) -> std::wstring {
     return wstr;
 }
 
+auto str_replace(std::string_view str, std::string_view from, std::string_view to) -> std::string {
+    auto result = std::string(str);
+    size_t pos = 0;
+    while ((pos = result.find(from, pos)) != std::string::npos) {
+        result.replace(pos, from.length(), to);
+        pos += to.length();
+    }
+    return result;
+}
+
 } // namespace fb

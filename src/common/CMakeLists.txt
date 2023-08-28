@@ -23,6 +23,8 @@ set(SOURCES
     template_helpers.hpp
     time.cpp
     time.hpp
+    trap.cpp
+    trap.hpp
 )
 add_library(${NAME} STATIC ${SOURCES})
 target_precompile_headers(${NAME} PRIVATE pch.hpp)

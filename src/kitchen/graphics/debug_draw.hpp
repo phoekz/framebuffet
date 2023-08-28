@@ -1,20 +1,13 @@
 #pragma once
 
-#include "demos.hpp"
+#include "../pch.hpp"
+#include "../gpu/gpu.hpp"
+#include <baked/kitchen/baked.hpp>
+#include "render_targets.hpp"
 #include "debug_draw.hlsli"
 
-namespace fb::demos {
+namespace fb::graphics::debug_draw {
 
-inline constexpr RgbaByte COLOR_RED = {(uint8_t)255, 0, 0, 255};
-inline constexpr RgbaByte COLOR_GREEN = {(uint8_t)0, 255, 0, 255};
-inline constexpr RgbaByte COLOR_BLUE = {(uint8_t)0, 0, 255, 255};
-inline constexpr RgbaByte COLOR_YELLOW = {(uint8_t)255, 255, 0, 255};
-inline constexpr RgbaByte COLOR_MAGENTA = {(uint8_t)255, 0, 255, 255};
-inline constexpr RgbaByte COLOR_CYAN = {(uint8_t)0, 255, 255, 255};
-inline constexpr RgbaByte COLOR_WHITE = {(uint8_t)255, 255, 255, 255};
-inline constexpr RgbaByte COLOR_BLACK = {(uint8_t)0, 0, 0, 255};
-
-class RenderTargets;
 class DebugDraw {
     FB_NO_COPY_MOVE(DebugDraw);
 
@@ -26,8 +19,8 @@ public:
 
     auto create(
         GpuDevice& device,
-        const baked::Shaders& shaders,
-        const RenderTargets& render_targets,
+        const baked::kitchen::Shaders& shaders,
+        const render_targets::RenderTargets& render_targets,
         std::string_view name
     ) -> void;
     auto begin(uint32_t frame_index) -> void;
@@ -63,4 +56,4 @@ private:
     std::array<Frame, FRAME_COUNT> _frames;
 };
 
-} // namespace fb::demos
+} // namespace fb::graphics::debug_draw

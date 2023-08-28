@@ -1,6 +1,9 @@
 set(NAME fb_baker)
 set(SOURCES
     baker.cpp
+    assets/tasks.cpp
+    assets/tasks.hpp
+    assets/types.hpp
     formats/cgltf.cpp
     formats/gltf.cpp
     formats/gltf.hpp
@@ -10,8 +13,14 @@ set(SOURCES
     formats/mikktspace.hpp
     formats/stb.cpp
     formats/tinyexr.cpp
+    outputs/outputs.cpp
+    outputs/outputs.hpp
+    outputs/templates/baked_cpp.hpp
+    outputs/templates/baked_hpp.hpp
+    outputs/templates/baked_types_hpp.hpp
     shaders/shaders.cpp
     shaders/shaders.hpp
+    utils/names.hpp
 )
 
 add_executable(${NAME} ${SOURCES})
@@ -38,9 +47,10 @@ target_link_libraries(
 )
 target_compile_definitions(
     ${NAME} PRIVATE
-    FRAMEBUFFET_SOURCE_DIR="${PROJECT_SOURCE_DIR}"
-    FRAMEBUFFET_SOURCE_DIR_WIDE=L"${PROJECT_SOURCE_DIR}"
-    FRAMEBUFFET_OUTPUT_DIR="$<TARGET_FILE_DIR:fb_buffet>"
+    FB_SOURCE_DIR="${PROJECT_SOURCE_DIR}"
+    FB_SOURCE_DIR_WIDE=L"${PROJECT_SOURCE_DIR}"
+    FB_KITCHEN_OUTPUT_DIR="$<TARGET_FILE_DIR:fb_kitchen>"
+    FB_BUFFET_OUTPUT_DIR="$<TARGET_FILE_DIR:fb_buffet>"
 )
 
 set_target_properties(${NAME} PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY $<TARGET_FILE_DIR:${NAME}>)

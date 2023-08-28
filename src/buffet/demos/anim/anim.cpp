@@ -2,8 +2,7 @@
 
 namespace fb::demos::anim {
 
-auto AnimDemo::create(GpuDevice& device, const baked::Assets& assets, const baked::Shaders& shaders)
-    -> void {
+auto AnimDemo::create(GpuDevice& device, const Baked& baked) -> void {
     // Render targets.
     _render_targets.create(
         device,
@@ -17,7 +16,11 @@ auto AnimDemo::create(GpuDevice& device, const baked::Assets& assets, const bake
     );
 
     // Debug draw.
-    _debug_draw.create(device, shaders, _render_targets, NAME);
+    _debug_draw.create(device, baked.kitchen.shaders, _render_targets, NAME);
+
+    // Unpack.
+    const auto& shaders = baked.buffet.shaders;
+    const auto& assets = baked.buffet.assets;
 
     // Pipeline.
     GpuPipelineBuilder()
@@ -41,7 +44,8 @@ auto AnimDemo::create(GpuDevice& device, const baked::Assets& assets, const bake
 
     // Texture.
     const auto texture = assets.raccoon_base_color_texture();
-    _texture.create_and_transfer_baked(
+    texture_create_and_transfer_baked(
+        _texture,
         device,
         texture,
         D3D12_RESOURCE_STATE_COMMON,

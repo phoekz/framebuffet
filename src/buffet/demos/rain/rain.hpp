@@ -39,12 +39,11 @@ public:
 
     RainDemo() = default;
 
-    auto create(GpuDevice& device, const baked::Assets& assets, const baked::Shaders& shaders)
-        -> void;
+    auto create(GpuDevice& device, const Baked& baked) -> void;
     auto gui(const GuiDesc& desc) -> void;
     void update(const UpdateDesc& desc);
     void render(GpuDevice& device, GpuCommandList& cmd);
-    auto rt() -> RenderTargets& { return _render_targets; }
+    auto rt() -> graphics::render_targets::RenderTargets& { return _render_targets; }
 
     template<Archive A>
     auto archive(A& arc) -> void {
@@ -53,8 +52,8 @@ public:
 
 private:
     Parameters _parameters;
-    RenderTargets _render_targets;
-    DebugDraw _debug_draw;
+    graphics::render_targets::RenderTargets _render_targets;
+    graphics::debug_draw::DebugDraw _debug_draw;
     GpuBufferDeviceSrvUav<Particle> _particles;
 
     GpuBufferHostCbv<Constants> _constants;

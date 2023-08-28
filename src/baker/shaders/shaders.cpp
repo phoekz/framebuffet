@@ -1,4 +1,5 @@
 #include "shaders.hpp"
+#include "../utils/names.hpp"
 
 namespace fb {
 
@@ -148,7 +149,8 @@ auto ShaderCompiler::compile(
         L"-WX",
         L"-all_resources_bound",
         L"-enable-16bit-types",
-        L"-I", FRAMEBUFFET_SOURCE_DIR_WIDE "/src/buffet",
+        L"-I", FB_SOURCE_DIR_WIDE "/src/kitchen",
+        L"-I", FB_SOURCE_DIR_WIDE "/src/buffet",
         // clang-format on
     });
 
@@ -258,6 +260,72 @@ auto ShaderCompiler::compile(
         .pdb = std::move(pdb),
         .counters = counters,
     };
+}
+
+static auto shader_type_from_entry_point(std::string_view entry_point) -> ShaderType {
+    if (entry_point.ends_with("_vs")) {
+        return ShaderType::Vertex;
+    } else if (entry_point.ends_with("_ps")) {
+        return ShaderType::Pixel;
+    } else if (entry_point.ends_with("_cs")) {
+        return ShaderType::Compute;
+    } else {
+        FB_FATAL();
+    }
+}
+
+static auto make_unique_shader_name(std::string_view name, std::string_view entry_point) {
+    return std::format("{}_{}", name, entry_point);
+}
+
+auto bake_shaders(std::string_view buffet_dir, std::span<const ShaderTask> shader_tasks)
+    -> std::vector<Shader> {
+    const auto compiler = ShaderCompiler();
+    auto compiled_shaders = std::vector<Shader>();
+    auto unique_names = std::unordered_set<std::string>();
+    auto names = UniqueNames();
+
+    size_t shader_entry_point_count = 0;
+    for (const auto& shader_task : shader_tasks) {
+        shader_entry_point_count += shader_task.entry_points.size();
+    }
+    size_t shader_entry_point_index = 0;
+
+    FB_LOG_INFO(
+        "Baking {} shader tasks ({} entry points)",
+        shader_tasks.size(),
+        shader_entry_point_count
+    );
+    for (const auto& shader_task : shader_tasks) {
+        const auto hlsl_path = std::format("{}/{}", buffet_dir, shader_task.path);
+        const auto hlsl_file = read_whole_file(hlsl_path);
+
+        for (const auto& entry_point : shader_task.entry_points) {
+            // Ensure unique shader names.
+            const auto name = names.unique(make_unique_shader_name(shader_task.name, entry_point));
+
+            // Determine shader type.
+            const auto type = shader_type_from_entry_point(entry_point);
+            FB_ASSERT(type != ShaderType::Unknown);
+
+            // Compile shader.
+            const auto shader = compiler.compile(name, type, entry_point, hlsl_file, false);
+
+            // Log.
+            FB_LOG_INFO(
+                "{}/{} - {} - {} instructions",
+                ++shader_entry_point_index,
+                shader_entry_point_count,
+                name,
+                shader.counters.instruction_count
+            );
+
+            // Save shader.
+            compiled_shaders.push_back(shader);
+        }
+    }
+
+    return compiled_shaders;
 }
 
 } // namespace fb

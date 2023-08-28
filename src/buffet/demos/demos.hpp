@@ -1,10 +1,21 @@
 #pragma once
 
 #include "../pch.hpp"
-#include "../gpu/gpu.hpp"
-#include "../baked/baked.hpp"
+#include <baked/kitchen/baked.hpp>
+#include <baked/buffet/baked.hpp>
 
 namespace fb::demos {
+
+struct Baked {
+    struct {
+        baked::kitchen::Assets assets;
+        baked::kitchen::Shaders shaders;
+    } kitchen;
+    struct {
+        baked::buffet::Assets assets;
+        baked::buffet::Shaders shaders;
+    } buffet;
+};
 
 struct UpdateDesc {
     Uint2 window_size;
@@ -20,6 +31,7 @@ struct GuiDesc {
 
 } // namespace fb::demos
 
-#include "gui.hpp"
-#include "debug_draw.hpp"
-#include "render_targets.hpp"
+#include <graphics/gui.hpp>
+#include <graphics/debug_draw.hpp>
+#include <graphics/render_targets.hpp>
+#include "textures.hpp"

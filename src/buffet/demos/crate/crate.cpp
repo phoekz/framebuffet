@@ -3,11 +3,7 @@
 
 namespace fb::demos::crate {
 
-auto CrateDemo::create(
-    GpuDevice& device,
-    const baked::Assets& assets,
-    const baked::Shaders& shaders
-) -> void {
+auto CrateDemo::create(GpuDevice& device, const Baked& baked) -> void {
     // Render targets.
     _render_targets.create(
         device,
@@ -21,7 +17,11 @@ auto CrateDemo::create(
     );
 
     // Debug draw.
-    _debug_draw.create(device, shaders, _render_targets, NAME);
+    _debug_draw.create(device, baked.kitchen.shaders, _render_targets, NAME);
+
+    // Unpack.
+    const auto& shaders = baked.buffet.shaders;
+    const auto& assets = baked.buffet.assets;
 
     // Pipeline.
     GpuPipelineBuilder()
@@ -69,7 +69,8 @@ auto CrateDemo::create(
                      metallic_roughness
                  ),
              }) {
-            dst_texture.create_and_transfer_baked(
+            texture_create_and_transfer_baked(
+                dst_texture,
                 device,
                 src_texture,
                 D3D12_RESOURCE_STATE_COMMON,

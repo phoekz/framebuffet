@@ -1,8 +1,8 @@
 #pragma once
 
-#include "demos.hpp"
+#include "../gpu/gpu.hpp"
 
-namespace fb::demos {
+namespace fb::graphics::render_targets {
 
 struct RenderTargetsDesc {
     Uint2 size;
@@ -44,4 +44,4 @@ private:
     uint32_t _sample_count = 1;
 };
 
-} // namespace fb::demos
+} // namespace fb::graphics::render_targets

@@ -1,5 +1,4 @@
 #include "pch.hpp"
-#include "gpu/gpu.hpp"
 #include "demos/demos.hpp"
 #include "demos/cards.hpp"
 #include "demos/crate/crate.hpp"
@@ -9,8 +8,6 @@
 #include "demos/fibers/fibers.hpp"
 #include "demos/env/env.hpp"
 #include "utils/frame.hpp"
-#include "utils/trap.hpp"
-#include "win32/window.hpp"
 
 namespace fb {
 
@@ -60,18 +57,14 @@ concept Demo =
     std::default_initializable<T> && !std::copyable<T> && !std::movable<T> && requires(T demo) {
         { demo.NAME } -> std::convertible_to<std::string_view>;
         {
-            demo.create(
-                std::declval<GpuDevice&>(),
-                std::declval<const baked::Assets&>(),
-                std::declval<const baked::Shaders&>()
-            )
+            demo.create(std::declval<GpuDevice&>(), std::declval<const demos::Baked&>())
         } -> std::same_as<void>;
         { demo.gui(std::declval<const demos::GuiDesc&>()) } -> std::same_as<void>;
         { demo.update(std::declval<const demos::UpdateDesc&>()) } -> std::same_as<void>;
         {
             demo.render(std::declval<GpuDevice&>(), std::declval<GpuCommandList&>())
         } -> std::same_as<void>;
-        { demo.rt() } -> std::same_as<demos::RenderTargets&>;
+        { demo.rt() } -> std::same_as<graphics::render_targets::RenderTargets&>;
     };
 
 static_assert(Demo<demos::crate::CrateDemo>);
@@ -89,12 +82,11 @@ struct Buffet {
     auto run() -> void;
 
     // Systems.
-    baked::Assets assets;
-    baked::Shaders shaders;
     Window window;
     GpuDevice device;
 
     // Demos.
+    demos::Baked baked;
     demos::crate::CrateDemo crate_demo;
     demos::tree::TreeDemo tree_demo;
     demos::rain::RainDemo rain_demo;
@@ -113,7 +105,7 @@ struct Buffet {
 
     // Demo support.
     demos::cards::Cards cards;
-    demos::gui::Gui gui;
+    graphics::gui::Gui gui;
 
     // Frame.
     Frame frame = {};
@@ -134,15 +126,15 @@ auto Buffet::run() -> void {
         device.create(window);
 
         device.begin_transfer();
-        crate_demo.create(device, assets, shaders);
-        tree_demo.create(device, assets, shaders);
-        rain_demo.create(device, assets, shaders);
-        anim_demo.create(device, assets, shaders);
-        fibers_demo.create(device, assets, shaders);
-        env_demo.create(device, assets, shaders);
+        crate_demo.create(device, baked);
+        tree_demo.create(device, baked);
+        rain_demo.create(device, baked);
+        anim_demo.create(device, baked);
+        fibers_demo.create(device, baked);
+        env_demo.create(device, baked);
         cards.create(
             device,
-            shaders,
+            baked,
             demos::cards::CardsDesc {
                 .card_render_targets = std::to_array({
                     std::ref(crate_demo.rt()),
@@ -153,7 +145,7 @@ auto Buffet::run() -> void {
                     std::ref(env_demo.rt()),
                 })}
         );
-        gui.create(window, device, assets, shaders);
+        gui.create(window, device, baked.kitchen.assets, baked.kitchen.shaders);
 
         device.end_transfer();
         device.log_stats();

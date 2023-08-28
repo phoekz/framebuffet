@@ -1,5 +1,5 @@
-#include <demos/core.hlsli>
-#include <demos/debug_draw.hlsli>
+#include <graphics/core.hlsli>
+#include <graphics/debug_draw.hlsli>
 
 struct Constants {
     float4x4 transform;

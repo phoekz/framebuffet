@@ -2,11 +2,7 @@
 
 namespace fb::demos::fibers {
 
-auto FibersDemo::create(
-    GpuDevice& device,
-    const baked::Assets& assets,
-    const baked::Shaders& shaders
-) -> void {
+auto FibersDemo::create(GpuDevice& device, const Baked& baked) -> void {
     // Render targets.
     _render_targets.create(
         device,
@@ -20,7 +16,11 @@ auto FibersDemo::create(
     );
 
     // Debug draw.
-    _debug_draw.create(device, shaders, _render_targets, NAME);
+    _debug_draw.create(device, baked.kitchen.shaders, _render_targets, NAME);
+
+    // Unpack.
+    const auto& shaders = baked.buffet.shaders;
+    const auto& assets = baked.buffet.assets;
 
     // Pipelines.
     {
@@ -183,14 +183,16 @@ auto FibersDemo::create(
     }
 
     {
-        _magma_texture.create_and_transfer_baked(
+        texture_create_and_transfer_baked(
+            _magma_texture,
             device,
             assets.heatmap_magma_texture(),
             D3D12_RESOURCE_STATE_COMMON,
             D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
             dx_name(NAME, "Magma Texture")
         );
-        _viridis_texture.create_and_transfer_baked(
+        texture_create_and_transfer_baked(
+            _viridis_texture,
             device,
             assets.heatmap_viridis_texture(),
             D3D12_RESOURCE_STATE_COMMON,

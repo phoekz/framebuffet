@@ -2,7 +2,6 @@
 #include "descriptors.hpp"
 #include "commands.hpp"
 #include "samplers.hpp"
-#include "../utils/trap.hpp"
 
 // Setup DirectX Agility SDK.
 extern "C" {

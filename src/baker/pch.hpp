@@ -10,7 +10,6 @@
 #include <tinyexr.h>
 
 // Framebuffet.
-#include <common/pch.hpp>
 #include <common/common.hpp>
 
 // DirectX.

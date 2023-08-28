@@ -2,8 +2,7 @@
 
 namespace fb::demos::rain {
 
-auto RainDemo::create(GpuDevice& device, const baked::Assets&, const baked::Shaders& shaders)
-    -> void {
+auto RainDemo::create(GpuDevice& device, const Baked& baked) -> void {
     // Render targets.
     _render_targets.create(
         device,
@@ -17,7 +16,10 @@ auto RainDemo::create(GpuDevice& device, const baked::Assets&, const baked::Shad
     );
 
     // Debug draw.
-    _debug_draw.create(device, shaders, _render_targets, NAME);
+    _debug_draw.create(device, baked.kitchen.shaders, _render_targets, NAME);
+
+    // Unpack.
+    const auto& shaders = baked.buffet.shaders;
 
     // Particles.
     {

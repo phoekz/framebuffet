@@ -13,7 +13,7 @@ auto read_whole_file(std::string_view path) -> std::vector<std::byte> {
         FILE_ATTRIBUTE_NORMAL,
         nullptr
     ));
-    FB_ASSERT_MSG(file.is_valid(), "Failed to open file.");
+    FB_ASSERT_MSG(file.is_valid(), "Failed to open file: {}", path);
 
     LARGE_INTEGER file_size;
     FB_ASSERT_MSG(GetFileSizeEx(file.get(), &file_size), "Failed to get file size.");

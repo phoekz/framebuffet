@@ -5,8 +5,7 @@
 
 namespace fb::demos::tree {
 
-auto TreeDemo::create(GpuDevice& device, const baked::Assets& assets, const baked::Shaders& shaders)
-    -> void {
+auto TreeDemo::create(GpuDevice& device, const Baked& baked) -> void {
     // Render targets.
     _render_targets.create(
         device,
@@ -20,7 +19,11 @@ auto TreeDemo::create(GpuDevice& device, const baked::Assets& assets, const bake
     );
 
     // Debug draw.
-    _debug_draw.create(device, shaders, _render_targets, NAME);
+    _debug_draw.create(device, baked.kitchen.shaders, _render_targets, NAME);
+
+    // Unpack.
+    const auto& shaders = baked.buffet.shaders;
+    const auto& assets = baked.buffet.assets;
 
     // Constants.
     _constants.create(device, 1, dx_name(NAME, "Constants"));
@@ -35,14 +38,16 @@ auto TreeDemo::create(GpuDevice& device, const baked::Assets& assets, const bake
 
     // Texture.
     {
-        _tree_texture.create_and_transfer_baked(
+        texture_create_and_transfer_baked(
+            _tree_texture,
             device,
             assets.coconut_tree_base_color_texture(),
             D3D12_RESOURCE_STATE_COMMON,
             D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
             dx_name(NAME, "Tree", "Texture")
         );
-        _plane_texture.create_and_transfer_baked(
+        texture_create_and_transfer_baked(
+            _plane_texture,
             device,
             assets.sand_plane_base_color_texture(),
             D3D12_RESOURCE_STATE_COMMON,

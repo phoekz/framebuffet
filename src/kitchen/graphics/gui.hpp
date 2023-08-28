@@ -1,11 +1,14 @@
 #pragma once
 
-#include "demos.hpp"
+#include "../pch.hpp"
+#include "../gpu/gpu.hpp"
+#include "../win32/window.hpp"
+#include <baked/kitchen/baked.hpp>
 #include "gui.hlsli"
 
 class fb::Window;
 
-namespace fb::demos::gui {
+namespace fb::graphics::gui {
 
 inline constexpr uint32_t MAX_VERTEX_COUNT = 1024 * 1024;
 inline constexpr uint32_t MAX_INDEX_COUNT = 1024 * 1024;
@@ -21,8 +24,8 @@ public:
     auto create(
         const Window& window,
         GpuDevice& device,
-        const baked::Assets& assets,
-        const baked::Shaders& shaders
+        const baked::kitchen::Assets& assets,
+        const baked::kitchen::Shaders& shaders
     ) -> void;
     auto destroy() -> void;
     auto begin_frame() -> void;
@@ -41,4 +44,4 @@ private:
     GpuTextureSrv _texture;
 };
 
-} // namespace fb::demos::gui
+} // namespace fb::graphics::gui

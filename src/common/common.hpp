@@ -1,5 +1,6 @@
 #pragma once
 
+#include "pch.hpp"
 #include "archive.hpp"
 #include "com.hpp"
 #include "error.hpp"
@@ -13,3 +14,4 @@
 #include "string.hpp"
 #include "template_helpers.hpp"
 #include "time.hpp"
+#include "trap.hpp"

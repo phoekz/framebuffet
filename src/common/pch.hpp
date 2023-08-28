@@ -13,6 +13,7 @@
 #include <directxtk12/SimpleMath.h>
 
 // Standard library.
+#include <array>
 #include <chrono>
 #include <cmath>
 #include <cstdint>

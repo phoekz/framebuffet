@@ -2,8 +2,7 @@
 
 namespace fb::demos::env {
 
-auto EnvDemo::create(GpuDevice& device, const baked::Assets& assets, const baked::Shaders& shaders)
-    -> void {
+auto EnvDemo::create(GpuDevice& device, const Baked& baked) -> void {
     // Render targets.
     _render_targets.create(
         device,
@@ -17,7 +16,11 @@ auto EnvDemo::create(GpuDevice& device, const baked::Assets& assets, const baked
     );
 
     // Debug draw.
-    _debug_draw.create(device, shaders, _render_targets, NAME);
+    _debug_draw.create(device, baked.kitchen.shaders, _render_targets, NAME);
+
+    // Unpack.
+    const auto& shaders = baked.buffet.shaders;
+    const auto& assets = baked.buffet.assets;
 
     // Background.
     {
@@ -111,7 +114,8 @@ auto EnvDemo::create(GpuDevice& device, const baked::Assets& assets, const baked
 
         // Rect texture.
         const auto texture = assets.winter_evening_hdr_texture();
-        pass.rect_texture.create_and_transfer_baked(
+        texture_create_and_transfer_baked(
+            pass.rect_texture,
             device,
             texture,
             D3D12_RESOURCE_STATE_COMMON,
@@ -160,7 +164,7 @@ auto EnvDemo::create(GpuDevice& device, const baked::Assets& assets, const baked
             dx_name(NAME, PASS_NAME, "Irradiance Cube Texture")
         );
         pass.irr_sample_count = 1 << 18;
-        pass.irr_dispatch_sample_count = 512;
+        pass.irr_dispatch_sample_count = 256;
 
         // Radiance cube texture.
         pass.rad_texture_size = Uint2(1024, 1024);
@@ -177,7 +181,7 @@ auto EnvDemo::create(GpuDevice& device, const baked::Assets& assets, const baked
             dx_name(NAME, PASS_NAME, "Radiance Cube Texture")
         );
         pass.rad_sample_count = 1 << 17;
-        pass.rad_dispatch_sample_count = 256;
+        pass.rad_dispatch_sample_count = 128;
 
         // Pipelines.
         GpuPipelineBuilder()

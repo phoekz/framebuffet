@@ -59,8 +59,7 @@ static auto layout_exclusive(std::span<Card> cards, Uint2 window_size) -> void {
     }
 }
 
-auto Cards::create(GpuDevice& device, const baked::Shaders& shaders, const CardsDesc& desc)
-    -> void {
+auto Cards::create(GpuDevice& device, const Baked& baked, const CardsDesc& desc) -> void {
     // Descriptors.
     for (uint32_t i = 0; i < CARD_COUNT; i++) {
         const auto& color = desc.card_render_targets[i].get().color();
@@ -73,8 +72,8 @@ auto Cards::create(GpuDevice& device, const baked::Shaders& shaders, const Cards
 
     // Pipeline.
     GpuPipelineBuilder()
-        .vertex_shader(shaders.cards_draw_vs())
-        .pixel_shader(shaders.cards_draw_ps())
+        .vertex_shader(baked.buffet.shaders.cards_draw_vs())
+        .pixel_shader(baked.buffet.shaders.cards_draw_ps())
         .primitive_topology(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)
         .render_target_formats({SWAPCHAIN_RTV_FORMAT})
         .depth_stencil(GpuDepthStencilDesc {
@@ -90,7 +89,7 @@ auto Cards::create(GpuDevice& device, const baked::Shaders& shaders, const Cards
     _cards.create(device, CARD_COUNT, dx_name(Cards::NAME, "Cards"));
 
     // Default card layout.
-    layout_exclusive(_cards.span(), device.swapchain().size());
+    layout_hmosaic(_cards.span(), device.swapchain().size());
 
     // Geometry.
     {
@@ -143,7 +142,7 @@ auto Cards::create(GpuDevice& device, const baked::Shaders& shaders, const Cards
 
         // Pipeline.
         GpuPipelineBuilder()
-            .compute_shader(shaders.spd_downsample_cs())
+            .compute_shader(baked.kitchen.shaders.spd_downsample_cs())
             .build(device, _spd_pipeline, dx_name(NAME, "Spd", "Pipeline"));
     }
 }

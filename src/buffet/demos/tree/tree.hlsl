@@ -1,5 +1,5 @@
 #include <gpu/samplers.hlsli>
-#include <demos/core.hlsli>
+#include <graphics/core.hlsli>
 #include <demos/tree/tree.hlsli>
 
 struct ShadowVertexOutput {

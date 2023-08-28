@@ -7,8 +7,8 @@
 // replaced with our own notes.
 
 #include <gpu/samplers.hlsli>
-#include <demos/core.hlsli>
-#include <demos/spd.hlsli>
+#include <graphics/core.hlsli>
+#include <graphics/spd.hlsli>
 
 //
 // Globals.

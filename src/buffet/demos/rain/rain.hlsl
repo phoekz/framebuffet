@@ -1,4 +1,4 @@
-#include <demos/core.hlsli>
+#include <graphics/core.hlsli>
 #include <demos/rain/rain.hlsli>
 
 struct Vertex {

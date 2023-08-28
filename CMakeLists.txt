@@ -39,8 +39,11 @@ string(REGEX REPLACE "/Ob2" "" CMAKE_CXX_FLAGS_RELEASE ${CMAKE_CXX_FLAGS})
 
 # Libraries.
 add_subdirectory(src/common)
+add_subdirectory(src/baked)
+add_subdirectory(src/kitchen)
 
 # Executables.
+add_subdirectory(src/stockcube)
 add_subdirectory(src/baker)
 add_subdirectory(src/buffet)
 add_subdirectory(src/sandbox)

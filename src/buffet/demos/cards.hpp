@@ -2,7 +2,7 @@
 
 #include "demos.hpp"
 #include "cards.hlsli"
-#include "spd.hlsli"
+#include <graphics/spd.hlsli>
 
 namespace fb::demos::cards {
 
@@ -14,7 +14,8 @@ struct Parameters {
 };
 
 struct CardsDesc {
-    std::array<std::reference_wrapper<RenderTargets>, CARD_COUNT> card_render_targets;
+    std::array<std::reference_wrapper<graphics::render_targets::RenderTargets>, CARD_COUNT>
+        card_render_targets;
 };
 
 struct CardDescriptors {
@@ -31,7 +32,7 @@ public:
 
     Cards() = default;
 
-    auto create(GpuDevice& device, const baked::Shaders& shaders, const CardsDesc& desc) -> void;
+    auto create(GpuDevice& device, const Baked& baked, const CardsDesc& desc) -> void;
     auto gui(const demos::GuiDesc& desc) -> void;
     auto update(const GpuDevice& device) -> void;
     auto render(GpuDevice& device, GpuCommandList& cmd) -> void;

@@ -63,6 +63,15 @@ private:
     ComPtr<IDxcIncludeHandler> _include_handler;
 };
 
+struct ShaderTask {
+    std::string_view path;
+    std::string_view name;
+    std::vector<std::string_view> entry_points;
+};
+
+auto bake_shaders(std::string_view buffet_dir, std::span<const ShaderTask> shader_tasks)
+    -> std::vector<Shader>;
+
 } // namespace fb
 
 template<>

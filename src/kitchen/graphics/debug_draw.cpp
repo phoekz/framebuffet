@@ -1,11 +1,11 @@
 #include "debug_draw.hpp"
 
-namespace fb::demos {
+namespace fb::graphics::debug_draw {
 
 auto DebugDraw::create(
     GpuDevice& device,
-    const baked::Shaders& shaders,
-    const RenderTargets& render_targets,
+    const baked::kitchen::Shaders& shaders,
+    const render_targets::RenderTargets& render_targets,
     std::string_view name
 ) -> void {
     // Reserve.
@@ -85,7 +85,7 @@ auto DebugDraw::end() -> void {
 
 auto DebugDraw::render(GpuDevice&, const GpuCommandList& cmd) -> void {
     const auto& frame = _frames[_frame_index];
-    cmd.set_graphics_constants(debug_draw::Bindings {
+    cmd.set_graphics_constants(Bindings {
         .constants = frame._constants.cbv_descriptor().index(),
         .vertices = frame._lines.srv_descriptor().index(),
     });
@@ -94,4 +94,4 @@ auto DebugDraw::render(GpuDevice&, const GpuCommandList& cmd) -> void {
     cmd.draw_instanced((uint32_t)_lines.size(), 1, 0, 0);
 }
 
-} // namespace fb::demos
+} // namespace fb::graphics::debug_draw
