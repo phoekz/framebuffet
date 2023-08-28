@@ -356,7 +356,7 @@ auto build_assets(std::string_view assets_dir)
         // Log.
         FB_LOG_INFO(
             "{}/{} - {}",
-            asset_index++,
+            ++asset_index,
             asset_tasks.size(),
             asset_task_name(asset_task.index())
         );
@@ -763,7 +763,7 @@ auto build_shaders(std::string_view buffet_dir) -> std::vector<Shader> {
             // Log.
             FB_LOG_INFO(
                 "{}/{} - {} - {} instructions",
-                shader_entry_point_index++,
+                ++shader_entry_point_index,
                 shader_entry_point_count,
                 name,
                 shader.counters.instruction_count
