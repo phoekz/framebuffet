@@ -302,7 +302,7 @@ public:
                             .Format = _uav_format,
                             .ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2DARRAY,
                             .Texture2DArray =
-                                {
+                                D3D12_TEX2D_ARRAY_UAV {
                                     .MipSlice = mip,
                                     .FirstArraySlice = 0,
                                     .ArraySize = desc.depth,
@@ -322,7 +322,7 @@ public:
                             .Format = _uav_format,
                             .ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D,
                             .Texture2D =
-                                {
+                                D3D12_TEX2D_UAV {
                                     .MipSlice = mip,
                                     .PlaneSlice = 0,
                                 },
