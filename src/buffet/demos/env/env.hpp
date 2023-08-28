@@ -6,14 +6,16 @@
 namespace fb::demos::env {
 
 struct Parameters {
+    float model_metallic = 0.0f;
+    float model_roughness = 0.0f;
     uint32_t tonemap = (uint32_t)(true);
     float exposure = 0.0f;
     float background_roughness = 0.0f;
-    float camera_fov = rad_from_deg(70.0f);
-    float camera_distance = 1.25f;
+    float camera_fov = rad_from_deg(90.0f);
+    float camera_distance = 3.0f;
     float camera_longitude = rad_from_deg(45.0f);
     float camera_latitude = rad_from_deg(0.0f);
-    float camera_rotation_speed = 0.5f;
+    float camera_rotation_speed = 0.25f;
 };
 
 class EnvDemo {
@@ -49,6 +51,13 @@ private:
         GpuBufferHostIndex<baked::Index> indices;
         GpuTextureSrvCube texture;
     } _background;
+
+    struct {
+        GpuPipeline pipeline;
+        GpuBufferHostCbv<ModelConstants> constants;
+        GpuBufferHostSrv<baked::Vertex> vertices;
+        GpuBufferHostIndex<baked::Index> indices;
+    } _model;
 
     struct {
         GpuBufferHostCbv<ComputeConstants> constants;

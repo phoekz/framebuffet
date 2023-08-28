@@ -90,7 +90,7 @@ auto Cards::create(GpuDevice& device, const baked::Shaders& shaders, const Cards
     _cards.create(device, CARD_COUNT, dx_name(Cards::NAME, "Cards"));
 
     // Default card layout.
-    layout_hmosaic(_cards.span(), device.swapchain().size());
+    layout_exclusive(_cards.span(), device.swapchain().size());
 
     // Geometry.
     {

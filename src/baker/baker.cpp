@@ -49,13 +49,21 @@ struct AssetTaskProceduralCube {
     bool inverted;
 };
 
+struct AssetTaskProceduralSphere {
+    std::string_view name;
+    float radius;
+    size_t tesselation;
+    bool inverted;
+};
+
 using AssetTask = std::variant<
     AssetTaskCopy,
     AssetTaskTexture,
     AssetTaskHdrTexture,
     AssetTaskCubeTexture,
     AssetTaskGltf,
-    AssetTaskProceduralCube>;
+    AssetTaskProceduralCube,
+    AssetTaskProceduralSphere>;
 
 static auto asset_task_name(size_t variant) -> std::string_view {
     switch (variant) {
@@ -65,6 +73,7 @@ static auto asset_task_name(size_t variant) -> std::string_view {
         case 3: return "AssetTaskCubeTexture";
         case 4: return "AssetTaskGltf";
         case 5: return "AssetTaskProceduralCube";
+        case 6: return "AssetTaskProceduralSphere";
         default: FB_FATAL();
     }
 }
@@ -99,14 +108,9 @@ static auto asset_tasks = std::to_array<AssetTask>({
             "envmaps/winter_evening_1k_-Z.exr",
         },
     },
-    AssetTaskHdrTexture {
-        "farm_field",
-        "envmaps/farm_field_2k.exr",
-    },
-    AssetTaskHdrTexture {
-        "winter_evening",
-        "envmaps/winter_evening_2k.exr",
-    },
+    AssetTaskHdrTexture {"farm_field", "envmaps/farm_field_2k.exr"},
+    AssetTaskHdrTexture {"winter_evening", "envmaps/winter_evening_2k.exr"},
+    AssetTaskProceduralSphere {"sphere", 1.0f, 32, false},
 });
 
 //
@@ -586,7 +590,7 @@ auto build_assets(std::string_view assets_dir)
                     }
                 },
                 [&](const AssetTaskProceduralCube& task) {
-                    // Generate cube.
+                    // Generate.
                     using namespace DirectX::DX12;
                     using Vertices = GeometricPrimitive::VertexCollection;
                     using Indices = GeometricPrimitive::IndexCollection;
@@ -647,7 +651,69 @@ auto build_assets(std::string_view assets_dir)
                             assets_writer.write("Index", std::span<const AssetIndex>(indices)),
                     });
                 },
-            },
+                [&](const AssetTaskProceduralSphere& task) {
+                    // Generate.
+                    using namespace DirectX::DX12;
+                    using Vertices = GeometricPrimitive::VertexCollection;
+                    using Indices = GeometricPrimitive::IndexCollection;
+                    Vertices dxtk_vertices;
+                    Indices dxtk_indices;
+                    GeometricPrimitive::CreateSphere(
+                        dxtk_vertices,
+                        dxtk_indices,
+                        2.0f * task.radius,
+                        task.tesselation,
+                        task.inverted,
+                        task.inverted
+                    );
+
+                    // Flatten vertex attributes.
+                    auto vertex_positions = std::vector<Float3>(dxtk_vertices.size());
+                    auto vertex_normals = std::vector<Float3>(dxtk_vertices.size());
+                    auto vertex_texcoords = std::vector<Float2>(dxtk_vertices.size());
+                    for (auto i = 0; i < dxtk_vertices.size(); ++i) {
+                        vertex_positions[i] = dxtk_vertices[i].position;
+                        vertex_normals[i] = dxtk_vertices[i].normal;
+                        vertex_texcoords[i] = dxtk_vertices[i].textureCoordinate;
+                    }
+
+                    // Convert indices.
+                    auto indices = std::vector<uint32_t>(dxtk_indices.size());
+                    for (auto i = 0; i < dxtk_indices.size(); ++i) {
+                        indices[i] = (uint32_t)dxtk_indices[i];
+                    }
+
+                    // Compute tangents.
+                    auto vertex_tangents = std::vector<Float4>(dxtk_vertices.size());
+                    generate_tangents(GenerateTangentsDesc {
+                        .positions = vertex_positions,
+                        .normals = vertex_normals,
+                        .texcoords = vertex_texcoords,
+                        .indices = indices,
+                        .tangents = std::span(vertex_tangents),
+                    });
+
+                    // Convert.
+                    auto vertices = std::vector<AssetVertex>(dxtk_vertices.size());
+                    for (auto i = 0; i < vertices.size(); ++i) {
+                        vertices[i] = AssetVertex {
+                            .position = vertex_positions[i],
+                            .normal = vertex_normals[i],
+                            .texcoord = vertex_texcoords[i],
+                            .tangent = vertex_tangents[i],
+                        };
+                    }
+
+                    // Mesh.
+                    const auto mesh_name = names.unique(std::format("{}_mesh", task.name));
+                    assets.push_back(AssetMesh {
+                        .name = mesh_name,
+                        .vertices =
+                            assets_writer.write("Vertex", std::span<const AssetVertex>(vertices)),
+                        .indices =
+                            assets_writer.write("Index", std::span<const AssetIndex>(indices)),
+                    });
+                }},
             asset_task
         );
     }
@@ -699,6 +765,8 @@ static auto shader_tasks = std::to_array<ShaderTask>({
             "rad_cs",
             "background_vs",
             "background_ps",
+            "model_vs",
+            "model_ps",
             "screen_vs",
             "screen_ps",
         },

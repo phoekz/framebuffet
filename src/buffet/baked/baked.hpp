@@ -122,6 +122,7 @@ public:
     auto winter_evening_cube_texture() const -> CubeTexture;
     auto farm_field_hdr_texture() const -> Texture;
     auto winter_evening_hdr_texture() const -> Texture;
+    auto sphere_mesh() const -> Mesh;
 
 private:
     template<typename T>
@@ -168,6 +169,8 @@ public:
     auto env_rad_cs() const -> std::span<const std::byte>;
     auto env_background_vs() const -> std::span<const std::byte>;
     auto env_background_ps() const -> std::span<const std::byte>;
+    auto env_model_vs() const -> std::span<const std::byte>;
+    auto env_model_ps() const -> std::span<const std::byte>;
     auto env_screen_vs() const -> std::span<const std::byte>;
     auto env_screen_ps() const -> std::span<const std::byte>;
 

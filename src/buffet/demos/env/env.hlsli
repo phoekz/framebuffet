@@ -78,6 +78,28 @@ struct BackgroundConstants {
 };
 
 //
+// Model.
+//
+
+struct ModelBindings {
+    uint constants;
+    uint vertices;
+    uint lut_texture;
+    uint irr_texture;
+    uint rad_texture;
+};
+
+struct ModelConstants {
+    float4x4 transform;
+    float3 camera_position;
+    uint tonemap;
+    float metallic;
+    float roughness;
+    uint mip_count;
+    float pad[41];
+};
+
+//
 // Screen.
 //
 
