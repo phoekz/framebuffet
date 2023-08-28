@@ -51,6 +51,7 @@ void cfr_cs(FbComputeInput input) {
     // Global resources.
     ConstantBuffer<ComputeConstants> constants =
         ResourceDescriptorHeap[g_compute_bindings.constants];
+    const uint2 cube_texture_size = constants.cube_texture_size;
     Texture2D<float4> rect_texture = ResourceDescriptorHeap[g_compute_bindings.rect_texture];
     SamplerState rect_sampler = SamplerDescriptorHeap[(uint)GpuSampler::LinearClamp];
     RWTexture2DArray<float4> cube_texture = ResourceDescriptorHeap[g_compute_bindings.cube_texture];
@@ -61,14 +62,14 @@ void cfr_cs(FbComputeInput input) {
     const uint3 dst_id = input.dispatch_thread_id;
 
     // Direction.
-    const float3 dir = direction_from_dispatch_input(src_id, face_id, constants.cube_texture_size);
+    const float3 dir = direction_from_dispatch_input(src_id, face_id, cube_texture_size);
 
     // Latitude/longitude from direction.
-    const float lon = 0.5f + atan2(dir.z, dir.x) / (2.0f * FB_PI);
+    const float lon = 0.5f + atan2(dir.x, dir.z) / (2.0f * FB_PI);
     const float lat = acos(dir.y) / FB_PI;
 
     // Sample rect texture.
-    const float3 color = rect_texture.Sample(rect_sampler, float2(lon, lat)).rgb;
+    float3 color = rect_texture.Sample(rect_sampler, float2(lon, lat)).rgb;
 
     // Write to cube texture.
     cube_texture[dst_id] = float4(color, 1.0f);
@@ -79,19 +80,20 @@ void lut_cs(FbComputeInput input) {
     // Global resources.
     ConstantBuffer<ComputeConstants> constants =
         ResourceDescriptorHeap[g_compute_bindings.constants];
+    const uint2 lut_texture_size = constants.lut_texture_size;
     RWTexture2D<float2> lut_texture = ResourceDescriptorHeap[g_compute_bindings.lut_texture];
 
     // Indices.
     const uint2 dst_id = input.dispatch_thread_id.xy;
 
     // Texcoords.
-    const float2 size = (float2)constants.lut_texture_size;
-    const float2 texcoord = (float2(dst_id) + 0.5f) / size;
+    const float2 texture_size = (float2)lut_texture_size;
+    const float2 texcoord = (float2(dst_id) + 0.5f) / texture_size;
     const float ndotv = texcoord.x;
     const float roughness = 1.0f - texcoord.y;
 
     // Compute LUT: scale and bias for F0.
-    const uint sample_count = 1024;
+    const uint sample_count = constants.lut_sample_count;
     const float3 specular_f0 = 0.04f.xxx;
     const float specular_f90 = shadowed_f90(specular_f0);
     const float3 v = float3(sqrt(1.0f - ndotv * ndotv), 0.0f, ndotv);
@@ -127,6 +129,7 @@ void irr_cs(FbComputeInput input) {
     // Global resources.
     ConstantBuffer<ComputeConstants> constants =
         ResourceDescriptorHeap[g_compute_bindings.constants];
+    const uint2 irr_texture_size = constants.irr_texture_size;
     TextureCube<float4> cube_texture = ResourceDescriptorHeap[g_compute_bindings.cube_texture];
     SamplerState cube_sampler = SamplerDescriptorHeap[(uint)GpuSampler::LinearClamp];
     RWTexture2DArray<float4> irr_texture = ResourceDescriptorHeap[g_compute_bindings.irr_texture];
@@ -137,20 +140,20 @@ void irr_cs(FbComputeInput input) {
     const uint3 dst_id = input.dispatch_thread_id;
 
     // Direction.
-    const float3 dir = direction_from_dispatch_input(src_id, face_id, constants.irr_texture_size);
+    const float3 dir = direction_from_dispatch_input(src_id, face_id, irr_texture_size);
 
     // Compute irradiance.
     MaterialProperties material;
     material.base_color = 1.0f.xxx;
     material.metalness = 0.0f;
     material.roughness = 1.0f;
-    const uint sample_count = IRR_SAMPLE_COUNT;
-    const uint dispatch_sample_count = IRR_DISPATCH_SAMPLE_COUNT;
+    const uint sample_count = constants.irr_sample_count;
     const float inv_sample_count = 1.0f / float(sample_count);
+    const uint dispatch_sample_count = constants.irr_dispatch_sample_count;
     float3 irradiance = 0.0f.xxx;
     for (uint i = 0; i < dispatch_sample_count; i++) {
         const float2 u = hammersley2d(
-            IRR_DISPATCH_SAMPLE_COUNT * g_compute_bindings.irr_dispatch_index + i,
+            dispatch_sample_count * g_compute_bindings.irr_dispatch_index + i,
             sample_count
         );
         const float3 n = dir;
@@ -169,6 +172,67 @@ void irr_cs(FbComputeInput input) {
 
     // Write to irradiance texture.
     irr_texture[dst_id] += float4(irradiance, 1.0f);
+}
+
+FB_ATTRIBUTE(numthreads, RAD_DISPATCH_X, RAD_DISPATCH_Y, RAD_DISPATCH_Z)
+void rad_cs(FbComputeInput input) {
+    // Global resources.
+    ConstantBuffer<ComputeConstants> constants =
+        ResourceDescriptorHeap[g_compute_bindings.constants];
+    const uint2 rad_texture_size = constants.rad_texture_size;
+    const uint rad_texture_mip_count = constants.rad_texture_mip_count;
+    TextureCube<float4> cube_texture = ResourceDescriptorHeap[g_compute_bindings.cube_texture];
+    SamplerState cube_sampler = SamplerDescriptorHeap[(uint)GpuSampler::LinearClamp];
+    RWTexture2DArray<float4> rad_texture =
+        ResourceDescriptorHeap[g_compute_bindings.rad_texture + g_compute_bindings.rad_mip_id];
+
+    // Indices.
+    const uint2 src_id = input.dispatch_thread_id.xy;
+    const uint face_id = input.dispatch_thread_id.z;
+    const uint3 dst_id = input.dispatch_thread_id;
+    const uint mip_id = g_compute_bindings.rad_mip_id;
+
+    // Bounds check.
+    if (dst_id.x >= rad_texture_size.x || dst_id.y >= rad_texture_size.y) {
+        return;
+    }
+
+    // Texture size.
+    const uint2 dst_texture_size =
+        uint2(max(1u, rad_texture_size.x >> mip_id), max(1u, rad_texture_size.y >> mip_id));
+
+    // Roughness.
+    const float roughness = float(mip_id) / float(rad_texture_mip_count - 1);
+
+    // Direction.
+    const float3 dir = direction_from_dispatch_input(src_id, face_id, dst_texture_size);
+
+    // Compute radiance.
+    MaterialProperties material;
+    material.base_color = 1.0f.xxx;
+    material.metalness = 1.0f;
+    material.roughness = roughness;
+    const IndirectBrdfType brdf_type = IndirectBrdfType::Specular;
+    const uint sample_count = constants.rad_sample_count;
+    const float inv_sample_count = 1.0f / float(sample_count);
+    const uint dispatch_sample_count = constants.rad_dispatch_sample_count;
+    float3 radiance = 0.0f.xxx;
+    for (uint i = 0; i < dispatch_sample_count; i++) {
+        const float2 u = hammersley2d(
+            dispatch_sample_count * g_compute_bindings.rad_dispatch_index + i,
+            sample_count
+        );
+        const float3 n = dir;
+        float3 ray_dir;
+        float3 weight;
+        if (evaluate_indirect_combined_brdf(u, n, n, n, material, brdf_type, ray_dir, weight)) {
+            radiance +=
+                inv_sample_count * weight * cube_texture.SampleLevel(cube_sampler, ray_dir, 0).rgb;
+        }
+    }
+
+    // Write to radiance texture.
+    rad_texture[dst_id] += float4(radiance, 1.0f);
 }
 
 //
@@ -206,7 +270,11 @@ FbPixelOutput1 background_ps(BackgroundVertexOutput input) {
         ResourceDescriptorHeap[g_background_bindings.constants];
     TextureCube<float4> texture = ResourceDescriptorHeap[g_background_bindings.texture];
     SamplerState samp = SamplerDescriptorHeap[(uint)GpuSampler::LinearWrap];
-    float3 color = texture.Sample(samp, input.direction).rgb;
+
+    const float roughness = constants.roughness;
+    const uint mip_count = constants.mip_count;
+    const float mip_level = roughness * float(mip_count - 1);
+    float3 color = texture.SampleLevel(samp, input.direction, mip_level).rgb;
 
     if (constants.tonemap) {
         color = tonemap_aces(color);
@@ -248,9 +316,11 @@ ScreenVertexOutput screen_vs(FbVertexInput input) {
 FbPixelOutput1 screen_ps(ScreenVertexOutput input) {
     ConstantBuffer<ScreenConstants> constants = ResourceDescriptorHeap[g_screen_bindings.constants];
     Texture2DArray<float4> texture = ResourceDescriptorHeap[g_screen_bindings.texture];
-    SamplerState samp = SamplerDescriptorHeap[(uint)GpuSampler::LinearClamp];
-    uint texture_slice = g_screen_bindings.texture_slice;
-    float3 color = texture.SampleLevel(samp, float3(input.texcoord, texture_slice), 0).rgb;
+    SamplerState samp = SamplerDescriptorHeap[(uint)GpuSampler::PointClamp];
+    const uint texture_face_id = g_screen_bindings.texture_face_id;
+    const uint texture_mip_id = g_screen_bindings.texture_mip_id;
+    float3 color =
+        texture.SampleLevel(samp, float3(input.texcoord, texture_face_id), texture_mip_id).rgb;
 
     if (constants.tonemap) {
         color = tonemap_aces(color);

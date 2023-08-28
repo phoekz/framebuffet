@@ -9,6 +9,8 @@ enum class GpuSampler : uint {
     LinearWrap,
     AnisotropicLinearClamp,
     AnisotropicLinearWrap,
+    PointClamp,
+    PointWrap,
     Shadow,
     Count,
 };

@@ -696,6 +696,7 @@ static auto shader_tasks = std::to_array<ShaderTask>({
             "cfr_cs",
             "lut_cs",
             "irr_cs",
+            "rad_cs",
             "background_vs",
             "background_ps",
             "screen_vs",
