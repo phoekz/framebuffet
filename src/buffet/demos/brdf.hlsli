@@ -155,15 +155,17 @@ float3 sample_hemisphere(float2 u) {
     return sample_hemisphere(u, pdf);
 }
 
-float3 sample_ggx_vndf(float3 ve, float2 alpha_2d, float2 u) {
-    float3 vh = normalize(float3(alpha_2d.x * ve.x, alpha_2d.y * ve.y, ve.z));
+float3 sample_ggx_vndf(float3 wi, float2 alpha_2d, float2 u) {
+    float3 wi_std = normalize(float3(wi.xy * alpha_2d, wi.z));
     float phi = FB_TWO_PI * u.x;
-    float z = ((1.0f - u.y) * (1.0f + vh.z)) - vh.z;
+    float z = ((1.0f - u.y) * (1.0f + wi.z)) - wi.z;
     float sin_theta = sqrt(clamp(1.0f - z * z, 0.0f, 1.0f));
     float x = sin_theta * cos(phi);
     float y = sin_theta * sin(phi);
-    float3 nh = float3(x, y, z) + vh;
-    return normalize(float3(alpha_2d.x * nh.x, alpha_2d.y * nh.y, max(0.0f, nh.z)));
+    float3 c = float3(x, y, z);
+    float3 wm_std = c + wi;
+    float3 wm = normalize(float3(wm_std.xy * alpha_2d, wm_std.z));
+    return wm;
 }
 
 float smith_g1_ggx(float alpha, float ndots, float alpha_squared) {

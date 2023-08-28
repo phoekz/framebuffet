@@ -118,6 +118,20 @@ auto EnvDemo::create(GpuDevice& device, const baked::Assets& assets, const baked
         );
         pass.lut_texture_size = lut_texture_size;
 
+        // Irradiance cube texture.
+        const auto irr_texture_size = Uint2(64, 64);
+        pass.irr_texture.create(
+            device,
+            GpuTextureDesc {
+                .format = DXGI_FORMAT_R32G32B32A32_FLOAT,
+                .width = irr_texture_size.x,
+                .height = irr_texture_size.y,
+                .depth = 6,
+            },
+            dx_name(NAME, PASS_NAME, "Irradiance Cube Texture")
+        );
+        pass.irr_texture_size = irr_texture_size;
+
         // Pipelines.
         GpuPipelineBuilder()
             .compute_shader(shaders.env_cfr_cs())
@@ -125,6 +139,9 @@ auto EnvDemo::create(GpuDevice& device, const baked::Assets& assets, const baked
         GpuPipelineBuilder()
             .compute_shader(shaders.env_lut_cs())
             .build(device, pass.lut_pipeline, dx_name(NAME, PASS_NAME, "LUT Pipeline"));
+        GpuPipelineBuilder()
+            .compute_shader(shaders.env_irr_cs())
+            .build(device, pass.irr_pipeline, dx_name(NAME, PASS_NAME, "Irradiance Pipeline"));
     }
 
     // Screen.
@@ -154,8 +171,25 @@ auto EnvDemo::create(GpuDevice& device, const baked::Assets& assets, const baked
         pass.cube_scale = Float2(100.0f, 100.0f);
 
         // LUT layout.
-        pass.lut_offset = Float2(0.0f, 500.0f);
+        pass.lut_offset = Float2(400.0f, 000.0f);
         pass.lut_scale = Float2(200.0f, 200.0f);
+
+        // Irradiance face layout (left-handed).
+        //    +y
+        // -x +z +x -z
+        //    -y
+        pass.irr_offsets = {
+            Float2(200.0f, 200.0f), // +x
+            Float2(0.0f, 200.0f),   // -x
+            Float2(100.0f, 100.0f), // +y
+            Float2(100.0f, 300.0f), // -y
+            Float2(100.0f, 200.0f), // +z
+            Float2(300.0f, 200.0f), // -z
+        };
+        for (auto& offset : pass.irr_offsets) {
+            offset += Float2(0.0f, 400.0f);
+        }
+        pass.irr_scale = Float2(100.0f, 100.0f);
 
         // Constants.
         pass.constants.create(device, 1, dx_name(NAME, PASS_NAME, "Constants"));
@@ -191,6 +225,7 @@ auto EnvDemo::create(GpuDevice& device, const baked::Assets& assets, const baked
 auto EnvDemo::gui(const GuiDesc&) -> void {
     auto& p = _parameters;
     ImGui::Checkbox("Tonemap", (bool*)&p.tonemap);
+    ImGui::SliderFloat("Exposure", &p.exposure, -10.0f, 10.0f);
     ImGui::SliderAngle("Camera FOV", &p.camera_fov, 1.0f, 90.0f);
     ImGui::SliderFloat("Camera Distance", &p.camera_distance, 1.0f, 10.0f);
     ImGui::SliderAngle("Camera Longitude", &p.camera_longitude, -180.0f, 180.0f);
@@ -216,6 +251,9 @@ auto EnvDemo::update(const UpdateDesc& desc) -> void {
     const auto eye = p.camera_distance * dir_from_lonlat(p.camera_longitude, p.camera_latitude);
     const auto view = Float4x4::CreateLookAt(eye, Float3::Zero, Float3::Up);
 
+    // Update exposure.
+    const auto exposure = std::pow(2.0f, -p.exposure);
+
     // Update debug.
     {
         const auto camera_transform = view * perspective;
@@ -237,6 +275,7 @@ auto EnvDemo::update(const UpdateDesc& desc) -> void {
         *_background.constants.ptr() = BackgroundConstants {
             .transform = env_transform,
             .tonemap = p.tonemap,
+            .exposure = exposure,
         };
     }
 
@@ -247,6 +286,7 @@ auto EnvDemo::update(const UpdateDesc& desc) -> void {
             .rect_texture_size = cast(_compute.rect_texture_size),
             .cube_texture_size = cast(_compute.cube_texture_size),
             .lut_texture_size = cast(_compute.lut_texture_size),
+            .irr_texture_size = cast(_compute.irr_texture_size),
         };
     }
 
@@ -263,48 +303,74 @@ auto EnvDemo::update(const UpdateDesc& desc) -> void {
         *_screen.constants.ptr() = ScreenConstants {
             .transform = screen_transform,
             .tonemap = p.tonemap,
+            .exposure = exposure,
         };
     }
 }
 
 auto EnvDemo::render(GpuDevice& device, GpuCommandList& cmd) -> void {
     // Compute pass.
-    if (!_compute.completed) {
+    {
         auto& pass = _compute;
         cmd.set_compute();
 
         pass.cube_texture.transition(cmd, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
         pass.lut_texture.transition(cmd, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+        pass.irr_texture.transition(cmd, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
         cmd.flush_barriers();
 
-        cmd.set_pipeline(pass.cfr_pipeline);
-        cmd.set_compute_constants(ComputeBindings {
-            .constants = pass.constants.cbv_descriptor().index(),
-            .rect_texture = pass.rect_texture.srv_descriptor().index(),
-            .cube_texture = pass.cube_texture.uav_descriptor().index(),
-        });
-        cmd.dispatch(
-            pass.cube_texture_size.x / CFR_DISPATCH_X,
-            pass.cube_texture_size.y / CFR_DISPATCH_Y,
-            6
-        );
+        if (!pass.cfr_completed) {
+            cmd.set_pipeline(pass.cfr_pipeline);
+            cmd.set_compute_constants(ComputeBindings {
+                .constants = pass.constants.cbv_descriptor().index(),
+                .rect_texture = pass.rect_texture.srv_descriptor().index(),
+                .cube_texture = pass.cube_texture.uav_descriptor().index(),
+            });
+            cmd.dispatch(
+                pass.cube_texture_size.x / CFR_DISPATCH_X,
+                pass.cube_texture_size.y / CFR_DISPATCH_Y,
+                6
+            );
+            pass.cfr_completed = true;
+        }
 
-        cmd.set_pipeline(pass.lut_pipeline);
-        cmd.set_compute_constants(ComputeBindings {
-            .constants = pass.constants.cbv_descriptor().index(),
-            .lut_texture = pass.lut_texture.uav_descriptor().index(),
-        });
-        cmd.dispatch(
-            pass.lut_texture_size.x / LUT_DISPATCH_X,
-            pass.lut_texture_size.y / LUT_DISPATCH_Y,
-            1
-        );
+        if (!pass.lut_completed) {
+            cmd.set_pipeline(pass.lut_pipeline);
+            cmd.set_compute_constants(ComputeBindings {
+                .constants = pass.constants.cbv_descriptor().index(),
+                .lut_texture = pass.lut_texture.uav_descriptor().index(),
+            });
+            cmd.dispatch(
+                pass.lut_texture_size.x / LUT_DISPATCH_X,
+                pass.lut_texture_size.y / LUT_DISPATCH_Y,
+                1
+            );
+            pass.lut_completed = true;
+        }
+
+        if (!pass.irr_completed) {
+            cmd.set_pipeline(pass.irr_pipeline);
+            cmd.set_compute_constants(ComputeBindings {
+                .constants = pass.constants.cbv_descriptor().index(),
+                .cube_texture = pass.cube_texture.srv_descriptor().index(),
+                .irr_texture = pass.irr_texture.uav_descriptor().index(),
+                .irr_dispatch_index = pass.irr_dispatch_index,
+            });
+            cmd.dispatch(
+                pass.irr_texture_size.x / IRR_DISPATCH_X,
+                pass.irr_texture_size.y / IRR_DISPATCH_Y,
+                6
+            );
+            pass.irr_dispatch_index++;
+            if (pass.irr_dispatch_index == (IRR_SAMPLE_COUNT / IRR_DISPATCH_SAMPLE_COUNT)) {
+                pass.irr_completed = true;
+            }
+        }
 
         pass.cube_texture.transition(cmd, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
         pass.lut_texture.transition(cmd, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+        pass.irr_texture.transition(cmd, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
         cmd.flush_barriers();
-
-        _compute.completed = true;
     }
 
     // Graphics passes.
@@ -371,6 +437,19 @@ auto EnvDemo::render(GpuDevice& device, GpuCommandList& cmd) -> void {
             .screen_scale = screen_pass.lut_scale,
         });
         cmd.draw_indexed_instanced(screen_pass.indices.element_size(), 1, 0, 0, 0);
+
+        // Irradiance cube textures.
+        for (uint32_t i = 0; i < 6; ++i) {
+            cmd.set_graphics_constants(ScreenBindings {
+                .constants = screen_pass.constants.cbv_descriptor().index(),
+                .vertices = screen_pass.vertices.srv_descriptor().index(),
+                .texture = compute_pass.irr_texture.alt_srv_descriptor().index(),
+                .texture_slice = i,
+                .screen_offset = screen_pass.irr_offsets[i],
+                .screen_scale = screen_pass.irr_scale,
+            });
+            cmd.draw_indexed_instanced(screen_pass.indices.element_size(), 1, 0, 0, 0);
+        }
     }
 }
 

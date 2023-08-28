@@ -103,6 +103,10 @@ static auto asset_tasks = std::to_array<AssetTask>({
         "farm_field",
         "envmaps/farm_field_2k.exr",
     },
+    AssetTaskHdrTexture {
+        "winter_evening",
+        "envmaps/winter_evening_2k.exr",
+    },
 });
 
 //
@@ -691,6 +695,7 @@ static auto shader_tasks = std::to_array<ShaderTask>({
         {
             "cfr_cs",
             "lut_cs",
+            "irr_cs",
             "background_vs",
             "background_ps",
             "screen_vs",

@@ -121,6 +121,7 @@ public:
     auto skybox_mesh() const -> Mesh;
     auto winter_evening_cube_texture() const -> CubeTexture;
     auto farm_field_hdr_texture() const -> Texture;
+    auto winter_evening_hdr_texture() const -> Texture;
 
 private:
     template<typename T>
@@ -163,6 +164,7 @@ public:
     auto fibers_debug_ps() const -> std::span<const std::byte>;
     auto env_cfr_cs() const -> std::span<const std::byte>;
     auto env_lut_cs() const -> std::span<const std::byte>;
+    auto env_irr_cs() const -> std::span<const std::byte>;
     auto env_background_vs() const -> std::span<const std::byte>;
     auto env_background_ps() const -> std::span<const std::byte>;
     auto env_screen_vs() const -> std::span<const std::byte>;

@@ -16,18 +16,27 @@ FB_CONSTANT uint LUT_DISPATCH_X = 8;
 FB_CONSTANT uint LUT_DISPATCH_Y = 8;
 FB_CONSTANT uint LUT_DISPATCH_Z = 1;
 
+FB_CONSTANT uint IRR_DISPATCH_X = 8;
+FB_CONSTANT uint IRR_DISPATCH_Y = 8;
+FB_CONSTANT uint IRR_DISPATCH_Z = 1;
+FB_CONSTANT uint IRR_SAMPLE_COUNT = (1 << 16);
+FB_CONSTANT uint IRR_DISPATCH_SAMPLE_COUNT = 256;
+
 struct ComputeBindings {
     uint constants;
     uint rect_texture;
     uint cube_texture;
     uint lut_texture;
+    uint irr_texture;
+    uint irr_dispatch_index;
 };
 
 struct ComputeConstants {
     float2 rect_texture_size;
     float2 cube_texture_size;
     float2 lut_texture_size;
-    float pad[58];
+    float2 irr_texture_size;
+    float pad[56];
 };
 
 //
@@ -43,7 +52,8 @@ struct BackgroundBindings {
 struct BackgroundConstants {
     float4x4 transform;
     uint tonemap;
-    float pad[47];
+    float exposure;
+    float pad[46];
 };
 
 //
@@ -62,7 +72,8 @@ struct ScreenBindings {
 struct ScreenConstants {
     float4x4 transform;
     uint tonemap;
-    float pad[47];
+    float exposure;
+    float pad[46];
 };
 
 struct ScreenVertex {

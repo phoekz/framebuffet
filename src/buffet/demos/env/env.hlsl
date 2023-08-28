@@ -17,6 +17,33 @@ float3 tonemap_aces(float3 x) {
 // Compute.
 //
 
+float3 direction_from_dispatch_input(uint2 src_id, uint face_id, uint2 face_size) {
+    float2 p = (float2(src_id) + 0.5f) / face_size;
+    p = 2.0f * p - 1.0f;
+    p.y *= -1.0f;
+    float3 dir;
+    switch (face_id) {
+        case 0: dir = float3(1.0f, p.y, -p.x); break;
+        case 1: dir = float3(-1.0f, p.y, p.x); break;
+        case 2: dir = float3(p.x, 1.0f, -p.y); break;
+        case 3: dir = float3(p.x, -1.0f, p.y); break;
+        case 4: dir = float3(p.x, p.y, 1.0); break;
+        case 5: dir = float3(-p.x, p.y, -1.0); break;
+    }
+    dir = normalize(dir);
+    return dir;
+}
+
+float2 hammersley2d(uint i, uint n) {
+    // From: http://holger.dammertz.org/stuff/notes_HammersleyOnHemisphere.html
+    uint bits = (i << 16u) | (i >> 16u);
+    bits = ((bits & 0x55555555u) << 1u) | ((bits & 0xaaaaaaaau) >> 1u);
+    bits = ((bits & 0x33333333u) << 2u) | ((bits & 0xccccccccu) >> 2u);
+    bits = ((bits & 0x0f0f0f0fu) << 4u) | ((bits & 0xf0f0f0f0u) >> 4u);
+    bits = ((bits & 0x00ff00ffu) << 8u) | ((bits & 0xff00ff00u) >> 8u);
+    return float2(float(i) / float(n), float(bits) * 2.3283064365386963e-10f);
+}
+
 ConstantBuffer<ComputeBindings> g_compute_bindings: register(b0);
 
 FB_ATTRIBUTE(numthreads, CFR_DISPATCH_X, CFR_DISPATCH_Y, CFR_DISPATCH_Z)
@@ -33,21 +60,8 @@ void cfr_cs(FbComputeInput input) {
     const uint face_id = input.dispatch_thread_id.z;
     const uint3 dst_id = input.dispatch_thread_id;
 
-    // Direction from dispatch indices.
-    const float2 size = (float2)constants.cube_texture_size;
-    float2 uv = (float2(src_id) + 0.5f) / size;
-    uv = 2.0f * uv - 1.0f;
-    uv.y *= -1.0f;
-    float3 dir;
-    switch (face_id) {
-        case 0: dir = float3(1.0f, uv.y, -uv.x); break;
-        case 1: dir = float3(-1.0f, uv.y, uv.x); break;
-        case 2: dir = float3(uv.x, 1.0f, -uv.y); break;
-        case 3: dir = float3(uv.x, -1.0f, uv.y); break;
-        case 4: dir = float3(uv.x, uv.y, 1.0); break;
-        case 5: dir = float3(-uv.x, uv.y, -1.0); break;
-    }
-    dir = normalize(dir);
+    // Direction.
+    const float3 dir = direction_from_dispatch_input(src_id, face_id, constants.cube_texture_size);
 
     // Latitude/longitude from direction.
     const float lon = 0.5f + atan2(dir.z, dir.x) / (2.0f * FB_PI);
@@ -58,16 +72,6 @@ void cfr_cs(FbComputeInput input) {
 
     // Write to cube texture.
     cube_texture[dst_id] = float4(color, 1.0f);
-}
-
-float2 hammersley2d(uint i, uint n) {
-    // From: http://holger.dammertz.org/stuff/notes_HammersleyOnHemisphere.html
-    uint bits = (i << 16u) | (i >> 16u);
-    bits = ((bits & 0x55555555u) << 1u) | ((bits & 0xaaaaaaaau) >> 1u);
-    bits = ((bits & 0x33333333u) << 2u) | ((bits & 0xccccccccu) >> 2u);
-    bits = ((bits & 0x0f0f0f0fu) << 4u) | ((bits & 0xf0f0f0f0u) >> 4u);
-    bits = ((bits & 0x00ff00ffu) << 8u) | ((bits & 0xff00ff00u) >> 8u);
-    return float2(float(i) / float(n), float(bits) * 2.3283064365386963e-10f);
 }
 
 FB_ATTRIBUTE(numthreads, LUT_DISPATCH_X, LUT_DISPATCH_Y, LUT_DISPATCH_Z)
@@ -118,6 +122,55 @@ void lut_cs(FbComputeInput input) {
     lut_texture[dst_id] = float2(sum_scale, sum_bias);
 }
 
+FB_ATTRIBUTE(numthreads, IRR_DISPATCH_X, IRR_DISPATCH_Y, IRR_DISPATCH_Z)
+void irr_cs(FbComputeInput input) {
+    // Global resources.
+    ConstantBuffer<ComputeConstants> constants =
+        ResourceDescriptorHeap[g_compute_bindings.constants];
+    TextureCube<float4> cube_texture = ResourceDescriptorHeap[g_compute_bindings.cube_texture];
+    SamplerState cube_sampler = SamplerDescriptorHeap[(uint)GpuSampler::LinearClamp];
+    RWTexture2DArray<float4> irr_texture = ResourceDescriptorHeap[g_compute_bindings.irr_texture];
+
+    // Indices.
+    const uint2 src_id = input.dispatch_thread_id.xy;
+    const uint face_id = input.dispatch_thread_id.z;
+    const uint3 dst_id = input.dispatch_thread_id;
+
+    // Direction.
+    const float3 dir = direction_from_dispatch_input(src_id, face_id, constants.irr_texture_size);
+
+    // Compute irradiance.
+    MaterialProperties material;
+    material.base_color = 1.0f.xxx;
+    material.metalness = 0.0f;
+    material.roughness = 1.0f;
+    const uint sample_count = IRR_SAMPLE_COUNT;
+    const uint dispatch_sample_count = IRR_DISPATCH_SAMPLE_COUNT;
+    const float inv_sample_count = 1.0f / float(sample_count);
+    float3 irradiance = 0.0f.xxx;
+    for (uint i = 0; i < dispatch_sample_count; i++) {
+        const float2 u = hammersley2d(
+            IRR_DISPATCH_SAMPLE_COUNT * g_compute_bindings.irr_dispatch_index + i,
+            sample_count
+        );
+        const float3 n = dir;
+        const float4 q_rotation_to_z = get_rotation_to_z_axis(n);
+        const float4 q_rotation_from_z = invert_rotation(q_rotation_to_z);
+        const float3 local_v = rotate_point(q_rotation_to_z, n);
+        const float3 local_n = float3(0.0f, 0.0f, 1.0f);
+        const float3 local_ray_dir = sample_hemisphere(u);
+        const BrdfData data = prepare_brdf_data(local_n, local_ray_dir, local_v, material);
+        const float3 f = evaluate_fresnel(data.specular_f0, shadowed_f90(data.specular_f0), 1.0f);
+        const float3 weight = (1.0f - f) * disney_diffuse(data);
+        const float3 ray_dir = normalize(rotate_point(q_rotation_from_z, local_ray_dir));
+        irradiance +=
+            inv_sample_count * weight * cube_texture.SampleLevel(cube_sampler, ray_dir, 0).rgb;
+    }
+
+    // Write to irradiance texture.
+    irr_texture[dst_id] += float4(irradiance, 1.0f);
+}
+
 //
 // Background.
 //
@@ -158,6 +211,8 @@ FbPixelOutput1 background_ps(BackgroundVertexOutput input) {
     if (constants.tonemap) {
         color = tonemap_aces(color);
     }
+
+    color *= constants.exposure;
 
     FbPixelOutput1 output;
     output.color = float4(color, 1.0f);
@@ -200,6 +255,8 @@ FbPixelOutput1 screen_ps(ScreenVertexOutput input) {
     if (constants.tonemap) {
         color = tonemap_aces(color);
     }
+
+    color *= constants.exposure;
 
     FbPixelOutput1 output;
     output.color = float4(color, 1.0f);
