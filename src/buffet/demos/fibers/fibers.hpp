@@ -20,7 +20,7 @@ struct Parameters {
 
     float light_speed = 0.25f;
     int light_intensity_pow2 = 12;
-    float light_range = 0.1f;
+    float light_range = 0.25f;
 
     Heatmap heatmap = Heatmap::Magma;
     float heatmap_opacity = 0.5f;
