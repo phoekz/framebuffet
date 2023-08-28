@@ -57,6 +57,18 @@ using AssetTask = std::variant<
     AssetTaskGltf,
     AssetTaskProceduralCube>;
 
+static auto asset_task_name(size_t variant) -> std::string_view {
+    switch (variant) {
+        case 0: return "AssetTaskCopy";
+        case 1: return "AssetTaskTexture";
+        case 2: return "AssetTaskHdrTexture";
+        case 3: return "AssetTaskCubeTexture";
+        case 4: return "AssetTaskGltf";
+        case 5: return "AssetTaskProceduralCube";
+        default: FB_FATAL();
+    }
+}
+
 static auto asset_tasks = std::to_array<AssetTask>({
     AssetTaskCopy {"imgui_font", "fonts/Roboto-Medium.ttf"},
     AssetTaskTexture {
@@ -217,10 +229,14 @@ private:
 };
 
 class UniqueNames {
+    FB_NO_COPY_MOVE(UniqueNames);
+
 public:
+    UniqueNames() = default;
+
     auto unique(std::string_view name) -> std::string {
         if (_names.contains(name)) {
-            FB_LOG_ERROR("Duplicate asset name: {}", name);
+            FB_LOG_ERROR("Duplicate name: {}", name);
             FB_FATAL();
         }
         _names.insert(name);
@@ -330,7 +346,18 @@ auto build_assets(std::string_view assets_dir)
     auto assets_bin = std::vector<std::byte>();
     auto assets_writer = AssetsWriter(assets_bin);
     auto names = UniqueNames();
+    FB_LOG_INFO("Building {} asset tasks", asset_tasks.size());
+    size_t asset_index = 0;
     for (const auto& asset_task : asset_tasks) {
+        // Log.
+        FB_LOG_INFO(
+            "{}/{} - {}",
+            asset_index++,
+            asset_tasks.size(),
+            asset_task_name(asset_task.index())
+        );
+
+        // Match.
         std::visit(
             overloaded {
                 [&](const AssetTaskCopy& task) {
@@ -621,8 +648,6 @@ auto build_assets(std::string_view assets_dir)
         );
     }
 
-    FB_LOG_INFO("Built {} assets ", assets.size());
-
     return {assets, assets_bin};
 }
 
@@ -701,22 +726,26 @@ auto build_shaders(std::string_view buffet_dir) -> std::vector<Shader> {
     const auto compiler = ShaderCompiler();
     auto compiled_shaders = std::vector<Shader>();
     auto unique_names = std::unordered_set<std::string>();
-    auto update_unique_names = [](std::unordered_set<std::string>& uniques,
-                                  const std::string& name) {
-        if (uniques.contains(name)) {
-            FB_LOG_ERROR("Duplicate shader name: {}", name);
-            FB_FATAL();
-        }
-        uniques.insert(name);
-    };
+    auto names = UniqueNames();
+
+    size_t shader_entry_point_count = 0;
+    for (const auto& shader_task : shader_tasks) {
+        shader_entry_point_count += shader_task.entry_points.size();
+    }
+    size_t shader_entry_point_index = 0;
+
+    FB_LOG_INFO(
+        "Building {} shader tasks ({} entry points)",
+        shader_tasks.size(),
+        shader_entry_point_count
+    );
     for (const auto& shader_task : shader_tasks) {
         const auto hlsl_path = std::format("{}/{}", buffet_dir, shader_task.path);
         const auto hlsl_file = read_whole_file(hlsl_path);
 
         for (const auto& entry_point : shader_task.entry_points) {
             // Ensure unique shader names.
-            const auto name = make_unique_shader_name(shader_task.name, entry_point);
-            update_unique_names(unique_names, name);
+            const auto name = names.unique(make_unique_shader_name(shader_task.name, entry_point));
 
             // Determine shader type.
             const auto type = shader_type_from_entry_point(entry_point);
@@ -725,12 +754,19 @@ auto build_shaders(std::string_view buffet_dir) -> std::vector<Shader> {
             // Compile shader.
             const auto shader = compiler.compile(name, type, entry_point, hlsl_file, false);
 
+            // Log.
+            FB_LOG_INFO(
+                "{}/{} - {} - {} instructions",
+                shader_entry_point_index++,
+                shader_entry_point_count,
+                name,
+                shader.counters.instruction_count
+            );
+
             // Save shader.
             compiled_shaders.push_back(shader);
         }
     }
-
-    FB_LOG_INFO("Built {} shaders", compiled_shaders.size());
 
     return compiled_shaders;
 }
