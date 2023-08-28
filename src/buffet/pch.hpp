@@ -20,3 +20,4 @@
 // Framebuffet.
 #include <common/pch.hpp>
 #include <common/common.hpp>
+#include "utils/trap.hpp"
