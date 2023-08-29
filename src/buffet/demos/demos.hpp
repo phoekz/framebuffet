@@ -3,6 +3,8 @@
 #include "../pch.hpp"
 #include <baked/kitchen/baked.hpp>
 #include <baked/buffet/baked.hpp>
+#include <graphics/graphics.hpp>
+#include "textures.hpp"
 
 namespace fb::demos {
 
@@ -31,7 +33,3 @@ struct GuiDesc {
 
 } // namespace fb::demos
 
-#include <graphics/gui.hpp>
-#include <graphics/debug_draw.hpp>
-#include <graphics/render_targets.hpp>
-#include "textures.hpp"
