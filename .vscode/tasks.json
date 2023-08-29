@@ -3,8 +3,9 @@
     // for the documentation about the tasks.json format
     "version": "2.0.0",
     "tasks": [
+        // Debug.
         {
-            "label": "Debug - Configure + Bake + Run",
+            "label": "Debug - Configure - Bake - Buffet",
             "type": "shell",
             "command": "./scripts/bake_n_run.sh",
             "problemMatcher": [
@@ -15,12 +16,12 @@
                     "FB_VARIANT": "Debug",
                     "FB_CONFIGURE": "1",
                     "FB_BAKE": "1",
-                    "FB_RUN": "1"
+                    "FB_RUN": "buffet"
                 }
             }
         },
         {
-            "label": "Debug - Bake + Run",
+            "label": "Debug - Bake - Buffet",
             "type": "shell",
             "command": "./scripts/bake_n_run.sh",
             "problemMatcher": [
@@ -30,7 +31,22 @@
                 "env": {
                     "FB_VARIANT": "Debug",
                     "FB_BAKE": "1",
-                    "FB_RUN": "1"
+                    "FB_RUN": "buffet"
+                }
+            }
+        },
+        {
+            "label": "Debug - Bake - Stockcube",
+            "type": "shell",
+            "command": "./scripts/bake_n_run.sh",
+            "problemMatcher": [
+                "$msCompile"
+            ],
+            "options": {
+                "env": {
+                    "FB_VARIANT": "Debug",
+                    "FB_BAKE": "1",
+                    "FB_RUN": "stockcube"
                 }
             }
         },
@@ -49,7 +65,7 @@
             }
         },
         {
-            "label": "Debug - Only Run",
+            "label": "Debug - Only Buffet",
             "type": "shell",
             "command": "./scripts/bake_n_run.sh",
             "problemMatcher": [
@@ -58,7 +74,21 @@
             "options": {
                 "env": {
                     "FB_VARIANT": "Debug",
-                    "FB_RUN": "1"
+                    "FB_RUN": "buffet"
+                }
+            }
+        },
+        {
+            "label": "Debug - Only Stockcube",
+            "type": "shell",
+            "command": "./scripts/bake_n_run.sh",
+            "problemMatcher": [
+                "$msCompile"
+            ],
+            "options": {
+                "env": {
+                    "FB_VARIANT": "Debug",
+                    "FB_RUN": "stockcube"
                 }
             }
         },
@@ -76,8 +106,9 @@
                 }
             }
         },
+        // Release.
         {
-            "label": "Release - Configure + Bake + Run",
+            "label": "Release - Configure - Bake - Buffet",
             "type": "shell",
             "command": "./scripts/bake_n_run.sh",
             "problemMatcher": [
@@ -88,12 +119,12 @@
                     "FB_VARIANT": "Release",
                     "FB_CONFIGURE": "1",
                     "FB_BAKE": "1",
-                    "FB_RUN": "1"
+                    "FB_RUN": "buffet"
                 }
             }
         },
         {
-            "label": "Release - Bake + Run",
+            "label": "Release - Bake - Buffet",
             "type": "shell",
             "command": "./scripts/bake_n_run.sh",
             "problemMatcher": [
@@ -103,7 +134,22 @@
                 "env": {
                     "FB_VARIANT": "Release",
                     "FB_BAKE": "1",
-                    "FB_RUN": "1"
+                    "FB_RUN": "buffet"
+                }
+            }
+        },
+        {
+            "label": "Release - Bake - Stockcube",
+            "type": "shell",
+            "command": "./scripts/bake_n_run.sh",
+            "problemMatcher": [
+                "$msCompile"
+            ],
+            "options": {
+                "env": {
+                    "FB_VARIANT": "Release",
+                    "FB_BAKE": "1",
+                    "FB_RUN": "stockcube"
                 }
             }
         },
@@ -122,7 +168,7 @@
             }
         },
         {
-            "label": "Release - Only Run",
+            "label": "Release - Only Buffet",
             "type": "shell",
             "command": "./scripts/bake_n_run.sh",
             "problemMatcher": [
@@ -131,7 +177,21 @@
             "options": {
                 "env": {
                     "FB_VARIANT": "Release",
-                    "FB_RUN": "1"
+                    "FB_RUN": "buffet"
+                }
+            }
+        },
+        {
+            "label": "Release - Only Stockcube",
+            "type": "shell",
+            "command": "./scripts/bake_n_run.sh",
+            "problemMatcher": [
+                "$msCompile"
+            ],
+            "options": {
+                "env": {
+                    "FB_VARIANT": "Release",
+                    "FB_RUN": "stockcube"
                 }
             }
         },

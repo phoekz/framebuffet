@@ -40,11 +40,11 @@ fi
 if [ -z "$FB_RUN" ]; then
     echo "Skipping run..."
 else
-    echo "Building..."
-    cmake --build ./build --config $FB_VARIANT --target fb_buffet
+    echo "Building ${FB_RUN}..."
+    cmake --build ./build --config $FB_VARIANT --target "fb_${FB_RUN}"
 
-    echo "Running..."
-    pushd build/src/buffet/$FB_VARIANT
-    ./fb_buffet.exe
+    echo "Running ${FB_RUN}..."
+    pushd build/src/${FB_RUN}/$FB_VARIANT
+    ./fb_${FB_RUN}.exe
     popd
 fi
