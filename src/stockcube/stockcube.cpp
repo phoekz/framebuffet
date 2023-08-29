@@ -1,8 +1,11 @@
 #include <common/common.hpp>
 #include <kitchen/kitchen.hpp>
+#include <baked/stockcube/baked.hpp>
 
 #define USE_PIX
 #include <WinPixEventRuntime/pix3.h>
+
+#include "screen.hlsli"
 
 namespace fb {
 
@@ -23,6 +26,10 @@ struct Baked {
         baked::kitchen::Assets assets;
         baked::kitchen::Shaders shaders;
     } kitchen;
+    struct {
+        baked::stockcube::Assets assets;
+        baked::stockcube::Shaders shaders;
+    } stockcube;
 };
 
 //

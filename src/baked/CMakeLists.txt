@@ -5,6 +5,8 @@ set(SOURCES
     "buffet/baked.hpp"
     "kitchen/baked.cpp"
     "kitchen/baked.hpp"
+    "stockcube/baked.cpp"
+    "stockcube/baked.hpp"
 )
 add_library(${NAME} STATIC ${SOURCES})
 target_link_libraries(

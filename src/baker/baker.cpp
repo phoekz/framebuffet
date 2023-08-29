@@ -92,6 +92,17 @@ static auto BUFFET_SHADER_TASKS = std::to_array<ShaderTask>({
     },
 });
 
+static auto STOCKCUBE_ASSET_TASKS = std::to_array<AssetTask>({
+    AssetTaskHdrTexture {"farm_field", "envmaps/farm_field_2k.exr"},
+    AssetTaskHdrTexture {"winter_evening", "envmaps/winter_evening_2k.exr"},
+    AssetTaskProceduralSphere {"sphere", 1.0f, 32, false},
+});
+
+static auto STOCKCUBE_SHADER_TASKS = std::to_array<ShaderTask>({
+    {"stockcube/screen.hlsl", "screen", {"draw_vs", "draw_ps"}},
+    {"stockcube/blit.hlsl", "blit", {"draw_vs", "draw_ps"}},
+});
+
 } // namespace fb
 
 int main() {
@@ -104,8 +115,10 @@ int main() {
     using sv_span = std::span<const std::string_view>;
     const auto kitchen_outputs = sv_span({FB_BUFFET_OUTPUT_DIR, FB_STOCKCUBE_OUTPUT_DIR});
     const auto buffet_outputs = sv_span({FB_BUFFET_OUTPUT_DIR});
+    const auto stockcube_outputs = sv_span({FB_STOCKCUBE_OUTPUT_DIR});
     bake_app_datas(kitchen_outputs, "kitchen", KITCHEN_ASSET_TASKS, KITCHEN_SHADER_TASKS);
     bake_app_datas(buffet_outputs, "buffet", BUFFET_ASSET_TASKS, BUFFET_SHADER_TASKS);
+    bake_app_datas(stockcube_outputs, "stockcube", STOCKCUBE_ASSET_TASKS, STOCKCUBE_SHADER_TASKS);
 
     return 0;
 }
