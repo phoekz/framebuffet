@@ -1,6 +1,6 @@
 #pragma once
 
-#include <gpu/hlsl_cpp.hlsli>
+#include <kitchen/gpu/hlsl_cpp.hlsli>
 
 FB_NAMESPACE_BEGIN(fb::graphics::gui)
 

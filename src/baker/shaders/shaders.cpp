@@ -149,8 +149,7 @@ auto ShaderCompiler::compile(
         L"-WX",
         L"-all_resources_bound",
         L"-enable-16bit-types",
-        L"-I", FB_SOURCE_DIR_WIDE "/src/kitchen",
-        L"-I", FB_SOURCE_DIR_WIDE "/src/buffet",
+        L"-I", FB_SOURCE_DIR_WIDE "/src",
         // clang-format on
     });
 

@@ -35,7 +35,6 @@ target_precompile_headers(${NAME} PRIVATE pch.hpp)
 target_include_directories(
     ${NAME} PRIVATE
     ${CMAKE_SOURCE_DIR}/src
-    ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 set_property(DIRECTORY ${PROJECT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${NAME})

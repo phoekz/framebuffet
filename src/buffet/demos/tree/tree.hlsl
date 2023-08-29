@@ -1,6 +1,6 @@
-#include <gpu/samplers.hlsli>
-#include <graphics/core.hlsli>
-#include <demos/tree/tree.hlsli>
+#include <kitchen/gpu/samplers.hlsli>
+#include <kitchen/graphics/core.hlsli>
+#include <buffet/demos/tree/tree.hlsli>
 
 struct ShadowVertexOutput {
     float4 position: SV_Position;

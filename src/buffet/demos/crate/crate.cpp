@@ -1,5 +1,5 @@
 #include "crate.hpp"
-#include <gpu/samplers.hlsli>
+#include <kitchen/gpu/samplers.hlsli>
 
 namespace fb::demos::crate {
 

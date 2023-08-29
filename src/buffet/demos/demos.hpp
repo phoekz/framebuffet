@@ -3,7 +3,7 @@
 #include "../pch.hpp"
 #include <baked/kitchen/baked.hpp>
 #include <baked/buffet/baked.hpp>
-#include <graphics/graphics.hpp>
+#include <kitchen/graphics/graphics.hpp>
 #include "textures.hpp"
 
 namespace fb::demos {

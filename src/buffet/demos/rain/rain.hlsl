@@ -1,5 +1,5 @@
-#include <graphics/core.hlsli>
-#include <demos/rain/rain.hlsli>
+#include <kitchen/graphics/core.hlsli>
+#include <buffet/demos/rain/rain.hlsli>
 
 struct Vertex {
     float3 position;

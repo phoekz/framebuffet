@@ -58,7 +58,6 @@ target_include_directories(
     ${NAME}
     PUBLIC
     ${CMAKE_SOURCE_DIR}/src
-    ${CMAKE_CURRENT_SOURCE_DIR}
     ${WINPIXEVENTRUNTIME_INCLUDE_DIR}
 )
 target_compile_definitions(

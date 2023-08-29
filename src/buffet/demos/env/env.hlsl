@@ -1,7 +1,7 @@
-#include <gpu/samplers.hlsli>
-#include <graphics/core.hlsli>
-#include <demos/brdf.hlsli>
-#include <demos/env/env.hlsli>
+#include <kitchen/gpu/samplers.hlsli>
+#include <kitchen/graphics/core.hlsli>
+#include <buffet/demos/brdf.hlsli>
+#include <buffet/demos/env/env.hlsli>
 
 // Source: https://knarkowicz.wordpress.com/2016/01/06/aces-filmic-tone-mapping-curve/
 float3 tonemap_aces(float3 x) {

@@ -2,7 +2,7 @@
 
 #include "demos.hpp"
 #include "cards.hlsli"
-#include <graphics/spd.hlsli>
+#include <kitchen/graphics/spd.hlsli>
 
 namespace fb::demos::cards {
 

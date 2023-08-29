@@ -1,6 +1,6 @@
-#include <gpu/samplers.hlsli>
-#include <graphics/core.hlsli>
-#include <demos/cards.hlsli>
+#include <kitchen/gpu/samplers.hlsli>
+#include <kitchen/graphics/core.hlsli>
+#include <buffet/demos/cards.hlsli>
 
 struct VertexOutput {
     float4 position: SV_Position;

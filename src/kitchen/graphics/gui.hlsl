@@ -1,6 +1,6 @@
-#include <gpu/samplers.hlsli>
-#include <graphics/core.hlsli>
-#include <graphics/gui.hlsli>
+#include <kitchen/gpu/samplers.hlsli>
+#include <kitchen/graphics/core.hlsli>
+#include <kitchen/graphics/gui.hlsli>
 
 struct Vertex {
     float2 position;

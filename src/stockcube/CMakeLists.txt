@@ -9,7 +9,6 @@ target_precompile_headers(${NAME} PRIVATE pch.hpp)
 target_include_directories(
     ${NAME} PRIVATE
     ${CMAKE_SOURCE_DIR}/src
-    ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 set_target_properties(${NAME} PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY $<TARGET_FILE_DIR:${NAME}>)

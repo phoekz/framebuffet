@@ -6,9 +6,9 @@
 // SM6.6 dynamic resources, and half precision floats. ALl original comments are
 // replaced with our own notes.
 
-#include <gpu/samplers.hlsli>
-#include <graphics/core.hlsli>
-#include <graphics/spd.hlsli>
+#include <kitchen/gpu/samplers.hlsli>
+#include <kitchen/graphics/core.hlsli>
+#include <kitchen/graphics/spd.hlsli>
 
 //
 // Globals.
