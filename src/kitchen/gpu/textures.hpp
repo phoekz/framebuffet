@@ -2,6 +2,7 @@
 
 #include "../pch.hpp"
 #include "device.hpp"
+#include <baked/baked_types.hpp>
 
 namespace fb {
 
@@ -393,6 +394,39 @@ public:
             device,
             desc,
             std::span<const GpuTextureTransferDesc>(&transfer_desc, 1),
+            before_state,
+            after_state,
+            name
+        );
+    }
+    auto create_and_transfer_baked(
+        GpuDevice& device,
+        const baked::Texture& baked,
+        D3D12_RESOURCE_STATES before_state,
+        D3D12_RESOURCE_STATES after_state,
+        std::string_view name
+    ) {
+        GpuTextureDesc desc = {
+            .format = baked.format,
+            .width = baked.width,
+            .height = baked.height,
+            .mip_count = baked.mip_count,
+            .sample_count = 1,
+        };
+
+        std::array<GpuTextureTransferDesc, baked::MAX_MIP_COUNT> transfer_descs = {};
+        for (uint32_t i = 0; i < baked.mip_count; i++) {
+            transfer_descs[i] = GpuTextureTransferDesc {
+                .row_pitch = baked.datas[i].row_pitch,
+                .slice_pitch = baked.datas[i].slice_pitch,
+                .data = baked.datas[i].data.data(),
+            };
+        }
+
+        create_and_transfer(
+            device,
+            desc,
+            std::span(transfer_descs.data(), baked.mip_count),
             before_state,
             after_state,
             name

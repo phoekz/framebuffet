@@ -44,8 +44,7 @@ auto AnimDemo::create(GpuDevice& device, const Baked& baked) -> void {
 
     // Texture.
     const auto texture = assets.raccoon_base_color_texture();
-    texture_create_and_transfer_baked(
-        _texture,
+    _texture.create_and_transfer_baked(
         device,
         texture,
         D3D12_RESOURCE_STATE_COMMON,

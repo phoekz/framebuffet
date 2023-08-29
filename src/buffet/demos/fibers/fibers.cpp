@@ -183,16 +183,14 @@ auto FibersDemo::create(GpuDevice& device, const Baked& baked) -> void {
     }
 
     {
-        texture_create_and_transfer_baked(
-            _magma_texture,
+        _magma_texture.create_and_transfer_baked(
             device,
             assets.heatmap_magma_texture(),
             D3D12_RESOURCE_STATE_COMMON,
             D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
             dx_name(NAME, "Magma Texture")
         );
-        texture_create_and_transfer_baked(
-            _viridis_texture,
+        _viridis_texture.create_and_transfer_baked(
             device,
             assets.heatmap_viridis_texture(),
             D3D12_RESOURCE_STATE_COMMON,

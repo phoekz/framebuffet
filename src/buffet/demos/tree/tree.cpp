@@ -35,16 +35,14 @@ auto TreeDemo::create(GpuDevice& device, const Baked& baked) -> void {
 
     // Texture.
     {
-        texture_create_and_transfer_baked(
-            _tree_texture,
+        _tree_texture.create_and_transfer_baked(
             device,
             assets.coconut_tree_base_color_texture(),
             D3D12_RESOURCE_STATE_COMMON,
             D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
             dx_name(NAME, "Tree", "Texture")
         );
-        texture_create_and_transfer_baked(
-            _plane_texture,
+        _plane_texture.create_and_transfer_baked(
             device,
             assets.sand_plane_base_color_texture(),
             D3D12_RESOURCE_STATE_COMMON,

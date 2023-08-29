@@ -27,7 +27,6 @@ set(SOURCES
     demos/tree/tree.cpp
     demos/tree/tree.hlsli
     demos/tree/tree.hpp
-    demos/textures.hpp
 )
 add_executable(${NAME} ${SOURCES})
 target_link_libraries(${NAME} PRIVATE fb_kitchen)

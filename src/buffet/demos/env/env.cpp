@@ -114,8 +114,7 @@ auto EnvDemo::create(GpuDevice& device, const Baked& baked) -> void {
 
         // Rect texture.
         const auto texture = assets.winter_evening_hdr_texture();
-        texture_create_and_transfer_baked(
-            pass.rect_texture,
+        pass.rect_texture.create_and_transfer_baked(
             device,
             texture,
             D3D12_RESOURCE_STATE_COMMON,

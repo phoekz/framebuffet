@@ -69,8 +69,7 @@ auto CrateDemo::create(GpuDevice& device, const Baked& baked) -> void {
                      metallic_roughness
                  ),
              }) {
-            texture_create_and_transfer_baked(
-                dst_texture,
+            dst_texture.create_and_transfer_baked(
                 device,
                 src_texture,
                 D3D12_RESOURCE_STATE_COMMON,

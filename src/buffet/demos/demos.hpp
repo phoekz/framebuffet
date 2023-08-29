@@ -4,7 +4,6 @@
 #include <baked/kitchen/baked.hpp>
 #include <baked/buffet/baked.hpp>
 #include <kitchen/graphics/graphics.hpp>
-#include "textures.hpp"
 
 namespace fb::demos {
 
@@ -32,4 +31,3 @@ struct GuiDesc {
 };
 
 } // namespace fb::demos
-
