@@ -16,16 +16,17 @@ auto read_whole_file(std::string_view path) -> std::vector<std::byte> {
     FB_ASSERT_MSG(file.is_valid(), "Failed to open file: {}", path);
 
     LARGE_INTEGER file_size;
-    FB_ASSERT_MSG(GetFileSizeEx(file.get(), &file_size), "Failed to get file size.");
+    FB_ASSERT_MSG(GetFileSizeEx(file.get(), &file_size), "Failed to get file size: {}", path);
 
     std::vector<std::byte> buffer(file_size.QuadPart);
     DWORD bytes_read;
     FB_ASSERT_MSG(
         ReadFile(file.get(), buffer.data(), (DWORD)buffer.size(), &bytes_read, nullptr),
-        "Failed to read file."
+        "Failed to read file: {}",
+        path
     );
 
-    FB_LOG_TRACE("Read {} bytes from {}", bytes_read, path);
+    FB_LOG_TRACE("Read {} bytes from file: {}", bytes_read, path);
 
     return buffer;
 }
@@ -40,14 +41,15 @@ auto write_whole_file(std::string_view path, std::span<const std::byte> data) ->
         FILE_ATTRIBUTE_NORMAL,
         nullptr
     ));
-    FB_ASSERT_MSG(file.is_valid(), "Failed to create file.");
+    FB_ASSERT_MSG(file.is_valid(), "Failed to create file: {}", path);
 
     FB_ASSERT_MSG(
         WriteFile(file.get(), data.data(), (DWORD)data.size(), nullptr, nullptr),
-        "Failed to write file."
+        "Failed to write file: {}",
+        path
     );
 
-    FB_LOG_TRACE("Wrote {} bytes to {}", data.size(), path);
+    FB_LOG_TRACE("Wrote {} bytes to file: {}", data.size(), path);
 }
 
 auto file_exists(std::string_view path) -> bool {
