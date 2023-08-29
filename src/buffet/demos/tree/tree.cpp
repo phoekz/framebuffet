@@ -90,7 +90,7 @@ auto TreeDemo::create(GpuDevice& device, const Baked& baked) -> void {
         .build(device, _draw_pipeline, dx_name(NAME, "Draw", "Pipeline"));
 }
 
-auto TreeDemo::gui(const GuiDesc& desc) -> void {
+auto TreeDemo::gui(const GuiDesc&) -> void {
     auto& p = _parameters;
     ImGui::SliderFloat("Ambient Light", &p.ambient_light, 0.0f, 1.0f);
     ImGui::SliderFloat("Light Projection Size", &p.light_projection_size, 1.0f, 200.0f);
