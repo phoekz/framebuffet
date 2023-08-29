@@ -28,8 +28,6 @@ set(SOURCES
     demos/tree/tree.hlsli
     demos/tree/tree.hpp
     demos/textures.hpp
-    utils/frame.cpp
-    utils/frame.hpp
 )
 add_executable(${NAME} ${SOURCES})
 target_link_libraries(${NAME} PRIVATE fb_kitchen)

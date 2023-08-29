@@ -34,6 +34,8 @@ set(SOURCES
     graphics/render_targets.cpp
     graphics/render_targets.hpp
     graphics/spd.hlsli
+    utils/frame.cpp
+    utils/frame.hpp
     win32/window.cpp
     win32/window.hpp
 )

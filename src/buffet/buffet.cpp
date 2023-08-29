@@ -7,7 +7,6 @@
 #include "demos/anim/anim.hpp"
 #include "demos/fibers/fibers.hpp"
 #include "demos/env/env.hpp"
-#include "utils/frame.hpp"
 
 namespace fb {
 
@@ -108,7 +107,7 @@ struct Buffet {
     graphics::gui::Gui gui;
 
     // Frame.
-    Frame frame = {};
+    Frame frame;
 
     // Archive.
     std::vector<std::byte> archive_buf;
