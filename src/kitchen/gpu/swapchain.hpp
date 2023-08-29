@@ -7,7 +7,6 @@
 namespace fb {
 
 inline constexpr uint32_t FRAME_COUNT = 2;
-inline constexpr DXGI_FORMAT SWAPCHAIN_RTV_FORMAT = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
 
 class GpuDevice;
 class Window;
@@ -33,11 +32,13 @@ public:
     auto present() -> void;
 
     auto size() const -> Uint2 { return _swapchain_size; }
+    auto format() const -> DXGI_FORMAT { return _swapchain_format; }
     auto backbuffer_index() const -> uint32_t { return _swapchain->GetCurrentBackBufferIndex(); }
 
 private:
     ComPtr<IDXGISwapChain4> _swapchain;
     Uint2 _swapchain_size = {};
+    DXGI_FORMAT _swapchain_format = {};
     ComPtr<ID3D12DescriptorHeap> _rtv_descriptor_heap;
     std::array<GpuDescriptor, FRAME_COUNT> _rtv_descriptors = {};
     std::array<ComPtr<ID3D12Resource>, FRAME_COUNT> _rtvs = {};

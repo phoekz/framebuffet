@@ -52,7 +52,7 @@ auto Gui::create(
             .depth_read = false,
             .depth_write = false,
         })
-        .render_target_formats({SWAPCHAIN_RTV_FORMAT})
+        .render_target_formats({device.swapchain().format()})
         .rasterizer(GpuRasterizerDesc {
             .cull_mode = GpuCullMode::None,
         })

@@ -75,7 +75,7 @@ auto Cards::create(GpuDevice& device, const Baked& baked, const CardsDesc& desc)
         .vertex_shader(baked.buffet.shaders.cards_draw_vs())
         .pixel_shader(baked.buffet.shaders.cards_draw_ps())
         .primitive_topology(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)
-        .render_target_formats({SWAPCHAIN_RTV_FORMAT})
+        .render_target_formats({device.swapchain().format()})
         .depth_stencil(GpuDepthStencilDesc {
             .depth_read = false,
             .depth_write = false,

@@ -49,13 +49,16 @@ auto GpuSwapchain::create(
         _swapchain_size = {desc.Width, desc.Height};
     }
 
+    // Swapchain format.
+    _swapchain_format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+
     // Render target views.
     for (uint32_t i = 0; i < FRAME_COUNT; i++) {
         FB_ASSERT_HR(_swapchain->GetBuffer(i, IID_PPV_ARGS(&_rtvs[i])));
         dx_set_name(_rtvs[i], dx_name("Render Target", i));
         const auto descriptor = descriptors.rtv().alloc();
         D3D12_RENDER_TARGET_VIEW_DESC rtv_desc = {
-            .Format = SWAPCHAIN_RTV_FORMAT,
+            .Format = _swapchain_format,
             .ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D,
         };
         device->CreateRenderTargetView(_rtvs[i].get(), &rtv_desc, descriptor.cpu());
