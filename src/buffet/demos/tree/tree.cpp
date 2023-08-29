@@ -1,8 +1,5 @@
 #include "tree.hpp"
 
-#pragma warning(push)
-#pragma warning(disable : 4100)
-
 namespace fb::demos::tree {
 
 auto TreeDemo::create(GpuDevice& device, const Baked& baked) -> void {
