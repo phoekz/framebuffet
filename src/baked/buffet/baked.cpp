@@ -1308,9 +1308,9 @@ auto Assets::sphere_mesh() const -> Mesh {
 }
 
 Shaders::Shaders() {
-    // hash: ca654cf6de0d562e012f21f0cf75a0a9
+    // hash: 1e3298ac57310de2de3ee588daebd1d6
     _data = read_whole_file("fb_buffet_shaders.bin");
-    FB_ASSERT(_data.size() == 159280);
+    FB_ASSERT(_data.size() == 159268);
 }
 
 // shader_hash: 5792fbf56668c072f9917d0d52e90c6d
@@ -1562,7 +1562,7 @@ auto Shaders::fibers_debug_ps() const -> std::span<const std::byte> {
     return std::span(_data).subspan(102508, 4944);
 }
 
-// shader_hash: 256bced9a783c616b98b7581b20e0fe2
+// shader_hash: 9eb8cf30d3ddbe756cbdf4852ae747a3
 // constant_buffers: 1
 // bound_resources: 1
 // instruction_count: 76
@@ -1574,17 +1574,17 @@ auto Shaders::env_cfr_cs() const -> std::span<const std::byte> {
     return std::span(_data).subspan(107452, 4448);
 }
 
-// shader_hash: f7978980d015425640aea7a547ed2806
+// shader_hash: 7e3cc122ab0db685d1297bcdca88ff8a
 // constant_buffers: 1
 // bound_resources: 1
-// instruction_count: 148
+// instruction_count: 147
 // dynamic_flow_control_count: 3
-// float_instruction_count: 90
+// float_instruction_count: 89
 // int_instruction_count: 3
 // uint_instruction_count: 23
 // texture_store_instructions: 1
 auto Shaders::env_lut_cs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(111900, 4744);
+    return std::span(_data).subspan(111900, 4740);
 }
 
 // shader_hash: 61b7e5573dda12a27beb84635c3d75b0
@@ -1599,7 +1599,7 @@ auto Shaders::env_lut_cs() const -> std::span<const std::byte> {
 // texture_load_instructions: 1
 // texture_store_instructions: 1
 auto Shaders::env_irr_cs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(116644, 5692);
+    return std::span(_data).subspan(116640, 5692);
 }
 
 // shader_hash: 9708fc6d5a5672bbee4ff7b87105cf81
@@ -1614,19 +1614,19 @@ auto Shaders::env_irr_cs() const -> std::span<const std::byte> {
 // texture_load_instructions: 1
 // texture_store_instructions: 1
 auto Shaders::env_rad_cs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(122336, 6032);
+    return std::span(_data).subspan(122332, 6032);
 }
 
-// shader_hash: 0dd9d6dd36c27ccc1d5b4a0ee6b06903
+// shader_hash: 96fd4851bbd7a6fbc23e845bb49648d9
 // constant_buffers: 1
 // bound_resources: 1
 // input_parameters: 2
 // output_parameters: 4
-// instruction_count: 63
-// float_instruction_count: 7
+// instruction_count: 62
+// float_instruction_count: 6
 // texture_load_instructions: 3
 auto Shaders::env_background_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(128368, 5184);
+    return std::span(_data).subspan(128364, 5172);
 }
 
 // shader_hash: 50d3f0f59d6642b0c1a799137c9be4c1
@@ -1640,7 +1640,7 @@ auto Shaders::env_background_vs() const -> std::span<const std::byte> {
 // int_instruction_count: 2
 // texture_normal_instructions: 1
 auto Shaders::env_background_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(133552, 5076);
+    return std::span(_data).subspan(133536, 5076);
 }
 
 // shader_hash: 12d711ae9b1f562b8dc9a6ed3dd5b1d2
@@ -1652,10 +1652,10 @@ auto Shaders::env_background_ps() const -> std::span<const std::byte> {
 // float_instruction_count: 8
 // texture_load_instructions: 2
 auto Shaders::env_model_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(138628, 5084);
+    return std::span(_data).subspan(138612, 5084);
 }
 
-// shader_hash: 8033c3abbfb91a3c9ffbe6d63bc30e63
+// shader_hash: 0b1454f51be2a562bc4bf2f3e18f178d
 // constant_buffers: 1
 // bound_resources: 1
 // input_parameters: 3
@@ -1666,7 +1666,7 @@ auto Shaders::env_model_vs() const -> std::span<const std::byte> {
 // int_instruction_count: 1
 // texture_normal_instructions: 3
 auto Shaders::env_model_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(143712, 5584);
+    return std::span(_data).subspan(143696, 5588);
 }
 
 // shader_hash: 60ead17c5c1917440abef2a36255d9fa
@@ -1678,7 +1678,7 @@ auto Shaders::env_model_ps() const -> std::span<const std::byte> {
 // float_instruction_count: 12
 // texture_load_instructions: 2
 auto Shaders::env_screen_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(149296, 4992);
+    return std::span(_data).subspan(149284, 4992);
 }
 
 // shader_hash: 84e1f821981c6d1b2a1ad568e22dd9d1
@@ -1692,7 +1692,7 @@ auto Shaders::env_screen_vs() const -> std::span<const std::byte> {
 // int_instruction_count: 1
 // texture_normal_instructions: 1
 auto Shaders::env_screen_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(154288, 4992);
+    return std::span(_data).subspan(154276, 4992);
 }
 
 } // namespace fb::baked::buffet

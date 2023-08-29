@@ -65,7 +65,7 @@ void cfr_cs(FbComputeInput input) {
     const float3 dir = direction_from_dispatch_input(src_id, face_id, cube_texture_size);
 
     // Latitude/longitude from direction.
-    const float lon = 0.5f + atan2(dir.x, dir.z) / (2.0f * FB_PI);
+    const float lon = 0.5f + atan2(dir.z, dir.x) / (2.0f * FB_PI);
     const float lat = acos(dir.y) / FB_PI;
 
     // Sample rect texture.
@@ -90,7 +90,7 @@ void lut_cs(FbComputeInput input) {
     const float2 texture_size = (float2)lut_texture_size;
     const float2 texcoord = (float2(dst_id) + 0.5f) / texture_size;
     const float ndotv = texcoord.x;
-    const float roughness = 1.0f - texcoord.y;
+    const float roughness = texcoord.y;
 
     // Compute LUT: scale and bias for F0.
     const uint sample_count = constants.lut_sample_count;
@@ -261,7 +261,6 @@ BackgroundVertexOutput background_vs(FbVertexInput input) {
     output.normal = vertex.normal;
     output.texcoord = vertex.texcoord;
     output.direction = direction;
-    output.direction.z *= -1.0f; // Handedness flip.
     return output;
 }
 
@@ -329,7 +328,7 @@ FbPixelOutput1 model_ps(ModelVertexOutput input) {
     const float2 f0_scale_bias = lut_texture.Sample(samp, float2(ndotv, roughness));
     const float f0_scale = f0_scale_bias.x;
     const float f0_bias = f0_scale_bias.y;
-    const float3 irradiance = irr_texture.SampleLevel(samp, r, 0);
+    const float3 irradiance = irr_texture.SampleLevel(samp, n, 0);
     const float3 radiance = rad_texture.SampleLevel(samp, r, radiance_lod);
 
     const float3 base_color = float3(1.0f, 1.0f, 1.0f);
