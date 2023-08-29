@@ -51,6 +51,7 @@ target_compile_definitions(
     FB_SOURCE_DIR_WIDE=L"${PROJECT_SOURCE_DIR}"
     FB_KITCHEN_OUTPUT_DIR="$<TARGET_FILE_DIR:fb_kitchen>"
     FB_BUFFET_OUTPUT_DIR="$<TARGET_FILE_DIR:fb_buffet>"
+    FB_STOCKCUBE_OUTPUT_DIR="$<TARGET_FILE_DIR:fb_stockcube>"
 )
 
 set_target_properties(${NAME} PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY $<TARGET_FILE_DIR:${NAME}>)

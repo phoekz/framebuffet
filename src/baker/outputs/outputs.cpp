@@ -22,7 +22,7 @@ struct std::formatter<DXGI_FORMAT>: std::formatter<char> {
 namespace fb {
 
 auto bake_app_datas(
-    std::string_view output_dir,
+    std::span<const std::string_view> output_dirs,
     std::string_view app_name,
     std::span<const AssetTask> app_asset_tasks,
     std::span<const ShaderTask> app_shader_tasks
@@ -38,9 +38,6 @@ auto bake_app_datas(
     const auto baked_hpp_path = std::format("{}/{}/baked.hpp", baked_dir, app_name);
     const auto baked_cpp_path = std::format("{}/{}/baked.cpp", baked_dir, app_name);
     const auto clangformat = std::format("{}/external/clang-format.exe", FB_SOURCE_DIR);
-    const auto shaders_bin_file = std::format("{}/fb_{}_shaders.bin", output_dir, app_name);
-    const auto assets_bin_file = std::format("{}/fb_{}_assets.bin", output_dir, app_name);
-    const auto shaders_dir = std::format("{}/shaders", output_dir);
 
     // Bake.
     const auto compiled_shaders = bake_shaders(source_dir, app_shader_tasks);
@@ -315,15 +312,20 @@ auto bake_app_datas(
     std::system(clangformat_cmd.c_str());
 
     // Write binary files.
-    std::filesystem::create_directories(output_dir);
-    write_whole_file(shaders_bin_file, std::as_bytes(std::span(shaders_bin)));
-    write_whole_file(assets_bin_file, std::as_bytes(std::span(assets_bin)));
-    std::filesystem::create_directory(shaders_dir);
-    for (const auto& shader : compiled_shaders) {
-        write_whole_file(
-            std::format("{}/{}.pdb", shaders_dir, shader.hash),
-            std::as_bytes(std::span(shader.pdb))
-        );
+    for (const auto& output_dir : output_dirs) {
+        const auto assets_bin_file = std::format("{}/fb_{}_assets.bin", output_dir, app_name);
+        const auto shaders_dir = std::format("{}/shaders", output_dir);
+        const auto shaders_bin_file = std::format("{}/fb_{}_shaders.bin", output_dir, app_name);
+
+        std::filesystem::create_directories(output_dir);
+        std::filesystem::create_directory(shaders_dir);
+
+        write_whole_file(assets_bin_file, assets_bin);
+        write_whole_file(shaders_bin_file, shaders_bin);
+        for (const auto& shader : compiled_shaders) {
+            const auto pdb_file_path = std::format("{}/{}.pdb", shaders_dir, shader.hash);
+            write_whole_file(pdb_file_path, shader.pdb);
+        }
     }
 }
 

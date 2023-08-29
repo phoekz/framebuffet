@@ -101,8 +101,11 @@ int main() {
     attach_console();
 
     // Bake app datas.
-    bake_app_datas(FB_BUFFET_OUTPUT_DIR, "kitchen", KITCHEN_ASSET_TASKS, KITCHEN_SHADER_TASKS);
-    bake_app_datas(FB_BUFFET_OUTPUT_DIR, "buffet", BUFFET_ASSET_TASKS, BUFFET_SHADER_TASKS);
+    using sv_span = std::span<const std::string_view>;
+    const auto kitchen_outputs = sv_span({FB_BUFFET_OUTPUT_DIR, FB_STOCKCUBE_OUTPUT_DIR});
+    const auto buffet_outputs = sv_span({FB_BUFFET_OUTPUT_DIR});
+    bake_app_datas(kitchen_outputs, "kitchen", KITCHEN_ASSET_TASKS, KITCHEN_SHADER_TASKS);
+    bake_app_datas(buffet_outputs, "buffet", BUFFET_ASSET_TASKS, BUFFET_SHADER_TASKS);
 
     return 0;
 }

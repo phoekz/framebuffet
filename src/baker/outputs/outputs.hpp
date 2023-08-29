@@ -8,7 +8,7 @@
 namespace fb {
 
 auto bake_app_datas(
-    std::string_view output_dir,
+    std::span<const std::string_view> output_dirs,
     std::string_view app_name,
     std::span<const AssetTask> app_asset_tasks,
     std::span<const ShaderTask> app_shader_tasks
