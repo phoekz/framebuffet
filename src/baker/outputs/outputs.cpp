@@ -278,6 +278,10 @@ auto bake_app_datas(
         shaders_bin.insert(shaders_bin.end(), shader.dxil.begin(), shader.dxil.end());
     }
 
+    // Hash.
+    const auto assets_bin_hash = hash128(assets_bin);
+    const auto shaders_bin_hash = hash128(shaders_bin);
+
     // clang-format off
     auto baked_types_hpp = std::string(BAKED_TYPES_HPP);
     auto baked_hpp = std::string(BAKED_HPP);
@@ -287,6 +291,8 @@ auto bake_app_datas(
     baked_hpp = str_replace(baked_hpp, "{{asset_decls}}", assets_decls.str());
     baked_hpp = str_replace(baked_hpp, "{{shader_decls}}", shader_decls.str());
     baked_cpp = str_replace(baked_cpp, "{{app_name}}", app_name);
+    baked_cpp = str_replace(baked_cpp, "{{assets_bin_hash}}", std::format("{}", assets_bin_hash));
+    baked_cpp = str_replace(baked_cpp, "{{shaders_bin_hash}}", std::format("{}", shaders_bin_hash));
     baked_cpp = str_replace(baked_cpp, "{{asset_defns}}", assets_defns.str());
     baked_cpp = str_replace(baked_cpp, "{{assets_total_size}}", std::to_string(assets_bin.size()));
     baked_cpp = str_replace(baked_cpp, "{{shader_defns}}", shader_defns.str());

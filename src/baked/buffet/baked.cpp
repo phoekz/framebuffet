@@ -3,6 +3,7 @@
 namespace fb::baked::buffet {
 
 Assets::Assets() {
+    // hash: f386cea75b0f2ae187d2debd078a68cb
     _data = read_whole_file("fb_buffet_assets.bin");
     FB_ASSERT(_data.size() == 203374952);
 }
@@ -1307,6 +1308,7 @@ auto Assets::sphere_mesh() const -> Mesh {
 }
 
 Shaders::Shaders() {
+    // hash: ca654cf6de0d562e012f21f0cf75a0a9
     _data = read_whole_file("fb_buffet_shaders.bin");
     FB_ASSERT(_data.size() == 159280);
 }

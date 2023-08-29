@@ -3,6 +3,7 @@
 namespace fb::baked::kitchen {
 
 Assets::Assets() {
+    // hash: 799fc360204416196536a93c9eff68ae
     _data = read_whole_file("fb_kitchen_assets.bin");
     FB_ASSERT(_data.size() == 162588);
 }
@@ -15,6 +16,7 @@ auto Assets::imgui_font() const -> Copy {
 }
 
 Shaders::Shaders() {
+    // hash: de84d336b259beb06a3220d54b501055
     _data = read_whole_file("fb_kitchen_shaders.bin");
     FB_ASSERT(_data.size() == 31808);
 }
