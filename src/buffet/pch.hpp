@@ -14,9 +14,6 @@
 #include <imgui.h>
 #include <backends/imgui_impl_win32.h>
 
-// Standard library.
-#include <array>
-
 // Framebuffet.
 #include <common/common.hpp>
 #include <kitchen/kitchen.hpp>

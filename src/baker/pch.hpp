@@ -18,7 +18,6 @@
 #include <directxtk12/GeometricPrimitive.h>
 
 // Standard library.
-#include <array>
 #include <filesystem>
 #include <unordered_set>
 #include <tuple>
