@@ -350,9 +350,6 @@ auto Buffet::run() -> void {
         write_whole_file(ARCHIVE_FILE_NAME, archive_buf);
         FB_LOG_INFO("Final archive size: {} bytes", archive_buf.size());
     }
-
-    // Manual cleanup.
-    gui.destroy();
 }
 
 } // namespace fb

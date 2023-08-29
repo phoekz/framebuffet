@@ -2,6 +2,11 @@
 
 namespace fb::graphics::gui {
 
+Gui::~Gui() {
+    ImGui_ImplWin32_Shutdown();
+    ImGui::DestroyContext(_imgui_ctx);
+}
+
 auto Gui::create(
     const Window& window,
     GpuDevice& device,
@@ -95,11 +100,6 @@ auto Gui::create(
 
     // ImGui continued.
     ImGui_ImplWin32_Init(window.hwnd());
-}
-
-auto Gui::destroy() -> void {
-    ImGui_ImplWin32_Shutdown();
-    ImGui::DestroyContext(_imgui_ctx);
 }
 
 auto Gui::begin_frame() -> void {
