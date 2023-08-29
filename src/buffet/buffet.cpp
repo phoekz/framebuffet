@@ -261,7 +261,7 @@ auto Buffet::run() -> void {
 
             PIXBeginEvent(PIX_COLOR_DEFAULT, "Prepare");
             auto cmd = device.begin_frame();
-            PIXEndEvent();
+            PIXEndEvent(); // Prepare.
 
             PIXBeginEvent(PIX_COLOR_DEFAULT, "Commands");
             {
@@ -324,13 +324,13 @@ auto Buffet::run() -> void {
 
                 cmd.end_pix();
             }
-            PIXEndEvent();
+            PIXEndEvent(); // Commands.
 
             PIXBeginEvent(PIX_COLOR_DEFAULT, "Present");
             device.end_frame(std::move(cmd));
-            PIXEndEvent();
+            PIXEndEvent(); // Present.
 
-            PIXEndEvent();
+            PIXEndEvent(); // Graphics.
         }
 
         // Update frame.
