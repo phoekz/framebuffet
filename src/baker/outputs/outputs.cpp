@@ -33,10 +33,11 @@ auto bake_app_datas(
     // Paths.
     const auto source_dir = std::format("{}/src", FB_SOURCE_DIR);
     const auto baked_dir = std::format("{}/src/baked", FB_SOURCE_DIR);
+    const auto baked_app_dir = std::format("{}/{}", baked_dir, app_name);
     const auto assets_dir = std::format("{}/src/assets", FB_SOURCE_DIR);
     const auto baked_types_hpp_path = std::format("{}/baked_types.hpp", baked_dir);
-    const auto baked_hpp_path = std::format("{}/{}/baked.hpp", baked_dir, app_name);
-    const auto baked_cpp_path = std::format("{}/{}/baked.cpp", baked_dir, app_name);
+    const auto baked_hpp_path = std::format("{}/baked.hpp", baked_app_dir);
+    const auto baked_cpp_path = std::format("{}/baked.cpp", baked_app_dir);
     const auto clangformat = std::format("{}/external/clang-format.exe", FB_SOURCE_DIR);
 
     // Bake.
@@ -297,6 +298,7 @@ auto bake_app_datas(
     // clang-format on
 
     // Write source files.
+    std::filesystem::create_directories(baked_app_dir);
     write_whole_file(baked_types_hpp_path, std::as_bytes(std::span(baked_types_hpp)));
     write_whole_file(baked_hpp_path, std::as_bytes(std::span(baked_hpp)));
     write_whole_file(baked_cpp_path, std::as_bytes(std::span(baked_cpp)));
