@@ -49,7 +49,6 @@ target_compile_definitions(
     ${NAME} PRIVATE
     FB_SOURCE_DIR="${PROJECT_SOURCE_DIR}"
     FB_SOURCE_DIR_WIDE=L"${PROJECT_SOURCE_DIR}"
-    FB_KITCHEN_OUTPUT_DIR="$<TARGET_FILE_DIR:fb_kitchen>"
     FB_BUFFET_OUTPUT_DIR="$<TARGET_FILE_DIR:fb_buffet>"
     FB_STOCKCUBE_OUTPUT_DIR="$<TARGET_FILE_DIR:fb_stockcube>"
 )

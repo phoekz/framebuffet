@@ -112,10 +112,16 @@ int main() {
     attach_console();
 
     // Bake app datas.
-    using sv_span = std::span<const std::string_view>;
-    const auto kitchen_outputs = sv_span({FB_BUFFET_OUTPUT_DIR, FB_STOCKCUBE_OUTPUT_DIR});
-    const auto buffet_outputs = sv_span({FB_BUFFET_OUTPUT_DIR});
-    const auto stockcube_outputs = sv_span({FB_STOCKCUBE_OUTPUT_DIR});
+    using sv = std::string_view;
+    FB_LOG_INFO("Output directories:");
+    FB_LOG_INFO("  {}", sv(FB_BUFFET_OUTPUT_DIR));
+    FB_LOG_INFO("  {}", sv(FB_STOCKCUBE_OUTPUT_DIR));
+    const auto kitchen_outputs = std::to_array({
+        sv(FB_BUFFET_OUTPUT_DIR),
+        sv(FB_STOCKCUBE_OUTPUT_DIR),
+    });
+    const auto buffet_outputs = std::to_array({sv(FB_BUFFET_OUTPUT_DIR)});
+    const auto stockcube_outputs = std::to_array({sv(FB_STOCKCUBE_OUTPUT_DIR)});
     bake_app_datas(kitchen_outputs, "kitchen", KITCHEN_ASSET_TASKS, KITCHEN_SHADER_TASKS);
     bake_app_datas(buffet_outputs, "buffet", BUFFET_ASSET_TASKS, BUFFET_SHADER_TASKS);
     bake_app_datas(stockcube_outputs, "stockcube", STOCKCUBE_ASSET_TASKS, STOCKCUBE_SHADER_TASKS);
