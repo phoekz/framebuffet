@@ -85,7 +85,7 @@ auto DebugDraw::end() -> void {
     memcpy(frame._lines.ptr(), _lines.data(), _lines.size() * sizeof(Vertex));
 }
 
-auto DebugDraw::render(GpuDevice&, const GpuCommandList& cmd) -> void {
+auto DebugDraw::render(const GpuCommandList& cmd) -> void {
     const auto& frame = _frames[_frame_index];
     cmd.begin_pix("Debug Draw");
     cmd.set_graphics_constants(Bindings {

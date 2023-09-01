@@ -94,7 +94,7 @@ auto update(Technique& tech, const UpdateDesc&) -> void {
     });
 }
 
-auto gpu_commands(Technique& tech, const GpuCommandsDesc& desc) -> void {
+auto render(Technique& tech, const RenderDesc& desc) -> void {
     if (tech.dispatch_id < tech.dispatch_count) {
         // Begin.
         GpuCommandList& cmd = desc.cmd;

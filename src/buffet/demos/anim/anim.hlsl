@@ -1,6 +1,8 @@
+#include <buffet/demos/anim/anim.hlsli>
 #include <kitchen/gpu/samplers.hlsli>
 #include <kitchen/graphics/core.hlsli>
-#include <buffet/demos/anim/anim.hlsli>
+
+ConstantBuffer<Bindings> g_bindings: register(b0);
 
 struct VertexOutput {
     float4 position: SV_Position;
@@ -8,8 +10,6 @@ struct VertexOutput {
     float2 texcoord: ATTRIBUTE1;
     float4 tangent: ATTRIBUTE2;
 };
-
-ConstantBuffer<Bindings> g_bindings: register(b0);
 
 VertexOutput draw_vs(FbVertexInput input) {
     ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
@@ -38,9 +38,9 @@ VertexOutput draw_vs(FbVertexInput input) {
 
 FbPixelOutput<1> draw_ps(VertexOutput input) {
     Texture2D texture = ResourceDescriptorHeap[g_bindings.texture];
-    SamplerState samp = SamplerDescriptorHeap[(uint)GpuSampler::LinearClamp];
+    SamplerState sampler = SamplerDescriptorHeap[(uint)GpuSampler::LinearClamp];
 
-    float3 color = texture.Sample(samp, input.texcoord).rgb;
+    float3 color = texture.Sample(sampler, input.texcoord).rgb;
     float3 light = normalize(float3(1.0f, 1.0f, 1.0f));
     float lighting = 0.25 + 0.75 * saturate(dot(input.normal, light));
     FbPixelOutput<1> output;

@@ -2,25 +2,28 @@
 
 namespace fb::demos::rain {
 
-auto RainDemo::create(GpuDevice& device, const Baked& baked) -> void {
+auto create(Demo& demo, const CreateDesc& desc) -> void {
+    PIXScopedEvent(PIX_COLOR_DEFAULT, "%s - Create", NAME.data());
     DebugScope debug(NAME);
 
+    // Unpack.
+    const auto& kitchen_shaders = desc.baked.kitchen.shaders;
+    const auto& shaders = desc.baked.buffet.shaders;
+    auto& device = desc.device;
+
     // Render targets.
-    _render_targets.create(
+    demo.render_targets.create(
         device,
         {
             .size = device.swapchain().size(),
-            .color_format = DXGI_FORMAT_R8G8B8A8_UNORM,
+            .color_format = COLOR_FORMAT,
             .clear_color = CLEAR_COLOR,
-            .sample_count = 1,
+            .sample_count = SAMPLE_COUNT,
         }
     );
 
     // Debug draw.
-    _debug_draw.create(device, baked.kitchen.shaders, _render_targets);
-
-    // Unpack.
-    const auto& shaders = baked.buffet.shaders;
+    demo.debug_draw.create(device, kitchen_shaders, demo.render_targets);
 
     // Particles.
     {
@@ -35,7 +38,7 @@ auto RainDemo::create(GpuDevice& device, const Baked& baked) -> void {
         }
 
         // Buffer.
-        _particles.create_and_transfer(
+        demo.particles.create_and_transfer(
             device,
             particles,
             D3D12_RESOURCE_STATE_COMMON,
@@ -45,12 +48,12 @@ auto RainDemo::create(GpuDevice& device, const Baked& baked) -> void {
     }
 
     // Constants.
-    _constants.create(device, 1, debug.with_name("Constants"));
+    demo.constants.create(device, 1, debug.with_name("Constants"));
 
     // Compute - Pipeline.
     GpuPipelineBuilder()
         .compute_shader(shaders.rain_sim_cs())
-        .build(device, _compute_pipeline, debug.with_name("Sim Pipeline"));
+        .build(device, demo.compute_pipeline, debug.with_name("Sim Pipeline"));
 
     // Draw - Pipeline.
     GpuPipelineBuilder()
@@ -70,9 +73,9 @@ auto RainDemo::create(GpuDevice& device, const Baked& baked) -> void {
             .depth_read = false,
             .depth_write = false,
         })
-        .render_target_formats({_render_targets.color_format()})
-        .depth_stencil_format(_render_targets.depth_format())
-        .build(device, _draw_pipeline, debug.with_name("Draw Pipeline"));
+        .render_target_formats({demo.render_targets.color_format()})
+        .depth_stencil_format(demo.render_targets.depth_format())
+        .build(device, demo.draw_pipeline, debug.with_name("Draw Pipeline"));
 
     // Draw - Geometry.
     {
@@ -83,68 +86,76 @@ auto RainDemo::create(GpuDevice& device, const Baked& baked) -> void {
             {{-0.5f, 0.5f, 0.0f}, {0.0f, 1.0f}},
         });
         const auto indices = std::to_array<uint16_t>({0, 1, 2, 0, 2, 3});
-        _draw_vertices.create_with_data(device, vertices, debug.with_name("Draw Vertices"));
-        _draw_indices.create_with_data(device, indices, debug.with_name("Draw Indices"));
+        demo.draw_vertices.create_with_data(device, vertices, debug.with_name("Draw Vertices"));
+        demo.draw_indices.create_with_data(device, indices, debug.with_name("Draw Indices"));
     }
 }
 
-auto RainDemo::gui(const GuiDesc&) -> void {
-    auto& p = _parameters;
-    ImGui::SliderFloat("Rain Speed", &p.speed, 0.0f, 2.0f);
-    ImGui::SliderFloat("Camera Distance", &p.camera_distance, 1.0f, 10.0f);
-    ImGui::SliderAngle("Camera Longitude", &p.camera_longitude, -180.0f, 180.0f);
-    ImGui::SliderAngle("Camera Latitude", &p.camera_latitude, -90.0f, 90.0f);
-    ImGui::SliderAngle("Camera FOV", &p.camera_fov, 0.0f, 90.0f);
-    ImGui::SliderFloat("Camera Rotation Speed", &p.camera_rotation_speed, 0.0f, 1.0f);
-    ImGui::SliderFloat("Particle Width", &p.particle_width, 0.0f, 1.0f);
-    ImGui::SliderFloat("Particle Height", &p.particle_height, 0.0f, 1.0f);
+auto gui(Demo& demo, const GuiDesc&) -> void {
+    PIXScopedEvent(PIX_COLOR_DEFAULT, "%s - Gui", NAME.data());
+    auto& params = demo.parameters;
+    ImGui::SliderFloat("Rain Speed", &params.speed, 0.0f, 2.0f);
+    ImGui::SliderFloat("Camera Distance", &params.camera_distance, 1.0f, 10.0f);
+    ImGui::SliderAngle("Camera Longitude", &params.camera_longitude, -180.0f, 180.0f);
+    ImGui::SliderAngle("Camera Latitude", &params.camera_latitude, -90.0f, 90.0f);
+    ImGui::SliderAngle("Camera FOV", &params.camera_fov, 0.0f, 90.0f);
+    ImGui::SliderFloat("Camera Rotation Speed", &params.camera_rotation_speed, 0.0f, 1.0f);
+    ImGui::SliderFloat("Particle Width", &params.particle_width, 0.0f, 1.0f);
+    ImGui::SliderFloat("Particle Height", &params.particle_height, 0.0f, 1.0f);
 }
 
-void RainDemo::update(const UpdateDesc& desc) {
-    auto& p = _parameters;
+auto update(Demo& demo, const UpdateDesc& desc) -> void {
+    PIXScopedEvent(PIX_COLOR_DEFAULT, "%s - Update", NAME.data());
+    auto& params = demo.parameters;
 
-    p.camera_longitude += p.camera_rotation_speed * desc.delta_time;
-    if (p.camera_longitude > PI * 2.0f) {
-        p.camera_longitude -= PI * 2.0f;
+    // Update camera.
+    params.camera_longitude += params.camera_rotation_speed * desc.delta_time;
+    if (params.camera_longitude > PI * 2.0f) {
+        params.camera_longitude -= PI * 2.0f;
     }
-
     auto aspect_ratio = desc.aspect_ratio;
     auto projection =
-        float4x4::CreatePerspectiveFieldOfView(p.camera_fov, aspect_ratio, 0.1f, 100.0f);
-    auto eye = p.camera_distance * dir_from_lonlat(p.camera_longitude, p.camera_latitude);
+        float4x4::CreatePerspectiveFieldOfView(params.camera_fov, aspect_ratio, 0.1f, 100.0f);
+    auto eye =
+        params.camera_distance * dir_from_lonlat(params.camera_longitude, params.camera_latitude);
     auto view = float4x4::CreateLookAt(eye, float3::Zero, float3::Up);
     auto from_dir = float3::UnitZ;
     auto to_dir = float3(eye.x, 0.0f, eye.z);
     auto rot_quat = Quaternion::FromToRotation(from_dir, to_dir);
     auto rot_Float4x4 = float4x4::CreateFromQuaternion(rot_quat);
-    auto scale = float4x4::CreateScale(p.particle_width, p.particle_height, 1.0f);
+    auto scale = float4x4::CreateScale(params.particle_width, params.particle_height, 1.0f);
     auto particle_transform = scale * rot_Float4x4;
     auto camera_transform = view * projection;
 
-    _debug_draw.begin(desc.frame_index);
-    _debug_draw.transform(camera_transform);
-    _debug_draw.axes();
-    _debug_draw.end();
+    // Update debug draw.
+    demo.debug_draw.begin(desc.frame_index);
+    demo.debug_draw.transform(camera_transform);
+    demo.debug_draw.axes();
+    demo.debug_draw.end();
 
-    *_constants.ptr() = Constants {
+    // Update constants.
+    *demo.constants.ptr() = Constants {
         .transform = camera_transform,
         .particle_transform = particle_transform,
         .delta_time = desc.delta_time,
-        .speed = p.speed,
+        .speed = params.speed,
     };
 }
 
-void RainDemo::render(GpuDevice& device, GpuCommandList& cmd) {
+auto render(Demo& demo, const RenderDesc& desc) -> void {
+    GpuCommandList& cmd = desc.cmd;
+    cmd.begin_pix("%s - Render", NAME.data());
+
     {
         cmd.begin_pix("Compute");
         cmd.set_compute();
         cmd.set_compute_constants(Bindings {
-            .constants = _constants.cbv_descriptor().index(),
-            .particles = _particles.uav_descriptor().index(),
+            .constants = demo.constants.cbv_descriptor().index(),
+            .particles = demo.particles.uav_descriptor().index(),
         });
-        cmd.set_pipeline(_compute_pipeline);
+        cmd.set_pipeline(demo.compute_pipeline);
         cmd.dispatch(DISPATCH_COUNT, 1, 1);
-        _particles.uav_barrier(cmd);
+        demo.particles.uav_barrier(cmd);
         cmd.flush_barriers();
         cmd.end_pix();
     }
@@ -152,19 +163,21 @@ void RainDemo::render(GpuDevice& device, GpuCommandList& cmd) {
     {
         cmd.begin_pix("Draw");
         cmd.set_graphics();
-        _render_targets.set(cmd);
+        demo.render_targets.set(cmd);
+        demo.debug_draw.render(cmd);
         cmd.set_graphics_constants(Bindings {
-            .constants = _constants.cbv_descriptor().index(),
-            .particles = _particles.srv_descriptor().index(),
-            .vertices = _draw_vertices.srv_descriptor().index(),
+            .constants = demo.constants.cbv_descriptor().index(),
+            .particles = demo.particles.srv_descriptor().index(),
+            .vertices = demo.draw_vertices.srv_descriptor().index(),
         });
-        cmd.set_pipeline(_draw_pipeline);
+        cmd.set_pipeline(demo.draw_pipeline);
         cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-        cmd.set_index_buffer(_draw_indices.index_buffer_view());
+        cmd.set_index_buffer(demo.draw_indices.index_buffer_view());
         cmd.draw_indexed_instanced(6, PARTICLE_COUNT, 0, 0, 0);
-        _debug_draw.render(device, cmd);
         cmd.end_pix();
     }
+
+    cmd.end_pix();
 }
 
 } // namespace fb::demos::rain

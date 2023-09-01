@@ -1,23 +1,10 @@
-#include <kitchen/graphics/core.hlsli>
 #include <buffet/demos/rain/rain.hlsli>
-
-struct Vertex {
-    float3 position;
-    float2 texcoord;
-};
-
-struct Particle {
-    float3 position;
-};
-
-struct VertexOutput {
-    float4 position: SV_Position;
-    float2 texcoord: ATTRIBUTE0;
-};
+#include <kitchen/gpu/samplers.hlsli>
+#include <kitchen/graphics/core.hlsli>
 
 ConstantBuffer<Bindings> g_bindings: register(b0);
 
-FB_ATTRIBUTE(numthreads, SIM_DISPATCH_SIZE, 1, 1)
+FB_ATTRIBUTE(numthreads, DISPATCH_X, DISPATCH_Y, DISPATCH_Z)
 void sim_cs(FbComputeInput input) {
     ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
     RWStructuredBuffer<Particle> particles = ResourceDescriptorHeap[g_bindings.particles];
@@ -30,6 +17,11 @@ void sim_cs(FbComputeInput input) {
     }
     particles[i] = p;
 }
+
+struct VertexOutput {
+    float4 position: SV_Position;
+    float2 texcoord: ATTRIBUTE0;
+};
 
 VertexOutput draw_vs(FbVertexInput input) {
     ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];

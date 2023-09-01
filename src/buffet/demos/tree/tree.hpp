@@ -1,9 +1,14 @@
 #pragma once
 
-#include "../demos.hpp"
+#include "../common.hpp"
 #include "tree.hlsli"
 
 namespace fb::demos::tree {
+
+inline constexpr std::string_view NAME = "Tree"sv;
+inline constexpr float4 CLEAR_COLOR = {0.32549f, 0.51373f, 0.56078f, 1.0f};
+inline constexpr DXGI_FORMAT COLOR_FORMAT = DXGI_FORMAT_R8G8B8A8_UNORM;
+inline constexpr uint SAMPLE_COUNT = 4;
 
 inline constexpr uint SHADOW_MAP_SIZE = 1024;
 
@@ -21,45 +26,35 @@ struct Parameters {
     float camera_longitude = rad_from_deg(0.0f);
 };
 
-class TreeDemo {
-    FB_NO_COPY_MOVE(TreeDemo);
-
-public:
-    static constexpr std::string_view NAME = "Tree"sv;
-    static constexpr float4 CLEAR_COLOR = {0.32549f, 0.51373f, 0.56078f, 1.0f};
-
-    TreeDemo() = default;
-
-    auto create(GpuDevice& device, const Baked& baked) -> void;
-    auto gui(const GuiDesc& desc) -> void;
-    auto update(const UpdateDesc& desc) -> void;
-    auto render(GpuDevice& device, GpuCommandList& cmd) -> void;
-    auto rt() -> graphics::render_targets::RenderTargets& { return _render_targets; }
-
-    template<Archive A>
-    auto archive(A& arc) -> void {
-        arc& _parameters;
-    }
-
-private:
-    Parameters _parameters;
-    graphics::render_targets::RenderTargets _render_targets;
-    graphics::debug_draw::DebugDraw _debug_draw;
-
-    GpuBufferHostCbv<Constants> _constants;
-
-    GpuBufferHostSrv<baked::Vertex> _tree_vertices;
-    GpuBufferHostIndex<baked::Index> _tree_indices;
-    GpuTextureSrv _tree_texture;
-
-    GpuBufferHostSrv<baked::Vertex> _plane_vertices;
-    GpuBufferHostIndex<baked::Index> _plane_indices;
-    GpuTextureSrv _plane_texture;
-
-    GpuPipeline _shadow_pipeline;
-    GpuTextureSrvDsv _shadow_depth;
-
-    GpuPipeline _draw_pipeline;
+struct Demo {
+    Parameters parameters;
+    RenderTargets render_targets;
+    DebugDraw debug_draw;
+    GpuBufferHostCbv<Constants> constants;
+    GpuBufferHostSrv<baked::Vertex> tree_vertices;
+    GpuBufferHostIndex<baked::Index> tree_indices;
+    GpuTextureSrv tree_texture;
+    GpuBufferHostSrv<baked::Vertex> plane_vertices;
+    GpuBufferHostIndex<baked::Index> plane_indices;
+    GpuTextureSrv plane_texture;
+    GpuPipeline shadow_pipeline;
+    GpuTextureSrvDsv shadow_depth;
+    GpuPipeline draw_pipeline;
 };
+
+struct CreateDesc {
+    const Baked& baked;
+    GpuDevice& device;
+};
+
+auto create(Demo& demo, const CreateDesc& desc) -> void;
+auto gui(Demo& demo, const GuiDesc& desc) -> void;
+auto update(Demo& demo, const UpdateDesc& desc) -> void;
+auto render(Demo& demo, const RenderDesc& desc) -> void;
+
+template<Archive A>
+auto archive(Demo& demo, A& arc) -> void {
+    arc& demo.parameters;
+}
 
 } // namespace fb::demos::tree

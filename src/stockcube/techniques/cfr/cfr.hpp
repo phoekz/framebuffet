@@ -7,17 +7,6 @@ namespace fb::techniques::cfr {
 
 static constexpr std::string_view NAME = "CFR"sv;
 
-struct CreateDesc {
-    const RenderTargets& render_targets;
-    const Baked& baked;
-    GpuDevice& device;
-    GpuDescriptor rect_texture;
-};
-
-struct GpuCommandsDesc {
-    GpuCommandList& cmd;
-};
-
 struct Technique {
     GpuDescriptor rect_texture;
     GpuTextureSrvUavCube cube_texture;
@@ -26,9 +15,16 @@ struct Technique {
     bool done = false;
 };
 
+struct CreateDesc {
+    const RenderTargets& render_targets;
+    const Baked& baked;
+    GpuDevice& device;
+    GpuDescriptor rect_texture;
+};
+
 auto create(Technique& tech, const CreateDesc& desc) -> void;
 auto gui(Technique& tech, const GuiDesc& desc) -> void;
 auto update(Technique& tech, const UpdateDesc& desc) -> void;
-auto gpu_commands(Technique& tech, const GpuCommandsDesc& desc) -> void;
+auto render(Technique& tech, const RenderDesc& desc) -> void;
 
 } // namespace fb::techniques::cfr

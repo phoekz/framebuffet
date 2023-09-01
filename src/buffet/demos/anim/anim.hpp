@@ -1,9 +1,14 @@
 #pragma once
 
-#include "../demos.hpp"
+#include "../common.hpp"
 #include "anim.hlsli"
 
 namespace fb::demos::anim {
+
+inline constexpr std::string_view NAME = "Anim"sv;
+inline constexpr float4 CLEAR_COLOR = {0.6f, 0.2f, 0.6f, 1.0f};
+inline constexpr DXGI_FORMAT COLOR_FORMAT = DXGI_FORMAT_R8G8B8A8_UNORM;
+inline constexpr uint SAMPLE_COUNT = 4;
 
 struct Parameters {
     float camera_distance = 4.0f;
@@ -14,41 +19,36 @@ struct Parameters {
     float2 camera_clip_planes = float2(0.1f, 300.0f);
 };
 
-class AnimDemo {
-    FB_NO_COPY_MOVE(AnimDemo);
-
-public:
-    static constexpr std::string_view NAME = "Anim"sv;
-    static constexpr float4 CLEAR_COLOR = {0.6f, 0.2f, 0.6f, 1.0f};
-
-    AnimDemo() = default;
-
-    auto create(GpuDevice& device, const Baked& baked) -> void;
-    auto gui(const GuiDesc& desc) -> void;
-    auto update(const UpdateDesc& desc) -> void;
-    auto render(GpuDevice& device, GpuCommandList& cmd) -> void;
-    auto rt() -> graphics::render_targets::RenderTargets& { return _render_targets; }
-
-    template<Archive A>
-    auto archive(A& arc) -> void {
-        arc& _parameters;
-    }
-
-private:
-    Parameters _parameters;
-    graphics::render_targets::RenderTargets _render_targets;
-    graphics::debug_draw::DebugDraw _debug_draw;
-    GpuPipeline _pipeline;
-    GpuBufferHostCbv<Constants> _constants;
-    GpuBufferHostSrv<baked::SkinningVertex> _vertices;
-    GpuBufferHostIndex<baked::Index> _indices;
-    GpuBufferHostSrv<float4x4> _joint_inverse_bind_buffer;
-    GpuBufferHostSrv<float4x4> _joint_global_transform_buffer;
-    GpuTextureSrv _texture;
-    float _animation_time = 0.0f;
-    float _animation_duration = 0.0f;
-    std::vector<float4x4> _node_global_transforms;
-    baked::AnimationMesh _animation_mesh;
+struct Demo {
+    Parameters parameters;
+    RenderTargets render_targets;
+    DebugDraw debug_draw;
+    GpuPipeline pipeline;
+    GpuBufferHostCbv<Constants> constants;
+    GpuBufferHostSrv<baked::SkinningVertex> vertices;
+    GpuBufferHostIndex<baked::Index> indices;
+    GpuBufferHostSrv<float4x4> joint_inverse_bind_buffer;
+    GpuBufferHostSrv<float4x4> joint_global_transform_buffer;
+    GpuTextureSrv texture;
+    float animation_time = 0.0f;
+    float animation_duration = 0.0f;
+    std::vector<float4x4> node_global_transforms;
+    baked::AnimationMesh animation_mesh;
 };
+
+struct CreateDesc {
+    const Baked& baked;
+    GpuDevice& device;
+};
+
+auto create(Demo& demo, const CreateDesc& desc) -> void;
+auto gui(Demo& demo, const GuiDesc& desc) -> void;
+auto update(Demo& demo, const UpdateDesc& desc) -> void;
+auto render(Demo& demo, const RenderDesc& desc) -> void;
+
+template<Archive A>
+auto archive(Demo& demo, A& arc) -> void {
+    arc& demo.parameters;
+}
 
 } // namespace fb::demos::anim

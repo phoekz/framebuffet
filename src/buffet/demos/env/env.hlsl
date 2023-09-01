@@ -1,7 +1,6 @@
+#include <buffet/demos/env/env.hlsli>
 #include <kitchen/gpu/samplers.hlsli>
 #include <kitchen/graphics/core.hlsli>
-#include <kitchen/graphics/brdf.hlsli>
-#include <buffet/demos/env/env.hlsli>
 
 //
 // Background.

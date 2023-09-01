@@ -1,14 +1,19 @@
 #pragma once
 
-#include "../demos.hpp"
+#include "../common.hpp"
 #include "crate.hlsli"
 
 namespace fb::demos::crate {
 
+inline constexpr std::string_view NAME = "Crate"sv;
+inline constexpr float4 CLEAR_COLOR = {0.1f, 0.1f, 0.4f, 1.0f};
+inline constexpr DXGI_FORMAT COLOR_FORMAT = DXGI_FORMAT_R16G16B16A16_FLOAT;
+inline constexpr uint SAMPLE_COUNT = 4;
+
 struct Parameters {
-    float camera_distance = 5.0f;
+    float camera_distance = 3.0f;
     float camera_fov = rad_from_deg(45.0f);
-    float camera_latitude = rad_from_deg(30.0f);
+    float camera_latitude = rad_from_deg(35.0f);
     float camera_longitude = rad_from_deg(0.0f);
     float camera_rotation_speed = 0.1f;
     float light_latitude = rad_from_deg(35.0f);
@@ -27,37 +32,32 @@ struct Model {
     GpuTextureSrv metallic_roughness;
 };
 
-class CrateDemo {
-    FB_NO_COPY_MOVE(CrateDemo);
-
-public:
-    static constexpr std::string_view NAME = "Crate"sv;
-    static constexpr float4 CLEAR_COLOR = {0.1f, 0.1f, 0.4f, 1.0f};
-
-    CrateDemo() = default;
-
-    auto create(GpuDevice& device, const Baked& baked) -> void;
-    auto gui(const GuiDesc& desc) -> void;
-    auto update(const UpdateDesc& desc) -> void;
-    auto render(GpuDevice& device, GpuCommandList& cmd) -> void;
-    auto rt() -> graphics::render_targets::RenderTargets& { return _render_targets; }
-
-    template<Archive A>
-    auto archive(A& arc) -> void {
-        arc& _parameters;
-    }
-
-private:
-    Parameters _parameters;
-    graphics::render_targets::RenderTargets _render_targets;
-    graphics::debug_draw::DebugDraw _debug_draw;
-    GpuPipeline _pipeline;
-    GpuBufferHostCbv<Constants> _constants;
-    Model _sci_fi_crate;
-    Model _metal_plane;
-    GpuTextureSrv _pbr_lut;
-    GpuTextureSrvCube _pbr_irr;
-    GpuTextureSrvCube _pbr_rad;
+struct Demo {
+    Parameters parameters;
+    RenderTargets render_targets;
+    DebugDraw debug_draw;
+    GpuPipeline pipeline;
+    GpuBufferHostCbv<Constants> constants;
+    Model sci_fi_crate;
+    Model metal_plane;
+    GpuTextureSrv pbr_lut;
+    GpuTextureSrvCube pbr_irr;
+    GpuTextureSrvCube pbr_rad;
 };
+
+struct CreateDesc {
+    const Baked& baked;
+    GpuDevice& device;
+};
+
+auto create(Demo& demo, const CreateDesc& desc) -> void;
+auto gui(Demo& demo, const GuiDesc& desc) -> void;
+auto update(Demo& demo, const UpdateDesc& desc) -> void;
+auto render(Demo& demo, const RenderDesc& desc) -> void;
+
+template<Archive A>
+auto archive(Demo& demo, A& arc) -> void {
+    arc& demo.parameters;
+}
 
 } // namespace fb::demos::crate

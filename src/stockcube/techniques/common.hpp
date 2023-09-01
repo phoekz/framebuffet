@@ -32,6 +32,11 @@ struct UpdateDesc {
     uint frame_index;
 };
 
+struct RenderDesc {
+    GpuCommandList& cmd;
+    GpuDevice& device;
+};
+
 // Todo: this is a hack because we have not gotten into multi-queue
 // synchronization yet. Can be used to delay an action for a couple of frames.
 class Delayed {

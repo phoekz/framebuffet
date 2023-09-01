@@ -1,10 +1,10 @@
+#include <buffet/demos/fibers/fibers.hlsli>
 #include <kitchen/gpu/samplers.hlsli>
 #include <kitchen/graphics/core.hlsli>
-#include <buffet/demos/fibers/fibers.hlsli>
 
 ConstantBuffer<Bindings> g_bindings: register(b0);
 
-FB_ATTRIBUTE(numthreads, SIM_DISPATCH_SIZE, 1, 1)
+FB_ATTRIBUTE(numthreads, SIM_DISPATCH_X, SIM_DISPATCH_Y, SIM_DISPATCH_Z)
 void sim_cs(FbComputeInput input) {
     ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
     RWStructuredBuffer<Light> lights = ResourceDescriptorHeap[g_bindings.lights];
@@ -40,7 +40,7 @@ float3 view_point_from_clip(float4x4 view_from_clip, float clip_x, float clip_y)
     return view.xyz / view.w;
 }
 
-FB_ATTRIBUTE(numthreads, CULL_DISPATCH_SIZE, CULL_DISPATCH_SIZE, 1)
+FB_ATTRIBUTE(numthreads, CULL_DISPATCH_X, CULL_DISPATCH_Y, CULL_DISPATCH_Z)
 void cull_cs(FbComputeInput input) {
     ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
     StructuredBuffer<Light> lights = ResourceDescriptorHeap[g_bindings.lights];
@@ -54,7 +54,7 @@ void cull_cs(FbComputeInput input) {
 
     // Compute frustum planes.
     if (input.group_index == 0) {
-        const uint screen_tile_size = CULL_DISPATCH_SIZE;
+        const uint screen_tile_size = CULL_TILE_SIZE;
         const float screen_x0 = (float)(input.group_id.x * screen_tile_size);
         const float screen_y0 = (float)(input.group_id.y * screen_tile_size);
         const float screen_x1 = (float)(screen_x0 + screen_tile_size);

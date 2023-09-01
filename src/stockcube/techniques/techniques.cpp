@@ -147,27 +147,22 @@ auto update(Techniques& techs, const UpdateDesc& desc) -> void {
     blit::update(techs.blit, desc);
 }
 
-auto main_pass(
-    Techniques& techs,
-    GpuDevice& device,
-    RenderTargets& render_targets,
-    GpuCommandList& cmd
-) -> void {
-    cfr::gpu_commands(techs.cfr, {.cmd = cmd});
-    lut::gpu_commands(techs.lut, {.cmd = cmd});
-    irr::gpu_commands(techs.irr, {.cmd = cmd});
-    rad::gpu_commands(techs.rad, {.cmd = cmd});
+auto render_main(Techniques& techs, RenderTargets& render_targets, const RenderDesc& desc) -> void {
+    cfr::render(techs.cfr, desc);
+    lut::render(techs.lut, desc);
+    irr::render(techs.irr, desc);
+    rad::render(techs.rad, desc);
 
-    cmd.set_graphics();
-    render_targets.set(cmd);
-    bg::gpu_commands(techs.bg, {.cmd = cmd});
-    techs.debug_draw.render(device, cmd);
-    model::gpu_commands(techs.model, {.cmd = cmd});
-    screen::gpu_commands(techs.screen, {.cmd = cmd});
+    desc.cmd.set_graphics();
+    render_targets.set(desc.cmd);
+    bg::render(techs.bg, desc);
+    techs.debug_draw.render(desc.cmd);
+    model::render(techs.model, desc);
+    screen::render(techs.screen, desc);
 }
 
-auto compositing_pass(Techniques& techs, GpuDevice& device, GpuCommandList& cmd) -> void {
-    blit::gpu_commands(techs.blit, {.device = device, .cmd = cmd});
+auto render_compositing(Techniques& techs, const RenderDesc& desc) -> void {
+    blit::render(techs.blit, desc);
 }
 
 } // namespace fb::techniques

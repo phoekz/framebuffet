@@ -1,9 +1,14 @@
 #pragma once
 
-#include "../demos.hpp"
+#include "../common.hpp"
 #include "fibers.hlsli"
 
 namespace fb::demos::fibers {
+
+inline constexpr std::string_view NAME = "Fibers"sv;
+inline constexpr float4 CLEAR_COLOR = {0.0f, 0.0f, 0.0f, 1.0f};
+inline constexpr DXGI_FORMAT COLOR_FORMAT = DXGI_FORMAT_R16G16B16A16_FLOAT;
+inline constexpr uint SAMPLE_COUNT = 1;
 
 enum class Heatmap : uint {
     Magma,
@@ -26,56 +31,49 @@ struct Parameters {
     float heatmap_opacity = 0.5f;
 };
 
-inline constexpr uint SIM_DISPATCH_COUNT =
-    (LIGHT_COUNT + (SIM_DISPATCH_SIZE - 1)) / SIM_DISPATCH_SIZE;
-
 struct Mesh {
     GpuBufferHostSrv<baked::Vertex> vertices;
     GpuBufferHostIndex<baked::Index> indices;
 };
 
-class FibersDemo {
-    FB_NO_COPY_MOVE(FibersDemo);
-
-public:
-    static constexpr std::string_view NAME = "Fibers"sv;
-    static constexpr float4 CLEAR_COLOR = {0.05f, 0.05f, 0.05f, 1.0f};
-
-    FibersDemo() = default;
-
-    auto create(GpuDevice& device, const Baked& baked) -> void;
-    auto gui(const GuiDesc& desc) -> void;
-    auto update(const UpdateDesc& desc) -> void;
-    auto render(GpuDevice& device, GpuCommandList& cmd) -> void;
-    auto rt() -> graphics::render_targets::RenderTargets& { return _render_targets; }
-
-    template<Archive A>
-    auto archive(A& arc) -> void {
-        arc& _parameters;
-    }
-
-private:
-    Parameters _parameters;
-    graphics::render_targets::RenderTargets _render_targets;
-    graphics::debug_draw::DebugDraw _debug_draw;
-    GpuPipeline _sim_pipeline;
-    GpuPipeline _reset_pipeline;
-    GpuPipeline _cull_pipeline;
-    GpuPipeline _light_pipeline;
-    GpuPipeline _plane_pipeline;
-    GpuPipeline _debug_pipeline;
-    GpuBufferHostCbv<Constants> _constants;
-    Mesh _light_mesh;
-    Mesh _plane_mesh;
-    GpuBufferDeviceSrvUav<Light> _lights;
-    GpuTextureSrv _magma_texture;
-    GpuTextureSrv _viridis_texture;
-    GpuTextureSrvUav _light_counts_texture;
-    GpuTextureSrvUav _light_offsets_texture;
-    GpuBufferDeviceSrvUav<uint> _light_indices;
-    GpuBufferDeviceSrvUav<uint> _light_indices_count;
-    uint _cull_dispatch_count_x = 0;
-    uint _cull_dispatch_count_y = 0;
+struct Demo {
+    Parameters parameters;
+    RenderTargets render_targets;
+    DebugDraw debug_draw;
+    GpuPipeline sim_pipeline;
+    GpuPipeline reset_pipeline;
+    GpuPipeline cull_pipeline;
+    GpuPipeline light_pipeline;
+    GpuPipeline plane_pipeline;
+    GpuPipeline debug_pipeline;
+    GpuBufferHostCbv<Constants> constants;
+    Mesh light_mesh;
+    Mesh plane_mesh;
+    GpuBufferDeviceSrvUav<Light> lights;
+    GpuTextureSrv magma_texture;
+    GpuTextureSrv viridis_texture;
+    GpuTextureSrvUav light_counts_texture;
+    GpuTextureSrvUav light_offsets_texture;
+    GpuBufferDeviceSrvUav<uint> light_indices;
+    GpuBufferDeviceSrvUav<uint> light_indices_count;
+    uint sim_dispatch_count_x = 0;
+    uint cull_dispatch_count_x = 0;
+    uint cull_dispatch_count_y = 0;
 };
+
+struct CreateDesc {
+    const Baked& baked;
+    GpuDevice& device;
+};
+
+auto create(Demo& demo, const CreateDesc& desc) -> void;
+auto gui(Demo& demo, const GuiDesc& desc) -> void;
+auto update(Demo& demo, const UpdateDesc& desc) -> void;
+auto render(Demo& demo, const RenderDesc& desc) -> void;
+
+template<Archive A>
+auto archive(Demo& demo, A& arc) -> void {
+    arc& demo.parameters;
+}
 
 } // namespace fb::demos::fibers

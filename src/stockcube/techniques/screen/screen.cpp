@@ -120,7 +120,7 @@ auto update(Technique&, const UpdateDesc&) -> void {
     PIXScopedEvent(PIX_COLOR_DEFAULT, "%s - Update", NAME.data());
 }
 
-auto gpu_commands(Technique& tech, const GpuCommandsDesc& desc) -> void {
+auto render(Technique& tech, const RenderDesc& desc) -> void {
     GpuCommandList& cmd = desc.cmd;
 
     cmd.begin_pix("%s - GpuCommands", NAME.data());

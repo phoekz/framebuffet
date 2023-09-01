@@ -1,33 +1,54 @@
 #pragma once
 
 #include "../pch.hpp"
-#include <baked/kitchen/baked.hpp>
-#include <baked/buffet/baked.hpp>
-#include <kitchen/graphics/graphics.hpp>
+#include "common.hpp"
+#include "anim/anim.hpp"
+#include "crate/crate.hpp"
+#include "env/env.hpp"
+#include "fibers/fibers.hpp"
+#include "rain/rain.hpp"
+#include "tree/tree.hpp"
+#include "cards/cards.hpp"
 
 namespace fb::demos {
 
-struct Baked {
-    struct {
-        baked::kitchen::Assets assets;
-        baked::kitchen::Shaders shaders;
-    } kitchen;
-    struct {
-        baked::buffet::Assets assets;
-        baked::buffet::Shaders shaders;
-    } buffet;
+inline constexpr std::string_view NAME = "Buffet"sv;
+
+struct Demos {
+    anim::Demo anim;
+    crate::Demo crate;
+    env::Demo env;
+    fibers::Demo fibers;
+    rain::Demo rain;
+    tree::Demo tree;
+    cards::Demo cards;
 };
 
-struct UpdateDesc {
-    uint2 window_size;
-    float aspect_ratio;
-    float delta_time;
-    float elapsed_time;
-    uint frame_index;
+struct CreateDesc {
+    const Baked& baked;
+    GpuDevice& device;
 };
 
-struct GuiDesc {
-    uint2 window_size;
-};
+auto create(Demos& demos, const CreateDesc& desc) -> void;
+auto gui(Demos& demos, const GuiDesc& desc) -> void;
+auto update(Demos& demos, const UpdateDesc& desc) -> void;
+auto transition_to_render_target(Demos& demos, const RenderDesc& desc) -> void;
+auto clear_render_targets(Demos& demos, const RenderDesc& desc) -> void;
+auto render_demos(Demos& demos, const RenderDesc& desc) -> void;
+auto transition_to_resolve(Demos& demos, const RenderDesc& desc) -> void;
+auto resolve_render_targets(Demos& demos, const RenderDesc& desc) -> void;
+auto transition_to_srv(Demos& demos, const RenderDesc& desc) -> void;
+auto render_compose(Demos& demos, const RenderDesc& desc) -> void;
+
+template<Archive A>
+auto archive(Demos& demos, A& arc) -> void {
+    anim::archive(demos.anim, arc);
+    crate::archive(demos.crate, arc);
+    env::archive(demos.env, arc);
+    fibers::archive(demos.fibers, arc);
+    rain::archive(demos.rain, arc);
+    tree::archive(demos.tree, arc);
+    cards::archive(demos.cards, arc);
+}
 
 } // namespace fb::demos

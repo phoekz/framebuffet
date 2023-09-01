@@ -1,6 +1,8 @@
+#include <buffet/demos/tree/tree.hlsli>
 #include <kitchen/gpu/samplers.hlsli>
 #include <kitchen/graphics/core.hlsli>
-#include <buffet/demos/tree/tree.hlsli>
+
+ConstantBuffer<Bindings> g_bindings: register(b0);
 
 struct ShadowVertexOutput {
     float4 position: SV_Position;
@@ -12,8 +14,6 @@ struct DrawVertexOutput {
     float2 texcoord: ATTRIBUTE1;
     float4 shadow_coord: ATTRIBUTE2;
 };
-
-ConstantBuffer<Bindings> g_bindings: register(b0);
 
 ShadowVertexOutput shadow_vs(FbVertexInput input) {
     ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];

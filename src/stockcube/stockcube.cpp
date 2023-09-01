@@ -24,8 +24,8 @@ struct Stockcube {
 
     Window window;
     GpuDevice device;
-    Gui gui;
     Baked baked;
+    Gui gui;
     Techniques techniques;
     Frame frame;
     Camera camera;
@@ -134,9 +134,9 @@ auto stockcube_run(Stockcube& sc) -> void {
             );
         }
 
-        // Graphics.
+        // Rendering.
         {
-            PIXBeginEvent(PIX_COLOR_DEFAULT, "Graphics");
+            PIXBeginEvent(PIX_COLOR_DEFAULT, "Rendering");
 
             PIXBeginEvent(PIX_COLOR_DEFAULT, "Prepare");
             auto cmd = sc.device.begin_frame();
@@ -162,7 +162,8 @@ auto stockcube_run(Stockcube& sc) -> void {
 
                 {
                     cmd.begin_pix("Techniques");
-                    techniques::main_pass(sc.techniques, sc.device, render_targets, cmd);
+                    const auto desc = techniques::RenderDesc {.cmd = cmd, .device = sc.device};
+                    techniques::render_main(sc.techniques, render_targets, desc);
                     cmd.end_pix();
                 }
 
@@ -177,11 +178,12 @@ auto stockcube_run(Stockcube& sc) -> void {
                 }
 
                 {
-                    cmd.begin_pix("Compositing");
+                    cmd.begin_pix("Compose");
 
                     swapchain.set_render_target(cmd, frame_index);
 
-                    techniques::compositing_pass(sc.techniques, sc.device, cmd);
+                    const auto desc = techniques::RenderDesc {.cmd = cmd, .device = sc.device};
+                    techniques::render_compositing(sc.techniques, desc);
                     sc.gui.render(sc.device, cmd);
 
                     swapchain.transition_to_present(cmd, frame_index);

@@ -1,13 +1,13 @@
+#include <buffet/demos/cards/cards.hlsli>
 #include <kitchen/gpu/samplers.hlsli>
 #include <kitchen/graphics/core.hlsli>
-#include <buffet/demos/cards.hlsli>
+
+ConstantBuffer<Bindings> g_bindings: register(b0);
 
 struct VertexOutput {
     float4 position: SV_Position;
     float2 texcoord: ATTRIBUTE0;
 };
-
-ConstantBuffer<Bindings> g_bindings: register(b0);
 
 VertexOutput draw_vs(FbVertexInput input) {
     ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
@@ -25,9 +25,9 @@ VertexOutput draw_vs(FbVertexInput input) {
 
 FbPixelOutput<1> draw_ps(VertexOutput input) {
     Texture2D texture = ResourceDescriptorHeap[g_bindings.texture];
-    SamplerState samp = SamplerDescriptorHeap[(uint)GpuSampler::LinearClamp];
+    SamplerState sampler = SamplerDescriptorHeap[(uint)GpuSampler::LinearClamp];
 
     FbPixelOutput<1> output;
-    output.color = texture.Sample(samp, input.texcoord);
+    output.color = texture.Sample(sampler, input.texcoord);
     return output;
 }

@@ -1,7 +1,9 @@
+#include <buffet/demos/crate/crate.hlsli>
 #include <kitchen/gpu/samplers.hlsli>
 #include <kitchen/graphics/core.hlsli>
 #include <kitchen/graphics/brdf.hlsli>
-#include <buffet/demos/crate/crate.hlsli>
+
+ConstantBuffer<Bindings> g_bindings: register(b0);
 
 struct VertexOutput {
     float4 position: SV_Position;
@@ -11,8 +13,6 @@ struct VertexOutput {
     float3 bitangent: ATTRIBUTE3;
     float3 world_position: ATTRIBUTE4;
 };
-
-ConstantBuffer<Bindings> g_bindings: register(b0);
 
 VertexOutput draw_vs(FbVertexInput input) {
     ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];

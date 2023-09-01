@@ -8,12 +8,14 @@ set(SOURCES
     demos/anim/anim.cpp
     demos/anim/anim.hlsli
     demos/anim/anim.hpp
-    demos/cards.cpp
-    demos/cards.hlsli
-    demos/cards.hpp
+    demos/cards/cards.cpp
+    demos/cards/cards.hlsli
+    demos/cards/cards.hpp
+    demos/common.hpp
     demos/crate/crate.cpp
     demos/crate/crate.hlsli
     demos/crate/crate.hpp
+    demos/demos.cpp
     demos/demos.hpp
     demos/env/env.cpp
     demos/env/env.hlsli

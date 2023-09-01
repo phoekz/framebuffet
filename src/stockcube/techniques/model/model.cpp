@@ -57,7 +57,7 @@ auto update(Technique& tech, const UpdateDesc& desc) -> void {
     };
 }
 
-auto gpu_commands(Technique& tech, const GpuCommandsDesc& desc) -> void {
+auto render(Technique& tech, const RenderDesc& desc) -> void {
     GpuCommandList& cmd = desc.cmd;
 
     cmd.begin_pix("%s - GpuCommands", NAME.data());

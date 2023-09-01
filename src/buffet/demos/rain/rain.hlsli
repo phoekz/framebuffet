@@ -4,7 +4,9 @@
 
 FB_NAMESPACE_BEGIN(fb::demos::rain)
 
-FB_CONSTANT uint SIM_DISPATCH_SIZE = 128;
+FB_CONSTANT uint DISPATCH_X = 128;
+FB_CONSTANT uint DISPATCH_Y = 1;
+FB_CONSTANT uint DISPATCH_Z = 1;
 
 struct Bindings {
     uint constants;
@@ -18,6 +20,15 @@ struct Constants {
     float delta_time;
     float speed;
     float pad[30];
+};
+
+struct Vertex {
+    float3 position;
+    float2 texcoord;
+};
+
+struct Particle {
+    float3 position;
 };
 
 FB_NAMESPACE_END(fb::demos::rain)

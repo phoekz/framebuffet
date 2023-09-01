@@ -17,11 +17,6 @@ namespace fb::techniques {
 
 inline constexpr std::string_view NAME = "Stockcube"sv;
 
-struct CreateDesc {
-    const Baked& baked;
-    GpuDevice& device;
-};
-
 struct Techniques {
     RenderTargets render_targets;
     std::string rect_texture_name;
@@ -37,15 +32,15 @@ struct Techniques {
     blit::Technique blit;
 };
 
+struct CreateDesc {
+    const Baked& baked;
+    GpuDevice& device;
+};
+
 auto create(Techniques& techs, const CreateDesc& desc) -> void;
 auto gui(Techniques& techs, const GuiDesc& desc) -> void;
 auto update(Techniques& techs, const UpdateDesc& desc) -> void;
-auto main_pass(
-    Techniques& techs,
-    GpuDevice& device,
-    RenderTargets& render_targets,
-    GpuCommandList& cmd
-) -> void;
-auto compositing_pass(Techniques& techs, GpuDevice& device, GpuCommandList& cmd) -> void;
+auto render_main(Techniques& techs, RenderTargets& render_targets, const RenderDesc& desc) -> void;
+auto render_compositing(Techniques& techs, const RenderDesc& desc) -> void;
 
 } // namespace fb::techniques

@@ -2,40 +2,43 @@
 
 namespace fb::demos::fibers {
 
-auto FibersDemo::create(GpuDevice& device, const Baked& baked) -> void {
+auto create(Demo& demo, const CreateDesc& desc) -> void {
+    PIXScopedEvent(PIX_COLOR_DEFAULT, "%s - Create", NAME.data());
     DebugScope debug(NAME);
 
+    // Unpack.
+    const auto& kitchen_shaders = desc.baked.kitchen.shaders;
+    const auto& shaders = desc.baked.buffet.shaders;
+    const auto& assets = desc.baked.buffet.assets;
+    auto& device = desc.device;
+
     // Render targets.
-    _render_targets.create(
+    demo.render_targets.create(
         device,
         {
             .size = device.swapchain().size(),
-            .color_format = DXGI_FORMAT_R16G16B16A16_FLOAT,
+            .color_format = COLOR_FORMAT,
             .clear_color = CLEAR_COLOR,
-            .sample_count = 1,
+            .sample_count = SAMPLE_COUNT,
         }
     );
 
     // Debug draw.
-    _debug_draw.create(device, baked.kitchen.shaders, _render_targets);
-
-    // Unpack.
-    const auto& shaders = baked.buffet.shaders;
-    const auto& assets = baked.buffet.assets;
+    demo.debug_draw.create(device, kitchen_shaders, demo.render_targets);
 
     // Pipelines.
     {
         GpuPipelineBuilder()
             .compute_shader(shaders.fibers_sim_cs())
-            .build(device, _sim_pipeline, debug.with_name("Sim Pipeline"));
+            .build(device, demo.sim_pipeline, debug.with_name("Sim Pipeline"));
 
         GpuPipelineBuilder()
             .compute_shader(shaders.fibers_reset_cs())
-            .build(device, _reset_pipeline, debug.with_name("Reset Pipeline"));
+            .build(device, demo.reset_pipeline, debug.with_name("Reset Pipeline"));
 
         GpuPipelineBuilder()
             .compute_shader(shaders.fibers_cull_cs())
-            .build(device, _cull_pipeline, debug.with_name("Cull Pipeline"));
+            .build(device, demo.cull_pipeline, debug.with_name("Cull Pipeline"));
 
         GpuPipelineBuilder()
             .primitive_topology(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)
@@ -44,17 +47,17 @@ auto FibersDemo::create(GpuDevice& device, const Baked& baked) -> void {
             .rasterizer(GpuRasterizerDesc {
                 .fill_mode = GpuFillMode::Wireframe,
             })
-            .render_target_formats({_render_targets.color_format()})
-            .depth_stencil_format(_render_targets.depth_format())
-            .build(device, _light_pipeline, debug.with_name("Light Pipeline"));
+            .render_target_formats({demo.render_targets.color_format()})
+            .depth_stencil_format(demo.render_targets.depth_format())
+            .build(device, demo.light_pipeline, debug.with_name("Light Pipeline"));
 
         GpuPipelineBuilder()
             .primitive_topology(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)
             .vertex_shader(shaders.fibers_plane_vs())
             .pixel_shader(shaders.fibers_plane_ps())
-            .render_target_formats({_render_targets.color_format()})
-            .depth_stencil_format(_render_targets.depth_format())
-            .build(device, _plane_pipeline, debug.with_name("Plane Pipeline"));
+            .render_target_formats({demo.render_targets.color_format()})
+            .depth_stencil_format(demo.render_targets.depth_format())
+            .build(device, demo.plane_pipeline, debug.with_name("Plane Pipeline"));
 
         GpuPipelineBuilder()
             .primitive_topology(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)
@@ -73,19 +76,19 @@ auto FibersDemo::create(GpuDevice& device, const Baked& baked) -> void {
                 .depth_read = false,
                 .depth_write = false,
             })
-            .render_target_formats({_render_targets.color_format()})
-            .build(device, _debug_pipeline, debug.with_name("Debug Pipeline"));
+            .render_target_formats({demo.render_targets.color_format()})
+            .build(device, demo.debug_pipeline, debug.with_name("Debug Pipeline"));
     }
 
     // Constants.
-    _constants.create(device, 1, debug.with_name("Constants"));
+    demo.constants.create(device, 1, debug.with_name("Constants"));
 
     // Geometry.
     {
         const auto mesh = assets.light_bounds_mesh();
-        _light_mesh.vertices
+        demo.light_mesh.vertices
             .create_with_data(device, mesh.vertices, debug.with_name("Light Vertices"));
-        _light_mesh.indices
+        demo.light_mesh.indices
             .create_with_data(device, mesh.indices, debug.with_name("Light Indices"));
     }
     {
@@ -96,12 +99,12 @@ auto FibersDemo::create(GpuDevice& device, const Baked& baked) -> void {
             {{-PLANE_RADIUS_X, +PLANE_RADIUS_Y, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
         });
         const auto indices = std::to_array<baked::Index>({0, 1, 2, 0, 2, 3});
-        _plane_mesh.vertices.create_with_data(
+        demo.plane_mesh.vertices.create_with_data(
             device,
             std::span(vertices.data(), vertices.size()),
             debug.with_name("Plane Vertices")
         );
-        _plane_mesh.indices.create_with_data(
+        demo.plane_mesh.indices.create_with_data(
             device,
             std::span(indices.data(), indices.size()),
             debug.with_name("Plane Indices")
@@ -143,55 +146,56 @@ auto FibersDemo::create(GpuDevice& device, const Baked& baked) -> void {
         FB_LOG_INFO("Light placement attempts: {}", attempts);
 
         // Buffer.
-        _lights.create_and_transfer(
+        demo.lights.create_and_transfer(
             device,
             lights,
             D3D12_RESOURCE_STATE_COMMON,
             D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
             debug.with_name("Lights")
         );
-    }
 
-    const auto swapchain_size = device.swapchain().size();
-    _cull_dispatch_count_x = (swapchain_size.x + (CULL_DISPATCH_SIZE - 1)) / CULL_DISPATCH_SIZE;
-    _cull_dispatch_count_y = (swapchain_size.y + (CULL_DISPATCH_SIZE - 1)) / CULL_DISPATCH_SIZE;
+        // Compute resources.
+        const auto swapchain_size = device.swapchain().size();
+        demo.sim_dispatch_count_x = (LIGHT_COUNT + (SIM_DISPATCH_X - 1)) / SIM_DISPATCH_X;
+        demo.cull_dispatch_count_x = (swapchain_size.x + (CULL_TILE_SIZE - 1)) / CULL_TILE_SIZE;
+        demo.cull_dispatch_count_y = (swapchain_size.y + (CULL_TILE_SIZE - 1)) / CULL_TILE_SIZE;
 
-    {
-        _light_counts_texture.create(
+        demo.light_counts_texture.create(
             device,
             {
                 .format = DXGI_FORMAT_R32_UINT,
-                .width = _cull_dispatch_count_x,
-                .height = _cull_dispatch_count_y,
+                .width = demo.cull_dispatch_count_x,
+                .height = demo.cull_dispatch_count_y,
             },
             debug.with_name("Light Counts Texture")
         );
-        _light_offsets_texture.create(
+        demo.light_offsets_texture.create(
             device,
             {
                 .format = DXGI_FORMAT_R32_UINT,
-                .width = _cull_dispatch_count_x,
-                .height = _cull_dispatch_count_y,
+                .width = demo.cull_dispatch_count_x,
+                .height = demo.cull_dispatch_count_y,
             },
             debug.with_name("Light Offsets Texture")
         );
-        _light_indices.create(
+        demo.light_indices.create(
             device,
-            _cull_dispatch_count_x * _cull_dispatch_count_y * MAX_LIGHT_PER_TILE,
+            demo.cull_dispatch_count_x * demo.cull_dispatch_count_y * MAX_LIGHT_PER_TILE,
             debug.with_name("Light Indices")
         );
-        _light_indices_count.create(device, 1, debug.with_name("Light Indices Count"));
+        demo.light_indices_count.create(device, 1, debug.with_name("Light Indices Count"));
     }
 
+    // Heatmap textures.
     {
-        _magma_texture.create_and_transfer_baked(
+        demo.magma_texture.create_and_transfer_baked(
             device,
             assets.heatmap_magma_texture(),
             D3D12_RESOURCE_STATE_COMMON,
             D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
             debug.with_name("Magma Texture")
         );
-        _viridis_texture.create_and_transfer_baked(
+        demo.viridis_texture.create_and_transfer_baked(
             device,
             assets.heatmap_viridis_texture(),
             D3D12_RESOURCE_STATE_COMMON,
@@ -201,23 +205,25 @@ auto FibersDemo::create(GpuDevice& device, const Baked& baked) -> void {
     }
 }
 
-auto FibersDemo::gui(const GuiDesc&) -> void {
-    auto& p = _parameters;
-    ImGui::SliderFloat("Camera Distance", &p.camera_distance, 0.5f, 10.0f);
-    ImGui::SliderAngle("Camera FOV", &p.camera_fov, 0.0f, 90.0f);
-    ImGui::SliderAngle("Camera Latitude", &p.camera_latitude, -90.0f, 90.0f);
-    ImGui::SliderAngle("Camera Longitude", &p.camera_longitude, 0.0f, 360.0f);
-    ImGui::SliderFloat2("Camera Clip Planes", &p.camera_clip_planes.x, 0.1f, 400.0f);
-    ImGui::Checkbox("Show Light Bounds", &p.show_light_bounds);
-    ImGui::SliderFloat("Light Speed", &p.light_speed, 0.0f, 2.0f);
-    ImGui::SliderFloat("Light Range", &p.light_range, 0.05f, 0.5f);
-    ImGui::SliderInt("Light Intensity Pow2", &p.light_intensity_pow2, 0, 20);
-    ImGui::Combo("Heatmap", (int*)&p.heatmap, "Magma\0Viridis\0");
-    ImGui::SliderFloat("Heatmap Opacity", &p.heatmap_opacity, 0.0f, 1.0f);
+auto gui(Demo& demo, const GuiDesc&) -> void {
+    PIXScopedEvent(PIX_COLOR_DEFAULT, "%s - Gui", NAME.data());
+    auto& params = demo.parameters;
+    ImGui::SliderFloat("Camera Distance", &params.camera_distance, 0.5f, 10.0f);
+    ImGui::SliderAngle("Camera FOV", &params.camera_fov, 0.0f, 90.0f);
+    ImGui::SliderAngle("Camera Latitude", &params.camera_latitude, -90.0f, 90.0f);
+    ImGui::SliderAngle("Camera Longitude", &params.camera_longitude, 0.0f, 360.0f);
+    ImGui::SliderFloat2("Camera Clip Planes", &params.camera_clip_planes.x, 0.1f, 400.0f);
+    ImGui::Checkbox("Show Light Bounds", &params.show_light_bounds);
+    ImGui::SliderFloat("Light Speed", &params.light_speed, 0.0f, 2.0f);
+    ImGui::SliderFloat("Light Range", &params.light_range, 0.05f, 0.5f);
+    ImGui::SliderInt("Light Intensity Pow2", &params.light_intensity_pow2, 0, 20);
+    ImGui::Combo("Heatmap", (int*)&params.heatmap, "Magma\0Viridis\0");
+    ImGui::SliderFloat("Heatmap Opacity", &params.heatmap_opacity, 0.0f, 1.0f);
 }
 
-auto FibersDemo::update(const UpdateDesc& desc) -> void {
-    const auto& p = _parameters;
+auto update(Demo& demo, const UpdateDesc& desc) -> void {
+    PIXScopedEvent(PIX_COLOR_DEFAULT, "%s - Update", NAME.data());
+    auto& params = demo.parameters;
 
     // Update transforms.
     float4x4 clip_from_world;
@@ -225,12 +231,13 @@ auto FibersDemo::update(const UpdateDesc& desc) -> void {
     float4x4 view_from_world;
     {
         auto projection = float4x4::CreatePerspectiveFieldOfView(
-            p.camera_fov,
+            params.camera_fov,
             desc.aspect_ratio,
-            p.camera_clip_planes.x,
-            p.camera_clip_planes.y
+            params.camera_clip_planes.x,
+            params.camera_clip_planes.y
         );
-        auto eye = p.camera_distance * dir_from_lonlat(p.camera_longitude, p.camera_latitude);
+        auto eye = params.camera_distance
+            * dir_from_lonlat(params.camera_longitude, params.camera_latitude);
         auto view = float4x4::CreateLookAt(eye, float3::Zero, float3::Up);
         clip_from_world = view * projection;
         view_from_clip = projection.Invert();
@@ -238,27 +245,28 @@ auto FibersDemo::update(const UpdateDesc& desc) -> void {
     }
 
     // Update debug draw.
-    _debug_draw.begin(desc.frame_index);
-    _debug_draw.transform(clip_from_world);
-    _debug_draw.axes();
-    _debug_draw.end();
+    demo.debug_draw.begin(desc.frame_index);
+    demo.debug_draw.transform(clip_from_world);
+    demo.debug_draw.axes();
+    demo.debug_draw.end();
 
     // Update constants.
-    *_constants.ptr() = Constants {
+    *demo.constants.ptr() = Constants {
         .clip_from_world = clip_from_world,
         .view_from_clip = view_from_clip,
         .view_from_world = view_from_world,
         .window_size = float2((float)desc.window_size.x, (float)desc.window_size.y),
         .delta_time = desc.delta_time,
-        .light_speed = p.light_speed,
-        .light_range = p.light_range,
-        .light_intensity = 1.0f / (float)(1 << p.light_intensity_pow2),
-        .heatmap_opacity = p.heatmap_opacity,
+        .light_speed = params.light_speed,
+        .light_range = params.light_range,
+        .light_intensity = 1.0f / (float)(1 << params.light_intensity_pow2),
+        .heatmap_opacity = params.heatmap_opacity,
     };
 }
 
-auto FibersDemo::render(GpuDevice& device, GpuCommandList& cmd) -> void {
-    const auto& p = _parameters;
+auto render(Demo& demo, const RenderDesc& desc) -> void {
+    GpuCommandList& cmd = desc.cmd;
+    cmd.begin_pix("%s - Render", NAME.data());
 
     // Compute.
     {
@@ -266,93 +274,105 @@ auto FibersDemo::render(GpuDevice& device, GpuCommandList& cmd) -> void {
         cmd.set_compute();
 
         // Sim.
-        cmd.set_pipeline(_sim_pipeline);
+        cmd.set_pipeline(demo.sim_pipeline);
         cmd.set_compute_constants(Bindings {
-            .constants = _constants.cbv_descriptor().index(),
-            .lights = _lights.uav_descriptor().index(),
+            .constants = demo.constants.cbv_descriptor().index(),
+            .lights = demo.lights.uav_descriptor().index(),
         });
-        cmd.dispatch(SIM_DISPATCH_COUNT, 1, 1);
-        _lights.uav_barrier(cmd);
+        cmd.dispatch(demo.sim_dispatch_count_x, 1, 1);
+        demo.lights.uav_barrier(cmd);
         cmd.flush_barriers();
 
         // Reset.
-        cmd.set_pipeline(_reset_pipeline);
+        cmd.set_pipeline(demo.reset_pipeline);
         cmd.set_compute_constants(Bindings {
-            .light_indices_count = _light_indices_count.uav_descriptor().index(),
+            .light_indices_count = demo.light_indices_count.uav_descriptor().index(),
         });
         cmd.dispatch(1, 1, 1);
-        _light_indices_count.uav_barrier(cmd);
+        demo.light_indices_count.uav_barrier(cmd);
         cmd.flush_barriers();
 
         // Cull.
-        cmd.set_pipeline(_cull_pipeline);
+        cmd.set_pipeline(demo.cull_pipeline);
         cmd.set_compute_constants(Bindings {
-            .constants = _constants.cbv_descriptor().index(),
-            .lights = _lights.uav_descriptor().index(),
-            .light_counts_texture = _light_counts_texture.uav_descriptor().index(),
-            .light_offsets_texture = _light_offsets_texture.uav_descriptor().index(),
-            .light_indices = _light_indices.uav_descriptor().index(),
-            .light_indices_count = _light_indices_count.uav_descriptor().index(),
+            .constants = demo.constants.cbv_descriptor().index(),
+            .lights = demo.lights.uav_descriptor().index(),
+            .light_counts_texture = demo.light_counts_texture.uav_descriptor().index(),
+            .light_offsets_texture = demo.light_offsets_texture.uav_descriptor().index(),
+            .light_indices = demo.light_indices.uav_descriptor().index(),
+            .light_indices_count = demo.light_indices_count.uav_descriptor().index(),
         });
-        cmd.dispatch(_cull_dispatch_count_x, _cull_dispatch_count_y, 1);
-        _light_counts_texture.uav_barrier(cmd);
-        _light_offsets_texture.uav_barrier(cmd);
-        _light_indices.uav_barrier(cmd);
-        _light_indices_count.uav_barrier(cmd);
+        cmd.dispatch(demo.cull_dispatch_count_x, demo.cull_dispatch_count_y, 1);
+        demo.light_counts_texture.uav_barrier(cmd);
+        demo.light_offsets_texture.uav_barrier(cmd);
+        demo.light_indices.uav_barrier(cmd);
+        demo.light_indices_count.uav_barrier(cmd);
         cmd.flush_barriers();
         cmd.end_pix();
     }
 
     // Draw.
     {
+        const auto& params = demo.parameters;
+
         cmd.begin_pix("Draw");
         cmd.set_graphics();
-        _render_targets.set(cmd);
-        _debug_draw.render(device, cmd);
+        demo.render_targets.set(cmd);
+        demo.debug_draw.render(cmd);
 
         // Light.
-        if (p.show_light_bounds) {
+        if (params.show_light_bounds) {
             cmd.set_graphics_constants(Bindings {
-                .constants = _constants.cbv_descriptor().index(),
-                .lights = _lights.srv_descriptor().index(),
-                .vertices = _light_mesh.vertices.srv_descriptor().index(),
+                .constants = demo.constants.cbv_descriptor().index(),
+                .lights = demo.lights.srv_descriptor().index(),
+                .vertices = demo.light_mesh.vertices.srv_descriptor().index(),
             });
-            cmd.set_pipeline(_light_pipeline);
+            cmd.set_pipeline(demo.light_pipeline);
             cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-            cmd.set_index_buffer(_light_mesh.indices.index_buffer_view());
-            cmd.draw_indexed_instanced(_light_mesh.indices.element_count(), LIGHT_COUNT, 0, 0, 0);
+            cmd.set_index_buffer(demo.light_mesh.indices.index_buffer_view());
+            cmd.draw_indexed_instanced(
+                demo.light_mesh.indices.element_count(),
+                LIGHT_COUNT,
+                0,
+                0,
+                0
+            );
         }
 
         // Plane.
         cmd.set_graphics_constants(Bindings {
-            .constants = _constants.cbv_descriptor().index(),
-            .lights = _lights.srv_descriptor().index(),
-            .vertices = _plane_mesh.vertices.srv_descriptor().index(),
-            .light_counts_texture = _light_counts_texture.srv_descriptor().index(),
-            .light_offsets_texture = _light_offsets_texture.srv_descriptor().index(),
-            .light_indices = _light_indices.srv_descriptor().index(),
+            .constants = demo.constants.cbv_descriptor().index(),
+            .lights = demo.lights.srv_descriptor().index(),
+            .vertices = demo.plane_mesh.vertices.srv_descriptor().index(),
+            .light_counts_texture = demo.light_counts_texture.srv_descriptor().index(),
+            .light_offsets_texture = demo.light_offsets_texture.srv_descriptor().index(),
+            .light_indices = demo.light_indices.srv_descriptor().index(),
         });
-        cmd.set_pipeline(_plane_pipeline);
+        cmd.set_pipeline(demo.plane_pipeline);
         cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-        cmd.set_index_buffer(_plane_mesh.indices.index_buffer_view());
-        cmd.draw_indexed_instanced(_plane_mesh.indices.element_count(), 1, 0, 0, 0);
+        cmd.set_index_buffer(demo.plane_mesh.indices.index_buffer_view());
+        cmd.draw_indexed_instanced(demo.plane_mesh.indices.element_count(), 1, 0, 0, 0);
 
         // Debug.
         auto heatmap_index = 0u;
-        switch (p.heatmap) {
-            case Heatmap::Magma: heatmap_index = _magma_texture.srv_descriptor().index(); break;
-            case Heatmap::Viridis: heatmap_index = _viridis_texture.srv_descriptor().index(); break;
+        switch (params.heatmap) {
+            case Heatmap::Magma: heatmap_index = demo.magma_texture.srv_descriptor().index(); break;
+            case Heatmap::Viridis:
+                heatmap_index = demo.viridis_texture.srv_descriptor().index();
+                break;
         }
         cmd.set_graphics_constants(Bindings {
-            .constants = _constants.cbv_descriptor().index(),
+            .constants = demo.constants.cbv_descriptor().index(),
             .heatmap_texture = heatmap_index,
-            .light_counts_texture = _light_counts_texture.srv_descriptor().index(),
+            .light_counts_texture = demo.light_counts_texture.srv_descriptor().index(),
         });
-        cmd.set_pipeline(_debug_pipeline);
+        cmd.set_pipeline(demo.debug_pipeline);
         cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
         cmd.draw_instanced(3, 1, 0, 0);
         cmd.end_pix();
     }
+
+    cmd.end_pix();
 }
 
 } // namespace fb::demos::fibers

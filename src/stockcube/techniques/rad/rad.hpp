@@ -7,18 +7,6 @@ namespace fb::techniques::rad {
 
 static constexpr std::string_view NAME = "RAD"sv;
 
-struct CreateDesc {
-    const RenderTargets& render_targets;
-    const Baked& baked;
-    GpuDevice& device;
-    GpuDescriptor cube_texture;
-    std::string_view texture_name;
-};
-
-struct GpuCommandsDesc {
-    GpuCommandList& cmd;
-};
-
 struct Technique {
     std::string_view texture_name;
     GpuDescriptor cube_texture;
@@ -34,9 +22,17 @@ struct Technique {
     Delayed delayed_save;
 };
 
+struct CreateDesc {
+    const RenderTargets& render_targets;
+    const Baked& baked;
+    GpuDevice& device;
+    GpuDescriptor cube_texture;
+    std::string_view texture_name;
+};
+
 auto create(Technique& tech, const CreateDesc& desc) -> void;
 auto gui(Technique& tech, const GuiDesc& desc) -> void;
 auto update(Technique& tech, const UpdateDesc& desc) -> void;
-auto gpu_commands(Technique& tech, const GpuCommandsDesc& desc) -> void;
+auto render(Technique& tech, const RenderDesc& desc) -> void;
 
 } // namespace fb::techniques::rad

@@ -59,13 +59,19 @@ static auto layout_exclusive(std::span<Card> cards, uint2 window_size) -> void {
     }
 }
 
-auto Cards::create(GpuDevice& device, const Baked& baked, const CardsDesc& desc) -> void {
-    DebugScope debug(NAME.data());
+auto create(Demo& demo, const CreateDesc& desc) -> void {
+    PIXScopedEvent(PIX_COLOR_DEFAULT, "%s - Create", NAME.data());
+    DebugScope debug(NAME);
+
+    // Unpack.
+    const auto& kitchen_shaders = desc.baked.kitchen.shaders;
+    const auto& shaders = desc.baked.buffet.shaders;
+    auto& device = desc.device;
 
     // Descriptors.
     for (uint i = 0; i < CARD_COUNT; i++) {
-        const auto& color = desc.card_render_targets[i].get().color();
-        _card_descriptors[i] = CardDescriptors {
+        const auto& color = desc.render_targets[i].get().color();
+        demo.card_descriptors[i] = CardDescriptors {
             .src = color.srv_descriptor().index(),
             .mid = color.uav_descriptor().index() + 6,
             .dst_begin = color.uav_descriptor().index(),
@@ -74,24 +80,24 @@ auto Cards::create(GpuDevice& device, const Baked& baked, const CardsDesc& desc)
 
     // Pipeline.
     GpuPipelineBuilder()
-        .vertex_shader(baked.buffet.shaders.cards_draw_vs())
-        .pixel_shader(baked.buffet.shaders.cards_draw_ps())
+        .vertex_shader(shaders.cards_draw_vs())
+        .pixel_shader(shaders.cards_draw_ps())
         .primitive_topology(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)
         .render_target_formats({device.swapchain().format()})
         .depth_stencil(GpuDepthStencilDesc {
             .depth_read = false,
             .depth_write = false,
         })
-        .build(device, _pipeline, debug.with_name("Pipeline"));
+        .build(device, demo.pipeline, debug.with_name("Pipeline"));
 
     // Constants.
-    _constants.create(device, 1, debug.with_name("Constants"));
+    demo.constants.create(device, 1, debug.with_name("Constants"));
 
     // Cards.
-    _cards.create(device, CARD_COUNT, debug.with_name("Cards"));
+    demo.cards.create(device, CARD_COUNT, debug.with_name("Cards"));
 
     // Default card layout.
-    layout_hmosaic(_cards.span(), device.swapchain().size());
+    layout_hmosaic(demo.cards.span(), device.swapchain().size());
 
     // Geometry.
     {
@@ -102,13 +108,13 @@ auto Cards::create(GpuDevice& device, const Baked& baked, const CardsDesc& desc)
             {{1.0f, 0.0f}, {1.0f, 0.0f}},
         });
         const auto indices = std::to_array<uint16_t>({0, 1, 2, 0, 2, 3});
-        _vertices.create_with_data(device, vertices, debug.with_name("Vertices"));
-        _indices.create_with_data(device, indices, debug.with_name("Indices"));
+        demo.vertices.create_with_data(device, vertices, debug.with_name("Vertices"));
+        demo.indices.create_with_data(device, indices, debug.with_name("Indices"));
     }
 
     // Default card indices.
     for (uint i = 0; i < CARD_COUNT; i++) {
-        _parameters.card_indirect_indices[i] = i;
+        demo.parameters.card_indirect_indices[i] = i;
     }
 
     // Single pass downsampler.
@@ -124,11 +130,11 @@ auto Cards::create(GpuDevice& device, const Baked& baked, const CardsDesc& desc)
         const auto threadgroup_count_y = end_index_y + 1u;
         const auto threadgroup_count = threadgroup_count_x * threadgroup_count_y;
         const auto inv_texture_size = float2(1.0f / (float)width, 1.0f / (float)height);
-        _spd_dispatch = uint3(threadgroup_count_x, threadgroup_count_y, 1);
+        demo.spd_dispatch = uint3(threadgroup_count_x, threadgroup_count_y, 1);
 
         // Constants.
-        _spd_constants.create(device, 1, spd_debug.with_name("Constants"));
-        *_spd_constants.ptr() = spd::Constants {
+        demo.spd_constants.create(device, 1, spd_debug.with_name("Constants"));
+        *demo.spd_constants.ptr() = spd::Constants {
             .mip_count = mip_count,
             .threadgroup_count = threadgroup_count,
             .inv_texture_size = inv_texture_size,
@@ -136,7 +142,7 @@ auto Cards::create(GpuDevice& device, const Baked& baked, const CardsDesc& desc)
 
         // Atomics.
         spd::Atomics atomics = {};
-        _spd_atomics.create_and_transfer(
+        demo.spd_atomics.create_and_transfer(
             device,
             std::span(&atomics, 1),
             D3D12_RESOURCE_STATE_COMMON,
@@ -146,15 +152,15 @@ auto Cards::create(GpuDevice& device, const Baked& baked, const CardsDesc& desc)
 
         // Pipeline.
         GpuPipelineBuilder()
-            .compute_shader(baked.kitchen.shaders.spd_downsample_cs())
-            .build(device, _spd_pipeline, spd_debug.with_name("Pipeline"));
+            .compute_shader(kitchen_shaders.spd_downsample_cs())
+            .build(device, demo.spd_pipeline, spd_debug.with_name("Pipeline"));
     }
 }
 
-auto Cards::gui(const demos::GuiDesc& desc) -> void {
-    std::span<Card> cards = {_cards.ptr(), CARD_COUNT};
-    auto& p = _parameters;
-
+auto gui(Demo& demo, const GuiDesc& desc) -> void {
+    PIXScopedEvent(PIX_COLOR_DEFAULT, "%s - Gui", NAME.data());
+    auto& params = demo.parameters;
+    auto cards = std::span<Card>(demo.cards.ptr(), CARD_COUNT);
     if (ImGui::Button("Grid")) {
         layout_grid(cards, desc.window_size, CARD_GRID_COLUMNS);
     }
@@ -172,72 +178,73 @@ auto Cards::gui(const demos::GuiDesc& desc) -> void {
     }
     if (ImGui::Button("Rotate Left")) {
         std::rotate(
-            p.card_indirect_indices.begin(),
-            p.card_indirect_indices.begin() + 1,
-            p.card_indirect_indices.end()
+            params.card_indirect_indices.begin(),
+            params.card_indirect_indices.begin() + 1,
+            params.card_indirect_indices.end()
         );
     }
     ImGui::SameLine();
     if (ImGui::Button("Rotate Right")) {
         std::rotate(
-            p.card_indirect_indices.rbegin(),
-            p.card_indirect_indices.rbegin() + 1,
-            p.card_indirect_indices.rend()
+            params.card_indirect_indices.rbegin(),
+            params.card_indirect_indices.rbegin() + 1,
+            params.card_indirect_indices.rend()
         );
     }
 }
 
-void Cards::update(const GpuDevice& device) {
-    const auto swapchain_size = device.swapchain().size();
-    const auto width = (float)swapchain_size.x;
-    const auto height = (float)swapchain_size.y;
+auto update(Demo& demo, const UpdateDesc& desc) -> void {
+    PIXScopedEvent(PIX_COLOR_DEFAULT, "%s - Update", NAME.data());
+    const auto width = (float)desc.window_size.x;
+    const auto height = (float)desc.window_size.y;
     const auto projection =
         float4x4::CreateOrthographicOffCenter(0.0f, width, height, 0.0f, 0.0f, 1.0f);
-    *_constants.ptr() = Constants {
+    *demo.constants.ptr() = Constants {
         .transform = projection,
     };
 }
 
-void Cards::render(GpuDevice& device, GpuCommandList& cmd) {
-    cmd.begin_pix(NAME.data());
+auto render(Demo& demo, const RenderDesc& desc) -> void {
+    GpuCommandList& cmd = desc.cmd;
+    cmd.begin_pix("%s - Render", NAME.data());
     cmd.begin_pix("Spd");
     cmd.set_compute();
-    cmd.set_pipeline(_spd_pipeline);
+    cmd.set_pipeline(demo.spd_pipeline);
     for (uint i = 0; i < CARD_COUNT; i++) {
-        const auto& card = _card_descriptors[i];
+        const auto& card = demo.card_descriptors[i];
         cmd.set_compute_constants(spd::Bindings {
-            .constants = _spd_constants.cbv_descriptor().index(),
-            .atomics = _spd_atomics.uav_descriptor().index(),
+            .constants = demo.spd_constants.cbv_descriptor().index(),
+            .atomics = demo.spd_atomics.uav_descriptor().index(),
             .texture_src = card.src,
             .texture_mid = card.mid,
             .texture_dst_begin = card.dst_begin,
         });
-        cmd.dispatch(_spd_dispatch.x, _spd_dispatch.y, _spd_dispatch.z);
+        cmd.dispatch(demo.spd_dispatch.x, demo.spd_dispatch.y, demo.spd_dispatch.z);
     }
     cmd.end_pix();
 
-    cmd.begin_pix("Quads");
-    const auto& p = _parameters;
+    cmd.begin_pix("Render");
+    const auto& params = demo.parameters;
+    const auto& device = desc.device;
     const auto swapchain_size = device.swapchain().size();
     const auto width = swapchain_size.x;
     const auto height = swapchain_size.y;
     cmd.set_graphics();
     cmd.set_viewport(0, 0, width, height);
     cmd.set_scissor(0, 0, width, height);
-    cmd.set_pipeline(_pipeline);
+    cmd.set_pipeline(demo.pipeline);
     cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-    cmd.set_index_buffer(_indices.index_buffer_view());
-
+    cmd.set_index_buffer(demo.indices.index_buffer_view());
     for (uint i = 0; i < CARD_COUNT; ++i) {
-        uint card_indirect = p.card_indirect_indices[i];
+        const auto card_indirect = params.card_indirect_indices[i];
         cmd.set_graphics_constants(Bindings {
             .card_index = i,
-            .constants = _constants.cbv_descriptor().index(),
-            .cards = _cards.srv_descriptor().index(),
-            .vertices = _vertices.srv_descriptor().index(),
-            .texture = _card_descriptors[card_indirect].src,
+            .constants = demo.constants.cbv_descriptor().index(),
+            .cards = demo.cards.srv_descriptor().index(),
+            .vertices = demo.vertices.srv_descriptor().index(),
+            .texture = demo.card_descriptors[card_indirect].src,
         });
-        cmd.draw_indexed_instanced(_indices.element_count(), 1, 0, 0, 0);
+        cmd.draw_indexed_instanced(demo.indices.element_count(), 1, 0, 0, 0);
     }
     cmd.end_pix();
     cmd.end_pix();
