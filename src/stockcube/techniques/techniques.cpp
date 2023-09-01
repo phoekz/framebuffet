@@ -15,8 +15,17 @@ auto create(Techniques& techs, const CreateDesc& desc) -> void {
         }
     );
 
+#if 0
+    techs.rect_texture_name = std::string("farm_field");
+    const auto rect_texture = desc.baked.stockcube.assets.farm_field_hdr_texture();
+#elif 0
     techs.rect_texture_name = std::string("winter_evening");
     const auto rect_texture = desc.baked.stockcube.assets.winter_evening_hdr_texture();
+#else
+    techs.rect_texture_name = std::string("shanghai_bund");
+    const auto rect_texture = desc.baked.stockcube.assets.shanghai_bund_hdr_texture();
+#endif
+
     techs.rect_texture.create_and_transfer_baked(
         desc.device,
         rect_texture,

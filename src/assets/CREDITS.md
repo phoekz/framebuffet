@@ -10,6 +10,12 @@ Source: https://polyhaven.com/a/farm_field
 
 Authors: Dimitrios Savva, Jarod Guest
 
+## `shanghai_bund_2k.exr`
+
+Source: https://polyhaven.com/a/shanghai_bund
+
+Authors: Greg Zaal
+
 ## `models/sci_fi_case.glb`
 
 "Sci fi Case" (https://skfb.ly/6CJOW) by KonstantinaBeratze is licensed under Creative Commons Attribution (http://creativecommons.org/licenses/by/4.0/).

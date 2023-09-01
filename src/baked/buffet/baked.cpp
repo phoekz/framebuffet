@@ -3,9 +3,9 @@
 namespace fb::baked::buffet {
 
 Assets::Assets() {
-    // hash: 574f1c91e0445d840a15452dabd24045
+    // hash: 73ecb97c28b35e05cdea1b96328f97fe
     _data = read_whole_file("fb_buffet_assets.bin");
-    FB_ASSERT(_data.size() == 104546648);
+    FB_ASSERT(_data.size() == 173490504);
 }
 
 auto Assets::heatmap_magma_texture() const -> Texture {
@@ -1203,6 +1203,17 @@ auto Assets::skybox_mesh() const -> Mesh {
     };
 }
 
+auto Assets::sphere_mesh() const -> Mesh {
+    // vertex_count: 2145
+    // face_count: 4160
+    return Mesh {
+        // hash: bdea0aeb8805424705ca957338103a57
+        .vertices = transmuted_span<Vertex>(35449912, 2145),
+        // hash: b69e987626eec7de0864668ffde28fbe
+        .indices = transmuted_span<Index>(35552872, 12480),
+    };
+}
+
 auto Assets::winter_evening_lut() const -> Texture {
     decltype(Texture::datas) datas = {};
     datas[0] = TextureData {
@@ -1212,7 +1223,7 @@ auto Assets::winter_evening_lut() const -> Texture {
         .row_pitch = 2048,
         .slice_pitch = 1048576,
         // hash: 7f7048fcf260a2aa1eae75b62340d74d
-        .data = transmuted_span<std::byte>(35449912, 1048576),
+        .data = transmuted_span<std::byte>(35602792, 1048576),
     };
     return Texture {
         .format = DXGI_FORMAT_R16G16_FLOAT,
@@ -1232,7 +1243,7 @@ auto Assets::winter_evening_irr() const -> CubeTexture {
         .row_pitch = 1024,
         .slice_pitch = 131072,
         // hash: f1fca1ec93aaac5c8692900b209366a4
-        .data = transmuted_span<std::byte>(36498488, 131072),
+        .data = transmuted_span<std::byte>(36651368, 131072),
     };
     datas[1][0] = TextureData {
         // mip_level: 0
@@ -1241,7 +1252,7 @@ auto Assets::winter_evening_irr() const -> CubeTexture {
         .row_pitch = 1024,
         .slice_pitch = 131072,
         // hash: ebdcd9687791a33db4101d416f5e246c
-        .data = transmuted_span<std::byte>(36629560, 131072),
+        .data = transmuted_span<std::byte>(36782440, 131072),
     };
     datas[2][0] = TextureData {
         // mip_level: 0
@@ -1250,7 +1261,7 @@ auto Assets::winter_evening_irr() const -> CubeTexture {
         .row_pitch = 1024,
         .slice_pitch = 131072,
         // hash: 9747b535e689e870395045429a78a958
-        .data = transmuted_span<std::byte>(36760632, 131072),
+        .data = transmuted_span<std::byte>(36913512, 131072),
     };
     datas[3][0] = TextureData {
         // mip_level: 0
@@ -1259,7 +1270,7 @@ auto Assets::winter_evening_irr() const -> CubeTexture {
         .row_pitch = 1024,
         .slice_pitch = 131072,
         // hash: a392c47563dd2d8f529d6016031ce565
-        .data = transmuted_span<std::byte>(36891704, 131072),
+        .data = transmuted_span<std::byte>(37044584, 131072),
     };
     datas[4][0] = TextureData {
         // mip_level: 0
@@ -1268,7 +1279,7 @@ auto Assets::winter_evening_irr() const -> CubeTexture {
         .row_pitch = 1024,
         .slice_pitch = 131072,
         // hash: e70d52519c582ded8307aecbc69261c5
-        .data = transmuted_span<std::byte>(37022776, 131072),
+        .data = transmuted_span<std::byte>(37175656, 131072),
     };
     datas[5][0] = TextureData {
         // mip_level: 0
@@ -1277,7 +1288,7 @@ auto Assets::winter_evening_irr() const -> CubeTexture {
         .row_pitch = 1024,
         .slice_pitch = 131072,
         // hash: 06d3e956fa5a867dfb0e6e272bfcc87f
-        .data = transmuted_span<std::byte>(37153848, 131072),
+        .data = transmuted_span<std::byte>(37306728, 131072),
     };
     return CubeTexture {
         .format = DXGI_FORMAT_R16G16B16A16_FLOAT,
@@ -1297,7 +1308,7 @@ auto Assets::winter_evening_rad() const -> CubeTexture {
         .row_pitch = 8192,
         .slice_pitch = 8388608,
         // hash: e70fec4202154d74b817ce87548a491d
-        .data = transmuted_span<std::byte>(37284920, 8388608),
+        .data = transmuted_span<std::byte>(37437800, 8388608),
     };
     datas[0][1] = TextureData {
         // mip_level: 1
@@ -1306,7 +1317,7 @@ auto Assets::winter_evening_rad() const -> CubeTexture {
         .row_pitch = 4096,
         .slice_pitch = 2097152,
         // hash: 85fc929ac43a8d3c7caa5685b297bde8
-        .data = transmuted_span<std::byte>(45673528, 2097152),
+        .data = transmuted_span<std::byte>(45826408, 2097152),
     };
     datas[0][2] = TextureData {
         // mip_level: 2
@@ -1315,7 +1326,7 @@ auto Assets::winter_evening_rad() const -> CubeTexture {
         .row_pitch = 2048,
         .slice_pitch = 524288,
         // hash: 271f1d9f9ae40adfd6ee286fd23d39f9
-        .data = transmuted_span<std::byte>(47770680, 524288),
+        .data = transmuted_span<std::byte>(47923560, 524288),
     };
     datas[0][3] = TextureData {
         // mip_level: 3
@@ -1324,7 +1335,7 @@ auto Assets::winter_evening_rad() const -> CubeTexture {
         .row_pitch = 1024,
         .slice_pitch = 131072,
         // hash: dd2419288db4af6d0254f8d7c6822db0
-        .data = transmuted_span<std::byte>(48294968, 131072),
+        .data = transmuted_span<std::byte>(48447848, 131072),
     };
     datas[0][4] = TextureData {
         // mip_level: 4
@@ -1333,7 +1344,7 @@ auto Assets::winter_evening_rad() const -> CubeTexture {
         .row_pitch = 512,
         .slice_pitch = 32768,
         // hash: b7ce6c5e2b8a2132421a1c608e81ba76
-        .data = transmuted_span<std::byte>(48426040, 32768),
+        .data = transmuted_span<std::byte>(48578920, 32768),
     };
     datas[0][5] = TextureData {
         // mip_level: 5
@@ -1342,7 +1353,7 @@ auto Assets::winter_evening_rad() const -> CubeTexture {
         .row_pitch = 256,
         .slice_pitch = 8192,
         // hash: 972ee92b49ddbd3d926c06d10509b884
-        .data = transmuted_span<std::byte>(48458808, 8192),
+        .data = transmuted_span<std::byte>(48611688, 8192),
     };
     datas[0][6] = TextureData {
         // mip_level: 6
@@ -1351,7 +1362,7 @@ auto Assets::winter_evening_rad() const -> CubeTexture {
         .row_pitch = 128,
         .slice_pitch = 2048,
         // hash: d76513ed7aac113939ce51b47e4e2141
-        .data = transmuted_span<std::byte>(48467000, 2048),
+        .data = transmuted_span<std::byte>(48619880, 2048),
     };
     datas[0][7] = TextureData {
         // mip_level: 7
@@ -1360,7 +1371,7 @@ auto Assets::winter_evening_rad() const -> CubeTexture {
         .row_pitch = 64,
         .slice_pitch = 512,
         // hash: 7a7ae37458be6407af077e0109f9f2cc
-        .data = transmuted_span<std::byte>(48469048, 512),
+        .data = transmuted_span<std::byte>(48621928, 512),
     };
     datas[0][8] = TextureData {
         // mip_level: 8
@@ -1369,7 +1380,7 @@ auto Assets::winter_evening_rad() const -> CubeTexture {
         .row_pitch = 32,
         .slice_pitch = 128,
         // hash: 53b80a4f80cd4f35d4eac8a528355cdc
-        .data = transmuted_span<std::byte>(48469560, 128),
+        .data = transmuted_span<std::byte>(48622440, 128),
     };
     datas[0][9] = TextureData {
         // mip_level: 9
@@ -1378,7 +1389,7 @@ auto Assets::winter_evening_rad() const -> CubeTexture {
         .row_pitch = 16,
         .slice_pitch = 32,
         // hash: 6ea38dfc8963ee6c09ea67573b990ad0
-        .data = transmuted_span<std::byte>(48469688, 32),
+        .data = transmuted_span<std::byte>(48622568, 32),
     };
     datas[0][10] = TextureData {
         // mip_level: 10
@@ -1387,7 +1398,7 @@ auto Assets::winter_evening_rad() const -> CubeTexture {
         .row_pitch = 8,
         .slice_pitch = 8,
         // hash: b6faa2f429d0cf1ecf90387a19007e2b
-        .data = transmuted_span<std::byte>(48469720, 8),
+        .data = transmuted_span<std::byte>(48622600, 8),
     };
     datas[1][0] = TextureData {
         // mip_level: 0
@@ -1396,7 +1407,7 @@ auto Assets::winter_evening_rad() const -> CubeTexture {
         .row_pitch = 8192,
         .slice_pitch = 8388608,
         // hash: dbf0ebc6a6c592cae9ad8e3a3f2568aa
-        .data = transmuted_span<std::byte>(48469728, 8388608),
+        .data = transmuted_span<std::byte>(48622608, 8388608),
     };
     datas[1][1] = TextureData {
         // mip_level: 1
@@ -1405,7 +1416,7 @@ auto Assets::winter_evening_rad() const -> CubeTexture {
         .row_pitch = 4096,
         .slice_pitch = 2097152,
         // hash: c56c4e38c4b497e7d2896d0022f7e830
-        .data = transmuted_span<std::byte>(56858336, 2097152),
+        .data = transmuted_span<std::byte>(57011216, 2097152),
     };
     datas[1][2] = TextureData {
         // mip_level: 2
@@ -1414,7 +1425,7 @@ auto Assets::winter_evening_rad() const -> CubeTexture {
         .row_pitch = 2048,
         .slice_pitch = 524288,
         // hash: 284c5bf396722b2c924130675a6259d3
-        .data = transmuted_span<std::byte>(58955488, 524288),
+        .data = transmuted_span<std::byte>(59108368, 524288),
     };
     datas[1][3] = TextureData {
         // mip_level: 3
@@ -1423,7 +1434,7 @@ auto Assets::winter_evening_rad() const -> CubeTexture {
         .row_pitch = 1024,
         .slice_pitch = 131072,
         // hash: 7b46ba89a5ba62fce63a10e903333ba0
-        .data = transmuted_span<std::byte>(59479776, 131072),
+        .data = transmuted_span<std::byte>(59632656, 131072),
     };
     datas[1][4] = TextureData {
         // mip_level: 4
@@ -1432,7 +1443,7 @@ auto Assets::winter_evening_rad() const -> CubeTexture {
         .row_pitch = 512,
         .slice_pitch = 32768,
         // hash: 8e136d5fc0581d72e060c750ab7fc58f
-        .data = transmuted_span<std::byte>(59610848, 32768),
+        .data = transmuted_span<std::byte>(59763728, 32768),
     };
     datas[1][5] = TextureData {
         // mip_level: 5
@@ -1441,7 +1452,7 @@ auto Assets::winter_evening_rad() const -> CubeTexture {
         .row_pitch = 256,
         .slice_pitch = 8192,
         // hash: 086133860ad9c48e8524f70cb010ca4d
-        .data = transmuted_span<std::byte>(59643616, 8192),
+        .data = transmuted_span<std::byte>(59796496, 8192),
     };
     datas[1][6] = TextureData {
         // mip_level: 6
@@ -1450,7 +1461,7 @@ auto Assets::winter_evening_rad() const -> CubeTexture {
         .row_pitch = 128,
         .slice_pitch = 2048,
         // hash: 9002e8a826bfee8cc8ef4e8a986c32c1
-        .data = transmuted_span<std::byte>(59651808, 2048),
+        .data = transmuted_span<std::byte>(59804688, 2048),
     };
     datas[1][7] = TextureData {
         // mip_level: 7
@@ -1459,7 +1470,7 @@ auto Assets::winter_evening_rad() const -> CubeTexture {
         .row_pitch = 64,
         .slice_pitch = 512,
         // hash: f16b5c6316e9a8e819591d2bfeeced15
-        .data = transmuted_span<std::byte>(59653856, 512),
+        .data = transmuted_span<std::byte>(59806736, 512),
     };
     datas[1][8] = TextureData {
         // mip_level: 8
@@ -1468,7 +1479,7 @@ auto Assets::winter_evening_rad() const -> CubeTexture {
         .row_pitch = 32,
         .slice_pitch = 128,
         // hash: fe94bf054fd0fa5914e85a3fd840fe83
-        .data = transmuted_span<std::byte>(59654368, 128),
+        .data = transmuted_span<std::byte>(59807248, 128),
     };
     datas[1][9] = TextureData {
         // mip_level: 9
@@ -1477,7 +1488,7 @@ auto Assets::winter_evening_rad() const -> CubeTexture {
         .row_pitch = 16,
         .slice_pitch = 32,
         // hash: 7c810dac33ceaf7725a8b6a3b4a6b761
-        .data = transmuted_span<std::byte>(59654496, 32),
+        .data = transmuted_span<std::byte>(59807376, 32),
     };
     datas[1][10] = TextureData {
         // mip_level: 10
@@ -1486,7 +1497,7 @@ auto Assets::winter_evening_rad() const -> CubeTexture {
         .row_pitch = 8,
         .slice_pitch = 8,
         // hash: 95ace211749b7db4373ffb99761b93a6
-        .data = transmuted_span<std::byte>(59654528, 8),
+        .data = transmuted_span<std::byte>(59807408, 8),
     };
     datas[2][0] = TextureData {
         // mip_level: 0
@@ -1495,7 +1506,7 @@ auto Assets::winter_evening_rad() const -> CubeTexture {
         .row_pitch = 8192,
         .slice_pitch = 8388608,
         // hash: 60fc398a716fe918ea5179abdbed5da6
-        .data = transmuted_span<std::byte>(59654536, 8388608),
+        .data = transmuted_span<std::byte>(59807416, 8388608),
     };
     datas[2][1] = TextureData {
         // mip_level: 1
@@ -1504,7 +1515,7 @@ auto Assets::winter_evening_rad() const -> CubeTexture {
         .row_pitch = 4096,
         .slice_pitch = 2097152,
         // hash: 6b56e3c11a6f4266150518a3b87f34c9
-        .data = transmuted_span<std::byte>(68043144, 2097152),
+        .data = transmuted_span<std::byte>(68196024, 2097152),
     };
     datas[2][2] = TextureData {
         // mip_level: 2
@@ -1513,7 +1524,7 @@ auto Assets::winter_evening_rad() const -> CubeTexture {
         .row_pitch = 2048,
         .slice_pitch = 524288,
         // hash: 4194387a266567bc073234a28488ab54
-        .data = transmuted_span<std::byte>(70140296, 524288),
+        .data = transmuted_span<std::byte>(70293176, 524288),
     };
     datas[2][3] = TextureData {
         // mip_level: 3
@@ -1522,7 +1533,7 @@ auto Assets::winter_evening_rad() const -> CubeTexture {
         .row_pitch = 1024,
         .slice_pitch = 131072,
         // hash: dda04d5b17e662698ce7d1f09929f5fb
-        .data = transmuted_span<std::byte>(70664584, 131072),
+        .data = transmuted_span<std::byte>(70817464, 131072),
     };
     datas[2][4] = TextureData {
         // mip_level: 4
@@ -1531,7 +1542,7 @@ auto Assets::winter_evening_rad() const -> CubeTexture {
         .row_pitch = 512,
         .slice_pitch = 32768,
         // hash: e36f842c91fd700c1e324c56690d3d05
-        .data = transmuted_span<std::byte>(70795656, 32768),
+        .data = transmuted_span<std::byte>(70948536, 32768),
     };
     datas[2][5] = TextureData {
         // mip_level: 5
@@ -1540,7 +1551,7 @@ auto Assets::winter_evening_rad() const -> CubeTexture {
         .row_pitch = 256,
         .slice_pitch = 8192,
         // hash: 5636f81a9c40ddbd37ad4c2be787db58
-        .data = transmuted_span<std::byte>(70828424, 8192),
+        .data = transmuted_span<std::byte>(70981304, 8192),
     };
     datas[2][6] = TextureData {
         // mip_level: 6
@@ -1549,7 +1560,7 @@ auto Assets::winter_evening_rad() const -> CubeTexture {
         .row_pitch = 128,
         .slice_pitch = 2048,
         // hash: ad241b34b4124b18fb8da354e42cf306
-        .data = transmuted_span<std::byte>(70836616, 2048),
+        .data = transmuted_span<std::byte>(70989496, 2048),
     };
     datas[2][7] = TextureData {
         // mip_level: 7
@@ -1558,7 +1569,7 @@ auto Assets::winter_evening_rad() const -> CubeTexture {
         .row_pitch = 64,
         .slice_pitch = 512,
         // hash: 89495bdab42a8777f81c94e53033194c
-        .data = transmuted_span<std::byte>(70838664, 512),
+        .data = transmuted_span<std::byte>(70991544, 512),
     };
     datas[2][8] = TextureData {
         // mip_level: 8
@@ -1567,7 +1578,7 @@ auto Assets::winter_evening_rad() const -> CubeTexture {
         .row_pitch = 32,
         .slice_pitch = 128,
         // hash: e963c240d9a5dbc71e641bbc8fb40aed
-        .data = transmuted_span<std::byte>(70839176, 128),
+        .data = transmuted_span<std::byte>(70992056, 128),
     };
     datas[2][9] = TextureData {
         // mip_level: 9
@@ -1576,7 +1587,7 @@ auto Assets::winter_evening_rad() const -> CubeTexture {
         .row_pitch = 16,
         .slice_pitch = 32,
         // hash: 28ba0932c6bfe03072dc26e152d9aff9
-        .data = transmuted_span<std::byte>(70839304, 32),
+        .data = transmuted_span<std::byte>(70992184, 32),
     };
     datas[2][10] = TextureData {
         // mip_level: 10
@@ -1585,7 +1596,7 @@ auto Assets::winter_evening_rad() const -> CubeTexture {
         .row_pitch = 8,
         .slice_pitch = 8,
         // hash: e49d8ddf01bacca3e5c7a600bb6c2dcc
-        .data = transmuted_span<std::byte>(70839336, 8),
+        .data = transmuted_span<std::byte>(70992216, 8),
     };
     datas[3][0] = TextureData {
         // mip_level: 0
@@ -1594,7 +1605,7 @@ auto Assets::winter_evening_rad() const -> CubeTexture {
         .row_pitch = 8192,
         .slice_pitch = 8388608,
         // hash: b6abe08e32d3e208681502545ec9a502
-        .data = transmuted_span<std::byte>(70839344, 8388608),
+        .data = transmuted_span<std::byte>(70992224, 8388608),
     };
     datas[3][1] = TextureData {
         // mip_level: 1
@@ -1603,7 +1614,7 @@ auto Assets::winter_evening_rad() const -> CubeTexture {
         .row_pitch = 4096,
         .slice_pitch = 2097152,
         // hash: e6f295667f451f1dcd03c57c771a50f8
-        .data = transmuted_span<std::byte>(79227952, 2097152),
+        .data = transmuted_span<std::byte>(79380832, 2097152),
     };
     datas[3][2] = TextureData {
         // mip_level: 2
@@ -1612,7 +1623,7 @@ auto Assets::winter_evening_rad() const -> CubeTexture {
         .row_pitch = 2048,
         .slice_pitch = 524288,
         // hash: 9ba2bd3e24194414485c0ebc3e458501
-        .data = transmuted_span<std::byte>(81325104, 524288),
+        .data = transmuted_span<std::byte>(81477984, 524288),
     };
     datas[3][3] = TextureData {
         // mip_level: 3
@@ -1621,7 +1632,7 @@ auto Assets::winter_evening_rad() const -> CubeTexture {
         .row_pitch = 1024,
         .slice_pitch = 131072,
         // hash: 29ebe33d875685675874819ee8a818ca
-        .data = transmuted_span<std::byte>(81849392, 131072),
+        .data = transmuted_span<std::byte>(82002272, 131072),
     };
     datas[3][4] = TextureData {
         // mip_level: 4
@@ -1630,7 +1641,7 @@ auto Assets::winter_evening_rad() const -> CubeTexture {
         .row_pitch = 512,
         .slice_pitch = 32768,
         // hash: 708965672b0d4e23bd2a05d474b625a3
-        .data = transmuted_span<std::byte>(81980464, 32768),
+        .data = transmuted_span<std::byte>(82133344, 32768),
     };
     datas[3][5] = TextureData {
         // mip_level: 5
@@ -1639,7 +1650,7 @@ auto Assets::winter_evening_rad() const -> CubeTexture {
         .row_pitch = 256,
         .slice_pitch = 8192,
         // hash: 5f6d7d4ca99629b1c15e7ef499559efd
-        .data = transmuted_span<std::byte>(82013232, 8192),
+        .data = transmuted_span<std::byte>(82166112, 8192),
     };
     datas[3][6] = TextureData {
         // mip_level: 6
@@ -1648,7 +1659,7 @@ auto Assets::winter_evening_rad() const -> CubeTexture {
         .row_pitch = 128,
         .slice_pitch = 2048,
         // hash: 98c2cba26a372c4e766eb30171b1dd8b
-        .data = transmuted_span<std::byte>(82021424, 2048),
+        .data = transmuted_span<std::byte>(82174304, 2048),
     };
     datas[3][7] = TextureData {
         // mip_level: 7
@@ -1657,7 +1668,7 @@ auto Assets::winter_evening_rad() const -> CubeTexture {
         .row_pitch = 64,
         .slice_pitch = 512,
         // hash: 0f469f10c756deff3bc3d6738410532b
-        .data = transmuted_span<std::byte>(82023472, 512),
+        .data = transmuted_span<std::byte>(82176352, 512),
     };
     datas[3][8] = TextureData {
         // mip_level: 8
@@ -1666,7 +1677,7 @@ auto Assets::winter_evening_rad() const -> CubeTexture {
         .row_pitch = 32,
         .slice_pitch = 128,
         // hash: b60a19c3b4ffcc58ea798a0e15118275
-        .data = transmuted_span<std::byte>(82023984, 128),
+        .data = transmuted_span<std::byte>(82176864, 128),
     };
     datas[3][9] = TextureData {
         // mip_level: 9
@@ -1675,7 +1686,7 @@ auto Assets::winter_evening_rad() const -> CubeTexture {
         .row_pitch = 16,
         .slice_pitch = 32,
         // hash: 713724c115e1bd4901def7feabb124c7
-        .data = transmuted_span<std::byte>(82024112, 32),
+        .data = transmuted_span<std::byte>(82176992, 32),
     };
     datas[3][10] = TextureData {
         // mip_level: 10
@@ -1684,7 +1695,7 @@ auto Assets::winter_evening_rad() const -> CubeTexture {
         .row_pitch = 8,
         .slice_pitch = 8,
         // hash: b04fe0e7106782ae1102d31cd21ed5b6
-        .data = transmuted_span<std::byte>(82024144, 8),
+        .data = transmuted_span<std::byte>(82177024, 8),
     };
     datas[4][0] = TextureData {
         // mip_level: 0
@@ -1693,7 +1704,7 @@ auto Assets::winter_evening_rad() const -> CubeTexture {
         .row_pitch = 8192,
         .slice_pitch = 8388608,
         // hash: b33270086b73324a5eaed477b1b03a6b
-        .data = transmuted_span<std::byte>(82024152, 8388608),
+        .data = transmuted_span<std::byte>(82177032, 8388608),
     };
     datas[4][1] = TextureData {
         // mip_level: 1
@@ -1702,7 +1713,7 @@ auto Assets::winter_evening_rad() const -> CubeTexture {
         .row_pitch = 4096,
         .slice_pitch = 2097152,
         // hash: eb71724ac6de7c410c611c34e93379d8
-        .data = transmuted_span<std::byte>(90412760, 2097152),
+        .data = transmuted_span<std::byte>(90565640, 2097152),
     };
     datas[4][2] = TextureData {
         // mip_level: 2
@@ -1711,7 +1722,7 @@ auto Assets::winter_evening_rad() const -> CubeTexture {
         .row_pitch = 2048,
         .slice_pitch = 524288,
         // hash: 3496fe103c6019cb8cb6fdb9e085af48
-        .data = transmuted_span<std::byte>(92509912, 524288),
+        .data = transmuted_span<std::byte>(92662792, 524288),
     };
     datas[4][3] = TextureData {
         // mip_level: 3
@@ -1720,7 +1731,7 @@ auto Assets::winter_evening_rad() const -> CubeTexture {
         .row_pitch = 1024,
         .slice_pitch = 131072,
         // hash: de2f2609b7d4158cb88f84f64901a3ef
-        .data = transmuted_span<std::byte>(93034200, 131072),
+        .data = transmuted_span<std::byte>(93187080, 131072),
     };
     datas[4][4] = TextureData {
         // mip_level: 4
@@ -1729,7 +1740,7 @@ auto Assets::winter_evening_rad() const -> CubeTexture {
         .row_pitch = 512,
         .slice_pitch = 32768,
         // hash: 96947b3f2ea620a01d6fdff092912a55
-        .data = transmuted_span<std::byte>(93165272, 32768),
+        .data = transmuted_span<std::byte>(93318152, 32768),
     };
     datas[4][5] = TextureData {
         // mip_level: 5
@@ -1738,7 +1749,7 @@ auto Assets::winter_evening_rad() const -> CubeTexture {
         .row_pitch = 256,
         .slice_pitch = 8192,
         // hash: 5a3747d336e986a8b13f8130e9810f82
-        .data = transmuted_span<std::byte>(93198040, 8192),
+        .data = transmuted_span<std::byte>(93350920, 8192),
     };
     datas[4][6] = TextureData {
         // mip_level: 6
@@ -1747,7 +1758,7 @@ auto Assets::winter_evening_rad() const -> CubeTexture {
         .row_pitch = 128,
         .slice_pitch = 2048,
         // hash: 0a43e3945958925c7202dc7bed7a28fb
-        .data = transmuted_span<std::byte>(93206232, 2048),
+        .data = transmuted_span<std::byte>(93359112, 2048),
     };
     datas[4][7] = TextureData {
         // mip_level: 7
@@ -1756,7 +1767,7 @@ auto Assets::winter_evening_rad() const -> CubeTexture {
         .row_pitch = 64,
         .slice_pitch = 512,
         // hash: f2bec3deca649d33f94e5d50c34c34b0
-        .data = transmuted_span<std::byte>(93208280, 512),
+        .data = transmuted_span<std::byte>(93361160, 512),
     };
     datas[4][8] = TextureData {
         // mip_level: 8
@@ -1765,7 +1776,7 @@ auto Assets::winter_evening_rad() const -> CubeTexture {
         .row_pitch = 32,
         .slice_pitch = 128,
         // hash: 838b85ee55cd58cd173c84757b13a289
-        .data = transmuted_span<std::byte>(93208792, 128),
+        .data = transmuted_span<std::byte>(93361672, 128),
     };
     datas[4][9] = TextureData {
         // mip_level: 9
@@ -1774,7 +1785,7 @@ auto Assets::winter_evening_rad() const -> CubeTexture {
         .row_pitch = 16,
         .slice_pitch = 32,
         // hash: 4468b4120baf512adced842a40041405
-        .data = transmuted_span<std::byte>(93208920, 32),
+        .data = transmuted_span<std::byte>(93361800, 32),
     };
     datas[4][10] = TextureData {
         // mip_level: 10
@@ -1783,7 +1794,7 @@ auto Assets::winter_evening_rad() const -> CubeTexture {
         .row_pitch = 8,
         .slice_pitch = 8,
         // hash: ea9cf4b87e3051e5a1a80b458f58df15
-        .data = transmuted_span<std::byte>(93208952, 8),
+        .data = transmuted_span<std::byte>(93361832, 8),
     };
     datas[5][0] = TextureData {
         // mip_level: 0
@@ -1792,7 +1803,7 @@ auto Assets::winter_evening_rad() const -> CubeTexture {
         .row_pitch = 8192,
         .slice_pitch = 8388608,
         // hash: 7e43c9b640bbf8113099bc1f54a3f4d0
-        .data = transmuted_span<std::byte>(93208960, 8388608),
+        .data = transmuted_span<std::byte>(93361840, 8388608),
     };
     datas[5][1] = TextureData {
         // mip_level: 1
@@ -1801,7 +1812,7 @@ auto Assets::winter_evening_rad() const -> CubeTexture {
         .row_pitch = 4096,
         .slice_pitch = 2097152,
         // hash: 043f9e4a7880bb4bf92ecfd1f8bfe6e1
-        .data = transmuted_span<std::byte>(101597568, 2097152),
+        .data = transmuted_span<std::byte>(101750448, 2097152),
     };
     datas[5][2] = TextureData {
         // mip_level: 2
@@ -1810,7 +1821,7 @@ auto Assets::winter_evening_rad() const -> CubeTexture {
         .row_pitch = 2048,
         .slice_pitch = 524288,
         // hash: fb6cc9718402d5adbfb1b1ed2b777bf9
-        .data = transmuted_span<std::byte>(103694720, 524288),
+        .data = transmuted_span<std::byte>(103847600, 524288),
     };
     datas[5][3] = TextureData {
         // mip_level: 3
@@ -1819,7 +1830,7 @@ auto Assets::winter_evening_rad() const -> CubeTexture {
         .row_pitch = 1024,
         .slice_pitch = 131072,
         // hash: ac11b78e531199f5a52bb19c06bf65e3
-        .data = transmuted_span<std::byte>(104219008, 131072),
+        .data = transmuted_span<std::byte>(104371888, 131072),
     };
     datas[5][4] = TextureData {
         // mip_level: 4
@@ -1828,7 +1839,7 @@ auto Assets::winter_evening_rad() const -> CubeTexture {
         .row_pitch = 512,
         .slice_pitch = 32768,
         // hash: 4de8799a3aed4c8d8b9bd9b0f983e1e9
-        .data = transmuted_span<std::byte>(104350080, 32768),
+        .data = transmuted_span<std::byte>(104502960, 32768),
     };
     datas[5][5] = TextureData {
         // mip_level: 5
@@ -1837,7 +1848,7 @@ auto Assets::winter_evening_rad() const -> CubeTexture {
         .row_pitch = 256,
         .slice_pitch = 8192,
         // hash: 592488bca93776e60489232ba93b9415
-        .data = transmuted_span<std::byte>(104382848, 8192),
+        .data = transmuted_span<std::byte>(104535728, 8192),
     };
     datas[5][6] = TextureData {
         // mip_level: 6
@@ -1846,7 +1857,7 @@ auto Assets::winter_evening_rad() const -> CubeTexture {
         .row_pitch = 128,
         .slice_pitch = 2048,
         // hash: 6a47f7e57de4b65a3b6f8441291d4274
-        .data = transmuted_span<std::byte>(104391040, 2048),
+        .data = transmuted_span<std::byte>(104543920, 2048),
     };
     datas[5][7] = TextureData {
         // mip_level: 7
@@ -1855,7 +1866,7 @@ auto Assets::winter_evening_rad() const -> CubeTexture {
         .row_pitch = 64,
         .slice_pitch = 512,
         // hash: 4f8116ee9953a5d394c961a00058f844
-        .data = transmuted_span<std::byte>(104393088, 512),
+        .data = transmuted_span<std::byte>(104545968, 512),
     };
     datas[5][8] = TextureData {
         // mip_level: 8
@@ -1864,7 +1875,7 @@ auto Assets::winter_evening_rad() const -> CubeTexture {
         .row_pitch = 32,
         .slice_pitch = 128,
         // hash: 79e1654473d8ba7d59667cfe71798ab4
-        .data = transmuted_span<std::byte>(104393600, 128),
+        .data = transmuted_span<std::byte>(104546480, 128),
     };
     datas[5][9] = TextureData {
         // mip_level: 9
@@ -1873,7 +1884,7 @@ auto Assets::winter_evening_rad() const -> CubeTexture {
         .row_pitch = 16,
         .slice_pitch = 32,
         // hash: 2b12f35cb941ce5444d6fe010c71e513
-        .data = transmuted_span<std::byte>(104393728, 32),
+        .data = transmuted_span<std::byte>(104546608, 32),
     };
     datas[5][10] = TextureData {
         // mip_level: 10
@@ -1882,7 +1893,7 @@ auto Assets::winter_evening_rad() const -> CubeTexture {
         .row_pitch = 8,
         .slice_pitch = 8,
         // hash: 424dd03dbe2eb284de8a0348871d0704
-        .data = transmuted_span<std::byte>(104393760, 8),
+        .data = transmuted_span<std::byte>(104546640, 8),
     };
     return CubeTexture {
         .format = DXGI_FORMAT_R16G16B16A16_FLOAT,
@@ -1893,14 +1904,693 @@ auto Assets::winter_evening_rad() const -> CubeTexture {
     };
 }
 
-auto Assets::sphere_mesh() const -> Mesh {
-    // vertex_count: 2145
-    // face_count: 4160
-    return Mesh {
-        // hash: bdea0aeb8805424705ca957338103a57
-        .vertices = transmuted_span<Vertex>(104393768, 2145),
-        // hash: b69e987626eec7de0864668ffde28fbe
-        .indices = transmuted_span<Index>(104496728, 12480),
+auto Assets::shanghai_bund_lut() const -> Texture {
+    decltype(Texture::datas) datas = {};
+    datas[0] = TextureData {
+        // mip_level: 0
+        // width: 512
+        // height: 512
+        .row_pitch = 2048,
+        .slice_pitch = 1048576,
+        // hash: 7f7048fcf260a2aa1eae75b62340d74d
+        .data = transmuted_span<std::byte>(104546648, 1048576),
+    };
+    return Texture {
+        .format = DXGI_FORMAT_R16G16_FLOAT,
+        .width = 512,
+        .height = 512,
+        .mip_count = 1,
+        .datas = datas,
+    };
+}
+
+auto Assets::shanghai_bund_irr() const -> CubeTexture {
+    decltype(CubeTexture::datas) datas = {};
+    datas[0][0] = TextureData {
+        // mip_level: 0
+        // width: 128
+        // height: 128
+        .row_pitch = 1024,
+        .slice_pitch = 131072,
+        // hash: 2e2aa256fff67123a2a4fc3322c42d71
+        .data = transmuted_span<std::byte>(105595224, 131072),
+    };
+    datas[1][0] = TextureData {
+        // mip_level: 0
+        // width: 128
+        // height: 128
+        .row_pitch = 1024,
+        .slice_pitch = 131072,
+        // hash: 3bbc601120883a26ccd37f0a530c0b12
+        .data = transmuted_span<std::byte>(105726296, 131072),
+    };
+    datas[2][0] = TextureData {
+        // mip_level: 0
+        // width: 128
+        // height: 128
+        .row_pitch = 1024,
+        .slice_pitch = 131072,
+        // hash: 45b9b9637ea6e7204764acb1353843db
+        .data = transmuted_span<std::byte>(105857368, 131072),
+    };
+    datas[3][0] = TextureData {
+        // mip_level: 0
+        // width: 128
+        // height: 128
+        .row_pitch = 1024,
+        .slice_pitch = 131072,
+        // hash: d4983dea763c4559d2c168976b5f778d
+        .data = transmuted_span<std::byte>(105988440, 131072),
+    };
+    datas[4][0] = TextureData {
+        // mip_level: 0
+        // width: 128
+        // height: 128
+        .row_pitch = 1024,
+        .slice_pitch = 131072,
+        // hash: 14afe16f16de2e066ebd895b3d834142
+        .data = transmuted_span<std::byte>(106119512, 131072),
+    };
+    datas[5][0] = TextureData {
+        // mip_level: 0
+        // width: 128
+        // height: 128
+        .row_pitch = 1024,
+        .slice_pitch = 131072,
+        // hash: 97d8fac08f450c25bcaa17110f0fa7e9
+        .data = transmuted_span<std::byte>(106250584, 131072),
+    };
+    return CubeTexture {
+        .format = DXGI_FORMAT_R16G16B16A16_FLOAT,
+        .width = 128,
+        .height = 128,
+        .mip_count = 1,
+        .datas = datas,
+    };
+}
+
+auto Assets::shanghai_bund_rad() const -> CubeTexture {
+    decltype(CubeTexture::datas) datas = {};
+    datas[0][0] = TextureData {
+        // mip_level: 0
+        // width: 1024
+        // height: 1024
+        .row_pitch = 8192,
+        .slice_pitch = 8388608,
+        // hash: f1dac2f642724068cfe5a596095cd1af
+        .data = transmuted_span<std::byte>(106381656, 8388608),
+    };
+    datas[0][1] = TextureData {
+        // mip_level: 1
+        // width: 512
+        // height: 512
+        .row_pitch = 4096,
+        .slice_pitch = 2097152,
+        // hash: 1c8a26b6a21b45ca2e5a85c6f40427de
+        .data = transmuted_span<std::byte>(114770264, 2097152),
+    };
+    datas[0][2] = TextureData {
+        // mip_level: 2
+        // width: 256
+        // height: 256
+        .row_pitch = 2048,
+        .slice_pitch = 524288,
+        // hash: 4d6f669c74778027f6d1906e39178e63
+        .data = transmuted_span<std::byte>(116867416, 524288),
+    };
+    datas[0][3] = TextureData {
+        // mip_level: 3
+        // width: 128
+        // height: 128
+        .row_pitch = 1024,
+        .slice_pitch = 131072,
+        // hash: c4bc3c5d04987935544004eecea8af9a
+        .data = transmuted_span<std::byte>(117391704, 131072),
+    };
+    datas[0][4] = TextureData {
+        // mip_level: 4
+        // width: 64
+        // height: 64
+        .row_pitch = 512,
+        .slice_pitch = 32768,
+        // hash: 86600ba136ef9907f544b129205ab843
+        .data = transmuted_span<std::byte>(117522776, 32768),
+    };
+    datas[0][5] = TextureData {
+        // mip_level: 5
+        // width: 32
+        // height: 32
+        .row_pitch = 256,
+        .slice_pitch = 8192,
+        // hash: 54166bee57fd14547e55dcdd21fc8d95
+        .data = transmuted_span<std::byte>(117555544, 8192),
+    };
+    datas[0][6] = TextureData {
+        // mip_level: 6
+        // width: 16
+        // height: 16
+        .row_pitch = 128,
+        .slice_pitch = 2048,
+        // hash: da8f24bc0157eb77c104242d1709cef9
+        .data = transmuted_span<std::byte>(117563736, 2048),
+    };
+    datas[0][7] = TextureData {
+        // mip_level: 7
+        // width: 8
+        // height: 8
+        .row_pitch = 64,
+        .slice_pitch = 512,
+        // hash: 225f6df30d026df02eba6cc2adbf5275
+        .data = transmuted_span<std::byte>(117565784, 512),
+    };
+    datas[0][8] = TextureData {
+        // mip_level: 8
+        // width: 4
+        // height: 4
+        .row_pitch = 32,
+        .slice_pitch = 128,
+        // hash: f087a791fb8f4e1347d275d1ee3faf5d
+        .data = transmuted_span<std::byte>(117566296, 128),
+    };
+    datas[0][9] = TextureData {
+        // mip_level: 9
+        // width: 2
+        // height: 2
+        .row_pitch = 16,
+        .slice_pitch = 32,
+        // hash: 6d1e1eb8148cc2d9a44918a3ca1f827d
+        .data = transmuted_span<std::byte>(117566424, 32),
+    };
+    datas[0][10] = TextureData {
+        // mip_level: 10
+        // width: 1
+        // height: 1
+        .row_pitch = 8,
+        .slice_pitch = 8,
+        // hash: 9b6001f2a75c12628d93a3bf0e10d296
+        .data = transmuted_span<std::byte>(117566456, 8),
+    };
+    datas[1][0] = TextureData {
+        // mip_level: 0
+        // width: 1024
+        // height: 1024
+        .row_pitch = 8192,
+        .slice_pitch = 8388608,
+        // hash: 5c262cb25a1e21e5fc9c9e2aacf369b9
+        .data = transmuted_span<std::byte>(117566464, 8388608),
+    };
+    datas[1][1] = TextureData {
+        // mip_level: 1
+        // width: 512
+        // height: 512
+        .row_pitch = 4096,
+        .slice_pitch = 2097152,
+        // hash: dc6de75243f0b0a4742616ada7d91ae8
+        .data = transmuted_span<std::byte>(125955072, 2097152),
+    };
+    datas[1][2] = TextureData {
+        // mip_level: 2
+        // width: 256
+        // height: 256
+        .row_pitch = 2048,
+        .slice_pitch = 524288,
+        // hash: aeccbe3baca29ea206d9191f20c37e5d
+        .data = transmuted_span<std::byte>(128052224, 524288),
+    };
+    datas[1][3] = TextureData {
+        // mip_level: 3
+        // width: 128
+        // height: 128
+        .row_pitch = 1024,
+        .slice_pitch = 131072,
+        // hash: c41533f8d83dac3f0fbeaff88dc27024
+        .data = transmuted_span<std::byte>(128576512, 131072),
+    };
+    datas[1][4] = TextureData {
+        // mip_level: 4
+        // width: 64
+        // height: 64
+        .row_pitch = 512,
+        .slice_pitch = 32768,
+        // hash: abe0b4168f2754fe09ad90f9a50f6d37
+        .data = transmuted_span<std::byte>(128707584, 32768),
+    };
+    datas[1][5] = TextureData {
+        // mip_level: 5
+        // width: 32
+        // height: 32
+        .row_pitch = 256,
+        .slice_pitch = 8192,
+        // hash: 7999d6c0343180d3b23ee37de3cb720b
+        .data = transmuted_span<std::byte>(128740352, 8192),
+    };
+    datas[1][6] = TextureData {
+        // mip_level: 6
+        // width: 16
+        // height: 16
+        .row_pitch = 128,
+        .slice_pitch = 2048,
+        // hash: 5b6abcb6d2100b59fe8f2f81e203e85f
+        .data = transmuted_span<std::byte>(128748544, 2048),
+    };
+    datas[1][7] = TextureData {
+        // mip_level: 7
+        // width: 8
+        // height: 8
+        .row_pitch = 64,
+        .slice_pitch = 512,
+        // hash: fb70262f76033cc99248d83f46de534e
+        .data = transmuted_span<std::byte>(128750592, 512),
+    };
+    datas[1][8] = TextureData {
+        // mip_level: 8
+        // width: 4
+        // height: 4
+        .row_pitch = 32,
+        .slice_pitch = 128,
+        // hash: 54d914303dd5eefbefcce3f4c58922ac
+        .data = transmuted_span<std::byte>(128751104, 128),
+    };
+    datas[1][9] = TextureData {
+        // mip_level: 9
+        // width: 2
+        // height: 2
+        .row_pitch = 16,
+        .slice_pitch = 32,
+        // hash: 26f4fdc1ccac45caa1509b57db7912a3
+        .data = transmuted_span<std::byte>(128751232, 32),
+    };
+    datas[1][10] = TextureData {
+        // mip_level: 10
+        // width: 1
+        // height: 1
+        .row_pitch = 8,
+        .slice_pitch = 8,
+        // hash: a70b8d4ec200454162775b5f8b1ec109
+        .data = transmuted_span<std::byte>(128751264, 8),
+    };
+    datas[2][0] = TextureData {
+        // mip_level: 0
+        // width: 1024
+        // height: 1024
+        .row_pitch = 8192,
+        .slice_pitch = 8388608,
+        // hash: 655df6523b827f552d2e77a9b26656cf
+        .data = transmuted_span<std::byte>(128751272, 8388608),
+    };
+    datas[2][1] = TextureData {
+        // mip_level: 1
+        // width: 512
+        // height: 512
+        .row_pitch = 4096,
+        .slice_pitch = 2097152,
+        // hash: 36be9339496f43f7eef083712d0a26d4
+        .data = transmuted_span<std::byte>(137139880, 2097152),
+    };
+    datas[2][2] = TextureData {
+        // mip_level: 2
+        // width: 256
+        // height: 256
+        .row_pitch = 2048,
+        .slice_pitch = 524288,
+        // hash: 80897a861e3de3a02552a919606c69ef
+        .data = transmuted_span<std::byte>(139237032, 524288),
+    };
+    datas[2][3] = TextureData {
+        // mip_level: 3
+        // width: 128
+        // height: 128
+        .row_pitch = 1024,
+        .slice_pitch = 131072,
+        // hash: 6086480b26d0b7ce046f1ca6d5ef8693
+        .data = transmuted_span<std::byte>(139761320, 131072),
+    };
+    datas[2][4] = TextureData {
+        // mip_level: 4
+        // width: 64
+        // height: 64
+        .row_pitch = 512,
+        .slice_pitch = 32768,
+        // hash: 11a09eaf78b226c2fe91a2b32a47d9bc
+        .data = transmuted_span<std::byte>(139892392, 32768),
+    };
+    datas[2][5] = TextureData {
+        // mip_level: 5
+        // width: 32
+        // height: 32
+        .row_pitch = 256,
+        .slice_pitch = 8192,
+        // hash: 71213a81faa787f7fb9b4d5ed51732b7
+        .data = transmuted_span<std::byte>(139925160, 8192),
+    };
+    datas[2][6] = TextureData {
+        // mip_level: 6
+        // width: 16
+        // height: 16
+        .row_pitch = 128,
+        .slice_pitch = 2048,
+        // hash: 4af1ccf6f5c0a8fabff467c323581bcd
+        .data = transmuted_span<std::byte>(139933352, 2048),
+    };
+    datas[2][7] = TextureData {
+        // mip_level: 7
+        // width: 8
+        // height: 8
+        .row_pitch = 64,
+        .slice_pitch = 512,
+        // hash: 44594d2e62e9535b5be0f465f8536a46
+        .data = transmuted_span<std::byte>(139935400, 512),
+    };
+    datas[2][8] = TextureData {
+        // mip_level: 8
+        // width: 4
+        // height: 4
+        .row_pitch = 32,
+        .slice_pitch = 128,
+        // hash: b42139ed8d524ec18340525524b69e77
+        .data = transmuted_span<std::byte>(139935912, 128),
+    };
+    datas[2][9] = TextureData {
+        // mip_level: 9
+        // width: 2
+        // height: 2
+        .row_pitch = 16,
+        .slice_pitch = 32,
+        // hash: 8284584e26ed0c92b5d71c5d6ff3bf9d
+        .data = transmuted_span<std::byte>(139936040, 32),
+    };
+    datas[2][10] = TextureData {
+        // mip_level: 10
+        // width: 1
+        // height: 1
+        .row_pitch = 8,
+        .slice_pitch = 8,
+        // hash: aec97c034320ee9b0b2a0dd4d5171e60
+        .data = transmuted_span<std::byte>(139936072, 8),
+    };
+    datas[3][0] = TextureData {
+        // mip_level: 0
+        // width: 1024
+        // height: 1024
+        .row_pitch = 8192,
+        .slice_pitch = 8388608,
+        // hash: 95b2e9256e59cae29c48f2d7d4ede70b
+        .data = transmuted_span<std::byte>(139936080, 8388608),
+    };
+    datas[3][1] = TextureData {
+        // mip_level: 1
+        // width: 512
+        // height: 512
+        .row_pitch = 4096,
+        .slice_pitch = 2097152,
+        // hash: bdcbdc9f5021c87bc74cc2e79620c711
+        .data = transmuted_span<std::byte>(148324688, 2097152),
+    };
+    datas[3][2] = TextureData {
+        // mip_level: 2
+        // width: 256
+        // height: 256
+        .row_pitch = 2048,
+        .slice_pitch = 524288,
+        // hash: 8f597032a29f04cc7c266b1473189190
+        .data = transmuted_span<std::byte>(150421840, 524288),
+    };
+    datas[3][3] = TextureData {
+        // mip_level: 3
+        // width: 128
+        // height: 128
+        .row_pitch = 1024,
+        .slice_pitch = 131072,
+        // hash: a522798ddbace386b9748c650d0bd589
+        .data = transmuted_span<std::byte>(150946128, 131072),
+    };
+    datas[3][4] = TextureData {
+        // mip_level: 4
+        // width: 64
+        // height: 64
+        .row_pitch = 512,
+        .slice_pitch = 32768,
+        // hash: b39d74423230d4ef34f4a01354f06dbb
+        .data = transmuted_span<std::byte>(151077200, 32768),
+    };
+    datas[3][5] = TextureData {
+        // mip_level: 5
+        // width: 32
+        // height: 32
+        .row_pitch = 256,
+        .slice_pitch = 8192,
+        // hash: 16b172ecdc77d53f3f4f910499416e22
+        .data = transmuted_span<std::byte>(151109968, 8192),
+    };
+    datas[3][6] = TextureData {
+        // mip_level: 6
+        // width: 16
+        // height: 16
+        .row_pitch = 128,
+        .slice_pitch = 2048,
+        // hash: 8cd998d0b667d36d9d17a7db82b30a88
+        .data = transmuted_span<std::byte>(151118160, 2048),
+    };
+    datas[3][7] = TextureData {
+        // mip_level: 7
+        // width: 8
+        // height: 8
+        .row_pitch = 64,
+        .slice_pitch = 512,
+        // hash: f39fa59576ca888db963623568bf0ea5
+        .data = transmuted_span<std::byte>(151120208, 512),
+    };
+    datas[3][8] = TextureData {
+        // mip_level: 8
+        // width: 4
+        // height: 4
+        .row_pitch = 32,
+        .slice_pitch = 128,
+        // hash: 2add947eb14fada697697931f3a250c1
+        .data = transmuted_span<std::byte>(151120720, 128),
+    };
+    datas[3][9] = TextureData {
+        // mip_level: 9
+        // width: 2
+        // height: 2
+        .row_pitch = 16,
+        .slice_pitch = 32,
+        // hash: b2a1d97d48c8032f37cf36ae9cb35ea4
+        .data = transmuted_span<std::byte>(151120848, 32),
+    };
+    datas[3][10] = TextureData {
+        // mip_level: 10
+        // width: 1
+        // height: 1
+        .row_pitch = 8,
+        .slice_pitch = 8,
+        // hash: 563b13464e49eab1a96147576b00c6bc
+        .data = transmuted_span<std::byte>(151120880, 8),
+    };
+    datas[4][0] = TextureData {
+        // mip_level: 0
+        // width: 1024
+        // height: 1024
+        .row_pitch = 8192,
+        .slice_pitch = 8388608,
+        // hash: 17a3f09f6461513ab3978b63fab6b79d
+        .data = transmuted_span<std::byte>(151120888, 8388608),
+    };
+    datas[4][1] = TextureData {
+        // mip_level: 1
+        // width: 512
+        // height: 512
+        .row_pitch = 4096,
+        .slice_pitch = 2097152,
+        // hash: 5dfa489e2f014ebff7c26136bf7930e3
+        .data = transmuted_span<std::byte>(159509496, 2097152),
+    };
+    datas[4][2] = TextureData {
+        // mip_level: 2
+        // width: 256
+        // height: 256
+        .row_pitch = 2048,
+        .slice_pitch = 524288,
+        // hash: d30d23f72d1d2872a6fbb177c397315f
+        .data = transmuted_span<std::byte>(161606648, 524288),
+    };
+    datas[4][3] = TextureData {
+        // mip_level: 3
+        // width: 128
+        // height: 128
+        .row_pitch = 1024,
+        .slice_pitch = 131072,
+        // hash: 7ed58d6f690b7d7d1145fb9a1844a2f1
+        .data = transmuted_span<std::byte>(162130936, 131072),
+    };
+    datas[4][4] = TextureData {
+        // mip_level: 4
+        // width: 64
+        // height: 64
+        .row_pitch = 512,
+        .slice_pitch = 32768,
+        // hash: 4fd24eb9b5086d7b02bf0cb6680cb56a
+        .data = transmuted_span<std::byte>(162262008, 32768),
+    };
+    datas[4][5] = TextureData {
+        // mip_level: 5
+        // width: 32
+        // height: 32
+        .row_pitch = 256,
+        .slice_pitch = 8192,
+        // hash: 20cd0518fb2e562f63cc76472572af74
+        .data = transmuted_span<std::byte>(162294776, 8192),
+    };
+    datas[4][6] = TextureData {
+        // mip_level: 6
+        // width: 16
+        // height: 16
+        .row_pitch = 128,
+        .slice_pitch = 2048,
+        // hash: fe758f7b4f6cdd6ce36f3b63bbccebb4
+        .data = transmuted_span<std::byte>(162302968, 2048),
+    };
+    datas[4][7] = TextureData {
+        // mip_level: 7
+        // width: 8
+        // height: 8
+        .row_pitch = 64,
+        .slice_pitch = 512,
+        // hash: 573f4f668a5c39117daee74b730bd470
+        .data = transmuted_span<std::byte>(162305016, 512),
+    };
+    datas[4][8] = TextureData {
+        // mip_level: 8
+        // width: 4
+        // height: 4
+        .row_pitch = 32,
+        .slice_pitch = 128,
+        // hash: 1704840cfb6d56378118f39d7378bf49
+        .data = transmuted_span<std::byte>(162305528, 128),
+    };
+    datas[4][9] = TextureData {
+        // mip_level: 9
+        // width: 2
+        // height: 2
+        .row_pitch = 16,
+        .slice_pitch = 32,
+        // hash: a226a62cb18192d068f68dea3b3c2d05
+        .data = transmuted_span<std::byte>(162305656, 32),
+    };
+    datas[4][10] = TextureData {
+        // mip_level: 10
+        // width: 1
+        // height: 1
+        .row_pitch = 8,
+        .slice_pitch = 8,
+        // hash: 16be76e995343fb04ff0c00918a40e90
+        .data = transmuted_span<std::byte>(162305688, 8),
+    };
+    datas[5][0] = TextureData {
+        // mip_level: 0
+        // width: 1024
+        // height: 1024
+        .row_pitch = 8192,
+        .slice_pitch = 8388608,
+        // hash: 4b3393b50e560bef692124e8d132134d
+        .data = transmuted_span<std::byte>(162305696, 8388608),
+    };
+    datas[5][1] = TextureData {
+        // mip_level: 1
+        // width: 512
+        // height: 512
+        .row_pitch = 4096,
+        .slice_pitch = 2097152,
+        // hash: 1eef69956e198f5357901dd07f464a6d
+        .data = transmuted_span<std::byte>(170694304, 2097152),
+    };
+    datas[5][2] = TextureData {
+        // mip_level: 2
+        // width: 256
+        // height: 256
+        .row_pitch = 2048,
+        .slice_pitch = 524288,
+        // hash: 1af3c6af6280f1792a657deb5a923955
+        .data = transmuted_span<std::byte>(172791456, 524288),
+    };
+    datas[5][3] = TextureData {
+        // mip_level: 3
+        // width: 128
+        // height: 128
+        .row_pitch = 1024,
+        .slice_pitch = 131072,
+        // hash: 23fc8e43c4bbe4ddef07fc5fd6bd5e85
+        .data = transmuted_span<std::byte>(173315744, 131072),
+    };
+    datas[5][4] = TextureData {
+        // mip_level: 4
+        // width: 64
+        // height: 64
+        .row_pitch = 512,
+        .slice_pitch = 32768,
+        // hash: dc8659af1986cd692f12566594ae6da1
+        .data = transmuted_span<std::byte>(173446816, 32768),
+    };
+    datas[5][5] = TextureData {
+        // mip_level: 5
+        // width: 32
+        // height: 32
+        .row_pitch = 256,
+        .slice_pitch = 8192,
+        // hash: a101bf90ff26cdbab7d36ae740f5416e
+        .data = transmuted_span<std::byte>(173479584, 8192),
+    };
+    datas[5][6] = TextureData {
+        // mip_level: 6
+        // width: 16
+        // height: 16
+        .row_pitch = 128,
+        .slice_pitch = 2048,
+        // hash: e43e67959b0bbe90014604b650cbac75
+        .data = transmuted_span<std::byte>(173487776, 2048),
+    };
+    datas[5][7] = TextureData {
+        // mip_level: 7
+        // width: 8
+        // height: 8
+        .row_pitch = 64,
+        .slice_pitch = 512,
+        // hash: 18701ec219c94b89f728866e3b401cb8
+        .data = transmuted_span<std::byte>(173489824, 512),
+    };
+    datas[5][8] = TextureData {
+        // mip_level: 8
+        // width: 4
+        // height: 4
+        .row_pitch = 32,
+        .slice_pitch = 128,
+        // hash: 1a2d5e4bab40436129b0906c2540abb1
+        .data = transmuted_span<std::byte>(173490336, 128),
+    };
+    datas[5][9] = TextureData {
+        // mip_level: 9
+        // width: 2
+        // height: 2
+        .row_pitch = 16,
+        .slice_pitch = 32,
+        // hash: 0064208c729ac8dfa2c4c6a8dadbeea9
+        .data = transmuted_span<std::byte>(173490464, 32),
+    };
+    datas[5][10] = TextureData {
+        // mip_level: 10
+        // width: 1
+        // height: 1
+        .row_pitch = 8,
+        .slice_pitch = 8,
+        // hash: 477b556f26425c0564e42f5471a29448
+        .data = transmuted_span<std::byte>(173490496, 8),
+    };
+    return CubeTexture {
+        .format = DXGI_FORMAT_R16G16B16A16_FLOAT,
+        .width = 1024,
+        .height = 1024,
+        .mip_count = 11,
+        .datas = datas,
     };
 }
 

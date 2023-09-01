@@ -37,6 +37,7 @@ static auto BUFFET_ASSET_TASKS = std::to_array<AssetTask>({
     AssetTaskGltf {"raccoon", "models/low-poly_racoon_run_animation.glb"},
     AssetTaskProceduralCube {"light_bounds", 2.0f, false},
     AssetTaskProceduralCube {"skybox", 2.0f, true},
+    AssetTaskProceduralSphere {"sphere", 1.0f, 32, false},
     AssetTaskStockcubeOutput {
         "winter_evening_lut",
         "intermediate/stockcube/winter_evening_lut.bin",
@@ -49,7 +50,18 @@ static auto BUFFET_ASSET_TASKS = std::to_array<AssetTask>({
         "winter_evening_rad",
         "intermediate/stockcube/winter_evening_rad.bin",
         "intermediate/stockcube/winter_evening_rad.json"},
-    AssetTaskProceduralSphere {"sphere", 1.0f, 32, false},
+    AssetTaskStockcubeOutput {
+        "shanghai_bund_lut",
+        "intermediate/stockcube/shanghai_bund_lut.bin",
+        "intermediate/stockcube/shanghai_bund_lut.json"},
+    AssetTaskStockcubeOutput {
+        "shanghai_bund_irr",
+        "intermediate/stockcube/shanghai_bund_irr.bin",
+        "intermediate/stockcube/shanghai_bund_irr.json"},
+    AssetTaskStockcubeOutput {
+        "shanghai_bund_rad",
+        "intermediate/stockcube/shanghai_bund_rad.bin",
+        "intermediate/stockcube/shanghai_bund_rad.json"},
 });
 
 static auto BUFFET_SHADER_TASKS = std::to_array<ShaderTask>({
@@ -88,6 +100,7 @@ static auto BUFFET_SHADER_TASKS = std::to_array<ShaderTask>({
 static auto STOCKCUBE_ASSET_TASKS = std::to_array<AssetTask>({
     AssetTaskHdrTexture {"farm_field", "envmaps/farm_field_2k.exr"},
     AssetTaskHdrTexture {"winter_evening", "envmaps/winter_evening_2k.exr"},
+    AssetTaskHdrTexture {"shanghai_bund", "envmaps/shanghai_bund_2k.exr"},
     AssetTaskProceduralCube {"skybox", 2.0f, true},
     AssetTaskProceduralSphere {"sphere", 1.0f, 32, false},
 });

@@ -27,10 +27,13 @@ public:
     auto raccoon_metallic_roughness_texture() const -> Texture;
     auto light_bounds_mesh() const -> Mesh;
     auto skybox_mesh() const -> Mesh;
+    auto sphere_mesh() const -> Mesh;
     auto winter_evening_lut() const -> Texture;
     auto winter_evening_irr() const -> CubeTexture;
     auto winter_evening_rad() const -> CubeTexture;
-    auto sphere_mesh() const -> Mesh;
+    auto shanghai_bund_lut() const -> Texture;
+    auto shanghai_bund_irr() const -> CubeTexture;
+    auto shanghai_bund_rad() const -> CubeTexture;
 
 private:
     template<typename T>
