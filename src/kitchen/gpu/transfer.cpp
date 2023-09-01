@@ -19,7 +19,7 @@ GpuTransfer::~GpuTransfer() {
 }
 
 auto GpuTransfer::create(const ComPtr<ID3D12Device>& device) -> void {
-    _impl = new GpuTransferImpl(device.get());
+    _impl = new GpuTransferImpl(device);
 }
 
 auto GpuTransfer::begin() -> void {

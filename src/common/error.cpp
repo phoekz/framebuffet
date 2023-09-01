@@ -1,5 +1,7 @@
 #include "error.hpp"
 
+#include <comdef.h>
+
 namespace fb {
 
 namespace error_detail {

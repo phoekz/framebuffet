@@ -13,6 +13,13 @@ extern "C" {
 
 namespace fb {
 
+GpuDevice::~GpuDevice() {
+    CloseHandle(_fence_event);
+    _fence_event = nullptr;
+    FreeLibrary(_pix_gpu_capturer);
+    _pix_gpu_capturer = nullptr;
+}
+
 auto GpuDevice::create(const Window& window) -> void {
     DebugScope debug_scope("Device");
 
@@ -82,10 +89,10 @@ auto GpuDevice::create(const Window& window) -> void {
         if (!module) {
             module = LoadLibraryA(FB_PIX_GPU_CAPTURER_DLL_PATH);
         }
-        _pix_gpu_capturer = wil::unique_hmodule(module);
+        _pix_gpu_capturer = module;
         FB_LOG_INFO(
             FB_PIX_GPU_CAPTURER_NAME ": {}",
-            _pix_gpu_capturer.get() ? "Loaded" : "Not loaded"
+            _pix_gpu_capturer != nullptr ? "Loaded" : "Not loaded"
         );
     }
 
@@ -181,7 +188,7 @@ auto GpuDevice::create(const Window& window) -> void {
     {
         _frame_index = _swapchain.backbuffer_index();
         _fence = this->create_fence(0, "Fence");
-        _fence_event = wil::unique_handle(CreateEvent(nullptr, FALSE, FALSE, nullptr));
+        _fence_event = CreateEvent(nullptr, FALSE, FALSE, nullptr);
         FB_ASSERT_MSG(_fence_event != nullptr, "Failed to create fence event.");
     }
 
@@ -266,8 +273,8 @@ auto GpuDevice::end_frame(GpuCommandList&&) -> void {
 
     // If the next frame is not ready to be rendered yet, wait until it is ready.
     if (_fence->GetCompletedValue() < *fence_value) {
-        FB_ASSERT_HR(_fence->SetEventOnCompletion(*fence_value, _fence_event.get()));
-        WaitForSingleObjectEx(_fence_event.get(), INFINITE, FALSE);
+        FB_ASSERT_HR(_fence->SetEventOnCompletion(*fence_value, _fence_event));
+        WaitForSingleObjectEx(_fence_event, INFINITE, FALSE);
     }
 
     // Set the fence value for the next frame.
@@ -279,8 +286,8 @@ auto GpuDevice::wait() -> void {
     FB_ASSERT_HR(_command_queue->Signal(_fence.get(), _fence_values[_frame_index]));
 
     // Wait until the fence has been processed.
-    FB_ASSERT_HR(_fence->SetEventOnCompletion(_fence_values[_frame_index], _fence_event.get()));
-    WaitForSingleObjectEx(_fence_event.get(), INFINITE, FALSE);
+    FB_ASSERT_HR(_fence->SetEventOnCompletion(_fence_values[_frame_index], _fence_event));
+    WaitForSingleObjectEx(_fence_event, INFINITE, FALSE);
 }
 
 auto GpuDevice::create_root_signature(const ComPtr<ID3DBlob>& signature, std::string_view name)

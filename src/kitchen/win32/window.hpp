@@ -22,15 +22,16 @@ public:
     };
 
     Window() = default;
+    ~Window();
 
     auto create(const Desc& desc) -> void;
     auto update() -> void;
 
-    auto hwnd() const -> HWND;
+    auto hwnd() const -> HWND { return _handle; }
     auto inputs() const -> const Inputs& { return _inputs; }
 
 private:
-    wil::unique_hwnd _handle;
+    HWND _handle;
     Inputs _inputs;
 };
 

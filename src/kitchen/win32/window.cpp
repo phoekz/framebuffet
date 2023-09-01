@@ -55,6 +55,11 @@ static auto CALLBACK win32_window_proc(HWND window, UINT message, WPARAM w_param
     return DefWindowProcA(window, message, w_param, l_param);
 }
 
+Window::~Window() {
+    CloseWindow(_handle);
+    _handle = nullptr;
+}
+
 auto Window::create(const Desc& desc) -> void {
     // Module handle.
     HMODULE module_handle = GetModuleHandleA(nullptr);
@@ -125,7 +130,7 @@ auto Window::create(const Desc& desc) -> void {
     FB_LOG_INFO("Created window: {}", desc.title);
 
     // Store window handle.
-    _handle = wil::unique_hwnd(window_handle);
+    _handle = window_handle;
 }
 
 auto Window::update() -> void {
@@ -134,10 +139,6 @@ auto Window::update() -> void {
     _inputs.mouse_y = g_mouse_y;
     _inputs.mouse_wheel_y = g_mouse_wheel_y;
     g_mouse_wheel_y = 0.0f;
-}
-
-auto Window::hwnd() const -> HWND {
-    return _handle.get();
 }
 
 } // namespace fb

@@ -224,7 +224,7 @@ public:
 
     auto element_count() const -> uint32_t { return _element_count; }
     auto byte_count() const -> uint32_t { return _byte_count; }
-    auto resource() const -> ID3D12Resource* { return _resource.get(); }
+    auto resource() const -> const ComPtr<ID3D12Resource>& { return _resource; }
     auto raw() const -> void* { return _raw; }
     auto ptr() const -> T* { return reinterpret_cast<T*>(raw()); }
     auto span() const -> std::span<T> { return std::span<T>(ptr(), element_count()); }

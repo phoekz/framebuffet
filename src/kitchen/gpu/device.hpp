@@ -17,6 +17,7 @@ class GpuDevice {
 
 public:
     GpuDevice() = default;
+    ~GpuDevice();
 
     // Device state.
     auto create(const Window& window) -> void;
@@ -89,7 +90,7 @@ public:
 
 private:
     LeakTracker _leak_tracker;
-    wil::unique_hmodule _pix_gpu_capturer;
+    HMODULE _pix_gpu_capturer = nullptr;
     ComPtr<ID3D12Device12> _device;
     ComPtr<ID3D12CommandQueue> _command_queue;
     std::array<ComPtr<ID3D12CommandAllocator>, FRAME_COUNT> _command_allocators;
@@ -98,7 +99,7 @@ private:
 
     uint32_t _frame_index = 0;
     ComPtr<ID3D12Fence1> _fence;
-    wil::unique_handle _fence_event;
+    HANDLE _fence_event = nullptr;
     std::array<uint64_t, FRAME_COUNT> _fence_values = {};
 
     ComPtr<ID3D12RootSignature> _root_signature;
