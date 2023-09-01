@@ -17,8 +17,8 @@ public:
     auto size() const -> Uint2 { return Uint2(_width, _height); }
     auto channel_count() const -> uint32_t { return _channel_count; }
     auto format() const -> DXGI_FORMAT { return _format; }
-    auto row_pitch() const -> uint32_t { return _width * _element_byte_size; }
-    auto slice_pitch() const -> uint32_t { return _width * _height * _element_byte_size; }
+    auto row_pitch() const -> uint32_t { return _width * _element_byte_count; }
+    auto slice_pitch() const -> uint32_t { return _width * _height * _element_byte_count; }
     auto data() const -> std::span<const std::byte> {
         return std::span((const std::byte*)_data.data(), slice_pitch());
     }
@@ -40,7 +40,7 @@ private:
     uint32_t _width = 0;
     uint32_t _height = 0;
     uint32_t _channel_count = 0;
-    uint32_t _element_byte_size = 0;
+    uint32_t _element_byte_count = 0;
     DXGI_FORMAT _format = DXGI_FORMAT_UNKNOWN;
     std::vector<T> _data;
 };

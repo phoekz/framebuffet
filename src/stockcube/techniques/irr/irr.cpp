@@ -27,7 +27,7 @@ auto create(Technique& tech, const CreateDesc& desc) -> void {
         GpuTextureDesc {.format = DIV_FORMAT, .width = WIDTH, .height = HEIGHT, .depth = DEPTH},
         debug.with_name("Div Texture")
     );
-    tech.readback.create(device, tech.div_texture.byte_size(), debug.with_name("Readback"));
+    tech.readback.create(device, tech.div_texture.byte_count(), debug.with_name("Readback"));
 
     const auto sample_count_lg2 = 16;
     const auto sample_count = 1u << sample_count_lg2;
@@ -172,7 +172,7 @@ auto gpu_commands(Technique& tech, const GpuCommandsDesc& desc) -> void {
             );
             offset += tech.div_texture.slice_pitch();
         }
-        FB_ASSERT(offset == tech.readback.byte_size());
+        FB_ASSERT(offset == tech.readback.byte_count());
 
         // Barrier.
         tech.div_texture.transition(cmd, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);

@@ -19,8 +19,8 @@ public:
         return {
             .type = std::string(type),
             .offset = offset,
-            .element_size = elements.size(),
-            .byte_size = elements.size_bytes(),
+            .element_count = elements.size(),
+            .byte_count = elements.size_bytes(),
         };
     }
 

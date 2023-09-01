@@ -50,19 +50,19 @@ auto bake_app_datas(
 
     // Generate.
     const auto format_asset_span = [&assets_bin](AssetSpan span) -> std::string {
-        const auto bytes = std::span(assets_bin.data() + span.offset, span.byte_size);
+        const auto bytes = std::span(assets_bin.data() + span.offset, span.byte_count);
         const auto hash = hash128(bytes);
         return std::format(
             "// hash: {}\n transmuted_span<{}>({}, {})",
             hash,
             span.type,
             span.offset,
-            span.element_size
+            span.element_count
         );
     };
     const auto format_named_asset_span =
         [&assets_bin](std::string_view name, AssetSpan span) -> std::string {
-        const auto bytes = std::span(assets_bin.data() + span.offset, span.byte_size);
+        const auto bytes = std::span(assets_bin.data() + span.offset, span.byte_count);
         const auto hash = hash128(bytes);
         return std::format(
             "// hash: {}\n .{} = transmuted_span<{}>({}, {})",
@@ -70,7 +70,7 @@ auto bake_app_datas(
             name,
             span.type,
             span.offset,
-            span.element_size
+            span.element_count
         );
     };
 
@@ -103,8 +103,8 @@ auto bake_app_datas(
                             }};
                         }})",
                         asset.name,
-                        asset.vertices.element_size,
-                        asset.indices.element_size / 3,
+                        asset.vertices.element_count,
+                        asset.indices.element_count / 3,
                         format_named_asset_span("vertices"sv, asset.vertices),
                         format_named_asset_span("indices"sv, asset.indices)
                     );
@@ -309,9 +309,9 @@ auto bake_app_datas(
     baked_cpp = str_replace(baked_cpp, "{{assets_bin_hash}}", std::format("{}", assets_bin_hash));
     baked_cpp = str_replace(baked_cpp, "{{shaders_bin_hash}}", std::format("{}", shaders_bin_hash));
     baked_cpp = str_replace(baked_cpp, "{{asset_defns}}", assets_defns.str());
-    baked_cpp = str_replace(baked_cpp, "{{assets_total_size}}", std::to_string(assets_bin.size()));
+    baked_cpp = str_replace(baked_cpp, "{{assets_byte_count}}", std::to_string(assets_bin.size()));
     baked_cpp = str_replace(baked_cpp, "{{shader_defns}}", shader_defns.str());
-    baked_cpp = str_replace(baked_cpp, "{{shaders_total_size}}", std::to_string(shaders_bin.size()));
+    baked_cpp = str_replace(baked_cpp, "{{shaders_byte_count}}", std::to_string(shaders_bin.size()));
     // clang-format on
 
     // Write source files.

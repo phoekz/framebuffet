@@ -237,7 +237,7 @@ void Cards::render(GpuDevice& device, GpuCommandList& cmd) {
             .vertices = _vertices.srv_descriptor().index(),
             .texture = _card_descriptors[card_indirect].src,
         });
-        cmd.draw_indexed_instanced(_indices.element_size(), 1, 0, 0, 0);
+        cmd.draw_indexed_instanced(_indices.element_count(), 1, 0, 0, 0);
     }
     cmd.end_pix();
     cmd.end_pix();

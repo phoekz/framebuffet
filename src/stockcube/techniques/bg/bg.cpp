@@ -70,7 +70,7 @@ auto gpu_commands(Technique& tech, const GpuCommandsDesc& desc) -> void {
     cmd.set_pipeline(tech.pipeline);
     cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
     cmd.set_index_buffer(tech.indices.index_buffer_view());
-    cmd.draw_indexed_instanced(tech.indices.element_size(), 1, 0, 0, 0);
+    cmd.draw_indexed_instanced(tech.indices.element_count(), 1, 0, 0, 0);
     cmd.end_pix();
 }
 

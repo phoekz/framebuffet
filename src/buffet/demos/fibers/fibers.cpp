@@ -320,7 +320,7 @@ auto FibersDemo::render(GpuDevice& device, GpuCommandList& cmd) -> void {
             cmd.set_pipeline(_light_pipeline);
             cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
             cmd.set_index_buffer(_light_mesh.indices.index_buffer_view());
-            cmd.draw_indexed_instanced(_light_mesh.indices.element_size(), LIGHT_COUNT, 0, 0, 0);
+            cmd.draw_indexed_instanced(_light_mesh.indices.element_count(), LIGHT_COUNT, 0, 0, 0);
         }
 
         // Plane.
@@ -335,7 +335,7 @@ auto FibersDemo::render(GpuDevice& device, GpuCommandList& cmd) -> void {
         cmd.set_pipeline(_plane_pipeline);
         cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
         cmd.set_index_buffer(_plane_mesh.indices.index_buffer_view());
-        cmd.draw_indexed_instanced(_plane_mesh.indices.element_size(), 1, 0, 0, 0);
+        cmd.draw_indexed_instanced(_plane_mesh.indices.element_count(), 1, 0, 0, 0);
 
         // Debug.
         auto heatmap_index = 0u;

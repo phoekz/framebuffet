@@ -180,7 +180,7 @@ auto TreeDemo::render(GpuDevice& device, GpuCommandList& cmd) -> void {
         cmd.set_pipeline(_shadow_pipeline);
         cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
         cmd.set_index_buffer(_tree_indices.index_buffer_view());
-        cmd.draw_indexed_instanced(_tree_indices.element_size(), 1, 0, 0, 0);
+        cmd.draw_indexed_instanced(_tree_indices.element_count(), 1, 0, 0, 0);
         _shadow_depth.transition(cmd, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
         cmd.flush_barriers();
         cmd.end_pix();
@@ -202,7 +202,7 @@ auto TreeDemo::render(GpuDevice& device, GpuCommandList& cmd) -> void {
             _shadow_depth.srv_descriptor().index(),
         });
         cmd.set_index_buffer(_tree_indices.index_buffer_view());
-        cmd.draw_indexed_instanced(_tree_indices.element_size(), 1, 0, 0, 0);
+        cmd.draw_indexed_instanced(_tree_indices.element_count(), 1, 0, 0, 0);
 
         cmd.set_graphics_constants(Bindings {
             _constants.cbv_descriptor().index(),
@@ -211,7 +211,7 @@ auto TreeDemo::render(GpuDevice& device, GpuCommandList& cmd) -> void {
             _shadow_depth.srv_descriptor().index(),
         });
         cmd.set_index_buffer(_plane_indices.index_buffer_view());
-        cmd.draw_indexed_instanced(_plane_indices.element_size(), 1, 0, 0, 0);
+        cmd.draw_indexed_instanced(_plane_indices.element_count(), 1, 0, 0, 0);
         cmd.end_pix();
     }
 }

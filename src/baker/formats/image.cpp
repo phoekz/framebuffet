@@ -31,7 +31,7 @@ auto Image<std::byte>::load(std::span<const std::byte> src_image) -> Image<std::
     image._width = width;
     image._height = height;
     image._channel_count = CHANNEL_COUNT;
-    image._element_byte_size = CHANNEL_COUNT * sizeof(std::byte);
+    image._element_byte_count = CHANNEL_COUNT * sizeof(std::byte);
     image._format = DXGI_FORMAT_R8G8B8A8_UNORM;
     image._data = std::move(dst_data);
     return image;
@@ -57,8 +57,8 @@ auto Image<float>::load(std::span<const std::byte> src_image) -> Image<float> {
     // Copy.
     std::vector<float> dst_data;
     dst_data.resize(width * height * CHANNEL_COUNT);
-    const size_t src_byte_size = width * height * CHANNEL_COUNT * sizeof(float);
-    memcpy(dst_data.data(), src_data, src_byte_size);
+    const size_t src_byte_count = width * height * CHANNEL_COUNT * sizeof(float);
+    memcpy(dst_data.data(), src_data, src_byte_count);
     std::free((void*)src_data);
 
     // Result.
@@ -66,7 +66,7 @@ auto Image<float>::load(std::span<const std::byte> src_image) -> Image<float> {
     image._width = width;
     image._height = height;
     image._channel_count = CHANNEL_COUNT;
-    image._element_byte_size = CHANNEL_COUNT * sizeof(float);
+    image._element_byte_count = CHANNEL_COUNT * sizeof(float);
     image._format = DXGI_FORMAT_R32G32B32A32_FLOAT;
     image._data = std::move(dst_data);
     return image;

@@ -7,8 +7,8 @@ namespace fb {
 struct AssetSpan {
     std::string type;
     size_t offset;
-    size_t element_size;
-    size_t byte_size;
+    size_t element_count;
+    size_t byte_count;
 };
 
 struct AssetCopy {

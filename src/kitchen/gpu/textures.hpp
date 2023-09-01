@@ -359,7 +359,7 @@ public:
 
         // Compute tightly packed byte size.
         {
-            uint64_t byte_size_64 = 0;
+            uint64_t byte_count_64 = 0;
             for (uint32_t mip = 0; mip < desc.mip_count; mip++) {
                 for (uint32_t slice = 0; slice < desc.depth; slice++) {
                     const auto mip_width = std::max(1u, desc.width >> mip);
@@ -367,11 +367,11 @@ public:
                     const auto unit_bits =
                         D3D12_PROPERTY_LAYOUT_FORMAT_TABLE::GetBitsPerUnit(desc.format);
                     const auto unit_bytes = unit_bits / 8;
-                    byte_size_64 += mip_width * mip_height * unit_bytes;
+                    byte_count_64 += mip_width * mip_height * unit_bytes;
                 }
             }
-            FB_ASSERT(byte_size_64 <= UINT32_MAX);
-            _byte_size = (uint32_t)byte_size_64;
+            FB_ASSERT(byte_count_64 <= UINT32_MAX);
+            _byte_count = (uint32_t)byte_count_64;
         }
 
         // Copy desc.
@@ -498,7 +498,7 @@ public:
     auto resource() const -> const ComPtr<ID3D12Resource>& { return _resource; }
     auto row_pitch() const -> uint32_t { return unit_byte_count() * _desc.width; }
     auto slice_pitch() const -> uint32_t { return row_pitch() * _desc.height; }
-    auto byte_size() const -> uint32_t { return _byte_size; }
+    auto byte_count() const -> uint32_t { return _byte_count; }
     auto srv_descriptor() const -> GpuDescriptor {
         static_assert(gpu_texture_flags_contains(FLAGS, Srv));
         return _srv_descriptor;
@@ -545,7 +545,7 @@ private:
     std::array<GpuDescriptor, MAX_MIP_COUNT> _uav_descriptors = {};
     GpuDescriptor _rtv_descriptor = {};
     GpuDescriptor _dsv_descriptor = {};
-    uint32_t _byte_size = 0;
+    uint32_t _byte_count = 0;
 };
 
 using GpuTextureSrv = GpuTexture<GpuTextureFlags::Srv>;

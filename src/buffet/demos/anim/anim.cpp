@@ -224,7 +224,7 @@ auto AnimDemo::render(GpuDevice& device, GpuCommandList& cmd) -> void {
     cmd.set_pipeline(_pipeline);
     cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
     cmd.set_index_buffer(_indices.index_buffer_view());
-    cmd.draw_indexed_instanced(_indices.element_size(), 1, 0, 0, 0);
+    cmd.draw_indexed_instanced(_indices.element_count(), 1, 0, 0, 0);
 }
 
 } // namespace fb::demos::anim

@@ -65,7 +65,7 @@ public:
 
     GpuBuffer() = default;
 
-    auto create(GpuDevice& device, uint32_t element_size, std::string_view name) -> void {
+    auto create(GpuDevice& device, uint32_t element_count, std::string_view name) -> void {
         // Format.
         if constexpr (gpu_buffer_flags_contains(FLAGS, Index)) {
             if (std::is_same_v<T, uint16_t>) {
@@ -85,9 +85,9 @@ public:
         }
 
         // Resource desc.
-        _element_size = element_size;
-        _byte_size = _element_byte_size * element_size;
-        _resource_desc = CD3DX12_RESOURCE_DESC::Buffer(_byte_size, resource_flags);
+        _element_count = element_count;
+        _byte_count = _element_byte_count * element_count;
+        _resource_desc = CD3DX12_RESOURCE_DESC::Buffer(_byte_count, resource_flags);
 
         // Heap type.
         D3D12_HEAP_TYPE heap_type = D3D12_HEAP_TYPE_DEFAULT;
@@ -122,10 +122,10 @@ public:
             FB_ASSERT_HR(_resource->Map(0, &read_range, &_raw));
 
             // Clear memory.
-            memset(_raw, 0, _byte_size);
+            memset(_raw, 0, _byte_count);
 
             // Inplace construct elements.
-            for (uint32_t i = 0; i < element_size; i++) {
+            for (uint32_t i = 0; i < element_count; i++) {
                 new (reinterpret_cast<T*>(_raw) + i) T();
             }
         }
@@ -139,7 +139,7 @@ public:
             device.create_constant_buffer_view(
                 D3D12_CONSTANT_BUFFER_VIEW_DESC {
                     .BufferLocation = _gpu_address,
-                    .SizeInBytes = _byte_size,
+                    .SizeInBytes = _byte_count,
                 },
                 _cbv_descriptor.cpu()
             );
@@ -155,8 +155,8 @@ public:
                     .Buffer =
                         {
                             .FirstElement = 0,
-                            .NumElements = _element_size,
-                            .StructureByteStride = _element_byte_size,
+                            .NumElements = _element_count,
+                            .StructureByteStride = _element_byte_count,
                             .Flags = D3D12_BUFFER_SRV_FLAG_NONE,
                         },
                 },
@@ -174,8 +174,8 @@ public:
                     .Buffer =
                         {
                             .FirstElement = 0,
-                            .NumElements = _element_size,
-                            .StructureByteStride = _element_byte_size,
+                            .NumElements = _element_count,
+                            .StructureByteStride = _element_byte_count,
                             .CounterOffsetInBytes = 0,
                             .Flags = D3D12_BUFFER_UAV_FLAG_NONE,
                         },
@@ -211,17 +211,17 @@ public:
         );
     }
 
-    auto element_size() const -> uint32_t { return _element_size; }
-    auto byte_size() const -> uint32_t { return _byte_size; }
+    auto element_count() const -> uint32_t { return _element_count; }
+    auto byte_count() const -> uint32_t { return _byte_count; }
     auto resource() const -> ID3D12Resource* { return _resource.get(); }
     auto raw() const -> void* { return _raw; }
     auto ptr() const -> T* { return reinterpret_cast<T*>(raw()); }
-    auto span() const -> std::span<T> { return std::span<T>(ptr(), element_size()); }
+    auto span() const -> std::span<T> { return std::span<T>(ptr(), element_count()); }
     auto index_buffer_view() const -> D3D12_INDEX_BUFFER_VIEW {
         static_assert(gpu_buffer_flags_contains(FLAGS, Index));
         return D3D12_INDEX_BUFFER_VIEW {
             .BufferLocation = _gpu_address,
-            .SizeInBytes = _byte_size,
+            .SizeInBytes = _byte_count,
             .Format = _format,
         };
     }
@@ -251,9 +251,9 @@ public:
     }
 
 private:
-    uint32_t _element_byte_size = (uint32_t)sizeof(T);
-    uint32_t _element_size = 0;
-    uint32_t _byte_size = 0;
+    uint32_t _element_byte_count = (uint32_t)sizeof(T);
+    uint32_t _element_count = 0;
+    uint32_t _byte_count = 0;
     DXGI_FORMAT _format = DXGI_FORMAT_UNKNOWN;
     ComPtr<ID3D12Resource> _resource;
     CD3DX12_RESOURCE_DESC _resource_desc;

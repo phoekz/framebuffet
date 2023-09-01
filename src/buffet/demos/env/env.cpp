@@ -206,7 +206,7 @@ auto EnvDemo::render(GpuDevice& device, GpuCommandList& cmd) -> void {
         cmd.set_pipeline(pass.pipeline);
         cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
         cmd.set_index_buffer(pass.indices.index_buffer_view());
-        cmd.draw_indexed_instanced(pass.indices.element_size(), 1, 0, 0, 0);
+        cmd.draw_indexed_instanced(pass.indices.element_count(), 1, 0, 0, 0);
     }
 
     // Model.
@@ -223,7 +223,7 @@ auto EnvDemo::render(GpuDevice& device, GpuCommandList& cmd) -> void {
         cmd.set_pipeline(pass.pipeline);
         cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
         cmd.set_index_buffer(pass.indices.index_buffer_view());
-        cmd.draw_indexed_instanced(pass.indices.element_size(), 1, 0, 0, 0);
+        cmd.draw_indexed_instanced(pass.indices.element_count(), 1, 0, 0, 0);
     }
 }
 

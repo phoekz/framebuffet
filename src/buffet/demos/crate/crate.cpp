@@ -183,7 +183,7 @@ auto CrateDemo::render(GpuDevice& device, GpuCommandList& cmd) -> void {
             .sampler = (uint32_t)sampler,
         });
         cmd.set_index_buffer(model.indices.index_buffer_view());
-        cmd.draw_indexed_instanced(model.indices.element_size(), 1, 0, 0, 0);
+        cmd.draw_indexed_instanced(model.indices.element_count(), 1, 0, 0, 0);
     }
 }
 

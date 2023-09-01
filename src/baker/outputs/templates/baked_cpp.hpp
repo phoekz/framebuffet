@@ -5,7 +5,7 @@ inline constexpr std::string_view BAKED_CPP = R"(#include "baked.hpp"
     Assets::Assets() {
         // hash: {{assets_bin_hash}}
         _data = read_whole_file("fb_{{app_name}}_assets.bin");
-        FB_ASSERT(_data.size() == {{assets_total_size}});
+        FB_ASSERT(_data.size() == {{assets_byte_count}});
     }
 
     {{asset_defns}}
@@ -13,7 +13,7 @@ inline constexpr std::string_view BAKED_CPP = R"(#include "baked.hpp"
     Shaders::Shaders() {
         // hash: {{shaders_bin_hash}}
         _data = read_whole_file("fb_{{app_name}}_shaders.bin");
-        FB_ASSERT(_data.size() == {{shaders_total_size}});
+        FB_ASSERT(_data.size() == {{shaders_byte_count}});
     }
 
     {{shader_defns}}

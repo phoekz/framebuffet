@@ -26,7 +26,7 @@ auto create(Technique& tech, const CreateDesc& desc) -> void {
         },
         debug.with_name("Texture")
     );
-    tech.lut_readback.create(device, tech.lut_texture.byte_size(), debug.with_name("Readback"));
+    tech.lut_readback.create(device, tech.lut_texture.byte_count(), debug.with_name("Readback"));
 
     tech.constants.create(device, 1, debug.with_name("Constants"));
     *tech.constants.ptr() = Constants {

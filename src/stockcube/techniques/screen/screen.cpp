@@ -132,7 +132,13 @@ auto gpu_commands(Technique& tech, const GpuCommandsDesc& desc) -> void {
     });
     cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
     cmd.set_index_buffer(tech.indices.index_buffer_view());
-    cmd.draw_indexed_instanced(tech.indices.element_size(), tech.instances.element_size(), 0, 0, 0);
+    cmd.draw_indexed_instanced(
+        tech.indices.element_count(),
+        tech.instances.element_count(),
+        0,
+        0,
+        0
+    );
     cmd.end_pix();
 }
 
