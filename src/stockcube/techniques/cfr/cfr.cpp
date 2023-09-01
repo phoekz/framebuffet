@@ -51,7 +51,7 @@ auto gpu_commands(Technique& tech, const GpuCommandsDesc& desc) -> void {
     cmd.set_compute_constants(Bindings {
         .constants = tech.constants.cbv_descriptor().index(),
         .rect_texture = tech.rect_texture.index(),
-        .rect_sampler = (uint32_t)GpuSampler::LinearClamp,
+        .rect_sampler = (uint)GpuSampler::LinearClamp,
         .cube_texture = tech.cube_texture.uav_descriptor().index(),
     });
     cmd.dispatch(

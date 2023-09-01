@@ -119,28 +119,28 @@ auto TreeDemo::update(const UpdateDesc& desc) -> void {
     auto light_direction = dir_from_lonlat(p.light_longitude, p.light_latitude);
 
     // Shadow pass - constants.
-    Float4x4 light_transform;
+    float4x4 light_transform;
     {
-        auto projection = Float4x4::CreateOrthographic(
+        auto projection = float4x4::CreateOrthographic(
             p.light_projection_size,
             p.light_projection_size,
             p.shadow_near_plane,
             p.shadow_far_plane
         );
         auto eye = p.light_distance * light_direction;
-        auto view = Float4x4::CreateLookAt(eye, Float3::Zero, Float3::Up);
+        auto view = float4x4::CreateLookAt(eye, float3::Zero, float3::Up);
 
         light_transform = view * projection;
     }
 
     // Main pass - constants.
-    Float4x4 transform;
+    float4x4 transform;
     {
         auto projection =
-            Float4x4::CreatePerspectiveFieldOfView(p.camera_fov, desc.aspect_ratio, 0.1f, 100.0f);
+            float4x4::CreatePerspectiveFieldOfView(p.camera_fov, desc.aspect_ratio, 0.1f, 100.0f);
         auto eye = p.camera_distance * dir_from_lonlat(p.camera_longitude, p.camera_latitude);
-        auto at = Float3(0.0f, 3.0f, 0.0f);
-        auto view = Float4x4::CreateLookAt(eye, at, Float3::Up);
+        auto at = float3(0.0f, 3.0f, 0.0f);
+        auto view = float4x4::CreateLookAt(eye, at, float3::Up);
         transform = view * projection;
     }
 
@@ -149,7 +149,7 @@ auto TreeDemo::update(const UpdateDesc& desc) -> void {
         _debug_draw.begin(desc.frame_index);
         _debug_draw.transform(transform);
         _debug_draw.axes();
-        _debug_draw.line(Float3(), 16.0f * light_direction, COLOR_YELLOW);
+        _debug_draw.line(float3(), 16.0f * light_direction, COLOR_YELLOW);
         _debug_draw.end();
     }
 

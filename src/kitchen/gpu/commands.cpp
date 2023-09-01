@@ -9,7 +9,7 @@ auto GpuCommandList::set_global_descriptor_heap() -> void {
         _descriptors->cbv_srv_uav().heap(),
         _descriptors->sampler().heap(),
     });
-    _cmd->SetDescriptorHeaps((uint32_t)heaps.size(), heaps.data());
+    _cmd->SetDescriptorHeaps((uint)heaps.size(), heaps.data());
 }
 
 auto GpuCommandList::set_graphics() -> void {
@@ -31,10 +31,10 @@ auto GpuCommandList::set_compute() -> void {
 }
 
 auto GpuCommandList::set_viewport(
-    uint32_t left,
-    uint32_t top,
-    uint32_t right,
-    uint32_t bottom,
+    uint left,
+    uint top,
+    uint right,
+    uint bottom,
     float min_depth,
     float max_depth
 ) const -> void {
@@ -50,8 +50,7 @@ auto GpuCommandList::set_viewport(
     _cmd->RSSetViewports(1, &viewport);
 }
 
-auto GpuCommandList::set_scissor(uint32_t left, uint32_t top, uint32_t right, uint32_t bottom) const
-    -> void {
+auto GpuCommandList::set_scissor(uint left, uint top, uint right, uint bottom) const -> void {
     FB_ASSERT(_engine == GpuCommandEngine::Graphics);
     D3D12_RECT scissor {
         .left = (LONG)left,
@@ -85,7 +84,7 @@ auto GpuCommandList::set_index_buffer(D3D12_INDEX_BUFFER_VIEW ibv) const -> void
     _cmd->IASetIndexBuffer(&ibv);
 }
 
-auto GpuCommandList::set_blend_factor(Float4 factor) const -> void {
+auto GpuCommandList::set_blend_factor(float4 factor) const -> void {
     FB_ASSERT(_engine == GpuCommandEngine::Graphics);
     _cmd->OMSetBlendFactor((const float*)&factor);
 }
@@ -94,7 +93,7 @@ auto GpuCommandList::set_pipeline(const GpuPipeline& pipeline) const -> void {
     _cmd->SetPipelineState(pipeline.get());
 }
 
-auto GpuCommandList::clear_rtv(const GpuDescriptor& rtv, Float4 color) const -> void {
+auto GpuCommandList::clear_rtv(const GpuDescriptor& rtv, float4 color) const -> void {
     _cmd->ClearRenderTargetView(rtv.cpu(), (const float*)&color, 0, nullptr);
 }
 
@@ -103,21 +102,21 @@ auto GpuCommandList::clear_dsv(const GpuDescriptor& dsv, float depth) const -> v
 }
 
 auto GpuCommandList::draw_instanced(
-    uint32_t vertex_count,
-    uint32_t instance_count,
-    uint32_t start_vertex,
-    uint32_t start_instance
+    uint vertex_count,
+    uint instance_count,
+    uint start_vertex,
+    uint start_instance
 ) const -> void {
     FB_ASSERT(_engine == GpuCommandEngine::Graphics);
     _cmd->DrawInstanced(vertex_count, instance_count, start_vertex, start_instance);
 }
 
 auto GpuCommandList::draw_indexed_instanced(
-    uint32_t index_count,
-    uint32_t instance_count,
-    uint32_t start_index,
+    uint index_count,
+    uint instance_count,
+    uint start_index,
     int32_t base_vertex,
-    uint32_t start_instance
+    uint start_instance
 ) const -> void {
     FB_ASSERT(_engine == GpuCommandEngine::Graphics);
     _cmd->DrawIndexedInstanced(
@@ -129,7 +128,7 @@ auto GpuCommandList::draw_indexed_instanced(
     );
 }
 
-auto GpuCommandList::dispatch(uint32_t x, uint32_t y, uint32_t z) const -> void {
+auto GpuCommandList::dispatch(uint x, uint y, uint z) const -> void {
     FB_ASSERT(_engine == GpuCommandEngine::Compute);
     _cmd->Dispatch(x, y, z);
 }
@@ -138,10 +137,10 @@ auto GpuCommandList::copy_texture_to_buffer(
     const ComPtr<ID3D12Resource>& dst_buffer,
     uint64_t dst_buffer_offset,
     const ComPtr<ID3D12Resource>& src_texture,
-    uint32_t src_texture_subresource_index,
+    uint src_texture_subresource_index,
     DXGI_FORMAT src_texture_format,
-    uint32_t src_texture_width,
-    uint32_t src_texture_height
+    uint src_texture_width,
+    uint src_texture_height
 ) const -> void {
     const auto unit_byte_count = dxgi_format_unit_byte_count(src_texture_format);
     D3D12_PLACED_SUBRESOURCE_FOOTPRINT dst_footprint = {
@@ -211,7 +210,7 @@ auto GpuCommandList::flush_barriers() -> void {
     if (_pending_barrier_count == 0) {
         return;
     }
-    _cmd->ResourceBarrier((uint32_t)_pending_barrier_count, _pending_barriers.data());
+    _cmd->ResourceBarrier((uint)_pending_barrier_count, _pending_barriers.data());
     _pending_barrier_count = 0;
 }
 

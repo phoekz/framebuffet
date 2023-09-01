@@ -6,8 +6,8 @@
 
 namespace fb::demos::rain {
 
-inline constexpr uint32_t PARTICLE_COUNT = 4 * 1024;
-inline constexpr uint32_t DISPATCH_COUNT = PARTICLE_COUNT / SIM_DISPATCH_SIZE;
+inline constexpr uint PARTICLE_COUNT = 4 * 1024;
+inline constexpr uint DISPATCH_COUNT = PARTICLE_COUNT / SIM_DISPATCH_SIZE;
 
 struct Parameters {
     float speed = 0.5f;
@@ -21,13 +21,13 @@ struct Parameters {
 };
 
 struct Particle {
-    Float3 position;
+    float3 position;
 };
 static_assert(sizeof(Particle) == 12);
 
 struct Vertex {
-    Float3 position;
-    Float2 texcoord;
+    float3 position;
+    float2 texcoord;
 };
 
 class RainDemo {
@@ -35,7 +35,7 @@ class RainDemo {
 
 public:
     static constexpr std::string_view NAME = "Rain"sv;
-    static constexpr Float4 CLEAR_COLOR = {0.025f, 0.025f, 0.025f, 1.0f};
+    static constexpr float4 CLEAR_COLOR = {0.025f, 0.025f, 0.025f, 1.0f};
 
     RainDemo() = default;
 

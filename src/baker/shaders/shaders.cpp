@@ -5,7 +5,7 @@ namespace fb {
 
 auto ShaderCounters::to_comment_string() const -> std::string {
     std::ostringstream oss;
-    uint32_t lines = 0;
+    uint lines = 0;
 #define add_if_not_zero(name)                  \
     if (name != 0) {                           \
         if (lines > 0) {                       \
@@ -164,7 +164,7 @@ auto ShaderCompiler::compile(
     FB_ASSERT_HR(_compiler->Compile(
         &source_buffer,
         shader_args.data(),
-        (uint32_t)shader_args.size(),
+        (uint)shader_args.size(),
         _include_handler.get(),
         IID_PPV_ARGS(&result)
     ));

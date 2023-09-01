@@ -37,14 +37,14 @@ auto mipmapped_texture_asset(
 ) -> Asset {
     // Mipmapper state.
     std::array<AssetTextureData, MAX_MIP_COUNT> texture_datas = {};
-    uint32_t texture_data_count = 0;
-    const uint32_t mip_count = mip_count_from_size(texture.size());
+    uint texture_data_count = 0;
+    const uint mip_count = mip_count_from_size(texture.size());
     FB_ASSERT(mip_count <= MAX_MIP_COUNT);
-    uint32_t src_width = 0;
-    uint32_t src_height = 0;
+    uint src_width = 0;
+    uint src_height = 0;
     std::vector<std::byte> src_buffer;
-    uint32_t dst_width = 0;
-    uint32_t dst_height = 0;
+    uint dst_width = 0;
+    uint dst_height = 0;
     std::vector<std::byte> dst_buffer;
 
     // First mip can simply be copied.
@@ -58,7 +58,7 @@ auto mipmapped_texture_asset(
     };
 
     // Compute the rest of the mip levels.
-    for (uint32_t mip = 1; mip < mip_count; mip++) {
+    for (uint mip = 1; mip < mip_count; mip++) {
         // Start by copying the previous mip level into the source buffer.
         src_width = dst_width;
         src_height = dst_height;
@@ -188,7 +188,7 @@ auto bake_assets(std::string_view assets_dir, std::span<const AssetTask> asset_t
                     const auto joints = model.vertex_joints();
                     const auto weights = model.vertex_weights();
                     const auto indices = model.indices();
-                    auto tangents = std::vector<Float4>(positions.size());
+                    auto tangents = std::vector<float4>(positions.size());
                     generate_tangents(GenerateTangentsDesc {
                         .positions = positions,
                         .normals = normals,
@@ -243,12 +243,12 @@ auto bake_assets(std::string_view assets_dir, std::span<const AssetTask> asset_t
                                 std::span<const AssetSkinningVertex>(vertices)
                             ),
                             .indices = assets_writer.write("Index", indices),
-                            .joint_nodes = assets_writer.write("uint32_t", model.joint_nodes()),
+                            .joint_nodes = assets_writer.write("uint", model.joint_nodes()),
                             .joint_inverse_binds =
-                                assets_writer.write("Float4x4", model.joint_inverse_binds()),
-                            .node_parents = assets_writer.write("uint32_t", model.node_parents()),
+                                assets_writer.write("float4x4", model.joint_inverse_binds()),
+                            .node_parents = assets_writer.write("uint", model.node_parents()),
                             .node_transforms =
-                                assets_writer.write("Float4x4", model.node_transforms()),
+                                assets_writer.write("float4x4", model.node_transforms()),
                             .node_channels =
                                 assets_writer.write("AnimationChannel", model.node_channels()),
                             .node_channels_times_t =
@@ -258,11 +258,11 @@ auto bake_assets(std::string_view assets_dir, std::span<const AssetTask> asset_t
                             .node_channels_times_s =
                                 assets_writer.write("float", model.node_channels_times_s()),
                             .node_channels_values_t =
-                                assets_writer.write("Float3", model.node_channels_values_t()),
+                                assets_writer.write("float3", model.node_channels_values_t()),
                             .node_channels_values_r =
                                 assets_writer.write("Quaternion", model.node_channels_values_r()),
                             .node_channels_values_s =
-                                assets_writer.write("Float3", model.node_channels_values_s()),
+                                assets_writer.write("float3", model.node_channels_values_s()),
                         });
                     }
 
@@ -320,9 +320,9 @@ auto bake_assets(std::string_view assets_dir, std::span<const AssetTask> asset_t
                     );
 
                     // Flatten vertex attributes.
-                    auto vertex_positions = std::vector<Float3>(dxtk_vertices.size());
-                    auto vertex_normals = std::vector<Float3>(dxtk_vertices.size());
-                    auto vertex_texcoords = std::vector<Float2>(dxtk_vertices.size());
+                    auto vertex_positions = std::vector<float3>(dxtk_vertices.size());
+                    auto vertex_normals = std::vector<float3>(dxtk_vertices.size());
+                    auto vertex_texcoords = std::vector<float2>(dxtk_vertices.size());
                     for (auto i = 0; i < dxtk_vertices.size(); ++i) {
                         vertex_positions[i] = dxtk_vertices[i].position;
                         vertex_normals[i] = dxtk_vertices[i].normal;
@@ -330,13 +330,13 @@ auto bake_assets(std::string_view assets_dir, std::span<const AssetTask> asset_t
                     }
 
                     // Convert indices.
-                    auto indices = std::vector<uint32_t>(dxtk_indices.size());
+                    auto indices = std::vector<uint>(dxtk_indices.size());
                     for (auto i = 0; i < dxtk_indices.size(); ++i) {
-                        indices[i] = (uint32_t)dxtk_indices[i];
+                        indices[i] = (uint)dxtk_indices[i];
                     }
 
                     // Compute tangents.
-                    auto vertex_tangents = std::vector<Float4>(dxtk_vertices.size());
+                    auto vertex_tangents = std::vector<float4>(dxtk_vertices.size());
                     generate_tangents(GenerateTangentsDesc {
                         .positions = vertex_positions,
                         .normals = vertex_normals,
@@ -383,9 +383,9 @@ auto bake_assets(std::string_view assets_dir, std::span<const AssetTask> asset_t
                     );
 
                     // Flatten vertex attributes.
-                    auto vertex_positions = std::vector<Float3>(dxtk_vertices.size());
-                    auto vertex_normals = std::vector<Float3>(dxtk_vertices.size());
-                    auto vertex_texcoords = std::vector<Float2>(dxtk_vertices.size());
+                    auto vertex_positions = std::vector<float3>(dxtk_vertices.size());
+                    auto vertex_normals = std::vector<float3>(dxtk_vertices.size());
+                    auto vertex_texcoords = std::vector<float2>(dxtk_vertices.size());
                     for (auto i = 0; i < dxtk_vertices.size(); ++i) {
                         vertex_positions[i] = dxtk_vertices[i].position;
                         vertex_normals[i] = dxtk_vertices[i].normal;
@@ -393,13 +393,13 @@ auto bake_assets(std::string_view assets_dir, std::span<const AssetTask> asset_t
                     }
 
                     // Convert indices.
-                    auto indices = std::vector<uint32_t>(dxtk_indices.size());
+                    auto indices = std::vector<uint>(dxtk_indices.size());
                     for (auto i = 0; i < dxtk_indices.size(); ++i) {
-                        indices[i] = (uint32_t)dxtk_indices[i];
+                        indices[i] = (uint)dxtk_indices[i];
                     }
 
                     // Compute tangents.
-                    auto vertex_tangents = std::vector<Float4>(dxtk_vertices.size());
+                    auto vertex_tangents = std::vector<float4>(dxtk_vertices.size());
                     generate_tangents(GenerateTangentsDesc {
                         .positions = vertex_positions,
                         .normals = vertex_normals,
@@ -437,21 +437,21 @@ auto bake_assets(std::string_view assets_dir, std::span<const AssetTask> asset_t
                     const auto json_path = std::format("{}/{}", assets_dir, task.json_path);
                     const auto json_bytes = read_whole_file(json_path);
                     const auto json = json::parse(json_bytes);
-                    const auto format = (DXGI_FORMAT)json["format"].template get<uint32_t>();
-                    const auto unit_byte_count = json["unit_byte_count"].template get<uint32_t>();
-                    const auto width = json["width"].template get<uint32_t>();
-                    const auto height = json["height"].template get<uint32_t>();
-                    const auto depth = json["depth"].template get<uint32_t>();
-                    const auto mip_count = json["mip_count"].template get<uint32_t>();
+                    const auto format = (DXGI_FORMAT)json["format"].template get<uint>();
+                    const auto unit_byte_count = json["unit_byte_count"].template get<uint>();
+                    const auto width = json["width"].template get<uint>();
+                    const auto height = json["height"].template get<uint>();
+                    const auto depth = json["depth"].template get<uint>();
+                    const auto mip_count = json["mip_count"].template get<uint>();
                     FB_ASSERT(mip_count <= MAX_MIP_COUNT);
 
                     if (depth == 6) {
                         std::array<std::array<AssetTextureData, MAX_MIP_COUNT>, 6> texture_datas =
                             {};
                         uint64_t offset = 0;
-                        for (uint32_t slice = 0; slice < depth; slice++) {
+                        for (uint slice = 0; slice < depth; slice++) {
                             auto& slice_datas = texture_datas[slice];
-                            for (uint32_t mip = 0; mip < mip_count; mip++) {
+                            for (uint mip = 0; mip < mip_count; mip++) {
                                 const auto mip_width = std::max(1u, width >> mip);
                                 const auto mip_height = std::max(1u, height >> mip);
                                 const auto row_pitch = mip_width * unit_byte_count;

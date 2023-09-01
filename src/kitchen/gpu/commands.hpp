@@ -41,60 +41,57 @@ public:
     auto set_compute() -> void;
 
     auto set_viewport(
-        uint32_t left,
-        uint32_t top,
-        uint32_t right,
-        uint32_t bottom,
+        uint left,
+        uint top,
+        uint right,
+        uint bottom,
         float min_depth = 0.0f,
         float max_depth = 1.0f
     ) const -> void;
-    auto set_scissor(uint32_t left, uint32_t top, uint32_t right, uint32_t bottom) const -> void;
+    auto set_scissor(uint left, uint top, uint right, uint bottom) const -> void;
     auto set_rtv_dsv(
         const std::optional<GpuDescriptor>& rtv,
         const std::optional<GpuDescriptor>& dsv
     ) const -> void;
     auto set_topology(D3D12_PRIMITIVE_TOPOLOGY topology) const -> void;
     auto set_index_buffer(D3D12_INDEX_BUFFER_VIEW ibv) const -> void;
-    auto set_blend_factor(Float4 factor) const -> void;
+    auto set_blend_factor(float4 factor) const -> void;
     auto set_pipeline(const GpuPipeline& pipeline) const -> void;
 
     template<GpuBindable T>
     auto set_graphics_constants(T t) const -> void {
         const auto arr = into_dword_array(t);
-        _cmd->SetGraphicsRoot32BitConstants(0, (uint32_t)arr.size(), arr.data(), 0);
+        _cmd->SetGraphicsRoot32BitConstants(0, (uint)arr.size(), arr.data(), 0);
     }
 
     template<GpuBindable T>
     auto set_compute_constants(T t) const -> void {
         const auto arr = into_dword_array(t);
-        _cmd->SetComputeRoot32BitConstants(0, (uint32_t)arr.size(), arr.data(), 0);
+        _cmd->SetComputeRoot32BitConstants(0, (uint)arr.size(), arr.data(), 0);
     }
 
-    auto clear_rtv(const GpuDescriptor& rtv, Float4 color) const -> void;
+    auto clear_rtv(const GpuDescriptor& rtv, float4 color) const -> void;
     auto clear_dsv(const GpuDescriptor& dsv, float depth) const -> void;
-    auto draw_instanced(
-        uint32_t vertex_count,
-        uint32_t instance_count,
-        uint32_t start_vertex,
-        uint32_t start_instance
-    ) const -> void;
+    auto
+    draw_instanced(uint vertex_count, uint instance_count, uint start_vertex, uint start_instance)
+        const -> void;
     auto draw_indexed_instanced(
-        uint32_t index_count,
-        uint32_t instance_count,
-        uint32_t start_index,
+        uint index_count,
+        uint instance_count,
+        uint start_index,
         int32_t base_vertex,
-        uint32_t start_instance
+        uint start_instance
     ) const -> void;
-    auto dispatch(uint32_t x, uint32_t y, uint32_t z) const -> void;
+    auto dispatch(uint x, uint y, uint z) const -> void;
 
     auto copy_texture_to_buffer(
         const ComPtr<ID3D12Resource>& dst_buffer,
         uint64_t dst_buffer_offset,
         const ComPtr<ID3D12Resource>& src_texture,
-        uint32_t src_texture_subresource_index,
+        uint src_texture_subresource_index,
         DXGI_FORMAT src_texture_format,
-        uint32_t src_texture_width,
-        uint32_t src_texture_height
+        uint src_texture_width,
+        uint src_texture_height
     ) const -> void;
 
     auto resolve_resource(

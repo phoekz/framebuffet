@@ -21,28 +21,28 @@ public:
         const baked::kitchen::Shaders& shaders,
         const render_targets::RenderTargets& render_targets
     ) -> void;
-    auto begin(uint32_t frame_index) -> void;
-    auto transform(const Float4x4& transform) -> void;
-    auto line(const Float3& a, const Float3& b, RgbaByte color) -> void;
+    auto begin(uint frame_index) -> void;
+    auto transform(const float4x4& transform) -> void;
+    auto line(const float3& a, const float3& b, RgbaByte color) -> void;
     auto axes() -> void;
     auto scaled_axes(float scale) -> void;
-    auto grid(uint32_t size) -> void;
+    auto grid(uint size) -> void;
     auto end() -> void;
     auto render(GpuDevice& device, const GpuCommandList& cmd) -> void;
 
 private:
     GpuPipeline _pipeline;
 
-    uint32_t _frame_index = 0;
+    uint _frame_index = 0;
 
     struct Constants {
-        Float4x4 transform;
+        float4x4 transform;
         float pad[48] = {};
     };
     Constants _constants;
 
     struct Vertex {
-        Float3 position;
+        float3 position;
         RgbaByte color = {};
     };
     std::vector<Vertex> _lines;

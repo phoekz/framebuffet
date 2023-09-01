@@ -16,7 +16,7 @@ auto create(Technique& tech, const CreateDesc& desc) -> void {
     constexpr auto DIV_FORMAT = DXGI_FORMAT_R16G16B16A16_FLOAT;
     constexpr auto WIDTH = 1024u;
     constexpr auto HEIGHT = 1024u;
-    constexpr auto SIZE = Uint2(WIDTH, HEIGHT);
+    constexpr auto SIZE = uint2(WIDTH, HEIGHT);
     constexpr auto DEPTH = 6u;
     constexpr auto MIP_COUNT = mip_count_from_size(WIDTH, HEIGHT);
     tech.acc_texture.create(
@@ -124,12 +124,12 @@ auto gpu_commands(Technique& tech, const GpuCommandsDesc& desc) -> void {
 
         // Accumulate pass.
         cmd.set_pipeline(tech.acc_pipeline);
-        for (uint32_t mip = 0; mip < tech.acc_texture.mip_count(); mip++) {
+        for (uint mip = 0; mip < tech.acc_texture.mip_count(); mip++) {
             cmd.set_compute_constants(AccBindings {
                 .dispatch_id = tech.dispatch_id,
                 .constants = tech.constants.cbv_descriptor().index(),
                 .cube_texture = tech.cube_texture.index(),
-                .cube_sampler = (uint32_t)GpuSampler::LinearClamp,
+                .cube_sampler = (uint)GpuSampler::LinearClamp,
                 .rad_texture = tech.acc_texture.uav_descriptor().index(),
                 .rad_texture_mip_id = mip,
             });
@@ -151,7 +151,7 @@ auto gpu_commands(Technique& tech, const GpuCommandsDesc& desc) -> void {
 
         // Division pass.
         cmd.set_pipeline(tech.div_pipeline);
-        for (uint32_t mip = 0; mip < tech.acc_texture.mip_count(); mip++) {
+        for (uint mip = 0; mip < tech.acc_texture.mip_count(); mip++) {
             cmd.set_compute_constants(DivBindings {
                 .dispatch_id = tech.dispatch_id,
                 .mip_id = mip,
@@ -191,8 +191,8 @@ auto gpu_commands(Technique& tech, const GpuCommandsDesc& desc) -> void {
 
         // Copy.
         uint64_t offset = 0;
-        for (uint32_t slice = 0; slice < 6; slice++) {
-            for (uint32_t mip = 0; mip < tech.div_texture.mip_count(); mip++) {
+        for (uint slice = 0; slice < 6; slice++) {
+            for (uint mip = 0; mip < tech.div_texture.mip_count(); mip++) {
                 const auto mip_width = std::max(1u, tech.div_texture.size().x >> mip);
                 const auto mip_height = std::max(1u, tech.div_texture.size().y >> mip);
                 const auto subresource_index = mip + slice * tech.div_texture.mip_count();

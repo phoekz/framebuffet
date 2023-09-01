@@ -2,14 +2,14 @@
 
 namespace fb {
 
-static constexpr uint32_t CHANNEL_COUNT = 4;
+static constexpr uint CHANNEL_COUNT = 4;
 
 template<>
 auto Image<std::byte>::load(std::span<const std::byte> src_image) -> Image<std::byte> {
     // Load.
-    uint32_t width = 0;
-    uint32_t height = 0;
-    uint32_t channels_in_file = 0;
+    uint width = 0;
+    uint height = 0;
+    uint channels_in_file = 0;
     auto src_data = stbi_load_from_memory(
         (const stbi_uc*)src_image.data(),
         (int)src_image.size(),
@@ -40,8 +40,8 @@ auto Image<std::byte>::load(std::span<const std::byte> src_image) -> Image<std::
 template<>
 auto Image<float>::load(std::span<const std::byte> src_image) -> Image<float> {
     // Load.
-    uint32_t width = 0;
-    uint32_t height = 0;
+    uint width = 0;
+    uint height = 0;
     float* src_data = nullptr;
     const char* error_msg = nullptr;
     int result = LoadEXRFromMemory(

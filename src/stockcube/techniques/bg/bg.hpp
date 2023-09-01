@@ -12,7 +12,7 @@ struct CreateDesc {
     const Baked& baked;
     GpuDevice& device;
     GpuDescriptor rad_texture;
-    uint32_t rad_texture_mip_count;
+    uint rad_texture_mip_count;
 };
 
 struct GpuCommandsDesc {
@@ -25,7 +25,7 @@ struct Parameters {
 
 struct Technique {
     GpuDescriptor rad_texture;
-    uint32_t rad_texture_mip_count;
+    uint rad_texture_mip_count;
     GpuBufferHostCbv<Constants> constants;
     GpuBufferHostSrv<baked::Vertex> vertices;
     GpuBufferHostIndex<baked::Index> indices;

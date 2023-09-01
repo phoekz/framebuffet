@@ -14,80 +14,80 @@ auto create(Technique& tech, const CreateDesc& desc) -> void {
     const auto h = device.swapchain().size().y;
     tech.constants.create(device, 1, debug.with_name("Constants"));
     *tech.constants.ptr() = Constants {
-        .transform = Float4x4(
-            Float4(2.0f / w, 0.0f, 0.0f, 0.0f),
-            Float4(0.0f, -2.0f / h, 0.0f, 0.0f),
-            Float4(0.0f, 0.0f, 1.0f, 0.0f),
-            Float4(-1.0f, 1.0f, 0.0f, 1.0f)
+        .transform = float4x4(
+            float4(2.0f / w, 0.0f, 0.0f, 0.0f),
+            float4(0.0f, -2.0f / h, 0.0f, 0.0f),
+            float4(0.0f, 0.0f, 1.0f, 0.0f),
+            float4(-1.0f, 1.0f, 0.0f, 1.0f)
         ),
     };
 
     const auto vertices = std::to_array({
-        Vertex {Float2(0.0f, 0.0f), Float2(0.0f, 0.0f)},
-        Vertex {Float2(0.0f, 1.0f), Float2(0.0f, 1.0f)},
-        Vertex {Float2(1.0f, 1.0f), Float2(1.0f, 1.0f)},
-        Vertex {Float2(1.0f, 0.0f), Float2(1.0f, 0.0f)},
+        Vertex {float2(0.0f, 0.0f), float2(0.0f, 0.0f)},
+        Vertex {float2(0.0f, 1.0f), float2(0.0f, 1.0f)},
+        Vertex {float2(1.0f, 1.0f), float2(1.0f, 1.0f)},
+        Vertex {float2(1.0f, 0.0f), float2(1.0f, 0.0f)},
     });
     const auto indices = std::to_array({0u, 1u, 2u, 0u, 2u, 3u});
     auto instances = std::vector<Instance>();
     const auto cubemap_offsets = std::to_array({
-        Float2(200.0f, 200.0f), // +x
-        Float2(0.0f, 200.0f),   // -x
-        Float2(100.0f, 100.0f), // +y
-        Float2(100.0f, 300.0f), // -y
-        Float2(100.0f, 200.0f), // +z
-        Float2(300.0f, 200.0f), // -z
+        float2(200.0f, 200.0f), // +x
+        float2(0.0f, 200.0f),   // -x
+        float2(100.0f, 100.0f), // +y
+        float2(100.0f, 300.0f), // -y
+        float2(100.0f, 200.0f), // +z
+        float2(300.0f, 200.0f), // -z
     });
     instances.push_back(Instance {
-        .offset = Float2(0.0f, 0.0f),
-        .scale = Float2(400.0f, 200.0f),
+        .offset = float2(0.0f, 0.0f),
+        .scale = float2(400.0f, 200.0f),
         .texture = desc.rect_texture.index(),
         .texture_face_id = 0,
         .texture_mip_id = 0,
-        .sampler = (uint32_t)GpuSampler::LinearClamp,
+        .sampler = (uint)GpuSampler::LinearClamp,
     });
     instances.push_back(Instance {
-        .offset = Float2(400.0f, 0.0f),
-        .scale = Float2(200.0f, 200.0f),
+        .offset = float2(400.0f, 0.0f),
+        .scale = float2(200.0f, 200.0f),
         .texture = desc.lut_texture.index(),
         .texture_face_id = 0,
         .texture_mip_id = 0,
-        .sampler = (uint32_t)GpuSampler::LinearClamp,
+        .sampler = (uint)GpuSampler::LinearClamp,
     });
-    for (uint32_t face_id = 0; const auto& offset : cubemap_offsets) {
+    for (uint face_id = 0; const auto& offset : cubemap_offsets) {
         instances.push_back(Instance {
-            .offset = offset + Float2(0.0f, 100.0f),
-            .scale = Float2(100.0f, 100.0f),
+            .offset = offset + float2(0.0f, 100.0f),
+            .scale = float2(100.0f, 100.0f),
             .texture = desc.cube_texture.index(),
             .texture_face_id = face_id,
             .texture_mip_id = 0,
-            .sampler = (uint32_t)GpuSampler::LinearClamp,
+            .sampler = (uint)GpuSampler::LinearClamp,
         });
         face_id++;
     }
-    for (uint32_t face_id = 0; const auto& offset : cubemap_offsets) {
+    for (uint face_id = 0; const auto& offset : cubemap_offsets) {
         instances.push_back(Instance {
-            .offset = offset + Float2(0.0f, 400.0f),
-            .scale = Float2(100.0f, 100.0f),
+            .offset = offset + float2(0.0f, 400.0f),
+            .scale = float2(100.0f, 100.0f),
             .texture = desc.irr_texture.index(),
             .texture_face_id = face_id,
             .texture_mip_id = 0,
-            .sampler = (uint32_t)GpuSampler::PointClamp,
+            .sampler = (uint)GpuSampler::PointClamp,
         });
         face_id++;
     }
-    for (uint32_t mip_id = 0; mip_id < desc.rad_texture_mip_count; mip_id++) {
-        for (uint32_t face_id = 0; face_id < 6; face_id++) {
-            auto offset = Float2(face_id * 50.0f, mip_id * 50.0f);
-            offset += Float2((float)device.swapchain().size().x, 0.0f);
-            offset -= Float2(6 * 50.0f, 0.0f);
+    for (uint mip_id = 0; mip_id < desc.rad_texture_mip_count; mip_id++) {
+        for (uint face_id = 0; face_id < 6; face_id++) {
+            auto offset = float2(face_id * 50.0f, mip_id * 50.0f);
+            offset += float2((float)device.swapchain().size().x, 0.0f);
+            offset -= float2(6 * 50.0f, 0.0f);
             instances.push_back(Instance {
                 .offset = offset,
-                .scale = Float2(50.0f, 50.0f),
+                .scale = float2(50.0f, 50.0f),
                 .texture = desc.rad_texture.index(),
                 .texture_face_id = face_id,
                 .texture_mip_id = mip_id,
-                .sampler = (uint32_t)GpuSampler::PointClamp,
+                .sampler = (uint)GpuSampler::PointClamp,
             });
         }
     }

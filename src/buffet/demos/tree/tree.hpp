@@ -5,7 +5,7 @@
 
 namespace fb::demos::tree {
 
-inline constexpr uint32_t SHADOW_MAP_SIZE = 1024;
+inline constexpr uint SHADOW_MAP_SIZE = 1024;
 
 struct Parameters {
     float ambient_light = 0.25f;
@@ -26,7 +26,7 @@ class TreeDemo {
 
 public:
     static constexpr std::string_view NAME = "Tree"sv;
-    static constexpr Float4 CLEAR_COLOR = {0.32549f, 0.51373f, 0.56078f, 1.0f};
+    static constexpr float4 CLEAR_COLOR = {0.32549f, 0.51373f, 0.56078f, 1.0f};
 
     TreeDemo() = default;
 

@@ -32,7 +32,7 @@ class CrateDemo {
 
 public:
     static constexpr std::string_view NAME = "Crate"sv;
-    static constexpr Float4 CLEAR_COLOR = {0.1f, 0.1f, 0.4f, 1.0f};
+    static constexpr float4 CLEAR_COLOR = {0.1f, 0.1f, 0.4f, 1.0f};
 
     CrateDemo() = default;
 

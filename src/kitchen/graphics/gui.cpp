@@ -68,7 +68,7 @@ auto Gui::create(
         // Raw data.
         auto& io = ImGui::GetIO();
         uint8_t* pixels;
-        uint32_t width, height;
+        uint width, height;
         io.Fonts->GetTexDataAsRGBA32(&pixels, (int*)&width, (int*)&height);
 
         // Texture.
@@ -94,7 +94,7 @@ auto Gui::create(
     }
 
     // Geometry.
-    for (uint32_t i = 0; i < FRAME_COUNT; i++) {
+    for (uint i = 0; i < FRAME_COUNT; i++) {
         DebugScope frame_debug(std::format("{}", i));
         Gui::Geometry& geometry = _geometries[i];
         geometry.vertices.create(device, MAX_VERTEX_COUNT, frame_debug.with_name("Vertices"));
@@ -159,13 +159,8 @@ auto Gui::render(const GpuDevice& device, GpuCommandList& cmd) -> void {
     {
         cmd.begin_pix("Gui");
         cmd.set_graphics();
-        cmd.set_viewport(
-            0,
-            0,
-            (uint32_t)draw_data->DisplaySize.x,
-            (uint32_t)draw_data->DisplaySize.y
-        );
-        cmd.set_blend_factor(Float4(0.0f, 0.0f, 0.0f, 0.0f));
+        cmd.set_viewport(0, 0, (uint)draw_data->DisplaySize.x, (uint)draw_data->DisplaySize.y);
+        cmd.set_blend_factor(float4(0.0f, 0.0f, 0.0f, 0.0f));
         cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
         cmd.set_index_buffer(geometry.indices.index_buffer_view());
         cmd.set_pipeline(_pipeline);
@@ -181,15 +176,15 @@ auto Gui::render(const GpuDevice& device, GpuCommandList& cmd) -> void {
                     pcmd->UserCallback(cmd_list, pcmd);
                 } else {
                     cmd.set_scissor(
-                        (uint32_t)(pcmd->ClipRect.x - clip_off.x),
-                        (uint32_t)(pcmd->ClipRect.y - clip_off.y),
-                        (uint32_t)(pcmd->ClipRect.z - clip_off.x),
-                        (uint32_t)(pcmd->ClipRect.w - clip_off.y)
+                        (uint)(pcmd->ClipRect.x - clip_off.x),
+                        (uint)(pcmd->ClipRect.y - clip_off.y),
+                        (uint)(pcmd->ClipRect.z - clip_off.x),
+                        (uint)(pcmd->ClipRect.w - clip_off.y)
                     );
                     cmd.set_graphics_constants(Bindings {
                         .constants = _constants.cbv_descriptor().index(),
                         .vertices = geometry.vertices.srv_descriptor().index(),
-                        .base_vertex = (pcmd->VtxOffset + (uint32_t)global_vtx_offset),
+                        .base_vertex = (pcmd->VtxOffset + (uint)global_vtx_offset),
                         .texture = _texture.srv_descriptor().index(),
                     });
                     cmd.draw_indexed_instanced(

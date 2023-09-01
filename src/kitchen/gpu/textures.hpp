@@ -7,7 +7,7 @@
 
 namespace fb {
 
-enum class GpuTextureFlags : uint32_t {
+enum class GpuTextureFlags : uint {
     None = 0x0,
     Srv = 0x1,
     Uav = 0x2,
@@ -25,16 +25,16 @@ enum class GpuTextureFlags : uint32_t {
 
 inline constexpr auto gpu_texture_flags_contains(GpuTextureFlags flags, GpuTextureFlags flag)
     -> bool {
-    return ((uint32_t)flags & (uint32_t)flag) == (uint32_t)flag;
+    return ((uint)flags & (uint)flag) == (uint)flag;
 }
 
 struct GpuTextureDesc {
     DXGI_FORMAT format = DXGI_FORMAT_UNKNOWN;
-    uint32_t width = 1;
-    uint32_t height = 1;
-    uint32_t depth = 1;
-    uint32_t mip_count = 1;
-    uint32_t sample_count = 1;
+    uint width = 1;
+    uint height = 1;
+    uint depth = 1;
+    uint mip_count = 1;
+    uint sample_count = 1;
     std::optional<D3D12_CLEAR_VALUE> clear_value = std::nullopt;
     std::optional<DXGI_FORMAT> srv_format = std::nullopt;
     std::optional<DXGI_FORMAT> uav_format = std::nullopt;
@@ -43,8 +43,8 @@ struct GpuTextureDesc {
 };
 
 struct GpuTextureTransferDesc {
-    uint32_t row_pitch = 0;
-    uint32_t slice_pitch = 0;
+    uint row_pitch = 0;
+    uint slice_pitch = 0;
     const void* data = nullptr;
 };
 
@@ -291,7 +291,7 @@ public:
         }
         if constexpr (gpu_texture_flags_contains(FLAGS, Uav)) {
             if (desc.depth > 1) {
-                for (uint32_t mip = 0; mip < desc.mip_count; mip++) {
+                for (uint mip = 0; mip < desc.mip_count; mip++) {
                     _uav_descriptors[mip] = device.descriptors().cbv_srv_uav().alloc();
                     device.create_unordered_access_view(
                         _resource,
@@ -311,7 +311,7 @@ public:
                     );
                 }
             } else {
-                for (uint32_t mip = 0; mip < desc.mip_count; mip++) {
+                for (uint mip = 0; mip < desc.mip_count; mip++) {
                     _uav_descriptors[mip] = device.descriptors().cbv_srv_uav().alloc();
                     device.create_unordered_access_view(
                         _resource,
@@ -359,8 +359,8 @@ public:
         // Compute tightly packed byte size.
         {
             uint64_t byte_count_64 = 0;
-            for (uint32_t mip = 0; mip < desc.mip_count; mip++) {
-                for (uint32_t slice = 0; slice < desc.depth; slice++) {
+            for (uint mip = 0; mip < desc.mip_count; mip++) {
+                for (uint slice = 0; slice < desc.depth; slice++) {
                     const auto mip_width = std::max(1u, desc.width >> mip);
                     const auto mip_height = std::max(1u, desc.height >> mip);
                     const auto unit_bytes = dxgi_format_unit_byte_count(desc.format);
@@ -368,7 +368,7 @@ public:
                 }
             }
             FB_ASSERT(byte_count_64 <= UINT32_MAX);
-            _byte_count = (uint32_t)byte_count_64;
+            _byte_count = (uint)byte_count_64;
         }
 
         // Copy desc.
@@ -384,7 +384,7 @@ public:
     ) -> void {
         create(device, desc, name);
         std::vector<D3D12_SUBRESOURCE_DATA> subresources(transfer_descs.size());
-        for (uint32_t i = 0; i < transfer_descs.size(); i++) {
+        for (uint i = 0; i < transfer_descs.size(); i++) {
             subresources[i] = D3D12_SUBRESOURCE_DATA {
                 .pData = transfer_descs[i].data,
                 .RowPitch = (int64_t)transfer_descs[i].row_pitch,
@@ -426,7 +426,7 @@ public:
         };
 
         std::array<GpuTextureTransferDesc, baked::MAX_MIP_COUNT> transfer_descs = {};
-        for (uint32_t mip = 0; mip < baked.mip_count; mip++) {
+        for (uint mip = 0; mip < baked.mip_count; mip++) {
             transfer_descs[mip] = GpuTextureTransferDesc {
                 .row_pitch = baked.datas[mip].row_pitch,
                 .slice_pitch = baked.datas[mip].slice_pitch,
@@ -460,9 +460,9 @@ public:
         };
 
         std::array<GpuTextureTransferDesc, 6 * baked::MAX_MIP_COUNT> transfer_descs = {};
-        uint32_t desc_count = 0;
-        for (uint32_t slice = 0; slice < 6; slice++) {
-            for (uint32_t mip = 0; mip < baked.mip_count; mip++) {
+        uint desc_count = 0;
+        for (uint slice = 0; slice < 6; slice++) {
+            for (uint mip = 0; mip < baked.mip_count; mip++) {
                 transfer_descs[desc_count] = GpuTextureTransferDesc {
                     .row_pitch = baked.datas[slice][mip].row_pitch,
                     .slice_pitch = baked.datas[slice][mip].slice_pitch,
@@ -482,17 +482,17 @@ public:
         );
     }
 
-    auto width() const -> uint32_t { return _desc.width; }
-    auto height() const -> uint32_t { return _desc.height; }
-    auto depth() const -> uint32_t { return _desc.depth; }
-    auto size() const -> Uint2 { return Uint2 {_desc.width, _desc.height}; }
+    auto width() const -> uint { return _desc.width; }
+    auto height() const -> uint { return _desc.height; }
+    auto depth() const -> uint { return _desc.depth; }
+    auto size() const -> uint2 { return uint2 {_desc.width, _desc.height}; }
     auto format() const -> DXGI_FORMAT { return _desc.format; }
-    auto mip_count() const -> uint32_t { return _desc.mip_count; }
-    auto unit_byte_count() const -> uint32_t { return dxgi_format_unit_byte_count(_desc.format); }
+    auto mip_count() const -> uint { return _desc.mip_count; }
+    auto unit_byte_count() const -> uint { return dxgi_format_unit_byte_count(_desc.format); }
     auto resource() const -> const ComPtr<ID3D12Resource>& { return _resource; }
-    auto row_pitch() const -> uint32_t { return unit_byte_count() * _desc.width; }
-    auto slice_pitch() const -> uint32_t { return row_pitch() * _desc.height; }
-    auto byte_count() const -> uint32_t { return _byte_count; }
+    auto row_pitch() const -> uint { return unit_byte_count() * _desc.width; }
+    auto slice_pitch() const -> uint { return row_pitch() * _desc.height; }
+    auto byte_count() const -> uint { return _byte_count; }
     auto srv_descriptor() const -> GpuDescriptor {
         static_assert(gpu_texture_flags_contains(FLAGS, Srv));
         return _srv_descriptor;
@@ -539,7 +539,7 @@ private:
     std::array<GpuDescriptor, MAX_MIP_COUNT> _uav_descriptors = {};
     GpuDescriptor _rtv_descriptor = {};
     GpuDescriptor _dsv_descriptor = {};
-    uint32_t _byte_count = 0;
+    uint _byte_count = 0;
 };
 
 using GpuTextureSrv = GpuTexture<GpuTextureFlags::Srv>;

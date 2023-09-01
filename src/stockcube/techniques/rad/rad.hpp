@@ -28,9 +28,9 @@ struct Technique {
     GpuBufferHostCbv<Constants> constants;
     GpuPipeline acc_pipeline;
     GpuPipeline div_pipeline;
-    uint32_t dispatch_id;
-    uint32_t dispatch_count;
-    uint32_t sample_count_lg2;
+    uint dispatch_id;
+    uint dispatch_count;
+    uint sample_count_lg2;
     Delayed delayed_save;
 };
 

@@ -137,9 +137,9 @@ auto AnimDemo::update(const UpdateDesc& desc) -> void {
                 _animation_time,
                 times_t,
                 values_t,
-                Float3::Zero,
-                [](const Float3& lhs, const Float3& rhs, float t) {
-                    return Float3::Lerp(lhs, rhs, t);
+                float3::Zero,
+                [](const float3& lhs, const float3& rhs, float t) {
+                    return float3::Lerp(lhs, rhs, t);
                 }
             );
             const auto r = keyframe_interpolation(
@@ -155,9 +155,9 @@ auto AnimDemo::update(const UpdateDesc& desc) -> void {
                 _animation_time,
                 times_s,
                 values_s,
-                Float3::One,
-                [](const Float3& lhs, const Float3& rhs, float t) {
-                    return Float3::Lerp(lhs, rhs, t);
+                float3::One,
+                [](const float3& lhs, const float3& rhs, float t) {
+                    return float3::Lerp(lhs, rhs, t);
                 }
             );
 
@@ -179,21 +179,21 @@ auto AnimDemo::update(const UpdateDesc& desc) -> void {
     }
 
     // Update transforms.
-    Float4x4 camera_transform;
+    float4x4 camera_transform;
     {
         p.camera_longitude += p.camera_rotation_speed * desc.delta_time;
         if (p.camera_longitude > PI * 2.0f) {
             p.camera_longitude -= PI * 2.0f;
         }
 
-        auto projection = Float4x4::CreatePerspectiveFieldOfView(
+        auto projection = float4x4::CreatePerspectiveFieldOfView(
             p.camera_fov,
             desc.aspect_ratio,
             p.camera_clip_planes.x,
             p.camera_clip_planes.y
         );
         auto eye = p.camera_distance * dir_from_lonlat(p.camera_longitude, p.camera_latitude);
-        auto view = Float4x4::CreateLookAt(eye, Float3::Zero, Float3::Up);
+        auto view = float4x4::CreateLookAt(eye, float3::Zero, float3::Up);
         camera_transform = view * projection;
     }
 

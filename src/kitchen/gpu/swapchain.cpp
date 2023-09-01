@@ -55,7 +55,7 @@ auto GpuSwapchain::create(
     _swapchain_format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
 
     // Render target views.
-    for (uint32_t i = 0; i < FRAME_COUNT; i++) {
+    for (uint i = 0; i < FRAME_COUNT; i++) {
         FB_ASSERT_HR(_swapchain->GetBuffer(i, IID_PPV_ARGS(&_rtvs[i])));
         dx_set_name(_rtvs[i], debug.with_name(std::format("Render Target {}", i)));
         const auto descriptor = descriptors.rtv().alloc();
@@ -68,7 +68,7 @@ auto GpuSwapchain::create(
     }
 }
 
-auto GpuSwapchain::transition_to_render_target(GpuCommandList& cmd, uint32_t frame_index) -> void {
+auto GpuSwapchain::transition_to_render_target(GpuCommandList& cmd, uint frame_index) -> void {
     cmd.transition_barrier(
         _rtvs[frame_index],
         D3D12_RESOURCE_STATE_PRESENT,
@@ -76,15 +76,15 @@ auto GpuSwapchain::transition_to_render_target(GpuCommandList& cmd, uint32_t fra
     );
 }
 
-auto GpuSwapchain::clear_render_target(GpuCommandList& cmd, uint32_t frame_index) -> void {
-    cmd.clear_rtv(_rtv_descriptors[frame_index], Float4(0.1f, 0.1f, 0.1f, 1.0f));
+auto GpuSwapchain::clear_render_target(GpuCommandList& cmd, uint frame_index) -> void {
+    cmd.clear_rtv(_rtv_descriptors[frame_index], float4(0.1f, 0.1f, 0.1f, 1.0f));
 }
 
-auto GpuSwapchain::set_render_target(GpuCommandList& cmd, uint32_t frame_index) -> void {
+auto GpuSwapchain::set_render_target(GpuCommandList& cmd, uint frame_index) -> void {
     cmd.set_rtv_dsv(_rtv_descriptors[frame_index], std::nullopt);
 }
 
-auto GpuSwapchain::transition_to_present(GpuCommandList& cmd, uint32_t frame_index) -> void {
+auto GpuSwapchain::transition_to_present(GpuCommandList& cmd, uint frame_index) -> void {
     cmd.transition_barrier(
         _rtvs[frame_index],
         D3D12_RESOURCE_STATE_RENDER_TARGET,

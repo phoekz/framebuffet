@@ -2,13 +2,13 @@
 
 namespace fb::demos::cards {
 
-static auto layout_grid(std::span<Card> cards, Uint2 window_size, uint32_t columns) -> void {
-    const uint32_t card_count = (uint32_t)cards.size();
+static auto layout_grid(std::span<Card> cards, uint2 window_size, uint columns) -> void {
+    const uint card_count = (uint)cards.size();
     const float window_w = (float)window_size.x;
     const float window_h = (float)window_size.y;
     const float card_w = window_w / (float)columns;
     const float card_h = card_w * (window_h / window_w);
-    for (uint32_t i = 0; i < card_count; i++) {
+    for (uint i = 0; i < card_count; i++) {
         const float x = (float)(i % columns) * card_w;
         const float y = (float)(i / columns) * card_h;
         cards[i].position = {x, y};
@@ -16,8 +16,8 @@ static auto layout_grid(std::span<Card> cards, Uint2 window_size, uint32_t colum
     }
 }
 
-static auto layout_hmosaic(std::span<Card> cards, Uint2 window_size) -> void {
-    const uint32_t card_count = (uint32_t)cards.size();
+static auto layout_hmosaic(std::span<Card> cards, uint2 window_size) -> void {
+    const uint card_count = (uint)cards.size();
     const float window_w = (float)window_size.x;
     const float window_h = (float)window_size.y;
     const float thumb_w = window_w / (float)(card_count - 1);
@@ -26,7 +26,7 @@ static auto layout_hmosaic(std::span<Card> cards, Uint2 window_size) -> void {
     const float hero_w = hero_h * (window_w / window_h);
     const float hero_y = thumb_h;
     const float hero_x = window_w * 0.5f - hero_w * 0.5f;
-    for (uint32_t i = 0; i < card_count - 1; i++) {
+    for (uint i = 0; i < card_count - 1; i++) {
         cards[i].position = {thumb_w * (float)i, 0.0f};
         cards[i].size = {thumb_w, thumb_h};
     }
@@ -34,8 +34,8 @@ static auto layout_hmosaic(std::span<Card> cards, Uint2 window_size) -> void {
     cards[card_count - 1].size = {hero_w, hero_h};
 }
 
-static auto layout_vmosaic(std::span<Card> cards, Uint2 window_size) -> void {
-    const uint32_t card_count = (uint32_t)cards.size();
+static auto layout_vmosaic(std::span<Card> cards, uint2 window_size) -> void {
+    const uint card_count = (uint)cards.size();
     const float window_w = (float)window_size.x;
     const float window_h = (float)window_size.y;
     const float thumb_h = window_h / (float)(card_count - 1);
@@ -44,7 +44,7 @@ static auto layout_vmosaic(std::span<Card> cards, Uint2 window_size) -> void {
     const float hero_h = hero_w * (window_h / window_w);
     const float hero_x = thumb_w;
     const float hero_y = window_h * 0.5f - hero_h * 0.5f;
-    for (uint32_t i = 0; i < card_count - 1; i++) {
+    for (uint i = 0; i < card_count - 1; i++) {
         cards[i].position = {0.0f, thumb_h * (float)i};
         cards[i].size = {thumb_w, thumb_h};
     }
@@ -52,7 +52,7 @@ static auto layout_vmosaic(std::span<Card> cards, Uint2 window_size) -> void {
     cards[card_count - 1].size = {hero_w, hero_h};
 }
 
-static auto layout_exclusive(std::span<Card> cards, Uint2 window_size) -> void {
+static auto layout_exclusive(std::span<Card> cards, uint2 window_size) -> void {
     for (auto& card : cards) {
         card.position = {0.0f, 0.0f};
         card.size = {(float)window_size.x, (float)window_size.y};
@@ -63,7 +63,7 @@ auto Cards::create(GpuDevice& device, const Baked& baked, const CardsDesc& desc)
     DebugScope debug(NAME.data());
 
     // Descriptors.
-    for (uint32_t i = 0; i < CARD_COUNT; i++) {
+    for (uint i = 0; i < CARD_COUNT; i++) {
         const auto& color = desc.card_render_targets[i].get().color();
         _card_descriptors[i] = CardDescriptors {
             .src = color.srv_descriptor().index(),
@@ -107,7 +107,7 @@ auto Cards::create(GpuDevice& device, const Baked& baked, const CardsDesc& desc)
     }
 
     // Default card indices.
-    for (uint32_t i = 0; i < CARD_COUNT; i++) {
+    for (uint i = 0; i < CARD_COUNT; i++) {
         _parameters.card_indirect_indices[i] = i;
     }
 
@@ -123,8 +123,8 @@ auto Cards::create(GpuDevice& device, const Baked& baked, const CardsDesc& desc)
         const auto threadgroup_count_x = end_index_x + 1u;
         const auto threadgroup_count_y = end_index_y + 1u;
         const auto threadgroup_count = threadgroup_count_x * threadgroup_count_y;
-        const auto inv_texture_size = Float2(1.0f / (float)width, 1.0f / (float)height);
-        _spd_dispatch = Uint3(threadgroup_count_x, threadgroup_count_y, 1);
+        const auto inv_texture_size = float2(1.0f / (float)width, 1.0f / (float)height);
+        _spd_dispatch = uint3(threadgroup_count_x, threadgroup_count_y, 1);
 
         // Constants.
         _spd_constants.create(device, 1, spd_debug.with_name("Constants"));
@@ -192,7 +192,7 @@ void Cards::update(const GpuDevice& device) {
     const auto width = (float)swapchain_size.x;
     const auto height = (float)swapchain_size.y;
     const auto projection =
-        Float4x4::CreateOrthographicOffCenter(0.0f, width, height, 0.0f, 0.0f, 1.0f);
+        float4x4::CreateOrthographicOffCenter(0.0f, width, height, 0.0f, 0.0f, 1.0f);
     *_constants.ptr() = Constants {
         .transform = projection,
     };
@@ -203,7 +203,7 @@ void Cards::render(GpuDevice& device, GpuCommandList& cmd) {
     cmd.begin_pix("Spd");
     cmd.set_compute();
     cmd.set_pipeline(_spd_pipeline);
-    for (uint32_t i = 0; i < CARD_COUNT; i++) {
+    for (uint i = 0; i < CARD_COUNT; i++) {
         const auto& card = _card_descriptors[i];
         cmd.set_compute_constants(spd::Bindings {
             .constants = _spd_constants.cbv_descriptor().index(),
@@ -228,10 +228,10 @@ void Cards::render(GpuDevice& device, GpuCommandList& cmd) {
     cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
     cmd.set_index_buffer(_indices.index_buffer_view());
 
-    for (uint32_t card_index = 0; card_index < CARD_COUNT; ++card_index) {
-        uint32_t card_indirect = p.card_indirect_indices[card_index];
+    for (uint i = 0; i < CARD_COUNT; ++i) {
+        uint card_indirect = p.card_indirect_indices[i];
         cmd.set_graphics_constants(Bindings {
-            .card_index = card_index,
+            .card_index = i,
             .constants = _constants.cbv_descriptor().index(),
             .cards = _cards.srv_descriptor().index(),
             .vertices = _vertices.srv_descriptor().index(),

@@ -10,8 +10,8 @@ class fb::Window;
 
 namespace fb::graphics::gui {
 
-inline constexpr uint32_t MAX_VERTEX_COUNT = 1024 * 1024;
-inline constexpr uint32_t MAX_INDEX_COUNT = 1024 * 1024;
+inline constexpr uint MAX_VERTEX_COUNT = 1024 * 1024;
+inline constexpr uint MAX_INDEX_COUNT = 1024 * 1024;
 
 class Gui {
     FB_NO_COPY_MOVE(Gui);

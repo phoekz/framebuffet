@@ -16,7 +16,7 @@ struct GuiDesc {};
 
 struct UpdateDesc {
     float delta_time;
-    Float2 cursor_position;
+    float2 cursor_position;
     bool mouse_left;
     float mouse_wheel_y;
 };
@@ -31,10 +31,10 @@ public:
     auto fov() const -> float { return _fov; }
     auto near_clip() const -> float { return _near_clip; }
     auto far_clip() const -> float { return _far_clip; }
-    auto clip_from_view() const -> Float4x4;
-    auto view_from_world() const -> Float4x4;
-    auto clip_from_world() const -> Float4x4;
-    auto position() const -> Float3;
+    auto clip_from_view() const -> float4x4;
+    auto view_from_world() const -> float4x4;
+    auto clip_from_world() const -> float4x4;
+    auto position() const -> float3;
 
 private:
     float _aspect_ratio;
@@ -42,16 +42,16 @@ private:
     float _near_clip;
     float _far_clip;
 
-    Float3 _spherical;
-    Float3 _origin;
-    Float3 _up;
+    float3 _spherical;
+    float3 _origin;
+    float3 _up;
 
-    Float3 _target_spherical;
-    Float3 _target_origin;
+    float3 _target_spherical;
+    float3 _target_origin;
     float _target_spherical_rate;
     float _target_origin_rate;
 
-    Float2 _prev_cursor_position;
+    float2 _prev_cursor_position;
 };
 
 } // namespace fb::camera

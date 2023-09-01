@@ -139,9 +139,9 @@ auto EnvDemo::update(const UpdateDesc& desc) -> void {
     const auto& p = _parameters;
     const auto aspect_ratio = desc.aspect_ratio;
     const auto perspective =
-        Float4x4::CreatePerspectiveFieldOfView(p.camera_fov, aspect_ratio, 0.1f, 100.0f);
+        float4x4::CreatePerspectiveFieldOfView(p.camera_fov, aspect_ratio, 0.1f, 100.0f);
     const auto eye = p.camera_distance * dir_from_lonlat(p.camera_longitude, p.camera_latitude);
-    const auto view = Float4x4::CreateLookAt(eye, Float3::Zero, Float3::Up);
+    const auto view = float4x4::CreateLookAt(eye, float3::Zero, float3::Up);
     const auto camera_transform = view * perspective;
 
     // Update exposure.

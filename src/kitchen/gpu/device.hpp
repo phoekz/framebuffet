@@ -74,13 +74,13 @@ public:
     auto
     create_sampler(const D3D12_SAMPLER_DESC2& desc, D3D12_CPU_DESCRIPTOR_HANDLE descriptor) const
         -> void;
-    auto descriptor_size(D3D12_DESCRIPTOR_HEAP_TYPE heap_type) const -> uint32_t;
+    auto descriptor_size(D3D12_DESCRIPTOR_HEAP_TYPE heap_type) const -> uint;
 
     // Getters.
     auto transfer() -> GpuTransfer& { return _transfer; }
     auto swapchain() -> GpuSwapchain& { return _swapchain; }
     auto swapchain() const -> const GpuSwapchain& { return _swapchain; }
-    auto frame_index() const -> uint32_t { return _frame_index; }
+    auto frame_index() const -> uint { return _frame_index; }
     auto root_signature() const -> ID3D12RootSignature* { return _root_signature.get(); }
     auto descriptors() -> GpuDescriptors& { return _descriptors; }
 
@@ -97,7 +97,7 @@ private:
     ComPtr<ID3D12GraphicsCommandList9> _command_list;
     GpuSwapchain _swapchain;
 
-    uint32_t _frame_index = 0;
+    uint _frame_index = 0;
     ComPtr<ID3D12Fence1> _fence;
     HANDLE _fence_event = nullptr;
     std::array<uint64_t, FRAME_COUNT> _fence_values = {};

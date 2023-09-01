@@ -5,7 +5,7 @@
 
 namespace fb::demos::fibers {
 
-enum class Heatmap : uint32_t {
+enum class Heatmap : uint {
     Magma,
     Viridis,
 };
@@ -15,7 +15,7 @@ struct Parameters {
     float camera_fov = rad_from_deg(45.0f);
     float camera_latitude = rad_from_deg(0.0f);
     float camera_longitude = rad_from_deg(90.0f);
-    Float2 camera_clip_planes = Float2(0.1f, 100.0f);
+    float2 camera_clip_planes = float2(0.1f, 100.0f);
     bool show_light_bounds = true;
 
     float light_speed = 0.25f;
@@ -26,7 +26,7 @@ struct Parameters {
     float heatmap_opacity = 0.5f;
 };
 
-inline constexpr uint32_t SIM_DISPATCH_COUNT =
+inline constexpr uint SIM_DISPATCH_COUNT =
     (LIGHT_COUNT + (SIM_DISPATCH_SIZE - 1)) / SIM_DISPATCH_SIZE;
 
 struct Mesh {
@@ -39,7 +39,7 @@ class FibersDemo {
 
 public:
     static constexpr std::string_view NAME = "Fibers"sv;
-    static constexpr Float4 CLEAR_COLOR = {0.05f, 0.05f, 0.05f, 1.0f};
+    static constexpr float4 CLEAR_COLOR = {0.05f, 0.05f, 0.05f, 1.0f};
 
     FibersDemo() = default;
 
@@ -72,10 +72,10 @@ private:
     GpuTextureSrv _viridis_texture;
     GpuTextureSrvUav _light_counts_texture;
     GpuTextureSrvUav _light_offsets_texture;
-    GpuBufferDeviceSrvUav<uint32_t> _light_indices;
-    GpuBufferDeviceSrvUav<uint32_t> _light_indices_count;
-    uint32_t _cull_dispatch_count_x = 0;
-    uint32_t _cull_dispatch_count_y = 0;
+    GpuBufferDeviceSrvUav<uint> _light_indices;
+    GpuBufferDeviceSrvUav<uint> _light_indices_count;
+    uint _cull_dispatch_count_x = 0;
+    uint _cull_dispatch_count_y = 0;
 };
 
 } // namespace fb::demos::fibers

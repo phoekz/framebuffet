@@ -4,7 +4,7 @@
 
 namespace fb {
 
-auto dxgi_format_unit_byte_count(DXGI_FORMAT format) -> uint32_t {
+auto dxgi_format_unit_byte_count(DXGI_FORMAT format) -> uint {
     return D3D12_PROPERTY_LAYOUT_FORMAT_TABLE::GetBitsPerUnit(format) / 8;
 }
 

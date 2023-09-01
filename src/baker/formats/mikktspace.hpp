@@ -10,7 +10,7 @@ struct GenerateTangentsDesc {
     std::span<const GltfVertexNormal> normals;
     std::span<const GltfVertexTexcoord> texcoords;
     std::span<const GltfIndex> indices;
-    std::span<Float4> tangents;
+    std::span<float4> tangents;
 };
 
 auto generate_tangents(const GenerateTangentsDesc& desc) -> void;

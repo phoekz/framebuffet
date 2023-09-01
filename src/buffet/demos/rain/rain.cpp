@@ -27,7 +27,7 @@ auto RainDemo::create(GpuDevice& device, const Baked& baked) -> void {
         // Data.
         Pcg rand;
         std::vector<Particle> particles(PARTICLE_COUNT);
-        for (uint32_t i = 0; i < PARTICLE_COUNT; i++) {
+        for (uint i = 0; i < PARTICLE_COUNT; i++) {
             Particle& particle = particles[i];
             particle.position.x = 2.0f * rand.random_float() - 1.0f;
             particle.position.y = 2.0f * rand.random_float() - 1.0f;
@@ -110,14 +110,14 @@ void RainDemo::update(const UpdateDesc& desc) {
 
     auto aspect_ratio = desc.aspect_ratio;
     auto projection =
-        Float4x4::CreatePerspectiveFieldOfView(p.camera_fov, aspect_ratio, 0.1f, 100.0f);
+        float4x4::CreatePerspectiveFieldOfView(p.camera_fov, aspect_ratio, 0.1f, 100.0f);
     auto eye = p.camera_distance * dir_from_lonlat(p.camera_longitude, p.camera_latitude);
-    auto view = Float4x4::CreateLookAt(eye, Float3::Zero, Float3::Up);
-    auto from_dir = Float3::UnitZ;
-    auto to_dir = Float3(eye.x, 0.0f, eye.z);
+    auto view = float4x4::CreateLookAt(eye, float3::Zero, float3::Up);
+    auto from_dir = float3::UnitZ;
+    auto to_dir = float3(eye.x, 0.0f, eye.z);
     auto rot_quat = Quaternion::FromToRotation(from_dir, to_dir);
-    auto rot_Float4x4 = Float4x4::CreateFromQuaternion(rot_quat);
-    auto scale = Float4x4::CreateScale(p.particle_width, p.particle_height, 1.0f);
+    auto rot_Float4x4 = float4x4::CreateFromQuaternion(rot_quat);
+    auto scale = float4x4::CreateScale(p.particle_width, p.particle_height, 1.0f);
     auto particle_transform = scale * rot_Float4x4;
     auto camera_transform = view * projection;
 

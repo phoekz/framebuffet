@@ -109,7 +109,7 @@ auto stockcube_run(Stockcube& sc) -> void {
             const auto& inputs = sc.window.inputs();
             sc.camera.update({
                 .delta_time = sc.frame.delta_time(),
-                .cursor_position = Float2((float)inputs.mouse_x, (float)inputs.mouse_y),
+                .cursor_position = float2((float)inputs.mouse_x, (float)inputs.mouse_y),
                 .mouse_left = gui_wants_the_mouse ? false : inputs.mouse_left,
                 .mouse_wheel_y = gui_wants_the_mouse ? 0.0f : inputs.mouse_wheel_y,
             });

@@ -35,7 +35,7 @@ auto create(Technique& tech, const CreateDesc& desc) -> void {
     const auto dispatch_count = sample_count / sample_count_per_dispatch;
     tech.constants.create(device, 1, debug.with_name("Constants"));
     *tech.constants.ptr() = Constants {
-        .irr_texture_size = Uint2(WIDTH, HEIGHT),
+        .irr_texture_size = uint2(WIDTH, HEIGHT),
         .irr_sample_count = sample_count,
         .irr_sample_count_per_dispatch = sample_count_per_dispatch,
     };
@@ -111,7 +111,7 @@ auto gpu_commands(Technique& tech, const GpuCommandsDesc& desc) -> void {
             .dispatch_id = tech.dispatch_id,
             .constants = tech.constants.cbv_descriptor().index(),
             .cube_texture = tech.cube_texture.index(),
-            .cube_sampler = (uint32_t)GpuSampler::LinearClamp,
+            .cube_sampler = (uint)GpuSampler::LinearClamp,
             .irr_texture = tech.acc_texture.uav_descriptor().index(),
         });
         cmd.dispatch(
@@ -160,7 +160,7 @@ auto gpu_commands(Technique& tech, const GpuCommandsDesc& desc) -> void {
 
         // Copy.
         uint64_t offset = 0;
-        for (uint32_t mip_slice = 0; mip_slice < 6; mip_slice++) {
+        for (uint mip_slice = 0; mip_slice < 6; mip_slice++) {
             cmd.copy_texture_to_buffer(
                 tech.readback.resource(),
                 offset,

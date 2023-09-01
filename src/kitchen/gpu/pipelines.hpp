@@ -107,16 +107,16 @@ public:
     // clang-format on
 
 private:
-    static_assert(8 * sizeof(uint32_t) >= D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_MAX_VALID);
+    static_assert(8 * sizeof(uint) >= D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_MAX_VALID);
 
     std::string_view _name;
     std::byte _buffer[BUFFER_SIZE] = {};
     size_t _buffet_offset = 0;
-    uint32_t _subobject_mask = 0;
+    uint _subobject_mask = 0;
     GpuRasterizerDesc _rasterizer_desc = {};
     GpuDepthStencilDesc _depth_stencil_desc = {};
     GpuBlendDesc _blend_desc = {};
-    uint32_t _samples_count = 1;
+    uint _samples_count = 1;
 };
 
 } // namespace fb

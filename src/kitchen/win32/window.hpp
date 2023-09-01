@@ -17,8 +17,8 @@ class Window final {
 public:
     struct Desc {
         std::string_view title;
-        uint32_t width;
-        uint32_t height;
+        uint width;
+        uint height;
     };
 
     Window() = default;

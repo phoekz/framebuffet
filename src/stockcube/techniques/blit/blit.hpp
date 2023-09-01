@@ -19,12 +19,12 @@ struct GpuCommandsDesc {
 };
 
 struct Parameters {
-    uint32_t tonemap = 1;
+    uint tonemap = 1;
     float exposure_lg2 = 0.0f;
 };
 
 struct Technique {
-    Uint2 size;
+    uint2 size;
     GpuDescriptor render_target;
     GpuBufferHostCbv<Constants> constants;
     GpuPipeline pipeline;

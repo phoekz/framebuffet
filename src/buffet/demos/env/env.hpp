@@ -8,7 +8,7 @@ namespace fb::demos::env {
 struct Parameters {
     float model_metallic = 0.0f;
     float model_roughness = 0.0f;
-    uint32_t tonemap = (uint32_t)(true);
+    uint tonemap = (uint)(true);
     float exposure = 0.0f;
     float background_roughness = 0.0f;
     float camera_fov = rad_from_deg(90.0f);
@@ -23,7 +23,7 @@ class EnvDemo {
 
 public:
     static constexpr std::string_view NAME = "Env"sv;
-    static constexpr Float4 CLEAR_COLOR = {0.3f, 0.6f, 0.0f, 1.0f};
+    static constexpr float4 CLEAR_COLOR = {0.3f, 0.6f, 0.0f, 1.0f};
 
     EnvDemo() = default;
 

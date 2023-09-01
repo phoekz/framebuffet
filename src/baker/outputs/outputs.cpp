@@ -113,7 +113,7 @@ auto bake_app_datas(
                     assets_decls << std::format("auto {}() const -> Texture;", asset.name);
 
                     std::ostringstream texture_datas;
-                    for (uint32_t mip = 0; mip < asset.mip_count; ++mip) {
+                    for (uint mip = 0; mip < asset.mip_count; ++mip) {
                         const auto mip_width = std::max(1u, asset.width >> mip);
                         const auto mip_height = std::max(1u, asset.height >> mip);
                         texture_datas << std::format(
@@ -159,9 +159,9 @@ auto bake_app_datas(
                     assets_decls << std::format("auto {}() const -> CubeTexture;", asset.name);
 
                     std::ostringstream texture_datas;
-                    for (uint32_t slice = 0; slice < 6; slice++) {
+                    for (uint slice = 0; slice < 6; slice++) {
                         const auto& slice_datas = asset.datas[slice];
-                        for (uint32_t mip = 0; mip < asset.mip_count; mip++) {
+                        for (uint mip = 0; mip < asset.mip_count; mip++) {
                             const auto mip_width = std::max(1u, asset.width >> mip);
                             const auto mip_height = std::max(1u, asset.height >> mip);
                             texture_datas << std::format(

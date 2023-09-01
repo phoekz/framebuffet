@@ -4,21 +4,13 @@
 
 namespace fb {
 
-using Rectangle = DirectX::SimpleMath::Rectangle;
-using Float2 = DirectX::SimpleMath::Vector2;
-using Float3 = DirectX::SimpleMath::Vector3;
-using Float4 = DirectX::SimpleMath::Vector4;
-using Float4x4 = DirectX::SimpleMath::Matrix;
-using Plane = DirectX::SimpleMath::Plane;
 using Quaternion = DirectX::SimpleMath::Quaternion;
+using Rectangle = DirectX::SimpleMath::Rectangle;
+using Plane = DirectX::SimpleMath::Plane;
 using RgbaFloat = DirectX::SimpleMath::Color;
 using RgbaByte = DirectX::PackedVector::XMUBYTEN4;
 using Ray = DirectX::SimpleMath::Ray;
 using Viewport = DirectX::SimpleMath::Viewport;
-
-using Uint2 = DirectX::XMUINT2;
-using Uint3 = DirectX::XMUINT3;
-using Uint4 = DirectX::XMUINT4;
 
 inline constexpr float PI = DirectX::XM_PI;
 
@@ -39,7 +31,7 @@ inline constexpr auto deg_from_rad(float rad) -> float {
     return rad * 180.0f / PI;
 }
 
-inline constexpr auto dir_from_lonlat(float lon, float lat) -> Float3 {
+inline constexpr auto dir_from_lonlat(float lon, float lat) -> float3 {
     return {
         std::cos(lat) * std::cos(lon),
         std::sin(lat),
@@ -47,10 +39,10 @@ inline constexpr auto dir_from_lonlat(float lon, float lat) -> Float3 {
     };
 }
 
-inline constexpr auto float4x4_from_trs(const Float3& t, const Quaternion& r, const Float3& s)
-    -> Float4x4 {
+inline constexpr auto float4x4_from_trs(const float3& t, const Quaternion& r, const float3& s)
+    -> float4x4 {
     // Note: inlined quaternion-float3x3 conversion.
-    Float4x4 m;
+    float4x4 m;
     float rxx = r.x * r.x;
     float ryy = r.y * r.y;
     float rzz = r.z * r.z;
@@ -73,7 +65,7 @@ inline constexpr auto float4x4_from_trs(const Float3& t, const Quaternion& r, co
     return m;
 }
 
-inline auto rgb_from_hsv(Float3 hsv) -> Float3 {
+inline auto rgb_from_hsv(float3 hsv) -> float3 {
     float h = hsv.x;
     float s = hsv.y;
     float v = hsv.z;
@@ -81,22 +73,22 @@ inline auto rgb_from_hsv(Float3 hsv) -> Float3 {
     float x = c * (1.0f - std::fabs(std::fmod(h / 60.0f, 2.0f) - 1.0f));
     float m = v - c;
     if (h < 60.0f) {
-        return Float3(c + m, x + m, m);
+        return float3(c + m, x + m, m);
     } else if (h < 120.0f) {
-        return Float3(x + m, c + m, m);
+        return float3(x + m, c + m, m);
     } else if (h < 180.0f) {
-        return Float3(m, c + m, x + m);
+        return float3(m, c + m, x + m);
     } else if (h < 240.0f) {
-        return Float3(m, x + m, c + m);
+        return float3(m, x + m, c + m);
     } else if (h < 300.0f) {
-        return Float3(x + m, m, c + m);
+        return float3(x + m, m, c + m);
     } else {
-        return Float3(c + m, m, x + m);
+        return float3(c + m, m, x + m);
     }
 }
 
-inline constexpr auto mip_count_from_size(uint32_t width, uint32_t height) -> uint32_t {
-    uint32_t mip_count = 1;
+inline constexpr auto mip_count_from_size(uint width, uint height) -> uint {
+    uint mip_count = 1;
     while (width > 1 || height > 1) {
         width = std::max(1u, width / 2);
         height = std::max(1u, height / 2);
@@ -105,7 +97,7 @@ inline constexpr auto mip_count_from_size(uint32_t width, uint32_t height) -> ui
     return mip_count;
 }
 
-inline constexpr auto mip_count_from_size(Uint2 size) -> uint32_t {
+inline constexpr auto mip_count_from_size(uint2 size) -> uint {
     return mip_count_from_size(size.x, size.y);
 }
 
@@ -116,33 +108,33 @@ inline constexpr auto mip_count_from_size(Uint2 size) -> uint32_t {
 //
 
 template<>
-struct std::formatter<fb::Float2>: std::formatter<char> {
+struct std::formatter<fb::float2>: std::formatter<char> {
     template<class FormatContext>
-    auto format(fb::Float2 v, FormatContext& fc) const {
+    auto format(fb::float2 v, FormatContext& fc) const {
         return std::format_to(fc.out(), "({:6.3f} {:6.3f})", v.x, v.y);
     }
 };
 
 template<>
-struct std::formatter<fb::Float3>: std::formatter<char> {
+struct std::formatter<fb::float3>: std::formatter<char> {
     template<class FormatContext>
-    auto format(fb::Float3 v, FormatContext& fc) const {
+    auto format(fb::float3 v, FormatContext& fc) const {
         return std::format_to(fc.out(), "({:6.3f} {:6.3f} {:6.3f})", v.x, v.y, v.z);
     }
 };
 
 template<>
-struct std::formatter<fb::Float4>: std::formatter<char> {
+struct std::formatter<fb::float4>: std::formatter<char> {
     template<class FormatContext>
-    auto format(fb::Float4 v, FormatContext& fc) const {
+    auto format(fb::float4 v, FormatContext& fc) const {
         return std::format_to(fc.out(), "({:6.3f} {:6.3f} {:6.3f} {:6.3f})", v.x, v.y, v.z, v.w);
     }
 };
 
 template<>
-struct std::formatter<fb::Float4x4>: std::formatter<char> {
+struct std::formatter<fb::float4x4>: std::formatter<char> {
     template<class FormatContext>
-    auto format(fb::Float4x4 m, FormatContext& fc) const {
+    auto format(fb::float4x4 m, FormatContext& fc) const {
         return std::format_to(
             fc.out(),
             "\n|{:6.3f} {:6.3f} {:6.3f} {:6.3f}|"
@@ -171,25 +163,25 @@ struct std::formatter<fb::Float4x4>: std::formatter<char> {
 };
 
 template<>
-struct std::formatter<fb::Uint2>: std::formatter<char> {
+struct std::formatter<fb::uint2>: std::formatter<char> {
     template<class FormatContext>
-    auto format(fb::Uint2 v, FormatContext& fc) const {
+    auto format(fb::uint2 v, FormatContext& fc) const {
         return std::format_to(fc.out(), "({} {})", v.x, v.y);
     }
 };
 
 template<>
-struct std::formatter<fb::Uint3>: std::formatter<char> {
+struct std::formatter<fb::uint3>: std::formatter<char> {
     template<class FormatContext>
-    auto format(fb::Uint3 v, FormatContext& fc) const {
+    auto format(fb::uint3 v, FormatContext& fc) const {
         return std::format_to(fc.out(), "({} {} {})", v.x, v.y, v.z);
     }
 };
 
 template<>
-struct std::formatter<fb::Uint4>: std::formatter<char> {
+struct std::formatter<fb::uint4>: std::formatter<char> {
     template<class FormatContext>
-    auto format(fb::Uint4 v, FormatContext& fc) const {
+    auto format(fb::uint4 v, FormatContext& fc) const {
         return std::format_to(fc.out(), "({} {} {} {})", v.x, v.y, v.z, v.w);
     }
 };

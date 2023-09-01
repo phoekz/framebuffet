@@ -90,9 +90,9 @@ GltfModel::GltfModel(std::string_view gltf_path) {
             FB_ASSERT(cgltf_accessor_read_uint(index_accessor, i + 0, &i0, 1));
             FB_ASSERT(cgltf_accessor_read_uint(index_accessor, i + 1, &i1, 1));
             FB_ASSERT(cgltf_accessor_read_uint(index_accessor, i + 2, &i2, 1));
-            i0 += (uint32_t)vertex_offset;
-            i1 += (uint32_t)vertex_offset;
-            i2 += (uint32_t)vertex_offset;
+            i0 += (uint)vertex_offset;
+            i1 += (uint)vertex_offset;
+            i2 += (uint)vertex_offset;
         }
     }
 
@@ -130,7 +130,7 @@ GltfModel::GltfModel(std::string_view gltf_path) {
         const auto image_data = (const std::byte*)cgltf_buffer_view_data(image_view);
         const auto image_span = std::span(image_data, image_view->size);
         const auto map_fn =
-            [](uint32_t, uint32_t, std::byte& r, std::byte& /*g*/, std::byte& /*b*/, std::byte& a) {
+            [](uint, uint, std::byte& r, std::byte& /*g*/, std::byte& /*b*/, std::byte& a) {
                 // Note: GLTF's metallic is defined in the blue channel,
                 // roughness in the green channel. Since GLTF allows different
                 // channels to overlap, for example occlusion might be in the
@@ -236,29 +236,29 @@ GltfModel::GltfModel(std::string_view gltf_path) {
         for (size_t i = 0; i < vertex_count; i++) {
             auto& vj = _vertex_joints[i];
             auto& vw = _vertex_weights[i];
-            FB_ASSERT(cgltf_accessor_read_uint(joints_accessor, i, (uint32_t*)&vj, 4));
+            FB_ASSERT(cgltf_accessor_read_uint(joints_accessor, i, (uint*)&vj, 4));
             FB_ASSERT(cgltf_accessor_read_float(weights_accessor, i, (float*)&vw, 4));
         }
 
         // Read additional node data.
-        auto node_transforms = std::vector<Float4x4>(data->nodes_count);
-        auto node_parents = std::vector<uint32_t>(data->nodes_count, GLTF_NULL_NODE);
+        auto node_transforms = std::vector<float4x4>(data->nodes_count);
+        auto node_parents = std::vector<uint>(data->nodes_count, GLTF_NULL_NODE);
         for (size_t i = 0; i < data->nodes_count; i++) {
             const auto& node = data->nodes[i];
             cgltf_node_transform_local(&node, (float*)&node_transforms[i]);
             if (node.parent != nullptr) {
-                node_parents[i] = (uint32_t)(node.parent - data->nodes);
+                node_parents[i] = (uint)(node.parent - data->nodes);
             }
         }
 
         // Read joint data.
         const auto& skin = data->skins[0];
         const auto* ibms = skin.inverse_bind_matrices;
-        auto joint_inverse_binds = std::vector<Float4x4>(skin.joints_count);
-        auto joint_nodes = std::vector<uint32_t>(skin.joints_count);
+        auto joint_inverse_binds = std::vector<float4x4>(skin.joints_count);
+        auto joint_nodes = std::vector<uint>(skin.joints_count);
         for (size_t i = 0; i < skin.joints_count; i++) {
             FB_ASSERT(cgltf_accessor_read_float(ibms, i, (float*)&joint_inverse_binds[i], 16));
-            joint_nodes[i] = (uint32_t)(skin.joints[i] - data->nodes);
+            joint_nodes[i] = (uint)(skin.joints[i] - data->nodes);
         }
 
         // Read animation data.
@@ -298,9 +298,9 @@ GltfModel::GltfModel(std::string_view gltf_path) {
         auto node_channels_times_t = std::vector<float>(total_t_count);
         auto node_channels_times_r = std::vector<float>(total_r_count);
         auto node_channels_times_s = std::vector<float>(total_s_count);
-        auto node_channels_values_t = std::vector<Float3>(total_t_count);
+        auto node_channels_values_t = std::vector<float3>(total_t_count);
         auto node_channels_values_r = std::vector<Quaternion>(total_r_count);
-        auto node_channels_values_s = std::vector<Float3>(total_s_count);
+        auto node_channels_values_s = std::vector<float3>(total_s_count);
         for (size_t i = 0; i < animation.samplers_count; i++) {
             const auto& sampler = animation.samplers[i];
             const auto& input = *sampler.input;

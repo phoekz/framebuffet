@@ -126,9 +126,9 @@ auto CrateDemo::update(const UpdateDesc& desc) -> void {
         p.camera_longitude -= PI * 2.0f;
     }
     const auto projection =
-        Float4x4::CreatePerspectiveFieldOfView(p.camera_fov, desc.aspect_ratio, 0.1f, 100.0f);
+        float4x4::CreatePerspectiveFieldOfView(p.camera_fov, desc.aspect_ratio, 0.1f, 100.0f);
     const auto eye = p.camera_distance * dir_from_lonlat(p.camera_longitude, p.camera_latitude);
-    const auto view = Float4x4::CreateLookAt(eye, Float3::Zero, Float3::Up);
+    const auto view = float4x4::CreateLookAt(eye, float3::Zero, float3::Up);
     const auto camera_transform = view * projection;
 
     // Update light.
@@ -145,10 +145,10 @@ auto CrateDemo::update(const UpdateDesc& desc) -> void {
     {
         // Visualize light direction.
         const auto xyz = light_direction;
-        const auto xz = xyz * Float3(1.0f, 0.0f, 1.0f);
+        const auto xz = xyz * float3(1.0f, 0.0f, 1.0f);
         const auto scale = 2.0f;
-        _debug_draw.line(Float3::Zero, scale * xyz, COLOR_YELLOW);
-        _debug_draw.line(Float3::Zero, scale * xz, COLOR_YELLOW);
+        _debug_draw.line(float3::Zero, scale * xyz, COLOR_YELLOW);
+        _debug_draw.line(float3::Zero, scale * xz, COLOR_YELLOW);
         _debug_draw.line(scale * xyz, scale * xz, COLOR_YELLOW);
     }
     _debug_draw.end();
@@ -180,7 +180,7 @@ auto CrateDemo::render(GpuDevice& device, GpuCommandList& cmd) -> void {
             .base_color_texture = model.base_color.srv_descriptor().index(),
             .normal_texture = model.normal.srv_descriptor().index(),
             .metallic_roughness_texture = model.metallic_roughness.srv_descriptor().index(),
-            .sampler = (uint32_t)sampler,
+            .sampler = (uint)sampler,
         });
         cmd.set_index_buffer(model.indices.index_buffer_view());
         cmd.draw_indexed_instanced(model.indices.element_count(), 1, 0, 0, 0);

@@ -19,11 +19,8 @@ static auto heap_type_name(D3D12_DESCRIPTOR_HEAP_TYPE type) -> std::string_view 
     }
 }
 
-auto GpuDescriptorHeap::create(
-    GpuDevice& device,
-    D3D12_DESCRIPTOR_HEAP_TYPE type,
-    uint32_t capacity
-) -> void {
+auto GpuDescriptorHeap::create(GpuDevice& device, D3D12_DESCRIPTOR_HEAP_TYPE type, uint capacity)
+    -> void {
     DebugScope debug("Descriptor Heap");
     _type = type;
     _capacity = capacity;

@@ -10,7 +10,7 @@ enum class GpuBufferAccessMode {
     Device,
 };
 
-enum class GpuBufferFlags : uint32_t {
+enum class GpuBufferFlags : uint {
     None = 0x0,
     Cbv = 0x1,
     Srv = 0x2,
@@ -21,7 +21,7 @@ enum class GpuBufferFlags : uint32_t {
 };
 
 inline constexpr auto gpu_buffer_flags_contains(GpuBufferFlags flags, GpuBufferFlags flag) -> bool {
-    return ((uint32_t)flags & (uint32_t)flag) == (uint32_t)flag;
+    return ((uint)flags & (uint)flag) == (uint)flag;
 }
 
 namespace detail {
@@ -35,7 +35,7 @@ namespace detail {
         static_assert(std::is_pointer_v<T> == false, "Buffer type cannot be a pointer");
         if constexpr (gpu_buffer_flags_contains(FLAGS, Index)) {
             static_assert(
-                std::is_same_v<T, uint16_t> || std::is_same_v<T, uint32_t>,
+                std::is_same_v<T, uint16_t> || std::is_same_v<T, uint>,
                 "Index buffer only supports 16-bit and 32-bit unsigned formats"
             );
         }
@@ -65,12 +65,12 @@ public:
 
     GpuBuffer() = default;
 
-    auto create(GpuDevice& device, uint32_t element_count, std::string_view name) -> void {
+    auto create(GpuDevice& device, uint element_count, std::string_view name) -> void {
         // Format.
         if constexpr (gpu_buffer_flags_contains(FLAGS, Index)) {
             if (std::is_same_v<T, uint16_t>) {
                 _format = DXGI_FORMAT_R16_UINT;
-            } else if (std::is_same_v<T, uint32_t>) {
+            } else if (std::is_same_v<T, uint>) {
                 _format = DXGI_FORMAT_R32_UINT;
             }
         }
@@ -136,7 +136,7 @@ public:
             memset(_raw, 0, _byte_count);
 
             // Inplace construct elements.
-            for (uint32_t i = 0; i < element_count; i++) {
+            for (uint i = 0; i < element_count; i++) {
                 new (reinterpret_cast<T*>(_raw) + i) T();
             }
         }
@@ -198,7 +198,7 @@ public:
     auto create_with_data(GpuDevice& device, std::span<const T> data, std::string_view name)
         -> void {
         static_assert(ACCESS_MODE == Host);
-        create(device, (uint32_t)data.size(), name);
+        create(device, (uint)data.size(), name);
         memcpy(_raw, data.data(), data.size_bytes());
     }
     auto create_and_transfer(
@@ -209,7 +209,7 @@ public:
         std::string_view name
     ) -> void {
         static_assert(ACCESS_MODE == Device);
-        create(device, (uint32_t)data.size(), name);
+        create(device, (uint)data.size(), name);
         device.transfer().resource(
             _resource,
             D3D12_SUBRESOURCE_DATA {
@@ -222,8 +222,8 @@ public:
         );
     }
 
-    auto element_count() const -> uint32_t { return _element_count; }
-    auto byte_count() const -> uint32_t { return _byte_count; }
+    auto element_count() const -> uint { return _element_count; }
+    auto byte_count() const -> uint { return _byte_count; }
     auto resource() const -> const ComPtr<ID3D12Resource>& { return _resource; }
     auto raw() const -> void* { return _raw; }
     auto ptr() const -> T* { return reinterpret_cast<T*>(raw()); }
@@ -262,9 +262,9 @@ public:
     }
 
 private:
-    uint32_t _element_byte_count = (uint32_t)sizeof(T);
-    uint32_t _element_count = 0;
-    uint32_t _byte_count = 0;
+    uint _element_byte_count = (uint)sizeof(T);
+    uint _element_count = 0;
+    uint _byte_count = 0;
     DXGI_FORMAT _format = DXGI_FORMAT_UNKNOWN;
     ComPtr<ID3D12Resource> _resource;
     D3D12_RESOURCE_DESC _resource_desc;

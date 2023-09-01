@@ -42,7 +42,7 @@ auto GpuTransfer::resource(
     D3D12_RESOURCE_STATES after_state
 ) -> void {
     _impl->batch.Transition(resource.get(), before_state, D3D12_RESOURCE_STATE_COPY_DEST);
-    _impl->batch.Upload(resource.get(), 0, datas.data(), (uint32_t)datas.size());
+    _impl->batch.Upload(resource.get(), 0, datas.data(), (uint)datas.size());
     _impl->batch.Transition(resource.get(), D3D12_RESOURCE_STATE_COPY_DEST, after_state);
     _stats.transfers += datas.size();
     for (const auto& data : datas) {

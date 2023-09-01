@@ -5,10 +5,10 @@
 namespace fb::graphics::render_targets {
 
 struct RenderTargetsDesc {
-    Uint2 size;
+    uint2 size;
     DXGI_FORMAT color_format;
-    Float4 clear_color;
-    uint32_t sample_count;
+    float4 clear_color;
+    uint sample_count;
 };
 
 class RenderTargets {
@@ -36,12 +36,12 @@ private:
     static constexpr DXGI_FORMAT DEPTH_FORMAT = DXGI_FORMAT_D32_FLOAT;
     static constexpr float DEPTH_VALUE = 1.0f;
 
-    Uint2 _size = {};
-    Float4 _clear_color;
+    uint2 _size = {};
+    float4 _clear_color;
     GpuTextureRtv _multisampled_color;
     GpuTextureSrvUavRtv _color;
     GpuTextureDsv _depth;
-    uint32_t _sample_count = 1;
+    uint _sample_count = 1;
 };
 
 } // namespace fb::graphics::render_targets

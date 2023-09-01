@@ -51,7 +51,7 @@ static auto set_tspace_basic(
 ) -> void {
     auto& desc = *(GenerateTangentsDesc*)ctx->m_pUserData;
     const auto index = desc.indices[face_id * 3 + vertex_id];
-    desc.tangents[index] = Float4(tangent[0], tangent[1], tangent[2], sign);
+    desc.tangents[index] = float4(tangent[0], tangent[1], tangent[2], sign);
 }
 
 auto generate_tangents(const GenerateTangentsDesc& desc) -> void {

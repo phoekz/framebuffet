@@ -6,7 +6,7 @@
 
 namespace fb {
 
-inline constexpr uint32_t FRAME_COUNT = 2;
+inline constexpr uint FRAME_COUNT = 2;
 
 class GpuDevice;
 class Window;
@@ -25,20 +25,20 @@ public:
         GpuDescriptors& descriptors
     ) -> void;
 
-    auto transition_to_render_target(GpuCommandList& cmd, uint32_t frame_index) -> void;
-    auto clear_render_target(GpuCommandList& cmd, uint32_t frame_index) -> void;
-    auto set_render_target(GpuCommandList& cmd, uint32_t frame_index) -> void;
-    auto transition_to_present(GpuCommandList& cmd, uint32_t frame_index) -> void;
+    auto transition_to_render_target(GpuCommandList& cmd, uint frame_index) -> void;
+    auto clear_render_target(GpuCommandList& cmd, uint frame_index) -> void;
+    auto set_render_target(GpuCommandList& cmd, uint frame_index) -> void;
+    auto transition_to_present(GpuCommandList& cmd, uint frame_index) -> void;
     auto present() -> void;
 
-    auto size() const -> Uint2 { return _swapchain_size; }
+    auto size() const -> uint2 { return _swapchain_size; }
     auto aspect_ratio() const -> float { return (float)_swapchain_size.x / _swapchain_size.y; }
     auto format() const -> DXGI_FORMAT { return _swapchain_format; }
-    auto backbuffer_index() const -> uint32_t { return _swapchain->GetCurrentBackBufferIndex(); }
+    auto backbuffer_index() const -> uint { return _swapchain->GetCurrentBackBufferIndex(); }
 
 private:
     ComPtr<IDXGISwapChain4> _swapchain;
-    Uint2 _swapchain_size = {};
+    uint2 _swapchain_size = {};
     DXGI_FORMAT _swapchain_format = {};
     ComPtr<ID3D12DescriptorHeap> _rtv_descriptor_heap;
     std::array<GpuDescriptor, FRAME_COUNT> _rtv_descriptors = {};

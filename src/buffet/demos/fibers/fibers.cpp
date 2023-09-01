@@ -113,8 +113,8 @@ auto FibersDemo::create(GpuDevice& device, const Baked& baked) -> void {
         // Data.
         Pcg rand;
         auto lights = std::vector<Light>(LIGHT_COUNT);
-        uint32_t attempts = 0;
-        for (uint32_t i = 0; i < LIGHT_COUNT; i++) {
+        uint attempts = 0;
+        for (uint i = 0; i < LIGHT_COUNT; i++) {
             auto& light = lights[i];
             for (;;) {
                 attempts++;
@@ -123,9 +123,9 @@ auto FibersDemo::create(GpuDevice& device, const Baked& baked) -> void {
                 light.position.z = 0.0f;
 
                 float min_distance = FLT_MAX;
-                for (uint32_t j = 0; j < i; j++) {
+                for (uint j = 0; j < i; j++) {
                     const auto& other = lights[j];
-                    const auto distance = Float3::Distance(light.position, other.position);
+                    const auto distance = float3::Distance(light.position, other.position);
                     min_distance = std::min(min_distance, distance);
                 }
                 if (min_distance > 0.4f) {
@@ -136,7 +136,7 @@ auto FibersDemo::create(GpuDevice& device, const Baked& baked) -> void {
             const auto h = (float)i / (float)LIGHT_COUNT * 360.0f;
             const auto s = 0.75f;
             const auto v = 1.0f;
-            light.color = rgb_from_hsv(Float3(h, s, v));
+            light.color = rgb_from_hsv(float3(h, s, v));
 
             light.speed_variation = 1.0f + 0.25f * rand.random_float();
         }
@@ -220,18 +220,18 @@ auto FibersDemo::update(const UpdateDesc& desc) -> void {
     const auto& p = _parameters;
 
     // Update transforms.
-    Float4x4 clip_from_world;
-    Float4x4 view_from_clip;
-    Float4x4 view_from_world;
+    float4x4 clip_from_world;
+    float4x4 view_from_clip;
+    float4x4 view_from_world;
     {
-        auto projection = Float4x4::CreatePerspectiveFieldOfView(
+        auto projection = float4x4::CreatePerspectiveFieldOfView(
             p.camera_fov,
             desc.aspect_ratio,
             p.camera_clip_planes.x,
             p.camera_clip_planes.y
         );
         auto eye = p.camera_distance * dir_from_lonlat(p.camera_longitude, p.camera_latitude);
-        auto view = Float4x4::CreateLookAt(eye, Float3::Zero, Float3::Up);
+        auto view = float4x4::CreateLookAt(eye, float3::Zero, float3::Up);
         clip_from_world = view * projection;
         view_from_clip = projection.Invert();
         view_from_world = view;
@@ -248,7 +248,7 @@ auto FibersDemo::update(const UpdateDesc& desc) -> void {
         .clip_from_world = clip_from_world,
         .view_from_clip = view_from_clip,
         .view_from_world = view_from_world,
-        .window_size = Float2((float)desc.window_size.x, (float)desc.window_size.y),
+        .window_size = float2((float)desc.window_size.x, (float)desc.window_size.y),
         .delta_time = desc.delta_time,
         .light_speed = p.light_speed,
         .light_range = p.light_range,

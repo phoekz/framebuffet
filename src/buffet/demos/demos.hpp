@@ -19,15 +19,15 @@ struct Baked {
 };
 
 struct UpdateDesc {
-    Uint2 window_size;
+    uint2 window_size;
     float aspect_ratio;
     float delta_time;
     float elapsed_time;
-    uint32_t frame_index;
+    uint frame_index;
 };
 
 struct GuiDesc {
-    Uint2 window_size;
+    uint2 window_size;
 };
 
 } // namespace fb::demos

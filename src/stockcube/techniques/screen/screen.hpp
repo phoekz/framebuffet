@@ -16,7 +16,7 @@ struct CreateDesc {
     GpuDescriptor lut_texture;
     GpuDescriptor irr_texture;
     GpuDescriptor rad_texture;
-    uint32_t rad_texture_mip_count;
+    uint rad_texture_mip_count;
 };
 
 struct GpuCommandsDesc {
@@ -27,7 +27,7 @@ struct Technique {
     GpuPipeline pipeline;
     GpuBufferHostCbv<Constants> constants;
     GpuBufferHostSrv<Vertex> vertices;
-    GpuBufferHostIndex<uint32_t> indices;
+    GpuBufferHostIndex<uint> indices;
     GpuBufferHostSrv<Instance> instances;
 };
 

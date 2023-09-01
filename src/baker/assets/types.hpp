@@ -17,22 +17,22 @@ struct AssetCopy {
 };
 
 struct AssetVertex {
-    Float3 position;
-    Float3 normal;
-    Float2 texcoord;
-    Float4 tangent;
+    float3 position;
+    float3 normal;
+    float2 texcoord;
+    float4 tangent;
 };
 
 struct AssetSkinningVertex {
-    Float3 position;
-    Float3 normal;
-    Float2 texcoord;
-    Float4 tangent;
-    Uint4 joint;
-    Float4 weight;
+    float3 position;
+    float3 normal;
+    float2 texcoord;
+    float4 tangent;
+    uint4 joint;
+    float4 weight;
 };
 
-using AssetIndex = uint32_t;
+using AssetIndex = uint;
 
 struct AssetMesh {
     std::string name;
@@ -42,20 +42,20 @@ struct AssetMesh {
 };
 
 struct AssetTextureData {
-    uint32_t row_pitch;
-    uint32_t slice_pitch;
+    uint row_pitch;
+    uint slice_pitch;
     AssetSpan data;
 };
 
-inline constexpr uint32_t MAX_MIP_COUNT = 12;
+inline constexpr uint MAX_MIP_COUNT = 12;
 
 struct AssetTexture {
     std::string name;
 
     DXGI_FORMAT format;
-    uint32_t width;
-    uint32_t height;
-    uint32_t mip_count;
+    uint width;
+    uint height;
+    uint mip_count;
     std::array<AssetTextureData, MAX_MIP_COUNT> datas;
 };
 
@@ -63,17 +63,17 @@ struct AssetCubeTexture {
     std::string name;
 
     DXGI_FORMAT format;
-    uint32_t width;
-    uint32_t height;
-    uint32_t mip_count;
+    uint width;
+    uint height;
+    uint mip_count;
     std::array<std::array<AssetTextureData, MAX_MIP_COUNT>, 6> datas;
 };
 
 struct AssetAnimationMesh {
     std::string name;
 
-    uint32_t node_count;
-    uint32_t joint_count;
+    uint node_count;
+    uint joint_count;
     float duration;
 
     AssetSpan skinning_vertices;

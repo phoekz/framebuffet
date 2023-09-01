@@ -158,7 +158,7 @@ auto GpuDevice::create(const Window& window) -> void {
     }
 
     // Command allocators.
-    for (uint32_t i = 0; i < FRAME_COUNT; i++) {
+    for (uint i = 0; i < FRAME_COUNT; i++) {
         FB_ASSERT_HR(_device->CreateCommandAllocator(
             D3D12_COMMAND_LIST_TYPE_DIRECT,
             IID_PPV_ARGS(&_command_allocators[i])
@@ -422,7 +422,7 @@ auto GpuDevice::create_constant_buffer_view(
     _device->CreateConstantBufferView(&desc, descriptor);
 }
 
-auto GpuDevice::descriptor_size(D3D12_DESCRIPTOR_HEAP_TYPE heap_type) const -> uint32_t {
+auto GpuDevice::descriptor_size(D3D12_DESCRIPTOR_HEAP_TYPE heap_type) const -> uint {
     return _device->GetDescriptorHandleIncrementSize(heap_type);
 }
 

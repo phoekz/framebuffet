@@ -6,11 +6,11 @@
 
 namespace fb::demos::cards {
 
-inline constexpr uint32_t CARD_COUNT = 6;
-inline constexpr uint32_t CARD_GRID_COLUMNS = 3;
+inline constexpr uint CARD_COUNT = 6;
+inline constexpr uint CARD_GRID_COLUMNS = 3;
 
 struct Parameters {
-    std::array<uint32_t, CARD_COUNT> card_indirect_indices;
+    std::array<uint, CARD_COUNT> card_indirect_indices;
 };
 
 struct CardsDesc {
@@ -19,9 +19,9 @@ struct CardsDesc {
 };
 
 struct CardDescriptors {
-    uint32_t src;
-    uint32_t mid;
-    uint32_t dst_begin;
+    uint src;
+    uint mid;
+    uint dst_begin;
 };
 
 class Cards {
@@ -54,7 +54,7 @@ private:
     GpuBufferHostCbv<spd::Constants> _spd_constants;
     GpuBufferDeviceUav<spd::Atomics> _spd_atomics;
     GpuPipeline _spd_pipeline;
-    Uint3 _spd_dispatch;
+    uint3 _spd_dispatch;
 };
 
 } // namespace fb::demos::cards

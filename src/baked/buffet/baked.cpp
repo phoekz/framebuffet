@@ -1081,13 +1081,13 @@ auto Assets::raccoon_animation_mesh() const -> AnimationMesh {
         // hash: fd12995a38e89146d53c7edd4f6cd3d0
         .indices = transmuted_span<Index>(35334628, 3102),
         // hash: d730e286c5631c1fdfa6f0f7191ddd3b
-        .joint_nodes = transmuted_span<uint32_t>(35347036, 63),
+        .joint_nodes = transmuted_span<uint>(35347036, 63),
         // hash: ee0ff01354a210fae3930c7992929c24
-        .joint_inverse_binds = transmuted_span<Float4x4>(35347288, 63),
+        .joint_inverse_binds = transmuted_span<float4x4>(35347288, 63),
         // hash: e95d90faa9a34f6172c2c7b88a91046c
-        .node_parents = transmuted_span<uint32_t>(35351320, 72),
+        .node_parents = transmuted_span<uint>(35351320, 72),
         // hash: a3ce072a99fe8139419ff55378991f51
-        .node_transforms = transmuted_span<Float4x4>(35351608, 72),
+        .node_transforms = transmuted_span<float4x4>(35351608, 72),
         // hash: 2ba2f2a43abbd5968d77adad334f5682
         .node_channels = transmuted_span<AnimationChannel>(35356216, 72),
         // hash: 3b153cfb6ae1bff95aa6dce90c05c435
@@ -1097,11 +1097,11 @@ auto Assets::raccoon_animation_mesh() const -> AnimationMesh {
         // hash: 4d32d6eb8afd6df010a01af960891484
         .node_channels_times_s = transmuted_span<float>(35377792, 369),
         // hash: 1defd6ee1077f6a108951a438abf4c61
-        .node_channels_values_t = transmuted_span<Float3>(35379268, 2256),
+        .node_channels_values_t = transmuted_span<float3>(35379268, 2256),
         // hash: f00545a5efeaef5e3e8a97a62d2ae87a
         .node_channels_values_r = transmuted_span<Quaternion>(35406340, 2274),
         // hash: f56ee25392a3504e5a600f0f847638e4
-        .node_channels_values_s = transmuted_span<Float3>(35442724, 369),
+        .node_channels_values_s = transmuted_span<float3>(35442724, 369),
     };
 }
 

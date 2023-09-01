@@ -2,7 +2,7 @@
 
 namespace fb::graphics::render_targets {
 
-static auto make_color_clear_value(DXGI_FORMAT format, Float4 color) -> D3D12_CLEAR_VALUE {
+static auto make_color_clear_value(DXGI_FORMAT format, float4 color) -> D3D12_CLEAR_VALUE {
     return D3D12_CLEAR_VALUE {.Format = format, .Color = {color.x, color.y, color.z, color.w}};
 }
 
