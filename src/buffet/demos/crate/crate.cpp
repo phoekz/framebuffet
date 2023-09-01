@@ -80,6 +80,34 @@ auto CrateDemo::create(GpuDevice& device, const Baked& baked) -> void {
             );
         }
     }
+
+    // Pbr.
+    {
+        const auto lut = assets.shanghai_bund_lut();
+        const auto irr = assets.shanghai_bund_irr();
+        const auto rad = assets.shanghai_bund_rad();
+        _pbr_lut.create_and_transfer_baked(
+            device,
+            lut,
+            D3D12_RESOURCE_STATE_COMMON,
+            D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
+            debug.with_name("LUT")
+        );
+        _pbr_irr.create_and_transfer_baked(
+            device,
+            irr,
+            D3D12_RESOURCE_STATE_COMMON,
+            D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
+            debug.with_name("Irradiance")
+        );
+        _pbr_rad.create_and_transfer_baked(
+            device,
+            rad,
+            D3D12_RESOURCE_STATE_COMMON,
+            D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
+            debug.with_name("Radiance")
+        );
+    }
 }
 
 auto CrateDemo::gui(const GuiDesc&) -> void {
@@ -88,9 +116,15 @@ auto CrateDemo::gui(const GuiDesc&) -> void {
         "Output Mode",
         (int*)&p.output_mode,
         "Shaded\0"
-        "ShadingNormal\0"
-        "Lighting\0"
+        "EnvDiffuse\0"
+        "EnvSpecular\0"
+        "EnvLut\0"
+        "EnvIrradiance\0"
+        "EnvRadiance\0"
+        "DirectLighting\0"
+        "DirectBrdf\0"
         "VertexLighting\0"
+        "ShadingNormal\0"
         "BaseColorTexture\0"
         "NormalTexture\0"
         "Metallic\0"
@@ -161,6 +195,7 @@ auto CrateDemo::update(const UpdateDesc& desc) -> void {
         .light_intensity = p.light_intensity,
         .camera_position = eye,
         .output_mode = p.output_mode,
+        .rad_texture_mip_count = _pbr_rad.mip_count(),
     };
 }
 
@@ -181,6 +216,9 @@ auto CrateDemo::render(GpuDevice& device, GpuCommandList& cmd) -> void {
             .normal_texture = model.normal.srv_descriptor().index(),
             .metallic_roughness_texture = model.metallic_roughness.srv_descriptor().index(),
             .sampler = (uint)sampler,
+            .lut_texture = _pbr_lut.srv_descriptor().index(),
+            .irr_texture = _pbr_irr.srv_descriptor().index(),
+            .rad_texture = _pbr_rad.srv_descriptor().index(),
         });
         cmd.set_index_buffer(model.indices.index_buffer_view());
         cmd.draw_indexed_instanced(model.indices.element_count(), 1, 0, 0, 0);

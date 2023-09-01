@@ -38,53 +38,100 @@ float compute_lighting(Constants constants, float ndotl) {
 }
 
 FbPixelOutput<1> draw_ps(VertexOutput input) {
+    // Global resources.
     ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
     Texture2D<float4> base_color_texture = ResourceDescriptorHeap[g_bindings.base_color_texture];
     Texture2D<float4> normal_texture = ResourceDescriptorHeap[g_bindings.normal_texture];
     Texture2D<float4> metallic_roughness_texture =
         ResourceDescriptorHeap[g_bindings.metallic_roughness_texture];
     SamplerState sampler = SamplerDescriptorHeap[g_bindings.sampler];
+    Texture2D<float2> lut_texture = ResourceDescriptorHeap[g_bindings.lut_texture];
+    TextureCube<float3> irr_texture = ResourceDescriptorHeap[g_bindings.irr_texture];
+    TextureCube<float3> rad_texture = ResourceDescriptorHeap[g_bindings.rad_texture];
 
-    const float3 direction_to_viewer = normalize(constants.camera_position - input.world_position);
-    const float3 direction_to_light = constants.light_direction;
-
+    // Materials.
     const float3 base_color = base_color_texture.Sample(sampler, input.texcoord).rgb;
     const float3 normal_sample =
         normalize(normal_texture.Sample(sampler, input.texcoord).rgb * 2.0f - 1.0f);
     const float metallic = metallic_roughness_texture.Sample(sampler, input.texcoord).b;
     const float roughness = metallic_roughness_texture.Sample(sampler, input.texcoord).g;
+    const float3 specular_f0 = lerp(0.04f.xxx, base_color, metallic);
 
+    // Normal mapping.
     const float3x3 tbn_basis = float3x3(input.tangent.xyz, input.bitangent, input.normal);
     const float3 shading_normal = mul(normal_sample, tbn_basis);
 
+    // Directions.
+    const float3 direction_to_viewer = normalize(constants.camera_position - input.world_position);
+    const float3 direction_to_light = constants.light_direction;
+
+    // Evaluate BRDF.
     MaterialProperties material;
     material.base_color = base_color;
     material.metalness = metallic;
     material.roughness = roughness;
-    float3 brdf =
+    const float3 brdf =
         evaluate_combined_brdf(shading_normal, direction_to_light, direction_to_viewer, material);
 
+    // Static lighting.
+    const float3 reflection = reflect(-direction_to_viewer, shading_normal);
+    const float ndotv = saturate(dot(shading_normal, reflection));
+    const uint mip_count = constants.rad_texture_mip_count;
+    const float radiance_lod = roughness * float(mip_count - 1);
+    const float2 f0_scale_bias = lut_texture.Sample(sampler, float2(ndotv, roughness));
+    const float f0_scale = f0_scale_bias.x;
+    const float f0_bias = f0_scale_bias.y;
+    const float3 irradiance = irr_texture.SampleLevel(sampler, shading_normal, 0);
+    const float3 radiance = rad_texture.SampleLevel(sampler, reflection, radiance_lod);
+    const float3 diffuse = irradiance * base_color;
+    const float3 specular = radiance * (specular_f0 * f0_scale + f0_bias);
+
+    // Dynamic lighting.
     const float ndotl = saturate(dot(shading_normal, direction_to_light));
     const float lighting = compute_lighting(constants, ndotl);
 
     float3 final_color;
     switch (constants.output_mode) {
         case OutputMode::Shaded: {
+            final_color = diffuse + specular;
+            break;
+        }
+        case OutputMode::EnvDiffuse: {
+            final_color = diffuse;
+            break;
+        }
+        case OutputMode::EnvSpecular: {
+            final_color = specular;
+            break;
+        }
+        case OutputMode::EnvLut: {
+            final_color = float3(f0_scale_bias, 0.0f);
+            break;
+        }
+        case OutputMode::EnvIrradiance: {
+            final_color = irradiance;
+            break;
+        }
+        case OutputMode::EnvRadiance: {
+            final_color = radiance;
+            break;
+        }
+        case OutputMode::DirectLighting: {
             final_color = brdf * lighting;
             break;
         }
-        case OutputMode::ShadingNormal: {
-            final_color = 0.5f * (shading_normal + 1.0f);
-            break;
-        }
-        case OutputMode::Lighting: {
-            final_color = lighting.xxx;
+        case OutputMode::DirectBrdf: {
+            final_color = brdf;
             break;
         }
         case OutputMode::VertexLighting: {
             const float vertex_ndotl = saturate(dot(input.normal, direction_to_light));
             const float vertex_lighting = compute_lighting(constants, vertex_ndotl);
             final_color = vertex_lighting.xxx;
+            break;
+        }
+        case OutputMode::ShadingNormal: {
+            final_color = 0.5f * (shading_normal + 1.0f);
             break;
         }
         case OutputMode::BaseColorTexture: {

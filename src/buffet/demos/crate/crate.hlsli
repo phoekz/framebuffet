@@ -11,13 +11,22 @@ struct Bindings {
     uint normal_texture;
     uint metallic_roughness_texture;
     uint sampler;
+    uint lut_texture;
+    uint irr_texture;
+    uint rad_texture;
 };
 
 enum class OutputMode : uint {
     Shaded = 0,
-    ShadingNormal,
-    Lighting,
+    EnvDiffuse,
+    EnvSpecular,
+    EnvLut,
+    EnvIrradiance,
+    EnvRadiance,
+    DirectLighting,
+    DirectBrdf,
     VertexLighting,
+    ShadingNormal,
     BaseColorTexture,
     NormalTexture,
     Metallic,
@@ -38,7 +47,8 @@ struct Constants {
     float light_intensity;
     float3 camera_position;
     OutputMode output_mode;
-    float pad[39];
+    uint rad_texture_mip_count;
+    float pad[38];
 };
 
 FB_NAMESPACE_END(fb::demos::crate)

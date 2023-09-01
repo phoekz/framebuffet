@@ -55,6 +55,9 @@ private:
     GpuBufferHostCbv<Constants> _constants;
     Model _sci_fi_crate;
     Model _metal_plane;
+    GpuTextureSrv _pbr_lut;
+    GpuTextureSrvCube _pbr_irr;
+    GpuTextureSrvCube _pbr_rad;
 };
 
 } // namespace fb::demos::crate
