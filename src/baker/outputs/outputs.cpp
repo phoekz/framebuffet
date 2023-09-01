@@ -315,7 +315,7 @@ auto bake_app_datas(
     // clang-format on
 
     // Write source files.
-    std::filesystem::create_directories(baked_app_dir);
+    create_directories(baked_app_dir);
     write_whole_file(baked_types_hpp_path, std::as_bytes(std::span(baked_types_hpp)));
     write_whole_file(baked_hpp_path, std::as_bytes(std::span(baked_hpp)));
     write_whole_file(baked_cpp_path, std::as_bytes(std::span(baked_cpp)));
@@ -336,8 +336,8 @@ auto bake_app_datas(
         const auto shaders_dir = std::format("{}/shaders", output_dir);
         const auto shaders_bin_file = std::format("{}/fb_{}_shaders.bin", output_dir, app_name);
 
-        std::filesystem::create_directories(output_dir);
-        std::filesystem::create_directory(shaders_dir);
+        create_directories(output_dir);
+        create_directory(shaders_dir);
 
         write_whole_file(assets_bin_file, assets_bin);
         write_whole_file(shaders_bin_file, shaders_bin);

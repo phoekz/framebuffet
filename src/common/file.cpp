@@ -1,6 +1,8 @@
 #include "file.hpp"
 #include "error.hpp"
 
+#include <filesystem>
+
 namespace fb {
 
 auto read_whole_file(std::string_view path) -> std::vector<std::byte> {
@@ -54,6 +56,14 @@ auto write_whole_file(std::string_view path, std::span<const std::byte> data) ->
 
 auto file_exists(std::string_view path) -> bool {
     return std::filesystem::exists(path);
+}
+
+auto create_directory(std::string_view path) -> void {
+    std::filesystem::create_directory(path);
+}
+
+auto create_directories(std::string_view path) -> void {
+    std::filesystem::create_directories(path);
 }
 
 } // namespace fb

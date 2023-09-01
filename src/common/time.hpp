@@ -4,9 +4,6 @@
 
 namespace fb {
 
-using Clock = std::chrono::high_resolution_clock;
-using TimePoint = Clock::time_point;
-
 class Instant {
 public:
     Instant();
@@ -14,7 +11,10 @@ public:
     auto elapsed_time() const -> double;
 
 private:
-    TimePoint _time_point;
+    uint64_t _prev;
 };
+
+auto win32_get_frequency() -> uint64_t;
+auto win32_get_performance_counter() -> uint64_t;
 
 } // namespace fb

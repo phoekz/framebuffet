@@ -87,7 +87,18 @@ public:
         // Resource desc.
         _element_count = element_count;
         _byte_count = _element_byte_count * element_count;
-        _resource_desc = CD3DX12_RESOURCE_DESC::Buffer(_byte_count, resource_flags);
+        _resource_desc = D3D12_RESOURCE_DESC {
+            .Dimension = D3D12_RESOURCE_DIMENSION_BUFFER,
+            .Alignment = 0,
+            .Width = _byte_count,
+            .Height = 1,
+            .DepthOrArraySize = 1,
+            .MipLevels = 1,
+            .Format = DXGI_FORMAT_UNKNOWN,
+            .SampleDesc = {1, 0},
+            .Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR,
+            .Flags = resource_flags,
+        };
 
         // Heap type.
         D3D12_HEAP_TYPE heap_type = D3D12_HEAP_TYPE_DEFAULT;
@@ -118,7 +129,7 @@ public:
         // Prepare host visible pointer.
         if constexpr (ACCESS_MODE == Host) {
             // Map pointer.
-            CD3DX12_RANGE read_range(0, 0);
+            D3D12_RANGE read_range {.Begin = 0, .End = 0};
             FB_ASSERT_HR(_resource->Map(0, &read_range, &_raw));
 
             // Clear memory.
@@ -256,7 +267,7 @@ private:
     uint32_t _byte_count = 0;
     DXGI_FORMAT _format = DXGI_FORMAT_UNKNOWN;
     ComPtr<ID3D12Resource> _resource;
-    CD3DX12_RESOURCE_DESC _resource_desc;
+    D3D12_RESOURCE_DESC _resource_desc;
     D3D12_RESOURCE_STATES _resource_state = D3D12_RESOURCE_STATE_COMMON;
     void* _raw = nullptr;
     D3D12_GPU_VIRTUAL_ADDRESS _gpu_address = 0;

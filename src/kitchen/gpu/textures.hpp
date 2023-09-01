@@ -2,6 +2,7 @@
 
 #include "../pch.hpp"
 #include "device.hpp"
+#include "formats.hpp"
 #include <baked/baked_types.hpp>
 
 namespace fb {
@@ -332,8 +333,7 @@ public:
         if constexpr (gpu_texture_flags_contains(FLAGS, Rtv)) {
             _rtv_descriptor = device.descriptors().rtv().alloc();
             auto maybe_desc = std::optional<D3D12_RENDER_TARGET_VIEW_DESC>(std::nullopt);
-            if (D3D12_PROPERTY_LAYOUT_FORMAT_TABLE::GetTypeLevel(desc.format)
-                == D3DFTL_PARTIAL_TYPE) {
+            if (dxgi_format_type_level(desc.format) == D3DFTL_PARTIAL_TYPE) {
                 maybe_desc = D3D12_RENDER_TARGET_VIEW_DESC {
                     .Format = _rtv_format,
                     .ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D,
@@ -345,8 +345,7 @@ public:
         if constexpr (gpu_texture_flags_contains(FLAGS, Dsv)) {
             _dsv_descriptor = device.descriptors().dsv().alloc();
             auto maybe_desc = std::optional<D3D12_DEPTH_STENCIL_VIEW_DESC>(std::nullopt);
-            if (D3D12_PROPERTY_LAYOUT_FORMAT_TABLE::GetTypeLevel(desc.format)
-                == D3DFTL_PARTIAL_TYPE) {
+            if (dxgi_format_type_level(desc.format) == D3DFTL_PARTIAL_TYPE) {
                 maybe_desc = D3D12_DEPTH_STENCIL_VIEW_DESC {
                     .Format = _dsv_format,
                     .ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D,
@@ -364,9 +363,7 @@ public:
                 for (uint32_t slice = 0; slice < desc.depth; slice++) {
                     const auto mip_width = std::max(1u, desc.width >> mip);
                     const auto mip_height = std::max(1u, desc.height >> mip);
-                    const auto unit_bits =
-                        D3D12_PROPERTY_LAYOUT_FORMAT_TABLE::GetBitsPerUnit(desc.format);
-                    const auto unit_bytes = unit_bits / 8;
+                    const auto unit_bytes = dxgi_format_unit_byte_count(desc.format);
                     byte_count_64 += mip_width * mip_height * unit_bytes;
                 }
             }
@@ -491,10 +488,7 @@ public:
     auto size() const -> Uint2 { return Uint2 {_desc.width, _desc.height}; }
     auto format() const -> DXGI_FORMAT { return _desc.format; }
     auto mip_count() const -> uint32_t { return _desc.mip_count; }
-    auto unit_bit_count() const -> uint32_t {
-        return D3D12_PROPERTY_LAYOUT_FORMAT_TABLE::GetBitsPerUnit(_desc.format);
-    }
-    auto unit_byte_count() const -> uint32_t { return unit_bit_count() / 8; }
+    auto unit_byte_count() const -> uint32_t { return dxgi_format_unit_byte_count(_desc.format); }
     auto resource() const -> const ComPtr<ID3D12Resource>& { return _resource; }
     auto row_pitch() const -> uint32_t { return unit_byte_count() * _desc.width; }
     auto slice_pitch() const -> uint32_t { return row_pitch() * _desc.height; }

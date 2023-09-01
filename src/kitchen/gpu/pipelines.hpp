@@ -88,6 +88,8 @@ class GpuPipelineBuilder {
     FB_NO_COPY_MOVE(GpuPipelineBuilder);
 
 public:
+    static constexpr size_t BUFFER_SIZE = 1024;
+
     GpuPipelineBuilder() = default;
 
     // clang-format off
@@ -105,8 +107,6 @@ public:
     // clang-format on
 
 private:
-    static constexpr size_t BUFFER_SIZE = 1024;
-    static_assert(BUFFER_SIZE >= sizeof(CD3DX12_PIPELINE_STATE_STREAM5));
     static_assert(8 * sizeof(uint32_t) >= D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_MAX_VALID);
 
     std::string_view _name;

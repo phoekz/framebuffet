@@ -3,6 +3,8 @@
 #include "commands.hpp"
 #include "samplers.hpp"
 
+#include <d3dx12/d3dx12_root_signature.h>
+
 // Setup DirectX Agility SDK.
 extern "C" {
     __declspec(dllexport) extern const UINT D3D12SDKVersion = 610;
@@ -326,9 +328,15 @@ auto GpuDevice::create_committed_resource(
     if (clear_value) {
         clear_value_ptr = &clear_value.value();
     }
-    CD3DX12_HEAP_PROPERTIES heap_props(heap_type);
+    D3D12_HEAP_PROPERTIES heap_properties = {
+        .Type = heap_type,
+        .CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN,
+        .MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN,
+        .CreationNodeMask = 1,
+        .VisibleNodeMask = 1,
+    };
     FB_ASSERT_HR(_device->CreateCommittedResource(
-        &heap_props,
+        &heap_properties,
         D3D12_HEAP_FLAG_NONE,
         &desc,
         init_state,

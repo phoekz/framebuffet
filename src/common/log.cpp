@@ -1,5 +1,7 @@
 #include "log.hpp"
 
+#include <chrono>
+
 namespace fb {
 
 auto attach_console() -> void {
@@ -24,6 +26,11 @@ auto output_console_string(std::string_view str) -> void {
             NULL
         );
     }
+}
+
+auto timestamp_string() -> std::string {
+    const auto now = std::chrono::system_clock::now();
+    return std::format("{}", now);
 }
 
 } // namespace fb

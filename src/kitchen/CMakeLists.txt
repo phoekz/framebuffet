@@ -11,6 +11,8 @@ set(SOURCES
     gpu/descriptors.hpp
     gpu/device.cpp
     gpu/device.hpp
+    gpu/formats.cpp
+    gpu/formats.hpp
     gpu/gpu.hpp
     gpu/hlsl_cpp.hlsli
     gpu/pipelines.cpp

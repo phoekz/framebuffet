@@ -1,7 +1,11 @@
 #include "pipelines.hpp"
 #include "device.hpp"
 
+#include <d3dx12/d3dx12_pipeline_state_stream.h>
+
 namespace fb {
+
+static_assert(GpuPipelineBuilder::BUFFER_SIZE >= sizeof(CD3DX12_PIPELINE_STATE_STREAM5));
 
 auto GpuPipelineBuilder::primitive_topology(D3D12_PRIMITIVE_TOPOLOGY_TYPE topology)
     -> GpuPipelineBuilder& {

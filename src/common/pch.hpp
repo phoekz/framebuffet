@@ -13,14 +13,14 @@
 #include <directxtk12/SimpleMath.h>
 
 // Standard library.
+#include <algorithm>
 #include <array>
-#include <chrono>
-#include <cmath>
-#include <cstdint>
-#include <filesystem>
+#include <format>
+#include <optional>
 #include <source_location>
 #include <span>
 #include <string_view>
+#include <vector>
 
 // Literals.
 using namespace std::literals;

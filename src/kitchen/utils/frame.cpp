@@ -2,18 +2,6 @@
 
 namespace fb {
 
-static auto win32_get_frequency() -> uint64_t {
-    LARGE_INTEGER frequency;
-    QueryPerformanceFrequency(&frequency);
-    return frequency.QuadPart;
-}
-
-static auto win32_get_performance_counter() -> uint64_t {
-    LARGE_INTEGER counter;
-    QueryPerformanceCounter(&counter);
-    return counter.QuadPart;
-}
-
 auto Frame::create() -> void {
     _frequency = win32_get_frequency();
     _curr_time = win32_get_performance_counter();

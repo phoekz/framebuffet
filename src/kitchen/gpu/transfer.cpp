@@ -1,13 +1,29 @@
 #include "transfer.hpp"
 
+#include <directxtk12/ResourceUploadBatch.h>
+
 namespace fb {
 
+class GpuTransferImpl {
+public:
+    GpuTransferImpl(const ComPtr<ID3D12Device>& device)
+        : batch(device.get()) {}
+    DirectX::ResourceUploadBatch batch;
+};
+
+GpuTransfer::~GpuTransfer() {
+    if (_impl) {
+        delete _impl;
+        _impl = nullptr;
+    }
+}
+
 auto GpuTransfer::create(const ComPtr<ID3D12Device>& device) -> void {
-    _batch = std::make_unique<DirectX::ResourceUploadBatch>(device.get());
+    _impl = new GpuTransferImpl(device.get());
 }
 
 auto GpuTransfer::begin() -> void {
-    _batch->Begin(D3D12_COMMAND_LIST_TYPE_DIRECT);
+    _impl->batch.Begin(D3D12_COMMAND_LIST_TYPE_DIRECT);
 }
 
 auto GpuTransfer::resource(
@@ -25,9 +41,9 @@ auto GpuTransfer::resource(
     D3D12_RESOURCE_STATES before_state,
     D3D12_RESOURCE_STATES after_state
 ) -> void {
-    _batch->Transition(resource.get(), before_state, D3D12_RESOURCE_STATE_COPY_DEST);
-    _batch->Upload(resource.get(), 0, datas.data(), (uint32_t)datas.size());
-    _batch->Transition(resource.get(), D3D12_RESOURCE_STATE_COPY_DEST, after_state);
+    _impl->batch.Transition(resource.get(), before_state, D3D12_RESOURCE_STATE_COPY_DEST);
+    _impl->batch.Upload(resource.get(), 0, datas.data(), (uint32_t)datas.size());
+    _impl->batch.Transition(resource.get(), D3D12_RESOURCE_STATE_COPY_DEST, after_state);
     _stats.transfers += datas.size();
     for (const auto& data : datas) {
         _stats.bytes += data.SlicePitch;
@@ -35,7 +51,7 @@ auto GpuTransfer::resource(
 }
 
 auto GpuTransfer::end(const ComPtr<ID3D12CommandQueue>& command_queue) -> void {
-    _batch->End(command_queue.get()).wait();
+    _impl->batch.End(command_queue.get()).wait();
     FB_LOG_INFO(
         "Transfered resources: {} ({:.3f} MBytes)",
         _stats.transfers,

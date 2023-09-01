@@ -1,5 +1,7 @@
 #include "debug.hpp"
 
+#include <sstream>
+
 namespace fb {
 
 LeakTracker::~LeakTracker() {

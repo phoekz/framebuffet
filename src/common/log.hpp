@@ -7,6 +7,7 @@ namespace fb {
 auto attach_console() -> void;
 auto output_debug_string(std::string_view str) -> void;
 auto output_console_string(std::string_view str) -> void;
+auto timestamp_string() -> std::string;
 
 #ifdef FB_LOG_TRACE_ENABLED
     #define FB_LOG_TRACE(...) fb::log_detail::log_trace(__VA_ARGS__);
@@ -39,10 +40,9 @@ namespace log_detail {
 
     template<typename... Args>
     inline auto log(LogLevel level, std::string_view fmt, Args&&... args) -> void {
-        const auto now = std::chrono::system_clock::now();
         const auto level_str = log_level_name(level);
         const auto str = std::vformat(fmt, std::make_format_args(args...));
-        const auto output = std::format("[{}] [{}] - {}\n", now, level_str, str);
+        const auto output = std::format("[{}] [{}] - {}\n", timestamp_string(), level_str, str);
         output_console_string(output);
         output_debug_string(output);
     }

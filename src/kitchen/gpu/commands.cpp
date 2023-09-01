@@ -1,5 +1,6 @@
 #include "commands.hpp"
 #include "pipelines.hpp"
+#include "formats.hpp"
 
 namespace fb {
 
@@ -142,9 +143,7 @@ auto GpuCommandList::copy_texture_to_buffer(
     uint32_t src_texture_width,
     uint32_t src_texture_height
 ) const -> void {
-    const auto unit_bit_count =
-        D3D12_PROPERTY_LAYOUT_FORMAT_TABLE::GetBitsPerUnit(src_texture_format);
-    const auto unit_byte_count = unit_bit_count / 8;
+    const auto unit_byte_count = dxgi_format_unit_byte_count(src_texture_format);
     D3D12_PLACED_SUBRESOURCE_FOOTPRINT dst_footprint = {
         .Offset = dst_buffer_offset,
         .Footprint =
@@ -183,14 +182,29 @@ auto GpuCommandList::transition_barrier(
     D3D12_RESOURCE_STATES after
 ) -> void {
     FB_ASSERT(_pending_barrier_count < MAX_PENDING_BARRIERS);
-    auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(resource.get(), before, after);
-    _pending_barriers[_pending_barrier_count++] = barrier;
+    _pending_barriers[_pending_barrier_count++] = D3D12_RESOURCE_BARRIER {
+        .Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION,
+        .Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE,
+        .Transition =
+            D3D12_RESOURCE_TRANSITION_BARRIER {
+                .pResource = resource.get(),
+                .Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES,
+                .StateBefore = before,
+                .StateAfter = after,
+            },
+    };
 }
 
 auto GpuCommandList::uav_barrier(const ComPtr<ID3D12Resource>& resource) -> void {
     FB_ASSERT(_pending_barrier_count < MAX_PENDING_BARRIERS);
-    auto barrier = CD3DX12_RESOURCE_BARRIER::UAV(resource.get());
-    _pending_barriers[_pending_barrier_count++] = barrier;
+    _pending_barriers[_pending_barrier_count++] = D3D12_RESOURCE_BARRIER {
+        .Type = D3D12_RESOURCE_BARRIER_TYPE_UAV,
+        .Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE,
+        .UAV =
+            D3D12_RESOURCE_UAV_BARRIER {
+                .pResource = resource.get(),
+            },
+    };
 }
 
 auto GpuCommandList::flush_barriers() -> void {
