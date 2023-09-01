@@ -116,6 +116,7 @@ private:
     GpuRasterizerDesc _rasterizer_desc = {};
     GpuDepthStencilDesc _depth_stencil_desc = {};
     GpuBlendDesc _blend_desc = {};
+    uint32_t _samples_count = 1;
 };
 
 } // namespace fb

@@ -29,8 +29,8 @@ VertexOutput draw_vs(FbVertexInput input) {
     return output;
 }
 
-FbPixelOutput1 draw_ps(VertexOutput input) {
-    FbPixelOutput1 output;
+FbPixelOutput<1> draw_ps(VertexOutput input) {
+    FbPixelOutput<1> output;
     output.color = input.color;
     return output;
 }

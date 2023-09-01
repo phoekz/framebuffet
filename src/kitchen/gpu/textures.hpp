@@ -17,6 +17,7 @@ enum class GpuTextureFlags : uint32_t {
     SrvRtv = Srv | Rtv,
     SrvDsv = Srv | Dsv,
     SrvCube = Srv | Cube,
+    UavCube = Uav | Cube,
     SrvUavCube = Srv | Uav | Cube,
     SrvUavRtv = Srv | Uav | Rtv,
 };
@@ -78,7 +79,7 @@ public:
         _dsv_format = desc.dsv_format.value_or(desc.format);
 
         // Heap properties.
-        const auto heap_props = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
+        const auto heap_type = D3D12_HEAP_TYPE_DEFAULT;
 
         // Texture flags.
         auto resource_flags = D3D12_RESOURCE_FLAG_NONE;
@@ -122,13 +123,9 @@ public:
         }
 
         // Resource.
-        _resource = device.create_committed_resource(
-            heap_props,
-            resource_desc,
-            init_state,
-            clear_value,
-            name
-        );
+        _resource =
+            device
+                .create_committed_resource(heap_type, resource_desc, init_state, clear_value, name);
         _resource_state = init_state;
 
         // Views.
@@ -360,6 +357,23 @@ public:
             device.create_depth_stencil_view(_resource, maybe_desc, _dsv_descriptor.cpu());
         }
 
+        // Compute tightly packed byte size.
+        {
+            uint64_t byte_size_64 = 0;
+            for (uint32_t mip = 0; mip < desc.mip_count; mip++) {
+                for (uint32_t slice = 0; slice < desc.depth; slice++) {
+                    const auto mip_width = std::max(1u, desc.width >> mip);
+                    const auto mip_height = std::max(1u, desc.height >> mip);
+                    const auto unit_bits =
+                        D3D12_PROPERTY_LAYOUT_FORMAT_TABLE::GetBitsPerUnit(desc.format);
+                    const auto unit_bytes = unit_bits / 8;
+                    byte_size_64 += mip_width * mip_height * unit_bytes;
+                }
+            }
+            FB_ASSERT(byte_size_64 <= UINT32_MAX);
+            _byte_size = (uint32_t)byte_size_64;
+        }
+
         // Copy desc.
         _desc = desc;
     }
@@ -415,11 +429,11 @@ public:
         };
 
         std::array<GpuTextureTransferDesc, baked::MAX_MIP_COUNT> transfer_descs = {};
-        for (uint32_t i = 0; i < baked.mip_count; i++) {
-            transfer_descs[i] = GpuTextureTransferDesc {
-                .row_pitch = baked.datas[i].row_pitch,
-                .slice_pitch = baked.datas[i].slice_pitch,
-                .data = baked.datas[i].data.data(),
+        for (uint32_t mip = 0; mip < baked.mip_count; mip++) {
+            transfer_descs[mip] = GpuTextureTransferDesc {
+                .row_pitch = baked.datas[mip].row_pitch,
+                .slice_pitch = baked.datas[mip].slice_pitch,
+                .data = baked.datas[mip].data.data(),
             };
         }
 
@@ -432,18 +446,59 @@ public:
             name
         );
     }
+    auto create_and_transfer_baked(
+        GpuDevice& device,
+        const baked::CubeTexture& baked,
+        D3D12_RESOURCE_STATES before_state,
+        D3D12_RESOURCE_STATES after_state,
+        std::string_view name
+    ) {
+        GpuTextureDesc desc = {
+            .format = baked.format,
+            .width = baked.width,
+            .height = baked.height,
+            .depth = 6,
+            .mip_count = baked.mip_count,
+            .sample_count = 1,
+        };
+
+        std::array<GpuTextureTransferDesc, 6 * baked::MAX_MIP_COUNT> transfer_descs = {};
+        uint32_t desc_count = 0;
+        for (uint32_t slice = 0; slice < 6; slice++) {
+            for (uint32_t mip = 0; mip < baked.mip_count; mip++) {
+                transfer_descs[desc_count] = GpuTextureTransferDesc {
+                    .row_pitch = baked.datas[slice][mip].row_pitch,
+                    .slice_pitch = baked.datas[slice][mip].slice_pitch,
+                    .data = baked.datas[slice][mip].data.data(),
+                };
+                desc_count++;
+            }
+        }
+
+        create_and_transfer(
+            device,
+            desc,
+            std::span(transfer_descs.data(), desc_count),
+            before_state,
+            after_state,
+            name
+        );
+    }
 
     auto width() const -> uint32_t { return _desc.width; }
     auto height() const -> uint32_t { return _desc.height; }
+    auto depth() const -> uint32_t { return _desc.depth; }
+    auto size() const -> Uint2 { return Uint2 {_desc.width, _desc.height}; }
     auto format() const -> DXGI_FORMAT { return _desc.format; }
     auto mip_count() const -> uint32_t { return _desc.mip_count; }
-    auto bits_per_unit() const -> uint32_t {
+    auto unit_bit_count() const -> uint32_t {
         return D3D12_PROPERTY_LAYOUT_FORMAT_TABLE::GetBitsPerUnit(_desc.format);
     }
-    auto bytes_per_unit() const -> uint32_t { return bits_per_unit() / 8; }
+    auto unit_byte_count() const -> uint32_t { return unit_bit_count() / 8; }
     auto resource() const -> const ComPtr<ID3D12Resource>& { return _resource; }
-    auto row_pitch() const -> uint32_t { return bytes_per_unit() * _desc.width; }
+    auto row_pitch() const -> uint32_t { return unit_byte_count() * _desc.width; }
     auto slice_pitch() const -> uint32_t { return row_pitch() * _desc.height; }
+    auto byte_size() const -> uint32_t { return _byte_size; }
     auto srv_descriptor() const -> GpuDescriptor {
         static_assert(gpu_texture_flags_contains(FLAGS, Srv));
         return _srv_descriptor;
@@ -490,6 +545,7 @@ private:
     std::array<GpuDescriptor, MAX_MIP_COUNT> _uav_descriptors = {};
     GpuDescriptor _rtv_descriptor = {};
     GpuDescriptor _dsv_descriptor = {};
+    uint32_t _byte_size = 0;
 };
 
 using GpuTextureSrv = GpuTexture<GpuTextureFlags::Srv>;
@@ -501,6 +557,7 @@ using GpuTextureSrvUav = GpuTexture<GpuTextureFlags::SrvUav>;
 using GpuTextureSrvRtv = GpuTexture<GpuTextureFlags::SrvRtv>;
 using GpuTextureSrvDsv = GpuTexture<GpuTextureFlags::SrvDsv>;
 using GpuTextureSrvCube = GpuTexture<GpuTextureFlags::SrvCube>;
+using GpuTextureUavCube = GpuTexture<GpuTextureFlags::UavCube>;
 
 using GpuTextureSrvUavCube = GpuTexture<GpuTextureFlags::SrvUavCube>;
 using GpuTextureSrvUavRtv = GpuTexture<GpuTextureFlags::SrvUavRtv>;

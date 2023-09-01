@@ -17,6 +17,7 @@ enum class GpuBufferFlags : uint32_t {
     Uav = 0x4,
     SrvUav = Srv | Uav,
     Index = 0x8,
+    Readback = 0x10,
 };
 
 inline constexpr auto gpu_buffer_flags_contains(GpuBufferFlags flags, GpuBufferFlags flag) -> bool {
@@ -24,27 +25,37 @@ inline constexpr auto gpu_buffer_flags_contains(GpuBufferFlags flags, GpuBufferF
 }
 
 namespace detail {
-    template<typename T, GpuBufferFlags FLAGS>
+    template<typename T, GpuBufferAccessMode ACCESS_MODE, GpuBufferFlags FLAGS>
     inline constexpr auto buffer_type_is_valid() -> bool {
+        using enum GpuBufferAccessMode;
+        using enum GpuBufferFlags;
         static_assert(std::is_standard_layout_v<T>, "Buffer type must be standard layout");
         static_assert(std::is_trivially_copyable_v<T>, "Buffer type must be trivially copyable");
         static_assert(std::is_constructible_v<T>, "Buffer type must be constructible");
         static_assert(std::is_pointer_v<T> == false, "Buffer type cannot be a pointer");
-        if constexpr (gpu_buffer_flags_contains(FLAGS, GpuBufferFlags::Index)) {
+        if constexpr (gpu_buffer_flags_contains(FLAGS, Index)) {
             static_assert(
                 std::is_same_v<T, uint16_t> || std::is_same_v<T, uint32_t>,
                 "Index buffer only supports 16-bit and 32-bit unsigned formats"
             );
         }
-        if constexpr (gpu_buffer_flags_contains(FLAGS, GpuBufferFlags::Cbv)) {
-            static_assert(sizeof(T) % size_t(256) == 0, "Constants must be 256-byte aligned");
+        if constexpr (gpu_buffer_flags_contains(FLAGS, Cbv)) {
+            static_assert(
+                sizeof(T) % size_t(256) == 0,
+                "Constant buffers must be 256-byte aligned"
+            );
+        }
+        if constexpr (gpu_buffer_flags_contains(FLAGS, Readback)) {
+            static_assert(FLAGS == Readback, "A readback buffer cannot have any other flags.");
+            static_assert(ACCESS_MODE == Host, "A readback buffer must be host accessible.");
+            static_assert(std::is_same_v<T, std::byte>, "A readback buffer must be byte type.");
         }
         return true;
     }
 } // namespace detail
 
 template<typename T, GpuBufferAccessMode ACCESS_MODE, GpuBufferFlags FLAGS>
-    requires(detail::buffer_type_is_valid<T, FLAGS>())
+    requires(detail::buffer_type_is_valid<T, ACCESS_MODE, FLAGS>())
 class GpuBuffer {
     FB_NO_COPY_MOVE(GpuBuffer);
 
@@ -69,19 +80,35 @@ public:
         if constexpr (gpu_buffer_flags_contains(FLAGS, Uav)) {
             resource_flags |= D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
         }
+        if constexpr (FLAGS == Readback) {
+            resource_flags |= D3D12_RESOURCE_FLAG_DENY_SHADER_RESOURCE;
+        }
 
-        // Resource properties.
-        auto host_visible = ACCESS_MODE == Host;
-        auto heap_type = host_visible ? D3D12_HEAP_TYPE_UPLOAD : D3D12_HEAP_TYPE_DEFAULT;
+        // Resource desc.
         _element_size = element_size;
         _byte_size = _element_byte_size * element_size;
         _resource_desc = CD3DX12_RESOURCE_DESC::Buffer(_byte_size, resource_flags);
-        _resource_state =
-            host_visible ? D3D12_RESOURCE_STATE_GENERIC_READ : D3D12_RESOURCE_STATE_COMMON;
+
+        // Heap type.
+        D3D12_HEAP_TYPE heap_type = D3D12_HEAP_TYPE_DEFAULT;
+        if constexpr (FLAGS == Readback) {
+            heap_type = D3D12_HEAP_TYPE_READBACK;
+        } else if constexpr (ACCESS_MODE == Host) {
+            heap_type = D3D12_HEAP_TYPE_UPLOAD;
+        }
+
+        // Resource state.
+        if constexpr (FLAGS == Readback) {
+            _resource_state = D3D12_RESOURCE_STATE_COPY_DEST;
+        } else if constexpr (ACCESS_MODE == Host) {
+            _resource_state = D3D12_RESOURCE_STATE_GENERIC_READ;
+        } else {
+            _resource_state = D3D12_RESOURCE_STATE_COMMON;
+        }
 
         // Create.
         _resource = device.create_committed_resource(
-            CD3DX12_HEAP_PROPERTIES {heap_type},
+            heap_type,
             _resource_desc,
             _resource_state,
             std::nullopt,
@@ -89,7 +116,7 @@ public:
         );
 
         // Prepare host visible pointer.
-        if (host_visible) {
+        if constexpr (ACCESS_MODE == Host) {
             // Map pointer.
             CD3DX12_RANGE read_range(0, 0);
             FB_ASSERT_HR(_resource->Map(0, &read_range, &_raw));
@@ -246,6 +273,8 @@ template<typename T>
 using GpuBufferHostUav = GpuBuffer<T, GpuBufferAccessMode::Host, GpuBufferFlags::Uav>;
 template<typename T>
 using GpuBufferHostIndex = GpuBuffer<T, GpuBufferAccessMode::Host, GpuBufferFlags::Index>;
+template<typename T>
+using GpuBufferHostReadback = GpuBuffer<T, GpuBufferAccessMode::Host, GpuBufferFlags::Readback>;
 
 template<typename T>
 using GpuBufferDeviceSrv = GpuBuffer<T, GpuBufferAccessMode::Device, GpuBufferFlags::Srv>;

@@ -94,12 +94,10 @@ auto GpuCommandList::set_pipeline(const GpuPipeline& pipeline) const -> void {
 }
 
 auto GpuCommandList::clear_rtv(const GpuDescriptor& rtv, Float4 color) const -> void {
-    FB_ASSERT(_engine == GpuCommandEngine::Graphics);
     _cmd->ClearRenderTargetView(rtv.cpu(), (const float*)&color, 0, nullptr);
 }
 
 auto GpuCommandList::clear_dsv(const GpuDescriptor& dsv, float depth) const -> void {
-    FB_ASSERT(_engine == GpuCommandEngine::Graphics);
     _cmd->ClearDepthStencilView(dsv.cpu(), D3D12_CLEAR_FLAG_DEPTH, depth, 0, 0, nullptr);
 }
 
@@ -133,6 +131,42 @@ auto GpuCommandList::draw_indexed_instanced(
 auto GpuCommandList::dispatch(uint32_t x, uint32_t y, uint32_t z) const -> void {
     FB_ASSERT(_engine == GpuCommandEngine::Compute);
     _cmd->Dispatch(x, y, z);
+}
+
+auto GpuCommandList::copy_texture_to_buffer(
+    const ComPtr<ID3D12Resource>& dst_buffer,
+    uint64_t dst_buffer_offset,
+    const ComPtr<ID3D12Resource>& src_texture,
+    uint32_t src_texture_subresource_index,
+    DXGI_FORMAT src_texture_format,
+    uint32_t src_texture_width,
+    uint32_t src_texture_height
+) const -> void {
+    const auto unit_bit_count =
+        D3D12_PROPERTY_LAYOUT_FORMAT_TABLE::GetBitsPerUnit(src_texture_format);
+    const auto unit_byte_count = unit_bit_count / 8;
+    D3D12_PLACED_SUBRESOURCE_FOOTPRINT dst_footprint = {
+        .Offset = dst_buffer_offset,
+        .Footprint =
+            D3D12_SUBRESOURCE_FOOTPRINT {
+                .Format = src_texture_format,
+                .Width = src_texture_width,
+                .Height = src_texture_height,
+                .Depth = 1,
+                .RowPitch = src_texture_width * unit_byte_count,
+            },
+    };
+    D3D12_TEXTURE_COPY_LOCATION dst_location = {
+        .pResource = dst_buffer.get(),
+        .Type = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT,
+        .PlacedFootprint = dst_footprint,
+    };
+    D3D12_TEXTURE_COPY_LOCATION src_location = {
+        .pResource = src_texture.get(),
+        .Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX,
+        .SubresourceIndex = src_texture_subresource_index,
+    };
+    _cmd->CopyTextureRegion(&dst_location, 0, 0, 0, &src_location, nullptr);
 }
 
 auto GpuCommandList::resolve_resource(

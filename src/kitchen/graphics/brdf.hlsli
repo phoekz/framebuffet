@@ -8,7 +8,7 @@
 
 #include <kitchen/graphics/core.hlsli>
 
-#define MIN_DIELECTRICS_F0 0.04f
+static const float MIN_DIELECTRICS_F0 = 0.04f;
 
 struct MaterialProperties {
     float3 base_color;
@@ -158,7 +158,7 @@ float3 sample_hemisphere(float2 u) {
 float3 sample_ggx_vndf(float3 wi, float2 alpha_2d, float2 u) {
     float3 wi_std = normalize(float3(wi.xy * alpha_2d, wi.z));
     float phi = FB_TWO_PI * u.x;
-    float z = ((1.0f - u.y) * (1.0f + wi.z)) - wi.z;
+    float z = mad(1.0f - u.y, 1.0f + wi.z, -wi.z);
     float sin_theta = sqrt(clamp(1.0f - z * z, 0.0f, 1.0f));
     float x = sin_theta * cos(phi);
     float y = sin_theta * sin(phi);

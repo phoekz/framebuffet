@@ -4,6 +4,13 @@
 
 namespace fb {
 
+struct Inputs {
+    bool mouse_left = false;
+    int32_t mouse_x = 0;
+    int32_t mouse_y = 0;
+    float mouse_wheel_y = 0.0f;
+};
+
 class Window final {
     FB_NO_COPY_MOVE(Window);
 
@@ -17,10 +24,14 @@ public:
     Window() = default;
 
     auto create(const Desc& desc) -> void;
+    auto update() -> void;
+
     auto hwnd() const -> HWND;
+    auto inputs() const -> const Inputs& { return _inputs; }
 
 private:
     wil::unique_hwnd _handle;
+    Inputs _inputs;
 };
 
 } // namespace fb

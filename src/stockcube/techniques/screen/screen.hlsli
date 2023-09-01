@@ -2,7 +2,7 @@
 
 #include <kitchen/gpu/hlsl_cpp.hlsli>
 
-FB_NAMESPACE_BEGIN(fb::screen)
+FB_NAMESPACE_BEGIN(fb::techniques::screen)
 
 struct Bindings {
     uint constants;
@@ -24,6 +24,9 @@ struct Instance {
     float2 offset;
     float2 scale;
     uint texture;
+    uint texture_face_id;
+    uint texture_mip_id;
+    uint sampler;
 };
 
-FB_NAMESPACE_END(fb::screen)
+FB_NAMESPACE_END(fb::techniques::screen)

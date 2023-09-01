@@ -28,11 +28,6 @@ struct AssetTaskHdrTexture {
     std::string_view path;
 };
 
-struct AssetTaskCubeTexture {
-    std::string_view name;
-    std::array<std::string_view, 6> paths;
-};
-
 struct AssetTaskGltf {
     std::string_view name;
     std::string_view path;
@@ -51,24 +46,30 @@ struct AssetTaskProceduralSphere {
     bool inverted;
 };
 
+struct AssetTaskStockcubeOutput {
+    std::string_view name;
+    std::string_view bin_path;
+    std::string_view json_path;
+};
+
 using AssetTask = std::variant<
     AssetTaskCopy,
     AssetTaskTexture,
     AssetTaskHdrTexture,
-    AssetTaskCubeTexture,
     AssetTaskGltf,
     AssetTaskProceduralCube,
-    AssetTaskProceduralSphere>;
+    AssetTaskProceduralSphere,
+    AssetTaskStockcubeOutput>;
 
 inline constexpr auto asset_task_name(size_t variant) -> std::string_view {
     switch (variant) {
         case 0: return "AssetTaskCopy";
         case 1: return "AssetTaskTexture";
         case 2: return "AssetTaskHdrTexture";
-        case 3: return "AssetTaskCubeTexture";
-        case 4: return "AssetTaskGltf";
-        case 5: return "AssetTaskProceduralCube";
-        case 6: return "AssetTaskProceduralSphere";
+        case 3: return "AssetTaskGltf";
+        case 4: return "AssetTaskProceduralCube";
+        case 5: return "AssetTaskProceduralSphere";
+        case 6: return "AssetTaskStockcubeOutput";
         default: FB_FATAL();
     }
 }

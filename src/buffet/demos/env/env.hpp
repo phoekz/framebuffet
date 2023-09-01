@@ -44,6 +44,12 @@ private:
     graphics::debug_draw::DebugDraw _debug_draw;
 
     struct {
+        GpuTextureSrv lut;
+        GpuTextureSrvCube irr;
+        GpuTextureSrvCube rad;
+    } _pbr;
+
+    struct {
         GpuPipeline pipeline;
         GpuBufferHostCbv<BackgroundConstants> constants;
         GpuBufferHostSrv<baked::Vertex> vertices;
@@ -57,67 +63,6 @@ private:
         GpuBufferHostSrv<baked::Vertex> vertices;
         GpuBufferHostIndex<baked::Index> indices;
     } _model;
-
-    struct {
-        GpuBufferHostCbv<ComputeConstants> constants;
-
-        Uint2 rect_texture_size;
-        GpuTextureSrv rect_texture;
-
-        Uint2 cube_texture_size;
-        GpuTextureSrvUavCube cube_texture;
-
-        Uint2 lut_texture_size;
-        GpuTextureSrvUav lut_texture;
-        uint32_t lut_sample_count;
-
-        Uint2 irr_texture_size;
-        GpuTextureSrvUavCube irr_texture;
-        uint32_t irr_sample_count;
-        uint32_t irr_dispatch_sample_count;
-
-        Uint2 rad_texture_size;
-        uint32_t rad_texture_mip_count;
-        GpuTextureSrvUavCube rad_texture;
-        uint32_t rad_sample_count;
-        uint32_t rad_dispatch_sample_count;
-
-        GpuPipeline cfr_pipeline;
-        GpuPipeline lut_pipeline;
-        GpuPipeline irr_pipeline;
-        GpuPipeline rad_pipeline;
-
-        bool cfr_completed = false;
-        bool lut_completed = false;
-        bool irr_completed = false;
-        bool rad_completed = false;
-        uint32_t irr_dispatch_index = 0;
-        uint32_t rad_dispatch_index = 0;
-        bool irr_started = true;
-        bool rad_started = true;
-    } _compute;
-
-    struct {
-        Float2 rect_offset;
-        Float2 rect_scale;
-
-        std::array<Float2, 6> cube_offsets;
-        Float2 cube_scale;
-
-        Float2 lut_offset;
-        Float2 lut_scale;
-
-        std::array<Float2, 6> irr_offsets;
-        Float2 irr_scale;
-
-        std::array<Float2, 6 * 11> rad_offsets;
-        Float2 rad_scale;
-
-        GpuBufferHostCbv<ScreenConstants> constants;
-        GpuBufferHostSrv<ScreenVertex> vertices;
-        GpuBufferHostIndex<baked::Index> indices;
-        GpuPipeline pipeline;
-    } _screen;
 };
 
 } // namespace fb::demos::env

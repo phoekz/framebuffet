@@ -28,7 +28,7 @@ private:
     std::vector<std::byte>& _data;
 };
 
-auto mipmapped_asset(
+auto mipmapped_texture_asset(
     AssetsWriter& assets_writer,
     const std::string& texture_name,
     const LdrImage& texture,
@@ -114,7 +114,6 @@ auto mipmapped_asset(
         .format = texture_format,
         .width = texture.width(),
         .height = texture.height(),
-        .channel_count = texture.channel_count(),
         .mip_count = mip_count,
         .datas = texture_datas,
     };
@@ -154,9 +153,13 @@ auto bake_assets(std::string_view assets_dir, std::span<const AssetTask> asset_t
                     const auto path = std::format("{}/{}", assets_dir, task.path);
                     const auto file = read_whole_file(path);
                     const auto image = LdrImage::load(file);
-                    assets.push_back(
-                        mipmapped_asset(assets_writer, name, image, task.format, task.color_space)
-                    );
+                    assets.push_back(mipmapped_texture_asset(
+                        assets_writer,
+                        name,
+                        image,
+                        task.format,
+                        task.color_space
+                    ));
                 },
                 [&](const AssetTaskHdrTexture& task) {
                     const auto name = names.unique(std::format("{}_hdr_texture", task.name));
@@ -167,64 +170,12 @@ auto bake_assets(std::string_view assets_dir, std::span<const AssetTask> asset_t
                         .format = image.format(),
                         .width = image.width(),
                         .height = image.height(),
-                        .channel_count = image.channel_count(),
                         .mip_count = 1,
                         .datas = {AssetTextureData {
                             .row_pitch = image.row_pitch(),
                             .slice_pitch = image.slice_pitch(),
                             .data = assets_writer.write("std::byte", image.data()),
                         }},
-                    });
-                },
-                [&](const AssetTaskCubeTexture& task) {
-                    // Name.
-                    const auto name = names.unique(std::format("{}_cube_texture", task.name));
-
-                    // Read face files.
-                    const auto cube_face_datas = std::to_array({
-                        read_whole_file(std::format("{}/{}", assets_dir, task.paths[0])),
-                        read_whole_file(std::format("{}/{}", assets_dir, task.paths[1])),
-                        read_whole_file(std::format("{}/{}", assets_dir, task.paths[2])),
-                        read_whole_file(std::format("{}/{}", assets_dir, task.paths[3])),
-                        read_whole_file(std::format("{}/{}", assets_dir, task.paths[4])),
-                        read_whole_file(std::format("{}/{}", assets_dir, task.paths[5])),
-                    });
-
-                    // Load faces.
-                    auto cube_faces = std::to_array({
-                        HdrImage::load(cube_face_datas[0]), // PosX
-                        HdrImage::load(cube_face_datas[1]), // NegX
-                        HdrImage::load(cube_face_datas[2]), // PosY
-                        HdrImage::load(cube_face_datas[3]), // NegY
-                        HdrImage::load(cube_face_datas[4]), // PosZ
-                        HdrImage::load(cube_face_datas[5]), // NegZ
-                    });
-
-                    // Swap Z faces to match DirectX convention.
-                    std::swap(cube_faces[4], cube_faces[5]);
-
-                    // Validate.
-                    auto cube_face_size = cube_faces[0].size();
-                    auto cube_format = cube_faces[0].format();
-                    FB_ASSERT(std::ranges::all_of(cube_faces, [&](const auto& face) {
-                        return face.width() == cube_face_size.x && face.height() == cube_face_size.y
-                            && face.format() == cube_format;
-                    }));
-
-                    // Write.
-                    std::array<AssetSpan, 6> datas;
-                    for (auto i = 0; i < 6; ++i) {
-                        datas[i] = assets_writer.write("std::byte", cube_faces[i].data());
-                    }
-                    assets.push_back(AssetCubeTexture {
-                        .name = name,
-                        .format = cube_format,
-                        .width = cube_face_size.x,
-                        .height = cube_face_size.y,
-                        .channel_count = cube_faces[0].channel_count(),
-                        .row_pitch = cube_faces[0].row_pitch(),
-                        .slice_pitch = cube_faces[0].slice_pitch(),
-                        .datas = datas,
                     });
                 },
                 [&](const AssetTaskGltf& task) {
@@ -320,7 +271,7 @@ auto bake_assets(std::string_view assets_dir, std::span<const AssetTask> asset_t
                         const auto texture = model.base_color_texture();
                         const auto texture_name =
                             names.unique(std::format("{}_base_color_texture", task.name));
-                        assets.push_back(mipmapped_asset(
+                        assets.push_back(mipmapped_texture_asset(
                             assets_writer,
                             texture_name,
                             texture,
@@ -332,7 +283,7 @@ auto bake_assets(std::string_view assets_dir, std::span<const AssetTask> asset_t
                         const auto texture = model.normal_texture().value().get();
                         const auto texture_name =
                             names.unique(std::format("{}_normal_texture", task.name));
-                        assets.push_back(mipmapped_asset(
+                        assets.push_back(mipmapped_texture_asset(
                             assets_writer,
                             texture_name,
                             texture,
@@ -344,7 +295,7 @@ auto bake_assets(std::string_view assets_dir, std::span<const AssetTask> asset_t
                         const auto texture = model.metallic_roughness_texture().value().get();
                         const auto texture_name =
                             names.unique(std::format("{}_metallic_roughness_texture", task.name));
-                        assets.push_back(mipmapped_asset(
+                        assets.push_back(mipmapped_texture_asset(
                             assets_writer,
                             texture_name,
                             texture,
@@ -477,6 +428,70 @@ auto bake_assets(std::string_view assets_dir, std::span<const AssetTask> asset_t
                         .indices =
                             assets_writer.write("Index", std::span<const AssetIndex>(indices)),
                     });
+                },
+                [&](const AssetTaskStockcubeOutput& task) {
+                    const auto bin_path = std::format("{}/{}", assets_dir, task.bin_path);
+                    const auto bin_bytes = read_whole_file(bin_path);
+                    const auto bin_span = std::span<const std::byte>(bin_bytes);
+
+                    const auto json_path = std::format("{}/{}", assets_dir, task.json_path);
+                    const auto json_bytes = read_whole_file(json_path);
+                    const auto json = json::parse(json_bytes);
+                    const auto format = (DXGI_FORMAT)json["format"].template get<uint32_t>();
+                    const auto unit_byte_count = json["unit_byte_count"].template get<uint32_t>();
+                    const auto width = json["width"].template get<uint32_t>();
+                    const auto height = json["height"].template get<uint32_t>();
+                    const auto depth = json["depth"].template get<uint32_t>();
+                    const auto mip_count = json["mip_count"].template get<uint32_t>();
+                    FB_ASSERT(mip_count <= MAX_MIP_COUNT);
+
+                    if (depth == 6) {
+                        std::array<std::array<AssetTextureData, MAX_MIP_COUNT>, 6> texture_datas =
+                            {};
+                        uint64_t offset = 0;
+                        for (uint32_t slice = 0; slice < depth; slice++) {
+                            auto& slice_datas = texture_datas[slice];
+                            for (uint32_t mip = 0; mip < mip_count; mip++) {
+                                const auto mip_width = std::max(1u, width >> mip);
+                                const auto mip_height = std::max(1u, height >> mip);
+                                const auto row_pitch = mip_width * unit_byte_count;
+                                const auto slice_pitch = row_pitch * mip_height;
+                                slice_datas[mip] = AssetTextureData {
+                                    .row_pitch = row_pitch,
+                                    .slice_pitch = slice_pitch,
+                                    .data = assets_writer.write(
+                                        "std::byte",
+                                        bin_span.subspan(offset, slice_pitch)
+                                    ),
+                                };
+                                offset += slice_pitch;
+                            }
+                        }
+
+                        assets.push_back(AssetCubeTexture {
+                            .name = std::string(task.name),
+                            .format = format,
+                            .width = width,
+                            .height = height,
+                            .mip_count = mip_count,
+                            .datas = texture_datas,
+                        });
+                    } else {
+                        const auto row_pitch = width * unit_byte_count;
+                        const auto slice_pitch = row_pitch * height;
+                        assets.push_back(AssetTexture {
+                            .name = std::string(task.name),
+                            .format = format,
+                            .width = width,
+                            .height = height,
+                            .mip_count = mip_count,
+                            .datas = {AssetTextureData {
+                                .row_pitch = row_pitch,
+                                .slice_pitch = slice_pitch,
+                                .data = assets_writer.write("std::byte", bin_span),
+                            }},
+                        });
+                    }
                 }},
             asset_task
         );

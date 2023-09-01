@@ -32,6 +32,7 @@ public:
     auto present() -> void;
 
     auto size() const -> Uint2 { return _swapchain_size; }
+    auto aspect_ratio() const -> float { return (float)_swapchain_size.x / _swapchain_size.y; }
     auto format() const -> DXGI_FORMAT { return _swapchain_format; }
     auto backbuffer_index() const -> uint32_t { return _swapchain->GetCurrentBackBufferIndex(); }
 

@@ -41,6 +41,7 @@ target_include_directories(
 target_link_libraries(
     ${NAME} PRIVATE
     ${TINYEXR_LIBRARY}
+    ${NLOHMANN_JSON_LIBRARY}
     ${DXCOMPILER_LINK_DIR}/dxcompiler.lib
     d3d12.lib
     ${DIRECTXTK12_LIBRARY}

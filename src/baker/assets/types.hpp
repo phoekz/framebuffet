@@ -55,7 +55,6 @@ struct AssetTexture {
     DXGI_FORMAT format;
     uint32_t width;
     uint32_t height;
-    uint32_t channel_count;
     uint32_t mip_count;
     std::array<AssetTextureData, MAX_MIP_COUNT> datas;
 };
@@ -66,10 +65,8 @@ struct AssetCubeTexture {
     DXGI_FORMAT format;
     uint32_t width;
     uint32_t height;
-    uint32_t channel_count;
-    uint32_t row_pitch;
-    uint32_t slice_pitch;
-    std::array<AssetSpan, 6> datas;
+    uint32_t mip_count;
+    std::array<std::array<AssetTextureData, MAX_MIP_COUNT>, 6> datas;
 };
 
 struct AssetAnimationMesh {

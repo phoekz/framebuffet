@@ -37,19 +37,18 @@ static auto BUFFET_ASSET_TASKS = std::to_array<AssetTask>({
     AssetTaskGltf {"raccoon", "models/low-poly_racoon_run_animation.glb"},
     AssetTaskProceduralCube {"light_bounds", 2.0f, false},
     AssetTaskProceduralCube {"skybox", 2.0f, true},
-    AssetTaskCubeTexture {
-        "winter_evening",
-        {
-            "envmaps/winter_evening_1k_+X.exr",
-            "envmaps/winter_evening_1k_-X.exr",
-            "envmaps/winter_evening_1k_+Y.exr",
-            "envmaps/winter_evening_1k_-Y.exr",
-            "envmaps/winter_evening_1k_+Z.exr",
-            "envmaps/winter_evening_1k_-Z.exr",
-        },
-    },
-    AssetTaskHdrTexture {"farm_field", "envmaps/farm_field_2k.exr"},
-    AssetTaskHdrTexture {"winter_evening", "envmaps/winter_evening_2k.exr"},
+    AssetTaskStockcubeOutput {
+        "winter_evening_lut",
+        "intermediate/stockcube/winter_evening_lut.bin",
+        "intermediate/stockcube/winter_evening_lut.json"},
+    AssetTaskStockcubeOutput {
+        "winter_evening_irr",
+        "intermediate/stockcube/winter_evening_irr.bin",
+        "intermediate/stockcube/winter_evening_irr.json"},
+    AssetTaskStockcubeOutput {
+        "winter_evening_rad",
+        "intermediate/stockcube/winter_evening_rad.bin",
+        "intermediate/stockcube/winter_evening_rad.json"},
     AssetTaskProceduralSphere {"sphere", 1.0f, 32, false},
 });
 
@@ -78,16 +77,10 @@ static auto BUFFET_SHADER_TASKS = std::to_array<ShaderTask>({
         "buffet/demos/env/env.hlsl",
         "env",
         {
-            "cfr_cs",
-            "lut_cs",
-            "irr_cs",
-            "rad_cs",
             "background_vs",
             "background_ps",
             "model_vs",
             "model_ps",
-            "screen_vs",
-            "screen_ps",
         },
     },
 });
@@ -95,12 +88,19 @@ static auto BUFFET_SHADER_TASKS = std::to_array<ShaderTask>({
 static auto STOCKCUBE_ASSET_TASKS = std::to_array<AssetTask>({
     AssetTaskHdrTexture {"farm_field", "envmaps/farm_field_2k.exr"},
     AssetTaskHdrTexture {"winter_evening", "envmaps/winter_evening_2k.exr"},
+    AssetTaskProceduralCube {"skybox", 2.0f, true},
     AssetTaskProceduralSphere {"sphere", 1.0f, 32, false},
 });
 
 static auto STOCKCUBE_SHADER_TASKS = std::to_array<ShaderTask>({
-    {"stockcube/screen.hlsl", "screen", {"draw_vs", "draw_ps"}},
-    {"stockcube/blit.hlsl", "blit", {"draw_vs", "draw_ps"}},
+    {"stockcube/techniques/cfr/cfr.hlsl", "cfr", {"cs"}},
+    {"stockcube/techniques/lut/lut.hlsl", "lut", {"cs"}},
+    {"stockcube/techniques/irr/irr.hlsl", "irr", {"acc_cs", "div_cs"}},
+    {"stockcube/techniques/rad/rad.hlsl", "rad", {"acc_cs", "div_cs"}},
+    {"stockcube/techniques/bg/bg.hlsl", "bg", {"vs", "ps"}},
+    {"stockcube/techniques/model/model.hlsl", "model", {"vs", "ps"}},
+    {"stockcube/techniques/screen/screen.hlsl", "screen", {"vs", "ps"}},
+    {"stockcube/techniques/blit/blit.hlsl", "blit", {"vs", "ps"}},
 });
 
 } // namespace fb

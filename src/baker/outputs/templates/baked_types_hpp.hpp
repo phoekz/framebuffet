@@ -61,10 +61,8 @@ inline constexpr std::string_view BAKED_TYPES_HPP = R"(#pragma once
         DXGI_FORMAT format;
         uint32_t width;
         uint32_t height;
-        uint32_t channel_count;
-        uint32_t row_pitch;
-        uint32_t slice_pitch;
-        std::array<std::span<const std::byte>, 6> datas;
+        uint32_t mip_count;
+        std::array<std::array<TextureData, MAX_MIP_COUNT>, 6> datas;
     };
 
     struct AnimationChannel {

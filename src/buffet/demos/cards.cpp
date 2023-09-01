@@ -195,6 +195,7 @@ void Cards::update(const GpuDevice& device) {
 }
 
 void Cards::render(GpuDevice& device, GpuCommandList& cmd) {
+    cmd.begin_pix(NAME.data());
     cmd.begin_pix("Spd");
     cmd.set_compute();
     cmd.set_pipeline(_spd_pipeline);
@@ -234,6 +235,7 @@ void Cards::render(GpuDevice& device, GpuCommandList& cmd) {
         });
         cmd.draw_indexed_instanced(_indices.element_size(), 1, 0, 0, 0);
     }
+    cmd.end_pix();
     cmd.end_pix();
 }
 

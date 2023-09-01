@@ -95,11 +95,17 @@ inline auto rgb_from_hsv(Float3 hsv) -> Float3 {
     }
 }
 
-inline auto mip_count_from_size(uint32_t width, uint32_t height) -> uint32_t {
-    return 1 + (uint32_t)std::floor(std::log2(float(std::max(width, height))));
+inline constexpr auto mip_count_from_size(uint32_t width, uint32_t height) -> uint32_t {
+    uint32_t mip_count = 1;
+    while (width > 1 || height > 1) {
+        width = std::max(1u, width / 2);
+        height = std::max(1u, height / 2);
+        mip_count++;
+    }
+    return mip_count;
 }
 
-inline auto mip_count_from_size(Uint2 size) -> uint32_t {
+inline constexpr auto mip_count_from_size(Uint2 size) -> uint32_t {
     return mip_count_from_size(size.x, size.y);
 }
 

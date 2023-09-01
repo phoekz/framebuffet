@@ -1,6 +1,6 @@
 #include <kitchen/gpu/samplers.hlsli>
 #include <kitchen/graphics/core.hlsli>
-#include <buffet/demos/brdf.hlsli>
+#include <kitchen/graphics/brdf.hlsli>
 #include <buffet/demos/crate/crate.hlsli>
 
 struct VertexOutput {
@@ -37,7 +37,7 @@ float compute_lighting(Constants constants, float ndotl) {
     return lighting;
 }
 
-FbPixelOutput1 draw_ps(VertexOutput input) {
+FbPixelOutput<1> draw_ps(VertexOutput input) {
     ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
     Texture2D<float4> base_color_texture = ResourceDescriptorHeap[g_bindings.base_color_texture];
     Texture2D<float4> normal_texture = ResourceDescriptorHeap[g_bindings.normal_texture];
@@ -135,7 +135,7 @@ FbPixelOutput1 draw_ps(VertexOutput input) {
         }
     }
 
-    FbPixelOutput1 output;
+    FbPixelOutput<1> output;
     output.color = float4(final_color, 1.0f);
     return output;
 }

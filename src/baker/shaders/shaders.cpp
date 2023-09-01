@@ -262,11 +262,11 @@ auto ShaderCompiler::compile(
 }
 
 static auto shader_type_from_entry_point(std::string_view entry_point) -> ShaderType {
-    if (entry_point.ends_with("_vs")) {
+    if (entry_point == "vs" || entry_point.ends_with("_vs")) {
         return ShaderType::Vertex;
-    } else if (entry_point.ends_with("_ps")) {
+    } else if (entry_point == "ps" || entry_point.ends_with("_ps")) {
         return ShaderType::Pixel;
-    } else if (entry_point.ends_with("_cs")) {
+    } else if (entry_point == "cs" || entry_point.ends_with("_cs")) {
         return ShaderType::Compute;
     } else {
         FB_FATAL();

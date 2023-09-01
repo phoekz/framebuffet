@@ -310,7 +310,7 @@ auto GpuDevice::create_pipeline_state(
 }
 
 auto GpuDevice::create_committed_resource(
-    const CD3DX12_HEAP_PROPERTIES& heap_props,
+    D3D12_HEAP_TYPE heap_type,
     const D3D12_RESOURCE_DESC& desc,
     D3D12_RESOURCE_STATES init_state,
     const std::optional<D3D12_CLEAR_VALUE>& clear_value,
@@ -321,6 +321,7 @@ auto GpuDevice::create_committed_resource(
     if (clear_value) {
         clear_value_ptr = &clear_value.value();
     }
+    CD3DX12_HEAP_PROPERTIES heap_props(heap_type);
     FB_ASSERT_HR(_device->CreateCommittedResource(
         &heap_props,
         D3D12_HEAP_FLAG_NONE,

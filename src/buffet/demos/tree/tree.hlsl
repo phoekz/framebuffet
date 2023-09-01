@@ -38,7 +38,7 @@ DrawVertexOutput draw_vs(FbVertexInput input) {
     return output;
 }
 
-FbPixelOutput1 draw_ps(DrawVertexOutput input) {
+FbPixelOutput<1> draw_ps(DrawVertexOutput input) {
     ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
     Texture2D texture = ResourceDescriptorHeap[g_bindings.texture];
     Texture2D shadow_texture = ResourceDescriptorHeap[g_bindings.shadow_texture];
@@ -57,7 +57,7 @@ FbPixelOutput1 draw_ps(DrawVertexOutput input) {
     float3 color = texture.Sample(samp, input.texcoord).rgb;
     float n_dot_l = shadow * saturate(dot(input.normal, constants.light_direction));
     float lighting = constants.ambient_light + (1.0 - constants.ambient_light) * n_dot_l;
-    FbPixelOutput1 output;
+    FbPixelOutput<1> output;
     output.color = float4(color * lighting, 1.0f);
     return output;
 }

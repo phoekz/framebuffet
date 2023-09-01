@@ -23,6 +23,7 @@ set(SOURCES
     gpu/textures.hpp
     gpu/transfer.cpp
     gpu/transfer.hpp
+    graphics/brdf.hlsli
     graphics/core.hlsli
     graphics/debug_draw.cpp
     graphics/debug_draw.hlsli
@@ -34,6 +35,8 @@ set(SOURCES
     graphics/render_targets.cpp
     graphics/render_targets.hpp
     graphics/spd.hlsli
+    utils/camera.cpp
+    utils/camera.hpp
     utils/frame.cpp
     utils/frame.hpp
     win32/window.cpp

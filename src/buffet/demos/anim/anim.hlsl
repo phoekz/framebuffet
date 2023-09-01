@@ -36,14 +36,14 @@ VertexOutput draw_vs(FbVertexInput input) {
     return output;
 }
 
-FbPixelOutput1 draw_ps(VertexOutput input) {
+FbPixelOutput<1> draw_ps(VertexOutput input) {
     Texture2D texture = ResourceDescriptorHeap[g_bindings.texture];
     SamplerState samp = SamplerDescriptorHeap[(uint)GpuSampler::LinearClamp];
 
     float3 color = texture.Sample(samp, input.texcoord).rgb;
     float3 light = normalize(float3(1.0f, 1.0f, 1.0f));
     float lighting = 0.25 + 0.75 * saturate(dot(input.normal, light));
-    FbPixelOutput1 output;
+    FbPixelOutput<1> output;
     output.color = float4(color * lighting, 1.0f);
     return output;
 }

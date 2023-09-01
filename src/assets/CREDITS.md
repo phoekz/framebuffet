@@ -1,16 +1,10 @@
-## `envmaps/winter_evening`
+## `envmaps/winter_evening_2k.exr`
 
 Source: https://polyhaven.com/a/winter_evening
 
 Author: Sergej Majboroda
 
-Notes: Converted from `4k_latlon` to `1k_cube` with `exrenvmap`.
-
-```
-./exrenvmap.exe -w 1024 winter_evening_4k.exr framebuffet/src/envmaps/winter_evening_1k_%.exr
-```
-
-## `envmaps/farm_field`
+## `envmaps/farm_field_2k.exr`
 
 Source: https://polyhaven.com/a/farm_field
 

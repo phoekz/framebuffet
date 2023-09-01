@@ -12,6 +12,10 @@ struct std::formatter<DXGI_FORMAT>: std::formatter<char> {
                 return std::format_to(fc.out(), "DXGI_FORMAT_R8G8B8A8_UNORM");
             case DXGI_FORMAT_R8G8B8A8_UNORM_SRGB:
                 return std::format_to(fc.out(), "DXGI_FORMAT_R8G8B8A8_UNORM_SRGB");
+            case DXGI_FORMAT_R16G16_FLOAT:
+                return std::format_to(fc.out(), "DXGI_FORMAT_R16G16_FLOAT");
+            case DXGI_FORMAT_R16G16B16A16_FLOAT:
+                return std::format_to(fc.out(), "DXGI_FORMAT_R16G16B16A16_FLOAT");
             case DXGI_FORMAT_R32G32B32A32_FLOAT:
                 return std::format_to(fc.out(), "DXGI_FORMAT_R32G32B32A32_FLOAT");
             default: FB_FATAL();
@@ -109,83 +113,96 @@ auto bake_app_datas(
                     assets_decls << std::format("auto {}() const -> Texture;", asset.name);
 
                     std::ostringstream texture_datas;
-                    uint32_t texture_width = asset.width;
-                    uint32_t texture_height = asset.height;
-                    for (uint32_t i = 0; i < asset.mip_count; ++i) {
+                    for (uint32_t mip = 0; mip < asset.mip_count; ++mip) {
+                        const auto mip_width = std::max(1u, asset.width >> mip);
+                        const auto mip_height = std::max(1u, asset.height >> mip);
                         texture_datas << std::format(
-                            R"(TextureData {{
+                            R"(datas[{}] = TextureData {{
                                 // mip_level: {}
                                 // width: {}
                                 // height: {}
                                 .row_pitch = {},
                                 .slice_pitch = {},
                                 {},
-                            }},)",
-                            i,
-                            texture_width,
-                            texture_height,
-                            asset.datas[i].row_pitch,
-                            asset.datas[i].slice_pitch,
-                            format_named_asset_span("data"sv, asset.datas[i].data)
+                            }};)",
+                            mip,
+                            mip,
+                            mip_width,
+                            mip_height,
+                            asset.datas[mip].row_pitch,
+                            asset.datas[mip].slice_pitch,
+                            format_named_asset_span("data"sv, asset.datas[mip].data)
                         );
-                        texture_width = std::max(1u, texture_width / 2);
-                        texture_height = std::max(1u, texture_height / 2);
                     }
 
                     assets_defns << std::format(
                         R"(auto Assets::{}() const -> Texture {{
+                            decltype(Texture::datas) datas = {{}};
+                            {}
                             return Texture {{
                                 .format = {},
                                 .width = {},
                                 .height = {},
-                                .channel_count = {},
                                 .mip_count = {},
-                                .datas = {{{}}},
+                                .datas = datas,
                             }};
                         }})",
                         asset.name,
+                        texture_datas.str(),
                         asset.format,
                         asset.width,
                         asset.height,
-                        asset.channel_count,
-                        asset.mip_count,
-                        texture_datas.str()
+                        asset.mip_count
                     );
                 },
                 [&](const AssetCubeTexture& asset) {
                     assets_decls << std::format("auto {}() const -> CubeTexture;", asset.name);
+
+                    std::ostringstream texture_datas;
+                    for (uint32_t slice = 0; slice < 6; slice++) {
+                        const auto& slice_datas = asset.datas[slice];
+                        for (uint32_t mip = 0; mip < asset.mip_count; mip++) {
+                            const auto mip_width = std::max(1u, asset.width >> mip);
+                            const auto mip_height = std::max(1u, asset.height >> mip);
+                            texture_datas << std::format(
+                                R"(datas[{}][{}] = TextureData {{
+                                    // mip_level: {}
+                                    // width: {}
+                                    // height: {}
+                                    .row_pitch = {},
+                                    .slice_pitch = {},
+                                    {},
+                                }};)",
+                                slice,
+                                mip,
+                                mip,
+                                mip_width,
+                                mip_height,
+                                slice_datas[mip].row_pitch,
+                                slice_datas[mip].slice_pitch,
+                                format_named_asset_span("data"sv, slice_datas[mip].data)
+                            );
+                        }
+                    }
+
                     assets_defns << std::format(
                         R"(auto Assets::{}() const -> CubeTexture {{
+                            decltype(CubeTexture::datas) datas = {{}};
+                            {}
                             return CubeTexture {{
                                 .format = {},
                                 .width = {},
                                 .height = {},
-                                .channel_count = {},
-                                .row_pitch = {},
-                                .slice_pitch = {},
-                                .datas = std::to_array({{
-                                    {},
-                                    {},
-                                    {},
-                                    {},
-                                    {},
-                                    {},
-                                }}),
+                                .mip_count = {},
+                                .datas = datas,
                             }};
                         }})",
                         asset.name,
+                        texture_datas.str(),
                         asset.format,
                         asset.width,
                         asset.height,
-                        asset.channel_count,
-                        asset.row_pitch,
-                        asset.slice_pitch,
-                        format_asset_span(asset.datas[0]),
-                        format_asset_span(asset.datas[1]),
-                        format_asset_span(asset.datas[2]),
-                        format_asset_span(asset.datas[3]),
-                        format_asset_span(asset.datas[4]),
-                        format_asset_span(asset.datas[5])
+                        asset.mip_count
                     );
                 },
                 [&](const AssetAnimationMesh& asset) {

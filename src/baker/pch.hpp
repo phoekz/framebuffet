@@ -9,6 +9,11 @@
 // TinyEXR.
 #include <tinyexr.h>
 
+// Nlohmann.
+#include <nlohmann/json.hpp>
+using json = nlohmann::json;
+using ord_json = nlohmann::ordered_json;
+
 // Framebuffet.
 #include <common/common.hpp>
 

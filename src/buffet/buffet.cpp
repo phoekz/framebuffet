@@ -307,14 +307,8 @@ auto Buffet::run() -> void {
                     cmd.begin_pix("Main pass");
 
                     swapchain.set_render_target(cmd, frame_index);
-
-                    cmd.begin_pix(cards.NAME.data());
                     cards.render(device, cmd);
-                    cmd.end_pix();
-
-                    cmd.begin_pix(gui.NAME.data());
                     gui.render(device, cmd);
-                    cmd.end_pix();
 
                     swapchain.transition_to_present(cmd, frame_index);
                     cmd.flush_barriers();

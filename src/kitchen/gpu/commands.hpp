@@ -87,6 +87,16 @@ public:
     ) const -> void;
     auto dispatch(uint32_t x, uint32_t y, uint32_t z) const -> void;
 
+    auto copy_texture_to_buffer(
+        const ComPtr<ID3D12Resource>& dst_buffer,
+        uint64_t dst_buffer_offset,
+        const ComPtr<ID3D12Resource>& src_texture,
+        uint32_t src_texture_subresource_index,
+        DXGI_FORMAT src_texture_format,
+        uint32_t src_texture_width,
+        uint32_t src_texture_height
+    ) const -> void;
+
     auto resolve_resource(
         const ComPtr<ID3D12Resource>& dst,
         const ComPtr<ID3D12Resource>& src,

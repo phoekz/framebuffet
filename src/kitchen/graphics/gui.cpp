@@ -154,6 +154,7 @@ auto Gui::render(const GpuDevice& device, GpuCommandList& cmd) -> void {
 
     // Render.
     {
+        cmd.begin_pix(NAME.data());
         cmd.set_graphics();
         cmd.set_viewport(
             0,
@@ -200,6 +201,7 @@ auto Gui::render(const GpuDevice& device, GpuCommandList& cmd) -> void {
             global_idx_offset += cmd_list->IdxBuffer.Size;
             global_vtx_offset += cmd_list->VtxBuffer.Size;
         }
+        cmd.end_pix();
     }
 }
 

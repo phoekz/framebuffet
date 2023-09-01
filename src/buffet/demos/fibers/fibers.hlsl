@@ -149,8 +149,8 @@ LightVertexOutput light_vs(FbVertexInput input) {
     return output;
 }
 
-FbPixelOutput1 light_ps(LightVertexOutput input) {
-    FbPixelOutput1 output;
+FbPixelOutput<1> light_ps(LightVertexOutput input) {
+    FbPixelOutput<1> output;
     output.color = float4(1.0f, 1.0f, 1.0f, 1.0f);
     return output;
 }
@@ -178,7 +178,7 @@ PlaneVertexOutput plane_vs(FbVertexInput input) {
     return output;
 }
 
-FbPixelOutput1 plane_ps(PlaneVertexOutput input) {
+FbPixelOutput<1> plane_ps(PlaneVertexOutput input) {
     ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
     StructuredBuffer<Light> lights = ResourceDescriptorHeap[g_bindings.lights];
     Texture2D<uint> light_counts_texture = ResourceDescriptorHeap[g_bindings.light_counts_texture];
@@ -207,7 +207,7 @@ FbPixelOutput1 plane_ps(PlaneVertexOutput input) {
         color += constants.light_intensity * light_color;
     }
 
-    FbPixelOutput1 output;
+    FbPixelOutput<1> output;
     output.color = float4(color, 1.0f);
     return output;
 }
@@ -223,7 +223,7 @@ DebugVertexOutput debug_vs(FbVertexInput input) {
     return output;
 }
 
-FbPixelOutput1 debug_ps(DebugVertexOutput input) {
+FbPixelOutput<1> debug_ps(DebugVertexOutput input) {
     ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
     RWTexture2D<uint> light_counts_texture =
         ResourceDescriptorHeap[g_bindings.light_counts_texture];
@@ -238,7 +238,7 @@ FbPixelOutput1 debug_ps(DebugVertexOutput input) {
     float shade = saturate((float)light_count / 5.0f);
     float3 color = heatmap_texture.Sample(heatmap_sampler, float2(shade, 0.5f));
 
-    FbPixelOutput1 output;
+    FbPixelOutput<1> output;
     output.color = float4(color, constants.heatmap_opacity);
     return output;
 }

@@ -104,6 +104,7 @@ auto GpuPipelineBuilder::sample_desc(DXGI_SAMPLE_DESC desc) -> GpuPipelineBuilde
     new (_buffer + _buffet_offset) CD3DX12_PIPELINE_STATE_STREAM_SAMPLE_DESC(desc);
     _buffet_offset += sizeof(CD3DX12_PIPELINE_STATE_STREAM_SAMPLE_DESC);
     _subobject_mask |= BIT;
+    _samples_count = desc.Count;
     return *this;
 }
 
@@ -143,6 +144,12 @@ auto GpuPipelineBuilder::build(GpuDevice& device, GpuPipeline& pipeline, std::st
             case GpuCullMode::None: d3d12_desc.CullMode = D3D12_CULL_MODE_NONE; break;
             case GpuCullMode::Front: d3d12_desc.CullMode = D3D12_CULL_MODE_FRONT; break;
             case GpuCullMode::Back: d3d12_desc.CullMode = D3D12_CULL_MODE_BACK; break;
+        }
+
+        // Override `LineRasterizationMode`.
+        if (_samples_count > 1) {
+            // Note: https://microsoft.github.io/DirectX-Specs/d3d/VulkanOn12.html#line-rasterization-updates
+            d3d12_desc.LineRasterizationMode = D3D12_LINE_RASTERIZATION_MODE_QUADRILATERAL_WIDE;
         }
 
         // Add.

@@ -49,12 +49,12 @@ VertexOutput draw_vs(FbVertexInput input) {
     return output;
 }
 
-FbPixelOutput1 draw_ps(VertexOutput input) {
+FbPixelOutput<1> draw_ps(VertexOutput input) {
     float distance = saturate(length(2.0f * input.texcoord - 1.0f));
     float gradient = pow(1.0f - distance, 3.0f);
     float3 color = gradient.xxx;
 
-    FbPixelOutput1 output;
+    FbPixelOutput<1> output;
     output.color = float4(color, gradient);
     return output;
 }
