@@ -11,7 +11,7 @@ Instant::Instant() {
 auto Instant::elapsed_time() const -> double {
     const auto freq = win32_get_frequency();
     const auto curr = win32_get_performance_counter();
-    const auto elapsed = _prev - curr;
+    const auto elapsed = curr - _prev;
     const auto seconds = (double)elapsed / (double)freq;
     return seconds;
 }
