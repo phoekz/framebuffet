@@ -2,6 +2,11 @@
 
 namespace fb::baked::kitchen {
 
+#define texture_data(rp, sp, off, sz)                                                   \
+    TextureData {                                                                       \
+        .row_pitch = rp, .slice_pitch = sp, .data = transmuted_span<std::byte>(off, sz) \
+    }
+
 Assets::Assets() {
     // hash: 799fc360204416196536a93c9eff68ae
     _data = read_whole_file("fb_kitchen_assets.bin");
@@ -84,5 +89,7 @@ auto Shaders::debug_draw_draw_ps() const -> std::span<const std::byte> {
 auto Shaders::spd_downsample_cs() const -> std::span<const std::byte> {
     return std::span(_data).subspan(17944, 13864);
 }
+
+#undef texture_data
 
 } // namespace fb::baked::kitchen

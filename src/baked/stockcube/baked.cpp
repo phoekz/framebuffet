@@ -2,6 +2,11 @@
 
 namespace fb::baked::stockcube {
 
+#define texture_data(rp, sp, off, sz)                                                   \
+    TextureData {                                                                       \
+        .row_pitch = rp, .slice_pitch = sp, .data = transmuted_span<std::byte>(off, sz) \
+    }
+
 Assets::Assets() {
     // hash: a0650c10da39e6dca36f015fd81ce0a3
     _data = read_whole_file("fb_stockcube_assets.bin");
@@ -10,15 +15,9 @@ Assets::Assets() {
 
 auto Assets::farm_field_hdr_texture() const -> Texture {
     decltype(Texture::datas) datas = {};
-    datas[0] = TextureData {
-        // mip_level: 0
-        // width: 2048
-        // height: 1024
-        .row_pitch = 32768,
-        .slice_pitch = 33554432,
-        // hash: 99b1db0825065596911e1fbe8a209f04
-        .data = transmuted_span<std::byte>(0, 33554432),
-    };
+    // clang-format off
+    datas[ 0] = texture_data(32768, 33554432,         0, 33554432); // hash: 99b1db0825065596911e1fbe8a209f04, width: 2048, height: 1024
+    // clang-format on
     return Texture {
         .format = DXGI_FORMAT_R32G32B32A32_FLOAT,
         .width = 2048,
@@ -30,15 +29,9 @@ auto Assets::farm_field_hdr_texture() const -> Texture {
 
 auto Assets::winter_evening_hdr_texture() const -> Texture {
     decltype(Texture::datas) datas = {};
-    datas[0] = TextureData {
-        // mip_level: 0
-        // width: 2048
-        // height: 1024
-        .row_pitch = 32768,
-        .slice_pitch = 33554432,
-        // hash: 3a756371dff470416ac497492fe79829
-        .data = transmuted_span<std::byte>(33554432, 33554432),
-    };
+    // clang-format off
+    datas[ 0] = texture_data(32768, 33554432,  33554432, 33554432); // hash: 3a756371dff470416ac497492fe79829, width: 2048, height: 1024
+    // clang-format on
     return Texture {
         .format = DXGI_FORMAT_R32G32B32A32_FLOAT,
         .width = 2048,
@@ -50,15 +43,9 @@ auto Assets::winter_evening_hdr_texture() const -> Texture {
 
 auto Assets::shanghai_bund_hdr_texture() const -> Texture {
     decltype(Texture::datas) datas = {};
-    datas[0] = TextureData {
-        // mip_level: 0
-        // width: 2048
-        // height: 1024
-        .row_pitch = 32768,
-        .slice_pitch = 33554432,
-        // hash: 61da5f094312e27801f5f466a719d765
-        .data = transmuted_span<std::byte>(67108864, 33554432),
-    };
+    // clang-format off
+    datas[ 0] = texture_data(32768, 33554432,  67108864, 33554432); // hash: 61da5f094312e27801f5f466a719d765, width: 2048, height: 1024
+    // clang-format on
     return Texture {
         .format = DXGI_FORMAT_R32G32B32A32_FLOAT,
         .width = 2048,
@@ -270,5 +257,7 @@ auto Shaders::blit_vs() const -> std::span<const std::byte> {
 auto Shaders::blit_ps() const -> std::span<const std::byte> {
     return std::span(_data).subspan(61164, 4672);
 }
+
+#undef texture_data
 
 } // namespace fb::baked::stockcube

@@ -116,29 +116,32 @@ auto bake_app_datas(
                     for (uint mip = 0; mip < asset.mip_count; ++mip) {
                         const auto mip_width = std::max(1u, asset.width >> mip);
                         const auto mip_height = std::max(1u, asset.height >> mip);
+                        const auto span = asset.datas[mip].data;
+                        const auto bytes =
+                            std::span(assets_bin.data() + span.offset, span.byte_count);
+                        const auto hash = hash128(bytes);
+                        if (mip > 0) {
+                            texture_datas << "\n";
+                        }
                         texture_datas << std::format(
-                            R"(datas[{}] = TextureData {{
-                                // mip_level: {}
-                                // width: {}
-                                // height: {}
-                                .row_pitch = {},
-                                .slice_pitch = {},
-                                {},
-                            }};)",
+                            "    datas[{:2}] = texture_data({:4}, {:7}, {:9}, {:7}); // hash: {}, width: {}, height: {}",
                             mip,
-                            mip,
-                            mip_width,
-                            mip_height,
                             asset.datas[mip].row_pitch,
                             asset.datas[mip].slice_pitch,
-                            format_named_asset_span("data"sv, asset.datas[mip].data)
+                            asset.datas[mip].data.offset,
+                            asset.datas[mip].data.element_count,
+                            hash,
+                            mip_width,
+                            mip_height
                         );
                     }
 
                     assets_defns << std::format(
                         R"(auto Assets::{}() const -> Texture {{
                             decltype(Texture::datas) datas = {{}};
-                            {}
+                            // clang-format off
+{}
+                            // clang-format on
                             return Texture {{
                                 .format = {},
                                 .width = {},
@@ -164,23 +167,24 @@ auto bake_app_datas(
                         for (uint mip = 0; mip < asset.mip_count; mip++) {
                             const auto mip_width = std::max(1u, asset.width >> mip);
                             const auto mip_height = std::max(1u, asset.height >> mip);
+                            const auto span = slice_datas[mip].data;
+                            const auto bytes =
+                                std::span(assets_bin.data() + span.offset, span.byte_count);
+                            const auto hash = hash128(bytes);
+                            if (slice > 0 || mip > 0) {
+                                texture_datas << "\n";
+                            }
                             texture_datas << std::format(
-                                R"(datas[{}][{}] = TextureData {{
-                                    // mip_level: {}
-                                    // width: {}
-                                    // height: {}
-                                    .row_pitch = {},
-                                    .slice_pitch = {},
-                                    {},
-                                }};)",
+                                R"(    datas[{}][{:2}] = texture_data({:4}, {:7}, {:9}, {:7}); // hash: {}, width: {}, height: {})",
                                 slice,
                                 mip,
-                                mip,
-                                mip_width,
-                                mip_height,
                                 slice_datas[mip].row_pitch,
                                 slice_datas[mip].slice_pitch,
-                                format_named_asset_span("data"sv, slice_datas[mip].data)
+                                slice_datas[mip].data.offset,
+                                slice_datas[mip].data.element_count,
+                                hash,
+                                mip_width,
+                                mip_height
                             );
                         }
                     }
@@ -188,7 +192,9 @@ auto bake_app_datas(
                     assets_defns << std::format(
                         R"(auto Assets::{}() const -> CubeTexture {{
                             decltype(CubeTexture::datas) datas = {{}};
-                            {}
+                            // clang-format off
+{}
+                            // clang-format on
                             return CubeTexture {{
                                 .format = {},
                                 .width = {},
