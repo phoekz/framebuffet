@@ -12,6 +12,8 @@ extern "C" {
 namespace fb {
 
 auto GpuDevice::create(const Window& window) -> void {
+    DebugScope debug_scope("Device");
+
     // Debug layer.
     UINT factory_flags = 0;
     {
@@ -152,7 +154,10 @@ auto GpuDevice::create(const Window& window) -> void {
             D3D12_COMMAND_LIST_TYPE_DIRECT,
             IID_PPV_ARGS(&_command_allocators[i])
         ));
-        dx_set_name(_command_allocators[i], dx_name("Command Allocator", i));
+        dx_set_name(
+            _command_allocators[i],
+            debug_scope.with_name(std::format("Command Allocator {}", i))
+        );
     }
 
     // Command list.
@@ -165,7 +170,7 @@ auto GpuDevice::create(const Window& window) -> void {
     dx_set_name(_command_list, "Command List");
 
     // Global descriptor heap.
-    _descriptors.create(*this, "Global Descriptor Heap");
+    _descriptors.create(*this);
 
     // Swapchain.
     _swapchain.create(factory, _device, _command_queue, window, _descriptors);

@@ -4,13 +4,14 @@ namespace fb::techniques::blit {
 
 auto create(Technique& tech, const CreateDesc& desc) -> void {
     PIXScopedEvent(PIX_COLOR_DEFAULT, "%s - Create", NAME.data());
+    DebugScope debug(NAME);
 
     const auto& shaders = desc.baked.stockcube.shaders;
     auto& device = desc.device;
 
     tech.size = device.swapchain().size();
     tech.render_target = desc.render_targets.color().srv_descriptor();
-    tech.constants.create(device, 1, dx_name(NAME, "Constants"));
+    tech.constants.create(device, 1, debug.with_name("Constants"));
     GpuPipelineBuilder()
         .vertex_shader(shaders.blit_vs())
         .pixel_shader(shaders.blit_ps())
@@ -20,7 +21,7 @@ auto create(Technique& tech, const CreateDesc& desc) -> void {
             .depth_write = false,
         })
         .render_target_formats({device.swapchain().format()})
-        .build(device, tech.pipeline, dx_name(NAME, "Pipeline"));
+        .build(device, tech.pipeline, debug.with_name("Pipeline"));
 }
 
 auto gui(Technique& tech, const GuiDesc&) -> void {

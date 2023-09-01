@@ -60,6 +60,8 @@ static auto layout_exclusive(std::span<Card> cards, Uint2 window_size) -> void {
 }
 
 auto Cards::create(GpuDevice& device, const Baked& baked, const CardsDesc& desc) -> void {
+    DebugScope debug(NAME.data());
+
     // Descriptors.
     for (uint32_t i = 0; i < CARD_COUNT; i++) {
         const auto& color = desc.card_render_targets[i].get().color();
@@ -80,13 +82,13 @@ auto Cards::create(GpuDevice& device, const Baked& baked, const CardsDesc& desc)
             .depth_read = false,
             .depth_write = false,
         })
-        .build(device, _pipeline, dx_name(Cards::NAME, "Pipeline"));
+        .build(device, _pipeline, debug.with_name("Pipeline"));
 
     // Constants.
-    _constants.create(device, 1, dx_name(Cards::NAME, "Constants"));
+    _constants.create(device, 1, debug.with_name("Constants"));
 
     // Cards.
-    _cards.create(device, CARD_COUNT, dx_name(Cards::NAME, "Cards"));
+    _cards.create(device, CARD_COUNT, debug.with_name("Cards"));
 
     // Default card layout.
     layout_hmosaic(_cards.span(), device.swapchain().size());
@@ -100,8 +102,8 @@ auto Cards::create(GpuDevice& device, const Baked& baked, const CardsDesc& desc)
             {{1.0f, 0.0f}, {1.0f, 0.0f}},
         });
         const auto indices = std::to_array<uint16_t>({0, 1, 2, 0, 2, 3});
-        _vertices.create_with_data(device, vertices, dx_name(Cards::NAME, "Vertices"));
-        _indices.create_with_data(device, indices, dx_name(Cards::NAME, "Indices"));
+        _vertices.create_with_data(device, vertices, debug.with_name("Vertices"));
+        _indices.create_with_data(device, indices, debug.with_name("Indices"));
     }
 
     // Default card indices.
@@ -111,6 +113,8 @@ auto Cards::create(GpuDevice& device, const Baked& baked, const CardsDesc& desc)
 
     // Single pass downsampler.
     {
+        DebugScope spd_debug("Spd");
+
         const auto width = device.swapchain().size().x;
         const auto height = device.swapchain().size().y;
         const auto mip_count = mip_count_from_size(width, height);
@@ -123,7 +127,7 @@ auto Cards::create(GpuDevice& device, const Baked& baked, const CardsDesc& desc)
         _spd_dispatch = Uint3(threadgroup_count_x, threadgroup_count_y, 1);
 
         // Constants.
-        _spd_constants.create(device, 1, dx_name(NAME, "Spd", "Constants"));
+        _spd_constants.create(device, 1, spd_debug.with_name("Constants"));
         *_spd_constants.ptr() = spd::Constants {
             .mip_count = mip_count,
             .threadgroup_count = threadgroup_count,
@@ -137,13 +141,13 @@ auto Cards::create(GpuDevice& device, const Baked& baked, const CardsDesc& desc)
             std::span(&atomics, 1),
             D3D12_RESOURCE_STATE_COMMON,
             D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
-            dx_name(NAME, "Spd", "Slice Atomics")
+            spd_debug.with_name("Slice Atomics")
         );
 
         // Pipeline.
         GpuPipelineBuilder()
             .compute_shader(baked.kitchen.shaders.spd_downsample_cs())
-            .build(device, _spd_pipeline, dx_name(NAME, "Spd", "Pipeline"));
+            .build(device, _spd_pipeline, spd_debug.with_name("Pipeline"));
     }
 }
 

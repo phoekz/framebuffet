@@ -4,6 +4,7 @@ namespace fb::techniques::irr {
 
 auto create(Technique& tech, const CreateDesc& desc) -> void {
     PIXScopedEvent(PIX_COLOR_DEFAULT, "%s - Create", NAME.data());
+    DebugScope debug(NAME);
 
     const auto& shaders = desc.baked.stockcube.shaders;
     auto& device = desc.device;
@@ -19,20 +20,20 @@ auto create(Technique& tech, const CreateDesc& desc) -> void {
     tech.acc_texture.create(
         device,
         GpuTextureDesc {.format = ACC_FORMAT, .width = WIDTH, .height = HEIGHT, .depth = DEPTH},
-        dx_name(NAME, "Acc", "Texture")
+        debug.with_name("Acc Texture")
     );
     tech.div_texture.create(
         device,
         GpuTextureDesc {.format = DIV_FORMAT, .width = WIDTH, .height = HEIGHT, .depth = DEPTH},
-        dx_name(NAME, "Div", "Texture")
+        debug.with_name("Div Texture")
     );
-    tech.readback.create(device, tech.div_texture.byte_size(), dx_name(NAME, "Readback"));
+    tech.readback.create(device, tech.div_texture.byte_size(), debug.with_name("Readback"));
 
     const auto sample_count_lg2 = 16;
     const auto sample_count = 1u << sample_count_lg2;
     const auto sample_count_per_dispatch = 256;
     const auto dispatch_count = sample_count / sample_count_per_dispatch;
-    tech.constants.create(device, 1, dx_name(NAME, "Constants"));
+    tech.constants.create(device, 1, debug.with_name("Constants"));
     *tech.constants.ptr() = Constants {
         .irr_texture_size = Uint2(WIDTH, HEIGHT),
         .irr_sample_count = sample_count,
@@ -44,10 +45,10 @@ auto create(Technique& tech, const CreateDesc& desc) -> void {
 
     GpuPipelineBuilder()
         .compute_shader(shaders.irr_acc_cs())
-        .build(device, tech.acc_pipeline, dx_name(NAME, "Acc", "Pipeline"));
+        .build(device, tech.acc_pipeline, debug.with_name("Acc Pipeline"));
     GpuPipelineBuilder()
         .compute_shader(shaders.irr_div_cs())
-        .build(device, tech.div_pipeline, dx_name(NAME, "Div", "Pipeline"));
+        .build(device, tech.div_pipeline, debug.with_name("Div Pipeline"));
 }
 
 auto gui(Technique& tech, const GuiDesc&) -> void {

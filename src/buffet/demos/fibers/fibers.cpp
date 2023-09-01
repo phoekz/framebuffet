@@ -3,6 +3,8 @@
 namespace fb::demos::fibers {
 
 auto FibersDemo::create(GpuDevice& device, const Baked& baked) -> void {
+    DebugScope debug(NAME);
+
     // Render targets.
     _render_targets.create(
         device,
@@ -11,12 +13,11 @@ auto FibersDemo::create(GpuDevice& device, const Baked& baked) -> void {
             .color_format = DXGI_FORMAT_R16G16B16A16_FLOAT,
             .clear_color = CLEAR_COLOR,
             .sample_count = 1,
-        },
-        NAME
+        }
     );
 
     // Debug draw.
-    _debug_draw.create(device, baked.kitchen.shaders, _render_targets, NAME);
+    _debug_draw.create(device, baked.kitchen.shaders, _render_targets);
 
     // Unpack.
     const auto& shaders = baked.buffet.shaders;
@@ -26,15 +27,15 @@ auto FibersDemo::create(GpuDevice& device, const Baked& baked) -> void {
     {
         GpuPipelineBuilder()
             .compute_shader(shaders.fibers_sim_cs())
-            .build(device, _sim_pipeline, dx_name(NAME, "Sim", "Pipeline"));
+            .build(device, _sim_pipeline, debug.with_name("Sim Pipeline"));
 
         GpuPipelineBuilder()
             .compute_shader(shaders.fibers_reset_cs())
-            .build(device, _reset_pipeline, dx_name(NAME, "Reset", "Pipeline"));
+            .build(device, _reset_pipeline, debug.with_name("Reset Pipeline"));
 
         GpuPipelineBuilder()
             .compute_shader(shaders.fibers_cull_cs())
-            .build(device, _cull_pipeline, dx_name(NAME, "Cull", "Pipeline"));
+            .build(device, _cull_pipeline, debug.with_name("Cull Pipeline"));
 
         GpuPipelineBuilder()
             .primitive_topology(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)
@@ -45,7 +46,7 @@ auto FibersDemo::create(GpuDevice& device, const Baked& baked) -> void {
             })
             .render_target_formats({_render_targets.color_format()})
             .depth_stencil_format(_render_targets.depth_format())
-            .build(device, _light_pipeline, dx_name(NAME, "Light", "Pipeline"));
+            .build(device, _light_pipeline, debug.with_name("Light Pipeline"));
 
         GpuPipelineBuilder()
             .primitive_topology(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)
@@ -53,7 +54,7 @@ auto FibersDemo::create(GpuDevice& device, const Baked& baked) -> void {
             .pixel_shader(shaders.fibers_plane_ps())
             .render_target_formats({_render_targets.color_format()})
             .depth_stencil_format(_render_targets.depth_format())
-            .build(device, _plane_pipeline, dx_name(NAME, "Plane", "Pipeline"));
+            .build(device, _plane_pipeline, debug.with_name("Plane Pipeline"));
 
         GpuPipelineBuilder()
             .primitive_topology(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)
@@ -73,19 +74,19 @@ auto FibersDemo::create(GpuDevice& device, const Baked& baked) -> void {
                 .depth_write = false,
             })
             .render_target_formats({_render_targets.color_format()})
-            .build(device, _debug_pipeline, dx_name(NAME, "Debug", "Pipeline"));
+            .build(device, _debug_pipeline, debug.with_name("Debug Pipeline"));
     }
 
     // Constants.
-    _constants.create(device, 1, dx_name(NAME, "Constants"));
+    _constants.create(device, 1, debug.with_name("Constants"));
 
     // Geometry.
     {
         const auto mesh = assets.light_bounds_mesh();
         _light_mesh.vertices
-            .create_with_data(device, mesh.vertices, dx_name(NAME, "Light", "Vertices"));
+            .create_with_data(device, mesh.vertices, debug.with_name("Light Vertices"));
         _light_mesh.indices
-            .create_with_data(device, mesh.indices, dx_name(NAME, "Light", "Indices"));
+            .create_with_data(device, mesh.indices, debug.with_name("Light Indices"));
     }
     {
         const auto vertices = std::to_array<baked::Vertex>({
@@ -98,12 +99,12 @@ auto FibersDemo::create(GpuDevice& device, const Baked& baked) -> void {
         _plane_mesh.vertices.create_with_data(
             device,
             std::span(vertices.data(), vertices.size()),
-            dx_name(NAME, "Plane", "Vertices")
+            debug.with_name("Plane Vertices")
         );
         _plane_mesh.indices.create_with_data(
             device,
             std::span(indices.data(), indices.size()),
-            dx_name(NAME, "Plane", "Indices")
+            debug.with_name("Plane Indices")
         );
     }
 
@@ -147,7 +148,7 @@ auto FibersDemo::create(GpuDevice& device, const Baked& baked) -> void {
             lights,
             D3D12_RESOURCE_STATE_COMMON,
             D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
-            dx_name(NAME, "Lights")
+            debug.with_name("Lights")
         );
     }
 
@@ -163,7 +164,7 @@ auto FibersDemo::create(GpuDevice& device, const Baked& baked) -> void {
                 .width = _cull_dispatch_count_x,
                 .height = _cull_dispatch_count_y,
             },
-            dx_name(NAME, "Light Counts Texture")
+            debug.with_name("Light Counts Texture")
         );
         _light_offsets_texture.create(
             device,
@@ -172,14 +173,14 @@ auto FibersDemo::create(GpuDevice& device, const Baked& baked) -> void {
                 .width = _cull_dispatch_count_x,
                 .height = _cull_dispatch_count_y,
             },
-            dx_name(NAME, "Light Offsets Texture")
+            debug.with_name("Light Offsets Texture")
         );
         _light_indices.create(
             device,
             _cull_dispatch_count_x * _cull_dispatch_count_y * MAX_LIGHT_PER_TILE,
-            dx_name(NAME, "Light Indices")
+            debug.with_name("Light Indices")
         );
-        _light_indices_count.create(device, 1, dx_name(NAME, "Light Indices Count"));
+        _light_indices_count.create(device, 1, debug.with_name("Light Indices Count"));
     }
 
     {
@@ -188,14 +189,14 @@ auto FibersDemo::create(GpuDevice& device, const Baked& baked) -> void {
             assets.heatmap_magma_texture(),
             D3D12_RESOURCE_STATE_COMMON,
             D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
-            dx_name(NAME, "Magma Texture")
+            debug.with_name("Magma Texture")
         );
         _viridis_texture.create_and_transfer_baked(
             device,
             assets.heatmap_viridis_texture(),
             D3D12_RESOURCE_STATE_COMMON,
             D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
-            dx_name(NAME, "Viridis Texture")
+            debug.with_name("Viridis Texture")
         );
     }
 }

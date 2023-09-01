@@ -4,6 +4,8 @@
 namespace fb::demos::crate {
 
 auto CrateDemo::create(GpuDevice& device, const Baked& baked) -> void {
+    DebugScope debug(NAME);
+
     // Render targets.
     _render_targets.create(
         device,
@@ -12,12 +14,11 @@ auto CrateDemo::create(GpuDevice& device, const Baked& baked) -> void {
             .color_format = DXGI_FORMAT_R16G16B16A16_FLOAT,
             .clear_color = CLEAR_COLOR,
             .sample_count = 4,
-        },
-        NAME
+        }
     );
 
     // Debug draw.
-    _debug_draw.create(device, baked.kitchen.shaders, _render_targets, NAME);
+    _debug_draw.create(device, baked.kitchen.shaders, _render_targets);
 
     // Unpack.
     const auto& shaders = baked.buffet.shaders;
@@ -31,10 +32,10 @@ auto CrateDemo::create(GpuDevice& device, const Baked& baked) -> void {
         .render_target_formats({_render_targets.color_format()})
         .depth_stencil_format(_render_targets.depth_format())
         .sample_desc(_render_targets.sample_desc())
-        .build(device, _pipeline, dx_name(NAME, "Pipeline"));
+        .build(device, _pipeline, debug.with_name("Pipeline"));
 
     // Constants.
-    _constants.create(device, 1, dx_name(NAME, "Constants"));
+    _constants.create(device, 1, debug.with_name("Constants"));
 
     // Models.
     for (auto& [model_name, model, mesh, base_color, normal, metallic_roughness] :
@@ -54,10 +55,11 @@ auto CrateDemo::create(GpuDevice& device, const Baked& baked) -> void {
               assets.metal_plane_normal_texture(),
               assets.metal_plane_metallic_roughness_texture()
           )}) {
+        DebugScope model_debug(model_name);
+
         // Geometry.
-        model.vertices
-            .create_with_data(device, mesh.vertices, dx_name(NAME, model_name, "Vertices"));
-        model.indices.create_with_data(device, mesh.indices, dx_name(NAME, model_name, "Indices"));
+        model.vertices.create_with_data(device, mesh.vertices, model_debug.with_name("Vertices"));
+        model.indices.create_with_data(device, mesh.indices, model_debug.with_name("Indices"));
 
         // Textures.
         for (auto& [texture_name, dst_texture, src_texture] : {
@@ -74,7 +76,7 @@ auto CrateDemo::create(GpuDevice& device, const Baked& baked) -> void {
                 src_texture,
                 D3D12_RESOURCE_STATE_COMMON,
                 D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
-                dx_name(NAME, model_name, texture_name)
+                model_debug.with_name(texture_name)
             );
         }
     }

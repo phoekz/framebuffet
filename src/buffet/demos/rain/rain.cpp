@@ -3,6 +3,8 @@
 namespace fb::demos::rain {
 
 auto RainDemo::create(GpuDevice& device, const Baked& baked) -> void {
+    DebugScope debug(NAME);
+
     // Render targets.
     _render_targets.create(
         device,
@@ -11,12 +13,11 @@ auto RainDemo::create(GpuDevice& device, const Baked& baked) -> void {
             .color_format = DXGI_FORMAT_R8G8B8A8_UNORM,
             .clear_color = CLEAR_COLOR,
             .sample_count = 1,
-        },
-        NAME
+        }
     );
 
     // Debug draw.
-    _debug_draw.create(device, baked.kitchen.shaders, _render_targets, NAME);
+    _debug_draw.create(device, baked.kitchen.shaders, _render_targets);
 
     // Unpack.
     const auto& shaders = baked.buffet.shaders;
@@ -39,17 +40,17 @@ auto RainDemo::create(GpuDevice& device, const Baked& baked) -> void {
             particles,
             D3D12_RESOURCE_STATE_COMMON,
             D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER,
-            dx_name(NAME, "Particles")
+            debug.with_name("Particles")
         );
     }
 
     // Constants.
-    _constants.create(device, 1, dx_name(NAME, "Constants"));
+    _constants.create(device, 1, debug.with_name("Constants"));
 
     // Compute - Pipeline.
     GpuPipelineBuilder()
         .compute_shader(shaders.rain_sim_cs())
-        .build(device, _compute_pipeline, dx_name(NAME, "Sim", "Pipeline"));
+        .build(device, _compute_pipeline, debug.with_name("Sim Pipeline"));
 
     // Draw - Pipeline.
     GpuPipelineBuilder()
@@ -71,7 +72,7 @@ auto RainDemo::create(GpuDevice& device, const Baked& baked) -> void {
         })
         .render_target_formats({_render_targets.color_format()})
         .depth_stencil_format(_render_targets.depth_format())
-        .build(device, _draw_pipeline, dx_name(NAME, "Draw", "Pipeline"));
+        .build(device, _draw_pipeline, debug.with_name("Draw Pipeline"));
 
     // Draw - Geometry.
     {
@@ -82,8 +83,8 @@ auto RainDemo::create(GpuDevice& device, const Baked& baked) -> void {
             {{-0.5f, 0.5f, 0.0f}, {0.0f, 1.0f}},
         });
         const auto indices = std::to_array<uint16_t>({0, 1, 2, 0, 2, 3});
-        _draw_vertices.create_with_data(device, vertices, dx_name(NAME, "Draw", "Vertices"));
-        _draw_indices.create_with_data(device, indices, dx_name(NAME, "Draw", "Indices"));
+        _draw_vertices.create_with_data(device, vertices, debug.with_name("Draw Vertices"));
+        _draw_indices.create_with_data(device, indices, debug.with_name("Draw Indices"));
     }
 }
 

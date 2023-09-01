@@ -12,7 +12,6 @@ class DebugDraw {
     FB_NO_COPY_MOVE(DebugDraw);
 
 public:
-    static constexpr std::string_view NAME = "Debug Draw"sv;
     static constexpr size_t MAX_LINE_COUNT = 1 << 16;
 
     DebugDraw() = default;
@@ -20,8 +19,7 @@ public:
     auto create(
         GpuDevice& device,
         const baked::kitchen::Shaders& shaders,
-        const render_targets::RenderTargets& render_targets,
-        std::string_view name
+        const render_targets::RenderTargets& render_targets
     ) -> void;
     auto begin(uint32_t frame_index) -> void;
     auto transform(const Float4x4& transform) -> void;

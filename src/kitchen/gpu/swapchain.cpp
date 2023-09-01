@@ -11,6 +11,8 @@ auto GpuSwapchain::create(
     const Window& window,
     GpuDescriptors& descriptors
 ) -> void {
+    DebugScope debug("Swapchain");
+
     // Swapchain.
     {
         ComPtr<IDXGISwapChain1> swapchain1;
@@ -55,7 +57,7 @@ auto GpuSwapchain::create(
     // Render target views.
     for (uint32_t i = 0; i < FRAME_COUNT; i++) {
         FB_ASSERT_HR(_swapchain->GetBuffer(i, IID_PPV_ARGS(&_rtvs[i])));
-        dx_set_name(_rtvs[i], dx_name("Render Target", i));
+        dx_set_name(_rtvs[i], debug.with_name(std::format("Render Target {}", i)));
         const auto descriptor = descriptors.rtv().alloc();
         D3D12_RENDER_TARGET_VIEW_DESC rtv_desc = {
             .Format = _swapchain_format,

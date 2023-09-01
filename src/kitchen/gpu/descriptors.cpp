@@ -21,10 +21,10 @@ static auto heap_type_name(D3D12_DESCRIPTOR_HEAP_TYPE type) -> std::string_view 
 
 auto GpuDescriptorHeap::create(
     GpuDevice& device,
-    std::string_view name,
     D3D12_DESCRIPTOR_HEAP_TYPE type,
     uint32_t capacity
 ) -> void {
+    DebugScope debug("Descriptor Heap");
     _type = type;
     _capacity = capacity;
     D3D12_DESCRIPTOR_HEAP_DESC desc = {
@@ -34,10 +34,7 @@ auto GpuDescriptorHeap::create(
     if (is_shader_visible(type)) {
         desc.Flags |= D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
     }
-    _heap = device.create_descriptor_heap(
-        desc,
-        dx_name(name, "Descriptor Heap", heap_type_name(_type))
-    );
+    _heap = device.create_descriptor_heap(desc, debug.with_name(heap_type_name(type)));
     _descriptor_size = device.descriptor_size(type);
     _cpu_heap_start = _heap->GetCPUDescriptorHandleForHeapStart();
     if (is_shader_visible(type)) {
@@ -59,12 +56,12 @@ auto GpuDescriptorHeap::alloc() -> GpuDescriptor {
     return handle;
 }
 
-auto GpuDescriptors::create(GpuDevice& device, std::string_view name) -> void {
+auto GpuDescriptors::create(GpuDevice& device) -> void {
     _cbv_srv_uav_heap
-        .create(device, name, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, MAX_CBV_SRV_UAV_DESCRIPTOR);
-    _sampler_heap.create(device, name, D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER, MAX_SAMPLER_DESCRIPTOR);
-    _rtv_heap.create(device, name, D3D12_DESCRIPTOR_HEAP_TYPE_RTV, MAX_RTV_DESCRIPTOR);
-    _dsv_heap.create(device, name, D3D12_DESCRIPTOR_HEAP_TYPE_DSV, MAX_DSV_DESCRIPTOR);
+        .create(device, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, MAX_CBV_SRV_UAV_DESCRIPTOR);
+    _sampler_heap.create(device, D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER, MAX_SAMPLER_DESCRIPTOR);
+    _rtv_heap.create(device, D3D12_DESCRIPTOR_HEAP_TYPE_RTV, MAX_RTV_DESCRIPTOR);
+    _dsv_heap.create(device, D3D12_DESCRIPTOR_HEAP_TYPE_DSV, MAX_DSV_DESCRIPTOR);
 }
 
 auto GpuDescriptors::log_stats() -> void {

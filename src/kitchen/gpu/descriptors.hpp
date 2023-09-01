@@ -30,12 +30,7 @@ class GpuDescriptorHeap {
 public:
     GpuDescriptorHeap() = default;
 
-    auto create(
-        GpuDevice& device,
-        std::string_view name,
-        D3D12_DESCRIPTOR_HEAP_TYPE type,
-        uint32_t capacity
-    ) -> void;
+    auto create(GpuDevice& device, D3D12_DESCRIPTOR_HEAP_TYPE type, uint32_t capacity) -> void;
     auto alloc() -> GpuDescriptor;
     auto type() const -> D3D12_DESCRIPTOR_HEAP_TYPE { return _type; }
     auto count() const -> uint32_t { return _count; }
@@ -64,7 +59,7 @@ public:
 
     GpuDescriptors() = default;
 
-    auto create(GpuDevice& device, std::string_view name) -> void;
+    auto create(GpuDevice& device) -> void;
     auto cbv_srv_uav() -> GpuDescriptorHeap& { return _cbv_srv_uav_heap; }
     auto sampler() -> GpuDescriptorHeap& { return _sampler_heap; }
     auto rtv() -> GpuDescriptorHeap& { return _rtv_heap; }

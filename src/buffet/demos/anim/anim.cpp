@@ -3,6 +3,8 @@
 namespace fb::demos::anim {
 
 auto AnimDemo::create(GpuDevice& device, const Baked& baked) -> void {
+    DebugScope debug(NAME);
+
     // Render targets.
     _render_targets.create(
         device,
@@ -11,12 +13,11 @@ auto AnimDemo::create(GpuDevice& device, const Baked& baked) -> void {
             .color_format = DXGI_FORMAT_R8G8B8A8_UNORM,
             .clear_color = CLEAR_COLOR,
             .sample_count = 4,
-        },
-        NAME
+        }
     );
 
     // Debug draw.
-    _debug_draw.create(device, baked.kitchen.shaders, _render_targets, NAME);
+    _debug_draw.create(device, baked.kitchen.shaders, _render_targets);
 
     // Unpack.
     const auto& shaders = baked.buffet.shaders;
@@ -30,17 +31,17 @@ auto AnimDemo::create(GpuDevice& device, const Baked& baked) -> void {
         .render_target_formats({_render_targets.color_format()})
         .depth_stencil_format(_render_targets.depth_format())
         .sample_desc(_render_targets.sample_desc())
-        .build(device, _pipeline, dx_name(NAME, "Pipeline"));
+        .build(device, _pipeline, debug.with_name("Pipeline"));
 
     // Constants.
-    _constants.create(device, 1, dx_name(NAME, "Constants"));
+    _constants.create(device, 1, debug.with_name("Constants"));
 
     // Model.
     const auto mesh = assets.raccoon_animation_mesh();
 
     // Geometry.
-    _vertices.create_with_data(device, mesh.skinning_vertices, dx_name(NAME, "Vertices"));
-    _indices.create_with_data(device, mesh.indices, dx_name(NAME, "Indices"));
+    _vertices.create_with_data(device, mesh.skinning_vertices, debug.with_name("Vertices"));
+    _indices.create_with_data(device, mesh.indices, debug.with_name("Indices"));
 
     // Texture.
     const auto texture = assets.raccoon_base_color_texture();
@@ -49,14 +50,14 @@ auto AnimDemo::create(GpuDevice& device, const Baked& baked) -> void {
         texture,
         D3D12_RESOURCE_STATE_COMMON,
         D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
-        dx_name(NAME, "Texture")
+        debug.with_name("Texture")
     );
 
     // Animations.
     _joint_inverse_bind_buffer
-        .create_with_data(device, mesh.joint_inverse_binds, dx_name(NAME, "Joint Inverse Binds"));
+        .create_with_data(device, mesh.joint_inverse_binds, debug.with_name("Joint Inverse Binds"));
     _joint_global_transform_buffer
-        .create(device, mesh.joint_count, dx_name(NAME, "Joint Global Transforms"));
+        .create(device, mesh.joint_count, debug.with_name("Joint Global Transforms"));
     _animation_duration = mesh.duration;
     _node_global_transforms.resize(mesh.node_count);
     _animation_mesh = mesh;

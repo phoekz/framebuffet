@@ -121,6 +121,8 @@ auto Buffet::run() -> void {
     // Init.
     {
         auto timer = Instant();
+        DebugScope debug("Buffet");
+
         window.create(Window::Desc {WINDOW_TITLE, WINDOW_WIDTH, WINDOW_HEIGHT});
         device.create(window);
 

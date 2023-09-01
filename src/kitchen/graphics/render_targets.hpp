@@ -17,7 +17,7 @@ class RenderTargets {
 public:
     RenderTargets() = default;
 
-    auto create(GpuDevice& device, const RenderTargetsDesc& desc, std::string_view name) -> void;
+    auto create(GpuDevice& device, const RenderTargetsDesc& desc) -> void;
     auto transition_to_render_target(GpuCommandList& cmd) -> void;
     auto clear_all(GpuCommandList& cmd) -> void;
     auto transition_to_resolve(GpuCommandList& cmd) -> void;

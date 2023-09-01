@@ -4,6 +4,7 @@ namespace fb::techniques::screen {
 
 auto create(Technique& tech, const CreateDesc& desc) -> void {
     PIXScopedEvent(PIX_COLOR_DEFAULT, "%s - Create", NAME.data());
+    DebugScope debug(NAME);
 
     const auto& render_targets = desc.render_targets;
     const auto& shaders = desc.baked.stockcube.shaders;
@@ -11,7 +12,7 @@ auto create(Technique& tech, const CreateDesc& desc) -> void {
 
     const auto w = device.swapchain().size().x;
     const auto h = device.swapchain().size().y;
-    tech.constants.create(device, 1, dx_name(NAME, "Constants"));
+    tech.constants.create(device, 1, debug.with_name("Constants"));
     *tech.constants.ptr() = Constants {
         .transform = Float4x4(
             Float4(2.0f / w, 0.0f, 0.0f, 0.0f),
@@ -91,9 +92,9 @@ auto create(Technique& tech, const CreateDesc& desc) -> void {
         }
     }
 
-    tech.vertices.create_with_data(device, vertices, dx_name(NAME, "Vertices"));
-    tech.indices.create_with_data(device, indices, dx_name(NAME, "Indices"));
-    tech.instances.create_with_data(device, instances, dx_name(NAME, "Instances"));
+    tech.vertices.create_with_data(device, vertices, debug.with_name("Vertices"));
+    tech.indices.create_with_data(device, indices, debug.with_name("Indices"));
+    tech.instances.create_with_data(device, instances, debug.with_name("Instances"));
 
     GpuPipelineBuilder()
         .vertex_shader(shaders.screen_vs())
@@ -108,7 +109,7 @@ auto create(Technique& tech, const CreateDesc& desc) -> void {
         })
         .render_target_formats({render_targets.color_format()})
         .sample_desc(render_targets.sample_desc())
-        .build(device, tech.pipeline, dx_name(NAME, "Pipeline"));
+        .build(device, tech.pipeline, debug.with_name("Pipeline"));
 }
 
 auto gui(Technique&, const GuiDesc&) -> void {

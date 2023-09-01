@@ -3,6 +3,8 @@
 namespace fb::demos::tree {
 
 auto TreeDemo::create(GpuDevice& device, const Baked& baked) -> void {
+    DebugScope debug(NAME);
+
     // Render targets.
     _render_targets.create(
         device,
@@ -11,27 +13,26 @@ auto TreeDemo::create(GpuDevice& device, const Baked& baked) -> void {
             .color_format = DXGI_FORMAT_R8G8B8A8_UNORM,
             .clear_color = CLEAR_COLOR,
             .sample_count = 4,
-        },
-        NAME
+        }
     );
 
     // Debug draw.
-    _debug_draw.create(device, baked.kitchen.shaders, _render_targets, NAME);
+    _debug_draw.create(device, baked.kitchen.shaders, _render_targets);
 
     // Unpack.
     const auto& shaders = baked.buffet.shaders;
     const auto& assets = baked.buffet.assets;
 
     // Constants.
-    _constants.create(device, 1, dx_name(NAME, "Constants"));
+    _constants.create(device, 1, debug.with_name("Constants"));
 
     // Geometry.
     const auto tree = assets.coconut_tree_mesh();
     const auto plane = assets.sand_plane_mesh();
-    _tree_vertices.create_with_data(device, tree.vertices, dx_name(NAME, "Tree", "Vertices"));
-    _tree_indices.create_with_data(device, tree.indices, dx_name(NAME, "Tree", "Indices"));
-    _plane_vertices.create_with_data(device, plane.vertices, dx_name(NAME, "Plane", "Vertices"));
-    _plane_indices.create_with_data(device, plane.indices, dx_name(NAME, "Plane", "Indices"));
+    _tree_vertices.create_with_data(device, tree.vertices, debug.with_name("Tree Vertices"));
+    _tree_indices.create_with_data(device, tree.indices, debug.with_name("Tree Indices"));
+    _plane_vertices.create_with_data(device, plane.vertices, debug.with_name("Plane Vertices"));
+    _plane_indices.create_with_data(device, plane.indices, debug.with_name("Plane Indices"));
 
     // Texture.
     {
@@ -40,14 +41,14 @@ auto TreeDemo::create(GpuDevice& device, const Baked& baked) -> void {
             assets.coconut_tree_base_color_texture(),
             D3D12_RESOURCE_STATE_COMMON,
             D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
-            dx_name(NAME, "Tree", "Texture")
+            debug.with_name("Tree Texture")
         );
         _plane_texture.create_and_transfer_baked(
             device,
             assets.sand_plane_base_color_texture(),
             D3D12_RESOURCE_STATE_COMMON,
             D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
-            dx_name(NAME, "Plane", "Texture")
+            debug.with_name("Plane Texture")
         );
     }
 
@@ -69,7 +70,7 @@ auto TreeDemo::create(GpuDevice& device, const Baked& baked) -> void {
             .srv_format = DEPTH_SRV_FORMAT,
             .dsv_format = DEPTH_DSV_FORMAT,
         },
-        dx_name(NAME, "Shadow", "Depth")
+        debug.with_name("Shadow Depth")
     );
 
     // Pipelines.
@@ -77,7 +78,7 @@ auto TreeDemo::create(GpuDevice& device, const Baked& baked) -> void {
         .primitive_topology(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)
         .vertex_shader(shaders.tree_shadow_vs())
         .depth_stencil_format(DEPTH_DSV_FORMAT)
-        .build(device, _shadow_pipeline, dx_name(NAME, "Shadow", "Pipeline"));
+        .build(device, _shadow_pipeline, debug.with_name("Shadow Pipeline"));
     GpuPipelineBuilder()
         .primitive_topology(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)
         .vertex_shader(shaders.tree_draw_vs())
@@ -85,7 +86,7 @@ auto TreeDemo::create(GpuDevice& device, const Baked& baked) -> void {
         .render_target_formats({_render_targets.color_format()})
         .depth_stencil_format(_render_targets.depth_format())
         .sample_desc(_render_targets.sample_desc())
-        .build(device, _draw_pipeline, dx_name(NAME, "Draw", "Pipeline"));
+        .build(device, _draw_pipeline, debug.with_name("Draw Pipeline"));
 }
 
 auto TreeDemo::gui(const GuiDesc&) -> void {

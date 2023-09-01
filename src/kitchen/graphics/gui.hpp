@@ -17,8 +17,6 @@ class Gui {
     FB_NO_COPY_MOVE(Gui);
 
 public:
-    static constexpr std::string_view NAME = "Gui"sv;
-
     Gui() = default;
     ~Gui();
 

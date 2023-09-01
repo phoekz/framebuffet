@@ -6,6 +6,7 @@ namespace fb::techniques::lut {
 
 auto create(Technique& tech, const CreateDesc& desc) -> void {
     PIXScopedEvent(PIX_COLOR_DEFAULT, "%s - Create", NAME.data());
+    DebugScope debug(NAME);
 
     const auto& shaders = desc.baked.stockcube.shaders;
     auto& device = desc.device;
@@ -23,18 +24,18 @@ auto create(Technique& tech, const CreateDesc& desc) -> void {
             .height = LUT_HEIGHT,
             .depth = 1,
         },
-        dx_name(NAME, "Texture")
+        debug.with_name("Texture")
     );
-    tech.lut_readback.create(device, tech.lut_texture.byte_size(), dx_name(NAME, "Readback"));
+    tech.lut_readback.create(device, tech.lut_texture.byte_size(), debug.with_name("Readback"));
 
-    tech.constants.create(device, 1, dx_name(NAME, "Constants"));
+    tech.constants.create(device, 1, debug.with_name("Constants"));
     *tech.constants.ptr() = Constants {
         .lut_texture_size = tech.lut_texture.size(),
         .lut_sample_count = 2048,
     };
     GpuPipelineBuilder()
         .compute_shader(shaders.lut_cs())
-        .build(device, tech.pipeline, dx_name(NAME, "Pipeline"));
+        .build(device, tech.pipeline, debug.with_name("Pipeline"));
 }
 
 auto gui(Technique& tech, const GuiDesc&) -> void {

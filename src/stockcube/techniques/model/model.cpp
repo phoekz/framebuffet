@@ -4,6 +4,7 @@ namespace fb::techniques::model {
 
 auto create(Technique& tech, const CreateDesc& desc) -> void {
     PIXScopedEvent(PIX_COLOR_DEFAULT, "%s - Create", NAME.data());
+    DebugScope debug(NAME);
 
     const auto& assets = desc.baked.stockcube.assets;
     const auto& shaders = desc.baked.stockcube.shaders;
@@ -14,10 +15,10 @@ auto create(Technique& tech, const CreateDesc& desc) -> void {
     tech.irr_texture = desc.irr_texture;
     tech.rad_texture = desc.rad_texture;
     tech.rad_texture_mip_count = desc.rad_texture_mip_count;
-    tech.constants.create(device, 1, dx_name(NAME, "Constants"));
+    tech.constants.create(device, 1, debug.with_name("Constants"));
     const auto mesh = assets.sphere_mesh();
-    tech.vertices.create_with_data(device, mesh.vertices, dx_name(NAME, "Vertices"));
-    tech.indices.create_with_data(device, mesh.indices, dx_name(NAME, "Indices"));
+    tech.vertices.create_with_data(device, mesh.vertices, debug.with_name("Vertices"));
+    tech.indices.create_with_data(device, mesh.indices, debug.with_name("Indices"));
     GpuPipelineBuilder()
         .primitive_topology(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)
         .vertex_shader(shaders.model_vs())
@@ -30,7 +31,7 @@ auto create(Technique& tech, const CreateDesc& desc) -> void {
         .render_target_formats({render_targets.color_format()})
         .depth_stencil_format(render_targets.depth_format())
         .sample_desc(render_targets.sample_desc())
-        .build(device, tech.pipeline, dx_name(NAME, "Pipeline"));
+        .build(device, tech.pipeline, debug.with_name("Pipeline"));
 }
 
 auto gui(Technique& tech, const GuiDesc&) -> void {

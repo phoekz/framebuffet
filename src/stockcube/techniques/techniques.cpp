@@ -3,6 +3,8 @@
 namespace fb::techniques {
 
 auto create(Techniques& techs, const CreateDesc& desc) -> void {
+    DebugScope debug("Techniques");
+
     techs.render_targets.create(
         desc.device,
         {
@@ -10,8 +12,7 @@ auto create(Techniques& techs, const CreateDesc& desc) -> void {
             .color_format = DXGI_FORMAT_R16G16B16A16_FLOAT,
             .clear_color = {0.3f, 0.6f, 0.0f, 1.0f},
             .sample_count = 4,
-        },
-        NAME
+        }
     );
 
     techs.rect_texture_name = std::string("winter_evening");
@@ -21,7 +22,7 @@ auto create(Techniques& techs, const CreateDesc& desc) -> void {
         rect_texture,
         D3D12_RESOURCE_STATE_COMMON,
         D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
-        dx_name(NAME, "Rect Texture")
+        debug.with_name("Rect Texture")
     );
 
     cfr::create(
@@ -72,7 +73,7 @@ auto create(Techniques& techs, const CreateDesc& desc) -> void {
             .rad_texture_mip_count = techs.rad.div_texture.mip_count(),
         }
     );
-    techs.debug_draw.create(desc.device, desc.baked.kitchen.shaders, techs.render_targets, NAME);
+    techs.debug_draw.create(desc.device, desc.baked.kitchen.shaders, techs.render_targets);
     model::create(
         techs.model,
         {

@@ -37,6 +37,7 @@ auto stockcube_run(Stockcube& sc) -> void {
 
     // Init.
     {
+        DebugScope debug("Stockcube");
         sc.window.create(Window::Desc {WINDOW_TITLE, WINDOW_WIDTH, WINDOW_HEIGHT});
         sc.device.create(sc.window);
         sc.device.begin_transfer();

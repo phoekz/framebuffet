@@ -14,8 +14,9 @@ static auto make_depth_stencil_clear_value(DXGI_FORMAT format, float depth, uint
     };
 }
 
-auto RenderTargets::create(GpuDevice& device, const RenderTargetsDesc& desc, std::string_view name)
-    -> void {
+auto RenderTargets::create(GpuDevice& device, const RenderTargetsDesc& desc) -> void {
+    DebugScope debug("Render Targets");
+
     _size = desc.size;
     _clear_color = desc.clear_color;
     _sample_count = desc.sample_count;
@@ -30,7 +31,7 @@ auto RenderTargets::create(GpuDevice& device, const RenderTargetsDesc& desc, std
                 .sample_count = desc.sample_count,
                 .clear_value = make_color_clear_value(desc.color_format, _clear_color),
             },
-            dx_name(name, "Multisampled Color Target")
+            debug.with_name("Multisampled Color")
         );
     }
 
@@ -44,7 +45,7 @@ auto RenderTargets::create(GpuDevice& device, const RenderTargetsDesc& desc, std
             .sample_count = 1,
             .clear_value = make_color_clear_value(desc.color_format, _clear_color),
         },
-        dx_name(name, "Color Target")
+        debug.with_name("Color")
     );
 
     _depth.create(
@@ -56,7 +57,7 @@ auto RenderTargets::create(GpuDevice& device, const RenderTargetsDesc& desc, std
             .sample_count = desc.sample_count,
             .clear_value = make_depth_stencil_clear_value(DEPTH_FORMAT, DEPTH_VALUE, 0),
         },
-        dx_name(name, "Depth Target")
+        debug.with_name("Depth")
     );
 }
 
@@ -64,10 +65,7 @@ auto RenderTargets::transition_to_render_target(GpuCommandList& cmd) -> void {
     if (_sample_count > 1) {
         _multisampled_color.transition(cmd, D3D12_RESOURCE_STATE_RENDER_TARGET);
     } else {
-        _color.transition(
-            cmd,
-            D3D12_RESOURCE_STATE_RENDER_TARGET
-        ); // this is transitioning too much
+        _color.transition(cmd, D3D12_RESOURCE_STATE_RENDER_TARGET);
     }
 }
 

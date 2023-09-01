@@ -3,6 +3,8 @@
 namespace fb::demos::env {
 
 auto EnvDemo::create(GpuDevice& device, const Baked& baked) -> void {
+    DebugScope debug(NAME);
+
     // Render targets.
     _render_targets.create(
         device,
@@ -11,12 +13,11 @@ auto EnvDemo::create(GpuDevice& device, const Baked& baked) -> void {
             .color_format = DXGI_FORMAT_R16G16B16A16_FLOAT,
             .clear_color = CLEAR_COLOR,
             .sample_count = 4,
-        },
-        NAME
+        }
     );
 
     // Debug draw.
-    _debug_draw.create(device, baked.kitchen.shaders, _render_targets, NAME);
+    _debug_draw.create(device, baked.kitchen.shaders, _render_targets);
 
     // Unpack.
     const auto& shaders = baked.buffet.shaders;
@@ -33,36 +34,36 @@ auto EnvDemo::create(GpuDevice& device, const Baked& baked) -> void {
             lut,
             D3D12_RESOURCE_STATE_COMMON,
             D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
-            dx_name(NAME, "LUT")
+            debug.with_name("LUT")
         );
         _pbr.irr.create_and_transfer_baked(
             device,
             irr,
             D3D12_RESOURCE_STATE_COMMON,
             D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
-            dx_name(NAME, "Irradiance")
+            debug.with_name("Irradiance")
         );
         _pbr.rad.create_and_transfer_baked(
             device,
             rad,
             D3D12_RESOURCE_STATE_COMMON,
             D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
-            dx_name(NAME, "Radiance")
+            debug.with_name("Radiance")
         );
     }
 
     // Background.
     {
-        static constexpr auto PASS_NAME = "Background"sv;
+        DebugScope pass_debug("Background");
         auto& pass = _background;
 
         // Constants.
-        pass.constants.create(device, 1, dx_name(NAME, PASS_NAME, "Constants"));
+        pass.constants.create(device, 1, pass_debug.with_name("Constants"));
 
         // Geometry.
         const auto mesh = assets.skybox_mesh();
-        pass.vertices.create_with_data(device, mesh.vertices, dx_name(NAME, PASS_NAME, "Vertices"));
-        pass.indices.create_with_data(device, mesh.indices, dx_name(NAME, PASS_NAME, "Indices"));
+        pass.vertices.create_with_data(device, mesh.vertices, pass_debug.with_name("Vertices"));
+        pass.indices.create_with_data(device, mesh.indices, pass_debug.with_name("Indices"));
 
         // Pipeline.
         GpuPipelineBuilder()
@@ -77,21 +78,21 @@ auto EnvDemo::create(GpuDevice& device, const Baked& baked) -> void {
             .render_target_formats({_render_targets.color_format()})
             .depth_stencil_format(_render_targets.depth_format())
             .sample_desc(_render_targets.sample_desc())
-            .build(device, pass.pipeline, dx_name(NAME, PASS_NAME, "Pipeline"));
+            .build(device, pass.pipeline, pass_debug.with_name("Pipeline"));
     }
 
     // Model.
     {
-        static constexpr auto PASS_NAME = "Model"sv;
+        DebugScope pass_debug("Model");
         auto& pass = _model;
 
         // Constants.
-        pass.constants.create(device, 1, dx_name(NAME, PASS_NAME, "Constants"));
+        pass.constants.create(device, 1, pass_debug.with_name("Constants"));
 
         // Geometry.
         const auto mesh = assets.sphere_mesh();
-        pass.vertices.create_with_data(device, mesh.vertices, dx_name(NAME, PASS_NAME, "Vertices"));
-        pass.indices.create_with_data(device, mesh.indices, dx_name(NAME, PASS_NAME, "Indices"));
+        pass.vertices.create_with_data(device, mesh.vertices, pass_debug.with_name("Vertices"));
+        pass.indices.create_with_data(device, mesh.indices, pass_debug.with_name("Indices"));
 
         // Pipeline.
         GpuPipelineBuilder()
@@ -106,7 +107,7 @@ auto EnvDemo::create(GpuDevice& device, const Baked& baked) -> void {
             .render_target_formats({_render_targets.color_format()})
             .depth_stencil_format(_render_targets.depth_format())
             .sample_desc(_render_targets.sample_desc())
-            .build(device, pass.pipeline, dx_name(NAME, PASS_NAME, "Pipeline"));
+            .build(device, pass.pipeline, pass_debug.with_name("Pipeline"));
     }
 }
 

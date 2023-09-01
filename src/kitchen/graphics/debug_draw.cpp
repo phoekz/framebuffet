@@ -5,9 +5,10 @@ namespace fb::graphics::debug_draw {
 auto DebugDraw::create(
     GpuDevice& device,
     const baked::kitchen::Shaders& shaders,
-    const render_targets::RenderTargets& render_targets,
-    std::string_view name
+    const render_targets::RenderTargets& render_targets
 ) -> void {
+    DebugScope debug("Debug Draw");
+
     // Reserve.
     _lines.reserve(MAX_LINE_COUNT);
 
@@ -31,13 +32,14 @@ auto DebugDraw::create(
         .render_target_formats({render_targets.color_format()})
         .depth_stencil_format(render_targets.depth_format())
         .sample_desc(render_targets.sample_desc())
-        .build(device, _pipeline, dx_name(NAME, "Pipeline"));
+        .build(device, _pipeline, debug.with_name("Pipeline"));
 
     // Frame resources.
     for (uint32_t i = 0; i < FRAME_COUNT; i++) {
+        DebugScope frame_debug(std::format("{}", i));
         auto& frame = _frames[i];
-        frame._constants.create(device, 1, dx_name(name, NAME, "Constants", i));
-        frame._lines.create(device, MAX_LINE_COUNT, dx_name(name, NAME, "Lines", i));
+        frame._constants.create(device, 1, frame_debug.with_name("Constants"));
+        frame._lines.create(device, MAX_LINE_COUNT, frame_debug.with_name("Lines"));
     }
 }
 
@@ -85,6 +87,7 @@ auto DebugDraw::end() -> void {
 
 auto DebugDraw::render(GpuDevice&, const GpuCommandList& cmd) -> void {
     const auto& frame = _frames[_frame_index];
+    cmd.begin_pix("Debug Draw");
     cmd.set_graphics_constants(Bindings {
         .constants = frame._constants.cbv_descriptor().index(),
         .vertices = frame._lines.srv_descriptor().index(),
@@ -92,6 +95,7 @@ auto DebugDraw::render(GpuDevice&, const GpuCommandList& cmd) -> void {
     cmd.set_pipeline(_pipeline);
     cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
     cmd.draw_instanced((uint32_t)_lines.size(), 1, 0, 0);
+    cmd.end_pix();
 }
 
 } // namespace fb::graphics::debug_draw

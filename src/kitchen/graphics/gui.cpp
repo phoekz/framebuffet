@@ -13,6 +13,8 @@ auto Gui::create(
     const baked::kitchen::Assets& assets,
     const baked::kitchen::Shaders& shaders
 ) -> void {
+    DebugScope debug("Gui");
+
     // ImGui.
     {
         IMGUI_CHECKVERSION();
@@ -56,10 +58,10 @@ auto Gui::create(
         .rasterizer(GpuRasterizerDesc {
             .cull_mode = GpuCullMode::None,
         })
-        .build(device, _pipeline, dx_name(Gui::NAME, "Pipeline"));
+        .build(device, _pipeline, debug.with_name("Pipeline"));
 
     // Constants.
-    _constants.create(device, 1, dx_name(Gui::NAME, "Constants"));
+    _constants.create(device, 1, debug.with_name("Constants"));
 
     // Font texture.
     {
@@ -84,7 +86,7 @@ auto Gui::create(
             },
             D3D12_RESOURCE_STATE_COMMON,
             D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
-            dx_name(Gui::NAME, "Font Texture")
+            debug.with_name("Font Texture")
         );
 
         // Font texture ID.
@@ -93,9 +95,10 @@ auto Gui::create(
 
     // Geometry.
     for (uint32_t i = 0; i < FRAME_COUNT; i++) {
+        DebugScope frame_debug(std::format("{}", i));
         Gui::Geometry& geometry = _geometries[i];
-        geometry.vertices.create(device, MAX_VERTEX_COUNT, dx_name(Gui::NAME, "Vertices", i));
-        geometry.indices.create(device, MAX_INDEX_COUNT, dx_name(Gui::NAME, "Indices", i));
+        geometry.vertices.create(device, MAX_VERTEX_COUNT, frame_debug.with_name("Vertices"));
+        geometry.indices.create(device, MAX_INDEX_COUNT, frame_debug.with_name("Indices"));
     }
 
     // ImGui continued.
@@ -154,7 +157,7 @@ auto Gui::render(const GpuDevice& device, GpuCommandList& cmd) -> void {
 
     // Render.
     {
-        cmd.begin_pix(NAME.data());
+        cmd.begin_pix("Gui");
         cmd.set_graphics();
         cmd.set_viewport(
             0,

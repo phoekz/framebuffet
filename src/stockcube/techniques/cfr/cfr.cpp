@@ -4,6 +4,7 @@ namespace fb::techniques::cfr {
 
 auto create(Technique& tech, const CreateDesc& desc) -> void {
     PIXScopedEvent(PIX_COLOR_DEFAULT, "%s - Create", NAME.data());
+    DebugScope debug(NAME);
 
     const auto& shaders = desc.baked.stockcube.shaders;
     auto& device = desc.device;
@@ -17,15 +18,15 @@ auto create(Technique& tech, const CreateDesc& desc) -> void {
             .height = 1024,
             .depth = 6,
         },
-        dx_name(NAME, "Cube Texture")
+        debug.with_name("Cube Texture")
     );
-    tech.constants.create(device, 1, dx_name(NAME, "Constants"));
+    tech.constants.create(device, 1, debug.with_name("Constants"));
     *tech.constants.ptr() = Constants {
         .cube_texture_size = tech.cube_texture.size(),
     };
     GpuPipelineBuilder()
         .compute_shader(shaders.cfr_cs())
-        .build(device, tech.pipeline, dx_name(NAME, "Pipeline"));
+        .build(device, tech.pipeline, debug.with_name("Pipeline"));
 }
 
 auto gui(Technique&, const GuiDesc&) -> void {
