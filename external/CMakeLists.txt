@@ -165,6 +165,38 @@ endif()
 set(MIKKTSPACE_LIBRARY ext_mikktspace CACHE INTERNAL "mikktspace Library")
 
 #
+# nlohmann_json
+#
+message(STATUS "Fetching nlohmann_json...")
+FetchContent_Declare(
+    nlohmann_json
+    GIT_REPOSITORY https://github.com/nlohmann/json.git
+    GIT_TAG bc889afb4c5bf1c0d8ee29ef35eaaf4c8bef8a5d # v3.11.2
+)
+FetchContent_GetProperties(nlohmann_json)
+
+if(NOT nlohmann_json_POPULATED)
+    FetchContent_Populate(nlohmann_json)
+    add_library(
+        ext_nlohmann_json INTERFACE
+    )
+    target_include_directories(
+        ext_nlohmann_json
+        INTERFACE
+        ${nlohmann_json_SOURCE_DIR}/single_include
+    )
+    target_compile_definitions(
+        ext_nlohmann_json
+        INTERFACE
+        JSON_NO_IO
+        JSON_NOEXCEPTION
+        JSON_USE_IMPLICIT_CONVERSIONS=0
+    )
+endif()
+
+set(NLOHMANN_JSON_LIBRARY ext_nlohmann_json CACHE INTERNAL "nlohmann_json Library")
+
+#
 # Windows Implementation Library (WIL).
 #
 message(STATUS "Fetching WIL...")
