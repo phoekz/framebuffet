@@ -21,9 +21,3 @@ using ord_json = nlohmann::ordered_json;
 #include <dxcapi.h>
 #include <d3d12shader.h>
 #include <directxtk12/GeometricPrimitive.h>
-
-// Standard library.
-#include <filesystem>
-#include <unordered_set>
-#include <tuple>
-#include <variant>

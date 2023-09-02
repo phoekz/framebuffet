@@ -38,6 +38,7 @@ target_include_directories(
     ${CMAKE_SOURCE_DIR}/src
 )
 
+target_compile_options(${NAME} PRIVATE $<$<CONFIG:Debug>:/ZI>)
 set_property(DIRECTORY ${PROJECT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${NAME})
 set_target_properties(${NAME} PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY $<TARGET_FILE_DIR:${NAME}>)
 

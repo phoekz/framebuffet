@@ -14,6 +14,8 @@
 #include <source_location>
 #include <span>
 #include <string_view>
+#include <unordered_set>
+#include <variant>
 #include <vector>
 
 // Literals.

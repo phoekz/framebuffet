@@ -45,7 +45,7 @@ set(SOURCES
     win32/window.hpp
 )
 add_library(${NAME} STATIC ${SOURCES})
-target_precompile_headers(${NAME} PRIVATE pch.hpp)
+target_precompile_headers(${NAME} REUSE_FROM fb_common)
 target_link_libraries(
     ${NAME}
     PUBLIC
@@ -73,7 +73,6 @@ target_compile_definitions(
     FB_PIX_TIMING_CAPTURER_NAME="WinPixTimingCapturer.dll"
     FB_PIX_TIMING_CAPTURER_DLL_PATH="C:/Program Files/Microsoft PIX Preview/2306.21-preview/WinPixTimingCapturer.dll"
 )
-target_precompile_headers(${NAME} PRIVATE pch.hpp)
 
 set(TARGET_DIRECTORY $<TARGET_FILE_DIR:${NAME}>)
 add_custom_command(
