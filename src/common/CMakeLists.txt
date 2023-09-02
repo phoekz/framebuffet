@@ -37,7 +37,6 @@ target_link_libraries(
 target_include_directories(
     ${NAME}
     PUBLIC
-    ${WIL_INCLUDE_DIR}
     ${DIRECTXMATH_INCLUDE_DIR}
     ${DIRECTXTK12_INCLUDE_DIR}
     PRIVATE
