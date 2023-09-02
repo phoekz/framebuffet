@@ -13,6 +13,7 @@ if(NOT FETCH_CONTENT_HAS_BEEN_RUN)
     FetchContent_Declare(mikktspace GIT_REPOSITORY "https://github.com/mmikk/MikkTSpace" GIT_TAG 3e895b49d05ea07e4c2133156cfa94369e19e409) # Mar 25, 2020
     FetchContent_Declare(nlohmann_json GIT_REPOSITORY "https://github.com/nlohmann/json" GIT_TAG bc889afb4c5bf1c0d8ee29ef35eaaf4c8bef8a5d) # v3.11.2
     FetchContent_Declare(d3d12memalloc GIT_REPOSITORY "https://github.com/GPUOpen-LibrariesAndSDKs/D3D12MemoryAllocator" GIT_TAG 8dc7b31598d5c89331475be1364f407ddf604f47) # Jul 11, 2023
+    FetchContent_Declare(ttf2mesh GIT_REPOSITORY "https://github.com/fetisov/ttf2mesh" GIT_TAG 52d9eba33c02b83a298329ff15e20a7602fb6dde) # April 23, 2023
     FetchContent_Declare(dxagilitysdk URL "https://globalcdn.nuget.org/packages/microsoft.direct3d.d3d12.1.610.4.nupkg" URL_MD5 33bffd67d09a9008e49b35d4a8c4b8b5)
     FetchContent_Declare(dxcompiler URL "https://globalcdn.nuget.org/packages/microsoft.direct3d.dxc.1.7.2308.12.nupkg" URL_MD5 59f6761d73ab36cda5152cb568b4bfd2)
     FetchContent_Declare(directxmath URL "https://globalcdn.nuget.org/packages/directxmath.2022.12.12.1.nupkg" URL_MD5 b8fb4fda4eea8171627d0e080c4da062)
@@ -80,6 +81,10 @@ if(NOT FETCH_CONTENT_HAS_BEEN_RUN)
         FetchContent_Populate(d3d12memalloc)
         set(D3D12MEMALLOC_SOURCE_DIR ${d3d12memalloc_SOURCE_DIR} CACHE INTERNAL "D3D12 Memory Allocator Source Directory")
     endif()
+
+    message(STATUS "Fetching ttf2mesh...")
+    FetchContent_MakeAvailable(ttf2mesh)
+    set(TTF2MESH_SOURCE_DIR ${ttf2mesh_SOURCE_DIR} CACHE INTERNAL "ttf2mesh Source Directory")
 
     message(STATUS "Fetching DirectX Agility SDK...")
     FetchContent_MakeAvailable(dxagilitysdk)
@@ -203,6 +208,19 @@ target_compile_definitions(
     JSON_USE_IMPLICIT_CONVERSIONS=0
 )
 set(NLOHMANN_JSON_LIBRARY ext_nlohmann_json CACHE INTERNAL "nlohmann_json Library")
+
+# ttf2mesh.
+add_library(
+    ext_ttf2mesh STATIC
+    ${TTF2MESH_SOURCE_DIR}/ttf2mesh.c
+    ${TTF2MESH_SOURCE_DIR}/ttf2mesh.h
+)
+target_include_directories(
+    ext_ttf2mesh
+    PUBLIC
+    ${TTF2MESH_SOURCE_DIR}
+)
+set(TTF2MESH_LIBRARY ext_ttf2mesh CACHE INTERNAL "ttf2mesh Library")
 
 # D3D12 Memory Allocator.
 add_library(
