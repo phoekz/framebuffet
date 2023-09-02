@@ -2,13 +2,13 @@ import os
 
 base_dir = "src/buffet/demos"
 demos = [
-    ("anim", "Anim"),
-    ("crate", "Crate"),
-    ("env", "Env"),
-    ("fibers", "Fibers"),
-    ("rain", "Rain"),
-    ("tree", "Tree"),
-    ("cards", "Cards"),
+    # ("text", "Text"),
+    # ("crate", "Crate"),
+    # ("env", "Env"),
+    # ("fibers", "Fibers"),
+    # ("rain", "Rain"),
+    # ("tree", "Tree"),
+    # ("cards", "Cards"),
 ]
 files = {
     "cpp": """#include "{lower_name}.hpp"

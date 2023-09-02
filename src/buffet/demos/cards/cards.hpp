@@ -11,7 +11,7 @@ inline constexpr float4 CLEAR_COLOR = {0.0f, 0.0f, 0.0f, 1.0f};
 inline constexpr DXGI_FORMAT COLOR_FORMAT = DXGI_FORMAT_R8G8B8A8_UNORM;
 inline constexpr uint SAMPLE_COUNT = 1;
 
-inline constexpr uint CARD_COUNT = 6;
+inline constexpr uint CARD_COUNT = 7;
 inline constexpr uint CARD_GRID_COLUMNS = 3;
 
 struct Parameters {

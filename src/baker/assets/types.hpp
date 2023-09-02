@@ -41,6 +41,20 @@ struct AssetMesh {
     AssetSpan indices;
 };
 
+struct AssetSubmesh {
+    uint index_count;
+    uint start_index;
+    uint base_vertex;
+};
+
+struct AssetMeshArray {
+    std::string name;
+
+    AssetSpan submeshes;
+    AssetSpan vertices;
+    AssetSpan indices;
+};
+
 struct AssetTextureData {
     uint row_pitch;
     uint slice_pitch;
@@ -91,7 +105,31 @@ struct AssetAnimationMesh {
     AssetSpan node_channels_values_s;
 };
 
-using Asset =
-    std::variant<AssetCopy, AssetMesh, AssetTexture, AssetCubeTexture, AssetAnimationMesh>;
+struct AssetGlyph {
+    uint character;
+    float2 xbounds;
+    float2 ybounds;
+    float advance;
+    float lbearing;
+    float rbearing;
+};
+
+struct AssetFont {
+    std::string name;
+
+    float ascender;
+    float descender;
+    float space_advance;
+    AssetSpan glyphs;
+};
+
+using Asset = std::variant<
+    AssetCopy,
+    AssetMesh,
+    AssetMeshArray,
+    AssetTexture,
+    AssetCubeTexture,
+    AssetAnimationMesh,
+    AssetFont>;
 
 } // namespace fb

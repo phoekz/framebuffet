@@ -111,6 +111,28 @@ auto bake_app_datas(
                         format_named_asset_span("indices"sv, asset.indices)
                     );
                 },
+                [&](const AssetMeshArray& asset) {
+                    assets_decls << std::format("auto {}() const -> MeshArray;", asset.name);
+                    assets_defns << std::format(
+                        R"(auto Assets::{}() const -> MeshArray {{
+                            // submesh_count: {}
+                            // vertex_count: {}
+                            // face_count: {}
+                            return MeshArray {{
+                                {},
+                                {},
+                                {},
+                            }};
+                        }})",
+                        asset.name,
+                        asset.submeshes.element_count,
+                        asset.vertices.element_count,
+                        asset.indices.element_count / 3,
+                        format_named_asset_span("submeshes"sv, asset.submeshes),
+                        format_named_asset_span("vertices"sv, asset.vertices),
+                        format_named_asset_span("indices"sv, asset.indices)
+                    );
+                },
                 [&](const AssetTexture& asset) {
                     assets_decls << std::format("auto {}() const -> Texture;", asset.name);
 
@@ -271,6 +293,24 @@ auto bake_app_datas(
                             "node_channels_values_s"sv,
                             asset.node_channels_values_s
                         )
+                    );
+                },
+                [&](const AssetFont& asset) {
+                    assets_decls << std::format("auto {}() const -> Font;", asset.name);
+                    assets_defns << std::format(
+                        R"(auto Assets::{}() const -> Font {{
+                            return Font {{
+                                .ascender = {}f,
+                                .descender = {}f,
+                                .space_advance = {}f,
+                                {},
+                            }};
+                        }})",
+                        asset.name,
+                        asset.ascender,
+                        asset.descender,
+                        asset.space_advance,
+                        format_named_asset_span("glyphs"sv, asset.glyphs)
                     );
                 },
             },

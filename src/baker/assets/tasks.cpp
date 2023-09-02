@@ -3,6 +3,7 @@
 #include "../formats/mikktspace.hpp"
 #include "../utils/names.hpp"
 
+#include <ttf2mesh.h>
 #include <stb_image_resize.h>
 #include <directxtk12/GeometricPrimitive.h>
 #include <nlohmann/json.hpp>
@@ -480,6 +481,122 @@ auto bake_assets(std::string_view assets_dir, std::span<const AssetTask> asset_t
                             }},
                         });
                     }
+                },
+                [&](const AssetTaskTtf& task) {
+                    const auto path = std::format("{}/{}", assets_dir, task.path);
+                    const auto file = read_whole_file(path);
+
+                    int ttf_result;
+                    ttf_t* ttf = nullptr;
+                    ttf_result = ttf_load_from_mem(
+                        (const uint8_t*)file.data(),
+                        (int)file.size(),
+                        &ttf,
+                        false
+                    );
+                    FB_ASSERT_MSG(
+                        ttf_result == TTF_DONE,
+                        "Failed to load TTF file with error {}",
+                        ttf_result
+                    );
+
+                    std::vector<AssetGlyph> glyphs;
+                    std::vector<AssetSubmesh> submeshes;
+                    std::vector<AssetVertex> vertices;
+                    std::vector<AssetIndex> indices;
+                    size_t vertices_offset = 0;
+                    size_t indices_offset = 0;
+
+                    for (char c = '!'; c <= '~'; c++) {
+                        // Find glyph.
+                        const auto glyph_id = ttf_find_glyph(ttf, c);
+                        FB_ASSERT(glyph_id != -1);
+                        const auto glyph = &ttf->glyphs[glyph_id];
+
+                        // Push glyph info.
+                        glyphs.push_back(AssetGlyph {
+                            .character = (uint)c,
+                            .xbounds = float2(glyph->xbounds[0], glyph->xbounds[1]),
+                            .ybounds = float2(glyph->ybounds[0], glyph->ybounds[1]),
+                            .advance = glyph->advance,
+                            .lbearing = glyph->lbearing,
+                            .rbearing = glyph->rbearing,
+                        });
+
+                        // Generate mesh.
+                        const auto quality = TTF_QUALITY_HIGH;
+                        const auto features = TTF_FEATURES_DFLT;
+                        const auto depth = task.depth;
+                        ttf_mesh3d_t* glyph_mesh = nullptr;
+                        ttf_result = ttf_glyph2mesh3d(glyph, &glyph_mesh, quality, features, depth);
+                        FB_ASSERT_MSG(
+                            ttf_result == TTF_DONE,
+                            "Failed to create glyph mesh with error {}",
+                            ttf_result
+                        );
+
+                        // Copy vertices.
+                        const auto base_vertex = (uint)vertices.size();
+                        vertices.resize(vertices.size() + glyph_mesh->nvert);
+                        for (int i = 0; i < glyph_mesh->nvert; i++) {
+                            const auto& v = glyph_mesh->vert[i];
+                            const auto& n = glyph_mesh->normals[i];
+                            vertices[vertices_offset++] = AssetVertex {
+                                .position = float3(v.x, v.y, v.z),
+                                .normal = float3(n.x, n.y, n.z),
+                                .texcoord = float2(0.0f, 0.0f),
+                                .tangent = float4(0.0f, 0.0f, 0.0f, 0.0f),
+                            };
+                        }
+
+                        // Copy indices.
+                        const auto start_index = (uint)indices.size();
+                        indices.resize(indices.size() + glyph_mesh->nfaces * 3);
+                        for (int i = 0; i < glyph_mesh->nfaces; i++) {
+                            const auto& face = glyph_mesh->faces[i];
+                            indices[indices_offset++] = (AssetIndex)face.v1;
+                            indices[indices_offset++] = (AssetIndex)face.v2;
+                            indices[indices_offset++] = (AssetIndex)face.v3;
+                        }
+
+                        // Submesh.
+                        submeshes.push_back(AssetSubmesh {
+                            .index_count = (uint)glyph_mesh->nfaces * 3,
+                            .start_index = start_index,
+                            .base_vertex = base_vertex,
+                        });
+
+                        // Free mesh.
+                        ttf_free_mesh3d(glyph_mesh);
+                    }
+
+                    // Find space glyph.
+                    const auto space_glyph_id = ttf_find_glyph(ttf, ' ');
+                    FB_ASSERT(space_glyph_id != -1);
+                    const auto space_glyph = &ttf->glyphs[space_glyph_id];
+
+                    // Push assets.
+                    assets.push_back(AssetFont {
+                        .name = names.unique(std::format("{}_font", task.name)),
+                        .ascender = ttf->hhea.ascender,
+                        .descender = ttf->hhea.descender,
+                        .space_advance = space_glyph->advance,
+                        .glyphs = assets_writer.write("Glyph", std::span<const AssetGlyph>(glyphs)),
+                    });
+                    assets.push_back(AssetMeshArray {
+                        .name = names.unique(std::format("{}_mesh_array", task.name)),
+                        .submeshes = assets_writer.write(
+                            "Submesh",
+                            std::span<const AssetSubmesh>(submeshes)
+                        ),
+                        .vertices =
+                            assets_writer.write("Vertex", std::span<const AssetVertex>(vertices)),
+                        .indices =
+                            assets_writer.write("Index", std::span<const AssetIndex>(indices)),
+                    });
+
+                    // Cleanup.
+                    ttf_free(ttf);
                 }},
             asset_task
         );

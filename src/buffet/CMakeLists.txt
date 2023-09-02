@@ -26,6 +26,9 @@ set(SOURCES
     demos/rain/rain.cpp
     demos/rain/rain.hlsli
     demos/rain/rain.hpp
+    demos/text/text.cpp
+    demos/text/text.hlsli
+    demos/text/text.hpp
     demos/tree/tree.cpp
     demos/tree/tree.hlsli
     demos/tree/tree.hpp

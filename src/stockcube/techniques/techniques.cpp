@@ -18,6 +18,10 @@ auto create(Techniques& techs, const CreateDesc& desc) -> void {
 #if 0
     techs.rect_texture_name = std::string("farm_field");
     const auto rect_texture = desc.baked.stockcube.assets.farm_field_hdr_texture();
+#elif 1
+    techs.rect_texture_name = std::string("industrial_sunset_02_puresky");
+    const auto rect_texture =
+        desc.baked.stockcube.assets.industrial_sunset_02_puresky_hdr_texture();
 #elif 0
     techs.rect_texture_name = std::string("winter_evening");
     const auto rect_texture = desc.baked.stockcube.assets.winter_evening_hdr_texture();

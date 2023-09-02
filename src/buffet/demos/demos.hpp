@@ -7,6 +7,7 @@
 #include "env/env.hpp"
 #include "fibers/fibers.hpp"
 #include "rain/rain.hpp"
+#include "text/text.hpp"
 #include "tree/tree.hpp"
 #include "cards/cards.hpp"
 
@@ -20,6 +21,7 @@ struct Demos {
     env::Demo env;
     fibers::Demo fibers;
     rain::Demo rain;
+    text::Demo text;
     tree::Demo tree;
     cards::Demo cards;
 };
@@ -47,6 +49,7 @@ auto archive(Demos& demos, A& arc) -> void {
     env::archive(demos.env, arc);
     fibers::archive(demos.fibers, arc);
     rain::archive(demos.rain, arc);
+    text::archive(demos.text, arc);
     tree::archive(demos.tree, arc);
     cards::archive(demos.cards, arc);
 }

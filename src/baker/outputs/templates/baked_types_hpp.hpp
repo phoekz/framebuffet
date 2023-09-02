@@ -31,6 +31,18 @@ inline constexpr std::string_view BAKED_TYPES_HPP = R"(#pragma once
         std::span<const Index> indices;
     };
 
+    struct Submesh {
+        uint index_count;
+        uint start_index;
+        uint base_vertex;
+    };
+
+    struct MeshArray {
+        std::span<const Submesh> submeshes;
+        std::span<const Vertex> vertices;
+        std::span<const Index> indices;
+    };
+
     inline constexpr uint MAX_MIP_COUNT = {{max_mip_count}};
 
     struct TextureData {
@@ -91,6 +103,22 @@ inline constexpr std::string_view BAKED_TYPES_HPP = R"(#pragma once
         std::span<const float3> node_channels_values_t;
         std::span<const Quaternion> node_channels_values_r;
         std::span<const float3> node_channels_values_s;
+    };
+
+    struct Glyph {
+        uint character;
+        float2 xbounds;
+        float2 ybounds;
+        float advance;
+        float lbearing;
+        float rbearing;
+    };
+
+    struct Font {
+        float ascender;
+        float descender;
+        float space_advance;
+        std::span<const Glyph> glyphs;
     };
 
     } // namespace fb::baked

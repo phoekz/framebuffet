@@ -16,6 +16,12 @@ Source: https://polyhaven.com/a/shanghai_bund
 
 Authors: Greg Zaal
 
+## `industrial_sunset_02_puresky_2k.exr`
+
+Source: https://polyhaven.com/a/industrial_sunset_02_puresky
+
+Authors: Sergej Majboroda, Jarod Guest
+
 ## `models/sci_fi_case.glb`
 
 "Sci fi Case" (https://skfb.ly/6CJOW) by KonstantinaBeratze is licensed under Creative Commons Attribution (http://creativecommons.org/licenses/by/4.0/).

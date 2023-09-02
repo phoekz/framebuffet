@@ -62,6 +62,15 @@ static auto BUFFET_ASSET_TASKS = std::to_array<AssetTask>({
         "shanghai_bund_rad",
         "intermediate/stockcube/shanghai_bund_rad.bin",
         "intermediate/stockcube/shanghai_bund_rad.json"},
+    AssetTaskStockcubeOutput {
+        "industrial_sunset_02_puresky_irr",
+        "intermediate/stockcube/industrial_sunset_02_puresky_irr.bin",
+        "intermediate/stockcube/industrial_sunset_02_puresky_irr.json"},
+    AssetTaskTtf {
+        "roboto_medium",
+        "fonts/Roboto-Medium.ttf",
+        1.0f / 8.0f,
+    },
 });
 
 static auto BUFFET_SHADER_TASKS = std::to_array<ShaderTask>({
@@ -95,12 +104,25 @@ static auto BUFFET_SHADER_TASKS = std::to_array<ShaderTask>({
             "model_ps",
         },
     },
+    {
+        "buffet/demos/text/text.hlsl",
+        "text",
+        {
+            "background_vs",
+            "background_ps",
+            "glyph_vs",
+            "glyph_ps",
+        },
+    },
 });
 
 static auto STOCKCUBE_ASSET_TASKS = std::to_array<AssetTask>({
     AssetTaskHdrTexture {"farm_field", "envmaps/farm_field_2k.exr"},
     AssetTaskHdrTexture {"winter_evening", "envmaps/winter_evening_2k.exr"},
     AssetTaskHdrTexture {"shanghai_bund", "envmaps/shanghai_bund_2k.exr"},
+    AssetTaskHdrTexture {
+        "industrial_sunset_02_puresky",
+        "envmaps/industrial_sunset_02_puresky_2k.exr"},
     AssetTaskProceduralCube {"skybox", 2.0f, true},
     AssetTaskProceduralSphere {"sphere", 1.0f, 32, false},
 });

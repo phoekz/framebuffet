@@ -34,6 +34,9 @@ public:
     auto shanghai_bund_lut() const -> Texture;
     auto shanghai_bund_irr() const -> CubeTexture;
     auto shanghai_bund_rad() const -> CubeTexture;
+    auto industrial_sunset_02_puresky_irr() const -> CubeTexture;
+    auto roboto_medium_font() const -> Font;
+    auto roboto_medium_mesh_array() const -> MeshArray;
 
 private:
     template<typename T>
@@ -73,6 +76,10 @@ public:
     auto env_background_ps() const -> std::span<const std::byte>;
     auto env_model_vs() const -> std::span<const std::byte>;
     auto env_model_ps() const -> std::span<const std::byte>;
+    auto text_background_vs() const -> std::span<const std::byte>;
+    auto text_background_ps() const -> std::span<const std::byte>;
+    auto text_glyph_vs() const -> std::span<const std::byte>;
+    auto text_glyph_ps() const -> std::span<const std::byte>;
 
 private:
     std::vector<std::byte> _data;

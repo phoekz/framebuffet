@@ -108,7 +108,12 @@ auto buffet_run(Buffet& bf) -> void {
                     bf.device.pix_capture();
                 }
 
-                demos::gui(bf.demos, {});
+                demos::gui(
+                    bf.demos,
+                    {
+                        .window_size = bf.device.swapchain().size(),
+                    }
+                );
             }
             ImGui::End();
             bf.gui.end_frame();

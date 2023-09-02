@@ -52,6 +52,12 @@ struct AssetTaskStockcubeOutput {
     std::string_view json_path;
 };
 
+struct AssetTaskTtf {
+    std::string_view name;
+    std::string_view path;
+    float depth = 1.0f / 8.0f;
+};
+
 using AssetTask = std::variant<
     AssetTaskCopy,
     AssetTaskTexture,
@@ -59,7 +65,8 @@ using AssetTask = std::variant<
     AssetTaskGltf,
     AssetTaskProceduralCube,
     AssetTaskProceduralSphere,
-    AssetTaskStockcubeOutput>;
+    AssetTaskStockcubeOutput,
+    AssetTaskTtf>;
 
 inline constexpr auto asset_task_name(size_t variant) -> std::string_view {
     switch (variant) {
@@ -70,6 +77,7 @@ inline constexpr auto asset_task_name(size_t variant) -> std::string_view {
         case 4: return "AssetTaskProceduralCube";
         case 5: return "AssetTaskProceduralSphere";
         case 6: return "AssetTaskStockcubeOutput";
+        case 7: return "AssetTaskTtf";
         default: FB_FATAL();
     }
 }

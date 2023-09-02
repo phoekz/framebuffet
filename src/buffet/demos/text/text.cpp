@@ -1,0 +1,248 @@
+#include "text.hpp"
+
+namespace fb::demos::text {
+
+auto create(Demo& demo, const CreateDesc& desc) -> void {
+    PIXScopedEvent(PIX_COLOR_DEFAULT, "%s - Create", NAME.data());
+    DebugScope debug(NAME);
+
+    // Unpack.
+    const auto& kitchen_shaders = desc.baked.kitchen.shaders;
+    const auto& shaders = desc.baked.buffet.shaders;
+    const auto& assets = desc.baked.buffet.assets;
+    auto& device = desc.device;
+
+    // Render targets.
+    demo.render_targets.create(
+        device,
+        {
+            .size = device.swapchain().size(),
+            .color_format = COLOR_FORMAT,
+            .clear_color = CLEAR_COLOR,
+            .sample_count = SAMPLE_COUNT,
+        }
+    );
+
+    // Debug draw.
+    demo.debug_draw.create(device, kitchen_shaders, demo.render_targets);
+
+    // Pipeline.
+    GpuPipelineBuilder()
+        .primitive_topology(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)
+        .vertex_shader(shaders.text_glyph_vs())
+        .pixel_shader(shaders.text_glyph_ps())
+        .render_target_formats({demo.render_targets.color_format()})
+        .depth_stencil_format(demo.render_targets.depth_format())
+        .sample_desc(demo.render_targets.sample_desc())
+        .build(device, demo.pipeline, debug.with_name("Pipeline"));
+
+    // Constants.
+    demo.constants.create(device, 1, debug.with_name("Constants"));
+
+    // Geometry.
+    {
+        const auto mesh_array = assets.roboto_medium_mesh_array();
+        demo.submeshes
+            .insert(demo.submeshes.end(), mesh_array.submeshes.begin(), mesh_array.submeshes.end());
+        demo.vertices.create_with_data(device, mesh_array.vertices, debug.with_name("Vertices"));
+        demo.indices.create_with_data(device, mesh_array.indices, debug.with_name("Indices"));
+    }
+
+    // Pbr.
+    const auto irr = assets.industrial_sunset_02_puresky_irr();
+    demo.pbr_irr.create_and_transfer_baked(
+        device,
+        irr,
+        D3D12_RESOURCE_STATE_COMMON,
+        D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
+        debug.with_name("Irradiance")
+    );
+
+    // Background.
+    {
+        DebugScope pass_debug("Background");
+
+        demo.bg.constants.create(device, 1, pass_debug.with_name("Constants"));
+
+        const auto mesh = assets.skybox_mesh();
+        demo.bg.vertices.create_with_data(device, mesh.vertices, pass_debug.with_name("Vertices"));
+        demo.bg.indices.create_with_data(device, mesh.indices, pass_debug.with_name("Indices"));
+
+        GpuPipelineBuilder()
+            .primitive_topology(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)
+            .vertex_shader(shaders.text_background_vs())
+            .pixel_shader(shaders.text_background_ps())
+            .depth_stencil(GpuDepthStencilDesc {
+                .depth_read = true,
+                .depth_write = true,
+                .depth_func = GpuComparisonFunc::LessEqual,
+            })
+            .render_target_formats({demo.render_targets.color_format()})
+            .depth_stencil_format(demo.render_targets.depth_format())
+            .sample_desc(demo.render_targets.sample_desc())
+            .build(device, demo.bg.pipeline, pass_debug.with_name("Pipeline"));
+    }
+
+    // Glyphs.
+    const auto font = assets.roboto_medium_font();
+    demo.glyph_instances[0].create(device, MAX_GLYPH_COUNT, debug.with_name("Instances 0"));
+    demo.glyph_instances[1].create(device, MAX_GLYPH_COUNT, debug.with_name("Instances 1"));
+    demo.glyphs.insert(demo.glyphs.end(), font.glyphs.begin(), font.glyphs.end());
+    demo.first_character = (char)demo.glyphs[0].character;
+    demo.last_character = (char)demo.glyphs[demo.glyphs.size() - 1].character;
+    demo.ascender = font.ascender;
+    demo.space_advance = font.space_advance;
+
+    // Measure text width.
+    auto text_width = 0.0f;
+    for (const auto c : TEXT) {
+        const auto glyph_index = c - demo.first_character;
+        text_width += demo.glyphs[glyph_index].advance;
+    }
+    auto text_height = (3.0f - 1.5f) * font.ascender;
+    demo.parameters.text_offset = float3(-text_width / 2.0f, text_height / 2.0f, 0.0f);
+}
+
+auto gui(Demo& demo, const GuiDesc&) -> void {
+    PIXScopedEvent(PIX_COLOR_DEFAULT, "%s - Gui", NAME.data());
+    auto& params = demo.parameters;
+
+    ImGui::SliderFloat("Camera Distance", &params.camera_distance, 0.0f, 10.0f);
+    ImGui::SliderAngle("Camera FOV", &params.camera_fov, 0.0f, 90.0f);
+    ImGui::SliderAngle("Camera Latitude", &params.camera_latitude, -90.0f, 90.0f);
+    ImGui::SliderAngle("Camera Longitude", &params.camera_longitude, 0.0f, 360.0f);
+    ImGui::SliderFloat("Scene Rotation Speed", &params.scene_rotation_speed, 0.0f, 2.0f);
+    ImGui::ColorPicker4("Glyph Color", (float*)&params.glyph_color);
+}
+
+auto update(Demo& demo, const UpdateDesc& desc) -> void {
+    PIXScopedEvent(PIX_COLOR_DEFAULT, "%s - Update", NAME.data());
+    auto& params = demo.parameters;
+
+    // Update text.
+    {
+        // Reset state.
+        demo.glyph_submesh_count = 0;
+        memset(demo.glyph_submeshes, 0, sizeof(demo.glyph_submeshes));
+        memset(demo.text_buffer, 0, sizeof(demo.text_buffer));
+
+        // Format text.
+        const auto str_length = (uint)snprintf(
+            demo.text_buffer,
+            MAX_GLYPH_COUNT - 1,
+            "%s\nlat: %.2f\nlon: %.2f\n",
+            TEXT.data(),
+            params.camera_latitude,
+            params.scene_rotation_angle
+        );
+        FB_ASSERT(str_length < MAX_GLYPH_COUNT);
+
+        // Update instances.
+        auto x_offset = 0.0f;
+        auto y_offset = 0.0f;
+        auto dst_glyph_instances = demo.glyph_instances[desc.frame_index].ptr();
+        for (uint i = 0; i < str_length; i++) {
+            const auto glyph_char = demo.text_buffer[i];
+            if (glyph_char == ' ') {
+                x_offset += demo.space_advance;
+            } else if (glyph_char == '\n') {
+                x_offset = 0.0f;
+                y_offset -= demo.ascender;
+            } else {
+                FB_ASSERT(demo.first_character <= glyph_char && glyph_char <= demo.last_character);
+                const auto glyph_index = glyph_char - demo.first_character;
+                demo.glyph_submeshes[demo.glyph_submesh_count] = (uint)glyph_index;
+                dst_glyph_instances[demo.glyph_submesh_count] = GlyphInstance {
+                    .position = float3(x_offset, y_offset, 0.0f) + params.text_offset,
+                };
+                demo.glyph_submesh_count++;
+                x_offset += demo.glyphs[glyph_index].advance;
+            }
+        }
+    }
+
+    // Update camera.
+    params.scene_rotation_angle += params.scene_rotation_speed * desc.delta_time;
+    if (params.scene_rotation_angle > PI * 2.0f) {
+        params.scene_rotation_angle -= PI * 2.0f;
+    }
+    const auto projection =
+        float4x4::CreatePerspectiveFieldOfView(params.camera_fov, desc.aspect_ratio, 0.1f, 100.0f);
+    const auto eye =
+        params.camera_distance * dir_from_lonlat(params.camera_longitude, params.camera_latitude);
+    const auto view = float4x4::CreateLookAt(eye, float3::Zero, float3::Up);
+    const auto scene_transform = float4x4::CreateRotationY(params.scene_rotation_angle);
+    const auto camera_transform = view * projection;
+
+    auto env_view = view;
+    env_view.m[3][0] = 0.0f;
+    env_view.m[3][1] = 0.0f;
+    env_view.m[3][2] = 0.0f;
+    env_view.m[3][3] = 1.0f;
+    const auto env_transform = scene_transform * env_view * projection;
+
+    // Update debug draw.
+    demo.debug_draw.begin(desc.frame_index);
+    demo.debug_draw.transform(camera_transform);
+    demo.debug_draw.scaled_axes(2.0f);
+    demo.debug_draw.end();
+
+    // Update constants.
+    *demo.bg.constants.ptr() = BackgroundConstants {
+        .transform = env_transform,
+    };
+    *demo.constants.ptr() = GlyphConstants {
+        .transform = camera_transform,
+        .scene_transform = scene_transform,
+        .color = params.glyph_color,
+    };
+}
+
+auto render(Demo& demo, const RenderDesc& desc) -> void {
+    GpuCommandList& cmd = desc.cmd;
+    cmd.begin_pix("%s - Render", NAME.data());
+    cmd.set_graphics();
+    demo.render_targets.set(cmd);
+    demo.debug_draw.render(cmd);
+
+    {
+        cmd.begin_pix("Background");
+        cmd.set_graphics_constants(BackgroundBindings {
+            .constants = demo.bg.constants.cbv_descriptor().index(),
+            .vertices = demo.bg.vertices.srv_descriptor().index(),
+            .irr_texture = demo.pbr_irr.srv_descriptor().index(),
+        });
+        cmd.set_pipeline(demo.bg.pipeline);
+        cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+        cmd.set_index_buffer(demo.bg.indices.index_buffer_view());
+        cmd.draw_indexed_instanced(demo.bg.indices.element_count(), 1, 0, 0, 0);
+        cmd.end_pix();
+    }
+
+    {
+        cmd.begin_pix("Glyphs");
+        cmd.set_pipeline(demo.pipeline);
+        cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+        cmd.set_index_buffer(demo.indices.index_buffer_view());
+        const auto frame_index = desc.device.frame_index();
+        for (uint i = 0; i < demo.glyph_submesh_count; i++) {
+            const auto submesh_index = demo.glyph_submeshes[i];
+            const auto& submesh = demo.submeshes[submesh_index];
+            cmd.set_graphics_constants(GlyphBindings {
+                .constants = demo.constants.cbv_descriptor().index(),
+                .vertices = demo.vertices.srv_descriptor().index(),
+                .instances = demo.glyph_instances[frame_index].srv_descriptor().index(),
+                .irr_texture = demo.pbr_irr.srv_descriptor().index(),
+                .sampler = (uint)GpuSampler::LinearClamp,
+                .base_vertex = submesh.base_vertex,
+                .instance_id = i,
+            });
+            cmd.draw_indexed_instanced(submesh.index_count, 1, submesh.start_index, 0, 0);
+        }
+        cmd.end_pix();
+    }
+
+    cmd.end_pix();
+}
+
+} // namespace fb::demos::text

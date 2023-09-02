@@ -8,9 +8,9 @@ namespace fb::baked::stockcube {
     }
 
 Assets::Assets() {
-    // hash: a0650c10da39e6dca36f015fd81ce0a3
+    // hash: 7f09e67f65e57037f74b249ecf51e6bd
     _data = read_whole_file("fb_stockcube_assets.bin");
-    FB_ASSERT(_data.size() == 100817472);
+    FB_ASSERT(_data.size() == 134371904);
 }
 
 auto Assets::farm_field_hdr_texture() const -> Texture {
@@ -55,14 +55,28 @@ auto Assets::shanghai_bund_hdr_texture() const -> Texture {
     };
 }
 
+auto Assets::industrial_sunset_02_puresky_hdr_texture() const -> Texture {
+    decltype(Texture::datas) datas = {};
+    // clang-format off
+    datas[ 0] = texture_data(32768, 33554432, 100663296, 33554432); // hash: 40f641d2aaba7e8800dcf4e8cc0e0274, width: 2048, height: 1024
+    // clang-format on
+    return Texture {
+        .format = DXGI_FORMAT_R32G32B32A32_FLOAT,
+        .width = 2048,
+        .height = 1024,
+        .mip_count = 1,
+        .datas = datas,
+    };
+}
+
 auto Assets::skybox_mesh() const -> Mesh {
     // vertex_count: 24
     // face_count: 12
     return Mesh {
         // hash: 952f25941581c525b7890e0284fd3b52
-        .vertices = transmuted_span<Vertex>(100663296, 24),
+        .vertices = transmuted_span<Vertex>(134217728, 24),
         // hash: 0bbe6ec9d4b61b792981857b935d2c96
-        .indices = transmuted_span<Index>(100664448, 36),
+        .indices = transmuted_span<Index>(134218880, 36),
     };
 }
 
@@ -71,9 +85,9 @@ auto Assets::sphere_mesh() const -> Mesh {
     // face_count: 4160
     return Mesh {
         // hash: bdea0aeb8805424705ca957338103a57
-        .vertices = transmuted_span<Vertex>(100664592, 2145),
+        .vertices = transmuted_span<Vertex>(134219024, 2145),
         // hash: b69e987626eec7de0864668ffde28fbe
-        .indices = transmuted_span<Index>(100767552, 12480),
+        .indices = transmuted_span<Index>(134321984, 12480),
     };
 }
 

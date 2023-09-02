@@ -11,6 +11,7 @@ public:
     auto farm_field_hdr_texture() const -> Texture;
     auto winter_evening_hdr_texture() const -> Texture;
     auto shanghai_bund_hdr_texture() const -> Texture;
+    auto industrial_sunset_02_puresky_hdr_texture() const -> Texture;
     auto skybox_mesh() const -> Mesh;
     auto sphere_mesh() const -> Mesh;
 

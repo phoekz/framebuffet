@@ -8,6 +8,7 @@ auto create(Demos& demos, const CreateDesc& desc) -> void {
     env::create(demos.env, {.baked = desc.baked, .device = desc.device});
     fibers::create(demos.fibers, {.baked = desc.baked, .device = desc.device});
     rain::create(demos.rain, {.baked = desc.baked, .device = desc.device});
+    text::create(demos.text, {.baked = desc.baked, .device = desc.device});
     tree::create(demos.tree, {.baked = desc.baked, .device = desc.device});
     cards::create(
         demos.cards,
@@ -15,12 +16,13 @@ auto create(Demos& demos, const CreateDesc& desc) -> void {
             .baked = desc.baked,
             .device = desc.device,
             .render_targets = std::to_array({
-                std::ref(demos.crate.render_targets),
-                std::ref(demos.tree.render_targets),
-                std::ref(demos.rain.render_targets),
                 std::ref(demos.anim.render_targets),
-                std::ref(demos.fibers.render_targets),
+                std::ref(demos.crate.render_targets),
                 std::ref(demos.env.render_targets),
+                std::ref(demos.fibers.render_targets),
+                std::ref(demos.rain.render_targets),
+                std::ref(demos.tree.render_targets),
+                std::ref(demos.text.render_targets),
             }),
         }
     );
@@ -29,7 +31,7 @@ auto create(Demos& demos, const CreateDesc& desc) -> void {
 auto gui(Demos& demos, const GuiDesc& desc) -> void {
 #define gui_wrapper(name)                                                 \
     {                                                                     \
-        const auto flags = ImGuiTreeNodeFlags_DefaultOpen;                \
+        const auto flags = ImGuiTreeNodeFlags_None;                       \
         ImGui::PushID(#name);                                             \
         if (ImGui::CollapsingHeader(name::NAME.data(), nullptr, flags)) { \
             name::gui(demos.name, desc);                                  \
@@ -46,6 +48,7 @@ auto gui(Demos& demos, const GuiDesc& desc) -> void {
     gui_wrapper(env);
     gui_wrapper(fibers);
     gui_wrapper(rain);
+    gui_wrapper(text);
     gui_wrapper(tree);
 
 #undef gui_wrapper
@@ -57,6 +60,7 @@ auto update(Demos& demos, const UpdateDesc& desc) -> void {
     env::update(demos.env, desc);
     fibers::update(demos.fibers, desc);
     rain::update(demos.rain, desc);
+    text::update(demos.text, desc);
     tree::update(demos.tree, desc);
     cards::update(demos.cards, desc);
 }
@@ -68,6 +72,7 @@ auto transition_to_render_target(Demos& demos, const RenderDesc& desc) -> void {
     demos.env.render_targets.transition_to_render_target(cmd);
     demos.fibers.render_targets.transition_to_render_target(cmd);
     demos.rain.render_targets.transition_to_render_target(cmd);
+    demos.text.render_targets.transition_to_render_target(cmd);
     demos.tree.render_targets.transition_to_render_target(cmd);
 }
 
@@ -78,6 +83,7 @@ auto clear_render_targets(Demos& demos, const RenderDesc& desc) -> void {
     demos.env.render_targets.clear_all(cmd);
     demos.fibers.render_targets.clear_all(cmd);
     demos.rain.render_targets.clear_all(cmd);
+    demos.text.render_targets.clear_all(cmd);
     demos.tree.render_targets.clear_all(cmd);
 }
 
@@ -87,6 +93,7 @@ auto render_demos(Demos& demos, const RenderDesc& desc) -> void {
     env::render(demos.env, desc);
     fibers::render(demos.fibers, desc);
     rain::render(demos.rain, desc);
+    text::render(demos.text, desc);
     tree::render(demos.tree, desc);
 }
 
@@ -97,6 +104,7 @@ auto transition_to_resolve(Demos& demos, const RenderDesc& desc) -> void {
     demos.env.render_targets.transition_to_resolve(cmd);
     demos.fibers.render_targets.transition_to_resolve(cmd);
     demos.rain.render_targets.transition_to_resolve(cmd);
+    demos.text.render_targets.transition_to_resolve(cmd);
     demos.tree.render_targets.transition_to_resolve(cmd);
 }
 
@@ -107,6 +115,7 @@ auto resolve_render_targets(Demos& demos, const RenderDesc& desc) -> void {
     demos.env.render_targets.resolve_all(cmd);
     demos.fibers.render_targets.resolve_all(cmd);
     demos.rain.render_targets.resolve_all(cmd);
+    demos.text.render_targets.resolve_all(cmd);
     demos.tree.render_targets.resolve_all(cmd);
 }
 
@@ -117,6 +126,7 @@ auto transition_to_srv(Demos& demos, const RenderDesc& desc) -> void {
     demos.env.render_targets.transition_to_pixel_shader_resource(cmd);
     demos.fibers.render_targets.transition_to_pixel_shader_resource(cmd);
     demos.rain.render_targets.transition_to_pixel_shader_resource(cmd);
+    demos.text.render_targets.transition_to_pixel_shader_resource(cmd);
     demos.tree.render_targets.transition_to_pixel_shader_resource(cmd);
 }
 

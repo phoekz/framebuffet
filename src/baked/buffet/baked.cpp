@@ -8,9 +8,9 @@ namespace fb::baked::buffet {
     }
 
 Assets::Assets() {
-    // hash: 73ecb97c28b35e05cdea1b96328f97fe
+    // hash: 3167c2e8b2bbb349fed818fbe7bc94d2
     _data = read_whole_file("fb_buffet_assets.bin");
-    FB_ASSERT(_data.size() == 173490504);
+    FB_ASSERT(_data.size() == 176272592);
 }
 
 auto Assets::heatmap_magma_texture() const -> Texture {
@@ -611,10 +611,53 @@ auto Assets::shanghai_bund_rad() const -> CubeTexture {
     };
 }
 
+auto Assets::industrial_sunset_02_puresky_irr() const -> CubeTexture {
+    decltype(CubeTexture::datas) datas = {};
+    // clang-format off
+    datas[0][ 0] = texture_data(1024,  131072, 173490504,  131072); // hash: 14bace1323fdb1b8093dfd31df5652a4, width: 128, height: 128
+    datas[1][ 0] = texture_data(1024,  131072, 173621576,  131072); // hash: be316532626188efaffe393800a2b463, width: 128, height: 128
+    datas[2][ 0] = texture_data(1024,  131072, 173752648,  131072); // hash: 5f9bc366b6a4a7fb368796936dc50d94, width: 128, height: 128
+    datas[3][ 0] = texture_data(1024,  131072, 173883720,  131072); // hash: 6f95ec7a8f2c6167a11879a2af8972d5, width: 128, height: 128
+    datas[4][ 0] = texture_data(1024,  131072, 174014792,  131072); // hash: 0e69d9da1b68db7535563c39e2574521, width: 128, height: 128
+    datas[5][ 0] = texture_data(1024,  131072, 174145864,  131072); // hash: c8dd89cfcc42f96602486d5c12a952c4, width: 128, height: 128
+    // clang-format on
+    return CubeTexture {
+        .format = DXGI_FORMAT_R16G16B16A16_FLOAT,
+        .width = 128,
+        .height = 128,
+        .mip_count = 1,
+        .datas = datas,
+    };
+}
+
+auto Assets::roboto_medium_font() const -> Font {
+    return Font {
+        .ascender = 0.9277344f,
+        .descender = -0.24414062f,
+        .space_advance = 0.24902344f,
+        // hash: 256bbea6356b2b592731c2cb48958d7f
+        .glyphs = transmuted_span<Glyph>(174276936, 94),
+    };
+}
+
+auto Assets::roboto_medium_mesh_array() const -> MeshArray {
+    // submesh_count: 94
+    // vertex_count: 35628
+    // face_count: 23448
+    return MeshArray {
+        // hash: 8384a220e7f3e90e627e9774b7dbd4c1
+        .submeshes = transmuted_span<Submesh>(174279944, 94),
+        // hash: 29374dddcd21f32bd4d1c96ff182a0ae
+        .vertices = transmuted_span<Vertex>(174281072, 35628),
+        // hash: 022ec4951ed71315112a36ddd2c7ecf2
+        .indices = transmuted_span<Index>(175991216, 70344),
+    };
+}
+
 Shaders::Shaders() {
-    // hash: 9c2a2f7499dc464b03dffab25955ef11
+    // hash: 11df2a6a14e273ed9fa8ae7e5da495d7
     _data = read_whole_file("fb_buffet_shaders.bin");
-    FB_ASSERT(_data.size() == 129116);
+    FB_ASSERT(_data.size() == 149016);
 }
 
 // shader_hash: 5792fbf56668c072f9917d0d52e90c6d
@@ -917,6 +960,55 @@ auto Shaders::env_model_vs() const -> std::span<const std::byte> {
 // texture_normal_instructions: 3
 auto Shaders::env_model_ps() const -> std::span<const std::byte> {
     return std::span(_data).subspan(123528, 5588);
+}
+
+// shader_hash: 319ed77b707f15f69d8a8c1e177e13b3
+// constant_buffers: 1
+// bound_resources: 1
+// input_parameters: 2
+// output_parameters: 4
+// instruction_count: 62
+// float_instruction_count: 6
+// texture_load_instructions: 3
+auto Shaders::text_background_vs() const -> std::span<const std::byte> {
+    return std::span(_data).subspan(129116, 5196);
+}
+
+// shader_hash: 585041d3c583a82abf55420ce670d565
+// constant_buffers: 1
+// bound_resources: 1
+// input_parameters: 4
+// output_parameters: 1
+// instruction_count: 26
+// float_instruction_count: 5
+// texture_normal_instructions: 1
+auto Shaders::text_background_ps() const -> std::span<const std::byte> {
+    return std::span(_data).subspan(134312, 4736);
+}
+
+// shader_hash: 359c134277e6c9fb8d2a766f5bc2f2a0
+// constant_buffers: 1
+// bound_resources: 1
+// input_parameters: 2
+// output_parameters: 2
+// instruction_count: 97
+// float_instruction_count: 14
+// int_instruction_count: 1
+// texture_load_instructions: 3
+auto Shaders::text_glyph_vs() const -> std::span<const std::byte> {
+    return std::span(_data).subspan(139048, 5236);
+}
+
+// shader_hash: fd3ad7c5652657e033ffec4c9d8b1ef2
+// constant_buffers: 1
+// bound_resources: 1
+// input_parameters: 2
+// output_parameters: 1
+// instruction_count: 37
+// float_instruction_count: 8
+// texture_normal_instructions: 1
+auto Shaders::text_glyph_ps() const -> std::span<const std::byte> {
+    return std::span(_data).subspan(144284, 4732);
 }
 
 #undef texture_data
