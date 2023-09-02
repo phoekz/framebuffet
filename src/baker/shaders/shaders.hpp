@@ -2,6 +2,8 @@
 
 #include "../pch.hpp"
 
+#include <dxcapi.h>
+
 namespace fb {
 
 enum class ShaderType {

@@ -2,7 +2,12 @@
 #include "../formats/gltf.hpp"
 #include "../formats/mikktspace.hpp"
 #include "../utils/names.hpp"
+
 #include <stb_image_resize.h>
+#include <directxtk12/GeometricPrimitive.h>
+#include <nlohmann/json.hpp>
+using json = nlohmann::json;
+using ord_json = nlohmann::ordered_json;
 
 namespace fb {
 
@@ -140,33 +145,30 @@ auto bake_assets(std::string_view assets_dir, std::span<const AssetTask> asset_t
         std::visit(
             overloaded {
                 [&](const AssetTaskCopy& task) {
-                    const auto name = names.unique(std::string(task.name));
                     const auto path = std::format("{}/{}", assets_dir, task.path);
                     const auto file = read_whole_file(path);
                     assets.push_back(AssetCopy {
-                        .name = name,
+                        .name = names.unique(std::string(task.name)),
                         .data = assets_writer.write("std::byte", std::span(file)),
                     });
                 },
                 [&](const AssetTaskTexture& task) {
-                    const auto name = names.unique(std::format("{}_texture", task.name));
                     const auto path = std::format("{}/{}", assets_dir, task.path);
                     const auto file = read_whole_file(path);
                     const auto image = LdrImage::load(file);
                     assets.push_back(mipmapped_texture_asset(
                         assets_writer,
-                        name,
+                        names.unique(std::format("{}_texture", task.name)),
                         image,
                         task.format,
                         task.color_space
                     ));
                 },
                 [&](const AssetTaskHdrTexture& task) {
-                    const auto name = names.unique(std::format("{}_hdr_texture", task.name));
                     const auto file = read_whole_file(std::format("{}/{}", assets_dir, task.path));
                     const auto image = HdrImage::load(file);
                     assets.push_back(AssetTexture {
-                        .name = name,
+                        .name = names.unique(std::format("{}_hdr_texture", task.name)),
                         .format = image.format(),
                         .width = image.width(),
                         .height = image.height(),
@@ -209,9 +211,8 @@ auto bake_assets(std::string_view assets_dir, std::span<const AssetTask> asset_t
                             };
                         }
 
-                        const auto mesh_name = names.unique(std::format("{}_mesh", task.name));
                         assets.push_back(AssetMesh {
-                            .name = mesh_name,
+                            .name = names.unique(std::format("{}_mesh", task.name)),
                             .vertices = assets_writer.write(
                                 "Vertex",
                                 std::span<const AssetVertex>(vertices)
@@ -231,10 +232,8 @@ auto bake_assets(std::string_view assets_dir, std::span<const AssetTask> asset_t
                             };
                         }
 
-                        const auto mesh_name =
-                            names.unique(std::format("{}_animation_mesh", task.name));
                         assets.push_back(AssetAnimationMesh {
-                            .name = mesh_name,
+                            .name = names.unique(std::format("{}_animation_mesh", task.name)),
                             .node_count = model.node_count(),
                             .joint_count = model.joint_count(),
                             .duration = model.animation_duration(),
@@ -268,37 +267,28 @@ auto bake_assets(std::string_view assets_dir, std::span<const AssetTask> asset_t
 
                     // Textures.
                     {
-                        const auto texture = model.base_color_texture();
-                        const auto texture_name =
-                            names.unique(std::format("{}_base_color_texture", task.name));
                         assets.push_back(mipmapped_texture_asset(
                             assets_writer,
-                            texture_name,
-                            texture,
+                            names.unique(std::format("{}_base_color_texture", task.name)),
+                            model.base_color_texture(),
                             GLTF_BASE_COLOR_TEXTURE_FORMAT,
                             AssetColorSpace::Srgb
                         ));
                     }
                     if (model.normal_texture().has_value()) {
-                        const auto texture = model.normal_texture().value().get();
-                        const auto texture_name =
-                            names.unique(std::format("{}_normal_texture", task.name));
                         assets.push_back(mipmapped_texture_asset(
                             assets_writer,
-                            texture_name,
-                            texture,
+                            names.unique(std::format("{}_normal_texture", task.name)),
+                            model.normal_texture().value().get(),
                             GLTF_NORMAL_TEXTURE_FORMAT,
                             AssetColorSpace::Linear
                         ));
                     }
                     if (model.metallic_roughness_texture().has_value()) {
-                        const auto texture = model.metallic_roughness_texture().value().get();
-                        const auto texture_name =
-                            names.unique(std::format("{}_metallic_roughness_texture", task.name));
                         assets.push_back(mipmapped_texture_asset(
                             assets_writer,
-                            texture_name,
-                            texture,
+                            names.unique(std::format("{}_metallic_roughness_texture", task.name)),
+                            model.metallic_roughness_texture().value().get(),
                             GLTF_METALLIC_ROUGHNESS_TEXTURE_FORMAT,
                             AssetColorSpace::Linear
                         ));
@@ -357,9 +347,8 @@ auto bake_assets(std::string_view assets_dir, std::span<const AssetTask> asset_t
                     }
 
                     // Mesh.
-                    const auto mesh_name = names.unique(std::format("{}_mesh", task.name));
                     assets.push_back(AssetMesh {
-                        .name = mesh_name,
+                        .name = names.unique(std::format("{}_mesh", task.name)),
                         .vertices =
                             assets_writer.write("Vertex", std::span<const AssetVertex>(vertices)),
                         .indices =
@@ -420,9 +409,8 @@ auto bake_assets(std::string_view assets_dir, std::span<const AssetTask> asset_t
                     }
 
                     // Mesh.
-                    const auto mesh_name = names.unique(std::format("{}_mesh", task.name));
                     assets.push_back(AssetMesh {
-                        .name = mesh_name,
+                        .name = names.unique(std::format("{}_mesh", task.name)),
                         .vertices =
                             assets_writer.write("Vertex", std::span<const AssetVertex>(vertices)),
                         .indices =
@@ -469,7 +457,7 @@ auto bake_assets(std::string_view assets_dir, std::span<const AssetTask> asset_t
                         }
 
                         assets.push_back(AssetCubeTexture {
-                            .name = std::string(task.name),
+                            .name = names.unique(std::string(task.name)),
                             .format = format,
                             .width = width,
                             .height = height,

@@ -1,5 +1,8 @@
 #include "image.hpp"
 
+#include <stb_image.h>
+#include <tinyexr.h>
+
 namespace fb {
 
 static constexpr uint CHANNEL_COUNT = 4;

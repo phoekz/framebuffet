@@ -1,5 +1,7 @@
 #include "gltf.hpp"
 
+#include <cgltf.h>
+
 namespace fb {
 
 GltfModel::GltfModel(std::string_view gltf_path) {

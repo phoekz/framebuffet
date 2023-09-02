@@ -1,6 +1,9 @@
 #include "shaders.hpp"
 #include "../utils/names.hpp"
 
+#include <d3d12shader.h>
+#include <sstream>
+
 namespace fb {
 
 auto ShaderCounters::to_comment_string() const -> std::string {

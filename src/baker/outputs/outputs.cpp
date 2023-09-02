@@ -3,6 +3,8 @@
 #include "templates/baked_hpp.hpp"
 #include "templates/baked_cpp.hpp"
 
+#include <sstream>
+
 template<>
 struct std::formatter<DXGI_FORMAT>: std::formatter<char> {
     template<class FormatContext>
