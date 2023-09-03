@@ -2,6 +2,7 @@
 
 #include "pch.hpp"
 #include "log.hpp"
+#include "trap.hpp"
 
 namespace fb {
 
@@ -17,6 +18,7 @@ namespace error_detail {
 #define FB_ASSERT(condition)                              \
     do {                                                  \
         if (!(condition)) [[unlikely]] {                  \
+            FRAME_ALLOCATION_TRAP = false;                \
             auto __loc = std::source_location::current(); \
             auto __msg = std::format(                     \
                 "Assertion failed: {}\nLocation: {}:{}",  \
@@ -24,6 +26,7 @@ namespace error_detail {
                 __loc.file_name(),                        \
                 __loc.line()                              \
             );                                            \
+            FRAME_ALLOCATION_TRAP = true;                 \
             FB_INTERNAL_POST_ASSERTION(__msg);            \
         }                                                 \
     } while (false)
@@ -31,6 +34,7 @@ namespace error_detail {
 #define FB_ASSERT_MSG(condition, ...)                                 \
     do {                                                              \
         if (!(condition)) [[unlikely]] {                              \
+            FRAME_ALLOCATION_TRAP = false;                            \
             auto __loc = std::source_location::current();             \
             auto __msg = std::format(                                 \
                 "Assertion failed: {}\nLocation: {}:{}\nMessage: {}", \
@@ -39,6 +43,7 @@ namespace error_detail {
                 __loc.line(),                                         \
                 std::format(__VA_ARGS__)                              \
             );                                                        \
+            FRAME_ALLOCATION_TRAP = true;                             \
             FB_INTERNAL_POST_ASSERTION(__msg);                        \
         }                                                             \
     } while (false)
@@ -46,6 +51,7 @@ namespace error_detail {
 #define FB_ASSERT_HR(hr)                                  \
     do {                                                  \
         if (FAILED(hr)) [[unlikely]] {                    \
+            FRAME_ALLOCATION_TRAP = false;                \
             auto __loc = std::source_location::current(); \
             auto __msg = std::format(                     \
                 "HRESULT failed: {}\nLocation: {}:{}",    \
@@ -53,6 +59,7 @@ namespace error_detail {
                 __loc.file_name(),                        \
                 __loc.line()                              \
             );                                            \
+            FRAME_ALLOCATION_TRAP = true;                 \
             FB_INTERNAL_POST_ASSERTION(__msg);            \
         }                                                 \
     } while (false)
