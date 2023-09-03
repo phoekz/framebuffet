@@ -85,10 +85,10 @@ auto DebugDraw::end() -> void {
     memcpy(frame._lines.span().data(), _lines.data(), _lines.size() * sizeof(Vertex));
 }
 
-auto DebugDraw::render(const GpuCommandList& cmd) -> void {
+auto DebugDraw::render(GpuGraphicsCommandList& cmd) -> void {
     const auto& frame = _frames[_frame_index];
     cmd.begin_pix("Debug Draw");
-    cmd.set_graphics_constants(Bindings {
+    cmd.set_constants(Bindings {
         .constants = frame._constants.cbv_descriptor().index(),
         .vertices = frame._lines.srv_descriptor().index(),
     });

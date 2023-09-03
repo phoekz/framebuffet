@@ -245,7 +245,6 @@ auto GpuDevice::begin_frame() -> GpuCommandList {
     _command_list->Reset(cmd_alloc, nullptr);
     return GpuCommandList {
         _command_list.get(),
-        GpuCommandEngine::Unknown,
         _root_signature.get(),
         &_descriptors,
     };

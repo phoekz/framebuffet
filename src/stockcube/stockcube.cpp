@@ -184,14 +184,17 @@ auto stockcube_run(Stockcube& sc) -> void {
                 {
                     cmd.begin_pix("Compose");
 
-                    swapchain.set_render_target(cmd, frame_index);
-
-                    const auto desc = techniques::RenderDesc {
-                        .cmd = cmd,
-                        .device = sc.device,
-                        .frame_index = frame_index,
-                    };
-                    techniques::render_compositing(sc.techniques, desc);
+                    cmd.graphics_scope([&swapchain, frame_index](GpuGraphicsCommandList& cmd) {
+                        swapchain.set_render_target(cmd, frame_index);
+                    });
+                    techniques::render_compositing(
+                        sc.techniques,
+                        {
+                            .cmd = cmd,
+                            .device = sc.device,
+                            .frame_index = frame_index,
+                        }
+                    );
                     sc.gui.render(sc.device, cmd);
 
                     swapchain.transition_to_present(cmd, frame_index);

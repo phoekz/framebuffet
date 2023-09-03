@@ -208,50 +208,51 @@ auto update(Demo& demo, const UpdateDesc& desc) -> void {
 
 auto render(Demo& demo, const RenderDesc& desc) -> void {
     auto& [cmd, device, frame_index] = desc;
-    cmd.begin_pix("%s - Render", NAME.data());
-    cmd.set_graphics();
-    demo.render_targets.set(cmd);
-    demo.debug_draw.render(cmd);
+    cmd.graphics_scope([&demo, frame_index](GpuGraphicsCommandList& cmd) {
+        cmd.begin_pix("%s - Render", NAME.data());
+        demo.render_targets.set(cmd);
+        demo.debug_draw.render(cmd);
 
-    {
-        cmd.begin_pix("Background");
-        const auto& pass = demo.bg;
-        cmd.set_graphics_constants(BackgroundBindings {
-            .constants = pass.constants.buffer(frame_index).cbv_descriptor().index(),
-            .vertices = pass.vertices.srv_descriptor().index(),
-            .irr_texture = demo.pbr.irr.srv_descriptor().index(),
-        });
-        cmd.set_pipeline(pass.pipeline);
-        cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-        cmd.set_index_buffer(pass.indices.index_buffer_view());
-        cmd.draw_indexed_instanced(pass.indices.element_count(), 1, 0, 0, 0);
-        cmd.end_pix();
-    }
-
-    {
-        cmd.begin_pix("Glyphs");
-        const auto& pass = demo.glyph;
-        cmd.set_pipeline(pass.pipeline);
-        cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-        cmd.set_index_buffer(pass.indices.index_buffer_view());
-        for (uint i = 0; i < pass.glyph_submesh_count; i++) {
-            const auto submesh_index = pass.glyph_submeshes[i];
-            const auto& submesh = pass.submeshes[submesh_index];
-            cmd.set_graphics_constants(GlyphBindings {
+        {
+            cmd.begin_pix("Background");
+            const auto& pass = demo.bg;
+            cmd.set_constants(BackgroundBindings {
                 .constants = pass.constants.buffer(frame_index).cbv_descriptor().index(),
                 .vertices = pass.vertices.srv_descriptor().index(),
-                .instances = pass.instances.buffer(frame_index).srv_descriptor().index(),
                 .irr_texture = demo.pbr.irr.srv_descriptor().index(),
-                .sampler = (uint)GpuSampler::LinearClamp,
-                .base_vertex = submesh.base_vertex,
-                .instance_id = i,
             });
-            cmd.draw_indexed_instanced(submesh.index_count, 1, submesh.start_index, 0, 0);
+            cmd.set_pipeline(pass.pipeline);
+            cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+            cmd.set_index_buffer(pass.indices.index_buffer_view());
+            cmd.draw_indexed_instanced(pass.indices.element_count(), 1, 0, 0, 0);
+            cmd.end_pix();
         }
-        cmd.end_pix();
-    }
 
-    cmd.end_pix();
+        {
+            cmd.begin_pix("Glyphs");
+            const auto& pass = demo.glyph;
+            cmd.set_pipeline(pass.pipeline);
+            cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+            cmd.set_index_buffer(pass.indices.index_buffer_view());
+            for (uint i = 0; i < pass.glyph_submesh_count; i++) {
+                const auto submesh_index = pass.glyph_submeshes[i];
+                const auto& submesh = pass.submeshes[submesh_index];
+                cmd.set_constants(GlyphBindings {
+                    .constants = pass.constants.buffer(frame_index).cbv_descriptor().index(),
+                    .vertices = pass.vertices.srv_descriptor().index(),
+                    .instances = pass.instances.buffer(frame_index).srv_descriptor().index(),
+                    .irr_texture = demo.pbr.irr.srv_descriptor().index(),
+                    .sampler = (uint)GpuSampler::LinearClamp,
+                    .base_vertex = submesh.base_vertex,
+                    .instance_id = i,
+                });
+                cmd.draw_indexed_instanced(submesh.index_count, 1, submesh.start_index, 0, 0);
+            }
+            cmd.end_pix();
+        }
+
+        cmd.end_pix();
+    });
 }
 
 } // namespace fb::demos::text

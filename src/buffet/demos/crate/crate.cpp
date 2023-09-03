@@ -206,34 +206,36 @@ auto update(Demo& demo, const UpdateDesc& desc) -> void {
 
 auto render(Demo& demo, const RenderDesc& desc) -> void {
     auto& [cmd, device, frame_index] = desc;
-    cmd.begin_pix("%s - Render", NAME.data());
-    cmd.set_graphics();
-    demo.render_targets.set(cmd);
-    demo.debug_draw.render(cmd);
+    cmd.graphics_scope([&demo, frame_index](GpuGraphicsCommandList& cmd) {
+        cmd.begin_pix("%s - Render", NAME.data());
 
-    cmd.begin_pix("Models");
-    cmd.set_pipeline(demo.pipeline);
-    cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-    for (const auto& [model, sampler] :
-         {std::make_tuple(std::cref(demo.sci_fi_crate), GpuSampler::AnisotropicLinearClamp),
-          std::make_tuple(std::cref(demo.metal_plane), GpuSampler::AnisotropicLinearWrap)}) {
-        cmd.set_graphics_constants(Bindings {
-            .constants = demo.constants.buffer(frame_index).cbv_descriptor().index(),
-            .vertices = model.vertices.srv_descriptor().index(),
-            .base_color_texture = model.base_color.srv_descriptor().index(),
-            .normal_texture = model.normal.srv_descriptor().index(),
-            .metallic_roughness_texture = model.metallic_roughness.srv_descriptor().index(),
-            .sampler = (uint)sampler,
-            .lut_texture = demo.pbr_lut.srv_descriptor().index(),
-            .irr_texture = demo.pbr_irr.srv_descriptor().index(),
-            .rad_texture = demo.pbr_rad.srv_descriptor().index(),
-        });
-        cmd.set_index_buffer(model.indices.index_buffer_view());
-        cmd.draw_indexed_instanced(model.indices.element_count(), 1, 0, 0, 0);
-    }
-    cmd.end_pix();
+        demo.render_targets.set(cmd);
+        demo.debug_draw.render(cmd);
 
-    cmd.end_pix();
+        cmd.begin_pix("Models");
+        cmd.set_pipeline(demo.pipeline);
+        cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+        for (const auto& [model, sampler] :
+             {std::make_tuple(std::cref(demo.sci_fi_crate), GpuSampler::AnisotropicLinearClamp),
+              std::make_tuple(std::cref(demo.metal_plane), GpuSampler::AnisotropicLinearWrap)}) {
+            cmd.set_constants(Bindings {
+                .constants = demo.constants.buffer(frame_index).cbv_descriptor().index(),
+                .vertices = model.vertices.srv_descriptor().index(),
+                .base_color_texture = model.base_color.srv_descriptor().index(),
+                .normal_texture = model.normal.srv_descriptor().index(),
+                .metallic_roughness_texture = model.metallic_roughness.srv_descriptor().index(),
+                .sampler = (uint)sampler,
+                .lut_texture = demo.pbr_lut.srv_descriptor().index(),
+                .irr_texture = demo.pbr_irr.srv_descriptor().index(),
+                .rad_texture = demo.pbr_rad.srv_descriptor().index(),
+            });
+            cmd.set_index_buffer(model.indices.index_buffer_view());
+            cmd.draw_indexed_instanced(model.indices.element_count(), 1, 0, 0, 0);
+        }
+        cmd.end_pix();
+
+        cmd.end_pix();
+    });
 }
 
 } // namespace fb::demos::crate

@@ -230,26 +230,28 @@ auto update(Demo& demo, const UpdateDesc& desc) -> void {
 
 auto render(Demo& demo, const RenderDesc& desc) -> void {
     auto& [cmd, device, frame_index] = desc;
-    cmd.begin_pix("%s - Render", NAME.data());
-    cmd.set_graphics();
-    demo.render_targets.set(cmd);
-    demo.debug_draw.render(cmd);
+    cmd.graphics_scope([&demo, frame_index](GpuGraphicsCommandList& cmd) {
+        cmd.begin_pix("%s - Render", NAME.data());
 
-    cmd.begin_pix("Animation");
-    cmd.set_graphics_constants(Bindings {
-        .constants = demo.constants.buffer(frame_index).cbv_descriptor().index(),
-        .vertices = demo.vertices.srv_descriptor().index(),
-        .joints_inverse_binds = demo.joint_inverse_bind_buffer.srv_descriptor().index(),
-        .joints_global_transforms = demo.joint_global_transform_buffer.srv_descriptor().index(),
-        .texture = demo.texture.srv_descriptor().index(),
+        demo.render_targets.set(cmd);
+        demo.debug_draw.render(cmd);
+
+        cmd.begin_pix("Animation");
+        cmd.set_constants(Bindings {
+            .constants = demo.constants.buffer(frame_index).cbv_descriptor().index(),
+            .vertices = demo.vertices.srv_descriptor().index(),
+            .joints_inverse_binds = demo.joint_inverse_bind_buffer.srv_descriptor().index(),
+            .joints_global_transforms = demo.joint_global_transform_buffer.srv_descriptor().index(),
+            .texture = demo.texture.srv_descriptor().index(),
+        });
+        cmd.set_pipeline(demo.pipeline);
+        cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+        cmd.set_index_buffer(demo.indices.index_buffer_view());
+        cmd.draw_indexed_instanced(demo.indices.element_count(), 1, 0, 0, 0);
+        cmd.end_pix();
+
+        cmd.end_pix();
     });
-    cmd.set_pipeline(demo.pipeline);
-    cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-    cmd.set_index_buffer(demo.indices.index_buffer_view());
-    cmd.draw_indexed_instanced(demo.indices.element_count(), 1, 0, 0, 0);
-    cmd.end_pix();
-
-    cmd.end_pix();
 }
 
 } // namespace fb::demos::anim

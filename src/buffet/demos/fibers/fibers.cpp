@@ -269,13 +269,12 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
     cmd.begin_pix("%s - Render", NAME.data());
 
     // Compute.
-    {
+    cmd.compute_scope([&demo, frame_index](GpuComputeCommandList& cmd) {
         cmd.begin_pix("Compute");
-        cmd.set_compute();
 
         // Sim.
         cmd.set_pipeline(demo.sim_pipeline);
-        cmd.set_compute_constants(Bindings {
+        cmd.set_constants(Bindings {
             .constants = demo.constants.buffer(frame_index).cbv_descriptor().index(),
             .lights = demo.lights.uav_descriptor().index(),
         });
@@ -285,7 +284,7 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
 
         // Reset.
         cmd.set_pipeline(demo.reset_pipeline);
-        cmd.set_compute_constants(Bindings {
+        cmd.set_constants(Bindings {
             .light_indices_count = demo.light_indices_count.uav_descriptor().index(),
         });
         cmd.dispatch(1, 1, 1);
@@ -294,7 +293,7 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
 
         // Cull.
         cmd.set_pipeline(demo.cull_pipeline);
-        cmd.set_compute_constants(Bindings {
+        cmd.set_constants(Bindings {
             .constants = demo.constants.buffer(frame_index).cbv_descriptor().index(),
             .lights = demo.lights.uav_descriptor().index(),
             .light_counts_texture = demo.light_counts_texture.uav_descriptor().index(),
@@ -308,21 +307,22 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
         demo.light_indices.uav_barrier(cmd);
         demo.light_indices_count.uav_barrier(cmd);
         cmd.flush_barriers();
+
         cmd.end_pix();
-    }
+    });
 
     // Draw.
-    {
+    cmd.graphics_scope([&demo, frame_index](GpuGraphicsCommandList& cmd) {
+        cmd.begin_pix("Draw");
+
         const auto& params = demo.parameters;
 
-        cmd.begin_pix("Draw");
-        cmd.set_graphics();
         demo.render_targets.set(cmd);
         demo.debug_draw.render(cmd);
 
         // Light.
         if (params.show_light_bounds) {
-            cmd.set_graphics_constants(Bindings {
+            cmd.set_constants(Bindings {
                 .constants = demo.constants.buffer(frame_index).cbv_descriptor().index(),
                 .lights = demo.lights.srv_descriptor().index(),
                 .vertices = demo.light_mesh.vertices.srv_descriptor().index(),
@@ -340,7 +340,7 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
         }
 
         // Plane.
-        cmd.set_graphics_constants(Bindings {
+        cmd.set_constants(Bindings {
             .constants = demo.constants.buffer(frame_index).cbv_descriptor().index(),
             .lights = demo.lights.srv_descriptor().index(),
             .vertices = demo.plane_mesh.vertices.srv_descriptor().index(),
@@ -361,7 +361,7 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
                 heatmap_index = demo.viridis_texture.srv_descriptor().index();
                 break;
         }
-        cmd.set_graphics_constants(Bindings {
+        cmd.set_constants(Bindings {
             .constants = demo.constants.buffer(frame_index).cbv_descriptor().index(),
             .heatmap_texture = heatmap_index,
             .light_counts_texture = demo.light_counts_texture.srv_descriptor().index(),
@@ -370,7 +370,7 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
         cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
         cmd.draw_instanced(3, 1, 0, 0);
         cmd.end_pix();
-    }
+    });
 
     cmd.end_pix();
 }

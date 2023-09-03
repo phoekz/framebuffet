@@ -121,25 +121,26 @@ auto update(Technique&, const UpdateDesc&) -> void {
 }
 
 auto render(Technique& tech, const RenderDesc& desc) -> void {
-    GpuCommandList& cmd = desc.cmd;
-
-    cmd.begin_pix("%s - GpuCommands", NAME.data());
-    cmd.set_pipeline(tech.pipeline);
-    cmd.set_graphics_constants(Bindings {
-        .constants = tech.constants.cbv_descriptor().index(),
-        .vertices = tech.vertices.srv_descriptor().index(),
-        .instances = tech.instances.srv_descriptor().index(),
+    auto& [cmd, device, frame_index] = desc;
+    cmd.graphics_scope([&tech, frame_index](GpuGraphicsCommandList& cmd) {
+        cmd.begin_pix("%s - Render", NAME.data());
+        cmd.set_pipeline(tech.pipeline);
+        cmd.set_constants(Bindings {
+            .constants = tech.constants.cbv_descriptor().index(),
+            .vertices = tech.vertices.srv_descriptor().index(),
+            .instances = tech.instances.srv_descriptor().index(),
+        });
+        cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+        cmd.set_index_buffer(tech.indices.index_buffer_view());
+        cmd.draw_indexed_instanced(
+            tech.indices.element_count(),
+            tech.instances.element_count(),
+            0,
+            0,
+            0
+        );
+        cmd.end_pix();
     });
-    cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-    cmd.set_index_buffer(tech.indices.index_buffer_view());
-    cmd.draw_indexed_instanced(
-        tech.indices.element_count(),
-        tech.instances.element_count(),
-        0,
-        0,
-        0
-    );
-    cmd.end_pix();
 }
 
 } // namespace fb::techniques::screen

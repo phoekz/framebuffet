@@ -28,7 +28,7 @@ public:
     auto scaled_axes(float scale) -> void;
     auto grid(uint size) -> void;
     auto end() -> void;
-    auto render(const GpuCommandList& cmd) -> void;
+    auto render(GpuGraphicsCommandList& cmd) -> void;
 
 private:
     GpuPipeline _pipeline;

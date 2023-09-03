@@ -24,7 +24,7 @@ public:
     auto resolve_all(GpuCommandList& cmd) -> void;
     auto transition_to_pixel_shader_resource(GpuCommandList& cmd) -> void;
 
-    auto set(GpuCommandList& cmd) -> void;
+    auto set(GpuGraphicsCommandList& cmd) -> void;
 
     auto color() const -> const GpuTextureSrvUavRtv& { return _color; }
     auto depth() const -> const GpuTextureDsv& { return _depth; }

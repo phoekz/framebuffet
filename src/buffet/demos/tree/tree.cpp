@@ -172,62 +172,62 @@ auto update(Demo& demo, const UpdateDesc& desc) -> void {
 
 auto render(Demo& demo, const RenderDesc& desc) -> void {
     auto& [cmd, device, frame_index] = desc;
-    cmd.begin_pix("%s - Render", NAME.data());
+    cmd.graphics_scope([&demo, frame_index](GpuGraphicsCommandList& cmd) {
+        cmd.begin_pix("%s - Render", NAME.data());
 
-    {
-        cmd.begin_pix("Shadow");
-        cmd.set_graphics();
-        demo.shadow_depth.transition(cmd, D3D12_RESOURCE_STATE_DEPTH_WRITE);
-        cmd.flush_barriers();
-        cmd.set_viewport(0, 0, SHADOW_MAP_SIZE, SHADOW_MAP_SIZE);
-        cmd.set_scissor(0, 0, SHADOW_MAP_SIZE, SHADOW_MAP_SIZE);
-        cmd.set_rtv_dsv(std::nullopt, demo.shadow_depth.dsv_descriptor());
-        cmd.clear_dsv(demo.shadow_depth.dsv_descriptor(), 1.0f);
-        cmd.set_graphics_constants(Bindings {
-            demo.constants.buffer(frame_index).cbv_descriptor().index(),
-            demo.tree_vertices.srv_descriptor().index(),
-        });
-        cmd.set_pipeline(demo.shadow_pipeline);
-        cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-        cmd.set_index_buffer(demo.tree_indices.index_buffer_view());
-        cmd.draw_indexed_instanced(demo.tree_indices.element_count(), 1, 0, 0, 0);
-        demo.shadow_depth.transition(
-            cmd,
-            D3D12_RESOURCE_STATE_DEPTH_READ | D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE
-        );
-        cmd.flush_barriers();
+        {
+            cmd.begin_pix("Shadow");
+            demo.shadow_depth.transition(cmd, D3D12_RESOURCE_STATE_DEPTH_WRITE);
+            cmd.flush_barriers();
+            cmd.set_viewport(0, 0, SHADOW_MAP_SIZE, SHADOW_MAP_SIZE);
+            cmd.set_scissor(0, 0, SHADOW_MAP_SIZE, SHADOW_MAP_SIZE);
+            cmd.set_rtv_dsv(std::nullopt, demo.shadow_depth.dsv_descriptor());
+            cmd.clear_dsv(demo.shadow_depth.dsv_descriptor(), 1.0f);
+            cmd.set_constants(Bindings {
+                demo.constants.buffer(frame_index).cbv_descriptor().index(),
+                demo.tree_vertices.srv_descriptor().index(),
+            });
+            cmd.set_pipeline(demo.shadow_pipeline);
+            cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+            cmd.set_index_buffer(demo.tree_indices.index_buffer_view());
+            cmd.draw_indexed_instanced(demo.tree_indices.element_count(), 1, 0, 0, 0);
+            demo.shadow_depth.transition(
+                cmd,
+                D3D12_RESOURCE_STATE_DEPTH_READ | D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE
+            );
+            cmd.flush_barriers();
+            cmd.end_pix();
+        }
+
+        {
+            cmd.begin_pix("Draw");
+            demo.render_targets.set(cmd);
+            demo.debug_draw.render(cmd);
+            cmd.set_pipeline(demo.draw_pipeline);
+            cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+            cmd.set_constants(Bindings {
+                demo.constants.buffer(frame_index).cbv_descriptor().index(),
+                demo.tree_vertices.srv_descriptor().index(),
+                demo.tree_texture.srv_descriptor().index(),
+                demo.shadow_depth.srv_descriptor().index(),
+            });
+            cmd.set_index_buffer(demo.tree_indices.index_buffer_view());
+            cmd.draw_indexed_instanced(demo.tree_indices.element_count(), 1, 0, 0, 0);
+
+            cmd.set_constants(Bindings {
+                demo.constants.buffer(frame_index).cbv_descriptor().index(),
+                demo.plane_vertices.srv_descriptor().index(),
+                demo.plane_texture.srv_descriptor().index(),
+                demo.shadow_depth.srv_descriptor().index(),
+            });
+            cmd.set_index_buffer(demo.plane_indices.index_buffer_view());
+            cmd.draw_indexed_instanced(demo.plane_indices.element_count(), 1, 0, 0, 0);
+            cmd.end_pix();
+        }
+
         cmd.end_pix();
-    }
-
-    {
-        cmd.begin_pix("Draw");
-        cmd.set_graphics();
-        demo.render_targets.set(cmd);
-        demo.debug_draw.render(cmd);
-        cmd.set_pipeline(demo.draw_pipeline);
-        cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-        cmd.set_graphics_constants(Bindings {
-            demo.constants.buffer(frame_index).cbv_descriptor().index(),
-            demo.tree_vertices.srv_descriptor().index(),
-            demo.tree_texture.srv_descriptor().index(),
-            demo.shadow_depth.srv_descriptor().index(),
-        });
-        cmd.set_index_buffer(demo.tree_indices.index_buffer_view());
-        cmd.draw_indexed_instanced(demo.tree_indices.element_count(), 1, 0, 0, 0);
-
-        cmd.set_graphics_constants(Bindings {
-            demo.constants.buffer(frame_index).cbv_descriptor().index(),
-            demo.plane_vertices.srv_descriptor().index(),
-            demo.plane_texture.srv_descriptor().index(),
-            demo.shadow_depth.srv_descriptor().index(),
-        });
-        cmd.set_index_buffer(demo.plane_indices.index_buffer_view());
-        cmd.draw_indexed_instanced(demo.plane_indices.element_count(), 1, 0, 0, 0);
-        cmd.end_pix();
-    }
-
-    cmd.end_pix();
+    });
 }
 
 } // namespace fb::demos::tree

@@ -194,52 +194,53 @@ auto update(Demo& demo, const UpdateDesc& desc) -> void {
 
 auto render(Demo& demo, const RenderDesc& desc) -> void {
     auto& [cmd, device, frame_index] = desc;
-    cmd.begin_pix("%s - Render", NAME.data());
+    cmd.graphics_scope([&demo, frame_index](GpuGraphicsCommandList& cmd) {
+        cmd.begin_pix("%s - Render", NAME.data());
 
-    // State.
-    cmd.set_graphics();
-    demo.render_targets.set(cmd);
+        // Render targets.
+        demo.render_targets.set(cmd);
 
-    // Debug.
-    demo.debug_draw.render(cmd);
+        // Debug.
+        demo.debug_draw.render(cmd);
 
-    // Background.
-    {
-        const auto& pbr = demo.pbr;
-        const auto& pass = demo.background;
-        cmd.begin_pix("Background");
-        cmd.set_graphics_constants(BackgroundBindings {
-            .constants = pass.constants.buffer(frame_index).cbv_descriptor().index(),
-            .vertices = pass.vertices.srv_descriptor().index(),
-            .texture = pbr.rad.srv_descriptor().index(),
-        });
-        cmd.set_pipeline(pass.pipeline);
-        cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-        cmd.set_index_buffer(pass.indices.index_buffer_view());
-        cmd.draw_indexed_instanced(pass.indices.element_count(), 1, 0, 0, 0);
+        // Background.
+        {
+            const auto& pbr = demo.pbr;
+            const auto& pass = demo.background;
+            cmd.begin_pix("Background");
+            cmd.set_constants(BackgroundBindings {
+                .constants = pass.constants.buffer(frame_index).cbv_descriptor().index(),
+                .vertices = pass.vertices.srv_descriptor().index(),
+                .texture = pbr.rad.srv_descriptor().index(),
+            });
+            cmd.set_pipeline(pass.pipeline);
+            cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+            cmd.set_index_buffer(pass.indices.index_buffer_view());
+            cmd.draw_indexed_instanced(pass.indices.element_count(), 1, 0, 0, 0);
+            cmd.end_pix();
+        }
+
+        // Model.
+        {
+            const auto& pbr = demo.pbr;
+            const auto& pass = demo.model;
+            cmd.begin_pix("Model");
+            cmd.set_constants(ModelBindings {
+                .constants = pass.constants.buffer(frame_index).cbv_descriptor().index(),
+                .vertices = pass.vertices.srv_descriptor().index(),
+                .lut_texture = pbr.lut.srv_descriptor().index(),
+                .irr_texture = pbr.irr.srv_descriptor().index(),
+                .rad_texture = pbr.rad.srv_descriptor().index(),
+            });
+            cmd.set_pipeline(pass.pipeline);
+            cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+            cmd.set_index_buffer(pass.indices.index_buffer_view());
+            cmd.draw_indexed_instanced(pass.indices.element_count(), 1, 0, 0, 0);
+            cmd.end_pix();
+        }
+
         cmd.end_pix();
-    }
-
-    // Model.
-    {
-        const auto& pbr = demo.pbr;
-        const auto& pass = demo.model;
-        cmd.begin_pix("Model");
-        cmd.set_graphics_constants(ModelBindings {
-            .constants = pass.constants.buffer(frame_index).cbv_descriptor().index(),
-            .vertices = pass.vertices.srv_descriptor().index(),
-            .lut_texture = pbr.lut.srv_descriptor().index(),
-            .irr_texture = pbr.irr.srv_descriptor().index(),
-            .rad_texture = pbr.rad.srv_descriptor().index(),
-        });
-        cmd.set_pipeline(pass.pipeline);
-        cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-        cmd.set_index_buffer(pass.indices.index_buffer_view());
-        cmd.draw_indexed_instanced(pass.indices.element_count(), 1, 0, 0, 0);
-        cmd.end_pix();
-    }
-
-    cmd.end_pix();
+    });
 }
 
 } // namespace fb::demos::env

@@ -209,45 +209,43 @@ auto update(Demo& demo, const UpdateDesc& desc) -> void {
 auto render(Demo& demo, const RenderDesc& desc) -> void {
     auto& [cmd, device, frame_index] = desc;
     cmd.begin_pix("%s - Render", NAME.data());
-    cmd.begin_pix("Spd");
-    cmd.set_compute();
-    cmd.set_pipeline(demo.spd_pipeline);
-    for (uint i = 0; i < CARD_COUNT; i++) {
-        const auto& card = demo.card_descriptors[i];
-        cmd.set_compute_constants(spd::Bindings {
-            .constants = demo.spd_constants.cbv_descriptor().index(),
-            .atomics = demo.spd_atomics.uav_descriptor().index(),
-            .texture_src = card.src,
-            .texture_mid = card.mid,
-            .texture_dst_begin = card.dst_begin,
-        });
-        cmd.dispatch(demo.spd_dispatch.x, demo.spd_dispatch.y, demo.spd_dispatch.z);
-    }
-    cmd.end_pix();
 
-    cmd.begin_pix("Render");
-    const auto& params = demo.parameters;
-    const auto swapchain_size = device.swapchain().size();
-    const auto width = swapchain_size.x;
-    const auto height = swapchain_size.y;
-    cmd.set_graphics();
-    cmd.set_viewport(0, 0, width, height);
-    cmd.set_scissor(0, 0, width, height);
-    cmd.set_pipeline(demo.pipeline);
-    cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-    cmd.set_index_buffer(demo.indices.index_buffer_view());
-    for (uint i = 0; i < CARD_COUNT; ++i) {
-        const auto card_indirect = params.card_indirect_indices[i];
-        cmd.set_graphics_constants(Bindings {
-            .card_index = i,
-            .constants = demo.constants.buffer(frame_index).cbv_descriptor().index(),
-            .cards = demo.cards.buffer(frame_index).srv_descriptor().index(),
-            .vertices = demo.vertices.srv_descriptor().index(),
-            .texture = demo.card_descriptors[card_indirect].src,
-        });
-        cmd.draw_indexed_instanced(demo.indices.element_count(), 1, 0, 0, 0);
-    }
-    cmd.end_pix();
+    cmd.compute_scope([&demo, frame_index](GpuComputeCommandList& cmd) {
+        cmd.begin_pix("Spd");
+        cmd.set_pipeline(demo.spd_pipeline);
+        for (uint i = 0; i < CARD_COUNT; i++) {
+            const auto& card = demo.card_descriptors[i];
+            cmd.set_constants(spd::Bindings {
+                .constants = demo.spd_constants.cbv_descriptor().index(),
+                .atomics = demo.spd_atomics.uav_descriptor().index(),
+                .texture_src = card.src,
+                .texture_mid = card.mid,
+                .texture_dst_begin = card.dst_begin,
+            });
+            cmd.dispatch(demo.spd_dispatch.x, demo.spd_dispatch.y, demo.spd_dispatch.z);
+        }
+        cmd.end_pix();
+    });
+
+    cmd.graphics_scope([&demo, &device, frame_index](GpuGraphicsCommandList& cmd) {
+        cmd.begin_pix("Render");
+        const auto& params = demo.parameters;
+        cmd.set_pipeline(demo.pipeline);
+        cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+        cmd.set_index_buffer(demo.indices.index_buffer_view());
+        for (uint i = 0; i < CARD_COUNT; ++i) {
+            const auto card_indirect = params.card_indirect_indices[i];
+            cmd.set_constants(Bindings {
+                .card_index = i,
+                .constants = demo.constants.buffer(frame_index).cbv_descriptor().index(),
+                .cards = demo.cards.buffer(frame_index).srv_descriptor().index(),
+                .vertices = demo.vertices.srv_descriptor().index(),
+                .texture = demo.card_descriptors[card_indirect].src,
+            });
+            cmd.draw_indexed_instanced(demo.indices.element_count(), 1, 0, 0, 0);
+        }
+        cmd.end_pix();
+    });
     cmd.end_pix();
 }
 

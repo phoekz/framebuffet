@@ -99,7 +99,7 @@ auto RenderTargets::transition_to_pixel_shader_resource(GpuCommandList& cmd) -> 
     _color.transition(cmd, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 }
 
-auto RenderTargets::set(GpuCommandList& cmd) -> void {
+auto RenderTargets::set(GpuGraphicsCommandList& cmd) -> void {
     cmd.set_viewport(0, 0, _size.x, _size.y);
     cmd.set_scissor(0, 0, _size.x, _size.y);
 

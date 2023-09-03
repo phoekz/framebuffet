@@ -204,7 +204,9 @@ auto buffet_run(Buffet& bf) -> void {
             cmd.end_pix();
 
             cmd.begin_pix("Compose");
-            swapchain.set_render_target(cmd, frame_index);
+            cmd.graphics_scope([&swapchain, frame_index](GpuGraphicsCommandList& cmd) {
+                swapchain.set_render_target(cmd, frame_index);
+            });
             demos::render_compose(bf.demos, render_desc);
             bf.gui.render(bf.device, cmd);
             cmd.end_pix();

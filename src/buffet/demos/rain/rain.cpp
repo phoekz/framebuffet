@@ -146,10 +146,9 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
     auto& [cmd, device, frame_index] = desc;
     cmd.begin_pix("%s - Render", NAME.data());
 
-    {
+    cmd.compute_scope([&demo, frame_index](GpuComputeCommandList& cmd) {
         cmd.begin_pix("Compute");
-        cmd.set_compute();
-        cmd.set_compute_constants(Bindings {
+        cmd.set_constants(Bindings {
             .constants = demo.constants.buffer(frame_index).cbv_descriptor().index(),
             .particles = demo.particles.uav_descriptor().index(),
         });
@@ -158,14 +157,13 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
         demo.particles.uav_barrier(cmd);
         cmd.flush_barriers();
         cmd.end_pix();
-    }
+    });
 
-    {
+    cmd.graphics_scope([&demo, frame_index](GpuGraphicsCommandList& cmd) {
         cmd.begin_pix("Draw");
-        cmd.set_graphics();
         demo.render_targets.set(cmd);
         demo.debug_draw.render(cmd);
-        cmd.set_graphics_constants(Bindings {
+        cmd.set_constants(Bindings {
             .constants = demo.constants.buffer(frame_index).cbv_descriptor().index(),
             .particles = demo.particles.srv_descriptor().index(),
             .vertices = demo.draw_vertices.srv_descriptor().index(),
@@ -175,7 +173,7 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
         cmd.set_index_buffer(demo.draw_indices.index_buffer_view());
         cmd.draw_indexed_instanced(6, PARTICLE_COUNT, 0, 0, 0);
         cmd.end_pix();
-    }
+    });
 
     cmd.end_pix();
 }

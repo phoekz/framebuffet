@@ -4,94 +4,9 @@
 
 namespace fb {
 
-auto GpuCommandList::set_global_descriptor_heap() -> void {
-    const auto heaps = std::to_array<ID3D12DescriptorHeap*>({
-        _descriptors->cbv_srv_uav().heap(),
-        _descriptors->sampler().heap(),
-    });
-    _cmd->SetDescriptorHeaps((uint)heaps.size(), heaps.data());
-}
-
-auto GpuCommandList::set_graphics() -> void {
-    if (_engine == GpuCommandEngine::Graphics) {
-        return;
-    }
-    _engine = GpuCommandEngine::Graphics;
-    set_global_descriptor_heap();
-    _cmd->SetGraphicsRootSignature(_root_signature);
-}
-
-auto GpuCommandList::set_compute() -> void {
-    if (_engine == GpuCommandEngine::Compute) {
-        return;
-    }
-    _engine = GpuCommandEngine::Compute;
-    set_global_descriptor_heap();
-    _cmd->SetComputeRootSignature(_root_signature);
-}
-
-auto GpuCommandList::set_viewport(
-    uint left,
-    uint top,
-    uint right,
-    uint bottom,
-    float min_depth,
-    float max_depth
-) const -> void {
-    FB_ASSERT(_engine == GpuCommandEngine::Graphics);
-    D3D12_VIEWPORT viewport {
-        .TopLeftX = (FLOAT)left,
-        .TopLeftY = (FLOAT)top,
-        .Width = (FLOAT)(right - left),
-        .Height = (FLOAT)(bottom - top),
-        .MinDepth = min_depth,
-        .MaxDepth = max_depth,
-    };
-    _cmd->RSSetViewports(1, &viewport);
-}
-
-auto GpuCommandList::set_scissor(uint left, uint top, uint right, uint bottom) const -> void {
-    FB_ASSERT(_engine == GpuCommandEngine::Graphics);
-    D3D12_RECT scissor {
-        .left = (LONG)left,
-        .top = (LONG)top,
-        .right = (LONG)right,
-        .bottom = (LONG)bottom,
-    };
-    _cmd->RSSetScissorRects(1, &scissor);
-}
-
-auto GpuCommandList::set_rtv_dsv(
-    const std::optional<GpuDescriptor>& rtv,
-    const std::optional<GpuDescriptor>& dsv
-) const -> void {
-    FB_ASSERT(_engine == GpuCommandEngine::Graphics);
-    _cmd->OMSetRenderTargets(
-        rtv.has_value() ? 1 : 0,
-        rtv.has_value() ? rtv.value().cpu_ptr() : nullptr,
-        false,
-        dsv.has_value() ? dsv.value().cpu_ptr() : nullptr
-    );
-}
-
-auto GpuCommandList::set_topology(D3D12_PRIMITIVE_TOPOLOGY topology) const -> void {
-    FB_ASSERT(_engine == GpuCommandEngine::Graphics);
-    _cmd->IASetPrimitiveTopology(topology);
-}
-
-auto GpuCommandList::set_index_buffer(D3D12_INDEX_BUFFER_VIEW ibv) const -> void {
-    FB_ASSERT(_engine == GpuCommandEngine::Graphics);
-    _cmd->IASetIndexBuffer(&ibv);
-}
-
-auto GpuCommandList::set_blend_factor(float4 factor) const -> void {
-    FB_ASSERT(_engine == GpuCommandEngine::Graphics);
-    _cmd->OMSetBlendFactor((const float*)&factor);
-}
-
-auto GpuCommandList::set_pipeline(const GpuPipeline& pipeline) const -> void {
-    _cmd->SetPipelineState(pipeline.get());
-}
+//
+// GpuCommandList.
+//
 
 auto GpuCommandList::clear_rtv(const GpuDescriptor& rtv, float4 color) const -> void {
     _cmd->ClearRenderTargetView(rtv.cpu(), (const float*)&color, 0, nullptr);
@@ -101,36 +16,40 @@ auto GpuCommandList::clear_dsv(const GpuDescriptor& dsv, float depth) const -> v
     _cmd->ClearDepthStencilView(dsv.cpu(), D3D12_CLEAR_FLAG_DEPTH, depth, 0, 0, nullptr);
 }
 
-auto GpuCommandList::draw_instanced(
-    uint vertex_count,
-    uint instance_count,
-    uint start_vertex,
-    uint start_instance
-) const -> void {
-    FB_ASSERT(_engine == GpuCommandEngine::Graphics);
-    _cmd->DrawInstanced(vertex_count, instance_count, start_vertex, start_instance);
+auto GpuCommandList::set_global_descriptor_heap() const -> void {
+    if (_prev_engine == _engine) {
+        return;
+    }
+    marker_pix("Set global descriptor heap");
+    const auto heaps = std::to_array<ID3D12DescriptorHeap*>({
+        _descriptors->cbv_srv_uav().heap(),
+        _descriptors->sampler().heap(),
+    });
+    _cmd->SetDescriptorHeaps((uint)heaps.size(), heaps.data());
 }
 
-auto GpuCommandList::draw_indexed_instanced(
-    uint index_count,
-    uint instance_count,
-    uint start_index,
-    int32_t base_vertex,
-    uint start_instance
-) const -> void {
-    FB_ASSERT(_engine == GpuCommandEngine::Graphics);
-    _cmd->DrawIndexedInstanced(
-        index_count,
-        instance_count,
-        start_index,
-        base_vertex,
-        start_instance
-    );
+auto GpuCommandList::set_global_graphics_root_signature() const -> void {
+    if (_prev_engine == _engine) {
+        return;
+    }
+    marker_pix("Set global graphics root signature");
+    _cmd->SetGraphicsRootSignature(_root_signature);
 }
 
-auto GpuCommandList::dispatch(uint x, uint y, uint z) const -> void {
-    FB_ASSERT(_engine == GpuCommandEngine::Compute);
-    _cmd->Dispatch(x, y, z);
+auto GpuCommandList::set_global_compute_root_signature() const -> void {
+    if (_prev_engine == _engine) {
+        return;
+    }
+    marker_pix("Set global compute root signature");
+    _cmd->SetComputeRootSignature(_root_signature);
+}
+
+auto GpuCommandList::set_graphics_root_constants(std::span<const uint> dwords) const -> void {
+    _cmd->SetGraphicsRoot32BitConstants(0, (uint)dwords.size(), dwords.data(), 0);
+}
+
+auto GpuCommandList::set_compute_root_constants(std::span<const uint> dwords) const -> void {
+    _cmd->SetComputeRoot32BitConstants(0, (uint)dwords.size(), dwords.data(), 0);
 }
 
 auto GpuCommandList::copy_texture_to_buffer(
@@ -212,6 +131,105 @@ auto GpuCommandList::flush_barriers() -> void {
     }
     _cmd->ResourceBarrier((uint)_pending_barrier_count, _pending_barriers.data());
     _pending_barrier_count = 0;
+}
+
+//
+// GpuGraphicsCommandList.
+//
+
+auto GpuGraphicsCommandList::set_pipeline(const GpuPipeline& pipeline) const -> void {
+    _cmd->SetPipelineState(pipeline.get());
+}
+
+auto GpuGraphicsCommandList::set_rtv_dsv(
+    const std::optional<GpuDescriptor>& rtv,
+    const std::optional<GpuDescriptor>& dsv
+) const -> void {
+    _cmd->OMSetRenderTargets(
+        rtv.has_value() ? 1 : 0,
+        rtv.has_value() ? rtv.value().cpu_ptr() : nullptr,
+        false,
+        dsv.has_value() ? dsv.value().cpu_ptr() : nullptr
+    );
+}
+
+auto GpuGraphicsCommandList::set_viewport(
+    uint left,
+    uint top,
+    uint right,
+    uint bottom,
+    float min_depth,
+    float max_depth
+) const -> void {
+    D3D12_VIEWPORT viewport {
+        .TopLeftX = (FLOAT)left,
+        .TopLeftY = (FLOAT)top,
+        .Width = (FLOAT)(right - left),
+        .Height = (FLOAT)(bottom - top),
+        .MinDepth = min_depth,
+        .MaxDepth = max_depth,
+    };
+    _cmd->RSSetViewports(1, &viewport);
+}
+
+auto GpuGraphicsCommandList::set_scissor(uint left, uint top, uint right, uint bottom) const
+    -> void {
+    D3D12_RECT scissor {
+        .left = (LONG)left,
+        .top = (LONG)top,
+        .right = (LONG)right,
+        .bottom = (LONG)bottom,
+    };
+    _cmd->RSSetScissorRects(1, &scissor);
+}
+
+auto GpuGraphicsCommandList::set_topology(D3D12_PRIMITIVE_TOPOLOGY topology) const -> void {
+    _cmd->IASetPrimitiveTopology(topology);
+}
+
+auto GpuGraphicsCommandList::set_index_buffer(D3D12_INDEX_BUFFER_VIEW ibv) const -> void {
+    _cmd->IASetIndexBuffer(&ibv);
+}
+
+auto GpuGraphicsCommandList::set_blend_factor(float4 factor) const -> void {
+    _cmd->OMSetBlendFactor((const float*)&factor);
+}
+
+auto GpuGraphicsCommandList::draw_instanced(
+    uint vertex_count,
+    uint instance_count,
+    uint start_vertex,
+    uint start_instance
+) const -> void {
+    _cmd->DrawInstanced(vertex_count, instance_count, start_vertex, start_instance);
+}
+
+auto GpuGraphicsCommandList::draw_indexed_instanced(
+    uint index_count,
+    uint instance_count,
+    uint start_index,
+    int32_t base_vertex,
+    uint start_instance
+) const -> void {
+    _cmd->DrawIndexedInstanced(
+        index_count,
+        instance_count,
+        start_index,
+        base_vertex,
+        start_instance
+    );
+}
+
+//
+// GpuComputeCommandList.
+//
+
+auto GpuComputeCommandList::set_pipeline(const GpuPipeline& pipeline) const -> void {
+    _cmd->SetPipelineState(pipeline.get());
+}
+
+auto GpuComputeCommandList::dispatch(uint x, uint y, uint z) const -> void {
+    _cmd->Dispatch(x, y, z);
 }
 
 } // namespace fb

@@ -48,11 +48,11 @@ auto GpuSwapchain::create(
     {
         DXGI_SWAP_CHAIN_DESC1 desc;
         _swapchain->GetDesc1(&desc);
-        _swapchain_size = {desc.Width, desc.Height};
+        _size = {desc.Width, desc.Height};
     }
 
     // Swapchain format.
-    _swapchain_format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+    _format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
 
     // Render target views.
     for (uint i = 0; i < FRAME_COUNT; i++) {
@@ -60,7 +60,7 @@ auto GpuSwapchain::create(
         dx_set_name(_rtvs[i], debug.with_name(std::format("Render Target {}", i)));
         const auto descriptor = descriptors.rtv().alloc();
         D3D12_RENDER_TARGET_VIEW_DESC rtv_desc = {
-            .Format = _swapchain_format,
+            .Format = _format,
             .ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D,
         };
         device->CreateRenderTargetView(_rtvs[i].get(), &rtv_desc, descriptor.cpu());
@@ -80,7 +80,9 @@ auto GpuSwapchain::clear_render_target(GpuCommandList& cmd, uint frame_index) ->
     cmd.clear_rtv(_rtv_descriptors[frame_index], float4(0.1f, 0.1f, 0.1f, 1.0f));
 }
 
-auto GpuSwapchain::set_render_target(GpuCommandList& cmd, uint frame_index) -> void {
+auto GpuSwapchain::set_render_target(GpuGraphicsCommandList& cmd, uint frame_index) -> void {
+    cmd.set_viewport(0, 0, _size.x, _size.y);
+    cmd.set_scissor(0, 0, _size.x, _size.y);
     cmd.set_rtv_dsv(_rtv_descriptors[frame_index], std::nullopt);
 }
 

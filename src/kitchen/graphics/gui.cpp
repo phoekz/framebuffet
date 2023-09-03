@@ -156,14 +156,13 @@ auto Gui::render(const GpuDevice& device, GpuCommandList& cmd) -> void {
     }
 
     // Render.
-    {
-        cmd.begin_pix("Gui");
-        cmd.set_graphics();
-        cmd.set_viewport(0, 0, (uint)draw_data->DisplaySize.x, (uint)draw_data->DisplaySize.y);
-        cmd.set_blend_factor(float4(0.0f, 0.0f, 0.0f, 0.0f));
-        cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-        cmd.set_index_buffer(geometry.indices.index_buffer_view());
-        cmd.set_pipeline(_pipeline);
+    cmd.graphics_scope([&](GpuGraphicsCommandList& gcmd) {
+        gcmd.begin_pix("Gui");
+        gcmd.set_viewport(0, 0, (uint)draw_data->DisplaySize.x, (uint)draw_data->DisplaySize.y);
+        gcmd.set_blend_factor(float4(0.0f, 0.0f, 0.0f, 0.0f));
+        gcmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+        gcmd.set_index_buffer(geometry.indices.index_buffer_view());
+        gcmd.set_pipeline(_pipeline);
 
         int global_vtx_offset = 0;
         int global_idx_offset = 0;
@@ -175,19 +174,19 @@ auto Gui::render(const GpuDevice& device, GpuCommandList& cmd) -> void {
                 if (pcmd->UserCallback != nullptr) {
                     pcmd->UserCallback(cmd_list, pcmd);
                 } else {
-                    cmd.set_scissor(
+                    gcmd.set_scissor(
                         (uint)(pcmd->ClipRect.x - clip_off.x),
                         (uint)(pcmd->ClipRect.y - clip_off.y),
                         (uint)(pcmd->ClipRect.z - clip_off.x),
                         (uint)(pcmd->ClipRect.w - clip_off.y)
                     );
-                    cmd.set_graphics_constants(Bindings {
+                    gcmd.set_constants(Bindings {
                         .constants = _constants.cbv_descriptor().index(),
                         .vertices = geometry.vertices.srv_descriptor().index(),
                         .base_vertex = (pcmd->VtxOffset + (uint)global_vtx_offset),
                         .texture = _texture.srv_descriptor().index(),
                     });
-                    cmd.draw_indexed_instanced(
+                    gcmd.draw_indexed_instanced(
                         pcmd->ElemCount,
                         1,
                         pcmd->IdxOffset + global_idx_offset,
@@ -199,8 +198,8 @@ auto Gui::render(const GpuDevice& device, GpuCommandList& cmd) -> void {
             global_idx_offset += cmd_list->IdxBuffer.Size;
             global_vtx_offset += cmd_list->VtxBuffer.Size;
         }
-        cmd.end_pix();
-    }
+        gcmd.end_pix();
+    });
 }
 
 } // namespace fb::graphics::gui

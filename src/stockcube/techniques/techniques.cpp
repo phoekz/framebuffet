@@ -157,10 +157,11 @@ auto render_main(Techniques& techs, RenderTargets& render_targets, const RenderD
     irr::render(techs.irr, desc);
     rad::render(techs.rad, desc);
 
-    desc.cmd.set_graphics();
-    render_targets.set(desc.cmd);
+    desc.cmd.graphics_scope([&techs, &render_targets](GpuGraphicsCommandList& cmd) {
+        render_targets.set(cmd);
+        techs.debug_draw.render(cmd);
+    });
     bg::render(techs.bg, desc);
-    techs.debug_draw.render(desc.cmd);
     model::render(techs.model, desc);
     screen::render(techs.screen, desc);
 }

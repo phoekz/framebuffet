@@ -77,34 +77,35 @@ auto update(Technique& tech, const UpdateDesc&) -> void {
 }
 
 auto render(Technique& tech, const RenderDesc& desc) -> void {
-    GpuCommandList& cmd = desc.cmd;
+    auto& [cmd, device, frame_index] = desc;
 
     if (!tech.done) {
-        cmd.begin_pix("%s - GpuCommands", NAME.data());
-        tech.lut_texture.transition(cmd, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-        cmd.flush_barriers();
-        cmd.set_compute();
-        cmd.set_pipeline(tech.pipeline);
-        cmd.set_compute_constants(Bindings {
-            .constants = tech.constants.cbv_descriptor().index(),
-            .lut_texture = tech.lut_texture.uav_descriptor().index(),
-        });
-        cmd.dispatch(
-            tech.lut_texture.width() / DISPATCH_X,
-            tech.lut_texture.height() / DISPATCH_Y,
-            1
-        );
-        tech.lut_texture.transition(cmd, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-        cmd.flush_barriers();
-        cmd.end_pix();
+        cmd.compute_scope([&tech, frame_index](GpuComputeCommandList& cmd) {
+            cmd.begin_pix("%s - Render", NAME.data());
+            tech.lut_texture.transition(cmd, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+            cmd.flush_barriers();
+            cmd.set_pipeline(tech.pipeline);
+            cmd.set_constants(Bindings {
+                .constants = tech.constants.cbv_descriptor().index(),
+                .lut_texture = tech.lut_texture.uav_descriptor().index(),
+            });
+            cmd.dispatch(
+                tech.lut_texture.width() / DISPATCH_X,
+                tech.lut_texture.height() / DISPATCH_Y,
+                1
+            );
+            tech.lut_texture.transition(cmd, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+            cmd.flush_barriers();
+            cmd.end_pix();
 
-        tech.done = true;
+            tech.done = true;
+        });
     }
 
     if (tech.delayed_save.initiated() && tech.done) {
         FB_LOG_INFO("Reading LUT texture back...");
 
-        cmd.begin_pix("%s - GpuCommands", NAME.data());
+        cmd.begin_pix("%s - Render", NAME.data());
         tech.lut_texture.transition(cmd, D3D12_RESOURCE_STATE_COPY_SOURCE);
         cmd.flush_barriers();
         cmd.copy_texture_to_buffer(

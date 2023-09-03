@@ -45,19 +45,20 @@ auto update(Technique& tech, const UpdateDesc&) -> void {
 }
 
 auto render(Technique& tech, const RenderDesc& desc) -> void {
-    GpuCommandList& cmd = desc.cmd;
-    cmd.begin_pix("%s - GpuCommands", NAME.data());
-    cmd.set_graphics();
-    cmd.set_pipeline(tech.pipeline);
-    cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-    cmd.set_viewport(0, 0, tech.size.x, tech.size.y);
-    cmd.set_scissor(0, 0, tech.size.x, tech.size.y);
-    cmd.set_graphics_constants(Bindings {
-        .constants = tech.constants.cbv_descriptor().index(),
-        .texture = tech.render_target.index(),
+    auto& [cmd, device, frame_index] = desc;
+    cmd.graphics_scope([&tech, frame_index](GpuGraphicsCommandList& cmd) {
+        cmd.begin_pix("%s - Render", NAME.data());
+        cmd.set_pipeline(tech.pipeline);
+        cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+        cmd.set_viewport(0, 0, tech.size.x, tech.size.y);
+        cmd.set_scissor(0, 0, tech.size.x, tech.size.y);
+        cmd.set_constants(Bindings {
+            .constants = tech.constants.cbv_descriptor().index(),
+            .texture = tech.render_target.index(),
+        });
+        cmd.draw_instanced(3, 1, 0, 0);
+        cmd.end_pix();
     });
-    cmd.draw_instanced(3, 1, 0, 0);
-    cmd.end_pix();
 }
 
 } // namespace fb::techniques::blit

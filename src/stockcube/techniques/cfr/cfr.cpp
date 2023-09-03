@@ -38,30 +38,32 @@ auto update(Technique&, const UpdateDesc&) -> void {
 }
 
 auto render(Technique& tech, const RenderDesc& desc) -> void {
+    auto& [cmd, device, frame_index] = desc;
+
     if (tech.done) {
         return;
     }
 
-    GpuCommandList& cmd = desc.cmd;
-    cmd.begin_pix("%s - GpuCommands", NAME.data());
-    tech.cube_texture.transition(cmd, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-    cmd.flush_barriers();
-    cmd.set_compute();
-    cmd.set_pipeline(tech.pipeline);
-    cmd.set_compute_constants(Bindings {
-        .constants = tech.constants.cbv_descriptor().index(),
-        .rect_texture = tech.rect_texture.index(),
-        .rect_sampler = (uint)GpuSampler::LinearClamp,
-        .cube_texture = tech.cube_texture.uav_descriptor().index(),
+    cmd.compute_scope([&tech, frame_index](GpuComputeCommandList& cmd) {
+        cmd.begin_pix("%s - Render", NAME.data());
+        tech.cube_texture.transition(cmd, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+        cmd.flush_barriers();
+        cmd.set_pipeline(tech.pipeline);
+        cmd.set_constants(Bindings {
+            .constants = tech.constants.cbv_descriptor().index(),
+            .rect_texture = tech.rect_texture.index(),
+            .rect_sampler = (uint)GpuSampler::LinearClamp,
+            .cube_texture = tech.cube_texture.uav_descriptor().index(),
+        });
+        cmd.dispatch(
+            tech.cube_texture.width() / DISPATCH_X,
+            tech.cube_texture.height() / DISPATCH_Y,
+            6
+        );
+        tech.cube_texture.transition(cmd, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+        cmd.flush_barriers();
+        cmd.end_pix();
     });
-    cmd.dispatch(
-        tech.cube_texture.width() / DISPATCH_X,
-        tech.cube_texture.height() / DISPATCH_Y,
-        6
-    );
-    tech.cube_texture.transition(cmd, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-    cmd.flush_barriers();
-    cmd.end_pix();
 
     tech.done = true;
 }

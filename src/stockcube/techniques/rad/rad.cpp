@@ -112,78 +112,79 @@ auto update(Technique& tech, const UpdateDesc&) -> void {
 }
 
 auto render(Technique& tech, const RenderDesc& desc) -> void {
+    auto& [cmd, device, frame_index] = desc;
+
     if (tech.dispatch_id < tech.dispatch_count) {
-        // Begin.
-        GpuCommandList& cmd = desc.cmd;
-        cmd.begin_pix("%s - GpuCommands", NAME.data());
-        cmd.set_compute();
+        cmd.compute_scope([&tech, frame_index](GpuComputeCommandList& cmd) {
+            // Begin.
+            cmd.begin_pix("%s - Render", NAME.data());
 
-        // Barrier.
-        tech.acc_texture.transition(cmd, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-        cmd.flush_barriers();
+            // Barrier.
+            tech.acc_texture.transition(cmd, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+            cmd.flush_barriers();
 
-        // Accumulate pass.
-        cmd.set_pipeline(tech.acc_pipeline);
-        for (uint mip = 0; mip < tech.acc_texture.mip_count(); mip++) {
-            cmd.set_compute_constants(AccBindings {
-                .dispatch_id = tech.dispatch_id,
-                .constants = tech.constants.cbv_descriptor().index(),
-                .cube_texture = tech.cube_texture.index(),
-                .cube_sampler = (uint)GpuSampler::LinearClamp,
-                .rad_texture = tech.acc_texture.uav_descriptor().index(),
-                .rad_texture_mip_id = mip,
-            });
-            const auto top_width = tech.acc_texture.size().x;
-            const auto top_height = tech.acc_texture.size().y;
-            const auto mip_width = std::max(1u, top_width >> mip);
-            const auto mip_height = std::max(1u, top_height >> mip);
-            cmd.dispatch(
-                (mip_width + (DISPATCH_X - 1)) / DISPATCH_X,
-                (mip_height + (DISPATCH_Y - 1)) / DISPATCH_Y,
-                6
-            );
-        }
+            // Accumulate pass.
+            cmd.set_pipeline(tech.acc_pipeline);
+            for (uint mip = 0; mip < tech.acc_texture.mip_count(); mip++) {
+                cmd.set_constants(AccBindings {
+                    .dispatch_id = tech.dispatch_id,
+                    .constants = tech.constants.cbv_descriptor().index(),
+                    .cube_texture = tech.cube_texture.index(),
+                    .cube_sampler = (uint)GpuSampler::LinearClamp,
+                    .rad_texture = tech.acc_texture.uav_descriptor().index(),
+                    .rad_texture_mip_id = mip,
+                });
+                const auto top_width = tech.acc_texture.size().x;
+                const auto top_height = tech.acc_texture.size().y;
+                const auto mip_width = std::max(1u, top_width >> mip);
+                const auto mip_height = std::max(1u, top_height >> mip);
+                cmd.dispatch(
+                    (mip_width + (DISPATCH_X - 1)) / DISPATCH_X,
+                    (mip_height + (DISPATCH_Y - 1)) / DISPATCH_Y,
+                    6
+                );
+            }
 
-        // Barrier.
-        tech.acc_texture.uav_barrier(cmd);
-        tech.div_texture.transition(cmd, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-        cmd.flush_barriers();
+            // Barrier.
+            tech.acc_texture.uav_barrier(cmd);
+            tech.div_texture.transition(cmd, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+            cmd.flush_barriers();
 
-        // Division pass.
-        cmd.set_pipeline(tech.div_pipeline);
-        for (uint mip = 0; mip < tech.acc_texture.mip_count(); mip++) {
-            cmd.set_compute_constants(DivBindings {
-                .dispatch_id = tech.dispatch_id,
-                .mip_id = mip,
-                .constants = tech.constants.cbv_descriptor().index(),
-                .acc_texture = tech.acc_texture.uav_descriptor().index(),
-                .div_texture = tech.div_texture.uav_descriptor().index(),
-            });
-            const auto top_width = tech.acc_texture.size().x;
-            const auto top_height = tech.acc_texture.size().y;
-            const auto mip_width = std::max(1u, top_width >> mip);
-            const auto mip_height = std::max(1u, top_height >> mip);
-            cmd.dispatch(
-                (mip_width + (DISPATCH_X - 1)) / DISPATCH_X,
-                (mip_height + (DISPATCH_Y - 1)) / DISPATCH_Y,
-                6
-            );
-        }
+            // Division pass.
+            cmd.set_pipeline(tech.div_pipeline);
+            for (uint mip = 0; mip < tech.acc_texture.mip_count(); mip++) {
+                cmd.set_constants(DivBindings {
+                    .dispatch_id = tech.dispatch_id,
+                    .mip_id = mip,
+                    .constants = tech.constants.cbv_descriptor().index(),
+                    .acc_texture = tech.acc_texture.uav_descriptor().index(),
+                    .div_texture = tech.div_texture.uav_descriptor().index(),
+                });
+                const auto top_width = tech.acc_texture.size().x;
+                const auto top_height = tech.acc_texture.size().y;
+                const auto mip_width = std::max(1u, top_width >> mip);
+                const auto mip_height = std::max(1u, top_height >> mip);
+                cmd.dispatch(
+                    (mip_width + (DISPATCH_X - 1)) / DISPATCH_X,
+                    (mip_height + (DISPATCH_Y - 1)) / DISPATCH_Y,
+                    6
+                );
+            }
 
-        // Barrier.
-        tech.div_texture.transition(cmd, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-        cmd.flush_barriers();
+            // Barrier.
+            tech.div_texture.transition(cmd, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+            cmd.flush_barriers();
 
-        // End.
-        cmd.end_pix();
+            // End.
+            cmd.end_pix();
 
-        tech.dispatch_id++;
+            tech.dispatch_id++;
+        });
     } else if (tech.delayed_save.initiated()) {
         FB_LOG_INFO("Reading RAD texture back...");
 
         // Begin.
-        GpuCommandList& cmd = desc.cmd;
-        cmd.begin_pix("%s - GpuCommands", NAME.data());
+        cmd.begin_pix("%s - Render", NAME.data());
 
         // Barrier.
         tech.div_texture.transition(cmd, D3D12_RESOURCE_STATE_COPY_SOURCE);
