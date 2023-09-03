@@ -191,7 +191,10 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
         cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
         cmd.set_index_buffer(demo.tree_indices.index_buffer_view());
         cmd.draw_indexed_instanced(demo.tree_indices.element_count(), 1, 0, 0, 0);
-        demo.shadow_depth.transition(cmd, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+        demo.shadow_depth.transition(
+            cmd,
+            D3D12_RESOURCE_STATE_DEPTH_READ | D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE
+        );
         cmd.flush_barriers();
         cmd.end_pix();
     }
