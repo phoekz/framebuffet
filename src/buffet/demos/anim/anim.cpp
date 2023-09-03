@@ -2,6 +2,43 @@
 
 namespace fb::demos::anim {
 
+auto copy_animation_mesh(OwnedAnimationMesh& dst, const baked::AnimationMesh& src) -> void {
+    dst.node_count = src.node_count;
+    dst.joint_count = src.joint_count;
+    dst.duration = src.duration;
+    dst.skinning_vertices.assign(src.skinning_vertices.begin(), src.skinning_vertices.end());
+    dst.indices.assign(src.indices.begin(), src.indices.end());
+    dst.joint_nodes.assign(src.joint_nodes.begin(), src.joint_nodes.end());
+    dst.joint_inverse_binds.assign(src.joint_inverse_binds.begin(), src.joint_inverse_binds.end());
+    dst.node_parents.assign(src.node_parents.begin(), src.node_parents.end());
+    dst.node_transforms.assign(src.node_transforms.begin(), src.node_transforms.end());
+    dst.node_channels.assign(src.node_channels.begin(), src.node_channels.end());
+    dst.node_channels_times_t.assign(
+        src.node_channels_times_t.begin(),
+        src.node_channels_times_t.end()
+    );
+    dst.node_channels_times_r.assign(
+        src.node_channels_times_r.begin(),
+        src.node_channels_times_r.end()
+    );
+    dst.node_channels_times_s.assign(
+        src.node_channels_times_s.begin(),
+        src.node_channels_times_s.end()
+    );
+    dst.node_channels_values_t.assign(
+        src.node_channels_values_t.begin(),
+        src.node_channels_values_t.end()
+    );
+    dst.node_channels_values_r.assign(
+        src.node_channels_values_r.begin(),
+        src.node_channels_values_r.end()
+    );
+    dst.node_channels_values_s.assign(
+        src.node_channels_values_s.begin(),
+        src.node_channels_values_s.end()
+    );
+}
+
 auto create(Demo& demo, const CreateDesc& desc) -> void {
     PIXScopedEvent(PIX_COLOR_DEFAULT, "%s - Create", NAME.data());
     DebugScope debug(NAME);
@@ -63,7 +100,7 @@ auto create(Demo& demo, const CreateDesc& desc) -> void {
         .create(device, mesh.joint_count, debug.with_name("Joint Global Transforms"));
     demo.animation_duration = mesh.duration;
     demo.node_global_transforms.resize(mesh.node_count);
-    demo.animation_mesh = mesh;
+    copy_animation_mesh(demo.animation_mesh, mesh);
 }
 
 auto gui(Demo& demo, const GuiDesc&) -> void {
@@ -122,33 +159,27 @@ auto update(Demo& demo, const UpdateDesc& desc) -> void {
             demo.animation_time -= demo.animation_duration;
         }
 
-        const auto node_parents = demo.animation_mesh.node_parents;
-        for (size_t node_index = 0; node_index < demo.animation_mesh.node_count; ++node_index) {
-            const auto& channel = demo.animation_mesh.node_channels[node_index];
-            const auto times_t = demo.animation_mesh.node_channels_times_t.subspan(
-                channel.t_offset,
-                channel.t_count
-            );
-            const auto times_r = demo.animation_mesh.node_channels_times_r.subspan(
-                channel.r_offset,
-                channel.r_count
-            );
-            const auto times_s = demo.animation_mesh.node_channels_times_s.subspan(
-                channel.s_offset,
-                channel.s_count
-            );
-            const auto values_t = demo.animation_mesh.node_channels_values_t.subspan(
-                channel.t_offset,
-                channel.t_count
-            );
-            const auto values_r = demo.animation_mesh.node_channels_values_r.subspan(
-                channel.r_offset,
-                channel.r_count
-            );
-            const auto values_s = demo.animation_mesh.node_channels_values_s.subspan(
-                channel.s_offset,
-                channel.s_count
-            );
+        const auto& mesh = demo.animation_mesh;
+
+        const auto span_from = [](const auto& container, size_t offset, size_t count) {
+            return std::span(container.data() + offset, count);
+        };
+
+        const auto& node_parents = mesh.node_parents;
+        for (size_t node_index = 0; node_index < mesh.node_count; ++node_index) {
+            const auto& channel = mesh.node_channels[node_index];
+            const auto times_t =
+                span_from(mesh.node_channels_times_t, channel.t_offset, channel.t_count);
+            const auto times_r =
+                span_from(mesh.node_channels_times_r, channel.r_offset, channel.r_count);
+            const auto times_s =
+                span_from(mesh.node_channels_times_s, channel.s_offset, channel.s_count);
+            const auto values_t =
+                span_from(mesh.node_channels_values_t, channel.t_offset, channel.t_count);
+            const auto values_r =
+                span_from(mesh.node_channels_values_r, channel.r_offset, channel.r_count);
+            const auto values_s =
+                span_from(mesh.node_channels_values_s, channel.s_offset, channel.s_count);
 
             const auto t = keyframe_interpolation(
                 demo.animation_time,
@@ -190,7 +221,7 @@ auto update(Demo& demo, const UpdateDesc& desc) -> void {
 
         auto jgt = demo.joint_global_transform_buffer.span();
         for (uint joint_index = 0; joint_index < jgt.size(); joint_index++) {
-            const auto node_index = demo.animation_mesh.joint_nodes[joint_index];
+            const auto node_index = mesh.joint_nodes[joint_index];
             jgt[joint_index] = demo.node_global_transforms[node_index];
         }
     }

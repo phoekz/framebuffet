@@ -19,6 +19,25 @@ struct Parameters {
     float2 camera_clip_planes = float2(0.1f, 300.0f);
 };
 
+struct OwnedAnimationMesh {
+    uint node_count;
+    uint joint_count;
+    float duration;
+    std::vector<baked::SkinningVertex> skinning_vertices;
+    std::vector<baked::Index> indices;
+    std::vector<uint> joint_nodes;
+    std::vector<float4x4> joint_inverse_binds;
+    std::vector<uint> node_parents;
+    std::vector<float4x4> node_transforms;
+    std::vector<baked::AnimationChannel> node_channels;
+    std::vector<float> node_channels_times_t;
+    std::vector<float> node_channels_times_r;
+    std::vector<float> node_channels_times_s;
+    std::vector<float3> node_channels_values_t;
+    std::vector<Quaternion> node_channels_values_r;
+    std::vector<float3> node_channels_values_s;
+};
+
 struct Demo {
     Parameters parameters;
     RenderTargets render_targets;
@@ -33,7 +52,7 @@ struct Demo {
     float animation_time = 0.0f;
     float animation_duration = 0.0f;
     std::vector<float4x4> node_global_transforms;
-    baked::AnimationMesh animation_mesh;
+    OwnedAnimationMesh animation_mesh;
 };
 
 struct CreateDesc {

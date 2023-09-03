@@ -13,12 +13,10 @@ static_assert(
 );
 
 struct Buffet {
-    using Baked = demos::Baked;
     using Demos = demos::Demos;
 
     Window window;
     GpuDevice device;
-    Baked baked;
     Demos demos;
     Gui gui;
     Frame frame;
@@ -34,11 +32,12 @@ auto buffet_run(Buffet& bf) -> void {
     {
         auto timer = Instant();
         DebugScope debug("Buffet");
+        demos::Baked baked;
         bf.window.create(Window::Desc {WINDOW_TITLE, WINDOW_WIDTH, WINDOW_HEIGHT});
         bf.device.create(bf.window);
         bf.device.begin_transfer();
-        demos::create(bf.demos, {.baked = bf.baked, .device = bf.device});
-        bf.gui.create(bf.window, bf.device, bf.baked.kitchen.assets, bf.baked.kitchen.shaders);
+        demos::create(bf.demos, {.baked = baked, .device = bf.device});
+        bf.gui.create(bf.window, bf.device, baked.kitchen.assets, baked.kitchen.shaders);
         bf.device.end_transfer();
         bf.device.log_stats();
         bf.frame.create();

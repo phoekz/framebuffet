@@ -19,12 +19,10 @@ inline constexpr int WINDOW_HEIGHT = 832;
 
 struct Stockcube {
     using Techniques = techniques::Techniques;
-    using Baked = techniques::Baked;
     using Camera = camera::Camera;
 
     Window window;
     GpuDevice device;
-    Baked baked;
     Gui gui;
     Techniques techniques;
     Frame frame;
@@ -38,11 +36,12 @@ auto stockcube_run(Stockcube& sc) -> void {
     // Init.
     {
         DebugScope debug("Stockcube");
+        techniques::Baked baked;
         sc.window.create(Window::Desc {WINDOW_TITLE, WINDOW_WIDTH, WINDOW_HEIGHT});
         sc.device.create(sc.window);
         sc.device.begin_transfer();
-        sc.gui.create(sc.window, sc.device, sc.baked.kitchen.assets, sc.baked.kitchen.shaders);
-        techniques::create(sc.techniques, {.baked = sc.baked, .device = sc.device});
+        sc.gui.create(sc.window, sc.device, baked.kitchen.assets, baked.kitchen.shaders);
+        techniques::create(sc.techniques, {.baked = baked, .device = sc.device});
         sc.device.end_transfer();
         sc.device.log_stats();
         sc.frame.create();
