@@ -147,7 +147,7 @@ auto buffet_run(Buffet& bf) -> void {
                 demos::UpdateDesc {
                     .window_size = bf.device.swapchain().size(),
                     .aspect_ratio = WINDOW_ASPECT_RATIO,
-                    .delta_time = bf.frame.delta_time(),
+                    .delta_time = bf.frame.smoothed_delta_time(),
                     .elapsed_time = bf.frame.elapsed_time(),
                     .frame_index = bf.device.frame_index(),
                 }
