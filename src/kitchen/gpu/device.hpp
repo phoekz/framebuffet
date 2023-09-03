@@ -12,6 +12,15 @@ inline constexpr D3D_FEATURE_LEVEL MIN_FEATURE_LEVEL = D3D_FEATURE_LEVEL_12_2;
 
 class Window;
 
+struct GpuVideoMemoryInfo {
+    struct {
+        uint64_t budget;
+        uint64_t current_usage;
+        uint64_t available_for_reservation;
+        uint64_t current_reservation;
+    } local, non_local;
+};
+
 class GpuDevice {
     FB_NO_COPY_MOVE(GpuDevice);
 
@@ -86,11 +95,13 @@ public:
 
     // Debugging.
     auto log_stats() -> void;
+    auto video_memory_info() -> GpuVideoMemoryInfo;
     auto pix_capture() -> void;
 
 private:
     LeakTracker _leak_tracker;
     HMODULE _pix_gpu_capturer = nullptr;
+    ComPtr<IDXGIAdapter4> _adapter;
     ComPtr<ID3D12Device12> _device;
     ComPtr<ID3D12CommandQueue> _command_queue;
     std::array<ComPtr<ID3D12CommandAllocator>, FRAME_COUNT> _command_allocators;

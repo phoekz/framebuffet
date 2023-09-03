@@ -100,10 +100,25 @@ auto buffet_run(Buffet& bf) -> void {
             ImGui::SetNextWindowSize({300, 300}, ImGuiCond_FirstUseEver);
             if (ImGui::Begin(demos::NAME.data())) {
                 ImGui::Text(
-                    "Frame time: %.3f ms (%.3f fps)",
+                    "Frame time: %.2f ms (%.2f fps)",
                     1e3f * bf.frame.last_delta_time(),
                     bf.frame.last_fps()
                 );
+
+                const auto vmem = bf.device.video_memory_info();
+                ImGui::Text(
+                    "Video memory: %.2f MB / %.2f MB (%.2f%%)",
+                    (float)vmem.local.current_usage / 1e6f,
+                    (float)vmem.local.budget / 1e6f,
+                    100.0f * (float)vmem.local.current_usage / (float)vmem.local.budget
+                );
+                ImGui::Text(
+                    "System memory: %.2f MB / %.2f MB (%.2f%%)",
+                    (float)vmem.non_local.current_usage / 1e6f,
+                    (float)vmem.non_local.budget / 1e6f,
+                    100.0f * (float)vmem.non_local.current_usage / (float)vmem.non_local.budget
+                );
+
                 if (ImGui::Button("PIX Capture")) {
                     bf.device.pix_capture();
                 }

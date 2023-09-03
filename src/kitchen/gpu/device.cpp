@@ -23,6 +23,19 @@ GpuDevice::~GpuDevice() {
 auto GpuDevice::create(const Window& window) -> void {
     DebugScope debug_scope("Device");
 
+    // Load PIX GPU Capturer.
+    {
+        HMODULE module = GetModuleHandleA(FB_PIX_GPU_CAPTURER_NAME);
+        if (!module) {
+            module = LoadLibraryA(FB_PIX_GPU_CAPTURER_DLL_PATH);
+        }
+        _pix_gpu_capturer = module;
+        FB_LOG_INFO(
+            FB_PIX_GPU_CAPTURER_NAME ": {}",
+            _pix_gpu_capturer != nullptr ? "Loaded" : "Not loaded"
+        );
+    }
+
     // Debug layer.
     UINT factory_flags = 0;
     {
@@ -48,21 +61,20 @@ auto GpuDevice::create(const Window& window) -> void {
     FB_ASSERT_HR(CreateDXGIFactory2(factory_flags, IID_PPV_ARGS(&factory)));
 
     // Adapter.
-    ComPtr<IDXGIAdapter4> adapter;
     FB_ASSERT_HR(factory->EnumAdapterByGpuPreference(
         0,
         DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE,
-        IID_PPV_ARGS(&adapter)
+        IID_PPV_ARGS(&_adapter)
     ));
     DXGI_ADAPTER_DESC3 adapter_desc;
-    adapter->GetDesc3(&adapter_desc);
+    _adapter->GetDesc3(&adapter_desc);
     FB_LOG_INFO("Using adapter {}", fb::from_wstr(adapter_desc.Description));
 
     // Output.
     {
         UINT i = 0;
         ComPtr<IDXGIOutput> output;
-        while (adapter->EnumOutputs(i, &output) != DXGI_ERROR_NOT_FOUND) {
+        while (_adapter->EnumOutputs(i, &output) != DXGI_ERROR_NOT_FOUND) {
             ComPtr<IDXGIOutput6> output6;
             output.query_to(&output6);
 
@@ -83,21 +95,8 @@ auto GpuDevice::create(const Window& window) -> void {
         }
     }
 
-    // Load PIX GPU Capturer.
-    {
-        HMODULE module = GetModuleHandleA(FB_PIX_GPU_CAPTURER_NAME);
-        if (!module) {
-            module = LoadLibraryA(FB_PIX_GPU_CAPTURER_DLL_PATH);
-        }
-        _pix_gpu_capturer = module;
-        FB_LOG_INFO(
-            FB_PIX_GPU_CAPTURER_NAME ": {}",
-            _pix_gpu_capturer != nullptr ? "Loaded" : "Not loaded"
-        );
-    }
-
     // Device.
-    FB_ASSERT_HR(D3D12CreateDevice(adapter.get(), MIN_FEATURE_LEVEL, IID_PPV_ARGS(&_device)));
+    FB_ASSERT_HR(D3D12CreateDevice(_adapter.get(), MIN_FEATURE_LEVEL, IID_PPV_ARGS(&_device)));
     dx_set_name(_device, "Device");
 
     // Debug device.
@@ -428,6 +427,29 @@ auto GpuDevice::descriptor_size(D3D12_DESCRIPTOR_HEAP_TYPE heap_type) const -> u
 
 auto GpuDevice::log_stats() -> void {
     _descriptors.log_stats();
+}
+
+auto GpuDevice::video_memory_info() -> GpuVideoMemoryInfo {
+    DXGI_QUERY_VIDEO_MEMORY_INFO local, non_local;
+    FB_ASSERT_HR(_adapter->QueryVideoMemoryInfo(0, DXGI_MEMORY_SEGMENT_GROUP_LOCAL, &local));
+    FB_ASSERT_HR(_adapter->QueryVideoMemoryInfo(0, DXGI_MEMORY_SEGMENT_GROUP_NON_LOCAL, &non_local)
+    );
+    return GpuVideoMemoryInfo {
+        .local =
+            {
+                .budget = local.Budget,
+                .current_usage = local.CurrentUsage,
+                .available_for_reservation = local.AvailableForReservation,
+                .current_reservation = local.CurrentReservation,
+            },
+        .non_local =
+            {
+                .budget = non_local.Budget,
+                .current_usage = non_local.CurrentUsage,
+                .available_for_reservation = non_local.AvailableForReservation,
+                .current_reservation = non_local.CurrentReservation,
+            },
+    };
 }
 
 auto GpuDevice::pix_capture() -> void {
