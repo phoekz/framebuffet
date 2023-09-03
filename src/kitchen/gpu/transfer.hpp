@@ -4,7 +4,8 @@
 
 namespace fb {
 
-class GpuTransferImpl;
+class GpuDevice;
+struct GpuTransferImpl;
 class GpuTransfer {
     FB_NO_COPY_MOVE(GpuTransfer);
 
@@ -12,7 +13,7 @@ public:
     GpuTransfer() = default;
     ~GpuTransfer();
 
-    auto create(const ComPtr<ID3D12Device>& device) -> void;
+    auto create(const ComPtr<ID3D12Device12>& device) -> void;
     auto begin() -> void;
     auto resource(
         const ComPtr<ID3D12Resource>& resource,
@@ -26,7 +27,7 @@ public:
         D3D12_RESOURCE_STATES before_state,
         D3D12_RESOURCE_STATES after_state
     ) -> void;
-    auto end(const ComPtr<ID3D12CommandQueue>& command_queue) -> void;
+    auto end(const GpuDevice& device) -> void;
 
 private:
     struct Stats {

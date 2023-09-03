@@ -84,6 +84,15 @@ public:
     create_sampler(const D3D12_SAMPLER_DESC2& desc, D3D12_CPU_DESCRIPTOR_HANDLE descriptor) const
         -> void;
     auto descriptor_size(D3D12_DESCRIPTOR_HEAP_TYPE heap_type) const -> uint;
+    auto get_copyable_footprints(
+        const D3D12_RESOURCE_DESC& desc,
+        uint subresource_offset,
+        uint subresource_count,
+        D3D12_PLACED_SUBRESOURCE_FOOTPRINT* subresource_footprints,
+        uint* subresource_row_counts,
+        uint64_t* subresource_row_byte_counts,
+        uint64_t* byte_count
+    ) const -> void;
 
     // Getters.
     auto transfer() -> GpuTransfer& { return _transfer; }
@@ -92,6 +101,7 @@ public:
     auto frame_index() const -> uint { return _frame_index; }
     auto root_signature() const -> ID3D12RootSignature* { return _root_signature.get(); }
     auto descriptors() -> GpuDescriptors& { return _descriptors; }
+    auto command_queue() const -> ID3D12CommandQueue* { return _command_queue.get(); }
 
     // Debugging.
     auto log_stats() -> void;

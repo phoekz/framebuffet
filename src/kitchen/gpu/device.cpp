@@ -201,7 +201,7 @@ auto GpuDevice::create(const Window& window) -> void {
     {
         _frame_index = _swapchain.backbuffer_index();
         _fence = this->create_fence(0, "Fence");
-        _fence_event = CreateEvent(nullptr, FALSE, FALSE, nullptr);
+        _fence_event = CreateEventEx(nullptr, nullptr, 0, EVENT_MODIFY_STATE | SYNCHRONIZE);
         FB_ASSERT_MSG(_fence_event != nullptr, "Failed to create fence event.");
     }
 
@@ -250,7 +250,7 @@ auto GpuDevice::begin_transfer() -> void {
 }
 
 auto GpuDevice::end_transfer() -> void {
-    _transfer.end(_command_queue);
+    _transfer.end(*this);
 }
 
 auto GpuDevice::begin_frame() -> GpuCommandList {
@@ -436,6 +436,27 @@ auto GpuDevice::create_constant_buffer_view(
 
 auto GpuDevice::descriptor_size(D3D12_DESCRIPTOR_HEAP_TYPE heap_type) const -> uint {
     return _device->GetDescriptorHandleIncrementSize(heap_type);
+}
+
+auto GpuDevice::get_copyable_footprints(
+    const D3D12_RESOURCE_DESC& desc,
+    uint subresource_offset,
+    uint subresource_count,
+    D3D12_PLACED_SUBRESOURCE_FOOTPRINT* subresource_footprints,
+    uint* subresource_row_counts,
+    uint64_t* subresource_row_byte_counts,
+    uint64_t* byte_count
+) const -> void {
+    _device->GetCopyableFootprints(
+        &desc,
+        subresource_offset,
+        subresource_count,
+        0,
+        subresource_footprints,
+        subresource_row_counts,
+        subresource_row_byte_counts,
+        byte_count
+    );
 }
 
 auto GpuDevice::log_stats() -> void {
