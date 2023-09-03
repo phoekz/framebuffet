@@ -4,6 +4,7 @@
 #include "samplers.hpp"
 
 #include <d3dx12/d3dx12_root_signature.h>
+#include <d3dx12/d3dx12_check_feature_support.h>
 
 // Setup DirectX Agility SDK.
 extern "C" {
@@ -133,15 +134,28 @@ auto GpuDevice::create(const Window& window) -> void {
 #endif
     }
 
-    // Root signature support.
+    // Device feature support.
     {
-        D3D12_FEATURE_DATA_ROOT_SIGNATURE feature_data = {
-            .HighestVersion = D3D_ROOT_SIGNATURE_VERSION_1_2};
-        FB_ASSERT_HR(_device->CheckFeatureSupport(
-            D3D12_FEATURE_ROOT_SIGNATURE,
-            &feature_data,
-            sizeof(feature_data)
-        ));
+        CD3DX12FeatureSupport support;
+        FB_ASSERT_HR(support.Init(_device.get()));
+        FB_ASSERT(support.MinPrecisionSupport() == D3D12_SHADER_MIN_PRECISION_SUPPORT_16_BIT);
+        FB_ASSERT(support.ResourceBindingTier() == D3D12_RESOURCE_BINDING_TIER_3);
+        FB_ASSERT(support.ResourceHeapTier() == D3D12_RESOURCE_HEAP_TIER_2);
+        FB_ASSERT(support.MaxSupportedFeatureLevel() == D3D_FEATURE_LEVEL_12_2);
+        FB_ASSERT(support.HighestShaderModel() == D3D_SHADER_MODEL_6_7);
+        FB_ASSERT(support.WaveOps() == TRUE);
+        FB_ASSERT(support.WaveLaneCountMin() == 32 || support.WaveLaneCountMin() == 64);
+        FB_LOG_INFO("Total lane count: {}", support.TotalLaneCount());
+        FB_ASSERT(support.HighestRootSignatureVersion() == D3D_ROOT_SIGNATURE_VERSION_1_2);
+        FB_ASSERT(support.TileBasedRenderer() == FALSE);
+        FB_ASSERT(support.UMA() == FALSE);
+        FB_ASSERT(support.CacheCoherentUMA() == FALSE);
+        FB_ASSERT(support.IsolatedMMU() == TRUE);
+        FB_ASSERT(support.RaytracingTier() == D3D12_RAYTRACING_TIER_1_1);
+        FB_ASSERT(support.VariableShadingRateTier() == D3D12_VARIABLE_SHADING_RATE_TIER_2);
+        FB_ASSERT(support.MeshShaderTier() == D3D12_MESH_SHADER_TIER_1);
+        FB_ASSERT(support.MeshShaderPipelineStatsSupported() == TRUE);
+        FB_ASSERT(support.EnhancedBarriersSupported() == TRUE);
     }
 
     // Command queue.
