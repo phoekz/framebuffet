@@ -188,8 +188,8 @@ auto update(Demo& demo, const UpdateDesc& desc) -> void {
             }
         }
 
-        auto* jgt = demo.joint_global_transform_buffer.ptr();
-        for (size_t joint_index = 0; joint_index < demo.animation_mesh.joint_count; joint_index++) {
+        auto jgt = demo.joint_global_transform_buffer.span();
+        for (uint joint_index = 0; joint_index < jgt.size(); joint_index++) {
             const auto node_index = demo.animation_mesh.joint_nodes[joint_index];
             jgt[joint_index] = demo.node_global_transforms[node_index];
         }
@@ -223,13 +223,13 @@ auto update(Demo& demo, const UpdateDesc& desc) -> void {
     demo.debug_draw.end();
 
     // Update constants.
-    *demo.constants.ptr() = Constants {
+    demo.constants.buffer(desc.frame_index).ref() = Constants {
         .transform = camera_transform,
     };
 }
 
 auto render(Demo& demo, const RenderDesc& desc) -> void {
-    GpuCommandList& cmd = desc.cmd;
+    auto& [cmd, device, frame_index] = desc;
     cmd.begin_pix("%s - Render", NAME.data());
     cmd.set_graphics();
     demo.render_targets.set(cmd);
@@ -237,7 +237,7 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
 
     cmd.begin_pix("Animation");
     cmd.set_graphics_constants(Bindings {
-        .constants = demo.constants.cbv_descriptor().index(),
+        .constants = demo.constants.buffer(frame_index).cbv_descriptor().index(),
         .vertices = demo.vertices.srv_descriptor().index(),
         .joints_inverse_binds = demo.joint_inverse_bind_buffer.srv_descriptor().index(),
         .joints_global_transforms = demo.joint_global_transform_buffer.srv_descriptor().index(),

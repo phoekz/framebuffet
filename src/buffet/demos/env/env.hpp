@@ -36,7 +36,7 @@ struct Demo {
 
     struct {
         GpuPipeline pipeline;
-        GpuBufferHostCbv<BackgroundConstants> constants;
+        Multibuffer<GpuBufferHostCbv<BackgroundConstants>, FRAME_COUNT> constants;
         GpuBufferHostSrv<baked::Vertex> vertices;
         GpuBufferHostIndex<baked::Index> indices;
         GpuTextureSrvCube texture;
@@ -44,7 +44,7 @@ struct Demo {
 
     struct {
         GpuPipeline pipeline;
-        GpuBufferHostCbv<ModelConstants> constants;
+        Multibuffer<GpuBufferHostCbv<ModelConstants>, FRAME_COUNT> constants;
         GpuBufferHostSrv<baked::Vertex> vertices;
         GpuBufferHostIndex<baked::Index> indices;
     } model;

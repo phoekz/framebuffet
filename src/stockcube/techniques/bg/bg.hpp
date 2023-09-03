@@ -14,7 +14,7 @@ struct Parameters {
 struct Technique {
     GpuDescriptor rad_texture;
     uint rad_texture_mip_count;
-    GpuBufferHostCbv<Constants> constants;
+    Multibuffer<GpuBufferHostCbv<Constants>, FRAME_COUNT> constants;
     GpuBufferHostSrv<baked::Vertex> vertices;
     GpuBufferHostIndex<baked::Index> indices;
     GpuPipeline pipeline;

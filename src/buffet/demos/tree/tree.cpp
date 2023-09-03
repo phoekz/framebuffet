@@ -162,7 +162,7 @@ auto update(Demo& demo, const UpdateDesc& desc) -> void {
     }
 
     // Update constants.
-    *demo.constants.ptr() = Constants {
+    demo.constants.buffer(desc.frame_index).ref() = Constants {
         .transform = transform,
         .light_transform = light_transform,
         .light_direction = light_direction,
@@ -171,7 +171,7 @@ auto update(Demo& demo, const UpdateDesc& desc) -> void {
 }
 
 auto render(Demo& demo, const RenderDesc& desc) -> void {
-    GpuCommandList& cmd = desc.cmd;
+    auto& [cmd, device, frame_index] = desc;
     cmd.begin_pix("%s - Render", NAME.data());
 
     {
@@ -184,7 +184,7 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
         cmd.set_rtv_dsv(std::nullopt, demo.shadow_depth.dsv_descriptor());
         cmd.clear_dsv(demo.shadow_depth.dsv_descriptor(), 1.0f);
         cmd.set_graphics_constants(Bindings {
-            demo.constants.cbv_descriptor().index(),
+            demo.constants.buffer(frame_index).cbv_descriptor().index(),
             demo.tree_vertices.srv_descriptor().index(),
         });
         cmd.set_pipeline(demo.shadow_pipeline);
@@ -208,7 +208,7 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
         cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
         cmd.set_graphics_constants(Bindings {
-            demo.constants.cbv_descriptor().index(),
+            demo.constants.buffer(frame_index).cbv_descriptor().index(),
             demo.tree_vertices.srv_descriptor().index(),
             demo.tree_texture.srv_descriptor().index(),
             demo.shadow_depth.srv_descriptor().index(),
@@ -217,7 +217,7 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
         cmd.draw_indexed_instanced(demo.tree_indices.element_count(), 1, 0, 0, 0);
 
         cmd.set_graphics_constants(Bindings {
-            demo.constants.cbv_descriptor().index(),
+            demo.constants.buffer(frame_index).cbv_descriptor().index(),
             demo.plane_vertices.srv_descriptor().index(),
             demo.plane_texture.srv_descriptor().index(),
             demo.shadow_depth.srv_descriptor().index(),

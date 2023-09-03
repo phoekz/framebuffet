@@ -27,8 +27,8 @@ struct CardDescriptors {
 struct Demo {
     Parameters parameters;
     GpuPipeline pipeline;
-    GpuBufferHostCbv<Constants> constants;
-    GpuBufferHostSrv<Card> cards;
+    Multibuffer<GpuBufferHostCbv<Constants>, FRAME_COUNT> constants;
+    Multibuffer<GpuBufferHostSrv<Card>, FRAME_COUNT> cards;
     GpuBufferHostSrv<Vertex> vertices;
     GpuBufferHostIndex<uint16_t> indices;
     std::array<CardDescriptors, CARD_COUNT> card_descriptors;

@@ -57,7 +57,7 @@ auto update(Demo& demo, const UpdateDesc& desc) -> void {{
 }}
 
 auto render(Demo& demo, const RenderDesc& desc) -> void {{
-    GpuCommandList& cmd = desc.cmd;
+    auto& [cmd, device, frame_index] = desc;
     cmd.begin_pix("%s - Render", NAME.data());
     cmd.set_graphics();
     demo.render_targets.set(cmd);

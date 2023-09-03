@@ -51,7 +51,7 @@ auto update(Technique& tech, const UpdateDesc& desc) -> void {
 
     const auto& params = tech.parameters;
 
-    *tech.constants.ptr() = Constants {
+    tech.constants.buffer(desc.frame_index).ref() = Constants {
         .transform = env_transform,
         .roughness = params.roughness,
         .mip_count = tech.rad_texture_mip_count,
@@ -59,11 +59,11 @@ auto update(Technique& tech, const UpdateDesc& desc) -> void {
 }
 
 auto render(Technique& tech, const RenderDesc& desc) -> void {
-    GpuCommandList& cmd = desc.cmd;
+    auto& [cmd, device, frame_index] = desc;
 
     cmd.begin_pix("%s - GpuCommands", NAME.data());
     cmd.set_graphics_constants(Bindings {
-        .constants = tech.constants.cbv_descriptor().index(),
+        .constants = tech.constants.buffer(frame_index).cbv_descriptor().index(),
         .vertices = tech.vertices.srv_descriptor().index(),
         .texture = tech.rad_texture.index(),
     });

@@ -34,6 +34,7 @@ set(SOURCES
     graphics/gui.cpp
     graphics/gui.hlsli
     graphics/gui.hpp
+    graphics/multibuffer.hpp
     graphics/render_targets.cpp
     graphics/render_targets.hpp
     graphics/spd.hlsli

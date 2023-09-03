@@ -251,7 +251,7 @@ auto update(Demo& demo, const UpdateDesc& desc) -> void {
     demo.debug_draw.end();
 
     // Update constants.
-    *demo.constants.ptr() = Constants {
+    demo.constants.buffer(desc.frame_index).ref() = Constants {
         .clip_from_world = clip_from_world,
         .view_from_clip = view_from_clip,
         .view_from_world = view_from_world,
@@ -265,7 +265,7 @@ auto update(Demo& demo, const UpdateDesc& desc) -> void {
 }
 
 auto render(Demo& demo, const RenderDesc& desc) -> void {
-    GpuCommandList& cmd = desc.cmd;
+    auto& [cmd, device, frame_index] = desc;
     cmd.begin_pix("%s - Render", NAME.data());
 
     // Compute.
@@ -276,7 +276,7 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
         // Sim.
         cmd.set_pipeline(demo.sim_pipeline);
         cmd.set_compute_constants(Bindings {
-            .constants = demo.constants.cbv_descriptor().index(),
+            .constants = demo.constants.buffer(frame_index).cbv_descriptor().index(),
             .lights = demo.lights.uav_descriptor().index(),
         });
         cmd.dispatch(demo.sim_dispatch_count_x, 1, 1);
@@ -295,7 +295,7 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
         // Cull.
         cmd.set_pipeline(demo.cull_pipeline);
         cmd.set_compute_constants(Bindings {
-            .constants = demo.constants.cbv_descriptor().index(),
+            .constants = demo.constants.buffer(frame_index).cbv_descriptor().index(),
             .lights = demo.lights.uav_descriptor().index(),
             .light_counts_texture = demo.light_counts_texture.uav_descriptor().index(),
             .light_offsets_texture = demo.light_offsets_texture.uav_descriptor().index(),
@@ -323,7 +323,7 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
         // Light.
         if (params.show_light_bounds) {
             cmd.set_graphics_constants(Bindings {
-                .constants = demo.constants.cbv_descriptor().index(),
+                .constants = demo.constants.buffer(frame_index).cbv_descriptor().index(),
                 .lights = demo.lights.srv_descriptor().index(),
                 .vertices = demo.light_mesh.vertices.srv_descriptor().index(),
             });
@@ -341,7 +341,7 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
 
         // Plane.
         cmd.set_graphics_constants(Bindings {
-            .constants = demo.constants.cbv_descriptor().index(),
+            .constants = demo.constants.buffer(frame_index).cbv_descriptor().index(),
             .lights = demo.lights.srv_descriptor().index(),
             .vertices = demo.plane_mesh.vertices.srv_descriptor().index(),
             .light_counts_texture = demo.light_counts_texture.srv_descriptor().index(),
@@ -362,7 +362,7 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
                 break;
         }
         cmd.set_graphics_constants(Bindings {
-            .constants = demo.constants.cbv_descriptor().index(),
+            .constants = demo.constants.buffer(frame_index).cbv_descriptor().index(),
             .heatmap_texture = heatmap_index,
             .light_counts_texture = demo.light_counts_texture.srv_descriptor().index(),
         });

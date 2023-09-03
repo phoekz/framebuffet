@@ -21,7 +21,7 @@ auto create(Technique& tech, const CreateDesc& desc) -> void {
         debug.with_name("Cube Texture")
     );
     tech.constants.create(device, 1, debug.with_name("Constants"));
-    *tech.constants.ptr() = Constants {
+    tech.constants.ref() = Constants {
         .cube_texture_size = tech.cube_texture.size(),
     };
     GpuPipelineBuilder()

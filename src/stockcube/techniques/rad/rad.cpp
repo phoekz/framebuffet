@@ -48,7 +48,7 @@ auto create(Technique& tech, const CreateDesc& desc) -> void {
     const auto sample_count_per_dispatch = 128;
     const auto dispatch_count = sample_count / sample_count_per_dispatch;
     tech.constants.create(device, 1, debug.with_name("Constants"));
-    *tech.constants.ptr() = Constants {
+    tech.constants.ref() = Constants {
         .rad_texture_size = SIZE,
         .rad_texture_mip_count = MIP_COUNT,
         .rad_sample_count = sample_count,
@@ -71,7 +71,7 @@ auto gui(Technique& tech, const GuiDesc&) -> void {
 
     if (ImGui::InputInt("RAD Sample Count Lg2", (int*)&tech.sample_count_lg2, 1)) {
         const auto sample_count = 1 << tech.sample_count_lg2;
-        auto& constants = *tech.constants.ptr();
+        auto& constants = tech.constants.ref();
         tech.dispatch_id = 0;
         tech.dispatch_count = sample_count / constants.rad_sample_count_per_dispatch;
         constants.rad_sample_count = sample_count;

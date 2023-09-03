@@ -152,7 +152,7 @@ auto Gui::render(const GpuDevice& device, GpuCommandList& cmd) -> void {
             {0.0f, 0.0f, 0.5f, 0.0f},
             {(r + l) / (l - r), (t + b) / (b - t), 0.5f, 1.0f},
         };
-        memcpy(_constants.ptr(), m, sizeof(m));
+        memcpy(_constants.span().data(), m, sizeof(m));
     }
 
     // Render.

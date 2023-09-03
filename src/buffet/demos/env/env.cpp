@@ -170,7 +170,7 @@ auto update(Demo& demo, const UpdateDesc& desc) -> void {
         env_view.m[3][3] = 1.0f;
         const auto env_transform = env_view * perspective;
 
-        *demo.background.constants.ptr() = BackgroundConstants {
+        demo.background.constants.buffer(desc.frame_index).ref() = BackgroundConstants {
             .transform = env_transform,
             .tonemap = params.tonemap,
             .exposure = exposure,
@@ -181,7 +181,7 @@ auto update(Demo& demo, const UpdateDesc& desc) -> void {
 
     // Update model constants.
     {
-        *demo.model.constants.ptr() = ModelConstants {
+        demo.model.constants.buffer(desc.frame_index).ref() = ModelConstants {
             .transform = camera_transform,
             .camera_position = eye,
             .tonemap = params.tonemap,
@@ -193,7 +193,7 @@ auto update(Demo& demo, const UpdateDesc& desc) -> void {
 }
 
 auto render(Demo& demo, const RenderDesc& desc) -> void {
-    GpuCommandList& cmd = desc.cmd;
+    auto& [cmd, device, frame_index] = desc;
     cmd.begin_pix("%s - Render", NAME.data());
 
     // State.
@@ -209,7 +209,7 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
         const auto& pass = demo.background;
         cmd.begin_pix("Background");
         cmd.set_graphics_constants(BackgroundBindings {
-            .constants = pass.constants.cbv_descriptor().index(),
+            .constants = pass.constants.buffer(frame_index).cbv_descriptor().index(),
             .vertices = pass.vertices.srv_descriptor().index(),
             .texture = pbr.rad.srv_descriptor().index(),
         });
@@ -226,7 +226,7 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
         const auto& pass = demo.model;
         cmd.begin_pix("Model");
         cmd.set_graphics_constants(ModelBindings {
-            .constants = pass.constants.cbv_descriptor().index(),
+            .constants = pass.constants.buffer(frame_index).cbv_descriptor().index(),
             .vertices = pass.vertices.srv_descriptor().index(),
             .lut_texture = pbr.lut.srv_descriptor().index(),
             .irr_texture = pbr.irr.srv_descriptor().index(),

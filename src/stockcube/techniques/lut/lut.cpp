@@ -29,7 +29,7 @@ auto create(Technique& tech, const CreateDesc& desc) -> void {
     tech.lut_readback.create(device, tech.lut_texture.byte_count(), debug.with_name("Readback"));
 
     tech.constants.create(device, 1, debug.with_name("Constants"));
-    *tech.constants.ptr() = Constants {
+    tech.constants.ref() = Constants {
         .lut_texture_size = tech.lut_texture.size(),
         .lut_sample_count = 2048,
     };
@@ -41,7 +41,7 @@ auto create(Technique& tech, const CreateDesc& desc) -> void {
 auto gui(Technique& tech, const GuiDesc&) -> void {
     PIXScopedEvent(PIX_COLOR_DEFAULT, "%s - Gui", NAME.data());
 
-    auto& constants = *tech.constants.ptr();
+    auto& constants = tech.constants.ref();
     if (ImGui::SliderInt("samples", (int*)&constants.lut_sample_count, 1, 2048)) {
         tech.done = false;
     }

@@ -81,8 +81,8 @@ auto DebugDraw::grid(uint size) -> void {
 
 auto DebugDraw::end() -> void {
     auto& frame = _frames[_frame_index];
-    memcpy(frame._constants.ptr(), &_constants, sizeof(_constants));
-    memcpy(frame._lines.ptr(), _lines.data(), _lines.size() * sizeof(Vertex));
+    frame._constants.ref() = _constants;
+    memcpy(frame._lines.span().data(), _lines.data(), _lines.size() * sizeof(Vertex));
 }
 
 auto DebugDraw::render(const GpuCommandList& cmd) -> void {

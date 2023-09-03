@@ -134,7 +134,7 @@ auto update(Demo& demo, const UpdateDesc& desc) -> void {
     demo.debug_draw.end();
 
     // Update constants.
-    *demo.constants.ptr() = Constants {
+    demo.constants.buffer(desc.frame_index).ref() = Constants {
         .transform = camera_transform,
         .particle_transform = particle_transform,
         .delta_time = desc.delta_time,
@@ -143,14 +143,14 @@ auto update(Demo& demo, const UpdateDesc& desc) -> void {
 }
 
 auto render(Demo& demo, const RenderDesc& desc) -> void {
-    GpuCommandList& cmd = desc.cmd;
+    auto& [cmd, device, frame_index] = desc;
     cmd.begin_pix("%s - Render", NAME.data());
 
     {
         cmd.begin_pix("Compute");
         cmd.set_compute();
         cmd.set_compute_constants(Bindings {
-            .constants = demo.constants.cbv_descriptor().index(),
+            .constants = demo.constants.buffer(frame_index).cbv_descriptor().index(),
             .particles = demo.particles.uav_descriptor().index(),
         });
         cmd.set_pipeline(demo.compute_pipeline);
@@ -166,7 +166,7 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
         demo.render_targets.set(cmd);
         demo.debug_draw.render(cmd);
         cmd.set_graphics_constants(Bindings {
-            .constants = demo.constants.cbv_descriptor().index(),
+            .constants = demo.constants.buffer(frame_index).cbv_descriptor().index(),
             .particles = demo.particles.srv_descriptor().index(),
             .vertices = demo.draw_vertices.srv_descriptor().index(),
         });

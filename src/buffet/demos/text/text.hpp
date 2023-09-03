@@ -28,29 +28,35 @@ struct Demo {
     Parameters parameters;
     RenderTargets render_targets;
     DebugDraw debug_draw;
-    GpuPipeline pipeline;
-    GpuBufferHostCbv<GlyphConstants> constants;
-    std::vector<baked::Submesh> submeshes;
-    GpuBufferHostSrv<baked::Vertex> vertices;
-    GpuBufferHostIndex<baked::Index> indices;
-    GpuTextureSrvCube pbr_irr;
 
-    std::vector<baked::Glyph> glyphs;
-    GpuBufferHostSrv<GlyphInstance> glyph_instances[FRAME_COUNT];
-    uint glyph_submesh_count = 0;
-    uint glyph_submeshes[MAX_GLYPH_COUNT] = {};
-    char text_buffer[MAX_GLYPH_COUNT] = {};
-    char first_character = '\0';
-    char last_character = '\0';
-    float ascender = 0.0f;
-    float space_advance = 0.0f;
+    struct {
+        GpuTextureSrvCube irr;
+    } pbr;
 
     struct {
         GpuPipeline pipeline;
-        GpuBufferHostCbv<BackgroundConstants> constants;
+        Multibuffer<GpuBufferHostCbv<BackgroundConstants>, FRAME_COUNT> constants;
         GpuBufferHostSrv<baked::Vertex> vertices;
         GpuBufferHostIndex<baked::Index> indices;
     } bg;
+
+    struct {
+        GpuPipeline pipeline;
+        Multibuffer<GpuBufferHostCbv<GlyphConstants>, FRAME_COUNT> constants;
+        Multibuffer<GpuBufferHostSrv<GlyphInstance>, FRAME_COUNT> instances;
+        std::vector<baked::Submesh> submeshes;
+        GpuBufferHostSrv<baked::Vertex> vertices;
+        GpuBufferHostIndex<baked::Index> indices;
+
+        std::vector<baked::Glyph> glyphs;
+        uint glyph_submesh_count = 0;
+        uint glyph_submeshes[MAX_GLYPH_COUNT] = {};
+        char text_buffer[MAX_GLYPH_COUNT] = {};
+        char first_character = '\0';
+        char last_character = '\0';
+        float ascender = 0.0f;
+        float space_advance = 0.0f;
+    } glyph;
 };
 
 struct CreateDesc {

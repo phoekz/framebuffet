@@ -38,7 +38,7 @@ auto update(Technique& tech, const UpdateDesc&) -> void {
     const auto& params = tech.parameters;
     const auto exposure = std::pow(2.0f, -params.exposure_lg2);
 
-    *tech.constants.ptr() = Constants {
+    tech.constants.ref() = Constants {
         .tonemap = params.tonemap,
         .exposure = exposure,
     };

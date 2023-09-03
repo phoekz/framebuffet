@@ -227,6 +227,7 @@ public:
     auto resource() const -> const ComPtr<ID3D12Resource>& { return _resource; }
     auto raw() const -> void* { return _raw; }
     auto ptr() const -> T* { return reinterpret_cast<T*>(raw()); }
+    auto ref() const -> T& { return *ptr(); }
     auto span() const -> std::span<T> { return std::span<T>(ptr(), element_count()); }
     auto index_buffer_view() const -> D3D12_INDEX_BUFFER_VIEW {
         static_assert(gpu_buffer_flags_contains(FLAGS, Index));

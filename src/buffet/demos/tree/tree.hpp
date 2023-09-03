@@ -30,7 +30,7 @@ struct Demo {
     Parameters parameters;
     RenderTargets render_targets;
     DebugDraw debug_draw;
-    GpuBufferHostCbv<Constants> constants;
+    Multibuffer<GpuBufferHostCbv<Constants>, FRAME_COUNT> constants;
     GpuBufferHostSrv<baked::Vertex> tree_vertices;
     GpuBufferHostIndex<baked::Index> tree_indices;
     GpuTextureSrv tree_texture;

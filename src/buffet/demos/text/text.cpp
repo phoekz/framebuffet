@@ -26,37 +26,62 @@ auto create(Demo& demo, const CreateDesc& desc) -> void {
     // Debug draw.
     demo.debug_draw.create(device, kitchen_shaders, demo.render_targets);
 
-    // Pipeline.
-    GpuPipelineBuilder()
-        .primitive_topology(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)
-        .vertex_shader(shaders.text_glyph_vs())
-        .pixel_shader(shaders.text_glyph_ps())
-        .render_target_formats({demo.render_targets.color_format()})
-        .depth_stencil_format(demo.render_targets.depth_format())
-        .sample_desc(demo.render_targets.sample_desc())
-        .build(device, demo.pipeline, debug.with_name("Pipeline"));
-
-    // Constants.
-    demo.constants.create(device, 1, debug.with_name("Constants"));
-
-    // Geometry.
+    // Pbr.
     {
-        const auto mesh_array = assets.roboto_medium_mesh_array();
-        demo.submeshes
-            .insert(demo.submeshes.end(), mesh_array.submeshes.begin(), mesh_array.submeshes.end());
-        demo.vertices.create_with_data(device, mesh_array.vertices, debug.with_name("Vertices"));
-        demo.indices.create_with_data(device, mesh_array.indices, debug.with_name("Indices"));
+        const auto irr = assets.industrial_sunset_02_puresky_irr();
+        demo.pbr.irr.create_and_transfer_baked(
+            device,
+            irr,
+            D3D12_RESOURCE_STATE_COMMON,
+            D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
+            debug.with_name("Irradiance")
+        );
     }
 
-    // Pbr.
-    const auto irr = assets.industrial_sunset_02_puresky_irr();
-    demo.pbr_irr.create_and_transfer_baked(
-        device,
-        irr,
-        D3D12_RESOURCE_STATE_COMMON,
-        D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
-        debug.with_name("Irradiance")
-    );
+    // Glyph.
+    {
+        DebugScope pass_debug("Glyph");
+        auto& pass = demo.glyph;
+
+        // Pipeline.
+        GpuPipelineBuilder()
+            .primitive_topology(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)
+            .vertex_shader(shaders.text_glyph_vs())
+            .pixel_shader(shaders.text_glyph_ps())
+            .render_target_formats({demo.render_targets.color_format()})
+            .depth_stencil_format(demo.render_targets.depth_format())
+            .sample_desc(demo.render_targets.sample_desc())
+            .build(device, pass.pipeline, pass_debug.with_name("Pipeline"));
+
+        // Constants.
+        pass.constants.create(device, 1, pass_debug.with_name("Constants"));
+
+        // Geometry.
+        const auto mesh_array = assets.roboto_medium_mesh_array();
+        pass.submeshes
+            .insert(pass.submeshes.end(), mesh_array.submeshes.begin(), mesh_array.submeshes.end());
+        pass.vertices
+            .create_with_data(device, mesh_array.vertices, pass_debug.with_name("Vertices"));
+        pass.indices.create_with_data(device, mesh_array.indices, pass_debug.with_name("Indices"));
+
+        // Glyphs.
+        const auto font = assets.roboto_medium_font();
+        pass.instances.create(device, MAX_GLYPH_COUNT, pass_debug.with_name("Instances 0"));
+        pass.glyphs.insert(pass.glyphs.end(), font.glyphs.begin(), font.glyphs.end());
+        pass.first_character = (char)pass.glyphs[0].character;
+        pass.last_character = (char)pass.glyphs[pass.glyphs.size() - 1].character;
+        pass.ascender = font.ascender;
+        pass.space_advance = font.space_advance;
+
+        // Measure text width.
+        auto text_width = 0.0f;
+        for (const auto c : TEXT) {
+            const auto glyph_index = c - pass.first_character;
+            text_width += pass.glyphs[glyph_index].advance;
+        }
+        auto text_height = (3.0f - 1.5f) * font.ascender;
+        demo.parameters.text_offset = float3(-text_width / 2.0f, text_height / 2.0f, 0.0f);
+    }
 
     // Background.
     {
@@ -82,25 +107,6 @@ auto create(Demo& demo, const CreateDesc& desc) -> void {
             .sample_desc(demo.render_targets.sample_desc())
             .build(device, demo.bg.pipeline, pass_debug.with_name("Pipeline"));
     }
-
-    // Glyphs.
-    const auto font = assets.roboto_medium_font();
-    demo.glyph_instances[0].create(device, MAX_GLYPH_COUNT, debug.with_name("Instances 0"));
-    demo.glyph_instances[1].create(device, MAX_GLYPH_COUNT, debug.with_name("Instances 1"));
-    demo.glyphs.insert(demo.glyphs.end(), font.glyphs.begin(), font.glyphs.end());
-    demo.first_character = (char)demo.glyphs[0].character;
-    demo.last_character = (char)demo.glyphs[demo.glyphs.size() - 1].character;
-    demo.ascender = font.ascender;
-    demo.space_advance = font.space_advance;
-
-    // Measure text width.
-    auto text_width = 0.0f;
-    for (const auto c : TEXT) {
-        const auto glyph_index = c - demo.first_character;
-        text_width += demo.glyphs[glyph_index].advance;
-    }
-    auto text_height = (3.0f - 1.5f) * font.ascender;
-    demo.parameters.text_offset = float3(-text_width / 2.0f, text_height / 2.0f, 0.0f);
 }
 
 auto gui(Demo& demo, const GuiDesc&) -> void {
@@ -121,14 +127,16 @@ auto update(Demo& demo, const UpdateDesc& desc) -> void {
 
     // Update text.
     {
+        auto& pass = demo.glyph;
+
         // Reset state.
-        demo.glyph_submesh_count = 0;
-        memset(demo.glyph_submeshes, 0, sizeof(demo.glyph_submeshes));
-        memset(demo.text_buffer, 0, sizeof(demo.text_buffer));
+        pass.glyph_submesh_count = 0;
+        memset(pass.glyph_submeshes, 0, sizeof(pass.glyph_submeshes));
+        memset(pass.text_buffer, 0, sizeof(pass.text_buffer));
 
         // Format text.
         const auto str_length = (uint)snprintf(
-            demo.text_buffer,
+            pass.text_buffer,
             MAX_GLYPH_COUNT - 1,
             "%s\nlat: %.2f\nlon: %.2f\n",
             TEXT.data(),
@@ -140,23 +148,23 @@ auto update(Demo& demo, const UpdateDesc& desc) -> void {
         // Update instances.
         auto x_offset = 0.0f;
         auto y_offset = 0.0f;
-        auto dst_glyph_instances = demo.glyph_instances[desc.frame_index].ptr();
+        auto dst_glyph_instances = pass.instances.buffer(desc.frame_index).span();
         for (uint i = 0; i < str_length; i++) {
-            const auto glyph_char = demo.text_buffer[i];
+            const auto glyph_char = pass.text_buffer[i];
             if (glyph_char == ' ') {
-                x_offset += demo.space_advance;
+                x_offset += pass.space_advance;
             } else if (glyph_char == '\n') {
                 x_offset = 0.0f;
-                y_offset -= demo.ascender;
+                y_offset -= pass.ascender;
             } else {
-                FB_ASSERT(demo.first_character <= glyph_char && glyph_char <= demo.last_character);
-                const auto glyph_index = glyph_char - demo.first_character;
-                demo.glyph_submeshes[demo.glyph_submesh_count] = (uint)glyph_index;
-                dst_glyph_instances[demo.glyph_submesh_count] = GlyphInstance {
+                FB_ASSERT(pass.first_character <= glyph_char && glyph_char <= pass.last_character);
+                const auto glyph_index = glyph_char - pass.first_character;
+                pass.glyph_submeshes[pass.glyph_submesh_count] = (uint)glyph_index;
+                dst_glyph_instances[pass.glyph_submesh_count] = GlyphInstance {
                     .position = float3(x_offset, y_offset, 0.0f) + params.text_offset,
                 };
-                demo.glyph_submesh_count++;
-                x_offset += demo.glyphs[glyph_index].advance;
+                pass.glyph_submesh_count++;
+                x_offset += pass.glyphs[glyph_index].advance;
             }
         }
     }
@@ -188,10 +196,10 @@ auto update(Demo& demo, const UpdateDesc& desc) -> void {
     demo.debug_draw.end();
 
     // Update constants.
-    *demo.bg.constants.ptr() = BackgroundConstants {
+    demo.bg.constants.buffer(desc.frame_index).ref() = BackgroundConstants {
         .transform = env_transform,
     };
-    *demo.constants.ptr() = GlyphConstants {
+    demo.glyph.constants.buffer(desc.frame_index).ref() = GlyphConstants {
         .transform = camera_transform,
         .scene_transform = scene_transform,
         .color = params.glyph_color,
@@ -199,7 +207,7 @@ auto update(Demo& demo, const UpdateDesc& desc) -> void {
 }
 
 auto render(Demo& demo, const RenderDesc& desc) -> void {
-    GpuCommandList& cmd = desc.cmd;
+    auto& [cmd, device, frame_index] = desc;
     cmd.begin_pix("%s - Render", NAME.data());
     cmd.set_graphics();
     demo.render_targets.set(cmd);
@@ -207,32 +215,33 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
 
     {
         cmd.begin_pix("Background");
+        const auto& pass = demo.bg;
         cmd.set_graphics_constants(BackgroundBindings {
-            .constants = demo.bg.constants.cbv_descriptor().index(),
-            .vertices = demo.bg.vertices.srv_descriptor().index(),
-            .irr_texture = demo.pbr_irr.srv_descriptor().index(),
+            .constants = pass.constants.buffer(frame_index).cbv_descriptor().index(),
+            .vertices = pass.vertices.srv_descriptor().index(),
+            .irr_texture = demo.pbr.irr.srv_descriptor().index(),
         });
-        cmd.set_pipeline(demo.bg.pipeline);
+        cmd.set_pipeline(pass.pipeline);
         cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-        cmd.set_index_buffer(demo.bg.indices.index_buffer_view());
-        cmd.draw_indexed_instanced(demo.bg.indices.element_count(), 1, 0, 0, 0);
+        cmd.set_index_buffer(pass.indices.index_buffer_view());
+        cmd.draw_indexed_instanced(pass.indices.element_count(), 1, 0, 0, 0);
         cmd.end_pix();
     }
 
     {
         cmd.begin_pix("Glyphs");
-        cmd.set_pipeline(demo.pipeline);
+        const auto& pass = demo.glyph;
+        cmd.set_pipeline(pass.pipeline);
         cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-        cmd.set_index_buffer(demo.indices.index_buffer_view());
-        const auto frame_index = desc.device.frame_index();
-        for (uint i = 0; i < demo.glyph_submesh_count; i++) {
-            const auto submesh_index = demo.glyph_submeshes[i];
-            const auto& submesh = demo.submeshes[submesh_index];
+        cmd.set_index_buffer(pass.indices.index_buffer_view());
+        for (uint i = 0; i < pass.glyph_submesh_count; i++) {
+            const auto submesh_index = pass.glyph_submeshes[i];
+            const auto& submesh = pass.submeshes[submesh_index];
             cmd.set_graphics_constants(GlyphBindings {
-                .constants = demo.constants.cbv_descriptor().index(),
-                .vertices = demo.vertices.srv_descriptor().index(),
-                .instances = demo.glyph_instances[frame_index].srv_descriptor().index(),
-                .irr_texture = demo.pbr_irr.srv_descriptor().index(),
+                .constants = pass.constants.buffer(frame_index).cbv_descriptor().index(),
+                .vertices = pass.vertices.srv_descriptor().index(),
+                .instances = pass.instances.buffer(frame_index).srv_descriptor().index(),
+                .irr_texture = demo.pbr.irr.srv_descriptor().index(),
                 .sampler = (uint)GpuSampler::LinearClamp,
                 .base_vertex = submesh.base_vertex,
                 .instance_id = i,

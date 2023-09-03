@@ -112,6 +112,7 @@ auto buffet_run(Buffet& bf) -> void {
                     bf.demos,
                     {
                         .window_size = bf.device.swapchain().size(),
+                        .frame_index = bf.device.frame_index(),
                     }
                 );
             }
@@ -155,6 +156,7 @@ auto buffet_run(Buffet& bf) -> void {
             const auto render_desc = demos::RenderDesc {
                 .cmd = cmd,
                 .device = bf.device,
+                .frame_index = frame_index,
             };
 
             cmd.begin_pix("Transition to Clear");

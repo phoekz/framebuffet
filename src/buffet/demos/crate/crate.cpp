@@ -193,7 +193,7 @@ auto update(Demo& demo, const UpdateDesc& desc) -> void {
     demo.debug_draw.end();
 
     // Update constants.
-    *demo.constants.ptr() = Constants {
+    demo.constants.buffer(desc.frame_index).ref() = Constants {
         .transform = camera_transform,
         .light_direction = light_direction,
         .light_ambient = params.light_ambient,
@@ -205,7 +205,7 @@ auto update(Demo& demo, const UpdateDesc& desc) -> void {
 }
 
 auto render(Demo& demo, const RenderDesc& desc) -> void {
-    GpuCommandList& cmd = desc.cmd;
+    auto& [cmd, device, frame_index] = desc;
     cmd.begin_pix("%s - Render", NAME.data());
     cmd.set_graphics();
     demo.render_targets.set(cmd);
@@ -218,7 +218,7 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
          {std::make_tuple(std::cref(demo.sci_fi_crate), GpuSampler::AnisotropicLinearClamp),
           std::make_tuple(std::cref(demo.metal_plane), GpuSampler::AnisotropicLinearWrap)}) {
         cmd.set_graphics_constants(Bindings {
-            .constants = demo.constants.cbv_descriptor().index(),
+            .constants = demo.constants.buffer(frame_index).cbv_descriptor().index(),
             .vertices = model.vertices.srv_descriptor().index(),
             .base_color_texture = model.base_color.srv_descriptor().index(),
             .normal_texture = model.normal.srv_descriptor().index(),

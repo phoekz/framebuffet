@@ -46,7 +46,7 @@ struct Demo {
     GpuPipeline light_pipeline;
     GpuPipeline plane_pipeline;
     GpuPipeline debug_pipeline;
-    GpuBufferHostCbv<Constants> constants;
+    Multibuffer<GpuBufferHostCbv<Constants>, FRAME_COUNT> constants;
     Mesh light_mesh;
     Mesh plane_mesh;
     GpuBufferDeviceSrvUav<Light> lights;

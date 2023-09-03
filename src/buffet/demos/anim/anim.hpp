@@ -24,7 +24,7 @@ struct Demo {
     RenderTargets render_targets;
     DebugDraw debug_draw;
     GpuPipeline pipeline;
-    GpuBufferHostCbv<Constants> constants;
+    Multibuffer<GpuBufferHostCbv<Constants>, FRAME_COUNT> constants;
     GpuBufferHostSrv<baked::SkinningVertex> vertices;
     GpuBufferHostIndex<baked::Index> indices;
     GpuBufferHostSrv<float4x4> joint_inverse_bind_buffer;

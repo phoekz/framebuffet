@@ -162,7 +162,11 @@ auto stockcube_run(Stockcube& sc) -> void {
 
                 {
                     cmd.begin_pix("Techniques");
-                    const auto desc = techniques::RenderDesc {.cmd = cmd, .device = sc.device};
+                    const auto desc = techniques::RenderDesc {
+                        .cmd = cmd,
+                        .device = sc.device,
+                        .frame_index = frame_index,
+                    };
                     techniques::render_main(sc.techniques, render_targets, desc);
                     cmd.end_pix();
                 }
@@ -182,7 +186,11 @@ auto stockcube_run(Stockcube& sc) -> void {
 
                     swapchain.set_render_target(cmd, frame_index);
 
-                    const auto desc = techniques::RenderDesc {.cmd = cmd, .device = sc.device};
+                    const auto desc = techniques::RenderDesc {
+                        .cmd = cmd,
+                        .device = sc.device,
+                        .frame_index = frame_index,
+                    };
                     techniques::render_compositing(sc.techniques, desc);
                     sc.gui.render(sc.device, cmd);
 

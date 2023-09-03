@@ -97,7 +97,9 @@ auto create(Demo& demo, const CreateDesc& desc) -> void {
     demo.cards.create(device, CARD_COUNT, debug.with_name("Cards"));
 
     // Default card layout.
-    layout_hmosaic(demo.cards.span(), device.swapchain().size());
+    for (uint i = 0; i < demo.cards.buffer_count(); i++) {
+        layout_hmosaic(demo.cards.buffer(i).span(), device.swapchain().size());
+    }
 
     // Geometry.
     {
@@ -134,7 +136,7 @@ auto create(Demo& demo, const CreateDesc& desc) -> void {
 
         // Constants.
         demo.spd_constants.create(device, 1, spd_debug.with_name("Constants"));
-        *demo.spd_constants.ptr() = spd::Constants {
+        demo.spd_constants.ref() = spd::Constants {
             .mip_count = mip_count,
             .threadgroup_count = threadgroup_count,
             .inv_texture_size = inv_texture_size,
@@ -160,7 +162,7 @@ auto create(Demo& demo, const CreateDesc& desc) -> void {
 auto gui(Demo& demo, const GuiDesc& desc) -> void {
     PIXScopedEvent(PIX_COLOR_DEFAULT, "%s - Gui", NAME.data());
     auto& params = demo.parameters;
-    auto cards = std::span<Card>(demo.cards.ptr(), CARD_COUNT);
+    auto cards = demo.cards.buffer(desc.frame_index).span();
     if (ImGui::Button("Grid")) {
         layout_grid(cards, desc.window_size, CARD_GRID_COLUMNS);
     }
@@ -199,13 +201,13 @@ auto update(Demo& demo, const UpdateDesc& desc) -> void {
     const auto height = (float)desc.window_size.y;
     const auto projection =
         float4x4::CreateOrthographicOffCenter(0.0f, width, height, 0.0f, 0.0f, 1.0f);
-    *demo.constants.ptr() = Constants {
+    demo.constants.buffer(desc.frame_index).ref() = Constants {
         .transform = projection,
     };
 }
 
 auto render(Demo& demo, const RenderDesc& desc) -> void {
-    GpuCommandList& cmd = desc.cmd;
+    auto& [cmd, device, frame_index] = desc;
     cmd.begin_pix("%s - Render", NAME.data());
     cmd.begin_pix("Spd");
     cmd.set_compute();
@@ -225,7 +227,6 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
 
     cmd.begin_pix("Render");
     const auto& params = demo.parameters;
-    const auto& device = desc.device;
     const auto swapchain_size = device.swapchain().size();
     const auto width = swapchain_size.x;
     const auto height = swapchain_size.y;
@@ -239,8 +240,8 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
         const auto card_indirect = params.card_indirect_indices[i];
         cmd.set_graphics_constants(Bindings {
             .card_index = i,
-            .constants = demo.constants.cbv_descriptor().index(),
-            .cards = demo.cards.srv_descriptor().index(),
+            .constants = demo.constants.buffer(frame_index).cbv_descriptor().index(),
+            .cards = demo.cards.buffer(frame_index).srv_descriptor().index(),
             .vertices = demo.vertices.srv_descriptor().index(),
             .texture = demo.card_descriptors[card_indirect].src,
         });

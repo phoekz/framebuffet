@@ -37,7 +37,7 @@ struct Demo {
     RenderTargets render_targets;
     DebugDraw debug_draw;
     GpuPipeline pipeline;
-    GpuBufferHostCbv<Constants> constants;
+    Multibuffer<GpuBufferHostCbv<Constants>, FRAME_COUNT> constants;
     Model sci_fi_crate;
     Model metal_plane;
     GpuTextureSrv pbr_lut;

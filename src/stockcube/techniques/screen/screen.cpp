@@ -13,7 +13,7 @@ auto create(Technique& tech, const CreateDesc& desc) -> void {
     const auto w = device.swapchain().size().x;
     const auto h = device.swapchain().size().y;
     tech.constants.create(device, 1, debug.with_name("Constants"));
-    *tech.constants.ptr() = Constants {
+    tech.constants.ref() = Constants {
         .transform = float4x4(
             float4(2.0f / w, 0.0f, 0.0f, 0.0f),
             float4(0.0f, -2.0f / h, 0.0f, 0.0f),

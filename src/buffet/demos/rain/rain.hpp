@@ -29,7 +29,7 @@ struct Demo {
     RenderTargets render_targets;
     DebugDraw debug_draw;
     GpuBufferDeviceSrvUav<Particle> particles;
-    GpuBufferHostCbv<Constants> constants;
+    Multibuffer<GpuBufferHostCbv<Constants>, FRAME_COUNT> constants;
     GpuPipeline compute_pipeline;
     GpuPipeline draw_pipeline;
     GpuBufferHostSrv<Vertex> draw_vertices;

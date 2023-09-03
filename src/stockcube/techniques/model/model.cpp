@@ -48,7 +48,7 @@ auto update(Technique& tech, const UpdateDesc& desc) -> void {
     const auto camera_transform = desc.camera_view * desc.camera_projection;
     const auto& params = tech.parameters;
 
-    *tech.constants.ptr() = Constants {
+    tech.constants.buffer(desc.frame_index).ref() = Constants {
         .transform = camera_transform,
         .camera_position = desc.camera_position,
         .metallic = params.metallic,
@@ -58,11 +58,11 @@ auto update(Technique& tech, const UpdateDesc& desc) -> void {
 }
 
 auto render(Technique& tech, const RenderDesc& desc) -> void {
-    GpuCommandList& cmd = desc.cmd;
+    auto& [cmd, device, frame_index] = desc;
 
     cmd.begin_pix("%s - GpuCommands", NAME.data());
     cmd.set_graphics_constants(Bindings {
-        .constants = tech.constants.cbv_descriptor().index(),
+        .constants = tech.constants.buffer(frame_index).cbv_descriptor().index(),
         .vertices = tech.vertices.srv_descriptor().index(),
         .lut_texture = tech.lut_texture.index(),
         .irr_texture = tech.irr_texture.index(),
