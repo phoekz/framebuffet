@@ -453,9 +453,8 @@ auto GpuDevice::video_memory_info() -> GpuVideoMemoryInfo {
 }
 
 auto GpuDevice::pix_capture() -> void {
-    constexpr auto CAPTURE_FILE_NAME = L"framebuffet.wpix_preview";
-    FB_ASSERT_HR(PIXGpuCaptureNextFrames(CAPTURE_FILE_NAME, 1));
-    ShellExecuteW(nullptr, L"open", CAPTURE_FILE_NAME, nullptr, nullptr, SW_SHOW);
+    FB_ASSERT_HR(PIXGpuCaptureNextFrames(FB_PIX_GPU_CAPTURE_FILE_NAME, 1));
+    ShellExecuteW(nullptr, L"open", FB_PIX_GPU_CAPTURE_FILE_NAME, nullptr, nullptr, SW_SHOW);
 }
 
 } // namespace fb
