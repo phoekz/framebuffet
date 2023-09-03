@@ -41,7 +41,6 @@ target_compile_definitions(
     ${NAME} PRIVATE
     FB_STOCKCUBE_INTERMEDIATE_DIR="${CMAKE_SOURCE_DIR}/src/assets/intermediate/stockcube"
 )
-target_compile_options(${NAME} PRIVATE $<$<CONFIG:Debug>:/ZI>)
 
 set_target_properties(${NAME} PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY $<TARGET_FILE_DIR:${NAME}>)
 

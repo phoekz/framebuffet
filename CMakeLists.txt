@@ -15,7 +15,7 @@ add_subdirectory(external)
 # Global settings.
 add_compile_options(
     /W4 /WX /MP /EHs-c- /GR-
-    $<$<CONFIG:Debug>:/Zi>
+    $<$<CONFIG:Debug>:/ZI>
     $<$<CONFIG:Release>:/Ob3>
     $<$<CONFIG:Release>:/Oi>
     $<$<CONFIG:Release>:/Ot>

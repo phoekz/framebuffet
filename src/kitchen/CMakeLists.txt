@@ -45,7 +45,7 @@ set(SOURCES
     win32/window.hpp
 )
 add_library(${NAME} STATIC ${SOURCES})
-target_precompile_headers(${NAME} REUSE_FROM fb_common)
+target_precompile_headers(${NAME} PRIVATE pch.hpp)
 target_link_libraries(
     ${NAME}
     PUBLIC

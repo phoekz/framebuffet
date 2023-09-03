@@ -20,4 +20,4 @@ target_include_directories(
     PUBLIC
     ${CMAKE_SOURCE_DIR}/src
 )
-target_precompile_headers(${NAME} REUSE_FROM fb_common)
+target_precompile_headers(${NAME} PRIVATE pch.hpp)
