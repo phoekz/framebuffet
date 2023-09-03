@@ -3,8 +3,10 @@
 namespace fb::graphics::gui {
 
 Gui::~Gui() {
-    ImGui_ImplWin32_Shutdown();
-    ImGui::DestroyContext(_imgui_ctx);
+    if (_imgui_ctx) {
+        ImGui_ImplWin32_Shutdown();
+        ImGui::DestroyContext(_imgui_ctx);
+    }
 }
 
 auto Gui::create(
