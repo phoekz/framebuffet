@@ -119,7 +119,7 @@ auto GpuDevice::create(const Window& window) -> void {
                void*) {
                 FRAME_ALLOCATION_TRAP = false;
                 switch (severity) {
-                    case D3D12_MESSAGE_SEVERITY_CORRUPTION: FB_LOG_ERROR("[{}", description); break;
+                    case D3D12_MESSAGE_SEVERITY_CORRUPTION: FB_LOG_ERROR("{}", description); break;
                     case D3D12_MESSAGE_SEVERITY_ERROR: FB_LOG_ERROR("{}", description); break;
                     case D3D12_MESSAGE_SEVERITY_WARNING: FB_LOG_WARN("{}", description); break;
                     case D3D12_MESSAGE_SEVERITY_INFO: FB_LOG_INFO("{}", description); break;
