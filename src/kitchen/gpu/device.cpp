@@ -162,7 +162,7 @@ auto GpuDevice::create(const Window& window) -> void {
     {
         D3D12_COMMAND_QUEUE_DESC desc = {
             .Type = D3D12_COMMAND_LIST_TYPE_DIRECT,
-            .Priority = D3D12_COMMAND_QUEUE_PRIORITY_NORMAL,
+            .Priority = D3D12_COMMAND_QUEUE_PRIORITY_HIGH,
             .Flags = D3D12_COMMAND_QUEUE_FLAG_NONE,
             .NodeMask = 0,
         };
