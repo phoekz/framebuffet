@@ -33,19 +33,46 @@ auto buffet_run(Buffet& bf) -> void {
 
     // Init.
     {
+        PIXBeginEvent(PIX_COLOR_DEFAULT, "Init");
+
         auto timer = Instant();
         DebugScope debug("Buffet");
+
+        PIXBeginEvent(PIX_COLOR_DEFAULT, "Baked");
         demos::Baked baked;
+        PIXEndEvent();
+
+        PIXBeginEvent(PIX_COLOR_DEFAULT, "Window");
         bf.window.create(Window::Desc {WINDOW_TITLE, WINDOW_WIDTH, WINDOW_HEIGHT});
+        PIXEndEvent();
+
+        PIXBeginEvent(PIX_COLOR_DEFAULT, "Device");
         bf.device.create(bf.window);
-        bf.device.begin_transfer();
-        demos::create(bf.demos, {.baked = baked, .device = bf.device});
-        bf.gui.create(bf.window, bf.device, baked.kitchen.assets, baked.kitchen.shaders);
-        bf.device.end_transfer();
+        PIXEndEvent();
+
+        {
+            PIXBeginEvent(PIX_COLOR_DEFAULT, "Demos");
+
+            bf.device.begin_transfer();
+            demos::create(bf.demos, {.baked = baked, .device = bf.device});
+
+            PIXBeginEvent(PIX_COLOR_DEFAULT, "Gui");
+            bf.gui.create(bf.window, bf.device, baked.kitchen.assets, baked.kitchen.shaders);
+            PIXEndEvent();
+
+            PIXBeginEvent(PIX_COLOR_DEFAULT, "Transfer");
+            bf.device.end_transfer();
+            PIXEndEvent();
+
+            PIXEndEvent();
+        }
+
         bf.device.log_stats();
         bf.frame.create();
         bf.archive_buf.reserve(1024);
         FB_LOG_INFO("Init time: {} ms", 1e3f * timer.elapsed_time());
+
+        PIXEndEvent();
     }
 
     // Archive.
