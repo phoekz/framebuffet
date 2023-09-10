@@ -7,7 +7,7 @@ namespace fb {
 // Adapted from: https://github.com/microsoft/wil
 
 template<typename T>
-class ComPtr {
+class [[nodiscard]] ComPtr {
     static_assert(std::is_base_of_v<IUnknown, T>);
 
 public:
