@@ -73,7 +73,7 @@ public:
 
 private:
     bool _initiated = false;
-    std::optional<uint> _counter = std::nullopt;
+    Option<uint> _counter = std::nullopt;
 };
 
 struct OutputMetadata {

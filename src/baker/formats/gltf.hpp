@@ -43,13 +43,13 @@ public:
     auto indices() const -> std::span<const uint> { return _indices; }
 
     auto base_color_texture() const -> const LdrImage& { return _base_color_texture; }
-    auto normal_texture() const -> const std::optional<ConstRef<LdrImage>> {
+    auto normal_texture() const -> const Option<ConstRef<LdrImage>> {
         if (_normal_texture.data().empty()) {
             return std::nullopt;
         }
         return _normal_texture;
     }
-    auto metallic_roughness_texture() const -> const std::optional<ConstRef<LdrImage>> {
+    auto metallic_roughness_texture() const -> const Option<ConstRef<LdrImage>> {
         if (_metallic_roughness_texture.data().empty()) {
             return std::nullopt;
         }

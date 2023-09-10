@@ -35,11 +35,11 @@ struct GpuTextureDesc {
     uint depth = 1;
     uint mip_count = 1;
     uint sample_count = 1;
-    std::optional<D3D12_CLEAR_VALUE> clear_value = std::nullopt;
-    std::optional<DXGI_FORMAT> srv_format = std::nullopt;
-    std::optional<DXGI_FORMAT> uav_format = std::nullopt;
-    std::optional<DXGI_FORMAT> rtv_format = std::nullopt;
-    std::optional<DXGI_FORMAT> dsv_format = std::nullopt;
+    Option<D3D12_CLEAR_VALUE> clear_value = std::nullopt;
+    Option<DXGI_FORMAT> srv_format = std::nullopt;
+    Option<DXGI_FORMAT> uav_format = std::nullopt;
+    Option<DXGI_FORMAT> rtv_format = std::nullopt;
+    Option<DXGI_FORMAT> dsv_format = std::nullopt;
 };
 
 struct GpuTextureTransferDesc {
@@ -113,7 +113,7 @@ public:
         };
 
         // Clear value.
-        auto clear_value = std::optional<D3D12_CLEAR_VALUE>(std::nullopt);
+        auto clear_value = Option<D3D12_CLEAR_VALUE>(std::nullopt);
         if (gpu_texture_flags_contains(FLAGS, Rtv)) {
             FB_ASSERT(desc.clear_value.has_value());
             clear_value = desc.clear_value;
@@ -337,7 +337,7 @@ public:
         }
         if constexpr (gpu_texture_flags_contains(FLAGS, Rtv)) {
             _rtv_descriptor = device.descriptors().rtv().alloc();
-            auto maybe_desc = std::optional<D3D12_RENDER_TARGET_VIEW_DESC>(std::nullopt);
+            auto maybe_desc = Option<D3D12_RENDER_TARGET_VIEW_DESC>(std::nullopt);
             if (dxgi_format_type_level(desc.format) == D3DFTL_PARTIAL_TYPE) {
                 maybe_desc = D3D12_RENDER_TARGET_VIEW_DESC {
                     .Format = _rtv_format,
@@ -349,7 +349,7 @@ public:
         }
         if constexpr (gpu_texture_flags_contains(FLAGS, Dsv)) {
             _dsv_descriptor = device.descriptors().dsv().alloc();
-            auto maybe_desc = std::optional<D3D12_DEPTH_STENCIL_VIEW_DESC>(std::nullopt);
+            auto maybe_desc = Option<D3D12_DEPTH_STENCIL_VIEW_DESC>(std::nullopt);
             if (dxgi_format_type_level(desc.format) == D3DFTL_PARTIAL_TYPE) {
                 maybe_desc = D3D12_DEPTH_STENCIL_VIEW_DESC {
                     .Format = _dsv_format,

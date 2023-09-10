@@ -21,8 +21,8 @@ public:
         D3D12_BARRIER_SYNC sync_after,
         D3D12_BARRIER_ACCESS access_before,
         D3D12_BARRIER_ACCESS access_after,
-        std::optional<D3D12_BARRIER_LAYOUT> layout_before = std::nullopt,
-        std::optional<D3D12_BARRIER_LAYOUT> layout_after = std::nullopt
+        Option<D3D12_BARRIER_LAYOUT> layout_before = std::nullopt,
+        Option<D3D12_BARRIER_LAYOUT> layout_after = std::nullopt
     ) -> void;
     auto resource(
         const ComPtr<ID3D12Resource2>& resource,
@@ -31,8 +31,8 @@ public:
         D3D12_BARRIER_SYNC sync_after,
         D3D12_BARRIER_ACCESS access_before,
         D3D12_BARRIER_ACCESS access_after,
-        std::optional<D3D12_BARRIER_LAYOUT> layout_before = std::nullopt,
-        std::optional<D3D12_BARRIER_LAYOUT> layout_after = std::nullopt
+        Option<D3D12_BARRIER_LAYOUT> layout_before = std::nullopt,
+        Option<D3D12_BARRIER_LAYOUT> layout_after = std::nullopt
     ) -> void;
     auto flush(const GpuDevice& device) -> void;
 

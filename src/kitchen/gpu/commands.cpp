@@ -192,7 +192,7 @@ auto GpuCommandList::execute_indirect(
     const ComPtr<ID3D12CommandSignature>& command_signature,
     uint max_command_count,
     const ComPtr<ID3D12Resource2>& argument_buffer,
-    const std::optional<ConstRef<ComPtr<ID3D12Resource2>>> count_buffer
+    const Option<ConstRef<ComPtr<ID3D12Resource2>>> count_buffer
 ) const -> void {
     _cmd->ExecuteIndirect(
         command_signature.get(),
@@ -213,8 +213,8 @@ auto GpuGraphicsCommandList::set_pipeline(const GpuPipeline& pipeline) const -> 
 }
 
 auto GpuGraphicsCommandList::set_rtv_dsv(
-    const std::optional<GpuDescriptor>& rtv,
-    const std::optional<GpuDescriptor>& dsv
+    const Option<GpuDescriptor>& rtv,
+    const Option<GpuDescriptor>& dsv
 ) const -> void {
     _cmd->OMSetRenderTargets(
         rtv.has_value() ? 1 : 0,

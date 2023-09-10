@@ -36,8 +36,8 @@ struct GpuTransferImpl {
         D3D12_BARRIER_SYNC sync_after;
         D3D12_BARRIER_ACCESS access_before;
         D3D12_BARRIER_ACCESS access_after;
-        std::optional<D3D12_BARRIER_LAYOUT> layout_before;
-        std::optional<D3D12_BARRIER_LAYOUT> layout_after;
+        Option<D3D12_BARRIER_LAYOUT> layout_before;
+        Option<D3D12_BARRIER_LAYOUT> layout_after;
 
         auto is_texture() const -> bool {
             return layout_before.has_value() && layout_after.has_value();
@@ -138,8 +138,8 @@ auto GpuTransfer::resource(
     D3D12_BARRIER_SYNC sync_after,
     D3D12_BARRIER_ACCESS access_before,
     D3D12_BARRIER_ACCESS access_after,
-    std::optional<D3D12_BARRIER_LAYOUT> layout_before,
-    std::optional<D3D12_BARRIER_LAYOUT> layout_after
+    Option<D3D12_BARRIER_LAYOUT> layout_before,
+    Option<D3D12_BARRIER_LAYOUT> layout_after
 ) -> void {
     FB_ASSERT(layout_before.has_value() == layout_after.has_value());
     this->resource(
@@ -161,8 +161,8 @@ auto GpuTransfer::resource(
     D3D12_BARRIER_SYNC sync_after,
     D3D12_BARRIER_ACCESS access_before,
     D3D12_BARRIER_ACCESS access_after,
-    std::optional<D3D12_BARRIER_LAYOUT> layout_before,
-    std::optional<D3D12_BARRIER_LAYOUT> layout_after
+    Option<D3D12_BARRIER_LAYOUT> layout_before,
+    Option<D3D12_BARRIER_LAYOUT> layout_after
 ) -> void {
     // Validation.
     FB_ASSERT(sync_before == D3D12_BARRIER_SYNC_NONE);

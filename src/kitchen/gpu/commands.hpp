@@ -162,7 +162,7 @@ public:
         const ComPtr<ID3D12CommandSignature>& command_signature,
         uint max_command_count,
         const ComPtr<ID3D12Resource2>& argument_buffer,
-        const std::optional<ConstRef<ComPtr<ID3D12Resource2>>> count_buffer
+        const Option<ConstRef<ComPtr<ID3D12Resource2>>> count_buffer
     ) const -> void;
 
 protected:
@@ -212,10 +212,8 @@ class GpuGraphicsCommandList final: public GpuCommandList {
 public:
     auto set_pipeline(const GpuPipeline& pipeline) const -> void;
 
-    auto set_rtv_dsv(
-        const std::optional<GpuDescriptor>& rtv,
-        const std::optional<GpuDescriptor>& dsv
-    ) const -> void;
+    auto set_rtv_dsv(const Option<GpuDescriptor>& rtv, const Option<GpuDescriptor>& dsv) const
+        -> void;
 
     auto set_viewport(
         uint left,

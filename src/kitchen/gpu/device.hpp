@@ -49,7 +49,7 @@ public:
         D3D12_HEAP_TYPE heap_type,
         const D3D12_RESOURCE_DESC1& desc,
         D3D12_BARRIER_LAYOUT initial_layout,
-        const std::optional<D3D12_CLEAR_VALUE>& optimized_clear_value,
+        const Option<D3D12_CLEAR_VALUE>& optimized_clear_value,
         std::string_view name
     ) const -> ComPtr<ID3D12Resource2>;
     [[nodiscard]] auto create_fence(uint64_t initial_value, std::string_view name) const
@@ -70,18 +70,18 @@ public:
     ) const -> void;
     auto create_unordered_access_view(
         const ComPtr<ID3D12Resource2>& resource,
-        const std::optional<MutRef<ComPtr<ID3D12Resource2>>> counter,
+        const Option<MutRef<ComPtr<ID3D12Resource2>>> counter,
         const D3D12_UNORDERED_ACCESS_VIEW_DESC& desc,
         D3D12_CPU_DESCRIPTOR_HANDLE descriptor
     ) -> void;
     auto create_render_target_view(
         const ComPtr<ID3D12Resource2>& resource,
-        const std::optional<D3D12_RENDER_TARGET_VIEW_DESC>& desc,
+        const Option<D3D12_RENDER_TARGET_VIEW_DESC>& desc,
         D3D12_CPU_DESCRIPTOR_HANDLE descriptor
     ) const -> void;
     auto create_depth_stencil_view(
         const ComPtr<ID3D12Resource2>& resource,
-        const std::optional<D3D12_DEPTH_STENCIL_VIEW_DESC>& desc,
+        const Option<D3D12_DEPTH_STENCIL_VIEW_DESC>& desc,
         D3D12_CPU_DESCRIPTOR_HANDLE descriptor
     ) const -> void;
     auto
