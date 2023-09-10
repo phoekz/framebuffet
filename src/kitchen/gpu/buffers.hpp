@@ -134,11 +134,6 @@ public:
 
             // Clear memory.
             memset(_raw, 0, _byte_count);
-
-            // Inplace construct elements.
-            for (uint i = 0; i < element_count; i++) {
-                new (reinterpret_cast<T*>(_raw) + i) T();
-            }
         }
 
         // GPU address.
