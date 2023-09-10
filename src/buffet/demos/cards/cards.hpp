@@ -42,7 +42,7 @@ struct Demo {
 struct CreateDesc {
     const Baked& baked;
     GpuDevice& device;
-    std::array<std::reference_wrapper<RenderTargets>, CARD_COUNT> render_targets;
+    std::array<ConstRef<RenderTargets>, CARD_COUNT> render_targets;
 };
 
 auto create(Demo& demo, const CreateDesc& desc) -> void;

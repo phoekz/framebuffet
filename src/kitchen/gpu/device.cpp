@@ -463,7 +463,7 @@ auto GpuDevice::create_shader_resource_view(
 
 auto GpuDevice::create_unordered_access_view(
     const ComPtr<ID3D12Resource2>& resource,
-    const std::optional<std::reference_wrapper<ComPtr<ID3D12Resource2>>> counter,
+    const std::optional<MutRef<ComPtr<ID3D12Resource2>>> counter,
     const D3D12_UNORDERED_ACCESS_VIEW_DESC& desc,
     D3D12_CPU_DESCRIPTOR_HANDLE descriptor
 ) -> void {

@@ -73,5 +73,4 @@ private:
     GpuDescriptorHeap _dsv_heap;
 };
 
-
 } // namespace fb

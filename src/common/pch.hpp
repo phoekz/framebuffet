@@ -24,6 +24,12 @@ using namespace std::literals;
 // Defines.
 namespace fb {
 
+template<typename T>
+using MutRef = std::reference_wrapper<T>;
+
+template<typename T>
+using ConstRef = std::reference_wrapper<const T>;
+
 using float2 = DirectX::SimpleMath::Vector2;
 using float3 = DirectX::SimpleMath::Vector3;
 using float4 = DirectX::SimpleMath::Vector4;

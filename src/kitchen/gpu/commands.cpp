@@ -192,7 +192,7 @@ auto GpuCommandList::execute_indirect(
     const ComPtr<ID3D12CommandSignature>& command_signature,
     uint max_command_count,
     const ComPtr<ID3D12Resource2>& argument_buffer,
-    const std::optional<std::reference_wrapper<const ComPtr<ID3D12Resource2>>> count_buffer
+    const std::optional<ConstRef<ComPtr<ID3D12Resource2>>> count_buffer
 ) const -> void {
     _cmd->ExecuteIndirect(
         command_signature.get(),

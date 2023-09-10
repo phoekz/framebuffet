@@ -16,13 +16,13 @@ auto create(Demos& demos, const CreateDesc& desc) -> void {
             .baked = desc.baked,
             .device = desc.device,
             .render_targets = std::to_array({
-                std::ref(demos.anim.render_targets),
-                std::ref(demos.crate.render_targets),
-                std::ref(demos.env.render_targets),
-                std::ref(demos.fibers.render_targets),
-                std::ref(demos.rain.render_targets),
-                std::ref(demos.tree.render_targets),
-                std::ref(demos.text.render_targets),
+                std::cref(demos.anim.render_targets),
+                std::cref(demos.crate.render_targets),
+                std::cref(demos.env.render_targets),
+                std::cref(demos.fibers.render_targets),
+                std::cref(demos.rain.render_targets),
+                std::cref(demos.tree.render_targets),
+                std::cref(demos.text.render_targets),
             }),
         }
     );
