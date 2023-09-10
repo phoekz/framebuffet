@@ -133,6 +133,22 @@ auto GpuCommandList::flush_barriers() -> void {
     _pending_barrier_count = 0;
 }
 
+auto GpuCommandList::execute_indirect(
+    const ComPtr<ID3D12CommandSignature>& command_signature,
+    uint max_command_count,
+    const ComPtr<ID3D12Resource>& argument_buffer,
+    const std::optional<std::reference_wrapper<const ComPtr<ID3D12Resource>>> count_buffer
+) const -> void {
+    _cmd->ExecuteIndirect(
+        command_signature.get(),
+        max_command_count,
+        argument_buffer.get(),
+        0,
+        count_buffer.has_value() ? count_buffer.value().get().get() : nullptr,
+        0
+    );
+}
+
 //
 // GpuGraphicsCommandList.
 //

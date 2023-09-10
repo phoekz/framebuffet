@@ -24,6 +24,8 @@ struct Parameters {
     float4 glyph_color = float4(0.8f, 0.8f, 0.8f, 1.0f);
 };
 
+using DrawGlyphCommand = IndirectDrawIndexedCommand<GlyphBindings>;
+
 struct Demo {
     Parameters parameters;
     RenderTargets render_targets;
@@ -47,6 +49,10 @@ struct Demo {
         std::vector<baked::Submesh> submeshes;
         GpuBufferHostSrv<baked::Vertex> vertices;
         GpuBufferHostIndex<baked::Index> indices;
+
+        ComPtr<ID3D12CommandSignature> indirect_command_signature;
+        Multibuffer<GpuBufferHostSrv<DrawGlyphCommand>, FRAME_COUNT> indirect_commands;
+        Multibuffer<GpuBufferHostSrv<uint>, FRAME_COUNT> indirect_counts;
 
         std::vector<baked::Glyph> glyphs;
         uint glyph_submesh_count = 0;

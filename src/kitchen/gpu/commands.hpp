@@ -5,6 +5,34 @@
 
 namespace fb {
 
+//
+// Bindings.
+//
+
+inline constexpr uint MAX_BINDING_COUNT = 16;
+
+template<typename T>
+inline constexpr auto dword_count() -> uint {
+    return sizeof(T) / sizeof(uint);
+}
+
+template<typename T>
+concept GpuBindable =
+    (sizeof(T) > 0) && (sizeof(T) % sizeof(uint) == 0) && (dword_count<T>() <= MAX_BINDING_COUNT)
+    && std::is_trivially_copyable_v<T> && std::is_standard_layout_v<T>;
+
+template<GpuBindable T>
+using GpuBindableArray = std::array<uint, dword_count<T>()>;
+
+template<GpuBindable T>
+inline constexpr auto into_dword_array(T t) -> GpuBindableArray<T> {
+    return std::bit_cast<GpuBindableArray<T>>(t);
+}
+
+//
+// GpuCommandList.
+//
+
 class GpuGraphicsCommandList;
 template<typename Scope>
 concept GpuGraphicsCommandScope =
@@ -14,10 +42,6 @@ class GpuComputeCommandList;
 template<typename Scope>
 concept GpuComputeCommandScope =
     requires(Scope scope, GpuComputeCommandList& compute) { scope(compute); };
-
-//
-// GpuCommandList.
-//
 
 enum class GpuCommandEngine {
     Generic,
@@ -112,6 +136,13 @@ public:
     ) -> void;
     auto uav_barrier(const ComPtr<ID3D12Resource>& resource) -> void;
     auto flush_barriers() -> void;
+
+    auto execute_indirect(
+        const ComPtr<ID3D12CommandSignature>& command_signature,
+        uint max_command_count,
+        const ComPtr<ID3D12Resource>& argument_buffer,
+        const std::optional<std::reference_wrapper<const ComPtr<ID3D12Resource>>> count_buffer
+    ) const -> void;
 
 protected:
     auto set_global_descriptor_heap() const -> void;
@@ -214,6 +245,28 @@ public:
     }
 
     auto dispatch(uint x, uint y, uint z) const -> void;
+};
+
+//
+// Indirect commands.
+//
+
+template<GpuBindable T>
+struct IndirectDrawCommand {
+    T bindings;
+    D3D12_DRAW_ARGUMENTS draw;
+};
+
+template<GpuBindable T>
+struct IndirectDrawIndexedCommand {
+    T bindings;
+    D3D12_DRAW_INDEXED_ARGUMENTS draw_indexed;
+};
+
+template<GpuBindable T>
+struct IndirectDispatchCommand {
+    T bindings;
+    D3D12_DISPATCH_ARGUMENTS dispatch;
 };
 
 } // namespace fb

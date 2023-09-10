@@ -66,7 +66,7 @@ auto create(Demo& demo, const CreateDesc& desc) -> void {
 
         // Glyphs.
         const auto font = assets.roboto_medium_font();
-        pass.instances.create(device, MAX_GLYPH_COUNT, pass_debug.with_name("Instances 0"));
+        pass.instances.create(device, MAX_GLYPH_COUNT, pass_debug.with_name("Instances"));
         pass.glyphs.insert(pass.glyphs.end(), font.glyphs.begin(), font.glyphs.end());
         pass.first_character = (char)pass.glyphs[0].character;
         pass.last_character = (char)pass.glyphs[pass.glyphs.size() - 1].character;
@@ -81,6 +81,16 @@ auto create(Demo& demo, const CreateDesc& desc) -> void {
         }
         auto text_height = (3.0f - 1.5f) * font.ascender;
         demo.parameters.text_offset = float3(-text_width / 2.0f, text_height / 2.0f, 0.0f);
+
+        // Indirect commands.
+        pass.indirect_command_signature = device.create_command_signature(
+            dword_count<GlyphBindings>(),
+            D3D12_INDIRECT_ARGUMENT_TYPE_DRAW_INDEXED,
+            pass_debug.with_name("Indirect Command Signature")
+        );
+        pass.indirect_commands
+            .create(device, MAX_GLYPH_COUNT, pass_debug.with_name("Indirect Commands"));
+        pass.indirect_counts.create(device, 1, pass_debug.with_name("Indirect Counts"));
     }
 
     // Background.
@@ -149,6 +159,7 @@ auto update(Demo& demo, const UpdateDesc& desc) -> void {
         auto x_offset = 0.0f;
         auto y_offset = 0.0f;
         auto dst_glyph_instances = pass.instances.buffer(desc.frame_index).span();
+        auto dst_indirect_commands = pass.indirect_commands.buffer(desc.frame_index).span();
         for (uint i = 0; i < str_length; i++) {
             const auto glyph_char = pass.text_buffer[i];
             if (glyph_char == ' ') {
@@ -163,10 +174,33 @@ auto update(Demo& demo, const UpdateDesc& desc) -> void {
                 dst_glyph_instances[pass.glyph_submesh_count] = GlyphInstance {
                     .position = float3(x_offset, y_offset, 0.0f) + params.text_offset,
                 };
+                dst_indirect_commands[pass.glyph_submesh_count] = DrawGlyphCommand {
+                    .bindings =
+                        GlyphBindings {
+                            .constants =
+                                pass.constants.buffer(desc.frame_index).cbv_descriptor().index(),
+                            .vertices = pass.vertices.srv_descriptor().index(),
+                            .instances =
+                                pass.instances.buffer(desc.frame_index).srv_descriptor().index(),
+                            .irr_texture = demo.pbr.irr.srv_descriptor().index(),
+                            .sampler = (uint)GpuSampler::LinearClamp,
+                            .base_vertex = pass.submeshes[glyph_index].base_vertex,
+                            .instance_id = pass.glyph_submesh_count,
+                        },
+                    .draw_indexed =
+                        D3D12_DRAW_INDEXED_ARGUMENTS {
+                            .IndexCountPerInstance = pass.submeshes[glyph_index].index_count,
+                            .InstanceCount = 1,
+                            .StartIndexLocation = pass.submeshes[glyph_index].start_index,
+                            .BaseVertexLocation = 0,
+                            .StartInstanceLocation = 0,
+                        },
+                };
                 pass.glyph_submesh_count++;
                 x_offset += pass.glyphs[glyph_index].advance;
             }
         }
+        pass.indirect_counts.buffer(desc.frame_index).ref() = pass.glyph_submesh_count;
     }
 
     // Update camera.
@@ -234,20 +268,12 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
             cmd.set_pipeline(pass.pipeline);
             cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
             cmd.set_index_buffer(pass.indices.index_buffer_view());
-            for (uint i = 0; i < pass.glyph_submesh_count; i++) {
-                const auto submesh_index = pass.glyph_submeshes[i];
-                const auto& submesh = pass.submeshes[submesh_index];
-                cmd.set_constants(GlyphBindings {
-                    .constants = pass.constants.buffer(frame_index).cbv_descriptor().index(),
-                    .vertices = pass.vertices.srv_descriptor().index(),
-                    .instances = pass.instances.buffer(frame_index).srv_descriptor().index(),
-                    .irr_texture = demo.pbr.irr.srv_descriptor().index(),
-                    .sampler = (uint)GpuSampler::LinearClamp,
-                    .base_vertex = submesh.base_vertex,
-                    .instance_id = i,
-                });
-                cmd.draw_indexed_instanced(submesh.index_count, 1, submesh.start_index, 0, 0);
-            }
+            cmd.execute_indirect(
+                pass.indirect_command_signature,
+                MAX_GLYPH_COUNT,
+                pass.indirect_commands.buffer(frame_index).resource(),
+                std::cref(pass.indirect_counts.buffer(frame_index).resource())
+            );
             cmd.end_pix();
         }
 

@@ -54,6 +54,11 @@ public:
     ) const -> ComPtr<ID3D12Resource>;
     [[nodiscard]] auto create_fence(uint64_t init_value, std::string_view name) const
         -> ComPtr<ID3D12Fence1>;
+    [[nodiscard]] auto create_command_signature(
+        uint constant_count,
+        D3D12_INDIRECT_ARGUMENT_TYPE argument_type,
+        std::string_view name
+    ) const -> ComPtr<ID3D12CommandSignature>;
     auto create_constant_buffer_view(
         const D3D12_CONSTANT_BUFFER_VIEW_DESC& desc,
         D3D12_CPU_DESCRIPTOR_HANDLE descriptor

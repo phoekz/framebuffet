@@ -73,24 +73,5 @@ private:
     GpuDescriptorHeap _dsv_heap;
 };
 
-inline constexpr uint MAX_BINDINGS = 16;
-
-template<typename T>
-inline constexpr auto dword_count() -> uint {
-    return sizeof(T) / sizeof(uint);
-}
-
-template<typename T>
-concept GpuBindable =
-    (sizeof(T) > 0) && (sizeof(T) % sizeof(uint) == 0) && (dword_count<T>() <= MAX_BINDINGS)
-    && std::is_trivially_copyable_v<T> && std::is_standard_layout_v<T>;
-
-template<GpuBindable T>
-using GpuBindableArray = std::array<uint, dword_count<T>()>;
-
-template<GpuBindable T>
-inline constexpr auto into_dword_array(T t) -> GpuBindableArray<T> {
-    return std::bit_cast<GpuBindableArray<T>>(t);
-}
 
 } // namespace fb

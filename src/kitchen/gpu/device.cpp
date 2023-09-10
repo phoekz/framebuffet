@@ -209,7 +209,7 @@ auto GpuDevice::create(const Window& window) -> void {
     {
         // Allocate constants for binding slots.
         CD3DX12_ROOT_PARAMETER1 root_parameter = {};
-        root_parameter.InitAsConstants(MAX_BINDINGS, 0, 0);
+        root_parameter.InitAsConstants(MAX_BINDING_COUNT, 0, 0);
 
         // Create the root signature description.
         auto flags = D3D12_ROOT_SIGNATURE_FLAG_NONE;
@@ -358,6 +358,58 @@ auto GpuDevice::create_committed_resource(
         clear_value_ptr,
         IID_PPV_ARGS(&result)
     ));
+    dx_set_name(result, name);
+    return result;
+}
+
+auto GpuDevice::create_command_signature(
+    uint constant_count,
+    D3D12_INDIRECT_ARGUMENT_TYPE argument_type,
+    std::string_view name
+) const -> ComPtr<ID3D12CommandSignature> {
+    FB_ASSERT(constant_count <= MAX_BINDING_COUNT);
+
+    uint arguments_byte_count = 0;
+    switch (argument_type) {
+        case D3D12_INDIRECT_ARGUMENT_TYPE_DRAW:
+            arguments_byte_count = sizeof(D3D12_DRAW_ARGUMENTS);
+            break;
+        case D3D12_INDIRECT_ARGUMENT_TYPE_DRAW_INDEXED:
+            arguments_byte_count = sizeof(D3D12_DRAW_INDEXED_ARGUMENTS);
+            break;
+        case D3D12_INDIRECT_ARGUMENT_TYPE_DISPATCH:
+        case D3D12_INDIRECT_ARGUMENT_TYPE_DISPATCH_RAYS:
+        case D3D12_INDIRECT_ARGUMENT_TYPE_DISPATCH_MESH:
+            arguments_byte_count = sizeof(D3D12_DISPATCH_ARGUMENTS);
+            break;
+        default: FB_ASSERT_MSG(false, "Invalid argument type."); break;
+    }
+
+    const auto argument_descs = std::to_array({
+        D3D12_INDIRECT_ARGUMENT_DESC {
+            .Type = D3D12_INDIRECT_ARGUMENT_TYPE_CONSTANT,
+            .Constant =
+                {
+                    .RootParameterIndex = 0,
+                    .DestOffsetIn32BitValues = 0,
+                    .Num32BitValuesToSet = constant_count,
+                },
+        },
+        D3D12_INDIRECT_ARGUMENT_DESC {
+            .Type = argument_type,
+        },
+    });
+
+    ComPtr<ID3D12CommandSignature> result;
+    D3D12_COMMAND_SIGNATURE_DESC desc {
+        .ByteStride = sizeof(uint) * constant_count + arguments_byte_count,
+        .NumArgumentDescs = (uint)argument_descs.size(),
+        .pArgumentDescs = argument_descs.data(),
+        .NodeMask = 0,
+    };
+    FB_ASSERT_HR(
+        _device->CreateCommandSignature(&desc, _root_signature.get(), IID_PPV_ARGS(&result))
+    );
     dx_set_name(result, name);
     return result;
 }
