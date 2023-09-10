@@ -8,6 +8,7 @@ struct GpuTransferImpl {
     ~GpuTransferImpl() {
         CloseHandle(fence_event);
         fence_event = nullptr;
+        free(subresource_data_buffer);
     }
 
     ComPtr<ID3D12CommandAllocator> command_allocator;
@@ -22,7 +23,9 @@ struct GpuTransferImpl {
         uint64_t row_pitch;
         uint64_t slice_pitch;
     };
-    std::vector<std::byte> subresource_data_buffer;
+    std::byte* subresource_data_buffer = nullptr;
+    size_t subresource_data_buffer_offset = 0;
+    size_t subresource_data_buffer_capacity = 1024ull * 1024ull * 1024ull;
     std::vector<SubresourceData> subresource_datas;
 
     struct ResourceData {
@@ -108,10 +111,9 @@ auto GpuTransfer::create(const ComPtr<ID3D12Device12>& device) -> void {
         nullptr,
         IID_PPV_ARGS(&_impl->query_buffer)
     ));
-}
 
-auto GpuTransfer::begin() -> void {
-    // No-op.
+    // Subresource data buffer.
+    _impl->subresource_data_buffer = (std::byte*)malloc(_impl->subresource_data_buffer_capacity);
 }
 
 auto GpuTransfer::resource(
@@ -129,27 +131,46 @@ auto GpuTransfer::resource(
     D3D12_RESOURCE_STATES before_state,
     D3D12_RESOURCE_STATES after_state
 ) -> void {
-    const auto subresource_offset = _impl->subresource_datas.size();
-    for (const auto& data : datas) {
-        const auto offset = _impl->subresource_data_buffer.size();
-        _impl->subresource_data_buffer.resize(offset + data.SlicePitch);
-        memcpy(_impl->subresource_data_buffer.data() + offset, data.pData, data.SlicePitch);
-        _impl->subresource_datas.push_back(GpuTransferImpl::SubresourceData {
-            .offset = offset,
-            .row_pitch = (uint64_t)data.RowPitch,
-            .slice_pitch = (uint64_t)data.SlicePitch,
-        });
-    }
+    // Add resource data.
     _impl->resource_datas.push_back(GpuTransferImpl::ResourceData {
         .resource = resource,
-        .subresource_offset = subresource_offset,
+        .subresource_offset = _impl->subresource_datas.size(),
         .subresource_count = (uint64_t)datas.size(),
         .before_state = before_state,
         .after_state = after_state,
     });
+
+    // Avoid calling `resize` once per subresource by calculating the total byte
+    // count and resizing once.
+    const auto subresource_data_offset = _impl->subresource_data_buffer_offset;
+    {
+        auto resource_byte_count = 0ull;
+        for (const auto& data : datas) {
+            resource_byte_count += data.SlicePitch;
+        }
+        FB_ASSERT(
+            _impl->subresource_data_buffer_offset + resource_byte_count
+            <= _impl->subresource_data_buffer_capacity
+        );
+        _impl->subresource_data_buffer_offset += resource_byte_count;
+    }
+
+    // Copy subresource data into buffer.
+    {
+        auto dst_offset = subresource_data_offset;
+        for (const auto& data : datas) {
+            memcpy(_impl->subresource_data_buffer + dst_offset, data.pData, data.SlicePitch);
+            _impl->subresource_datas.push_back(GpuTransferImpl::SubresourceData {
+                .offset = dst_offset,
+                .row_pitch = (uint64_t)data.RowPitch,
+                .slice_pitch = (uint64_t)data.SlicePitch,
+            });
+            dst_offset += data.SlicePitch;
+        }
+    }
 }
 
-auto GpuTransfer::end(const GpuDevice& device) -> void {
+auto GpuTransfer::flush(const GpuDevice& device) -> void {
     DebugScope debug("Transfer");
 
     // Gather required metadata for all subresources.
@@ -226,7 +247,7 @@ auto GpuTransfer::end(const GpuDevice& device) -> void {
             const auto dst_row_pitch = dst_footprint.Footprint.RowPitch;
             const auto dst_slice_pitch = dst_footprint.Footprint.RowPitch * row_count;
 
-            const auto* src_slice = _impl->subresource_data_buffer.data() + src_data.offset;
+            const auto* src_slice = _impl->subresource_data_buffer + src_data.offset;
             const auto src_row_pitch = src_data.row_pitch;
             const auto src_slice_pitch = src_data.slice_pitch;
 

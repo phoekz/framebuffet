@@ -50,22 +50,17 @@ auto buffet_run(Buffet& bf) -> void {
         bf.device.create(bf.window);
         PIXEndEvent();
 
-        {
-            PIXBeginEvent(PIX_COLOR_DEFAULT, "Demos");
+        PIXBeginEvent(PIX_COLOR_DEFAULT, "Demos");
+        demos::create(bf.demos, {.baked = baked, .device = bf.device});
+        PIXEndEvent();
 
-            bf.device.begin_transfer();
-            demos::create(bf.demos, {.baked = baked, .device = bf.device});
+        PIXBeginEvent(PIX_COLOR_DEFAULT, "Gui");
+        bf.gui.create(bf.window, bf.device, baked.kitchen.assets, baked.kitchen.shaders);
+        PIXEndEvent();
 
-            PIXBeginEvent(PIX_COLOR_DEFAULT, "Gui");
-            bf.gui.create(bf.window, bf.device, baked.kitchen.assets, baked.kitchen.shaders);
-            PIXEndEvent();
-
-            PIXBeginEvent(PIX_COLOR_DEFAULT, "Transfer");
-            bf.device.end_transfer();
-            PIXEndEvent();
-
-            PIXEndEvent();
-        }
+        PIXBeginEvent(PIX_COLOR_DEFAULT, "Transfer");
+        bf.device.flush_transfers();
+        PIXEndEvent();
 
         bf.device.log_stats();
         bf.frame.create();

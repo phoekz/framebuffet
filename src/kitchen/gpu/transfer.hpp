@@ -14,7 +14,6 @@ public:
     ~GpuTransfer();
 
     auto create(const ComPtr<ID3D12Device12>& device) -> void;
-    auto begin() -> void;
     auto resource(
         const ComPtr<ID3D12Resource>& resource,
         const D3D12_SUBRESOURCE_DATA& data,
@@ -27,7 +26,7 @@ public:
         D3D12_RESOURCE_STATES before_state,
         D3D12_RESOURCE_STATES after_state
     ) -> void;
-    auto end(const GpuDevice& device) -> void;
+    auto flush(const GpuDevice& device) -> void;
 
 private:
     struct Stats {

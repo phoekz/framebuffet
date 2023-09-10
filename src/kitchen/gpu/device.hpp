@@ -30,8 +30,7 @@ public:
 
     // Device state.
     auto create(const Window& window) -> void;
-    auto begin_transfer() -> void;
-    auto end_transfer() -> void;
+    auto flush_transfers() -> void;
     auto begin_frame() -> GpuCommandList;
     auto end_frame(GpuCommandList&& cmd) -> void;
     auto wait() -> void;

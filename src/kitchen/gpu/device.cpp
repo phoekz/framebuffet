@@ -245,12 +245,8 @@ auto GpuDevice::create(const Window& window) -> void {
     _transfer.create(_device);
 }
 
-auto GpuDevice::begin_transfer() -> void {
-    _transfer.begin();
-}
-
-auto GpuDevice::end_transfer() -> void {
-    _transfer.end(*this);
+auto GpuDevice::flush_transfers() -> void {
+    _transfer.flush(*this);
 }
 
 auto GpuDevice::begin_frame() -> GpuCommandList {

@@ -42,10 +42,9 @@ auto stockcube_run(Stockcube& sc) -> void {
         techniques::Baked baked;
         sc.window.create(Window::Desc {WINDOW_TITLE, WINDOW_WIDTH, WINDOW_HEIGHT});
         sc.device.create(sc.window);
-        sc.device.begin_transfer();
         sc.gui.create(sc.window, sc.device, baked.kitchen.assets, baked.kitchen.shaders);
         techniques::create(sc.techniques, {.baked = baked, .device = sc.device});
-        sc.device.end_transfer();
+        sc.device.flush_transfers();
         sc.device.log_stats();
         sc.frame.create();
         sc.camera.create({
