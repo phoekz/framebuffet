@@ -76,8 +76,9 @@ auto create(Demo& demo, const CreateDesc& desc) -> void {
             dst_texture.create_and_transfer_baked(
                 device,
                 src_texture,
-                D3D12_RESOURCE_STATE_COMMON,
-                D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
+                D3D12_BARRIER_SYNC_PIXEL_SHADING,
+                D3D12_BARRIER_ACCESS_SHADER_RESOURCE,
+                D3D12_BARRIER_LAYOUT_DIRECT_QUEUE_SHADER_RESOURCE,
                 model_debug.with_name(texture_name)
             );
         }
@@ -91,22 +92,25 @@ auto create(Demo& demo, const CreateDesc& desc) -> void {
         demo.pbr_lut.create_and_transfer_baked(
             device,
             lut,
-            D3D12_RESOURCE_STATE_COMMON,
-            D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
+            D3D12_BARRIER_SYNC_PIXEL_SHADING,
+            D3D12_BARRIER_ACCESS_SHADER_RESOURCE,
+            D3D12_BARRIER_LAYOUT_DIRECT_QUEUE_SHADER_RESOURCE,
             debug.with_name("LUT")
         );
         demo.pbr_irr.create_and_transfer_baked(
             device,
             irr,
-            D3D12_RESOURCE_STATE_COMMON,
-            D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
+            D3D12_BARRIER_SYNC_PIXEL_SHADING,
+            D3D12_BARRIER_ACCESS_SHADER_RESOURCE,
+            D3D12_BARRIER_LAYOUT_DIRECT_QUEUE_SHADER_RESOURCE,
             debug.with_name("Irradiance")
         );
         demo.pbr_rad.create_and_transfer_baked(
             device,
             rad,
-            D3D12_RESOURCE_STATE_COMMON,
-            D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
+            D3D12_BARRIER_SYNC_PIXEL_SHADING,
+            D3D12_BARRIER_ACCESS_SHADER_RESOURCE,
+            D3D12_BARRIER_LAYOUT_DIRECT_QUEUE_SHADER_RESOURCE,
             debug.with_name("Radiance")
         );
     }

@@ -46,7 +46,12 @@ auto render(Technique& tech, const RenderDesc& desc) -> void {
 
     cmd.compute_scope([&tech, frame_index](GpuComputeCommandList& cmd) {
         cmd.begin_pix("%s - Render", NAME.data());
-        tech.cube_texture.transition(cmd, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+        tech.cube_texture.transition(
+            cmd,
+            D3D12_BARRIER_SYNC_COMPUTE_SHADING,
+            D3D12_BARRIER_ACCESS_UNORDERED_ACCESS,
+            D3D12_BARRIER_LAYOUT_UNORDERED_ACCESS
+        );
         cmd.flush_barriers();
         cmd.set_pipeline(tech.pipeline);
         cmd.set_constants(Bindings {
@@ -60,7 +65,12 @@ auto render(Technique& tech, const RenderDesc& desc) -> void {
             tech.cube_texture.height() / DISPATCH_Y,
             6
         );
-        tech.cube_texture.transition(cmd, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+        tech.cube_texture.transition(
+            cmd,
+            D3D12_BARRIER_SYNC_ALL_SHADING,
+            D3D12_BARRIER_ACCESS_SHADER_RESOURCE,
+            D3D12_BARRIER_LAYOUT_SHADER_RESOURCE
+        );
         cmd.flush_barriers();
         cmd.end_pix();
     });

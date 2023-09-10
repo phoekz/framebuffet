@@ -82,7 +82,12 @@ auto render(Technique& tech, const RenderDesc& desc) -> void {
     if (!tech.done) {
         cmd.compute_scope([&tech, frame_index](GpuComputeCommandList& cmd) {
             cmd.begin_pix("%s - Render", NAME.data());
-            tech.lut_texture.transition(cmd, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+            tech.lut_texture.transition(
+                cmd,
+                D3D12_BARRIER_SYNC_COMPUTE_SHADING,
+                D3D12_BARRIER_ACCESS_UNORDERED_ACCESS,
+                D3D12_BARRIER_LAYOUT_UNORDERED_ACCESS
+            );
             cmd.flush_barriers();
             cmd.set_pipeline(tech.pipeline);
             cmd.set_constants(Bindings {
@@ -94,7 +99,12 @@ auto render(Technique& tech, const RenderDesc& desc) -> void {
                 tech.lut_texture.height() / DISPATCH_Y,
                 1
             );
-            tech.lut_texture.transition(cmd, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+            tech.lut_texture.transition(
+                cmd,
+                D3D12_BARRIER_SYNC_ALL_SHADING,
+                D3D12_BARRIER_ACCESS_SHADER_RESOURCE,
+                D3D12_BARRIER_LAYOUT_SHADER_RESOURCE
+            );
             cmd.flush_barriers();
             cmd.end_pix();
 
@@ -106,7 +116,12 @@ auto render(Technique& tech, const RenderDesc& desc) -> void {
         FB_LOG_INFO("Reading LUT texture back...");
 
         cmd.begin_pix("%s - Render", NAME.data());
-        tech.lut_texture.transition(cmd, D3D12_RESOURCE_STATE_COPY_SOURCE);
+        tech.lut_texture.transition(
+            cmd,
+            D3D12_BARRIER_SYNC_COPY,
+            D3D12_BARRIER_ACCESS_COPY_SOURCE,
+            D3D12_BARRIER_LAYOUT_COPY_SOURCE
+        );
         cmd.flush_barriers();
         cmd.copy_texture_to_buffer(
             tech.lut_readback.resource(),
@@ -117,7 +132,12 @@ auto render(Technique& tech, const RenderDesc& desc) -> void {
             tech.lut_texture.width(),
             tech.lut_texture.height()
         );
-        tech.lut_texture.transition(cmd, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+        tech.lut_texture.transition(
+            cmd,
+            D3D12_BARRIER_SYNC_ALL_SHADING,
+            D3D12_BARRIER_ACCESS_SHADER_RESOURCE,
+            D3D12_BARRIER_LAYOUT_SHADER_RESOURCE
+        );
         cmd.flush_barriers();
         cmd.end_pix();
         tech.delayed_save.set_pending();

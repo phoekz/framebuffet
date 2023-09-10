@@ -223,7 +223,7 @@ auto buffet_run(Buffet& bf) -> void {
             cmd.end_pix();
 
             cmd.begin_pix("Transition to SRV");
-            demos::transition_to_srv(bf.demos, render_desc);
+            demos::transition_to_shader_resource(bf.demos, render_desc);
             cmd.flush_barriers();
             cmd.end_pix();
 

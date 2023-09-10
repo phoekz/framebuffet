@@ -18,7 +18,7 @@ auto create(Techniques& techs, const CreateDesc& desc) -> void {
 #if 0
     techs.rect_texture_name = std::string("farm_field");
     const auto rect_texture = desc.baked.stockcube.assets.farm_field_hdr_texture();
-#elif 1
+#elif 0
     techs.rect_texture_name = std::string("industrial_sunset_02_puresky");
     const auto rect_texture =
         desc.baked.stockcube.assets.industrial_sunset_02_puresky_hdr_texture();
@@ -33,8 +33,9 @@ auto create(Techniques& techs, const CreateDesc& desc) -> void {
     techs.rect_texture.create_and_transfer_baked(
         desc.device,
         rect_texture,
-        D3D12_RESOURCE_STATE_COMMON,
-        D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
+        D3D12_BARRIER_SYNC_PIXEL_SHADING,
+        D3D12_BARRIER_ACCESS_SHADER_RESOURCE,
+        D3D12_BARRIER_LAYOUT_SHADER_RESOURCE,
         debug.with_name("Rect Texture")
     );
 

@@ -47,12 +47,12 @@ public:
         -> ComPtr<ID3D12PipelineState>;
     [[nodiscard]] auto create_committed_resource(
         D3D12_HEAP_TYPE heap_type,
-        const D3D12_RESOURCE_DESC& desc,
-        D3D12_RESOURCE_STATES init_state,
-        const std::optional<D3D12_CLEAR_VALUE>& clear_value,
+        const D3D12_RESOURCE_DESC1& desc,
+        D3D12_BARRIER_LAYOUT initial_layout,
+        const std::optional<D3D12_CLEAR_VALUE>& optimized_clear_value,
         std::string_view name
-    ) const -> ComPtr<ID3D12Resource>;
-    [[nodiscard]] auto create_fence(uint64_t init_value, std::string_view name) const
+    ) const -> ComPtr<ID3D12Resource2>;
+    [[nodiscard]] auto create_fence(uint64_t initial_value, std::string_view name) const
         -> ComPtr<ID3D12Fence1>;
     [[nodiscard]] auto create_command_signature(
         uint constant_count,
@@ -64,23 +64,23 @@ public:
         D3D12_CPU_DESCRIPTOR_HANDLE descriptor
     ) const -> void;
     auto create_shader_resource_view(
-        const ComPtr<ID3D12Resource>& resource,
+        const ComPtr<ID3D12Resource2>& resource,
         const D3D12_SHADER_RESOURCE_VIEW_DESC& desc,
         D3D12_CPU_DESCRIPTOR_HANDLE descriptor
     ) const -> void;
     auto create_unordered_access_view(
-        const ComPtr<ID3D12Resource>& resource,
-        const std::optional<std::reference_wrapper<ComPtr<ID3D12Resource>>> counter,
+        const ComPtr<ID3D12Resource2>& resource,
+        const std::optional<std::reference_wrapper<ComPtr<ID3D12Resource2>>> counter,
         const D3D12_UNORDERED_ACCESS_VIEW_DESC& desc,
         D3D12_CPU_DESCRIPTOR_HANDLE descriptor
     ) -> void;
     auto create_render_target_view(
-        const ComPtr<ID3D12Resource>& resource,
+        const ComPtr<ID3D12Resource2>& resource,
         const std::optional<D3D12_RENDER_TARGET_VIEW_DESC>& desc,
         D3D12_CPU_DESCRIPTOR_HANDLE descriptor
     ) const -> void;
     auto create_depth_stencil_view(
-        const ComPtr<ID3D12Resource>& resource,
+        const ComPtr<ID3D12Resource2>& resource,
         const std::optional<D3D12_DEPTH_STENCIL_VIEW_DESC>& desc,
         D3D12_CPU_DESCRIPTOR_HANDLE descriptor
     ) const -> void;
@@ -89,7 +89,7 @@ public:
         -> void;
     auto descriptor_size(D3D12_DESCRIPTOR_HEAP_TYPE heap_type) const -> uint;
     auto get_copyable_footprints(
-        const D3D12_RESOURCE_DESC& desc,
+        const D3D12_RESOURCE_DESC1& desc,
         uint subresource_offset,
         uint subresource_count,
         D3D12_PLACED_SUBRESOURCE_FOOTPRINT* subresource_footprints,

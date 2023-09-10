@@ -149,8 +149,8 @@ auto create(Demo& demo, const CreateDesc& desc) -> void {
         demo.lights.create_and_transfer(
             device,
             lights,
-            D3D12_RESOURCE_STATE_COMMON,
-            D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
+            D3D12_BARRIER_SYNC_COMPUTE_SHADING,
+            D3D12_BARRIER_ACCESS_UNORDERED_ACCESS,
             debug.with_name("Lights")
         );
 
@@ -191,15 +191,17 @@ auto create(Demo& demo, const CreateDesc& desc) -> void {
         demo.magma_texture.create_and_transfer_baked(
             device,
             assets.heatmap_magma_texture(),
-            D3D12_RESOURCE_STATE_COMMON,
-            D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
+            D3D12_BARRIER_SYNC_PIXEL_SHADING,
+            D3D12_BARRIER_ACCESS_SHADER_RESOURCE,
+            D3D12_BARRIER_LAYOUT_DIRECT_QUEUE_SHADER_RESOURCE,
             debug.with_name("Magma Texture")
         );
         demo.viridis_texture.create_and_transfer_baked(
             device,
             assets.heatmap_viridis_texture(),
-            D3D12_RESOURCE_STATE_COMMON,
-            D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
+            D3D12_BARRIER_SYNC_PIXEL_SHADING,
+            D3D12_BARRIER_ACCESS_SHADER_RESOURCE,
+            D3D12_BARRIER_LAYOUT_DIRECT_QUEUE_SHADER_RESOURCE,
             debug.with_name("Viridis Texture")
         );
     }
@@ -272,6 +274,41 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
     cmd.compute_scope([&demo, frame_index](GpuComputeCommandList& cmd) {
         cmd.begin_pix("Compute");
 
+        // Transition to compute.
+        demo.lights.explicit_transition(
+            cmd,
+            D3D12_BARRIER_SYNC_NONE,
+            D3D12_BARRIER_SYNC_COMPUTE_SHADING,
+            D3D12_BARRIER_ACCESS_NO_ACCESS,
+            D3D12_BARRIER_ACCESS_UNORDERED_ACCESS
+        );
+        demo.light_indices.explicit_transition(
+            cmd,
+            D3D12_BARRIER_SYNC_NONE,
+            D3D12_BARRIER_SYNC_COMPUTE_SHADING,
+            D3D12_BARRIER_ACCESS_NO_ACCESS,
+            D3D12_BARRIER_ACCESS_UNORDERED_ACCESS
+        );
+        demo.light_counts_texture.explicit_transition(
+            cmd,
+            D3D12_BARRIER_SYNC_NONE,
+            D3D12_BARRIER_SYNC_COMPUTE_SHADING,
+            D3D12_BARRIER_ACCESS_NO_ACCESS,
+            D3D12_BARRIER_ACCESS_UNORDERED_ACCESS,
+            D3D12_BARRIER_LAYOUT_UNDEFINED,
+            D3D12_BARRIER_LAYOUT_DIRECT_QUEUE_UNORDERED_ACCESS
+        );
+        demo.light_offsets_texture.explicit_transition(
+            cmd,
+            D3D12_BARRIER_SYNC_NONE,
+            D3D12_BARRIER_SYNC_COMPUTE_SHADING,
+            D3D12_BARRIER_ACCESS_NO_ACCESS,
+            D3D12_BARRIER_ACCESS_UNORDERED_ACCESS,
+            D3D12_BARRIER_LAYOUT_UNDEFINED,
+            D3D12_BARRIER_LAYOUT_DIRECT_QUEUE_UNORDERED_ACCESS
+        );
+        cmd.flush_barriers();
+
         // Sim.
         cmd.set_pipeline(demo.sim_pipeline);
         cmd.set_constants(Bindings {
@@ -279,7 +316,11 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
             .lights = demo.lights.uav_descriptor().index(),
         });
         cmd.dispatch(demo.sim_dispatch_count_x, 1, 1);
-        demo.lights.uav_barrier(cmd);
+        demo.lights.transition(
+            cmd,
+            D3D12_BARRIER_SYNC_COMPUTE_SHADING,
+            D3D12_BARRIER_ACCESS_UNORDERED_ACCESS
+        );
         cmd.flush_barriers();
 
         // Reset.
@@ -288,7 +329,11 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
             .light_indices_count = demo.light_indices_count.uav_descriptor().index(),
         });
         cmd.dispatch(1, 1, 1);
-        demo.light_indices_count.uav_barrier(cmd);
+        demo.light_indices_count.transition(
+            cmd,
+            D3D12_BARRIER_SYNC_COMPUTE_SHADING,
+            D3D12_BARRIER_ACCESS_UNORDERED_ACCESS
+        );
         cmd.flush_barriers();
 
         // Cull.
@@ -302,10 +347,30 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
             .light_indices_count = demo.light_indices_count.uav_descriptor().index(),
         });
         cmd.dispatch(demo.cull_dispatch_count_x, demo.cull_dispatch_count_y, 1);
-        demo.light_counts_texture.uav_barrier(cmd);
-        demo.light_offsets_texture.uav_barrier(cmd);
-        demo.light_indices.uav_barrier(cmd);
-        demo.light_indices_count.uav_barrier(cmd);
+
+        // Transition to graphics.
+        demo.lights.transition(
+            cmd,
+            D3D12_BARRIER_SYNC_PIXEL_SHADING,
+            D3D12_BARRIER_ACCESS_SHADER_RESOURCE
+        );
+        demo.light_indices.transition(
+            cmd,
+            D3D12_BARRIER_SYNC_PIXEL_SHADING,
+            D3D12_BARRIER_ACCESS_SHADER_RESOURCE
+        );
+        demo.light_counts_texture.transition(
+            cmd,
+            D3D12_BARRIER_SYNC_PIXEL_SHADING,
+            D3D12_BARRIER_ACCESS_SHADER_RESOURCE,
+            D3D12_BARRIER_LAYOUT_DIRECT_QUEUE_SHADER_RESOURCE
+        );
+        demo.light_offsets_texture.transition(
+            cmd,
+            D3D12_BARRIER_SYNC_PIXEL_SHADING,
+            D3D12_BARRIER_ACCESS_SHADER_RESOURCE,
+            D3D12_BARRIER_LAYOUT_DIRECT_QUEUE_SHADER_RESOURCE
+        );
         cmd.flush_barriers();
 
         cmd.end_pix();

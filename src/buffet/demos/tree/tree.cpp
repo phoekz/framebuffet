@@ -41,15 +41,17 @@ auto create(Demo& demo, const CreateDesc& desc) -> void {
     demo.tree_texture.create_and_transfer_baked(
         device,
         assets.coconut_tree_base_color_texture(),
-        D3D12_RESOURCE_STATE_COMMON,
-        D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
+        D3D12_BARRIER_SYNC_PIXEL_SHADING,
+        D3D12_BARRIER_ACCESS_SHADER_RESOURCE,
+        D3D12_BARRIER_LAYOUT_DIRECT_QUEUE_SHADER_RESOURCE,
         debug.with_name("Tree Texture")
     );
     demo.plane_texture.create_and_transfer_baked(
         device,
         assets.sand_plane_base_color_texture(),
-        D3D12_RESOURCE_STATE_COMMON,
-        D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
+        D3D12_BARRIER_SYNC_PIXEL_SHADING,
+        D3D12_BARRIER_ACCESS_SHADER_RESOURCE,
+        D3D12_BARRIER_LAYOUT_DIRECT_QUEUE_SHADER_RESOURCE,
         debug.with_name("Plane Texture")
     );
 
@@ -177,7 +179,12 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
 
         {
             cmd.begin_pix("Shadow");
-            demo.shadow_depth.transition(cmd, D3D12_RESOURCE_STATE_DEPTH_WRITE);
+            demo.shadow_depth.transition(
+                cmd,
+                D3D12_BARRIER_SYNC_DEPTH_STENCIL,
+                D3D12_BARRIER_ACCESS_DEPTH_STENCIL_WRITE,
+                D3D12_BARRIER_LAYOUT_DEPTH_STENCIL_WRITE
+            );
             cmd.flush_barriers();
             cmd.set_viewport(0, 0, SHADOW_MAP_SIZE, SHADOW_MAP_SIZE);
             cmd.set_scissor(0, 0, SHADOW_MAP_SIZE, SHADOW_MAP_SIZE);
@@ -193,7 +200,9 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
             cmd.draw_indexed_instanced(demo.tree_indices.element_count(), 1, 0, 0, 0);
             demo.shadow_depth.transition(
                 cmd,
-                D3D12_RESOURCE_STATE_DEPTH_READ | D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE
+                D3D12_BARRIER_SYNC_DEPTH_STENCIL,
+                D3D12_BARRIER_ACCESS_DEPTH_STENCIL_READ,
+                D3D12_BARRIER_LAYOUT_DEPTH_STENCIL_READ
             );
             cmd.flush_barriers();
             cmd.end_pix();

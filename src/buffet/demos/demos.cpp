@@ -78,13 +78,13 @@ auto transition_to_render_target(Demos& demos, const RenderDesc& desc) -> void {
 
 auto clear_render_targets(Demos& demos, const RenderDesc& desc) -> void {
     auto& cmd = desc.cmd;
-    demos.anim.render_targets.clear_all(cmd);
-    demos.crate.render_targets.clear_all(cmd);
-    demos.env.render_targets.clear_all(cmd);
-    demos.fibers.render_targets.clear_all(cmd);
-    demos.rain.render_targets.clear_all(cmd);
-    demos.text.render_targets.clear_all(cmd);
-    demos.tree.render_targets.clear_all(cmd);
+    demos.anim.render_targets.clear(cmd);
+    demos.crate.render_targets.clear(cmd);
+    demos.env.render_targets.clear(cmd);
+    demos.fibers.render_targets.clear(cmd);
+    demos.rain.render_targets.clear(cmd);
+    demos.text.render_targets.clear(cmd);
+    demos.tree.render_targets.clear(cmd);
 }
 
 auto render_demos(Demos& demos, const RenderDesc& desc) -> void {
@@ -110,24 +110,24 @@ auto transition_to_resolve(Demos& demos, const RenderDesc& desc) -> void {
 
 auto resolve_render_targets(Demos& demos, const RenderDesc& desc) -> void {
     auto& cmd = desc.cmd;
-    demos.anim.render_targets.resolve_all(cmd);
-    demos.crate.render_targets.resolve_all(cmd);
-    demos.env.render_targets.resolve_all(cmd);
-    demos.fibers.render_targets.resolve_all(cmd);
-    demos.rain.render_targets.resolve_all(cmd);
-    demos.text.render_targets.resolve_all(cmd);
-    demos.tree.render_targets.resolve_all(cmd);
+    demos.anim.render_targets.resolve(cmd);
+    demos.crate.render_targets.resolve(cmd);
+    demos.env.render_targets.resolve(cmd);
+    demos.fibers.render_targets.resolve(cmd);
+    demos.rain.render_targets.resolve(cmd);
+    demos.text.render_targets.resolve(cmd);
+    demos.tree.render_targets.resolve(cmd);
 }
 
-auto transition_to_srv(Demos& demos, const RenderDesc& desc) -> void {
+auto transition_to_shader_resource(Demos& demos, const RenderDesc& desc) -> void {
     auto& cmd = desc.cmd;
-    demos.anim.render_targets.transition_to_pixel_shader_resource(cmd);
-    demos.crate.render_targets.transition_to_pixel_shader_resource(cmd);
-    demos.env.render_targets.transition_to_pixel_shader_resource(cmd);
-    demos.fibers.render_targets.transition_to_pixel_shader_resource(cmd);
-    demos.rain.render_targets.transition_to_pixel_shader_resource(cmd);
-    demos.text.render_targets.transition_to_pixel_shader_resource(cmd);
-    demos.tree.render_targets.transition_to_pixel_shader_resource(cmd);
+    demos.anim.render_targets.transition_to_shader_resource(cmd);
+    demos.crate.render_targets.transition_to_shader_resource(cmd);
+    demos.env.render_targets.transition_to_shader_resource(cmd);
+    demos.fibers.render_targets.transition_to_shader_resource(cmd);
+    demos.rain.render_targets.transition_to_shader_resource(cmd);
+    demos.text.render_targets.transition_to_shader_resource(cmd);
+    demos.tree.render_targets.transition_to_shader_resource(cmd);
 }
 
 auto render_compose(Demos& demos, const RenderDesc& desc) -> void {

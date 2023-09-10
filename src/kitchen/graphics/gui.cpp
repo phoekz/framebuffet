@@ -86,8 +86,9 @@ auto Gui::create(
                 .slice_pitch = width * height * 4,
                 .data = pixels,
             },
-            D3D12_RESOURCE_STATE_COMMON,
-            D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
+            D3D12_BARRIER_SYNC_PIXEL_SHADING,
+            D3D12_BARRIER_ACCESS_SHADER_RESOURCE,
+            D3D12_BARRIER_LAYOUT_DIRECT_QUEUE_SHADER_RESOURCE,
             debug.with_name("Font Texture")
         );
 

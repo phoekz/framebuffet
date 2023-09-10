@@ -15,16 +15,24 @@ public:
 
     auto create(const ComPtr<ID3D12Device12>& device) -> void;
     auto resource(
-        const ComPtr<ID3D12Resource>& resource,
+        const ComPtr<ID3D12Resource2>& resource,
         const D3D12_SUBRESOURCE_DATA& data,
-        D3D12_RESOURCE_STATES before_state,
-        D3D12_RESOURCE_STATES after_state
+        D3D12_BARRIER_SYNC sync_before,
+        D3D12_BARRIER_SYNC sync_after,
+        D3D12_BARRIER_ACCESS access_before,
+        D3D12_BARRIER_ACCESS access_after,
+        std::optional<D3D12_BARRIER_LAYOUT> layout_before = std::nullopt,
+        std::optional<D3D12_BARRIER_LAYOUT> layout_after = std::nullopt
     ) -> void;
     auto resource(
-        const ComPtr<ID3D12Resource>& resource,
+        const ComPtr<ID3D12Resource2>& resource,
         std::span<const D3D12_SUBRESOURCE_DATA> datas,
-        D3D12_RESOURCE_STATES before_state,
-        D3D12_RESOURCE_STATES after_state
+        D3D12_BARRIER_SYNC sync_before,
+        D3D12_BARRIER_SYNC sync_after,
+        D3D12_BARRIER_ACCESS access_before,
+        D3D12_BARRIER_ACCESS access_after,
+        std::optional<D3D12_BARRIER_LAYOUT> layout_before = std::nullopt,
+        std::optional<D3D12_BARRIER_LAYOUT> layout_after = std::nullopt
     ) -> void;
     auto flush(const GpuDevice& device) -> void;
 

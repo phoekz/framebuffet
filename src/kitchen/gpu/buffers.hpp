@@ -87,7 +87,7 @@ public:
         // Resource desc.
         _element_count = element_count;
         _byte_count = _element_byte_count * element_count;
-        _resource_desc = D3D12_RESOURCE_DESC {
+        _resource_desc = D3D12_RESOURCE_DESC1 {
             .Dimension = D3D12_RESOURCE_DIMENSION_BUFFER,
             .Alignment = 0,
             .Width = _byte_count,
@@ -98,6 +98,7 @@ public:
             .SampleDesc = {1, 0},
             .Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR,
             .Flags = resource_flags,
+            .SamplerFeedbackMipRegion = {},
         };
 
         // Heap type.
@@ -108,20 +109,11 @@ public:
             heap_type = D3D12_HEAP_TYPE_UPLOAD;
         }
 
-        // Resource state.
-        if constexpr (FLAGS == Readback) {
-            _resource_state = D3D12_RESOURCE_STATE_COPY_DEST;
-        } else if constexpr (ACCESS_MODE == Host) {
-            _resource_state = D3D12_RESOURCE_STATE_GENERIC_READ;
-        } else {
-            _resource_state = D3D12_RESOURCE_STATE_COMMON;
-        }
-
         // Create.
         _resource = device.create_committed_resource(
             heap_type,
             _resource_desc,
-            _resource_state,
+            D3D12_BARRIER_LAYOUT_UNDEFINED,
             std::nullopt,
             name
         );
@@ -199,8 +191,8 @@ public:
     auto create_and_transfer(
         GpuDevice& device,
         std::span<const T> data,
-        D3D12_RESOURCE_STATES before_state,
-        D3D12_RESOURCE_STATES after_state,
+        D3D12_BARRIER_SYNC sync_after,
+        D3D12_BARRIER_ACCESS access_after,
         std::string_view name
     ) -> void {
         static_assert(ACCESS_MODE == Device);
@@ -212,14 +204,16 @@ public:
                 .RowPitch = (LONG_PTR)data.size_bytes(),
                 .SlicePitch = (LONG_PTR)data.size_bytes(),
             },
-            before_state,
-            after_state
+            _sync_before,
+            sync_after,
+            _access_before,
+            access_after
         );
     }
 
     auto element_count() const -> uint { return _element_count; }
     auto byte_count() const -> uint { return _byte_count; }
-    auto resource() const -> const ComPtr<ID3D12Resource>& { return _resource; }
+    auto resource() const -> const ComPtr<ID3D12Resource2>& { return _resource; }
     auto raw() const -> void* { return _raw; }
     auto ptr() const -> T* { return reinterpret_cast<T*>(raw()); }
     auto ref() const -> T& { return *ptr(); }
@@ -245,16 +239,25 @@ public:
         return _uav_descriptor;
     }
 
-    auto transition(GpuCommandList& cmd, D3D12_RESOURCE_STATES after) -> void {
-        if (_resource_state != after) {
-            cmd.transition_barrier(_resource, _resource_state, after);
-            _resource_state = after;
-        }
+    auto transition(
+        GpuCommandList& cmd,
+        D3D12_BARRIER_SYNC sync_after,
+        D3D12_BARRIER_ACCESS access_after
+    ) -> void {
+        explicit_transition(cmd, _sync_before, sync_after, _access_before, access_after);
     }
 
-    auto uav_barrier(GpuCommandList& cmd) -> void {
-        static_assert(gpu_buffer_flags_contains(FLAGS, Uav));
-        cmd.uav_barrier(_resource);
+    auto explicit_transition(
+        GpuCommandList& cmd,
+        D3D12_BARRIER_SYNC sync_before,
+        D3D12_BARRIER_SYNC sync_after,
+        D3D12_BARRIER_ACCESS access_before,
+        D3D12_BARRIER_ACCESS access_after
+    ) -> void {
+        cmd.buffer_barrier(sync_before, sync_after, access_before, access_after, _resource);
+
+        _sync_before = sync_after;
+        _access_before = access_after;
     }
 
 private:
@@ -262,9 +265,10 @@ private:
     uint _element_count = 0;
     uint _byte_count = 0;
     DXGI_FORMAT _format = DXGI_FORMAT_UNKNOWN;
-    ComPtr<ID3D12Resource> _resource;
-    D3D12_RESOURCE_DESC _resource_desc;
-    D3D12_RESOURCE_STATES _resource_state = D3D12_RESOURCE_STATE_COMMON;
+    ComPtr<ID3D12Resource2> _resource;
+    D3D12_RESOURCE_DESC1 _resource_desc;
+    D3D12_BARRIER_SYNC _sync_before = D3D12_BARRIER_SYNC_NONE;
+    D3D12_BARRIER_ACCESS _access_before = D3D12_BARRIER_ACCESS_NO_ACCESS;
     void* _raw = nullptr;
     D3D12_GPU_VIRTUAL_ADDRESS _gpu_address = 0;
     GpuDescriptor _cbv_descriptor = {};

@@ -120,7 +120,12 @@ auto render(Technique& tech, const RenderDesc& desc) -> void {
             cmd.begin_pix("%s - Render", NAME.data());
 
             // Barrier.
-            tech.acc_texture.transition(cmd, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+            tech.acc_texture.transition(
+                cmd,
+                D3D12_BARRIER_SYNC_COMPUTE_SHADING,
+                D3D12_BARRIER_ACCESS_UNORDERED_ACCESS,
+                D3D12_BARRIER_LAYOUT_UNORDERED_ACCESS
+            );
             cmd.flush_barriers();
 
             // Accumulate pass.
@@ -146,8 +151,12 @@ auto render(Technique& tech, const RenderDesc& desc) -> void {
             }
 
             // Barrier.
-            tech.acc_texture.uav_barrier(cmd);
-            tech.div_texture.transition(cmd, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+            tech.div_texture.transition(
+                cmd,
+                D3D12_BARRIER_SYNC_COMPUTE_SHADING,
+                D3D12_BARRIER_ACCESS_UNORDERED_ACCESS,
+                D3D12_BARRIER_LAYOUT_UNORDERED_ACCESS
+            );
             cmd.flush_barriers();
 
             // Division pass.
@@ -172,7 +181,12 @@ auto render(Technique& tech, const RenderDesc& desc) -> void {
             }
 
             // Barrier.
-            tech.div_texture.transition(cmd, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+            tech.div_texture.transition(
+                cmd,
+                D3D12_BARRIER_SYNC_ALL_SHADING,
+                D3D12_BARRIER_ACCESS_SHADER_RESOURCE,
+                D3D12_BARRIER_LAYOUT_SHADER_RESOURCE
+            );
             cmd.flush_barriers();
 
             // End.
@@ -187,7 +201,12 @@ auto render(Technique& tech, const RenderDesc& desc) -> void {
         cmd.begin_pix("%s - Render", NAME.data());
 
         // Barrier.
-        tech.div_texture.transition(cmd, D3D12_RESOURCE_STATE_COPY_SOURCE);
+        tech.div_texture.transition(
+            cmd,
+            D3D12_BARRIER_SYNC_COPY,
+            D3D12_BARRIER_ACCESS_COPY_SOURCE,
+            D3D12_BARRIER_LAYOUT_COPY_SOURCE
+        );
         cmd.flush_barriers();
 
         // Copy.
@@ -212,7 +231,12 @@ auto render(Technique& tech, const RenderDesc& desc) -> void {
         FB_ASSERT(offset == tech.readback.byte_count());
 
         // Barrier.
-        tech.div_texture.transition(cmd, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+        tech.div_texture.transition(
+            cmd,
+            D3D12_BARRIER_SYNC_ALL_SHADING,
+            D3D12_BARRIER_ACCESS_SHADER_RESOURCE,
+            D3D12_BARRIER_LAYOUT_SHADER_RESOURCE
+        );
         cmd.flush_barriers();
 
         // End.

@@ -69,10 +69,15 @@ auto GpuSwapchain::create(
 }
 
 auto GpuSwapchain::transition_to_render_target(GpuCommandList& cmd, uint frame_index) -> void {
-    cmd.transition_barrier(
+    cmd.texture_barrier(
+        D3D12_BARRIER_SYNC_NONE,
+        D3D12_BARRIER_SYNC_RENDER_TARGET,
+        D3D12_BARRIER_ACCESS_NO_ACCESS,
+        D3D12_BARRIER_ACCESS_RENDER_TARGET,
+        D3D12_BARRIER_LAYOUT_PRESENT,
+        D3D12_BARRIER_LAYOUT_RENDER_TARGET,
         _rtvs[frame_index],
-        D3D12_RESOURCE_STATE_PRESENT,
-        D3D12_RESOURCE_STATE_RENDER_TARGET
+        D3D12_BARRIER_SUBRESOURCE_RANGE {.IndexOrFirstMipLevel = 0xffffffffu}
     );
 }
 
@@ -87,10 +92,15 @@ auto GpuSwapchain::set_render_target(GpuGraphicsCommandList& cmd, uint frame_ind
 }
 
 auto GpuSwapchain::transition_to_present(GpuCommandList& cmd, uint frame_index) -> void {
-    cmd.transition_barrier(
+    cmd.texture_barrier(
+        D3D12_BARRIER_SYNC_RENDER_TARGET,
+        D3D12_BARRIER_SYNC_NONE,
+        D3D12_BARRIER_ACCESS_RENDER_TARGET,
+        D3D12_BARRIER_ACCESS_NO_ACCESS,
+        D3D12_BARRIER_LAYOUT_RENDER_TARGET,
+        D3D12_BARRIER_LAYOUT_PRESENT,
         _rtvs[frame_index],
-        D3D12_RESOURCE_STATE_RENDER_TARGET,
-        D3D12_RESOURCE_STATE_PRESENT
+        D3D12_BARRIER_SUBRESOURCE_RANGE {.IndexOrFirstMipLevel = 0xffffffffu}
     );
 }
 

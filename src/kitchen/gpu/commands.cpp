@@ -53,9 +53,9 @@ auto GpuCommandList::set_compute_root_constants(std::span<const uint> dwords) co
 }
 
 auto GpuCommandList::copy_texture_to_buffer(
-    const ComPtr<ID3D12Resource>& dst_buffer,
+    const ComPtr<ID3D12Resource2>& dst_buffer,
     uint64_t dst_buffer_offset,
-    const ComPtr<ID3D12Resource>& src_texture,
+    const ComPtr<ID3D12Resource2>& src_texture,
     uint src_texture_subresource_index,
     DXGI_FORMAT src_texture_format,
     uint src_texture_width,
@@ -87,57 +87,112 @@ auto GpuCommandList::copy_texture_to_buffer(
 }
 
 auto GpuCommandList::resolve_resource(
-    const ComPtr<ID3D12Resource>& dst,
-    const ComPtr<ID3D12Resource>& src,
+    const ComPtr<ID3D12Resource2>& dst,
+    const ComPtr<ID3D12Resource2>& src,
     DXGI_FORMAT src_format
 ) const -> void {
     _cmd->ResolveSubresource(dst.get(), 0, src.get(), 0, src_format);
 }
 
-auto GpuCommandList::transition_barrier(
-    const ComPtr<ID3D12Resource>& resource,
-    D3D12_RESOURCE_STATES before,
-    D3D12_RESOURCE_STATES after
+auto GpuCommandList::global_barrier(
+    D3D12_BARRIER_SYNC sync_before,
+    D3D12_BARRIER_SYNC sync_after,
+    D3D12_BARRIER_ACCESS access_before,
+    D3D12_BARRIER_ACCESS access_after
 ) -> void {
-    FB_ASSERT(_pending_barrier_count < MAX_PENDING_BARRIERS);
-    _pending_barriers[_pending_barrier_count++] = D3D12_RESOURCE_BARRIER {
-        .Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION,
-        .Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE,
-        .Transition =
-            D3D12_RESOURCE_TRANSITION_BARRIER {
-                .pResource = resource.get(),
-                .Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES,
-                .StateBefore = before,
-                .StateAfter = after,
-            },
+    FB_ASSERT(_pending_global_barrier_count < MAX_PENDING_BARRIERS);
+    _pending_global_barriers[_pending_global_barrier_count++] = D3D12_GLOBAL_BARRIER {
+        .SyncBefore = sync_before,
+        .SyncAfter = sync_after,
+        .AccessBefore = access_before,
+        .AccessAfter = access_after,
     };
 }
 
-auto GpuCommandList::uav_barrier(const ComPtr<ID3D12Resource>& resource) -> void {
-    FB_ASSERT(_pending_barrier_count < MAX_PENDING_BARRIERS);
-    _pending_barriers[_pending_barrier_count++] = D3D12_RESOURCE_BARRIER {
-        .Type = D3D12_RESOURCE_BARRIER_TYPE_UAV,
-        .Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE,
-        .UAV =
-            D3D12_RESOURCE_UAV_BARRIER {
-                .pResource = resource.get(),
-            },
+auto GpuCommandList::buffer_barrier(
+    D3D12_BARRIER_SYNC sync_before,
+    D3D12_BARRIER_SYNC sync_after,
+    D3D12_BARRIER_ACCESS access_before,
+    D3D12_BARRIER_ACCESS access_after,
+    const ComPtr<ID3D12Resource2>& resource
+) -> void {
+    FB_ASSERT(_pending_buffer_barrier_count < MAX_PENDING_BARRIERS);
+    _pending_buffer_barriers[_pending_buffer_barrier_count++] = D3D12_BUFFER_BARRIER {
+        .SyncBefore = sync_before,
+        .SyncAfter = sync_after,
+        .AccessBefore = access_before,
+        .AccessAfter = access_after,
+        .pResource = resource.get(),
+        .Offset = 0,
+        .Size = UINT64_MAX,
+    };
+}
+
+auto GpuCommandList::texture_barrier(
+    D3D12_BARRIER_SYNC sync_before,
+    D3D12_BARRIER_SYNC sync_after,
+    D3D12_BARRIER_ACCESS access_before,
+    D3D12_BARRIER_ACCESS access_after,
+    D3D12_BARRIER_LAYOUT layout_before,
+    D3D12_BARRIER_LAYOUT layout_after,
+    const ComPtr<ID3D12Resource2>& resource,
+    D3D12_BARRIER_SUBRESOURCE_RANGE subresources
+) -> void {
+    FB_ASSERT(_pending_texture_barrier_count < MAX_PENDING_BARRIERS);
+    _pending_texture_barriers[_pending_texture_barrier_count++] = D3D12_TEXTURE_BARRIER {
+        .SyncBefore = sync_before,
+        .SyncAfter = sync_after,
+        .AccessBefore = access_before,
+        .AccessAfter = access_after,
+        .LayoutBefore = layout_before,
+        .LayoutAfter = layout_after,
+        .pResource = resource.get(),
+        .Subresources = subresources,
+        .Flags = D3D12_TEXTURE_BARRIER_FLAG_NONE,
     };
 }
 
 auto GpuCommandList::flush_barriers() -> void {
-    if (_pending_barrier_count == 0) {
-        return;
+    std::array<D3D12_BARRIER_GROUP, 3> barrier_groups = {};
+    uint barrier_group_count = 0;
+
+    if (_pending_global_barrier_count > 0) {
+        barrier_groups[barrier_group_count++] = D3D12_BARRIER_GROUP {
+            .Type = D3D12_BARRIER_TYPE_GLOBAL,
+            .NumBarriers = (uint)_pending_global_barrier_count,
+            .pGlobalBarriers = _pending_global_barriers.data(),
+        };
+        _pending_global_barrier_count = 0;
     }
-    _cmd->ResourceBarrier((uint)_pending_barrier_count, _pending_barriers.data());
-    _pending_barrier_count = 0;
+
+    if (_pending_buffer_barrier_count > 0) {
+        barrier_groups[barrier_group_count++] = D3D12_BARRIER_GROUP {
+            .Type = D3D12_BARRIER_TYPE_BUFFER,
+            .NumBarriers = (uint)_pending_buffer_barrier_count,
+            .pBufferBarriers = _pending_buffer_barriers.data(),
+        };
+        _pending_buffer_barrier_count = 0;
+    }
+
+    if (_pending_texture_barrier_count > 0) {
+        barrier_groups[barrier_group_count++] = D3D12_BARRIER_GROUP {
+            .Type = D3D12_BARRIER_TYPE_TEXTURE,
+            .NumBarriers = (uint)_pending_texture_barrier_count,
+            .pTextureBarriers = _pending_texture_barriers.data(),
+        };
+        _pending_texture_barrier_count = 0;
+    }
+
+    if (barrier_group_count > 0) {
+        _cmd->Barrier(barrier_group_count, barrier_groups.data());
+    }
 }
 
 auto GpuCommandList::execute_indirect(
     const ComPtr<ID3D12CommandSignature>& command_signature,
     uint max_command_count,
-    const ComPtr<ID3D12Resource>& argument_buffer,
-    const std::optional<std::reference_wrapper<const ComPtr<ID3D12Resource>>> count_buffer
+    const ComPtr<ID3D12Resource2>& argument_buffer,
+    const std::optional<std::reference_wrapper<const ComPtr<ID3D12Resource2>>> count_buffer
 ) const -> void {
     _cmd->ExecuteIndirect(
         command_signature.get(),

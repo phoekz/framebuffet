@@ -63,13 +63,23 @@ auto RenderTargets::create(GpuDevice& device, const RenderTargetsDesc& desc) -> 
 
 auto RenderTargets::transition_to_render_target(GpuCommandList& cmd) -> void {
     if (_sample_count > 1) {
-        _multisampled_color.transition(cmd, D3D12_RESOURCE_STATE_RENDER_TARGET);
+        _multisampled_color.transition(
+            cmd,
+            D3D12_BARRIER_SYNC_RENDER_TARGET,
+            D3D12_BARRIER_ACCESS_RENDER_TARGET,
+            D3D12_BARRIER_LAYOUT_RENDER_TARGET
+        );
     } else {
-        _color.transition(cmd, D3D12_RESOURCE_STATE_RENDER_TARGET);
+        _color.transition(
+            cmd,
+            D3D12_BARRIER_SYNC_RENDER_TARGET,
+            D3D12_BARRIER_ACCESS_RENDER_TARGET,
+            D3D12_BARRIER_LAYOUT_RENDER_TARGET
+        );
     }
 }
 
-auto RenderTargets::clear_all(GpuCommandList& cmd) -> void {
+auto RenderTargets::clear(GpuCommandList& cmd) -> void {
     if (_sample_count > 1) {
         cmd.clear_rtv(_multisampled_color.rtv_descriptor(), _clear_color);
     } else {
@@ -80,12 +90,22 @@ auto RenderTargets::clear_all(GpuCommandList& cmd) -> void {
 
 auto RenderTargets::transition_to_resolve(GpuCommandList& cmd) -> void {
     if (_sample_count > 1) {
-        _multisampled_color.transition(cmd, D3D12_RESOURCE_STATE_RESOLVE_SOURCE);
-        _color.transition(cmd, D3D12_RESOURCE_STATE_RESOLVE_DEST);
+        _multisampled_color.transition(
+            cmd,
+            D3D12_BARRIER_SYNC_RESOLVE,
+            D3D12_BARRIER_ACCESS_RESOLVE_SOURCE,
+            D3D12_BARRIER_LAYOUT_RESOLVE_SOURCE
+        );
+        _color.transition(
+            cmd,
+            D3D12_BARRIER_SYNC_RESOLVE,
+            D3D12_BARRIER_ACCESS_RESOLVE_DEST,
+            D3D12_BARRIER_LAYOUT_RESOLVE_DEST
+        );
     }
 }
 
-auto RenderTargets::resolve_all(GpuCommandList& cmd) -> void {
+auto RenderTargets::resolve(GpuCommandList& cmd) -> void {
     if (_sample_count > 1) {
         cmd.resolve_resource(
             _color.resource(),
@@ -95,8 +115,13 @@ auto RenderTargets::resolve_all(GpuCommandList& cmd) -> void {
     }
 }
 
-auto RenderTargets::transition_to_pixel_shader_resource(GpuCommandList& cmd) -> void {
-    _color.transition(cmd, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+auto RenderTargets::transition_to_shader_resource(GpuCommandList& cmd) -> void {
+    _color.transition(
+        cmd,
+        D3D12_BARRIER_SYNC_PIXEL_SHADING,
+        D3D12_BARRIER_ACCESS_SHADER_RESOURCE,
+        D3D12_BARRIER_LAYOUT_DIRECT_QUEUE_SHADER_RESOURCE
+    );
 }
 
 auto RenderTargets::set(GpuGraphicsCommandList& cmd) -> void {

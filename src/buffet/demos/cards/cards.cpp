@@ -147,8 +147,8 @@ auto create(Demo& demo, const CreateDesc& desc) -> void {
         demo.spd_atomics.create_and_transfer(
             device,
             std::span(&atomics, 1),
-            D3D12_RESOURCE_STATE_COMMON,
-            D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
+            D3D12_BARRIER_SYNC_COMPUTE_SHADING,
+            D3D12_BARRIER_ACCESS_UNORDERED_ACCESS,
             spd_debug.with_name("Slice Atomics")
         );
 

@@ -16,7 +16,7 @@ struct GpuTransferImpl {
     ComPtr<ID3D12Fence> fence;
     HANDLE fence_event = nullptr;
     ComPtr<ID3D12QueryHeap> query_heap;
-    ComPtr<ID3D12Resource> query_buffer;
+    ComPtr<ID3D12Resource2> query_buffer;
 
     struct SubresourceData {
         uint64_t offset;
@@ -29,13 +29,24 @@ struct GpuTransferImpl {
     std::vector<SubresourceData> subresource_datas;
 
     struct ResourceData {
-        ComPtr<ID3D12Resource> resource;
+        ComPtr<ID3D12Resource2> resource;
         uint64_t subresource_offset;
         uint64_t subresource_count;
-        D3D12_RESOURCE_STATES before_state;
-        D3D12_RESOURCE_STATES after_state;
+        D3D12_BARRIER_SYNC sync_before;
+        D3D12_BARRIER_SYNC sync_after;
+        D3D12_BARRIER_ACCESS access_before;
+        D3D12_BARRIER_ACCESS access_after;
+        std::optional<D3D12_BARRIER_LAYOUT> layout_before;
+        std::optional<D3D12_BARRIER_LAYOUT> layout_after;
+
+        auto is_texture() const -> bool {
+            return layout_before.has_value() && layout_after.has_value();
+        }
     };
     std::vector<ResourceData> resource_datas;
+
+    size_t buffer_barrier_count = 0;
+    size_t texture_barrier_count = 0;
 };
 
 GpuTransfer::~GpuTransfer() {
@@ -84,7 +95,7 @@ auto GpuTransfer::create(const ComPtr<ID3D12Device12>& device) -> void {
     FB_ASSERT_HR(device->CreateQueryHeap(&query_heap_desc, IID_PPV_ARGS(&_impl->query_heap)));
 
     // Query buffer.
-    const auto query_buffer_desc = D3D12_RESOURCE_DESC {
+    const auto query_buffer_desc = D3D12_RESOURCE_DESC1 {
         .Dimension = D3D12_RESOURCE_DIMENSION_BUFFER,
         .Alignment = 0,
         .Width = 2 * sizeof(uint64_t),
@@ -95,6 +106,7 @@ auto GpuTransfer::create(const ComPtr<ID3D12Device12>& device) -> void {
         .SampleDesc = {1, 0},
         .Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR,
         .Flags = D3D12_RESOURCE_FLAG_NONE,
+        .SamplerFeedbackMipRegion = {},
     };
     const auto query_buffer_heap_properties = D3D12_HEAP_PROPERTIES {
         .Type = D3D12_HEAP_TYPE_READBACK,
@@ -103,11 +115,14 @@ auto GpuTransfer::create(const ComPtr<ID3D12Device12>& device) -> void {
         .CreationNodeMask = 1,
         .VisibleNodeMask = 1,
     };
-    FB_ASSERT_HR(device->CreateCommittedResource(
+    FB_ASSERT_HR(device->CreateCommittedResource3(
         &query_buffer_heap_properties,
         D3D12_HEAP_FLAG_NONE,
         &query_buffer_desc,
-        D3D12_RESOURCE_STATE_COMMON,
+        D3D12_BARRIER_LAYOUT_UNDEFINED,
+        nullptr,
+        nullptr,
+        0,
         nullptr,
         IID_PPV_ARGS(&_impl->query_buffer)
     ));
@@ -117,27 +132,57 @@ auto GpuTransfer::create(const ComPtr<ID3D12Device12>& device) -> void {
 }
 
 auto GpuTransfer::resource(
-    const ComPtr<ID3D12Resource>& resource,
+    const ComPtr<ID3D12Resource2>& resource,
     const D3D12_SUBRESOURCE_DATA& data,
-    D3D12_RESOURCE_STATES before_state,
-    D3D12_RESOURCE_STATES after_state
+    D3D12_BARRIER_SYNC sync_before,
+    D3D12_BARRIER_SYNC sync_after,
+    D3D12_BARRIER_ACCESS access_before,
+    D3D12_BARRIER_ACCESS access_after,
+    std::optional<D3D12_BARRIER_LAYOUT> layout_before,
+    std::optional<D3D12_BARRIER_LAYOUT> layout_after
 ) -> void {
-    this->resource(resource, std::span(&data, 1), before_state, after_state);
+    FB_ASSERT(layout_before.has_value() == layout_after.has_value());
+    this->resource(
+        resource,
+        std::span(&data, 1),
+        sync_before,
+        sync_after,
+        access_before,
+        access_after,
+        layout_before,
+        layout_after
+    );
 }
 
 auto GpuTransfer::resource(
-    const ComPtr<ID3D12Resource>& resource,
+    const ComPtr<ID3D12Resource2>& resource,
     std::span<const D3D12_SUBRESOURCE_DATA> datas,
-    D3D12_RESOURCE_STATES before_state,
-    D3D12_RESOURCE_STATES after_state
+    D3D12_BARRIER_SYNC sync_before,
+    D3D12_BARRIER_SYNC sync_after,
+    D3D12_BARRIER_ACCESS access_before,
+    D3D12_BARRIER_ACCESS access_after,
+    std::optional<D3D12_BARRIER_LAYOUT> layout_before,
+    std::optional<D3D12_BARRIER_LAYOUT> layout_after
 ) -> void {
+    // Validation.
+    FB_ASSERT(sync_before == D3D12_BARRIER_SYNC_NONE);
+    FB_ASSERT(access_before == D3D12_BARRIER_ACCESS_NO_ACCESS);
+    FB_ASSERT(layout_before.has_value() == layout_after.has_value());
+    if (layout_before.has_value()) {
+        FB_ASSERT(layout_before.value() == D3D12_BARRIER_LAYOUT_UNDEFINED);
+    }
+
     // Add resource data.
     _impl->resource_datas.push_back(GpuTransferImpl::ResourceData {
         .resource = resource,
         .subresource_offset = _impl->subresource_datas.size(),
         .subresource_count = (uint64_t)datas.size(),
-        .before_state = before_state,
-        .after_state = after_state,
+        .sync_before = sync_before,
+        .sync_after = sync_after,
+        .access_before = access_before,
+        .access_after = access_after,
+        .layout_before = layout_before,
+        .layout_after = layout_after,
     });
 
     // Avoid calling `resize` once per subresource by calculating the total byte
@@ -168,6 +213,13 @@ auto GpuTransfer::resource(
             dst_offset += data.SlicePitch;
         }
     }
+
+    // Record barrier counts.
+    if (layout_before.has_value() && layout_after.has_value()) {
+        _impl->texture_barrier_count += 1;
+    } else {
+        _impl->buffer_barrier_count += 1;
+    }
 }
 
 auto GpuTransfer::flush(const GpuDevice& device) -> void {
@@ -189,7 +241,7 @@ auto GpuTransfer::flush(const GpuDevice& device) -> void {
         for (const auto& resource_data : _impl->resource_datas) {
             const auto subresource_count = (uint)resource_data.subresource_count;
             auto byte_count = 0ull;
-            const auto desc = resource_data.resource->GetDesc();
+            const auto desc = resource_data.resource->GetDesc1();
             device.get_copyable_footprints(
                 desc,
                 0,
@@ -208,22 +260,22 @@ auto GpuTransfer::flush(const GpuDevice& device) -> void {
     }
 
     // Create upload buffer.
-    const auto upload_buffer_desc = D3D12_RESOURCE_DESC {
-        .Dimension = D3D12_RESOURCE_DIMENSION_BUFFER,
-        .Alignment = 0,
-        .Width = total_byte_count,
-        .Height = 1,
-        .DepthOrArraySize = 1,
-        .MipLevels = 1,
-        .Format = DXGI_FORMAT_UNKNOWN,
-        .SampleDesc = {1, 0},
-        .Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR,
-        .Flags = D3D12_RESOURCE_FLAG_NONE,
-    };
     const auto upload_buffer = device.create_committed_resource(
         D3D12_HEAP_TYPE_UPLOAD,
-        upload_buffer_desc,
-        D3D12_RESOURCE_STATE_GENERIC_READ,
+        D3D12_RESOURCE_DESC1 {
+            .Dimension = D3D12_RESOURCE_DIMENSION_BUFFER,
+            .Alignment = 0,
+            .Width = total_byte_count,
+            .Height = 1,
+            .DepthOrArraySize = 1,
+            .MipLevels = 1,
+            .Format = DXGI_FORMAT_UNKNOWN,
+            .SampleDesc = {1, 0},
+            .Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR,
+            .Flags = D3D12_RESOURCE_FLAG_NONE,
+            .SamplerFeedbackMipRegion = {},
+        },
+        D3D12_BARRIER_LAYOUT_UNDEFINED,
         std::nullopt,
         debug.with_name("Upload Buffer")
     );
@@ -266,8 +318,8 @@ auto GpuTransfer::flush(const GpuDevice& device) -> void {
     upload_buffer->Unmap(0, nullptr);
 
     // Reset commands.
-    _impl->command_allocator->Reset();
-    _impl->command_list->Reset(_impl->command_allocator.get(), nullptr);
+    FB_ASSERT_HR(_impl->command_allocator->Reset());
+    FB_ASSERT_HR(_impl->command_list->Reset(_impl->command_allocator.get(), nullptr));
 
     // Begin commands.
     PIXBeginEvent(
@@ -280,50 +332,82 @@ auto GpuTransfer::flush(const GpuDevice& device) -> void {
     // Query timestamp - Begin.
     _impl->command_list->EndQuery(_impl->query_heap.get(), D3D12_QUERY_TYPE_TIMESTAMP, 0);
 
-    // Combined resource barriers.
+    // Barriers.
     // - Transition all resources into COPY_DEST.
     // - Transition upload buffer into COPY_SOURCE.
     // - Transition query buffer into COPY_DEST.
-    auto resource_barriers = std::vector<D3D12_RESOURCE_BARRIER>();
-    resource_barriers.reserve(total_resource_count + 1 + 1);
+    auto buffer_barriers = std::vector<D3D12_BUFFER_BARRIER>();
+    auto texture_barriers = std::vector<D3D12_TEXTURE_BARRIER>();
+    buffer_barriers.reserve(_impl->buffer_barrier_count + 1 + 1);
+    texture_barriers.reserve(_impl->texture_barrier_count);
     for (uint resource_id = 0; resource_id < total_resource_count; resource_id++) {
-        const auto resource_data = _impl->resource_datas[resource_id];
-        resource_barriers.push_back(D3D12_RESOURCE_BARRIER {
-            .Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION,
-            .Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE,
-            .Transition =
-                D3D12_RESOURCE_TRANSITION_BARRIER {
-                    .pResource = resource_data.resource.get(),
-                    .Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES,
-                    .StateBefore = resource_data.before_state,
-                    .StateAfter = D3D12_RESOURCE_STATE_COPY_DEST,
-                },
-        });
+        const auto& resource_data = _impl->resource_datas[resource_id];
+        if (resource_data.is_texture()) {
+            texture_barriers.push_back(D3D12_TEXTURE_BARRIER {
+                .SyncBefore = resource_data.sync_before,
+                .SyncAfter = D3D12_BARRIER_SYNC_COPY,
+                .AccessBefore = resource_data.access_before,
+                .AccessAfter = D3D12_BARRIER_ACCESS_COPY_DEST,
+                .LayoutBefore = resource_data.layout_before.value(),
+                .LayoutAfter = D3D12_BARRIER_LAYOUT_COPY_DEST,
+                .pResource = resource_data.resource.get(),
+                .Subresources =
+                    D3D12_BARRIER_SUBRESOURCE_RANGE {.IndexOrFirstMipLevel = 0xffffffffu},
+                .Flags = D3D12_TEXTURE_BARRIER_FLAG_NONE,
+            });
+        } else {
+            buffer_barriers.push_back(D3D12_BUFFER_BARRIER {
+                .SyncBefore = resource_data.sync_before,
+                .SyncAfter = D3D12_BARRIER_SYNC_COPY,
+                .AccessBefore = resource_data.access_before,
+                .AccessAfter = D3D12_BARRIER_ACCESS_COPY_DEST,
+                .pResource = resource_data.resource.get(),
+                .Offset = 0,
+                .Size = UINT64_MAX,
+            });
+        }
     }
-    resource_barriers.push_back(D3D12_RESOURCE_BARRIER {
-        .Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION,
-        .Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE,
-        .Transition =
-            D3D12_RESOURCE_TRANSITION_BARRIER {
-                .pResource = upload_buffer.get(),
-                .Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES,
-                .StateBefore = D3D12_RESOURCE_STATE_GENERIC_READ,
-                .StateAfter = D3D12_RESOURCE_STATE_COPY_SOURCE,
-            },
+    buffer_barriers.push_back(D3D12_BUFFER_BARRIER {
+        .SyncBefore = D3D12_BARRIER_SYNC_NONE,
+        .SyncAfter = D3D12_BARRIER_SYNC_COPY,
+        .AccessBefore = D3D12_BARRIER_ACCESS_NO_ACCESS,
+        .AccessAfter = D3D12_BARRIER_ACCESS_COPY_SOURCE,
+        .pResource = upload_buffer.get(),
+        .Offset = 0,
+        .Size = UINT64_MAX,
     });
-    resource_barriers.push_back(D3D12_RESOURCE_BARRIER {
-        .Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION,
-        .Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE,
-        .Transition =
-            D3D12_RESOURCE_TRANSITION_BARRIER {
-                .pResource = _impl->query_buffer.get(),
-                .Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES,
-                .StateBefore = D3D12_RESOURCE_STATE_COMMON,
-                .StateAfter = D3D12_RESOURCE_STATE_COPY_DEST,
-            },
+    buffer_barriers.push_back(D3D12_BUFFER_BARRIER {
+        .SyncBefore = D3D12_BARRIER_SYNC_NONE,
+        .SyncAfter = D3D12_BARRIER_SYNC_COPY,
+        .AccessBefore = D3D12_BARRIER_ACCESS_NO_ACCESS,
+        .AccessAfter = D3D12_BARRIER_ACCESS_COPY_DEST,
+        .pResource = _impl->query_buffer.get(),
+        .Offset = 0,
+        .Size = UINT64_MAX,
     });
-    _impl->command_list->ResourceBarrier((uint)resource_barriers.size(), resource_barriers.data());
-    resource_barriers.clear();
+    std::array<D3D12_BARRIER_GROUP, 2> barrier_groups = {};
+    uint barrier_group_count = 0;
+    if (buffer_barriers.size() > 0) {
+        barrier_groups[barrier_group_count++] = D3D12_BARRIER_GROUP {
+            .Type = D3D12_BARRIER_TYPE_BUFFER,
+            .NumBarriers = (uint)buffer_barriers.size(),
+            .pBufferBarriers = buffer_barriers.data(),
+        };
+    }
+    if (texture_barriers.size() > 0) {
+        barrier_groups[barrier_group_count++] = D3D12_BARRIER_GROUP {
+            .Type = D3D12_BARRIER_TYPE_TEXTURE,
+            .NumBarriers = (uint)texture_barriers.size(),
+            .pTextureBarriers = texture_barriers.data(),
+        };
+    }
+    if (barrier_group_count > 0) {
+        _impl->command_list->Barrier(barrier_group_count, barrier_groups.data());
+    }
+    buffer_barriers.clear();
+    texture_barriers.clear();
+    barrier_groups = {};
+    barrier_group_count = 0;
 
     // Issue commands.
     for (uint resource_id = 0; resource_id < total_resource_count; resource_id++) {
@@ -378,22 +462,51 @@ auto GpuTransfer::flush(const GpuDevice& device) -> void {
         PIXEndEvent(_impl->command_list.get());
     }
 
-    // Transition all resources from COPY_DEST to after_state.
+    // Transition all resources from COPY_DEST to after_* states.
     for (uint resource_id = 0; resource_id < total_resource_count; resource_id++) {
-        const auto resource_data = _impl->resource_datas[resource_id];
-        resource_barriers.push_back(D3D12_RESOURCE_BARRIER {
-            .Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION,
-            .Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE,
-            .Transition =
-                D3D12_RESOURCE_TRANSITION_BARRIER {
-                    .pResource = resource_data.resource.get(),
-                    .Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES,
-                    .StateBefore = D3D12_RESOURCE_STATE_COPY_DEST,
-                    .StateAfter = resource_data.after_state,
-                },
-        });
+        const auto& resource_data = _impl->resource_datas[resource_id];
+        if (resource_data.is_texture()) {
+            texture_barriers.push_back(D3D12_TEXTURE_BARRIER {
+                .SyncBefore = D3D12_BARRIER_SYNC_COPY,
+                .SyncAfter = resource_data.sync_after,
+                .AccessBefore = D3D12_BARRIER_ACCESS_COPY_DEST,
+                .AccessAfter = resource_data.access_after,
+                .LayoutBefore = D3D12_BARRIER_LAYOUT_COPY_DEST,
+                .LayoutAfter = resource_data.layout_after.value(),
+                .pResource = resource_data.resource.get(),
+                .Subresources =
+                    D3D12_BARRIER_SUBRESOURCE_RANGE {.IndexOrFirstMipLevel = 0xffffffffu},
+                .Flags = D3D12_TEXTURE_BARRIER_FLAG_NONE,
+            });
+        } else {
+            buffer_barriers.push_back(D3D12_BUFFER_BARRIER {
+                .SyncBefore = D3D12_BARRIER_SYNC_COPY,
+                .SyncAfter = resource_data.sync_after,
+                .AccessBefore = D3D12_BARRIER_ACCESS_COPY_DEST,
+                .AccessAfter = resource_data.access_after,
+                .pResource = resource_data.resource.get(),
+                .Offset = 0,
+                .Size = UINT64_MAX,
+            });
+        }
     }
-    _impl->command_list->ResourceBarrier((uint)resource_barriers.size(), resource_barriers.data());
+    if (buffer_barriers.size() > 0) {
+        barrier_groups[barrier_group_count++] = D3D12_BARRIER_GROUP {
+            .Type = D3D12_BARRIER_TYPE_BUFFER,
+            .NumBarriers = (uint)buffer_barriers.size(),
+            .pBufferBarriers = buffer_barriers.data(),
+        };
+    }
+    if (texture_barriers.size() > 0) {
+        barrier_groups[barrier_group_count++] = D3D12_BARRIER_GROUP {
+            .Type = D3D12_BARRIER_TYPE_TEXTURE,
+            .NumBarriers = (uint)texture_barriers.size(),
+            .pTextureBarriers = texture_barriers.data(),
+        };
+    }
+    if (barrier_group_count > 0) {
+        _impl->command_list->Barrier(barrier_group_count, barrier_groups.data());
+    }
 
     // Query timestamp - End.
     _impl->command_list->EndQuery(_impl->query_heap.get(), D3D12_QUERY_TYPE_TIMESTAMP, 1);
@@ -416,8 +529,8 @@ auto GpuTransfer::flush(const GpuDevice& device) -> void {
 
     // Signal fence.
     const auto fence_value = 1ull;
-    device.command_queue()->Signal(_impl->fence.get(), fence_value);
-    _impl->fence->SetEventOnCompletion(fence_value, _impl->fence_event);
+    FB_ASSERT_HR(device.command_queue()->Signal(_impl->fence.get(), fence_value));
+    FB_ASSERT_HR(_impl->fence->SetEventOnCompletion(fence_value, _impl->fence_event));
 
     // Wait for fence.
     WaitForSingleObject(_impl->fence_event, INFINITE);

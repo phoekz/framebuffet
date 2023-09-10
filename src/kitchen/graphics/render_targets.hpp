@@ -19,10 +19,10 @@ public:
 
     auto create(GpuDevice& device, const RenderTargetsDesc& desc) -> void;
     auto transition_to_render_target(GpuCommandList& cmd) -> void;
-    auto clear_all(GpuCommandList& cmd) -> void;
+    auto clear(GpuCommandList& cmd) -> void;
     auto transition_to_resolve(GpuCommandList& cmd) -> void;
-    auto resolve_all(GpuCommandList& cmd) -> void;
-    auto transition_to_pixel_shader_resource(GpuCommandList& cmd) -> void;
+    auto resolve(GpuCommandList& cmd) -> void;
+    auto transition_to_shader_resource(GpuCommandList& cmd) -> void;
 
     auto set(GpuGraphicsCommandList& cmd) -> void;
 

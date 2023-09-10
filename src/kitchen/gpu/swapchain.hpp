@@ -42,7 +42,7 @@ private:
     DXGI_FORMAT _format = {};
     ComPtr<ID3D12DescriptorHeap> _rtv_descriptor_heap;
     std::array<GpuDescriptor, FRAME_COUNT> _rtv_descriptors = {};
-    std::array<ComPtr<ID3D12Resource>, FRAME_COUNT> _rtvs = {};
+    std::array<ComPtr<ID3D12Resource2>, FRAME_COUNT> _rtvs = {};
 };
 
 } // namespace fb

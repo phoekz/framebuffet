@@ -84,21 +84,21 @@ public:
 
         // Texture flags.
         auto resource_flags = D3D12_RESOURCE_FLAG_NONE;
-        auto init_state = D3D12_RESOURCE_STATE_COMMON;
+        auto initial_layout = D3D12_BARRIER_LAYOUT_UNDEFINED;
         if (gpu_texture_flags_contains(FLAGS, Uav)) {
             resource_flags |= D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
         }
         if (gpu_texture_flags_contains(FLAGS, Rtv)) {
             resource_flags |= D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
-            init_state = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+            initial_layout = D3D12_BARRIER_LAYOUT_RENDER_TARGET;
         }
         if (gpu_texture_flags_contains(FLAGS, Dsv)) {
             resource_flags |= D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
-            init_state = D3D12_RESOURCE_STATE_DEPTH_WRITE;
+            initial_layout = D3D12_BARRIER_LAYOUT_DEPTH_STENCIL_WRITE;
         }
 
         // Resource desc.
-        D3D12_RESOURCE_DESC resource_desc {
+        D3D12_RESOURCE_DESC1 resource_desc {
             .Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D,
             .Alignment = 0,
             .Width = (uint64_t)desc.width,
@@ -109,6 +109,7 @@ public:
             .SampleDesc = DXGI_SAMPLE_DESC {.Count = desc.sample_count, .Quality = 0},
             .Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN,
             .Flags = resource_flags,
+            .SamplerFeedbackMipRegion = {},
         };
 
         // Clear value.
@@ -124,10 +125,14 @@ public:
         }
 
         // Resource.
-        _resource =
-            device
-                .create_committed_resource(heap_type, resource_desc, init_state, clear_value, name);
-        _resource_state = init_state;
+        _resource = device.create_committed_resource(
+            heap_type,
+            resource_desc,
+            initial_layout,
+            clear_value,
+            name
+        );
+        _layout_before = initial_layout;
 
         // Views.
         if constexpr (gpu_texture_flags_contains(FLAGS, Srv)) {
@@ -378,8 +383,9 @@ public:
         GpuDevice& device,
         const GpuTextureDesc& desc,
         std::span<const GpuTextureTransferDesc> transfer_descs,
-        D3D12_RESOURCE_STATES before_state,
-        D3D12_RESOURCE_STATES after_state,
+        D3D12_BARRIER_SYNC sync_after,
+        D3D12_BARRIER_ACCESS access_after,
+        D3D12_BARRIER_LAYOUT layout_after,
         std::string_view name
     ) -> void {
         create(device, desc, name);
@@ -391,30 +397,42 @@ public:
                 .SlicePitch = (int64_t)transfer_descs[i].slice_pitch,
             };
         }
-        device.transfer().resource(_resource, subresources, before_state, after_state);
+        device.transfer().resource(
+            _resource,
+            subresources,
+            _sync_before,
+            sync_after,
+            _access_before,
+            access_after,
+            _layout_before,
+            layout_after
+        );
     }
     auto create_and_transfer(
         GpuDevice& device,
         const GpuTextureDesc& desc,
         const GpuTextureTransferDesc& transfer_desc,
-        D3D12_RESOURCE_STATES before_state,
-        D3D12_RESOURCE_STATES after_state,
+        D3D12_BARRIER_SYNC sync_after,
+        D3D12_BARRIER_ACCESS access_after,
+        D3D12_BARRIER_LAYOUT layout_after,
         std::string_view name
     ) -> void {
         create_and_transfer(
             device,
             desc,
             std::span<const GpuTextureTransferDesc>(&transfer_desc, 1),
-            before_state,
-            after_state,
+            sync_after,
+            access_after,
+            layout_after,
             name
         );
     }
     auto create_and_transfer_baked(
         GpuDevice& device,
         const baked::Texture& baked,
-        D3D12_RESOURCE_STATES before_state,
-        D3D12_RESOURCE_STATES after_state,
+        D3D12_BARRIER_SYNC sync_after,
+        D3D12_BARRIER_ACCESS access_after,
+        D3D12_BARRIER_LAYOUT layout_after,
         std::string_view name
     ) {
         GpuTextureDesc desc = {
@@ -438,16 +456,18 @@ public:
             device,
             desc,
             std::span(transfer_descs.data(), baked.mip_count),
-            before_state,
-            after_state,
+            sync_after,
+            access_after,
+            layout_after,
             name
         );
     }
     auto create_and_transfer_baked(
         GpuDevice& device,
         const baked::CubeTexture& baked,
-        D3D12_RESOURCE_STATES before_state,
-        D3D12_RESOURCE_STATES after_state,
+        D3D12_BARRIER_SYNC sync_after,
+        D3D12_BARRIER_ACCESS access_after,
+        D3D12_BARRIER_LAYOUT layout_after,
         std::string_view name
     ) {
         GpuTextureDesc desc = {
@@ -476,8 +496,9 @@ public:
             device,
             desc,
             std::span(transfer_descs.data(), desc_count),
-            before_state,
-            after_state,
+            sync_after,
+            access_after,
+            layout_after,
             name
         );
     }
@@ -489,7 +510,7 @@ public:
     auto format() const -> DXGI_FORMAT { return _desc.format; }
     auto mip_count() const -> uint { return _desc.mip_count; }
     auto unit_byte_count() const -> uint { return dxgi_format_unit_byte_count(_desc.format); }
-    auto resource() const -> const ComPtr<ID3D12Resource>& { return _resource; }
+    auto resource() const -> const ComPtr<ID3D12Resource2>& { return _resource; }
     auto row_pitch() const -> uint { return unit_byte_count() * _desc.width; }
     auto slice_pitch() const -> uint { return row_pitch() * _desc.height; }
     auto byte_count() const -> uint { return _byte_count; }
@@ -514,22 +535,61 @@ public:
         return _dsv_descriptor;
     }
 
-    auto transition(GpuCommandList& cmd, D3D12_RESOURCE_STATES after) -> void {
-        if (_resource_state != after) {
-            cmd.transition_barrier(_resource, _resource_state, after);
-            _resource_state = after;
-        }
+    auto transition(
+        GpuCommandList& cmd,
+        D3D12_BARRIER_SYNC sync_after,
+        D3D12_BARRIER_ACCESS access_after,
+        D3D12_BARRIER_LAYOUT layout_after
+    ) -> void {
+        explicit_transition(
+            cmd,
+            _sync_before,
+            sync_after,
+            _access_before,
+            access_after,
+            _layout_before,
+            layout_after
+        );
     }
 
-    auto uav_barrier(GpuCommandList& cmd) -> void {
-        static_assert(gpu_texture_flags_contains(FLAGS, Uav));
-        cmd.uav_barrier(_resource);
+    auto explicit_transition(
+        GpuCommandList& cmd,
+        D3D12_BARRIER_SYNC sync_before,
+        D3D12_BARRIER_SYNC sync_after,
+        D3D12_BARRIER_ACCESS access_before,
+        D3D12_BARRIER_ACCESS access_after,
+        D3D12_BARRIER_LAYOUT layout_before,
+        D3D12_BARRIER_LAYOUT layout_after
+    ) -> void {
+        cmd.texture_barrier(
+            sync_before,
+            sync_after,
+            access_before,
+            access_after,
+            layout_before,
+            layout_after,
+            _resource,
+            D3D12_BARRIER_SUBRESOURCE_RANGE {
+                .IndexOrFirstMipLevel = 0xffffffffu,
+                .NumMipLevels = 0,
+                .FirstArraySlice = 0,
+                .NumArraySlices = 0,
+                .FirstPlane = 0,
+                .NumPlanes = 0,
+            }
+        );
+
+        _sync_before = sync_after;
+        _access_before = access_after;
+        _layout_before = layout_after;
     }
 
 private:
     GpuTextureDesc _desc;
-    ComPtr<ID3D12Resource> _resource;
-    D3D12_RESOURCE_STATES _resource_state = D3D12_RESOURCE_STATE_COMMON;
+    ComPtr<ID3D12Resource2> _resource;
+    D3D12_BARRIER_SYNC _sync_before = D3D12_BARRIER_SYNC_NONE;
+    D3D12_BARRIER_ACCESS _access_before = D3D12_BARRIER_ACCESS_NO_ACCESS;
+    D3D12_BARRIER_LAYOUT _layout_before = D3D12_BARRIER_LAYOUT_UNDEFINED;
     DXGI_FORMAT _srv_format = DXGI_FORMAT_UNKNOWN;
     DXGI_FORMAT _uav_format = DXGI_FORMAT_UNKNOWN;
     DXGI_FORMAT _rtv_format = DXGI_FORMAT_UNKNOWN;

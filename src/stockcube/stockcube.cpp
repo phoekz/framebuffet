@@ -156,7 +156,7 @@ auto stockcube_run(Stockcube& sc) -> void {
                     render_targets.transition_to_render_target(cmd);
                     swapchain.transition_to_render_target(cmd, frame_index);
                     cmd.flush_barriers();
-                    render_targets.clear_all(cmd);
+                    render_targets.clear(cmd);
                     swapchain.clear_render_target(cmd, frame_index);
                     cmd.end_pix();
                 }
@@ -176,8 +176,8 @@ auto stockcube_run(Stockcube& sc) -> void {
                     cmd.begin_pix("Resolve");
                     render_targets.transition_to_resolve(cmd);
                     cmd.flush_barriers();
-                    render_targets.resolve_all(cmd);
-                    render_targets.transition_to_pixel_shader_resource(cmd);
+                    render_targets.resolve(cmd);
+                    render_targets.transition_to_shader_resource(cmd);
                     cmd.flush_barriers();
                     cmd.end_pix();
                 }

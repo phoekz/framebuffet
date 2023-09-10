@@ -61,8 +61,12 @@ public:
         _prev_engine = std::exchange(o._prev_engine, GpuCommandEngine::Generic);
         _root_signature = std::exchange(o._root_signature, nullptr);
         _descriptors = std::exchange(o._descriptors, nullptr);
-        _pending_barriers = std::exchange(o._pending_barriers, {});
-        _pending_barrier_count = std::exchange(o._pending_barrier_count, 0);
+        _pending_global_barriers = std::exchange(o._pending_global_barriers, {});
+        _pending_buffer_barriers = std::exchange(o._pending_buffer_barriers, {});
+        _pending_texture_barriers = std::exchange(o._pending_texture_barriers, {});
+        _pending_global_barrier_count = std::exchange(o._pending_global_barrier_count, 0);
+        _pending_buffer_barrier_count = std::exchange(o._pending_buffer_barrier_count, 0);
+        _pending_texture_barrier_count = std::exchange(o._pending_texture_barrier_count, 0);
         return *this;
     }
 
@@ -114,9 +118,9 @@ public:
     auto clear_dsv(const GpuDescriptor& dsv, float depth) const -> void;
 
     auto copy_texture_to_buffer(
-        const ComPtr<ID3D12Resource>& dst_buffer,
+        const ComPtr<ID3D12Resource2>& dst_buffer,
         uint64_t dst_buffer_offset,
-        const ComPtr<ID3D12Resource>& src_texture,
+        const ComPtr<ID3D12Resource2>& src_texture,
         uint src_texture_subresource_index,
         DXGI_FORMAT src_texture_format,
         uint src_texture_width,
@@ -124,24 +128,41 @@ public:
     ) const -> void;
 
     auto resolve_resource(
-        const ComPtr<ID3D12Resource>& dst,
-        const ComPtr<ID3D12Resource>& src,
+        const ComPtr<ID3D12Resource2>& dst,
+        const ComPtr<ID3D12Resource2>& src,
         DXGI_FORMAT src_format
     ) const -> void;
 
-    auto transition_barrier(
-        const ComPtr<ID3D12Resource>& resource,
-        D3D12_RESOURCE_STATES before,
-        D3D12_RESOURCE_STATES after
+    auto global_barrier(
+        D3D12_BARRIER_SYNC sync_before,
+        D3D12_BARRIER_SYNC sync_after,
+        D3D12_BARRIER_ACCESS access_before,
+        D3D12_BARRIER_ACCESS access_after
     ) -> void;
-    auto uav_barrier(const ComPtr<ID3D12Resource>& resource) -> void;
+    auto buffer_barrier(
+        D3D12_BARRIER_SYNC sync_before,
+        D3D12_BARRIER_SYNC sync_after,
+        D3D12_BARRIER_ACCESS access_before,
+        D3D12_BARRIER_ACCESS access_after,
+        const ComPtr<ID3D12Resource2>& resource
+    ) -> void;
+    auto texture_barrier(
+        D3D12_BARRIER_SYNC sync_before,
+        D3D12_BARRIER_SYNC sync_after,
+        D3D12_BARRIER_ACCESS access_before,
+        D3D12_BARRIER_ACCESS access_after,
+        D3D12_BARRIER_LAYOUT layout_before,
+        D3D12_BARRIER_LAYOUT layout_after,
+        const ComPtr<ID3D12Resource2>& resource,
+        D3D12_BARRIER_SUBRESOURCE_RANGE subresources
+    ) -> void;
     auto flush_barriers() -> void;
 
     auto execute_indirect(
         const ComPtr<ID3D12CommandSignature>& command_signature,
         uint max_command_count,
-        const ComPtr<ID3D12Resource>& argument_buffer,
-        const std::optional<std::reference_wrapper<const ComPtr<ID3D12Resource>>> count_buffer
+        const ComPtr<ID3D12Resource2>& argument_buffer,
+        const std::optional<std::reference_wrapper<const ComPtr<ID3D12Resource2>>> count_buffer
     ) const -> void;
 
 protected:
@@ -159,8 +180,12 @@ protected:
     GpuDescriptors* _descriptors = nullptr;
 
     static constexpr size_t MAX_PENDING_BARRIERS = 32;
-    std::array<D3D12_RESOURCE_BARRIER, MAX_PENDING_BARRIERS> _pending_barriers;
-    size_t _pending_barrier_count = 0;
+    std::array<D3D12_GLOBAL_BARRIER, MAX_PENDING_BARRIERS> _pending_global_barriers;
+    std::array<D3D12_BUFFER_BARRIER, MAX_PENDING_BARRIERS> _pending_buffer_barriers;
+    std::array<D3D12_TEXTURE_BARRIER, MAX_PENDING_BARRIERS> _pending_texture_barriers;
+    size_t _pending_global_barrier_count = 0;
+    size_t _pending_buffer_barrier_count = 0;
+    size_t _pending_texture_barrier_count = 0;
 
 private:
     // GpuDevice is the only class that can create GpuCommandList.

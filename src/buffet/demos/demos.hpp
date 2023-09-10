@@ -39,7 +39,7 @@ auto clear_render_targets(Demos& demos, const RenderDesc& desc) -> void;
 auto render_demos(Demos& demos, const RenderDesc& desc) -> void;
 auto transition_to_resolve(Demos& demos, const RenderDesc& desc) -> void;
 auto resolve_render_targets(Demos& demos, const RenderDesc& desc) -> void;
-auto transition_to_srv(Demos& demos, const RenderDesc& desc) -> void;
+auto transition_to_shader_resource(Demos& demos, const RenderDesc& desc) -> void;
 auto render_compose(Demos& demos, const RenderDesc& desc) -> void;
 
 template<Archive A>

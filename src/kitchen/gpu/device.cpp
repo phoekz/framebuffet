@@ -333,16 +333,18 @@ auto GpuDevice::create_pipeline_state(
 
 auto GpuDevice::create_committed_resource(
     D3D12_HEAP_TYPE heap_type,
-    const D3D12_RESOURCE_DESC& desc,
-    D3D12_RESOURCE_STATES init_state,
-    const std::optional<D3D12_CLEAR_VALUE>& clear_value,
+    const D3D12_RESOURCE_DESC1& desc,
+    D3D12_BARRIER_LAYOUT initial_layout,
+    const std::optional<D3D12_CLEAR_VALUE>& optimized_clear_value,
     std::string_view name
-) const -> ComPtr<ID3D12Resource> {
-    ComPtr<ID3D12Resource> result;
-    const D3D12_CLEAR_VALUE* clear_value_ptr = nullptr;
-    if (clear_value) {
-        clear_value_ptr = &clear_value.value();
+) const -> ComPtr<ID3D12Resource2> {
+    ComPtr<ID3D12Resource2> result;
+
+    const D3D12_CLEAR_VALUE* optimized_clear_value_ptr = nullptr;
+    if (optimized_clear_value) {
+        optimized_clear_value_ptr = &optimized_clear_value.value();
     }
+
     D3D12_HEAP_PROPERTIES heap_properties = {
         .Type = heap_type,
         .CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN,
@@ -350,14 +352,19 @@ auto GpuDevice::create_committed_resource(
         .CreationNodeMask = 1,
         .VisibleNodeMask = 1,
     };
-    FB_ASSERT_HR(_device->CreateCommittedResource(
+
+    FB_ASSERT_HR(_device->CreateCommittedResource3(
         &heap_properties,
         D3D12_HEAP_FLAG_NONE,
         &desc,
-        init_state,
-        clear_value_ptr,
+        initial_layout,
+        optimized_clear_value_ptr,
+        nullptr,
+        0,
+        nullptr,
         IID_PPV_ARGS(&result)
     ));
+
     dx_set_name(result, name);
     return result;
 }
@@ -414,16 +421,16 @@ auto GpuDevice::create_command_signature(
     return result;
 }
 
-auto GpuDevice::create_fence(uint64_t init_value, std::string_view name) const
+auto GpuDevice::create_fence(uint64_t initial_value, std::string_view name) const
     -> ComPtr<ID3D12Fence1> {
     ComPtr<ID3D12Fence1> result;
-    FB_ASSERT_HR(_device->CreateFence(init_value, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&result)));
+    FB_ASSERT_HR(_device->CreateFence(initial_value, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&result)));
     dx_set_name(result, name);
     return result;
 }
 
 auto GpuDevice::create_render_target_view(
-    const ComPtr<ID3D12Resource>& resource,
+    const ComPtr<ID3D12Resource2>& resource,
     const std::optional<D3D12_RENDER_TARGET_VIEW_DESC>& desc,
     D3D12_CPU_DESCRIPTOR_HANDLE descriptor
 ) const -> void {
@@ -435,7 +442,7 @@ auto GpuDevice::create_render_target_view(
 }
 
 auto GpuDevice::create_depth_stencil_view(
-    const ComPtr<ID3D12Resource>& resource,
+    const ComPtr<ID3D12Resource2>& resource,
     const std::optional<D3D12_DEPTH_STENCIL_VIEW_DESC>& desc,
     D3D12_CPU_DESCRIPTOR_HANDLE descriptor
 ) const -> void {
@@ -447,7 +454,7 @@ auto GpuDevice::create_depth_stencil_view(
 }
 
 auto GpuDevice::create_shader_resource_view(
-    const ComPtr<ID3D12Resource>& resource,
+    const ComPtr<ID3D12Resource2>& resource,
     const D3D12_SHADER_RESOURCE_VIEW_DESC& desc,
     D3D12_CPU_DESCRIPTOR_HANDLE descriptor
 ) const -> void {
@@ -455,8 +462,8 @@ auto GpuDevice::create_shader_resource_view(
 }
 
 auto GpuDevice::create_unordered_access_view(
-    const ComPtr<ID3D12Resource>& resource,
-    const std::optional<std::reference_wrapper<ComPtr<ID3D12Resource>>> counter,
+    const ComPtr<ID3D12Resource2>& resource,
+    const std::optional<std::reference_wrapper<ComPtr<ID3D12Resource2>>> counter,
     const D3D12_UNORDERED_ACCESS_VIEW_DESC& desc,
     D3D12_CPU_DESCRIPTOR_HANDLE descriptor
 ) -> void {
@@ -487,7 +494,7 @@ auto GpuDevice::descriptor_size(D3D12_DESCRIPTOR_HEAP_TYPE heap_type) const -> u
 }
 
 auto GpuDevice::get_copyable_footprints(
-    const D3D12_RESOURCE_DESC& desc,
+    const D3D12_RESOURCE_DESC1& desc,
     uint subresource_offset,
     uint subresource_count,
     D3D12_PLACED_SUBRESOURCE_FOOTPRINT* subresource_footprints,
@@ -495,7 +502,7 @@ auto GpuDevice::get_copyable_footprints(
     uint64_t* subresource_row_byte_counts,
     uint64_t* byte_count
 ) const -> void {
-    _device->GetCopyableFootprints(
+    _device->GetCopyableFootprints1(
         &desc,
         subresource_offset,
         subresource_count,

@@ -32,8 +32,9 @@ auto create(Demo& demo, const CreateDesc& desc) -> void {
         demo.pbr.irr.create_and_transfer_baked(
             device,
             irr,
-            D3D12_RESOURCE_STATE_COMMON,
-            D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
+            D3D12_BARRIER_SYNC_PIXEL_SHADING,
+            D3D12_BARRIER_ACCESS_SHADER_RESOURCE,
+            D3D12_BARRIER_LAYOUT_DIRECT_QUEUE_SHADER_RESOURCE,
             debug.with_name("Irradiance")
         );
     }

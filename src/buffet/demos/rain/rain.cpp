@@ -41,8 +41,8 @@ auto create(Demo& demo, const CreateDesc& desc) -> void {
         demo.particles.create_and_transfer(
             device,
             particles,
-            D3D12_RESOURCE_STATE_COMMON,
-            D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER,
+            D3D12_BARRIER_SYNC_ALL_SHADING,
+            D3D12_BARRIER_ACCESS_UNORDERED_ACCESS,
             debug.with_name("Particles")
         );
     }
@@ -154,8 +154,6 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
         });
         cmd.set_pipeline(demo.compute_pipeline);
         cmd.dispatch(DISPATCH_COUNT, 1, 1);
-        demo.particles.uav_barrier(cmd);
-        cmd.flush_barriers();
         cmd.end_pix();
     });
 
