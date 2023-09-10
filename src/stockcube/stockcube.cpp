@@ -33,6 +33,9 @@ auto stockcube_run(Stockcube& sc) -> void {
     // Console.
     attach_console();
 
+    // Main thread.
+    FB_ASSERT_HR(SetThreadDescription(GetCurrentThread(), L"Main Thread"));
+
     // Init.
     {
         DebugScope debug("Stockcube");

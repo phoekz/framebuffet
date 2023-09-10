@@ -28,6 +28,9 @@ auto buffet_run(Buffet& bf) -> void {
     // Console.
     attach_console();
 
+    // Main thread.
+    FB_ASSERT_HR(SetThreadDescription(GetCurrentThread(), L"Main Thread"));
+
     // Init.
     {
         auto timer = Instant();
