@@ -59,9 +59,21 @@ auto update(Demo& demo, const UpdateDesc& desc) -> void {{
 auto render(Demo& demo, const RenderDesc& desc) -> void {{
     auto& [cmd, device, frame_index] = desc;
     cmd.begin_pix("%s - Render", NAME.data());
-    cmd.set_graphics();
-    demo.render_targets.set(cmd);
-    demo.debug_draw.render(cmd);
+
+    cmd.compute_scope([&demo, frame_index](GpuComputeCommandList& cmd) {{
+        cmd.begin_pix("Compute");
+        cmd.end_pix();
+    }});
+
+    cmd.graphics_scope([&demo, frame_index](GpuGraphicsCommandList& cmd) {{
+        demo.render_targets.set(cmd);
+
+        demo.debug_draw.render(cmd);
+
+        cmd.begin_pix("Draw");
+        cmd.end_pix();
+    }});
+
     cmd.end_pix();
 }}
 
@@ -121,6 +133,7 @@ void todo_cs(FbComputeInput input) {{
 
 struct VertexOutput {{
     float4 position: SV_Position;
+    float2 texcoord: ATTRIBUTE0;
 }};
 
 VertexOutput todo_vs(FbVertexInput input) {{
@@ -128,6 +141,7 @@ VertexOutput todo_vs(FbVertexInput input) {{
 
     VertexOutput output;
     output.position = float4(0.0f, 0.0f, 0.0f, 1.0f);
+    output.texcoord = float2(0.0f, 0.0f);
     return output;
 }}
 
@@ -135,7 +149,7 @@ FbPixelOutput<1> todo_ps(VertexOutput input) {{
     ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
 
     FbPixelOutput<1> output;
-    output.color = float4(0.0f, 0.0f, 0.0f, 1.0f);
+    output.color = float4(input.texcoord, 0.0f, 1.0f);
     return output;
 }}
 
