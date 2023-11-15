@@ -6,8 +6,10 @@
 namespace fb::demos::text {
 
 inline constexpr std::string_view NAME = "Text"sv;
-inline constexpr float4 CLEAR_COLOR = {0.05f, 0.05f, 0.05f, 1.0f};
 inline constexpr DXGI_FORMAT COLOR_FORMAT = DXGI_FORMAT_R16G16B16A16_UNORM;
+inline constexpr float4 COLOR_CLEAR_VALUE = {0.05f, 0.05f, 0.05f, 1.0f};
+inline constexpr DXGI_FORMAT DEPTH_FORMAT = DXGI_FORMAT_D32_FLOAT;
+inline constexpr float DEPTH_CLEAR_VALUE = 1.0f;
 inline constexpr uint SAMPLE_COUNT = 4;
 
 inline constexpr uint MAX_GLYPH_COUNT = 1024;

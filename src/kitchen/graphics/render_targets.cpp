@@ -18,7 +18,8 @@ auto RenderTargets::create(GpuDevice& device, const RenderTargetsDesc& desc) -> 
     DebugScope debug("Render Targets");
 
     _size = desc.size;
-    _clear_color = desc.clear_color;
+    _color_clear_value = desc.color_clear_value;
+    _depth_clear_value = desc.depth_clear_value.value_or(1.0f);
     _sample_count = desc.sample_count;
 
     if (desc.sample_count > 1) {
@@ -29,7 +30,7 @@ auto RenderTargets::create(GpuDevice& device, const RenderTargetsDesc& desc) -> 
                 .width = desc.size.x,
                 .height = desc.size.y,
                 .sample_count = desc.sample_count,
-                .clear_value = make_color_clear_value(desc.color_format, _clear_color),
+                .clear_value = make_color_clear_value(desc.color_format, _color_clear_value),
             },
             debug.with_name("Multisampled Color")
         );
@@ -43,22 +44,29 @@ auto RenderTargets::create(GpuDevice& device, const RenderTargetsDesc& desc) -> 
             .height = desc.size.y,
             .mip_count = mip_count_from_size(desc.size),
             .sample_count = 1,
-            .clear_value = make_color_clear_value(desc.color_format, _clear_color),
+            .clear_value = make_color_clear_value(desc.color_format, _color_clear_value),
         },
         debug.with_name("Color")
     );
 
-    _depth.create(
-        device,
-        GpuTextureDesc {
-            .format = DEPTH_FORMAT,
-            .width = desc.size.x,
-            .height = desc.size.y,
-            .sample_count = desc.sample_count,
-            .clear_value = make_depth_stencil_clear_value(DEPTH_FORMAT, DEPTH_VALUE, 0),
-        },
-        debug.with_name("Depth")
-    );
+    if (desc.depth_format.has_value()) {
+        _has_depth = true;
+        _depth.create(
+            device,
+            GpuTextureDesc {
+                .format = desc.depth_format.value(),
+                .width = desc.size.x,
+                .height = desc.size.y,
+                .sample_count = desc.sample_count,
+                .clear_value = make_depth_stencil_clear_value(
+                    desc.depth_format.value(),
+                    _depth_clear_value,
+                    0
+                ),
+            },
+            debug.with_name("Depth")
+        );
+    }
 }
 
 auto RenderTargets::transition_to_render_target(GpuCommandList& cmd) -> void {
@@ -81,11 +89,14 @@ auto RenderTargets::transition_to_render_target(GpuCommandList& cmd) -> void {
 
 auto RenderTargets::clear(GpuCommandList& cmd) -> void {
     if (_sample_count > 1) {
-        cmd.clear_rtv(_multisampled_color.rtv_descriptor(), _clear_color);
+        cmd.clear_rtv(_multisampled_color.rtv_descriptor(), _color_clear_value);
     } else {
-        cmd.clear_rtv(_color.rtv_descriptor(), _clear_color);
+        cmd.clear_rtv(_color.rtv_descriptor(), _color_clear_value);
     }
-    cmd.clear_dsv(_depth.dsv_descriptor(), DEPTH_VALUE);
+
+    if (_has_depth) {
+        cmd.clear_dsv(_depth.dsv_descriptor(), _depth_clear_value);
+    }
 }
 
 auto RenderTargets::transition_to_resolve(GpuCommandList& cmd) -> void {
@@ -128,11 +139,19 @@ auto RenderTargets::set(GpuGraphicsCommandList& cmd) -> void {
     cmd.set_viewport(0, 0, _size.x, _size.y);
     cmd.set_scissor(0, 0, _size.x, _size.y);
 
+    GpuDescriptor rtv;
     if (_sample_count > 1) {
-        cmd.set_rtv_dsv(_multisampled_color.rtv_descriptor(), _depth.dsv_descriptor());
+        rtv = _multisampled_color.rtv_descriptor();
     } else {
-        cmd.set_rtv_dsv(_color.rtv_descriptor(), _depth.dsv_descriptor());
+        rtv = _color.rtv_descriptor();
     }
+
+    Option<GpuDescriptor> dsv;
+    if (_has_depth) {
+        dsv = _depth.dsv_descriptor();
+    }
+
+    cmd.set_rtv_dsv(rtv, dsv);
 }
 
 } // namespace fb::graphics::render_targets

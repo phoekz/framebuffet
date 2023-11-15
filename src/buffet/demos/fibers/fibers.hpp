@@ -6,8 +6,10 @@
 namespace fb::demos::fibers {
 
 inline constexpr std::string_view NAME = "Fibers"sv;
-inline constexpr float4 CLEAR_COLOR = {0.0f, 0.0f, 0.0f, 1.0f};
 inline constexpr DXGI_FORMAT COLOR_FORMAT = DXGI_FORMAT_R16G16B16A16_FLOAT;
+inline constexpr float4 COLOR_CLEAR_VALUE = {0.0f, 0.0f, 0.0f, 1.0f};
+inline constexpr DXGI_FORMAT DEPTH_FORMAT = DXGI_FORMAT_D32_FLOAT;
+inline constexpr float DEPTH_CLEAR_VALUE = 1.0f;
 inline constexpr uint SAMPLE_COUNT = 1;
 
 enum class Heatmap : uint {

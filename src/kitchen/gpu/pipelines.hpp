@@ -92,19 +92,17 @@ public:
 
     GpuPipelineBuilder() = default;
 
-    // clang-format off
-    [[nodiscard]] auto primitive_topology(D3D12_PRIMITIVE_TOPOLOGY_TYPE topology) -> GpuPipelineBuilder&;
-    [[nodiscard]] auto vertex_shader(std::span<const std::byte> dxil) -> GpuPipelineBuilder&;
-    [[nodiscard]] auto pixel_shader(std::span<const std::byte> dxil) -> GpuPipelineBuilder&;
-    [[nodiscard]] auto compute_shader(std::span<const std::byte> dxil) -> GpuPipelineBuilder&;
-    [[nodiscard]] auto blend(GpuBlendDesc desc) -> GpuPipelineBuilder&;
-    [[nodiscard]] auto depth_stencil(GpuDepthStencilDesc desc) -> GpuPipelineBuilder&;
-    [[nodiscard]] auto rasterizer(GpuRasterizerDesc desc) -> GpuPipelineBuilder&;
-    [[nodiscard]] auto render_target_formats(std::initializer_list<DXGI_FORMAT> formats) -> GpuPipelineBuilder&;
-    [[nodiscard]] auto depth_stencil_format(DXGI_FORMAT format) -> GpuPipelineBuilder&;
-    [[nodiscard]] auto sample_desc(DXGI_SAMPLE_DESC desc) -> GpuPipelineBuilder&;
+    auto primitive_topology(D3D12_PRIMITIVE_TOPOLOGY_TYPE topology) -> GpuPipelineBuilder&;
+    auto vertex_shader(std::span<const std::byte> dxil) -> GpuPipelineBuilder&;
+    auto pixel_shader(std::span<const std::byte> dxil) -> GpuPipelineBuilder&;
+    auto compute_shader(std::span<const std::byte> dxil) -> GpuPipelineBuilder&;
+    auto blend(GpuBlendDesc desc) -> GpuPipelineBuilder&;
+    auto depth_stencil(GpuDepthStencilDesc desc) -> GpuPipelineBuilder&;
+    auto rasterizer(GpuRasterizerDesc desc) -> GpuPipelineBuilder&;
+    auto render_target_formats(std::initializer_list<DXGI_FORMAT> formats) -> GpuPipelineBuilder&;
+    auto depth_stencil_format(Option<DXGI_FORMAT> format) -> GpuPipelineBuilder&;
+    auto sample_desc(DXGI_SAMPLE_DESC desc) -> GpuPipelineBuilder&;
     auto build(GpuDevice& device, GpuPipeline& pipeline, std::string_view name) -> void;
-    // clang-format on
 
 private:
     static_assert(8 * sizeof(uint) >= D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_MAX_VALID);

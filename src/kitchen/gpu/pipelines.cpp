@@ -92,10 +92,14 @@ auto GpuPipelineBuilder::render_target_formats(std::initializer_list<DXGI_FORMAT
     return *this;
 }
 
-auto GpuPipelineBuilder::depth_stencil_format(DXGI_FORMAT format) -> GpuPipelineBuilder& {
+auto GpuPipelineBuilder::depth_stencil_format(Option<DXGI_FORMAT> format) -> GpuPipelineBuilder& {
+    if (!format.has_value()) {
+        return *this;
+    }
     static constexpr uint BIT = (1 << D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_DEPTH_STENCIL_FORMAT);
     FB_ASSERT((_subobject_mask & BIT) == 0);
-    new (_buffer + _buffet_offset) CD3DX12_PIPELINE_STATE_STREAM_DEPTH_STENCIL_FORMAT(format);
+    new (_buffer + _buffet_offset)
+        CD3DX12_PIPELINE_STATE_STREAM_DEPTH_STENCIL_FORMAT(format.value());
     _buffet_offset += sizeof(CD3DX12_PIPELINE_STATE_STREAM_DEPTH_STENCIL_FORMAT);
     _subobject_mask |= BIT;
     return *this;

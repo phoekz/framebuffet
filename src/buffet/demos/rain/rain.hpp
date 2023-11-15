@@ -6,8 +6,10 @@
 namespace fb::demos::rain {
 
 inline constexpr std::string_view NAME = "Rain"sv;
-inline constexpr float4 CLEAR_COLOR = {0.025f, 0.025f, 0.025f, 1.0f};
 inline constexpr DXGI_FORMAT COLOR_FORMAT = DXGI_FORMAT_R8G8B8A8_UNORM;
+inline constexpr float4 COLOR_CLEAR_VALUE = {0.025f, 0.025f, 0.025f, 1.0f};
+inline constexpr DXGI_FORMAT DEPTH_FORMAT = DXGI_FORMAT_D32_FLOAT;
+inline constexpr float DEPTH_CLEAR_VALUE = 1.0f;
 inline constexpr uint SAMPLE_COUNT = 1;
 
 inline constexpr uint PARTICLE_COUNT = 4 * 1024;

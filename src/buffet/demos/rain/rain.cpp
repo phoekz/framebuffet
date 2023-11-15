@@ -17,7 +17,9 @@ auto create(Demo& demo, const CreateDesc& desc) -> void {
         {
             .size = device.swapchain().size(),
             .color_format = COLOR_FORMAT,
-            .clear_color = CLEAR_COLOR,
+            .color_clear_value = COLOR_CLEAR_VALUE,
+            .depth_format = DEPTH_FORMAT,
+            .depth_clear_value = DEPTH_CLEAR_VALUE,
             .sample_count = SAMPLE_COUNT,
         }
     );

@@ -2,13 +2,7 @@ import os
 
 base_dir = "src/buffet/demos"
 demos = [
-    # ("text", "Text"),
-    # ("crate", "Crate"),
-    # ("env", "Env"),
-    # ("fibers", "Fibers"),
-    # ("rain", "Rain"),
-    # ("tree", "Tree"),
-    # ("cards", "Cards"),
+    ("saber", "Saber"),
 ]
 files = {
     "cpp": """#include "{lower_name}.hpp"
@@ -31,7 +25,9 @@ auto create(Demo& demo, const CreateDesc& desc) -> void {{
         {{
             .size = device.swapchain().size(),
             .color_format = COLOR_FORMAT,
-            .clear_color = CLEAR_COLOR,
+            .color_clear_value = COLOR_CLEAR_VALUE,
+            .depth_format = DEPTH_FORMAT,
+            .depth_clear_value = DEPTH_CLEAR_VALUE,
             .sample_count = SAMPLE_COUNT,
         }}
     );
@@ -88,8 +84,10 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {{
 namespace fb::demos::{lower_name} {{
 
 inline constexpr std::string_view NAME = "{upper_name}"sv;
-inline constexpr float4 CLEAR_COLOR = {{0.0f, 0.0f, 0.0f, 1.0f}};
 inline constexpr DXGI_FORMAT COLOR_FORMAT = DXGI_FORMAT_R8G8B8A8_UNORM;
+inline constexpr float4 COLOR_CLEAR_VALUE = {{0.0f, 0.0f, 0.0f, 1.0f}};
+inline constexpr DXGI_FORMAT DEPTH_FORMAT = DXGI_FORMAT_D32_FLOAT;
+inline constexpr float DEPTH_CLEAR_VALUE = 1.0f;
 inline constexpr uint SAMPLE_COUNT = 1;
 
 struct Parameters {{
