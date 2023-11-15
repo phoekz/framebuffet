@@ -70,10 +70,10 @@ target_compile_definitions(
     ${NAME}
     PUBLIC
     FB_PIX_GPU_CAPTURER_NAME="WinPixGpuCapturer.dll"
-    FB_PIX_GPU_CAPTURER_DLL_PATH="C:/Program Files/Microsoft PIX/2308.30/WinPixGpuCapturer.dll"
+    FB_PIX_GPU_CAPTURER_DLL_PATH="C:/Program Files/Microsoft PIX/2310.30/WinPixGpuCapturer.dll"
     FB_PIX_GPU_CAPTURE_FILE_NAME=L"framebuffet_gpu.wpix"
     FB_PIX_TIMING_CAPTURER_NAME="WinPixTimingCapturer.dll"
-    FB_PIX_TIMING_CAPTURER_DLL_PATH="C:/Program Files/Microsoft PIX/2308.30/WinPixTimingCapturer.dll"
+    FB_PIX_TIMING_CAPTURER_DLL_PATH="C:/Program Files/Microsoft PIX/2310.30/WinPixTimingCapturer.dll"
     FB_PIX_TIMING_CAPTURE_FILE_NAME=L"framebuffet_timing.wpix"
 )
 
