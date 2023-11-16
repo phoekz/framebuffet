@@ -10,7 +10,9 @@ auto create(Techniques& techs, const CreateDesc& desc) -> void {
         {
             .size = desc.device.swapchain().size(),
             .color_format = DXGI_FORMAT_R16G16B16A16_FLOAT,
-            .clear_color = {0.3f, 0.6f, 0.0f, 1.0f},
+            .color_clear_value = {0.3f, 0.6f, 0.0f, 1.0f},
+            .depth_format = DXGI_FORMAT_D32_FLOAT,
+            .depth_clear_value = 1.0f,
             .sample_count = 4,
         }
     );
