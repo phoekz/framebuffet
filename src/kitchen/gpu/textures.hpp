@@ -337,11 +337,18 @@ public:
         }
         if constexpr (gpu_texture_flags_contains(FLAGS, Rtv)) {
             _rtv_descriptor = device.descriptors().rtv().alloc();
+            const auto type_level = dxgi_format_type_level(desc.format);
             auto maybe_desc = Option<D3D12_RENDER_TARGET_VIEW_DESC>(std::nullopt);
-            if (dxgi_format_type_level(desc.format) == D3DFTL_PARTIAL_TYPE) {
+            if (type_level == D3DFTL_FULL_TYPE || type_level == D3DFTL_PARTIAL_TYPE) {
+                D3D12_RTV_DIMENSION view_dimension;
+                if (desc.sample_count > 1) {
+                    view_dimension = D3D12_RTV_DIMENSION_TEXTURE2DMS;
+                } else {
+                    view_dimension = D3D12_RTV_DIMENSION_TEXTURE2D;
+                }
                 maybe_desc = D3D12_RENDER_TARGET_VIEW_DESC {
                     .Format = _rtv_format,
-                    .ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D,
+                    .ViewDimension = view_dimension,
                     .Texture2D = D3D12_TEX2D_RTV {.MipSlice = 0, .PlaneSlice = 0},
                 };
             }
@@ -349,11 +356,18 @@ public:
         }
         if constexpr (gpu_texture_flags_contains(FLAGS, Dsv)) {
             _dsv_descriptor = device.descriptors().dsv().alloc();
+            const auto type_level = dxgi_format_type_level(desc.format);
             auto maybe_desc = Option<D3D12_DEPTH_STENCIL_VIEW_DESC>(std::nullopt);
-            if (dxgi_format_type_level(desc.format) == D3DFTL_PARTIAL_TYPE) {
+            if (type_level == D3DFTL_FULL_TYPE || type_level == D3DFTL_PARTIAL_TYPE) {
+                D3D12_DSV_DIMENSION view_dimension;
+                if (desc.sample_count > 1) {
+                    view_dimension = D3D12_DSV_DIMENSION_TEXTURE2DMS;
+                } else {
+                    view_dimension = D3D12_DSV_DIMENSION_TEXTURE2D;
+                }
                 maybe_desc = D3D12_DEPTH_STENCIL_VIEW_DESC {
                     .Format = _dsv_format,
-                    .ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D,
+                    .ViewDimension = view_dimension,
                     .Flags = D3D12_DSV_FLAG_NONE,
                     .Texture2D = D3D12_TEX2D_DSV {.MipSlice = 0},
                 };
