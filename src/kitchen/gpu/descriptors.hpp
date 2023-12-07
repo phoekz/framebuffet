@@ -54,7 +54,7 @@ class GpuDescriptors {
 public:
     static constexpr uint MAX_CBV_SRV_UAV_DESCRIPTOR = 256;
     static constexpr uint MAX_SAMPLER_DESCRIPTOR = 16;
-    static constexpr uint MAX_RTV_DESCRIPTOR = 16;
+    static constexpr uint MAX_RTV_DESCRIPTOR = 32;
     static constexpr uint MAX_DSV_DESCRIPTOR = 16;
 
     GpuDescriptors() = default;
