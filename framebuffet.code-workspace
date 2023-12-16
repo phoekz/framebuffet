@@ -106,11 +106,13 @@
 			"csignal": "cpp",
 			"valarray": "cpp"
 		},
+		"C_Cpp.clang_format_path": "${workspaceRoot}/external/clang-format.exe",
 		"C_Cpp.inlayHints.autoDeclarationTypes.enabled": true,
 		"C_Cpp.inlayHints.parameterNames.enabled": true,
 		"C_Cpp.inlayHints.referenceOperator.enabled": true,
-		"clang-format.executable": "c:/Users/truon/code/framebuffet/external/clang-format.exe",
+		"clang-format.executable": "${workspaceRoot}/external/clang-format.exe",
 		"cmake.configureOnOpen": true,
+		"cmake.options.statusBarVisibility": "compact",
 		"editor.fontLigatures": true,
 		"editor.formatOnSave": true,
 		"editor.minimap.enabled": false,
@@ -127,7 +129,9 @@
 			"ms-vscode.cpptools-extension-pack",
 			"ms-vscode.cpptools",
 			"vscode-icons-team.vscode-icons",
-			"mjohns.clang-format"
+			// Works with HLSL as well.
+			"mjohns.clang-format",
+			"jkjustjoshing.vscode-text-pastry"
 		]
 	}
 }
