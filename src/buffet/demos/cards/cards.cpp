@@ -162,22 +162,35 @@ auto create(Demo& demo, const CreateDesc& desc) -> void {
 auto gui(Demo& demo, const GuiDesc& desc) -> void {
     PIXScopedEvent(PIX_COLOR_DEFAULT, "%s - Gui", NAME.data());
     auto& params = demo.parameters;
-    auto cards = demo.cards.buffer(desc.frame_index).span();
+
     if (ImGui::Button("Grid")) {
-        layout_grid(cards, desc.window_size, CARD_GRID_COLUMNS);
+        for (uint i = 0; i < FRAME_COUNT; i++) {
+            auto cards = demo.cards.buffer(i).span();
+            layout_grid(cards, desc.window_size, CARD_GRID_COLUMNS);
+        }
     }
     ImGui::SameLine();
     if (ImGui::Button("HMosaic")) {
-        layout_hmosaic(cards, desc.window_size);
+        for (uint i = 0; i < FRAME_COUNT; i++) {
+            auto cards = demo.cards.buffer(i).span();
+            layout_hmosaic(cards, desc.window_size);
+        }
     }
     ImGui::SameLine();
     if (ImGui::Button("VMosaic")) {
-        layout_vmosaic(cards, desc.window_size);
+        for (uint i = 0; i < FRAME_COUNT; i++) {
+            auto cards = demo.cards.buffer(i).span();
+            layout_vmosaic(cards, desc.window_size);
+        }
     }
     ImGui::SameLine();
     if (ImGui::Button("Exclusive")) {
-        layout_exclusive(cards, desc.window_size);
+        for (uint i = 0; i < FRAME_COUNT; i++) {
+            auto cards = demo.cards.buffer(i).span();
+            layout_exclusive(cards, desc.window_size);
+        }
     }
+
     if (ImGui::Button("Rotate Left")) {
         std::rotate(
             params.card_indirect_indices.begin(),
