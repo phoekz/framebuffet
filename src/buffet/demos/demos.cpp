@@ -8,6 +8,7 @@ auto create(Demos& demos, const CreateDesc& desc) -> void {
     env::create(demos.env, {.baked = desc.baked, .device = desc.device});
     fibers::create(demos.fibers, {.baked = desc.baked, .device = desc.device});
     rain::create(demos.rain, {.baked = desc.baked, .device = desc.device});
+    saber::create(demos.saber, {.baked = desc.baked, .device = desc.device});
     text::create(demos.text, {.baked = desc.baked, .device = desc.device});
     tree::create(demos.tree, {.baked = desc.baked, .device = desc.device});
     cards::create(
@@ -21,6 +22,7 @@ auto create(Demos& demos, const CreateDesc& desc) -> void {
                 std::cref(demos.env.render_targets),
                 std::cref(demos.fibers.render_targets),
                 std::cref(demos.rain.render_targets),
+                std::cref(demos.saber.blit.render_targets),
                 std::cref(demos.tree.render_targets),
                 std::cref(demos.text.render_targets),
             }),
@@ -48,6 +50,7 @@ auto gui(Demos& demos, const GuiDesc& desc) -> void {
     gui_wrapper(env);
     gui_wrapper(fibers);
     gui_wrapper(rain);
+    gui_wrapper(saber);
     gui_wrapper(text);
     gui_wrapper(tree);
 
@@ -60,6 +63,7 @@ auto update(Demos& demos, const UpdateDesc& desc) -> void {
     env::update(demos.env, desc);
     fibers::update(demos.fibers, desc);
     rain::update(demos.rain, desc);
+    saber::update(demos.saber, desc);
     text::update(demos.text, desc);
     tree::update(demos.tree, desc);
     cards::update(demos.cards, desc);
@@ -93,6 +97,7 @@ auto render_demos(Demos& demos, const RenderDesc& desc) -> void {
     env::render(demos.env, desc);
     fibers::render(demos.fibers, desc);
     rain::render(demos.rain, desc);
+    saber::render(demos.saber, desc);
     text::render(demos.text, desc);
     tree::render(demos.tree, desc);
 }
@@ -126,6 +131,7 @@ auto transition_to_shader_resource(Demos& demos, const RenderDesc& desc) -> void
     demos.env.render_targets.transition_to_shader_resource(cmd);
     demos.fibers.render_targets.transition_to_shader_resource(cmd);
     demos.rain.render_targets.transition_to_shader_resource(cmd);
+    demos.saber.blit.render_targets.transition_to_shader_resource(cmd);
     demos.text.render_targets.transition_to_shader_resource(cmd);
     demos.tree.render_targets.transition_to_shader_resource(cmd);
 }

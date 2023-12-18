@@ -24,12 +24,14 @@ static auto BUFFET_ASSET_TASKS = std::to_array<AssetTask>({
         "heatmap_magma",
         "heatmaps/magma.png",
         GLTF_BASE_COLOR_TEXTURE_FORMAT,
-        AssetColorSpace::Srgb},
+        AssetColorSpace::Srgb,
+    },
     AssetTaskTexture {
         "heatmap_viridis",
         "heatmaps/viridis.png",
         GLTF_BASE_COLOR_TEXTURE_FORMAT,
-        AssetColorSpace::Srgb},
+        AssetColorSpace::Srgb,
+    },
     AssetTaskGltf {"sci_fi_case", "models/sci_fi_case.glb"},
     AssetTaskGltf {"metal_plane", "models/metal_plane.glb"},
     AssetTaskGltf {"coconut_tree", "models/coconut_tree.glb"},
@@ -41,36 +43,44 @@ static auto BUFFET_ASSET_TASKS = std::to_array<AssetTask>({
     AssetTaskStockcubeOutput {
         "winter_evening_lut",
         "intermediate/stockcube/winter_evening_lut.bin",
-        "intermediate/stockcube/winter_evening_lut.json"},
+        "intermediate/stockcube/winter_evening_lut.json",
+    },
     AssetTaskStockcubeOutput {
         "winter_evening_irr",
         "intermediate/stockcube/winter_evening_irr.bin",
-        "intermediate/stockcube/winter_evening_irr.json"},
+        "intermediate/stockcube/winter_evening_irr.json",
+    },
     AssetTaskStockcubeOutput {
         "winter_evening_rad",
         "intermediate/stockcube/winter_evening_rad.bin",
-        "intermediate/stockcube/winter_evening_rad.json"},
+        "intermediate/stockcube/winter_evening_rad.json",
+    },
     AssetTaskStockcubeOutput {
         "shanghai_bund_lut",
         "intermediate/stockcube/shanghai_bund_lut.bin",
-        "intermediate/stockcube/shanghai_bund_lut.json"},
+        "intermediate/stockcube/shanghai_bund_lut.json",
+    },
     AssetTaskStockcubeOutput {
         "shanghai_bund_irr",
         "intermediate/stockcube/shanghai_bund_irr.bin",
-        "intermediate/stockcube/shanghai_bund_irr.json"},
+        "intermediate/stockcube/shanghai_bund_irr.json",
+    },
     AssetTaskStockcubeOutput {
         "shanghai_bund_rad",
         "intermediate/stockcube/shanghai_bund_rad.bin",
-        "intermediate/stockcube/shanghai_bund_rad.json"},
+        "intermediate/stockcube/shanghai_bund_rad.json",
+    },
     AssetTaskStockcubeOutput {
         "industrial_sunset_02_puresky_irr",
         "intermediate/stockcube/industrial_sunset_02_puresky_irr.bin",
-        "intermediate/stockcube/industrial_sunset_02_puresky_irr.json"},
+        "intermediate/stockcube/industrial_sunset_02_puresky_irr.json",
+    },
     AssetTaskTtf {
         "roboto_medium",
         "fonts/Roboto-Medium.ttf",
         1.0f / 8.0f,
     },
+    AssetTaskGltf {"lightsaber", "models/lightsaber.glb"},
 });
 
 static auto BUFFET_SHADER_TASKS = std::to_array<ShaderTask>({
@@ -112,6 +122,19 @@ static auto BUFFET_SHADER_TASKS = std::to_array<ShaderTask>({
             "background_ps",
             "glyph_vs",
             "glyph_ps",
+        },
+    },
+    {
+        "buffet/demos/saber/saber.hlsl",
+        "saber",
+        {
+            "scene_vs",
+            "scene_ps",
+            "threshold_cs",
+            "downsample_cs",
+            "upsample_cs",
+            "blit_vs",
+            "blit_ps",
         },
     },
 });

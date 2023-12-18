@@ -37,6 +37,8 @@ public:
     auto industrial_sunset_02_puresky_irr() const -> CubeTexture;
     auto roboto_medium_font() const -> Font;
     auto roboto_medium_mesh_array() const -> MeshArray;
+    auto lightsaber_mesh() const -> Mesh;
+    auto lightsaber_base_color_texture() const -> Texture;
 
 private:
     template<typename T>
@@ -80,6 +82,13 @@ public:
     auto text_background_ps() const -> std::span<const std::byte>;
     auto text_glyph_vs() const -> std::span<const std::byte>;
     auto text_glyph_ps() const -> std::span<const std::byte>;
+    auto saber_scene_vs() const -> std::span<const std::byte>;
+    auto saber_scene_ps() const -> std::span<const std::byte>;
+    auto saber_threshold_cs() const -> std::span<const std::byte>;
+    auto saber_downsample_cs() const -> std::span<const std::byte>;
+    auto saber_upsample_cs() const -> std::span<const std::byte>;
+    auto saber_blit_vs() const -> std::span<const std::byte>;
+    auto saber_blit_ps() const -> std::span<const std::byte>;
 
 private:
     std::vector<std::byte> _data;
