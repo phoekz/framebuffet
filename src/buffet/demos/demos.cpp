@@ -76,6 +76,7 @@ auto transition_to_render_target(Demos& demos, const RenderDesc& desc) -> void {
     demos.env.render_targets.transition_to_render_target(cmd);
     demos.fibers.render_targets.transition_to_render_target(cmd);
     demos.rain.render_targets.transition_to_render_target(cmd);
+    demos.saber.scene.render_targets.transition_to_render_target(cmd);
     demos.text.render_targets.transition_to_render_target(cmd);
     demos.tree.render_targets.transition_to_render_target(cmd);
 }
@@ -87,6 +88,7 @@ auto clear_render_targets(Demos& demos, const RenderDesc& desc) -> void {
     demos.env.render_targets.clear(cmd);
     demos.fibers.render_targets.clear(cmd);
     demos.rain.render_targets.clear(cmd);
+    demos.saber.scene.render_targets.clear(cmd);
     demos.text.render_targets.clear(cmd);
     demos.tree.render_targets.clear(cmd);
 }

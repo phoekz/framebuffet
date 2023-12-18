@@ -174,10 +174,6 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
 
         cmd.begin_pix("Scene");
 
-        scene.render_targets.transition_to_render_target(cmd);
-        cmd.flush_barriers();
-        scene.render_targets.clear(cmd);
-
         scene.render_targets.set(cmd);
         scene.debug_draw.render(cmd);
         cmd.set_pipeline(scene.pipeline);
