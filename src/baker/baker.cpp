@@ -145,7 +145,8 @@ static auto STOCKCUBE_ASSET_TASKS = std::to_array<AssetTask>({
     AssetTaskHdrTexture {"shanghai_bund", "envmaps/shanghai_bund_2k.exr"},
     AssetTaskHdrTexture {
         "industrial_sunset_02_puresky",
-        "envmaps/industrial_sunset_02_puresky_2k.exr"},
+        "envmaps/industrial_sunset_02_puresky_2k.exr"
+    },
     AssetTaskProceduralCube {"skybox", 2.0f, true},
     AssetTaskProceduralSphere {"sphere", 1.0f, 32, false},
 });

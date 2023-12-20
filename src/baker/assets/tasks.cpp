@@ -435,8 +435,8 @@ auto bake_assets(std::string_view assets_dir, std::span<const AssetTask> asset_t
                     FB_ASSERT(mip_count <= MAX_MIP_COUNT);
 
                     if (depth == 6) {
-                        std::array<std::array<AssetTextureData, MAX_MIP_COUNT>, 6> texture_datas =
-                            {};
+                        std::array<std::array<AssetTextureData, MAX_MIP_COUNT>, 6> texture_datas = {
+                        };
                         uint64_t offset = 0;
                         for (uint slice = 0; slice < depth; slice++) {
                             auto& slice_datas = texture_datas[slice];
@@ -597,7 +597,8 @@ auto bake_assets(std::string_view assets_dir, std::span<const AssetTask> asset_t
 
                     // Cleanup.
                     ttf_free(ttf);
-                }},
+                }
+            },
             asset_task
         );
     }

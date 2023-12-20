@@ -59,7 +59,7 @@ auto render(Demo& demo, const RenderDesc& desc) -> void;
 
 template<Archive A>
 auto archive(Demo& demo, A& arc) -> void {
-    arc& demo.parameters;
+    arc & demo.parameters;
 }
 
 } // namespace fb::demos::crate

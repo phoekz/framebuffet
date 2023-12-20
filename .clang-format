@@ -7,7 +7,8 @@ AlignConsecutiveAssignments: false
 AlignConsecutiveBitFields: false
 AlignConsecutiveDeclarations: false
 AlignConsecutiveMacros: false
-# AlignConsecutiveShortCaseStatements: false @ v17
+AlignConsecutiveShortCaseStatements:
+  Enabled: false
 AlignEscapedNewlines: Left
 AlignOperands: DontAlign
 AlignTrailingComments:
@@ -29,7 +30,7 @@ BinPackArguments: false
 BinPackParameters: false
 BitFieldColonSpacing: Both
 # BraceWrapping @ ignored
-# BracedInitializerIndentWidth @ v17
+# BracedInitializerIndentWidth @ ignored
 BreakAfterAttributes: Leave
 BreakBeforeBinaryOperators: NonAssignment
 BreakBeforeBraces: Attach
@@ -84,7 +85,7 @@ IntegerLiteralSeparator:
   Binary: 0
   Decimal: 0
   Hex: 0
-# KeepEmptyLinesAtEOF: 1 @ v17
+KeepEmptyLinesAtEOF: false
 KeepEmptyLinesAtTheStartOfBlocks: false
 LambdaBodyIndentation: Signature
 MaxEmptyLinesToKeep: 1
@@ -95,7 +96,7 @@ QualifierAlignment: Left
 # QualifierOrder: ['constexpr', 'const', 'static', 'inline', 'volatile', 'restrict', 'friend', 'type'] @ no available?
 ReferenceAlignment: Left
 ReflowComments: false
-# RemoveParentheses: Return # v17
+RemoveParentheses: ReturnStatement
 RemoveSemicolon: true
 RequiresClausePosition: OwnLine
 RequiresExpressionIndentation: OuterScope

@@ -82,7 +82,8 @@ auto Window::create(const Desc& desc) -> void {
         .hbrBackground = background_brush,
         .lpszMenuName = nullptr,
         .lpszClassName = desc.title.data(),
-        .hIconSm = window_class.hIcon};
+        .hIconSm = window_class.hIcon
+    };
     RegisterClassExA(&window_class);
 
     // Adjust window size such that the client area is the requested size.
