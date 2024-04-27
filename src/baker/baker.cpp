@@ -81,6 +81,7 @@ static auto BUFFET_ASSET_TASKS = std::to_array<AssetTask>({
         1.0f / 8.0f,
     },
     AssetTaskGltf {"lightsaber", "models/lightsaber.glb"},
+    AssetTaskGltf {"grass", "models/grass3.glb"},
 });
 
 static auto BUFFET_SHADER_TASKS = std::to_array<ShaderTask>({
@@ -135,6 +136,15 @@ static auto BUFFET_SHADER_TASKS = std::to_array<ShaderTask>({
             "upsample_cs",
             "blit_vs",
             "blit_ps",
+        },
+    },
+    {
+        "buffet/demos/grass/grass.hlsl",
+        "grass",
+        {
+            "draw_vs",
+            "draw_naive_ps",
+            "draw_atoc_ps",
         },
     },
 });

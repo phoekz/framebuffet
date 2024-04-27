@@ -8,9 +8,9 @@ namespace fb::baked::buffet {
     }
 
 Assets::Assets() {
-    // hash: 2333b2fc350909aac18c3cb659917e52
+    // hash: ece6636e3fa7730fe36874b3ac58c95a
     _data = read_whole_file("fb_buffet_assets.bin");
-    FB_ASSERT(_data.size() == 176293092);
+    FB_ASSERT(_data.size() == 182309240);
 }
 
 auto Assets::heatmap_magma_texture() const -> Texture {
@@ -140,6 +140,13 @@ auto Assets::sci_fi_case_metallic_roughness_texture() const -> Texture {
     };
 }
 
+auto Assets::sci_fi_case_material() const -> Material {
+    return Material {
+        .alpha_cutoff = 0.5f,
+        .alpha_mode = AlphaMode::Opaque,
+    };
+}
+
 auto Assets::metal_plane_mesh() const -> Mesh {
     // vertex_count: 4
     // face_count: 2
@@ -223,6 +230,13 @@ auto Assets::metal_plane_metallic_roughness_texture() const -> Texture {
     };
 }
 
+auto Assets::metal_plane_material() const -> Material {
+    return Material {
+        .alpha_cutoff = 0.5f,
+        .alpha_mode = AlphaMode::Opaque,
+    };
+}
+
 auto Assets::coconut_tree_mesh() const -> Mesh {
     // vertex_count: 725
     // face_count: 678
@@ -257,6 +271,13 @@ auto Assets::coconut_tree_base_color_texture() const -> Texture {
     };
 }
 
+auto Assets::coconut_tree_material() const -> Material {
+    return Material {
+        .alpha_cutoff = 0.5f,
+        .alpha_mode = AlphaMode::Opaque,
+    };
+}
+
 auto Assets::sand_plane_mesh() const -> Mesh {
     // vertex_count: 4
     // face_count: 2
@@ -285,6 +306,13 @@ auto Assets::sand_plane_base_color_texture() const -> Texture {
         .height = 64,
         .mip_count = 7,
         .datas = datas,
+    };
+}
+
+auto Assets::sand_plane_material() const -> Material {
+    return Material {
+        .alpha_cutoff = 0.5f,
+        .alpha_mode = AlphaMode::Opaque,
     };
 }
 
@@ -351,6 +379,13 @@ auto Assets::raccoon_metallic_roughness_texture() const -> Texture {
         .height = 4,
         .mip_count = 3,
         .datas = datas,
+    };
+}
+
+auto Assets::raccoon_material() const -> Material {
+    return Material {
+        .alpha_cutoff = 0.5f,
+        .alpha_mode = AlphaMode::Opaque,
     };
 }
 
@@ -679,10 +714,59 @@ auto Assets::lightsaber_base_color_texture() const -> Texture {
     };
 }
 
+auto Assets::lightsaber_material() const -> Material {
+    return Material {
+        .alpha_cutoff = 0.5f,
+        .alpha_mode = AlphaMode::Opaque,
+    };
+}
+
+auto Assets::grass_mesh() const -> Mesh {
+    // vertex_count: 7468
+    // face_count: 5440
+    return Mesh {
+        // hash: ce365e55889bb1a329b4528219fbcb39
+        .vertices = transmuted_span<Vertex>(176293092, 7468),
+        // hash: 5e0e33f101aa3ae1b7be6d552a126fe9
+        .indices = transmuted_span<Index>(176651556, 16320),
+    };
+}
+
+auto Assets::grass_base_color_texture() const -> Texture {
+    decltype(Texture::datas) datas = {};
+    // clang-format off
+    datas[ 0] = texture_data(4096, 4194304, 176716836, 4194304); // hash: 8ba5e6c4c962142b6323c9b718806667, width: 1024, height: 1024
+    datas[ 1] = texture_data(2048, 1048576, 180911140, 1048576); // hash: 0c4af8bfc34ab8ce51d7a8c9e42ece8d, width: 512, height: 512
+    datas[ 2] = texture_data(1024,  262144, 181959716,  262144); // hash: 4fdc69d0f67b28959ad81e578a779ca9, width: 256, height: 256
+    datas[ 3] = texture_data( 512,   65536, 182221860,   65536); // hash: 8dcd83e1988e64bd177306e51d923d80, width: 128, height: 128
+    datas[ 4] = texture_data( 256,   16384, 182287396,   16384); // hash: 22e5b84a9071fa7a3f21e904a9b32b52, width: 64, height: 64
+    datas[ 5] = texture_data( 128,    4096, 182303780,    4096); // hash: ca3308f6c7c5178403822ec22cf328dd, width: 32, height: 32
+    datas[ 6] = texture_data(  64,    1024, 182307876,    1024); // hash: 153e0c2aa0cbe691beb8e7407b4d52db, width: 16, height: 16
+    datas[ 7] = texture_data(  32,     256, 182308900,     256); // hash: b52d391bbabaf303be3a18a0f44e3ba6, width: 8, height: 8
+    datas[ 8] = texture_data(  16,      64, 182309156,      64); // hash: a44d4ba5c1df725dabef70679c78a94c, width: 4, height: 4
+    datas[ 9] = texture_data(   8,      16, 182309220,      16); // hash: e3cd0daafab292bf484f67daa63cfbef, width: 2, height: 2
+    datas[10] = texture_data(   4,       4, 182309236,       4); // hash: 2426906e3a0c17efd9b0748b57fe5f46, width: 1, height: 1
+    // clang-format on
+    return Texture {
+        .format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB,
+        .width = 1024,
+        .height = 1024,
+        .mip_count = 11,
+        .datas = datas,
+    };
+}
+
+auto Assets::grass_material() const -> Material {
+    return Material {
+        .alpha_cutoff = 0.6913036f,
+        .alpha_mode = AlphaMode::Mask,
+    };
+}
+
 Shaders::Shaders() {
-    // hash: 765b46b0feb90cee949150f1d74d7dc2
+    // hash: 62a8a87106c9f8474ce9aa1c267f6a59
     _data = read_whole_file("fb_buffet_shaders.bin");
-    FB_ASSERT(_data.size() == 178472);
+    FB_ASSERT(_data.size() == 192832);
 }
 
 // shader_hash: 5792fbf56668c072f9917d0d52e90c6d
@@ -1118,6 +1202,42 @@ auto Shaders::saber_blit_vs() const -> std::span<const std::byte> {
 // texture_normal_instructions: 2
 auto Shaders::saber_blit_ps() const -> std::span<const std::byte> {
     return std::span(_data).subspan(174192, 4280);
+}
+
+// shader_hash: a063c081c25e3baaad9d0d0cf0113820
+// constant_buffers: 1
+// bound_resources: 1
+// input_parameters: 2
+// output_parameters: 3
+// instruction_count: 67
+// float_instruction_count: 8
+// texture_load_instructions: 3
+auto Shaders::grass_draw_vs() const -> std::span<const std::byte> {
+    return std::span(_data).subspan(178472, 5012);
+}
+
+// shader_hash: 2edb22d8bc3f9006403086721e7798b3
+// constant_buffers: 1
+// bound_resources: 1
+// input_parameters: 3
+// output_parameters: 1
+// instruction_count: 28
+// float_instruction_count: 2
+// texture_normal_instructions: 1
+auto Shaders::grass_draw_naive_ps() const -> std::span<const std::byte> {
+    return std::span(_data).subspan(183484, 4604);
+}
+
+// shader_hash: 52a89a44580b6e2c33588dadfbe66d88
+// constant_buffers: 1
+// bound_resources: 1
+// input_parameters: 3
+// output_parameters: 1
+// instruction_count: 34
+// float_instruction_count: 7
+// texture_normal_instructions: 1
+auto Shaders::grass_draw_atoc_ps() const -> std::span<const std::byte> {
+    return std::span(_data).subspan(188088, 4744);
 }
 
 #undef texture_data

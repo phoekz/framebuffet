@@ -6,6 +6,7 @@
 #include "crate/crate.hpp"
 #include "env/env.hpp"
 #include "fibers/fibers.hpp"
+#include "grass/grass.hpp"
 #include "rain/rain.hpp"
 #include "saber/saber.hpp"
 #include "text/text.hpp"
@@ -21,6 +22,7 @@ struct Demos {
     crate::Demo crate;
     env::Demo env;
     fibers::Demo fibers;
+    grass::Demo grass;
     rain::Demo rain;
     saber::Demo saber;
     text::Demo text;
@@ -50,6 +52,7 @@ auto archive(Demos& demos, A& arc) -> void {
     crate::archive(demos.crate, arc);
     env::archive(demos.env, arc);
     fibers::archive(demos.fibers, arc);
+    grass::archive(demos.grass, arc);
     rain::archive(demos.rain, arc);
     saber::archive(demos.saber, arc);
     text::archive(demos.text, arc);

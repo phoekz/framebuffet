@@ -30,6 +30,11 @@ inline constexpr DXGI_FORMAT GLTF_BASE_COLOR_TEXTURE_FORMAT = DXGI_FORMAT_R8G8B8
 inline constexpr DXGI_FORMAT GLTF_NORMAL_TEXTURE_FORMAT = DXGI_FORMAT_R8G8B8A8_UNORM;
 inline constexpr DXGI_FORMAT GLTF_METALLIC_ROUGHNESS_TEXTURE_FORMAT = DXGI_FORMAT_R8G8B8A8_UNORM;
 
+enum class GltfAlphaMode : uint {
+    Opaque = 0,
+    Mask,
+};
+
 class GltfModel {
 public:
     GltfModel(std::string_view gltf_path);
@@ -55,6 +60,8 @@ public:
         }
         return _metallic_roughness_texture;
     }
+    auto alpha_cutoff() const -> float { return _alpha_cutoff; }
+    auto alpha_mode() const -> GltfAlphaMode { return _alpha_mode; }
 
     auto node_count() const -> uint { return (uint)_node_transforms.size(); }
     auto joint_count() const -> uint { return (uint)_joint_nodes.size(); }
@@ -87,6 +94,8 @@ private:
 
     float _metallic_factor = 1.0f;
     float _roughness_factor = 1.0f;
+    float _alpha_cutoff = 0.0f;
+    GltfAlphaMode _alpha_mode = GltfAlphaMode::Opaque;
 
     std::vector<uint> _joint_nodes;
     std::vector<float4x4> _joint_inverse_binds;

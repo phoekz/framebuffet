@@ -23,6 +23,9 @@ set(SOURCES
     demos/fibers/fibers.cpp
     demos/fibers/fibers.hlsli
     demos/fibers/fibers.hpp
+    demos/grass/grass.cpp
+    demos/grass/grass.hlsli
+    demos/grass/grass.hpp
     demos/rain/rain.cpp
     demos/rain/rain.hlsli
     demos/rain/rain.hpp

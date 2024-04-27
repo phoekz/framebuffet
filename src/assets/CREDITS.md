@@ -38,6 +38,10 @@ Authors: Sergej Majboroda, Jarod Guest
 
 "Low-poly Racoon Run Animation" (https://skfb.ly/6RG6Q) by avatrass is licensed under Creative Commons Attribution (http://creativecommons.org/licenses/by/4.0/).
 
+## `models/grass3.glb`
+
+"Realistics grass 03" (https://skfb.ly/oQCK8) by Digital screen official is licensed under Creative Commons Attribution (http://creativecommons.org/licenses/by/4.0/).
+
 ## `fonts/Roboto-Medium.ttf`
 
 "Roboto" (https://fonts.google.com/specimen/Roboto) by Christian Robertson is licensed under Apache License 2.0 (http://www.apache.org/licenses/LICENSE-2.0).

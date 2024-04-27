@@ -61,6 +61,7 @@ enum class GpuBlendOp {
 };
 
 struct GpuBlendDesc {
+    bool alpha_to_coverage_enable = false;
     bool blend_enable = false;
     GpuBlend rgb_blend_src = GpuBlend::One;
     GpuBlend rgb_blend_dst = GpuBlend::Zero;

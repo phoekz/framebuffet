@@ -269,6 +269,13 @@ auto GpuPipelineBuilder::build(GpuDevice& device, GpuPipeline& pipeline, std::st
             }
         };
 
+        // Override `AlphaToCoverageEnable`.
+        if (_blend_desc.alpha_to_coverage_enable) {
+            d3d12_desc.AlphaToCoverageEnable = TRUE;
+        } else {
+            d3d12_desc.AlphaToCoverageEnable = FALSE;
+        }
+
         // Override `BlendEnable`.
         if (_blend_desc.blend_enable) {
             d3d12_desc.RenderTarget[0].BlendEnable = TRUE;

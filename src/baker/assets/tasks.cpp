@@ -294,6 +294,15 @@ auto bake_assets(std::string_view assets_dir, std::span<const AssetTask> asset_t
                             AssetColorSpace::Linear
                         ));
                     }
+
+                    // Materials.
+                    {
+                        assets.push_back(AssetMaterial {
+                            .name = names.unique(std::format("{}_material", task.name)),
+                            .alpha_cutoff = model.alpha_cutoff(),
+                            .alpha_mode = (AssetAlphaMode)model.alpha_mode(),
+                        });
+                    }
                 },
                 [&](const AssetTaskProceduralCube& task) {
                     // Generate.

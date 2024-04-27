@@ -77,6 +77,16 @@ inline constexpr std::string_view BAKED_TYPES_HPP = R"(#pragma once
         std::array<std::array<TextureData, MAX_MIP_COUNT>, 6> datas;
     };
 
+    enum class AlphaMode : uint {
+        Opaque,
+        Mask,
+    };
+
+    struct Material {
+        float alpha_cutoff;
+        AlphaMode alpha_mode;
+    };
+
     struct AnimationChannel {
         size_t t_offset;
         size_t t_count;

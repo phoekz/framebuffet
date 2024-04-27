@@ -83,6 +83,18 @@ struct AssetCubeTexture {
     std::array<std::array<AssetTextureData, MAX_MIP_COUNT>, 6> datas;
 };
 
+enum class AssetAlphaMode : uint {
+    Opaque,
+    Mask,
+};
+
+struct AssetMaterial {
+    std::string name;
+
+    float alpha_cutoff;
+    AssetAlphaMode alpha_mode;
+};
+
 struct AssetAnimationMesh {
     std::string name;
 
@@ -129,6 +141,7 @@ using Asset = std::variant<
     AssetMeshArray,
     AssetTexture,
     AssetCubeTexture,
+    AssetMaterial,
     AssetAnimationMesh,
     AssetFont>;
 

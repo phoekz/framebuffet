@@ -142,6 +142,13 @@ GltfModel::GltfModel(std::string_view gltf_path) {
             };
         _metallic_roughness_texture = LdrImage::load(image_span).map(map_fn);
     }
+    switch (material.alpha_mode) {
+        case cgltf_alpha_mode_opaque: _alpha_mode = GltfAlphaMode::Opaque; break;
+        case cgltf_alpha_mode_mask: _alpha_mode = GltfAlphaMode::Mask; break;
+        case cgltf_alpha_mode_blend: FB_FATAL(); break;
+        default: FB_FATAL(); break;
+    }
+    _alpha_cutoff = material.alpha_cutoff;
 
     if (data->skins_count > 0) {
         // Get the mesh.

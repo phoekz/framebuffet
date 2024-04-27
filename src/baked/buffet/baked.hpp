@@ -14,17 +14,22 @@ public:
     auto sci_fi_case_base_color_texture() const -> Texture;
     auto sci_fi_case_normal_texture() const -> Texture;
     auto sci_fi_case_metallic_roughness_texture() const -> Texture;
+    auto sci_fi_case_material() const -> Material;
     auto metal_plane_mesh() const -> Mesh;
     auto metal_plane_base_color_texture() const -> Texture;
     auto metal_plane_normal_texture() const -> Texture;
     auto metal_plane_metallic_roughness_texture() const -> Texture;
+    auto metal_plane_material() const -> Material;
     auto coconut_tree_mesh() const -> Mesh;
     auto coconut_tree_base_color_texture() const -> Texture;
+    auto coconut_tree_material() const -> Material;
     auto sand_plane_mesh() const -> Mesh;
     auto sand_plane_base_color_texture() const -> Texture;
+    auto sand_plane_material() const -> Material;
     auto raccoon_animation_mesh() const -> AnimationMesh;
     auto raccoon_base_color_texture() const -> Texture;
     auto raccoon_metallic_roughness_texture() const -> Texture;
+    auto raccoon_material() const -> Material;
     auto light_bounds_mesh() const -> Mesh;
     auto skybox_mesh() const -> Mesh;
     auto sphere_mesh() const -> Mesh;
@@ -39,6 +44,10 @@ public:
     auto roboto_medium_mesh_array() const -> MeshArray;
     auto lightsaber_mesh() const -> Mesh;
     auto lightsaber_base_color_texture() const -> Texture;
+    auto lightsaber_material() const -> Material;
+    auto grass_mesh() const -> Mesh;
+    auto grass_base_color_texture() const -> Texture;
+    auto grass_material() const -> Material;
 
 private:
     template<typename T>
@@ -89,6 +98,9 @@ public:
     auto saber_upsample_cs() const -> std::span<const std::byte>;
     auto saber_blit_vs() const -> std::span<const std::byte>;
     auto saber_blit_ps() const -> std::span<const std::byte>;
+    auto grass_draw_vs() const -> std::span<const std::byte>;
+    auto grass_draw_naive_ps() const -> std::span<const std::byte>;
+    auto grass_draw_atoc_ps() const -> std::span<const std::byte>;
 
 private:
     std::vector<std::byte> _data;

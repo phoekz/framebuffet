@@ -235,6 +235,28 @@ auto bake_app_datas(
                         asset.mip_count
                     );
                 },
+                [&](const AssetMaterial& asset) {
+                    assets_decls << std::format("auto {}() const -> Material;", asset.name);
+
+                    std::string_view alpha_mode;
+                    switch (asset.alpha_mode) {
+                        case AssetAlphaMode::Opaque: alpha_mode = "AlphaMode::Opaque"sv; break;
+                        case AssetAlphaMode::Mask: alpha_mode = "AlphaMode::Mask"sv; break;
+                        default: FB_FATAL();
+                    }
+
+                    assets_defns << std::format(
+                        R"(auto Assets::{}() const -> Material {{
+                            return Material {{
+                                .alpha_cutoff = {}f,
+                                .alpha_mode = {},
+                            }};
+                        }})",
+                        asset.name,
+                        asset.alpha_cutoff,
+                        alpha_mode
+                    );
+                },
                 [&](const AssetAnimationMesh& asset) {
                     assets_decls << std::format("auto {}() const -> AnimationMesh;", asset.name);
                     assets_defns << std::format(
