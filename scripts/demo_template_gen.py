@@ -2,7 +2,7 @@ import os
 
 base_dir = "src/buffet/demos"
 demos = [
-    ("saber", "Saber"),
+    ("grass", "Grass"),
 ]
 files = {
     "cpp": """#include "{lower_name}.hpp"
@@ -35,6 +35,9 @@ auto create(Demo& demo, const CreateDesc& desc) -> void {{
     // Debug draw.
     demo.debug_draw.create(device, kitchen_shaders, demo.render_targets);
 
+    // Constants.
+    demo.constants.create(device, 1, debug.with_name("Constants"));
+
     (void)shaders;
     (void)assets;
 }}
@@ -42,14 +45,39 @@ auto create(Demo& demo, const CreateDesc& desc) -> void {{
 auto gui(Demo& demo, const GuiDesc&) -> void {{
     PIXScopedEvent(PIX_COLOR_DEFAULT, "%s - Gui", NAME.data());
     auto& params = demo.parameters;
-    (void)params;
+    ImGui::SliderFloat("Camera Distance", &params.camera_distance, 0.0f, 10.0f);
+    ImGui::SliderAngle("Camera FOV", &params.camera_fov, 0.0f, 90.0f);
+    ImGui::SliderAngle("Camera Latitude", &params.camera_latitude, -90.0f, 90.0f);
+    ImGui::SliderAngle("Camera Longitude", &params.camera_longitude, 0.0f, 360.0f);
+    ImGui::SliderFloat("Camera Rotation Speed", &params.camera_rotation_speed, 0.0f, 2.0f);
 }}
 
 auto update(Demo& demo, const UpdateDesc& desc) -> void {{
     PIXScopedEvent(PIX_COLOR_DEFAULT, "%s - Update", NAME.data());
     auto& params = demo.parameters;
-    (void)params;
-    (void)desc;
+
+    // Update camera.
+    params.camera_longitude += params.camera_rotation_speed * desc.delta_time;
+    if (params.camera_longitude > PI * 2.0f) {{
+        params.camera_longitude -= PI * 2.0f;
+    }}
+    const auto projection =
+        float4x4::CreatePerspectiveFieldOfView(params.camera_fov, desc.aspect_ratio, 0.1f, 100.0f);
+    const auto eye =
+        params.camera_distance * dir_from_lonlat(params.camera_longitude, params.camera_latitude);
+    const auto view = float4x4::CreateLookAt(eye, float3::Zero, float3::Up);
+    const auto camera_transform = view * projection;
+
+    // Update debug draw.
+    demo.debug_draw.begin(desc.frame_index);
+    demo.debug_draw.transform(camera_transform);
+    demo.debug_draw.axes();
+    demo.debug_draw.end();
+
+    // Update constants.
+    demo.constants.buffer(desc.frame_index).ref() = Constants {{
+        .transform = camera_transform,
+    }};
 }}
 
 auto render(Demo& demo, const RenderDesc& desc) -> void {{
@@ -75,8 +103,7 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {{
 
 }} // namespace fb::demos::{lower_name}
 """,
-
-"hpp": """#pragma once
+    "hpp": """#pragma once
 
 #include "../common.hpp"
 #include "{lower_name}.hlsli"
@@ -85,19 +112,24 @@ namespace fb::demos::{lower_name} {{
 
 inline constexpr std::string_view NAME = "{upper_name}"sv;
 inline constexpr DXGI_FORMAT COLOR_FORMAT = DXGI_FORMAT_R8G8B8A8_UNORM;
-inline constexpr float4 COLOR_CLEAR_VALUE = {{0.0f, 0.0f, 0.0f, 1.0f}};
+inline constexpr float4 COLOR_CLEAR_VALUE = {{0.5f, 0.5f, 0.5f, 1.0f}};
 inline constexpr DXGI_FORMAT DEPTH_FORMAT = DXGI_FORMAT_D32_FLOAT;
 inline constexpr float DEPTH_CLEAR_VALUE = 1.0f;
 inline constexpr uint SAMPLE_COUNT = 1;
 
 struct Parameters {{
-
+    float camera_distance = 3.0f;
+    float camera_fov = rad_from_deg(45.0f);
+    float camera_latitude = rad_from_deg(30.0f);
+    float camera_longitude = rad_from_deg(0.0f);
+    float camera_rotation_speed = 0.2f;
 }};
 
 struct Demo {{
     Parameters parameters;
     RenderTargets render_targets;
     DebugDraw debug_draw;
+    Multibuffer<GpuBufferHostCbv<Constants>, FRAME_COUNT> constants;
 }};
 
 struct CreateDesc {{
@@ -117,8 +149,7 @@ auto archive(Demo& demo, A& arc) -> void {{
 
 }} // namespace fb::demos::{lower_name}
 """,
-
-"hlsl": """#include <buffet/demos/{lower_name}/{lower_name}.hlsli>
+    "hlsl": """#include <buffet/demos/{lower_name}/{lower_name}.hlsli>
 #include <kitchen/gpu/samplers.hlsli>
 #include <kitchen/graphics/core.hlsli>
 
@@ -152,8 +183,7 @@ FbPixelOutput<1> todo_ps(VertexOutput input) {{
 }}
 
 """,
-
-"hlsli": """#pragma once
+    "hlsli": """#pragma once
 
 #include <kitchen/gpu/hlsl_cpp.hlsli>
 
@@ -168,7 +198,8 @@ struct Bindings {{
 }};
 
 struct Constants {{
-    float pad[64];
+    float4x4 transform;
+    float pad[48];
 }};
 
 FB_NAMESPACE_END(fb::demos::{lower_name})
@@ -176,9 +207,11 @@ FB_NAMESPACE_END(fb::demos::{lower_name})
 """,
 }
 
+
 def write_to_file(path, content):
     with open(path, "w") as f:
         f.write(content)
+
 
 for lower_name, upper_name in demos:
     # Paths.
@@ -187,10 +220,22 @@ for lower_name, upper_name in demos:
         os.makedirs(demo_dir)
 
     # Files.
-    write_to_file(demo_dir + "/" + lower_name + ".cpp", files["cpp"].format(lower_name=lower_name, upper_name=upper_name))
-    write_to_file(demo_dir + "/" + lower_name + ".hpp", files["hpp"].format(lower_name=lower_name, upper_name=upper_name))
-    write_to_file(demo_dir + "/" + lower_name + ".hlsl", files["hlsl"].format(lower_name=lower_name, upper_name=upper_name))
-    write_to_file(demo_dir + "/" + lower_name + ".hlsli", files["hlsli"].format(lower_name=lower_name, upper_name=upper_name))
+    write_to_file(
+        demo_dir + "/" + lower_name + ".cpp",
+        files["cpp"].format(lower_name=lower_name, upper_name=upper_name),
+    )
+    write_to_file(
+        demo_dir + "/" + lower_name + ".hpp",
+        files["hpp"].format(lower_name=lower_name, upper_name=upper_name),
+    )
+    write_to_file(
+        demo_dir + "/" + lower_name + ".hlsl",
+        files["hlsl"].format(lower_name=lower_name, upper_name=upper_name),
+    )
+    write_to_file(
+        demo_dir + "/" + lower_name + ".hlsli",
+        files["hlsli"].format(lower_name=lower_name, upper_name=upper_name),
+    )
 
     print(demo_dir + "/" + lower_name + ".cpp")
     print(demo_dir + "/" + lower_name + ".hpp")
