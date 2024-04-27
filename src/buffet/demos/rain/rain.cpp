@@ -124,9 +124,9 @@ auto update(Demo& demo, const UpdateDesc& desc) -> void {
     auto from_dir = float3::UnitZ;
     auto to_dir = float3(eye.x, 0.0f, eye.z);
     auto rot_quat = Quaternion::FromToRotation(from_dir, to_dir);
-    auto rot_Float4x4 = float4x4::CreateFromQuaternion(rot_quat);
+    auto rot = float4x4::CreateFromQuaternion(rot_quat);
     auto scale = float4x4::CreateScale(params.particle_width, params.particle_height, 1.0f);
-    auto particle_transform = scale * rot_Float4x4;
+    auto particle_transform = scale * rot;
     auto camera_transform = view * projection;
 
     // Update debug draw.
