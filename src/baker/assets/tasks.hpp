@@ -46,6 +46,14 @@ struct AssetTaskProceduralSphere {
     bool inverted;
 };
 
+struct AssetTaskProceduralLowPolyGround {
+    std::string_view name;
+    uint vertex_count_x;
+    uint vertex_count_y;
+    float side_length;
+    float height_variation;
+};
+
 struct AssetTaskStockcubeOutput {
     std::string_view name;
     std::string_view bin_path;
@@ -65,6 +73,7 @@ using AssetTask = std::variant<
     AssetTaskGltf,
     AssetTaskProceduralCube,
     AssetTaskProceduralSphere,
+    AssetTaskProceduralLowPolyGround,
     AssetTaskStockcubeOutput,
     AssetTaskTtf>;
 
@@ -76,8 +85,9 @@ inline constexpr auto asset_task_name(size_t variant) -> std::string_view {
         case 3: return "AssetTaskGltf";
         case 4: return "AssetTaskProceduralCube";
         case 5: return "AssetTaskProceduralSphere";
-        case 6: return "AssetTaskStockcubeOutput";
-        case 7: return "AssetTaskTtf";
+        case 6: return "AssetTaskProceduralLowPolyGround";
+        case 7: return "AssetTaskStockcubeOutput";
+        case 8: return "AssetTaskTtf";
         default: FB_FATAL();
     }
 }

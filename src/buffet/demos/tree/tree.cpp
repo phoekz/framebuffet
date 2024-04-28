@@ -33,11 +33,11 @@ auto create(Demo& demo, const CreateDesc& desc) -> void {
 
     // Geometry.
     const auto tree = assets.coconut_tree_mesh();
-    const auto plane = assets.sand_plane_mesh();
+    const auto sand = assets.sand_mesh();
     demo.tree_vertices.create_with_data(device, tree.vertices, debug.with_name("Tree Vertices"));
     demo.tree_indices.create_with_data(device, tree.indices, debug.with_name("Tree Indices"));
-    demo.plane_vertices.create_with_data(device, plane.vertices, debug.with_name("Plane Vertices"));
-    demo.plane_indices.create_with_data(device, plane.indices, debug.with_name("Plane Indices"));
+    demo.sand_vertices.create_with_data(device, sand.vertices, debug.with_name("Sand Vertices"));
+    demo.sand_indices.create_with_data(device, sand.indices, debug.with_name("Sand Indices"));
 
     // Texture.
     demo.tree_texture.create_and_transfer_baked(
@@ -48,13 +48,13 @@ auto create(Demo& demo, const CreateDesc& desc) -> void {
         D3D12_BARRIER_LAYOUT_DIRECT_QUEUE_SHADER_RESOURCE,
         debug.with_name("Tree Texture")
     );
-    demo.plane_texture.create_and_transfer_baked(
+    demo.sand_texture.create_and_transfer_baked(
         device,
-        assets.sand_plane_base_color_texture(),
+        assets.sand_texture(),
         D3D12_BARRIER_SYNC_PIXEL_SHADING,
         D3D12_BARRIER_ACCESS_SHADER_RESOURCE,
         D3D12_BARRIER_LAYOUT_DIRECT_QUEUE_SHADER_RESOURCE,
-        debug.with_name("Plane Texture")
+        debug.with_name("Sand Texture")
     );
 
     // Depth.
@@ -88,6 +88,10 @@ auto create(Demo& demo, const CreateDesc& desc) -> void {
         .primitive_topology(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)
         .vertex_shader(shaders.tree_draw_vs())
         .pixel_shader(shaders.tree_draw_ps())
+        .rasterizer(GpuRasterizerDesc {
+            .fill_mode = GpuFillMode::Solid,
+            .cull_mode = GpuCullMode::Back,
+        })
         .render_target_formats({demo.render_targets.color_format()})
         .depth_stencil_format(demo.render_targets.depth_format())
         .sample_desc(demo.render_targets.sample_desc())
@@ -228,12 +232,13 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
 
             cmd.set_constants(Bindings {
                 demo.constants.buffer(frame_index).cbv_descriptor().index(),
-                demo.plane_vertices.srv_descriptor().index(),
-                demo.plane_texture.srv_descriptor().index(),
+                demo.sand_vertices.srv_descriptor().index(),
+                demo.sand_texture.srv_descriptor().index(),
                 demo.shadow_depth.srv_descriptor().index(),
             });
-            cmd.set_index_buffer(demo.plane_indices.index_buffer_view());
-            cmd.draw_indexed_instanced(demo.plane_indices.element_count(), 1, 0, 0, 0);
+            cmd.set_index_buffer(demo.sand_indices.index_buffer_view());
+            cmd.draw_indexed_instanced(demo.sand_indices.element_count(), 1, 0, 0, 0);
+
             cmd.end_pix();
         }
 

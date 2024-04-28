@@ -36,9 +36,9 @@ struct Demo {
     GpuBufferHostSrv<baked::Vertex> tree_vertices;
     GpuBufferHostIndex<baked::Index> tree_indices;
     GpuTextureSrv tree_texture;
-    GpuBufferHostSrv<baked::Vertex> plane_vertices;
-    GpuBufferHostIndex<baked::Index> plane_indices;
-    GpuTextureSrv plane_texture;
+    GpuBufferHostSrv<baked::Vertex> sand_vertices;
+    GpuBufferHostIndex<baked::Index> sand_indices;
+    GpuTextureSrv sand_texture;
     GpuPipeline shadow_pipeline;
     GpuTextureSrvDsv shadow_depth;
     GpuPipeline draw_pipeline;

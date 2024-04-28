@@ -23,9 +23,8 @@ public:
     auto coconut_tree_mesh() const -> Mesh;
     auto coconut_tree_base_color_texture() const -> Texture;
     auto coconut_tree_material() const -> Material;
-    auto sand_plane_mesh() const -> Mesh;
-    auto sand_plane_base_color_texture() const -> Texture;
-    auto sand_plane_material() const -> Material;
+    auto sand_texture() const -> Texture;
+    auto sand_mesh() const -> Mesh;
     auto raccoon_animation_mesh() const -> AnimationMesh;
     auto raccoon_base_color_texture() const -> Texture;
     auto raccoon_metallic_roughness_texture() const -> Texture;

@@ -427,6 +427,141 @@ auto bake_assets(std::string_view assets_dir, std::span<const AssetTask> asset_t
                             assets_writer.write("Index", std::span<const AssetIndex>(indices)),
                     });
                 },
+                [&](const AssetTaskProceduralLowPolyGround& task) {
+                    // Generate vertices.
+                    const auto cell_count_x = task.vertex_count_x;
+                    const auto cell_count_y = task.vertex_count_y;
+                    const auto cell_vertex_count = cell_count_x * cell_count_y;
+                    auto cell_vertices = std::vector<float3>(cell_vertex_count);
+                    auto cell_vertices_visited = std::vector<bool>(cell_vertex_count, false);
+                    const auto base_height = task.side_length * std::sqrtf(3.0f) / 2.0f;
+                    for (uint cell_y = 0; cell_y < cell_count_y; cell_y++) {
+                        for (uint cell_x = 0; cell_x < cell_count_x; cell_x++) {
+                            const auto offset_x = cell_y % 2 == 1 ? 0.5f * task.side_length : 0.0f;
+
+                            const auto cell_index = cell_y * cell_count_x + cell_x;
+                            auto cell_position = float3();
+                            cell_position.x = offset_x + (float)cell_x * task.side_length;
+                            cell_position.y = 0.0f;
+                            cell_position.z = (float)cell_y * base_height;
+                            cell_vertices[cell_index] = cell_position;
+                        }
+                    }
+
+                    // Re-center.
+                    float3 cell_center = float3(0.0f, 0.0f, 0.0f);
+                    for (uint i = 0; i < cell_vertices.size(); i++) {
+                        cell_center += cell_vertices[i];
+                    }
+                    cell_center /= (float)cell_vertices.size();
+                    for (uint i = 0; i < cell_vertices.size(); i++) {
+                        cell_vertices[i] -= cell_center;
+                    }
+
+                    // Adjust heights.
+                    Pcg rand;
+                    for (uint i = 0; i < cell_vertices.size(); i++) {
+                        cell_vertices[i].y += task.height_variation * rand.random_float();
+                    }
+
+                    // Connect and push faces.
+                    auto vertices = std::vector<AssetVertex>();
+                    auto indices = std::vector<uint>();
+                    const auto push_face = [&](uint a, uint b, uint c) {
+                        const float3 p_a = cell_vertices[a];
+                        const float3 p_b = cell_vertices[b];
+                        const float3 p_c = cell_vertices[c];
+
+                        const float3 d_ab = p_b - p_a;
+                        const float3 d_ac = p_c - p_a;
+                        float3 n = d_ab.Cross(d_ac);
+                        n.Normalize();
+
+                        AssetVertex v_a;
+                        AssetVertex v_b;
+                        AssetVertex v_c;
+
+                        v_a.position = p_a;
+                        v_b.position = p_b;
+                        v_c.position = p_c;
+
+                        v_a.normal = n;
+                        v_b.normal = n;
+                        v_c.normal = n;
+
+                        v_a.texcoord = float2(0.5f, 0.5f);
+                        v_b.texcoord = float2(0.5f, 0.5f);
+                        v_c.texcoord = float2(0.5f, 0.5f);
+
+                        v_a.tangent = float4(1.0f, 0.0f, 0.0f, 1.0f);
+                        v_b.tangent = float4(1.0f, 0.0f, 0.0f, 1.0f);
+                        v_c.tangent = float4(1.0f, 0.0f, 0.0f, 1.0f);
+
+                        const uint i_a = (uint)vertices.size();
+                        const uint i_b = i_a + 1;
+                        const uint i_c = i_a + 2;
+
+                        vertices.push_back(v_a);
+                        vertices.push_back(v_b);
+                        vertices.push_back(v_c);
+
+                        indices.push_back(i_a);
+                        indices.push_back(i_b);
+                        indices.push_back(i_c);
+
+                        cell_vertices_visited[a] = true;
+                        cell_vertices_visited[b] = true;
+                        cell_vertices_visited[c] = true;
+                    };
+                    for (uint j = 0; j < cell_count_y - 1; j++) {
+                        for (uint i = 0; i < cell_count_x - 1; i++) {
+                            const uint curr_offset_x = cell_count_x * j;
+                            const uint next_offset_x = cell_count_x * (j + 1);
+                            std::array<uint, 6> face_indices;
+                            if (j % 2 == 0) {
+                                face_indices[0] = curr_offset_x + i;
+                                face_indices[1] = next_offset_x + i;
+                                face_indices[2] = curr_offset_x + i + 1;
+                                face_indices[3] = curr_offset_x + i + 1;
+                                face_indices[4] = next_offset_x + i;
+                                face_indices[5] = next_offset_x + i + 1;
+                            } else {
+                                face_indices[0] = curr_offset_x + i;
+                                face_indices[1] = next_offset_x + i;
+                                face_indices[2] = next_offset_x + i + 1;
+                                face_indices[3] = curr_offset_x + i;
+                                face_indices[4] = next_offset_x + i + 1;
+                                face_indices[5] = curr_offset_x + i + 1;
+                            }
+                            push_face(face_indices[0], face_indices[1], face_indices[2]);
+                            push_face(face_indices[3], face_indices[4], face_indices[5]);
+                        }
+                    }
+
+                    // Verify all vertices were visited.
+                    uint visited_count = 0;
+                    for (uint i = 0; i < cell_vertices.size(); i++) {
+                        if (cell_vertices_visited[i]) {
+                            visited_count++;
+                        } else {
+                            FB_LOG_INFO(
+                                "Was not visited: {}: {}",
+                                i,
+                                (bool)cell_vertices_visited[i]
+                            );
+                        }
+                    }
+                    FB_ASSERT(visited_count == cell_vertices.size());
+
+                    // Mesh.
+                    assets.push_back(AssetMesh {
+                        .name = names.unique(std::format("{}_mesh", task.name)),
+                        .vertices =
+                            assets_writer.write("Vertex", std::span<const AssetVertex>(vertices)),
+                        .indices =
+                            assets_writer.write("Index", std::span<const AssetIndex>(indices)),
+                    });
+                },
                 [&](const AssetTaskStockcubeOutput& task) {
                     const auto bin_path = std::format("{}/{}", assets_dir, task.bin_path);
                     const auto bin_bytes = read_whole_file(bin_path);
