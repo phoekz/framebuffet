@@ -145,11 +145,15 @@ auto ShaderCompiler::compile(
         shader_name.c_str(),
         L"-E", shader_entry.c_str(),      // Entry point name.
         L"-T", shader_profile,            // Target profile.
-        L"-HV", L"2021",                  // HLSL version.
+        L"-HV", L"202x",                  // HLSL version.
         L"-Zi",                           // Debug information.
         L"-Fo", shader_bin.c_str(),       // Output object file.
         L"-Fd", L".\\shaders\\",          // Write debug information to the given file.
+        L"-Wall",                         // Enable all warnings.
+        L"-Wextra",                       // Enable extra warnings.
         L"-WX",                           // Treat warnings as errors.
+        L"-Wconversion",
+        L"-Wdouble-promotion",
         L"-all-resources-bound",          // Enable aggressive flattening.
         L"-enable-16bit-types",           // Enable 16-bit types and disable min precision types.
         L"-I", FB_SOURCE_DIR_WIDE "/src",

@@ -33,8 +33,6 @@ BackgroundVertexOutput background_vs(FbVertexInput input) {
 }
 
 FbPixelOutput<1> background_ps(BackgroundVertexOutput input) {
-    ConstantBuffer<BackgroundConstants> constants =
-        ResourceDescriptorHeap[g_background_bindings.constants];
     TextureCube<float3> irr_texture = ResourceDescriptorHeap[g_background_bindings.irr_texture];
     SamplerState sampler = SamplerDescriptorHeap[g_background_bindings.sampler];
 

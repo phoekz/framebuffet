@@ -106,7 +106,7 @@ bool fb_sphere_inside_plane(float4 plane, float3 sphere_center, float sphere_rad
 
 void fb_fullscreen_triangle(uint vertex_id, out float4 position, out float2 texcoord) {
     // Note: counter-clockwise winding.
-    texcoord = float2(vertex_id & 2, (vertex_id << 1) & 2);
+    texcoord = float2(vertex_id & 2u, (vertex_id << 1u) & 2u);
     position = float4(texcoord * float2(2.0f, -2.0f) + float2(-1.0f, 1.0f), 0.0f, 1.0f);
 }
 
@@ -133,8 +133,8 @@ float3 fb_cube_direction_from_dispatch_input(uint2 src_id, uint face_id, uint2 f
         case 1: dir = float3(-1.0f, p.y, p.x); break;
         case 2: dir = float3(p.x, 1.0f, -p.y); break;
         case 3: dir = float3(p.x, -1.0f, p.y); break;
-        case 4: dir = float3(p.x, p.y, 1.0); break;
-        case 5: dir = float3(-p.x, p.y, -1.0); break;
+        case 4: dir = float3(p.x, p.y, 1.0f); break;
+        case 5: dir = float3(-p.x, p.y, -1.0f); break;
     }
     dir = normalize(dir);
     return dir;

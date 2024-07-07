@@ -23,7 +23,7 @@ void sim_cs(FbComputeInput input) {
 }
 
 FB_ATTRIBUTE(numthreads, 1, 1, 1)
-void reset_cs(FbComputeInput input) {
+void reset_cs(FbComputeInput /*input*/) {
     RWStructuredBuffer<uint> light_indices_count =
         ResourceDescriptorHeap[g_bindings.light_indices_count];
     light_indices_count[0] = 0;
@@ -149,7 +149,7 @@ LightVertexOutput light_vs(FbVertexInput input) {
     return output;
 }
 
-FbPixelOutput<1> light_ps(LightVertexOutput input) {
+FbPixelOutput<1> light_ps(LightVertexOutput /*input*/) {
     FbPixelOutput<1> output;
     output.color = float4(1.0f, 1.0f, 1.0f, 1.0f);
     return output;

@@ -42,7 +42,7 @@ void reduce(out half4 reduced, half4 v0, half4 v1, half4 v2, half4 v3) {
 
 void reduce_quad_wave(out half4 reduced, half4 v) {
     const uint lane = WaveGetLaneIndex();
-    const uint quad = lane & ~0b11;
+    const uint quad = lane & ~0b11u;
     const half4 v0 = v;
     const half4 v1 = WaveReadLaneAt(v, quad | 0b01);
     const half4 v2 = WaveReadLaneAt(v, quad | 0b10);

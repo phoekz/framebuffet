@@ -75,7 +75,7 @@ float smith_g2_height_correlated_ggx_lagarde(float alpha_squared, float ndotl, f
     return 0.5f / (a + b);
 }
 
-float smith_g2(float alpha, float alpha_squared, float ndotl, float ndotv) {
+float smith_g2(float /*alpha*/, float alpha_squared, float ndotl, float ndotv) {
     return smith_g2_height_correlated_ggx_lagarde(alpha_squared, ndotl, ndotv);
 }
 
@@ -156,19 +156,17 @@ float3 sample_hemisphere(float2 u) {
 }
 
 float3 sample_ggx_vndf(float3 wi, float2 alpha_2d, float2 u) {
-    float3 wi_std = normalize(float3(wi.xy * alpha_2d, wi.z));
-    float phi = FB_TWO_PI * u.x;
-    float z = mad(1.0f - u.y, 1.0f + wi.z, -wi.z);
-    float sin_theta = sqrt(clamp(1.0f - z * z, 0.0f, 1.0f));
-    float x = sin_theta * cos(phi);
-    float y = sin_theta * sin(phi);
-    float3 c = float3(x, y, z);
-    float3 wm_std = c + wi;
-    float3 wm = normalize(float3(wm_std.xy * alpha_2d, wm_std.z));
-    return wm;
+    const float3 vh = normalize(float3(alpha_2d.x * wi.x, alpha_2d.y * wi.y, wi.z));
+    const float phi = FB_TWO_PI * u.x;
+    const float z = ((1.0f - u.y) * (1.0f + vh.z)) - vh.z;
+    const float sin_theta = sqrt(clamp(1.0f - z * z, 0.0f, 1.0f));
+    const float x = sin_theta * cos(phi);
+    const float y = sin_theta * sin(phi);
+    const float3 nh = float3(x, y, z) + vh;
+    return normalize(float3(alpha_2d.x * nh.x, alpha_2d.y * nh.y, max(0.0f, nh.z)));
 }
 
-float smith_g1_ggx(float alpha, float ndots, float alpha_squared) {
+float smith_g1_ggx(float /*alpha*/, float ndots, float alpha_squared) {
     float ndots_squared = ndots * ndots;
     return 2.0f
         / (sqrt(((alpha_squared * (1.0f - ndots_squared)) + ndots_squared) / ndots_squared) + 1.0f);
@@ -190,8 +188,8 @@ float specular_sample_weight_ggx_vndf(
     float alpha_squared,
     float ndotl,
     float ndotv,
-    float hdotl,
-    float ndoth
+    float /*hdotl*/,
+    float /*ndoth*/
 ) {
     return smith_g2_over_g1_height_correlated(alpha, alpha_squared, ndotl, ndotv);
 }
