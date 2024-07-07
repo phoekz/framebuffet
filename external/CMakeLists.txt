@@ -16,7 +16,7 @@ if(NOT FETCH_CONTENT_HAS_BEEN_RUN)
     FetchContent_Declare(ttf2mesh GIT_REPOSITORY "https://github.com/fetisov/ttf2mesh" GIT_TAG 52d9eba33c02b83a298329ff15e20a7602fb6dde) # April 23, 2023
     FetchContent_Declare(tracy GIT_REPOSITORY "https://github.com/wolfpld/tracy" GIT_TAG 37aff70dfa50cf6307b3fee6074d627dc2929143) # v0.10
     FetchContent_Declare(dxagilitysdk URL "https://globalcdn.nuget.org/packages/microsoft.direct3d.d3d12.1.610.4.nupkg" URL_MD5 33bffd67d09a9008e49b35d4a8c4b8b5)
-    FetchContent_Declare(dxcompiler URL "https://globalcdn.nuget.org/packages/microsoft.direct3d.dxc.1.7.2308.12.nupkg" URL_MD5 59f6761d73ab36cda5152cb568b4bfd2)
+    FetchContent_Declare(dxcompiler URL "https://globalcdn.nuget.org/packages/microsoft.direct3d.dxc.1.8.2405.17.nupkg" URL_MD5 c9586b50602b558af84d3aacb43bfc2e)
     FetchContent_Declare(directxmath URL "https://globalcdn.nuget.org/packages/directxmath.2022.12.12.1.nupkg" URL_MD5 b8fb4fda4eea8171627d0e080c4da062)
     FetchContent_Declare(directxtk12 URL "https://globalcdn.nuget.org/packages/directxtk12_desktop_2019.2023.4.28.1.nupkg" URL_MD5 09a48106645ce7296dbe7e8de56b877d)
     FetchContent_Declare(directxmesh URL "https://globalcdn.nuget.org/packages/directxmesh_desktop_win10.2023.4.28.1.nupkg" URL_MD5 18f92d2c5c432004e4c2cb48444defe6)
