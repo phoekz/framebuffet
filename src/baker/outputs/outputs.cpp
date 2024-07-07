@@ -350,12 +350,15 @@ auto bake_app_datas(
             R"(
                 // shader_hash: {}
                 {}
+                /* disassembly:{}{}*/
                 auto Shaders::{}() const -> std::span<const std::byte> {{
                     return std::span(_data).subspan({}, {});
                 }}
             )",
             shader.hash,
             shader.counters.to_comment_string(),
+            '\n',
+            shader.disassembly.data(),
             shader.name,
             shaders_bin.size(),
             shader.dxil.size()

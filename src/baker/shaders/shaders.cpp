@@ -143,15 +143,15 @@ auto ShaderCompiler::compile(
     auto shader_args = std::to_array<LPCWSTR>({
         // clang-format off
         shader_name.c_str(),
-        L"-E", shader_entry.c_str(),
-        L"-T", shader_profile,
-        L"-HV", L"2021",
-        L"-Zi",
-        L"-Fo", shader_bin.c_str(),
-        L"-Fd", L".\\shaders\\",
-        L"-WX",
-        L"-all_resources_bound",
-        L"-enable-16bit-types",
+        L"-E", shader_entry.c_str(),      // Entry point name.
+        L"-T", shader_profile,            // Target profile.
+        L"-HV", L"2021",                  // HLSL version.
+        L"-Zi",                           // Debug information.
+        L"-Fo", shader_bin.c_str(),       // Output object file.
+        L"-Fd", L".\\shaders\\",          // Write debug information to the given file.
+        L"-WX",                           // Treat warnings as errors.
+        L"-all-resources-bound",          // Enable aggressive flattening.
+        L"-enable-16bit-types",           // Enable 16-bit types and disable min precision types.
         L"-I", FB_SOURCE_DIR_WIDE "/src",
         // clang-format on
     });
@@ -162,18 +162,18 @@ auto ShaderCompiler::compile(
         .Size = source.size(),
         .Encoding = DXC_CP_ACP,
     };
-    ComPtr<IDxcResult> result;
-    ComPtr<IDxcBlobUtf8> errors;
+    ComPtr<IDxcResult> compile_result;
+    ComPtr<IDxcBlobUtf8> compile_errors;
     FB_ASSERT_HR(_compiler->Compile(
         &source_buffer,
         shader_args.data(),
         (uint)shader_args.size(),
         _include_handler.get(),
-        IID_PPV_ARGS(&result)
+        IID_PPV_ARGS(&compile_result)
     ));
-    FB_ASSERT_HR(result->GetOutput(DXC_OUT_ERRORS, IID_PPV_ARGS(&errors), nullptr));
-    if (errors && errors->GetStringLength() != 0) {
-        FB_LOG_ERROR("Failed to compile {}:\n{}", name, errors->GetStringPointer());
+    FB_ASSERT_HR(compile_result->GetOutput(DXC_OUT_ERRORS, IID_PPV_ARGS(&compile_errors), nullptr));
+    if (compile_errors && compile_errors->GetStringLength() != 0) {
+        FB_LOG_ERROR("Failed to compile {}:\n{}", name, compile_errors->GetStringPointer());
         FB_FATAL();
     }
 
@@ -182,13 +182,13 @@ auto ShaderCompiler::compile(
     std::string hash;
     {
         IDxcBlob* dxil_blob = nullptr;
-        FB_ASSERT_HR(result->GetOutput(DXC_OUT_OBJECT, IID_PPV_ARGS(&dxil_blob), nullptr));
+        FB_ASSERT_HR(compile_result->GetOutput(DXC_OUT_OBJECT, IID_PPV_ARGS(&dxil_blob), nullptr));
         dxil.resize(dxil_blob->GetBufferSize());
         memcpy(dxil.data(), dxil_blob->GetBufferPointer(), dxil_blob->GetBufferSize());
 
         ComPtr<IDxcBlob> shader_hash_blob;
         FB_ASSERT_HR(
-            result->GetOutput(DXC_OUT_SHADER_HASH, IID_PPV_ARGS(&shader_hash_blob), nullptr)
+            compile_result->GetOutput(DXC_OUT_SHADER_HASH, IID_PPV_ARGS(&shader_hash_blob), nullptr)
         );
         DxcShaderHash* shader_hash = (DxcShaderHash*)shader_hash_blob->GetBufferPointer();
         std::ostringstream oss;
@@ -203,17 +203,37 @@ auto ShaderCompiler::compile(
     {
         ComPtr<IDxcBlob> pdb_blob;
         ComPtr<IDxcBlobUtf16> pdb_name;
-        FB_ASSERT_HR(result->GetOutput(DXC_OUT_PDB, IID_PPV_ARGS(&pdb_blob), &pdb_name));
+        FB_ASSERT_HR(compile_result->GetOutput(DXC_OUT_PDB, IID_PPV_ARGS(&pdb_blob), &pdb_name));
 
         pdb.resize(pdb_blob->GetBufferSize());
         memcpy(pdb.data(), pdb_blob->GetBufferPointer(), pdb_blob->GetBufferSize());
+    }
+
+    // Disassemble.
+    std::vector<char> disassembly;
+    {
+        DxcBuffer dxil_buffer = {
+            .Ptr = dxil.data(),
+            .Size = dxil.size(),
+            .Encoding = DXC_CP_ACP,
+        };
+        ComPtr<IDxcResult> disassemble_result;
+        FB_ASSERT_HR(_compiler->Disassemble(&dxil_buffer, IID_PPV_ARGS(&disassemble_result)));
+        ComPtr<IDxcBlobUtf8> disassemble_blob;
+        FB_ASSERT_HR(disassemble_result
+                         ->GetOutput(DXC_OUT_DISASSEMBLY, IID_PPV_ARGS(&disassemble_blob), nullptr)
+        );
+        const size_t string_length = disassemble_blob->GetStringLength();
+        const char* string = disassemble_blob->GetStringPointer();
+        disassembly.resize(string_length + 1, '\0');
+        memcpy(disassembly.data(), string, string_length);
     }
 
     // Reflection.
     ComPtr<ID3D12ShaderReflection> reflection;
     {
         ComPtr<IDxcBlob> blob;
-        FB_ASSERT_HR(result->GetOutput(DXC_OUT_REFLECTION, IID_PPV_ARGS(&blob), nullptr));
+        FB_ASSERT_HR(compile_result->GetOutput(DXC_OUT_REFLECTION, IID_PPV_ARGS(&blob), nullptr));
         DxcBuffer buffer;
         buffer.Encoding = DXC_CP_ACP;
         buffer.Ptr = blob->GetBufferPointer();
@@ -225,7 +245,7 @@ auto ShaderCompiler::compile(
     ShaderCounters counters;
     {
         D3D12_SHADER_DESC desc;
-        reflection->GetDesc(&desc);
+        FB_ASSERT_HR(reflection->GetDesc(&desc));
         counters.constant_buffers = desc.ConstantBuffers;
         counters.bound_resources = desc.BoundResources;
         counters.input_parameters = desc.InputParameters;
@@ -260,6 +280,7 @@ auto ShaderCompiler::compile(
         .hash = hash,
         .dxil = std::move(dxil),
         .pdb = std::move(pdb),
+        .disassembly = std::move(disassembly),
         .counters = counters,
     };
 }
@@ -323,7 +344,7 @@ auto bake_shaders(std::string_view buffet_dir, std::span<const ShaderTask> shade
             );
 
             // Save shader.
-            compiled_shaders.push_back(shader);
+            compiled_shaders.push_back(std::move(shader));
         }
     }
 

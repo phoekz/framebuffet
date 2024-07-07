@@ -44,6 +44,7 @@ struct Shader {
     std::string hash;
     std::vector<std::byte> dxil;
     std::vector<std::byte> pdb;
+    std::vector<char> disassembly;
     ShaderCounters counters;
 };
 
