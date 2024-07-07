@@ -20,7 +20,7 @@ auto GpuCommandList::set_global_descriptor_heap() const -> void {
     if (_prev_engine == _engine) {
         return;
     }
-    marker_pix("Set global descriptor heap");
+    pix_marker("Set global descriptor heap");
     const auto heaps = std::to_array<ID3D12DescriptorHeap*>({
         _descriptors->cbv_srv_uav().heap(),
         _descriptors->sampler().heap(),
@@ -32,7 +32,7 @@ auto GpuCommandList::set_global_graphics_root_signature() const -> void {
     if (_prev_engine == _engine) {
         return;
     }
-    marker_pix("Set global graphics root signature");
+    pix_marker("Set global graphics root signature");
     _cmd->SetGraphicsRootSignature(_root_signature);
 }
 
@@ -40,7 +40,7 @@ auto GpuCommandList::set_global_compute_root_signature() const -> void {
     if (_prev_engine == _engine) {
         return;
     }
-    marker_pix("Set global compute root signature");
+    pix_marker("Set global compute root signature");
     _cmd->SetComputeRootSignature(_root_signature);
 }
 

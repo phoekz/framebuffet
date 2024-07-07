@@ -3,6 +3,7 @@
 namespace fb::demos::grass {
 
 auto create(Demo& demo, const CreateDesc& desc) -> void {
+    ZoneScoped;
     PIXScopedEvent(PIX_COLOR_DEFAULT, "%s - Create", NAME.data());
     DebugScope debug(NAME);
 
@@ -124,7 +125,7 @@ auto update(Demo& demo, const UpdateDesc& desc) -> void {
 
 auto render(Demo& demo, const RenderDesc& desc) -> void {
     auto& [cmd, device, frame_index] = desc;
-    cmd.begin_pix("%s - Render", NAME.data());
+    cmd.pix_begin("%s - Render", NAME.data());
 
     cmd.graphics_scope([&demo, frame_index](GpuGraphicsCommandList& cmd) {
         demo.render_targets.set(cmd);
@@ -134,7 +135,7 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
         const GpuPipeline& pipeline =
             demo.parameters.enable_atoc ? demo.pipeline_atoc : demo.pipeline_naive;
 
-        cmd.begin_pix("Draw");
+        cmd.pix_begin("Draw");
         cmd.set_pipeline(pipeline);
         cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
         cmd.set_constants(Bindings {
@@ -144,10 +145,10 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
         });
         cmd.set_index_buffer(demo.indices.index_buffer_view());
         cmd.draw_indexed_instanced(demo.indices.element_count(), 1, 0, 0, 0);
-        cmd.end_pix();
+        cmd.pix_end();
     });
 
-    cmd.end_pix();
+    cmd.pix_end();
 }
 
 } // namespace fb::demos::grass

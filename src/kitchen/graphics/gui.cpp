@@ -160,7 +160,7 @@ auto Gui::render(const GpuDevice& device, GpuCommandList& cmd) -> void {
 
     // Render.
     cmd.graphics_scope([&](GpuGraphicsCommandList& gcmd) {
-        gcmd.begin_pix("Gui");
+        gcmd.pix_begin("Gui");
         gcmd.set_viewport(0, 0, (uint)draw_data->DisplaySize.x, (uint)draw_data->DisplaySize.y);
         gcmd.set_blend_factor(float4(0.0f, 0.0f, 0.0f, 0.0f));
         gcmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -201,7 +201,7 @@ auto Gui::render(const GpuDevice& device, GpuCommandList& cmd) -> void {
             global_idx_offset += cmd_list->IdxBuffer.Size;
             global_vtx_offset += cmd_list->VtxBuffer.Size;
         }
-        gcmd.end_pix();
+        gcmd.pix_end();
     });
 }
 

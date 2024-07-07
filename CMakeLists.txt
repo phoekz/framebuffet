@@ -13,9 +13,10 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 add_subdirectory(external)
 
 # Global settings.
+# Note: Tracy does not work if /ZI is enabled. Therefore we must use /Zi.
 add_compile_options(
     /W4 /WX /MP /EHs-c- /GR-
-    $<$<CONFIG:Debug>:/ZI>
+    $<$<CONFIG:Debug>:/Zi>
     $<$<CONFIG:Release>:/Ob3>
     $<$<CONFIG:Release>:/Oi>
     $<$<CONFIG:Release>:/Ot>

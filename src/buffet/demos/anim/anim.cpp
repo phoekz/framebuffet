@@ -40,6 +40,7 @@ auto copy_animation_mesh(OwnedAnimationMesh& dst, const baked::AnimationMesh& sr
 }
 
 auto create(Demo& demo, const CreateDesc& desc) -> void {
+    ZoneScoped;
     PIXScopedEvent(PIX_COLOR_DEFAULT, "%s - Create", NAME.data());
     DebugScope debug(NAME);
 
@@ -265,12 +266,12 @@ auto update(Demo& demo, const UpdateDesc& desc) -> void {
 auto render(Demo& demo, const RenderDesc& desc) -> void {
     auto& [cmd, device, frame_index] = desc;
     cmd.graphics_scope([&demo, frame_index](GpuGraphicsCommandList& cmd) {
-        cmd.begin_pix("%s - Render", NAME.data());
+        cmd.pix_begin("%s - Render", NAME.data());
 
         demo.render_targets.set(cmd);
         demo.debug_draw.render(cmd);
 
-        cmd.begin_pix("Animation");
+        cmd.pix_begin("Animation");
         cmd.set_constants(Bindings {
             .constants = demo.constants.buffer(frame_index).cbv_descriptor().index(),
             .vertices = demo.vertices.srv_descriptor().index(),
@@ -282,9 +283,9 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
         cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
         cmd.set_index_buffer(demo.indices.index_buffer_view());
         cmd.draw_indexed_instanced(demo.indices.element_count(), 1, 0, 0, 0);
-        cmd.end_pix();
+        cmd.pix_end();
 
-        cmd.end_pix();
+        cmd.pix_end();
     });
 }
 

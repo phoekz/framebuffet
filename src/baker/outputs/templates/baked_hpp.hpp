@@ -6,7 +6,7 @@ inline constexpr std::string_view BAKED_HPP = R"(#pragma once
 
     class Assets {
     public:
-        Assets();
+        auto load() -> void;
 
         {{asset_decls}}
 
@@ -21,7 +21,7 @@ inline constexpr std::string_view BAKED_HPP = R"(#pragma once
 
     class Shaders {
     public:
-        Shaders();
+        auto load() -> void;
 
         {{shader_decls}}
 

@@ -36,10 +36,21 @@ auto stockcube_run(Stockcube& sc) -> void {
     // Main thread.
     FB_ASSERT_HR(SetThreadDescription(GetCurrentThread(), L"Main Thread"));
 
+    // Tracy configuration.
+    TracySetProgramName("framebuffet");
+    FB_LOG_INFO("Tracy enabled: {}", TracyIsConnected ? "true" : "false");
+
     // Init.
     {
+        ZoneScopedN("Init");
+        PIXScopedEvent(PIX_COLOR_DEFAULT, "Init");
+
         DebugScope debug("Stockcube");
         techniques::Baked baked;
+        baked.kitchen.assets.load();
+        baked.kitchen.shaders.load();
+        baked.stockcube.assets.load();
+        baked.stockcube.shaders.load();
         sc.window.create(Window::Desc {WINDOW_TITLE, WINDOW_WIDTH, WINDOW_HEIGHT});
         sc.device.create(sc.window);
         sc.gui.create(sc.window, sc.device, baked.kitchen.assets, baked.kitchen.shaders);
@@ -57,10 +68,12 @@ auto stockcube_run(Stockcube& sc) -> void {
     // Main loop.
     bool running = true;
     while (running) {
+        FrameMark;
         PIXScopedEvent(PIX_COLOR_DEFAULT, "Frame %zu", sc.frame.count());
 
         // Handle window messages.
         {
+            ZoneScopedN("Events");
             PIXScopedEvent(PIX_COLOR_DEFAULT, "Events");
 
             MSG msg = {};
@@ -149,41 +162,41 @@ auto stockcube_run(Stockcube& sc) -> void {
                 const auto frame_index = sc.device.frame_index();
                 auto& render_targets = sc.techniques.render_targets;
 
-                cmd.begin_pix("Frame %zu", sc.frame.count());
+                cmd.pix_begin("Frame %zu", sc.frame.count());
 
                 {
-                    cmd.begin_pix("Clear");
+                    cmd.pix_begin("Clear");
                     render_targets.transition_to_render_target(cmd);
                     swapchain.transition_to_render_target(cmd, frame_index);
                     cmd.flush_barriers();
                     render_targets.clear(cmd);
                     swapchain.clear_render_target(cmd, frame_index);
-                    cmd.end_pix();
+                    cmd.pix_end();
                 }
 
                 {
-                    cmd.begin_pix("Techniques");
+                    cmd.pix_begin("Techniques");
                     const auto desc = techniques::RenderDesc {
                         .cmd = cmd,
                         .device = sc.device,
                         .frame_index = frame_index,
                     };
                     techniques::render_main(sc.techniques, render_targets, desc);
-                    cmd.end_pix();
+                    cmd.pix_end();
                 }
 
                 {
-                    cmd.begin_pix("Resolve");
+                    cmd.pix_begin("Resolve");
                     render_targets.transition_to_resolve(cmd);
                     cmd.flush_barriers();
                     render_targets.resolve(cmd);
                     render_targets.transition_to_shader_resource(cmd);
                     cmd.flush_barriers();
-                    cmd.end_pix();
+                    cmd.pix_end();
                 }
 
                 {
-                    cmd.begin_pix("Compose");
+                    cmd.pix_begin("Compose");
 
                     cmd.graphics_scope([&swapchain, frame_index](GpuGraphicsCommandList& cmd) {
                         swapchain.set_render_target(cmd, frame_index);
@@ -201,10 +214,10 @@ auto stockcube_run(Stockcube& sc) -> void {
                     swapchain.transition_to_present(cmd, frame_index);
                     cmd.flush_barriers();
 
-                    cmd.end_pix();
+                    cmd.pix_end();
                 }
 
-                cmd.end_pix();
+                cmd.pix_end();
             }
             PIXEndEvent();
 

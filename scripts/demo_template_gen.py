@@ -10,6 +10,7 @@ files = {
 namespace fb::demos::{lower_name} {{
 
 auto create(Demo& demo, const CreateDesc& desc) -> void {{
+    ZoneScoped;
     PIXScopedEvent(PIX_COLOR_DEFAULT, "%s - Create", NAME.data());
     DebugScope debug(NAME);
 
@@ -43,6 +44,7 @@ auto create(Demo& demo, const CreateDesc& desc) -> void {{
 }}
 
 auto gui(Demo& demo, const GuiDesc&) -> void {{
+    ZoneScoped;
     PIXScopedEvent(PIX_COLOR_DEFAULT, "%s - Gui", NAME.data());
     auto& params = demo.parameters;
     ImGui::SliderFloat("Camera Distance", &params.camera_distance, 0.0f, 10.0f);
@@ -53,6 +55,7 @@ auto gui(Demo& demo, const GuiDesc&) -> void {{
 }}
 
 auto update(Demo& demo, const UpdateDesc& desc) -> void {{
+    ZoneScoped;
     PIXScopedEvent(PIX_COLOR_DEFAULT, "%s - Update", NAME.data());
     auto& params = demo.parameters;
 
@@ -82,11 +85,12 @@ auto update(Demo& demo, const UpdateDesc& desc) -> void {{
 
 auto render(Demo& demo, const RenderDesc& desc) -> void {{
     auto& [cmd, device, frame_index] = desc;
-    cmd.begin_pix("%s - Render", NAME.data());
+    ZoneScoped;
+    cmd.pix_begin("%s - Render", NAME.data());
 
     cmd.compute_scope([&demo, frame_index](GpuComputeCommandList& cmd) {{
-        cmd.begin_pix("Compute");
-        cmd.end_pix();
+        cmd.pix_begin("Compute");
+        cmd.pix_end();
     }});
 
     cmd.graphics_scope([&demo, frame_index](GpuGraphicsCommandList& cmd) {{
@@ -94,11 +98,11 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {{
 
         demo.debug_draw.render(cmd);
 
-        cmd.begin_pix("Draw");
-        cmd.end_pix();
+        cmd.pix_begin("Draw");
+        cmd.pix_end();
     }});
 
-    cmd.end_pix();
+    cmd.pix_end();
 }}
 
 }} // namespace fb::demos::{lower_name}

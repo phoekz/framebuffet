@@ -13,9 +13,12 @@ auto operator new(std::size_t count) -> void* {
         }
         std::quick_exit(1);
     }
-    return malloc(count);
+    void* ptr = malloc(count);
+    TracyAlloc(ptr, count);
+    return ptr;
 }
 
 auto operator delete(void* ptr) noexcept -> void {
+    TracyFree(ptr);
     free(ptr);
 }

@@ -117,6 +117,8 @@ auto GpuPipelineBuilder::sample_desc(DXGI_SAMPLE_DESC desc) -> GpuPipelineBuilde
 
 auto GpuPipelineBuilder::build(GpuDevice& device, GpuPipeline& pipeline, std::string_view name)
     -> void {
+    ZoneScoped;
+
     // Add global root signature.
     {
         new (_buffer + _buffet_offset)

@@ -4,16 +4,18 @@ inline constexpr std::string_view BAKED_CPP = R"(#include "baked.hpp"
 
     #define texture_data(rp, sp, off, sz) TextureData { .row_pitch = rp, .slice_pitch = sp, .data = transmuted_span<std::byte>(off, sz) }
 
-    Assets::Assets() {
+    auto Assets::load() -> void {
         // hash: {{assets_bin_hash}}
+        ZoneScoped;
         _data = read_whole_file("fb_{{app_name}}_assets.bin");
         FB_ASSERT(_data.size() == {{assets_byte_count}});
     }
 
     {{asset_defns}}
 
-    Shaders::Shaders() {
+    auto Shaders::load() -> void {
         // hash: {{shaders_bin_hash}}
+        ZoneScoped;
         _data = read_whole_file("fb_{{app_name}}_shaders.bin");
         FB_ASSERT(_data.size() == {{shaders_byte_count}});
     }

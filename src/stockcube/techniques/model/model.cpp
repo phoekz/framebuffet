@@ -60,7 +60,7 @@ auto update(Technique& tech, const UpdateDesc& desc) -> void {
 auto render(Technique& tech, const RenderDesc& desc) -> void {
     auto& [cmd, device, frame_index] = desc;
     cmd.graphics_scope([&tech, frame_index](GpuGraphicsCommandList& cmd) {
-        cmd.begin_pix("%s - Render", NAME.data());
+        cmd.pix_begin("%s - Render", NAME.data());
         cmd.set_constants(Bindings {
             .constants = tech.constants.buffer(frame_index).cbv_descriptor().index(),
             .vertices = tech.vertices.srv_descriptor().index(),
@@ -72,7 +72,7 @@ auto render(Technique& tech, const RenderDesc& desc) -> void {
         cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
         cmd.set_index_buffer(tech.indices.index_buffer_view());
         cmd.draw_indexed_instanced(tech.indices.element_count(), 1, 0, 0, 0);
-        cmd.end_pix();
+        cmd.pix_end();
     });
 }
 

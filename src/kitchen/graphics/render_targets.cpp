@@ -15,6 +15,7 @@ static auto make_depth_stencil_clear_value(DXGI_FORMAT format, float depth, uint
 }
 
 auto RenderTargets::create(GpuDevice& device, const RenderTargetsDesc& desc) -> void {
+    ZoneScoped;
     DebugScope debug("Render Targets");
 
     _size = desc.size;

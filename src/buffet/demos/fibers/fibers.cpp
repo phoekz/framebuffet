@@ -3,6 +3,7 @@
 namespace fb::demos::fibers {
 
 auto create(Demo& demo, const CreateDesc& desc) -> void {
+    ZoneScoped;
     PIXScopedEvent(PIX_COLOR_DEFAULT, "%s - Create", NAME.data());
     DebugScope debug(NAME);
 
@@ -270,11 +271,11 @@ auto update(Demo& demo, const UpdateDesc& desc) -> void {
 
 auto render(Demo& demo, const RenderDesc& desc) -> void {
     auto& [cmd, device, frame_index] = desc;
-    cmd.begin_pix("%s - Render", NAME.data());
+    cmd.pix_begin("%s - Render", NAME.data());
 
     // Compute.
     cmd.compute_scope([&demo, frame_index](GpuComputeCommandList& cmd) {
-        cmd.begin_pix("Compute");
+        cmd.pix_begin("Compute");
 
         // Transition to compute.
         demo.lights.explicit_transition(
@@ -375,12 +376,12 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
         );
         cmd.flush_barriers();
 
-        cmd.end_pix();
+        cmd.pix_end();
     });
 
     // Draw.
     cmd.graphics_scope([&demo, frame_index](GpuGraphicsCommandList& cmd) {
-        cmd.begin_pix("Draw");
+        cmd.pix_begin("Draw");
 
         const auto& params = demo.parameters;
 
@@ -436,10 +437,10 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
         cmd.set_pipeline(demo.debug_pipeline);
         cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
         cmd.draw_instanced(3, 1, 0, 0);
-        cmd.end_pix();
+        cmd.pix_end();
     });
 
-    cmd.end_pix();
+    cmd.pix_end();
 }
 
 } // namespace fb::demos::fibers

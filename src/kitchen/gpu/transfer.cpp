@@ -164,6 +164,8 @@ auto GpuTransfer::resource(
     Option<D3D12_BARRIER_LAYOUT> layout_before,
     Option<D3D12_BARRIER_LAYOUT> layout_after
 ) -> void {
+    ZoneScoped;
+
     // Validation.
     FB_ASSERT(sync_before == D3D12_BARRIER_SYNC_NONE);
     FB_ASSERT(access_before == D3D12_BARRIER_ACCESS_NO_ACCESS);
@@ -204,6 +206,8 @@ auto GpuTransfer::resource(
     {
         auto dst_offset = subresource_data_offset;
         for (const auto& data : datas) {
+            ZoneScopedN("Copy Subresource Data");
+            ZoneValue(data.SlicePitch);
             memcpy(_impl->subresource_data_buffer + dst_offset, data.pData, data.SlicePitch);
             _impl->subresource_datas.push_back(GpuTransferImpl::SubresourceData {
                 .offset = dst_offset,

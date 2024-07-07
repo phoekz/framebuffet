@@ -6,7 +6,7 @@ namespace fb::baked::buffet {
 
 class Assets {
 public:
-    Assets();
+    auto load() -> void;
 
     auto heatmap_magma_texture() const -> Texture;
     auto heatmap_viridis_texture() const -> Texture;
@@ -59,7 +59,7 @@ private:
 
 class Shaders {
 public:
-    Shaders();
+    auto load() -> void;
 
     auto cards_draw_vs() const -> std::span<const std::byte>;
     auto cards_draw_ps() const -> std::span<const std::byte>;

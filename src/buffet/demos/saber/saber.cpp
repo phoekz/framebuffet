@@ -3,6 +3,7 @@
 namespace fb::demos::saber {
 
 auto create(Demo& demo, const CreateDesc& desc) -> void {
+    ZoneScoped;
     PIXScopedEvent(PIX_COLOR_DEFAULT, "%s - Create", NAME.data());
     DebugScope debug(NAME);
 
@@ -166,13 +167,13 @@ auto update(Demo& demo, const UpdateDesc& desc) -> void {
 
 auto render(Demo& demo, const RenderDesc& desc) -> void {
     auto& [cmd, device, frame_index] = desc;
-    cmd.begin_pix("%s - Render", NAME.data());
+    cmd.pix_begin("%s - Render", NAME.data());
 
     // Scene pass.
     cmd.graphics_scope([&demo, frame_index](GpuGraphicsCommandList& cmd) {
         auto& scene = demo.scene;
 
-        cmd.begin_pix("Scene");
+        cmd.pix_begin("Scene");
 
         scene.render_targets.set(cmd);
         scene.debug_draw.render(cmd);
@@ -193,7 +194,7 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
         scene.render_targets.transition_to_shader_resource(cmd);
         cmd.flush_barriers();
 
-        cmd.end_pix();
+        cmd.pix_end();
     });
 
     // Compute pass.
@@ -201,7 +202,7 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
         const auto& scene = demo.scene;
         auto& compute = demo.compute;
 
-        cmd.begin_pix("Compute");
+        cmd.pix_begin("Compute");
 
         compute.downsample.transition(
             cmd,
@@ -222,7 +223,7 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
         const auto mip_count = mip_count_from_size(size);
 
         // Thresholding.
-        cmd.begin_pix("Thresholding");
+        cmd.pix_begin("Thresholding");
         cmd.set_pipeline(compute.threshold_pipeline);
         cmd.set_constants(ThresholdBindings {
             .constants = demo.constants.buffer(frame_index).cbv_descriptor().index(),
@@ -236,10 +237,10 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
             (size.y + (DISPATCH_Y - 1)) / DISPATCH_Y,
             1
         );
-        cmd.end_pix();
+        cmd.pix_end();
 
         // Downsampling.
-        cmd.begin_pix("Downsampling");
+        cmd.pix_begin("Downsampling");
         cmd.set_pipeline(compute.downsample_pipeline);
         for (uint mip = 0; mip < mip_count - 1; mip++) {
             const auto src_level = mip;
@@ -265,10 +266,10 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
                 1
             );
         }
-        cmd.end_pix();
+        cmd.pix_end();
 
         // Upsampling.
-        cmd.begin_pix("Upsampling");
+        cmd.pix_begin("Upsampling");
         cmd.set_pipeline(compute.upsample_pipeline);
         for (uint mip_inv = 0; mip_inv < mip_count - 1; mip_inv++) {
             const auto mip = mip_count - 1 - mip_inv;
@@ -296,9 +297,9 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
                 1
             );
         }
-        cmd.end_pix();
+        cmd.pix_end();
 
-        cmd.end_pix();
+        cmd.pix_end();
     });
 
     // Blit pass.
@@ -316,7 +317,7 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
         blit.render_targets.transition_to_render_target(cmd);
         cmd.flush_barriers();
 
-        cmd.begin_pix("Blit");
+        cmd.pix_begin("Blit");
 
         blit.render_targets.set(cmd);
         cmd.set_pipeline(blit.pipeline);
@@ -328,10 +329,10 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
         });
         cmd.draw_instanced(3, 1, 0, 0);
 
-        cmd.end_pix();
+        cmd.pix_end();
     });
 
-    cmd.end_pix();
+    cmd.pix_end();
 }
 
 } // namespace fb::demos::saber

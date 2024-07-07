@@ -123,7 +123,7 @@ auto update(Technique&, const UpdateDesc&) -> void {
 auto render(Technique& tech, const RenderDesc& desc) -> void {
     auto& [cmd, device, frame_index] = desc;
     cmd.graphics_scope([&tech, frame_index](GpuGraphicsCommandList& cmd) {
-        cmd.begin_pix("%s - Render", NAME.data());
+        cmd.pix_begin("%s - Render", NAME.data());
         cmd.set_pipeline(tech.pipeline);
         cmd.set_constants(Bindings {
             .constants = tech.constants.cbv_descriptor().index(),
@@ -139,7 +139,7 @@ auto render(Technique& tech, const RenderDesc& desc) -> void {
             0,
             0
         );
-        cmd.end_pix();
+        cmd.pix_end();
     });
 }
 

@@ -81,7 +81,7 @@ auto render(Technique& tech, const RenderDesc& desc) -> void {
 
     if (!tech.done) {
         cmd.compute_scope([&tech, frame_index](GpuComputeCommandList& cmd) {
-            cmd.begin_pix("%s - Render", NAME.data());
+            cmd.pix_begin("%s - Render", NAME.data());
             tech.lut_texture.transition(
                 cmd,
                 D3D12_BARRIER_SYNC_COMPUTE_SHADING,
@@ -106,7 +106,7 @@ auto render(Technique& tech, const RenderDesc& desc) -> void {
                 D3D12_BARRIER_LAYOUT_SHADER_RESOURCE
             );
             cmd.flush_barriers();
-            cmd.end_pix();
+            cmd.pix_end();
 
             tech.done = true;
         });
@@ -115,7 +115,7 @@ auto render(Technique& tech, const RenderDesc& desc) -> void {
     if (tech.delayed_save.initiated() && tech.done) {
         FB_LOG_INFO("Reading LUT texture back...");
 
-        cmd.begin_pix("%s - Render", NAME.data());
+        cmd.pix_begin("%s - Render", NAME.data());
         tech.lut_texture.transition(
             cmd,
             D3D12_BARRIER_SYNC_COPY,
@@ -139,7 +139,7 @@ auto render(Technique& tech, const RenderDesc& desc) -> void {
             D3D12_BARRIER_LAYOUT_SHADER_RESOURCE
         );
         cmd.flush_barriers();
-        cmd.end_pix();
+        cmd.pix_end();
         tech.delayed_save.set_pending();
     }
 }

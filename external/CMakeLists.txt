@@ -14,6 +14,7 @@ if(NOT FETCH_CONTENT_HAS_BEEN_RUN)
     FetchContent_Declare(nlohmann_json GIT_REPOSITORY "https://github.com/nlohmann/json" GIT_TAG bc889afb4c5bf1c0d8ee29ef35eaaf4c8bef8a5d) # v3.11.2
     FetchContent_Declare(d3d12memalloc GIT_REPOSITORY "https://github.com/GPUOpen-LibrariesAndSDKs/D3D12MemoryAllocator" GIT_TAG 8dc7b31598d5c89331475be1364f407ddf604f47) # Jul 11, 2023
     FetchContent_Declare(ttf2mesh GIT_REPOSITORY "https://github.com/fetisov/ttf2mesh" GIT_TAG 52d9eba33c02b83a298329ff15e20a7602fb6dde) # April 23, 2023
+    FetchContent_Declare(tracy GIT_REPOSITORY "https://github.com/wolfpld/tracy" GIT_TAG 37aff70dfa50cf6307b3fee6074d627dc2929143) # v0.10
     FetchContent_Declare(dxagilitysdk URL "https://globalcdn.nuget.org/packages/microsoft.direct3d.d3d12.1.610.4.nupkg" URL_MD5 33bffd67d09a9008e49b35d4a8c4b8b5)
     FetchContent_Declare(dxcompiler URL "https://globalcdn.nuget.org/packages/microsoft.direct3d.dxc.1.7.2308.12.nupkg" URL_MD5 59f6761d73ab36cda5152cb568b4bfd2)
     FetchContent_Declare(directxmath URL "https://globalcdn.nuget.org/packages/directxmath.2022.12.12.1.nupkg" URL_MD5 b8fb4fda4eea8171627d0e080c4da062)
@@ -85,6 +86,10 @@ if(NOT FETCH_CONTENT_HAS_BEEN_RUN)
     message(STATUS "Fetching ttf2mesh...")
     FetchContent_MakeAvailable(ttf2mesh)
     set(TTF2MESH_SOURCE_DIR ${ttf2mesh_SOURCE_DIR} CACHE INTERNAL "ttf2mesh Source Directory")
+
+    message(STATUS "Fetching Tracy...")
+    FetchContent_MakeAvailable(tracy)
+    set(TRACY_SOURCE_DIR ${tracy_SOURCE_DIR} CACHE INTERNAL "Tracy Source Directory")
 
     message(STATUS "Fetching DirectX Agility SDK...")
     FetchContent_MakeAvailable(dxagilitysdk)
@@ -221,6 +226,27 @@ target_include_directories(
     ${TTF2MESH_SOURCE_DIR}
 )
 set(TTF2MESH_LIBRARY ext_ttf2mesh CACHE INTERNAL "ttf2mesh Library")
+
+# Tracy.
+add_library(
+    ext_tracy STATIC
+    ${TRACY_SOURCE_DIR}/public/TracyClient.cpp
+)
+target_include_directories(
+    ext_tracy
+    PUBLIC
+    ${TRACY_SOURCE_DIR}/public
+)
+target_compile_definitions(
+    ext_tracy
+    PUBLIC
+    TRACY_ENABLE
+    TRACY_ON_DEMAND
+    TRACY_NO_BROADCAST
+    TRACY_ONLY_LOCALHOST
+)
+set(TRACY_INCLUDE_DIR ${TRACY_SOURCE_DIR}/public CACHE INTERNAL "Tracy Include Directory")
+set(TRACY_LIBRARY ext_tracy CACHE INTERNAL "Tracy Library")
 
 # D3D12 Memory Allocator.
 add_library(

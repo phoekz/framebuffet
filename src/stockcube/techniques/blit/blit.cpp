@@ -47,7 +47,7 @@ auto update(Technique& tech, const UpdateDesc&) -> void {
 auto render(Technique& tech, const RenderDesc& desc) -> void {
     auto& [cmd, device, frame_index] = desc;
     cmd.graphics_scope([&tech, frame_index](GpuGraphicsCommandList& cmd) {
-        cmd.begin_pix("%s - Render", NAME.data());
+        cmd.pix_begin("%s - Render", NAME.data());
         cmd.set_pipeline(tech.pipeline);
         cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
         cmd.set_viewport(0, 0, tech.size.x, tech.size.y);
@@ -57,7 +57,7 @@ auto render(Technique& tech, const RenderDesc& desc) -> void {
             .texture = tech.render_target.index(),
         });
         cmd.draw_instanced(3, 1, 0, 0);
-        cmd.end_pix();
+        cmd.pix_end();
     });
 }
 

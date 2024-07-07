@@ -60,6 +60,7 @@ static auto layout_exclusive(std::span<Card> cards, uint2 window_size) -> void {
 }
 
 auto create(Demo& demo, const CreateDesc& desc) -> void {
+    ZoneScoped;
     PIXScopedEvent(PIX_COLOR_DEFAULT, "%s - Create", NAME.data());
     DebugScope debug(NAME);
 
@@ -221,10 +222,10 @@ auto update(Demo& demo, const UpdateDesc& desc) -> void {
 
 auto render(Demo& demo, const RenderDesc& desc) -> void {
     auto& [cmd, device, frame_index] = desc;
-    cmd.begin_pix("%s - Render", NAME.data());
+    cmd.pix_begin("%s - Render", NAME.data());
 
     cmd.compute_scope([&demo, frame_index](GpuComputeCommandList& cmd) {
-        cmd.begin_pix("Spd");
+        cmd.pix_begin("Spd");
         cmd.set_pipeline(demo.spd_pipeline);
         for (uint i = 0; i < CARD_COUNT; i++) {
             const auto& card = demo.card_descriptors[i];
@@ -237,11 +238,11 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
             });
             cmd.dispatch(demo.spd_dispatch.x, demo.spd_dispatch.y, demo.spd_dispatch.z);
         }
-        cmd.end_pix();
+        cmd.pix_end();
     });
 
     cmd.graphics_scope([&demo, &device, frame_index](GpuGraphicsCommandList& cmd) {
-        cmd.begin_pix("Render");
+        cmd.pix_begin("Render");
         const auto& params = demo.parameters;
         cmd.set_pipeline(demo.pipeline);
         cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -257,9 +258,9 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
             });
             cmd.draw_indexed_instanced(demo.indices.element_count(), 1, 0, 0, 0);
         }
-        cmd.end_pix();
+        cmd.pix_end();
     });
-    cmd.end_pix();
+    cmd.pix_end();
 }
 
 } // namespace fb::demos::cards

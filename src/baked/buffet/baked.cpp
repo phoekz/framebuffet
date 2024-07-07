@@ -7,8 +7,9 @@ namespace fb::baked::buffet {
         .row_pitch = rp, .slice_pitch = sp, .data = transmuted_span<std::byte>(off, sz) \
     }
 
-Assets::Assets() {
+auto Assets::load() -> void {
     // hash: 5f83faeaeb2f11fdafdc186a1eaabbce
+    ZoneScoped;
     _data = read_whole_file("fb_buffet_assets.bin");
     FB_ASSERT(_data.size() == 182608856);
 }
@@ -756,8 +757,9 @@ auto Assets::grass_material() const -> Material {
     };
 }
 
-Shaders::Shaders() {
+auto Shaders::load() -> void {
     // hash: 62a8a87106c9f8474ce9aa1c267f6a59
+    ZoneScoped;
     _data = read_whole_file("fb_buffet_shaders.bin");
     FB_ASSERT(_data.size() == 192832);
 }

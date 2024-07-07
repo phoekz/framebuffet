@@ -7,8 +7,9 @@ namespace fb::baked::stockcube {
         .row_pitch = rp, .slice_pitch = sp, .data = transmuted_span<std::byte>(off, sz) \
     }
 
-Assets::Assets() {
+auto Assets::load() -> void {
     // hash: 7f09e67f65e57037f74b249ecf51e6bd
+    ZoneScoped;
     _data = read_whole_file("fb_stockcube_assets.bin");
     FB_ASSERT(_data.size() == 134371904);
 }
@@ -91,8 +92,9 @@ auto Assets::sphere_mesh() const -> Mesh {
     };
 }
 
-Shaders::Shaders() {
+auto Shaders::load() -> void {
     // hash: 0787184c51b0259b0a9ac13871d66df3
+    ZoneScoped;
     _data = read_whole_file("fb_stockcube_shaders.bin");
     FB_ASSERT(_data.size() == 65836);
 }

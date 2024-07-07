@@ -7,6 +7,7 @@ auto DebugDraw::create(
     const baked::kitchen::Shaders& shaders,
     const render_targets::RenderTargets& render_targets
 ) -> void {
+    ZoneScoped;
     DebugScope debug("Debug Draw");
 
     // Reserve.
@@ -87,7 +88,7 @@ auto DebugDraw::end() -> void {
 
 auto DebugDraw::render(GpuGraphicsCommandList& cmd) -> void {
     const auto& frame = _frames[_frame_index];
-    cmd.begin_pix("Debug Draw");
+    cmd.pix_begin("Debug Draw");
     cmd.set_constants(Bindings {
         .constants = frame._constants.cbv_descriptor().index(),
         .vertices = frame._lines.srv_descriptor().index(),
@@ -95,7 +96,7 @@ auto DebugDraw::render(GpuGraphicsCommandList& cmd) -> void {
     cmd.set_pipeline(_pipeline);
     cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
     cmd.draw_instanced((uint)_lines.size(), 1, 0, 0);
-    cmd.end_pix();
+    cmd.pix_end();
 }
 
 } // namespace fb::graphics::debug_draw

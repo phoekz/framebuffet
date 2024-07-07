@@ -74,6 +74,7 @@ auto update(Demos& demos, const UpdateDesc& desc) -> void {
 }
 
 auto transition_to_render_target(Demos& demos, const RenderDesc& desc) -> void {
+    ZoneScoped;
     auto& cmd = desc.cmd;
     demos.anim.render_targets.transition_to_render_target(cmd);
     demos.crate.render_targets.transition_to_render_target(cmd);
@@ -87,6 +88,7 @@ auto transition_to_render_target(Demos& demos, const RenderDesc& desc) -> void {
 }
 
 auto clear_render_targets(Demos& demos, const RenderDesc& desc) -> void {
+    ZoneScoped;
     auto& cmd = desc.cmd;
     demos.anim.render_targets.clear(cmd);
     demos.crate.render_targets.clear(cmd);
@@ -100,6 +102,7 @@ auto clear_render_targets(Demos& demos, const RenderDesc& desc) -> void {
 }
 
 auto render_demos(Demos& demos, const RenderDesc& desc) -> void {
+    ZoneScoped;
     anim::render(demos.anim, desc);
     crate::render(demos.crate, desc);
     env::render(demos.env, desc);
@@ -112,6 +115,7 @@ auto render_demos(Demos& demos, const RenderDesc& desc) -> void {
 }
 
 auto transition_to_resolve(Demos& demos, const RenderDesc& desc) -> void {
+    ZoneScoped;
     auto& cmd = desc.cmd;
     demos.anim.render_targets.transition_to_resolve(cmd);
     demos.crate.render_targets.transition_to_resolve(cmd);
@@ -124,6 +128,7 @@ auto transition_to_resolve(Demos& demos, const RenderDesc& desc) -> void {
 }
 
 auto resolve_render_targets(Demos& demos, const RenderDesc& desc) -> void {
+    ZoneScoped;
     auto& cmd = desc.cmd;
     demos.anim.render_targets.resolve(cmd);
     demos.crate.render_targets.resolve(cmd);
@@ -136,6 +141,7 @@ auto resolve_render_targets(Demos& demos, const RenderDesc& desc) -> void {
 }
 
 auto transition_to_shader_resource(Demos& demos, const RenderDesc& desc) -> void {
+    ZoneScoped;
     auto& cmd = desc.cmd;
     demos.anim.render_targets.transition_to_shader_resource(cmd);
     demos.crate.render_targets.transition_to_shader_resource(cmd);
@@ -149,6 +155,7 @@ auto transition_to_shader_resource(Demos& demos, const RenderDesc& desc) -> void
 }
 
 auto render_compose(Demos& demos, const RenderDesc& desc) -> void {
+    ZoneScoped;
     cards::render(demos.cards, desc);
 }
 

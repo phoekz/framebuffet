@@ -6,7 +6,7 @@ namespace fb::baked::stockcube {
 
 class Assets {
 public:
-    Assets();
+    auto load() -> void;
 
     auto farm_field_hdr_texture() const -> Texture;
     auto winter_evening_hdr_texture() const -> Texture;
@@ -26,7 +26,7 @@ private:
 
 class Shaders {
 public:
-    Shaders();
+    auto load() -> void;
 
     auto cfr_cs() const -> std::span<const std::byte>;
     auto lut_cs() const -> std::span<const std::byte>;

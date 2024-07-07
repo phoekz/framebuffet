@@ -6,6 +6,9 @@
 // DirectX.
 #include <directxtk12/SimpleMath.h>
 
+// Tracy.
+#include <tracy/Tracy.hpp>
+
 // Standard library.
 #include <algorithm>
 #include <array>

@@ -6,7 +6,7 @@ namespace fb::baked::kitchen {
 
 class Assets {
 public:
-    Assets();
+    auto load() -> void;
 
     auto imgui_font() const -> Copy;
 
@@ -21,7 +21,7 @@ private:
 
 class Shaders {
 public:
-    Shaders();
+    auto load() -> void;
 
     auto gui_draw_vs() const -> std::span<const std::byte>;
     auto gui_draw_ps() const -> std::span<const std::byte>;

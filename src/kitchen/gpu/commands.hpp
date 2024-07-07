@@ -98,14 +98,14 @@ public:
     //
 
     template<typename... Args>
-    auto begin_pix(const char* fmt, Args... args) const -> void {
+    auto pix_begin(const char* fmt, Args... args) const -> void {
         PIXBeginEvent(_cmd, PIX_COLOR_DEFAULT, fmt, args...);
     }
 
-    auto end_pix() const -> void { PIXEndEvent(_cmd); }
+    auto pix_end() const -> void { PIXEndEvent(_cmd); }
 
     template<typename... Args>
-    auto marker_pix(const char* fmt, Args... args) const -> void {
+    auto pix_marker(const char* fmt, Args... args) const -> void {
         PIXSetMarker(_cmd, PIX_COLOR_DEFAULT, fmt, args...);
     }
 

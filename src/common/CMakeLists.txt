@@ -18,6 +18,8 @@ set(SOURCES
     math.hpp
     pcg.cpp
     pcg.hpp
+    perf.cpp
+    perf.hpp
     string.cpp
     string.hpp
     template_helpers.hpp
@@ -30,6 +32,8 @@ add_library(${NAME} STATIC ${SOURCES})
 target_precompile_headers(${NAME} PRIVATE pch.hpp)
 target_link_libraries(
     ${NAME}
+    PUBLIC
+    ${TRACY_LIBRARY}
     PRIVATE
     ${FP16_LIBRARY}
     ${XXHASH_LIBRARY}
@@ -37,6 +41,7 @@ target_link_libraries(
 target_include_directories(
     ${NAME}
     PUBLIC
+    ${TRACY_INCLUDE_DIR}
     ${DIRECTXMATH_INCLUDE_DIR}
     ${DIRECTXTK12_INCLUDE_DIR}
     PRIVATE

@@ -3,6 +3,7 @@
 namespace fb::demos::rain {
 
 auto create(Demo& demo, const CreateDesc& desc) -> void {
+    ZoneScoped;
     PIXScopedEvent(PIX_COLOR_DEFAULT, "%s - Create", NAME.data());
     DebugScope debug(NAME);
 
@@ -146,21 +147,21 @@ auto update(Demo& demo, const UpdateDesc& desc) -> void {
 
 auto render(Demo& demo, const RenderDesc& desc) -> void {
     auto& [cmd, device, frame_index] = desc;
-    cmd.begin_pix("%s - Render", NAME.data());
+    cmd.pix_begin("%s - Render", NAME.data());
 
     cmd.compute_scope([&demo, frame_index](GpuComputeCommandList& cmd) {
-        cmd.begin_pix("Compute");
+        cmd.pix_begin("Compute");
         cmd.set_constants(Bindings {
             .constants = demo.constants.buffer(frame_index).cbv_descriptor().index(),
             .particles = demo.particles.uav_descriptor().index(),
         });
         cmd.set_pipeline(demo.compute_pipeline);
         cmd.dispatch(DISPATCH_COUNT, 1, 1);
-        cmd.end_pix();
+        cmd.pix_end();
     });
 
     cmd.graphics_scope([&demo, frame_index](GpuGraphicsCommandList& cmd) {
-        cmd.begin_pix("Draw");
+        cmd.pix_begin("Draw");
         demo.render_targets.set(cmd);
         demo.debug_draw.render(cmd);
         cmd.set_constants(Bindings {
@@ -172,10 +173,10 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
         cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
         cmd.set_index_buffer(demo.draw_indices.index_buffer_view());
         cmd.draw_indexed_instanced(6, PARTICLE_COUNT, 0, 0, 0);
-        cmd.end_pix();
+        cmd.pix_end();
     });
 
-    cmd.end_pix();
+    cmd.pix_end();
 }
 
 } // namespace fb::demos::rain

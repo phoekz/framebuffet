@@ -7,8 +7,9 @@ namespace fb::baked::kitchen {
         .row_pitch = rp, .slice_pitch = sp, .data = transmuted_span<std::byte>(off, sz) \
     }
 
-Assets::Assets() {
+auto Assets::load() -> void {
     // hash: 799fc360204416196536a93c9eff68ae
+    ZoneScoped;
     _data = read_whole_file("fb_kitchen_assets.bin");
     FB_ASSERT(_data.size() == 162588);
 }
@@ -20,8 +21,9 @@ auto Assets::imgui_font() const -> Copy {
     };
 }
 
-Shaders::Shaders() {
+auto Shaders::load() -> void {
     // hash: de84d336b259beb06a3220d54b501055
+    ZoneScoped;
     _data = read_whole_file("fb_kitchen_shaders.bin");
     FB_ASSERT(_data.size() == 31808);
 }

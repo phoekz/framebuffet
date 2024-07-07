@@ -117,7 +117,7 @@ auto render(Technique& tech, const RenderDesc& desc) -> void {
     if (tech.dispatch_id < tech.dispatch_count) {
         cmd.compute_scope([&tech, frame_index](GpuComputeCommandList& cmd) {
             // Begin.
-            cmd.begin_pix("%s - Render", NAME.data());
+            cmd.pix_begin("%s - Render", NAME.data());
 
             // Barrier.
             tech.acc_texture.transition(
@@ -190,7 +190,7 @@ auto render(Technique& tech, const RenderDesc& desc) -> void {
             cmd.flush_barriers();
 
             // End.
-            cmd.end_pix();
+            cmd.pix_end();
 
             tech.dispatch_id++;
         });
@@ -198,7 +198,7 @@ auto render(Technique& tech, const RenderDesc& desc) -> void {
         FB_LOG_INFO("Reading RAD texture back...");
 
         // Begin.
-        cmd.begin_pix("%s - Render", NAME.data());
+        cmd.pix_begin("%s - Render", NAME.data());
 
         // Barrier.
         tech.div_texture.transition(
@@ -240,7 +240,7 @@ auto render(Technique& tech, const RenderDesc& desc) -> void {
         cmd.flush_barriers();
 
         // End.
-        cmd.end_pix();
+        cmd.pix_end();
 
         tech.delayed_save.set_pending();
     }
