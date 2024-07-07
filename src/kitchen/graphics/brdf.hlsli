@@ -41,7 +41,7 @@ float luminance(float3 rgb) {
 }
 
 float3 specular_f0_from_base_color(float3 base_color, float metalness) {
-    float min_dielectrics_f0 = MIN_DIELECTRICS_F0;
+    const float min_dielectrics_f0 = MIN_DIELECTRICS_F0;
     return lerp(min_dielectrics_f0.xxx, base_color, metalness);
 }
 
@@ -54,14 +54,14 @@ float3 evaluate_fresnel(float3 f0, float f90, float ndots) {
 }
 
 float shadowed_f90(float3 f0) {
-    float t = (1.0f / MIN_DIELECTRICS_F0);
+    const float t = (1.0f / MIN_DIELECTRICS_F0);
     return min(1.0f, t * luminance(f0));
 }
 
 float disney_diffuse(BrdfData data) {
-    float fd90_minus_one = 2.0f * data.roughness * data.ldoth * data.ldoth - 0.5f;
-    float fdl = 1.0f + (fd90_minus_one * pow(1.0f - data.ndotl, 5.0f));
-    float fdv = 1.0f + (fd90_minus_one * pow(1.0f - data.ndotv, 5.0f));
+    const float fd90_minus_one = 2.0f * data.roughness * data.ldoth * data.ldoth - 0.5f;
+    const float fdl = 1.0f + (fd90_minus_one * pow(1.0f - data.ndotl, 5.0f));
+    const float fdv = 1.0f + (fd90_minus_one * pow(1.0f - data.ndotv, 5.0f));
     return fdl * fdv;
 }
 
@@ -70,8 +70,8 @@ float3 evaluate_disney_diffuse(BrdfData data) {
 }
 
 float smith_g2_height_correlated_ggx_lagarde(float alpha_squared, float ndotl, float ndotv) {
-    float a = ndotv * sqrt(alpha_squared + ndotl * (ndotl - alpha_squared * ndotl));
-    float b = ndotl * sqrt(alpha_squared + ndotv * (ndotv - alpha_squared * ndotv));
+    const float a = ndotv * sqrt(alpha_squared + ndotl * (ndotl - alpha_squared * ndotl));
+    const float b = ndotl * sqrt(alpha_squared + ndotv * (ndotv - alpha_squared * ndotv));
     return 0.5f / (a + b);
 }
 
@@ -80,24 +80,24 @@ float smith_g2(float /*alpha*/, float alpha_squared, float ndotl, float ndotv) {
 }
 
 float ggx_d(float alpha_squared, float ndoth) {
-    float b = ((alpha_squared - 1.0f) * ndoth * ndoth + 1.0f);
+    const float b = ((alpha_squared - 1.0f) * ndoth * ndoth + 1.0f);
     return alpha_squared / (FB_PI * b * b);
 }
 
 float3 evaluate_microfacet(BrdfData data) {
-    float d = ggx_d(max(0.00001f, data.alpha_squared), data.ndoth);
-    float g2 = smith_g2(data.alpha, data.alpha_squared, data.ndotl, data.ndotv);
+    const float d = ggx_d(max(0.00001f, data.alpha_squared), data.ndoth);
+    const float g2 = smith_g2(data.alpha, data.alpha_squared, data.ndotl, data.ndotv);
     return data.f * (g2 * d * data.ndotl);
 }
 
 BrdfData prepare_brdf_data(float3 n, float3 l, float3 v, MaterialProperties material) {
+    const float ndotl = dot(n, l);
+    const float ndotv = dot(n, v);
     BrdfData data;
     data.v = v;
     data.n = n;
     data.h = normalize(l + v);
     data.l = l;
-    float ndotl = dot(n, l);
-    float ndotv = dot(n, v);
     data.v_backfacing = (ndotv <= 0.0f);
     data.l_backfacing = (ndotl <= 0.0f);
     data.ndotl = clamp(ndotl, 0.00001f, 1.0f);
@@ -116,12 +116,12 @@ BrdfData prepare_brdf_data(float3 n, float3 l, float3 v, MaterialProperties mate
 }
 
 float3 evaluate_combined_brdf(float3 n, float3 l, float3 v, MaterialProperties material) {
-    BrdfData data = prepare_brdf_data(n, l, v, material);
+    const BrdfData data = prepare_brdf_data(n, l, v, material);
     if (data.v_backfacing || data.l_backfacing) {
         return float3(0.0f, 0.0f, 0.0f);
     }
-    float3 specular = evaluate_microfacet(data);
-    float3 diffuse = evaluate_disney_diffuse(data);
+    const float3 specular = evaluate_microfacet(data);
+    const float3 diffuse = evaluate_disney_diffuse(data);
     return (float3(1.0f, 1.0f, 1.0f) - data.f) * diffuse + specular;
 }
 
@@ -137,15 +137,15 @@ float4 invert_rotation(float4 q) {
 }
 
 float3 rotate_point(float4 q, float3 v) {
-    float3 q_axis = float3(q.x, q.y, q.z);
+    const float3 q_axis = float3(q.x, q.y, q.z);
     return 2.0f * dot(q_axis, v) * q_axis + (q.w * q.w - dot(q_axis, q_axis)) * v
         + 2.0f * q.w * cross(q_axis, v);
 }
 
 float3 sample_hemisphere(float2 u, out float pdf) {
-    float a = sqrt(u.x);
-    float b = FB_TWO_PI * u.y;
-    float3 result = float3(a * cos(b), a * sin(b), sqrt(1.0f - u.x));
+    const float a = sqrt(u.x);
+    const float b = FB_TWO_PI * u.y;
+    const float3 result = float3(a * cos(b), a * sin(b), sqrt(1.0f - u.x));
     pdf = result.z * FB_ONE_OVER_PI;
     return result;
 }
@@ -167,7 +167,7 @@ float3 sample_ggx_vndf(float3 wi, float2 alpha_2d, float2 u) {
 }
 
 float smith_g1_ggx(float /*alpha*/, float ndots, float alpha_squared) {
-    float ndots_squared = ndots * ndots;
+    const float ndots_squared = ndots * ndots;
     return 2.0f
         / (sqrt(((alpha_squared * (1.0f - ndots_squared)) + ndots_squared) / ndots_squared) + 1.0f);
 }
@@ -178,8 +178,8 @@ float smith_g2_over_g1_height_correlated(
     float ndotl,
     float ndotv
 ) {
-    float g1v = smith_g1_ggx(alpha, ndotv, alpha_squared);
-    float g1l = smith_g1_ggx(alpha, ndotl, alpha_squared);
+    const float g1v = smith_g1_ggx(alpha, ndotv, alpha_squared);
+    const float g1l = smith_g1_ggx(alpha, ndotl, alpha_squared);
     return g1l / (g1v + g1l - g1v * g1l);
 }
 
@@ -208,13 +208,13 @@ float3 sample_specular_microfacet(
     } else {
         local_h = sample_ggx_vndf(local_v, float2(alpha, alpha), u);
     }
-    float3 local_l = reflect(-local_v, local_h);
-    float3 local_n = float3(0.0f, 0.0f, 1.0f);
-    float hdotl = clamp(dot(local_h, local_l), 0.00001f, 1.0f);
-    float ndotl = clamp(dot(local_n, local_l), 0.00001f, 1.0f);
-    float ndotv = clamp(dot(local_n, local_v), 0.00001f, 1.0f);
-    float ndoth = clamp(dot(local_n, local_h), 0.00001f, 1.0f);
-    float3 f = evaluate_fresnel(specular_f0, shadowed_f90(specular_f0), hdotl);
+    const float3 local_l = reflect(-local_v, local_h);
+    const float3 local_n = float3(0.0f, 0.0f, 1.0f);
+    const float hdotl = clamp(dot(local_h, local_l), 0.00001f, 1.0f);
+    const float ndotl = clamp(dot(local_n, local_l), 0.00001f, 1.0f);
+    const float ndotv = clamp(dot(local_n, local_v), 0.00001f, 1.0f);
+    const float ndoth = clamp(dot(local_n, local_h), 0.00001f, 1.0f);
+    const float3 f = evaluate_fresnel(specular_f0, shadowed_f90(specular_f0), hdotl);
     weight = f * specular_sample_weight_ggx_vndf(alpha, alpha_squared, ndotl, ndotv, hdotl, ndoth);
     return local_l;
 }
@@ -238,9 +238,9 @@ bool evaluate_indirect_combined_brdf(
         return false;
     }
 
-    float4 q_rotation_to_z = get_rotation_to_z_axis(shading_normal);
-    float3 local_v = rotate_point(q_rotation_to_z, v);
-    float3 local_n = float3(0.0f, 0.0f, 1.0f);
+    const float4 q_rotation_to_z = get_rotation_to_z_axis(shading_normal);
+    const float3 local_v = rotate_point(q_rotation_to_z, v);
+    const float3 local_n = float3(0.0f, 0.0f, 1.0f);
     float3 local_ray_dir = float3(0.0f, 0.0f, 0.0f);
 
     switch (brdf_type) {

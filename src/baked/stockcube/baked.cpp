@@ -93,7 +93,7 @@ auto Assets::sphere_mesh() const -> Mesh {
 }
 
 auto Shaders::load() -> void {
-    // hash: 0b92efec90d0e00e081d51dd4262d3c6
+    // hash: ae66cdb2473173597a0ea8971d44d6ce
     ZoneScoped;
     _data = read_whole_file("fb_stockcube_shaders.bin");
     FB_ASSERT(_data.size() == 65964);
@@ -625,7 +625,7 @@ auto Shaders::lut_cs() const -> std::span<const std::byte> {
     return std::span(_data).subspan(4268, 4536);
 }
 
-// shader_hash: a6d8db82a47f080c40fc68bee34f7561
+// shader_hash: 360f6654fb256b4499bcc6e6e9538d41
 // constant_buffers: 1
 // bound_resources: 1
 // instruction_count: 235
@@ -655,8 +655,8 @@ auto Shaders::lut_cs() const -> std::span<const std::byte> {
 ; Name                 Index   Mask Register SysValue  Format   Used
 ; -------------------- ----- ------ -------- -------- ------- ------
 ; no parameters
-; shader debug name: a6d8db82a47f080c40fc68bee34f7561.pdb
-; shader hash: a6d8db82a47f080c40fc68bee34f7561
+; shader debug name: 360f6654fb256b4499bcc6e6e9538d41.pdb
+; shader hash: 360f6654fb256b4499bcc6e6e9538d41
 ;
 ; Pipeline Runtime Information: 
 ;
@@ -901,21 +901,21 @@ define void @acc_cs() {
   %153 = fmul fast float %152, %148
   %154 = fsub fast float 1.000000e+00, %107
   %155 = call float @dx.op.unary.f32(i32 24, float %154)  ; Sqrt(value)
-  %156 = fadd fast float %144, %151
-  %157 = fadd fast float %153, %146
-  %158 = fadd fast float %155, %147
-  %159 = call float @dx.op.dot3.f32(i32 55, float %156, float %157, float %158, float %156, float %157, float %158)  ; Dot3(ax,ay,az,bx,by,bz)
-  %160 = call float @dx.op.unary.f32(i32 25, float %159)  ; Rsqrt(value)
-  %161 = fmul fast float %160, %156
-  %162 = fmul fast float %160, %157
-  %163 = fmul fast float %160, %158
-  %164 = call float @dx.op.dot3.f32(i32 55, float 0.000000e+00, float 0.000000e+00, float 1.000000e+00, float %151, float %153, float %155)  ; Dot3(ax,ay,az,bx,by,bz)
-  %165 = call float @dx.op.dot3.f32(i32 55, float 0.000000e+00, float 0.000000e+00, float 1.000000e+00, float %144, float %146, float %147)  ; Dot3(ax,ay,az,bx,by,bz)
-  %166 = call float @dx.op.binary.f32(i32 35, float %164, float 0x3EE4F8B580000000)  ; FMax(a,b)
+  %156 = call float @dx.op.dot3.f32(i32 55, float 0.000000e+00, float 0.000000e+00, float 1.000000e+00, float %151, float %153, float %155)  ; Dot3(ax,ay,az,bx,by,bz)
+  %157 = call float @dx.op.dot3.f32(i32 55, float 0.000000e+00, float 0.000000e+00, float 1.000000e+00, float %144, float %146, float %147)  ; Dot3(ax,ay,az,bx,by,bz)
+  %158 = fadd fast float %144, %151
+  %159 = fadd fast float %153, %146
+  %160 = fadd fast float %155, %147
+  %161 = call float @dx.op.dot3.f32(i32 55, float %158, float %159, float %160, float %158, float %159, float %160)  ; Dot3(ax,ay,az,bx,by,bz)
+  %162 = call float @dx.op.unary.f32(i32 25, float %161)  ; Rsqrt(value)
+  %163 = fmul fast float %162, %158
+  %164 = fmul fast float %162, %159
+  %165 = fmul fast float %162, %160
+  %166 = call float @dx.op.binary.f32(i32 35, float %156, float 0x3EE4F8B580000000)  ; FMax(a,b)
   %167 = call float @dx.op.binary.f32(i32 36, float %166, float 1.000000e+00)  ; FMin(a,b)
-  %168 = call float @dx.op.binary.f32(i32 35, float %165, float 0x3EE4F8B580000000)  ; FMax(a,b)
+  %168 = call float @dx.op.binary.f32(i32 35, float %157, float 0x3EE4F8B580000000)  ; FMax(a,b)
   %169 = call float @dx.op.binary.f32(i32 36, float %168, float 1.000000e+00)  ; FMin(a,b)
-  %170 = call float @dx.op.dot3.f32(i32 55, float %151, float %153, float %155, float %161, float %162, float %163)  ; Dot3(ax,ay,az,bx,by,bz)
+  %170 = call float @dx.op.dot3.f32(i32 55, float %151, float %153, float %155, float %163, float %164, float %165)  ; Dot3(ax,ay,az,bx,by,bz)
   %171 = call float @dx.op.unary.f32(i32 7, float %170)  ; Saturate(value)
   %172 = call float @dx.op.unary.f32(i32 23, float 0.000000e+00)  ; Log(value)
   %173 = fmul fast float %172, 5.000000e+00

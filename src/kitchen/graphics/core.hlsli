@@ -88,19 +88,19 @@ float fb_pow2(float x) {
 }
 
 float fb_pow4(float x) {
-    float x2 = x * x;
+    const float x2 = x * x;
     return x2 * x2;
 }
 
 float4 fb_plane_from_points(float3 p0, float3 p1, float3 p2) {
-    float3 v0 = p1 - p0;
-    float3 v1 = p2 - p0;
-    float3 n = normalize(cross(v0, v1));
+    const float3 v0 = p1 - p0;
+    const float3 v1 = p2 - p0;
+    const float3 n = normalize(cross(v0, v1));
     return float4(n, dot(n, p0));
 }
 
 bool fb_sphere_inside_plane(float4 plane, float3 sphere_center, float sphere_radius) {
-    float d = dot(plane.xyz, sphere_center) - plane.w;
+    const float d = dot(plane.xyz, sphere_center) - plane.w;
     return d < -sphere_radius;
 }
 

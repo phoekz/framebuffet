@@ -758,7 +758,7 @@ auto Assets::grass_material() const -> Material {
 }
 
 auto Shaders::load() -> void {
-    // hash: 5a7ea94911a8149abfd25f6936717861
+    // hash: 612b9cfbc63c3b2c2dfe2de7d6e71315
     ZoneScoped;
     _data = read_whole_file("fb_buffet_shaders.bin");
     FB_ASSERT(_data.size() == 193768);
@@ -1492,7 +1492,7 @@ auto Shaders::crate_draw_vs() const -> std::span<const std::byte> {
     return std::span(_data).subspan(9128, 5792);
 }
 
-// shader_hash: 5dc3a7f7321827f56c42945ec4412bf0
+// shader_hash: ac7410e20ebe9df72cdea556433dd4f0
 // constant_buffers: 1
 // bound_resources: 1
 // input_parameters: 6
@@ -1528,8 +1528,8 @@ auto Shaders::crate_draw_vs() const -> std::span<const std::byte> {
 ; -------------------- ----- ------ -------- -------- ------- ------
 ; SV_Target                0   xyzw        0   TARGET   float   xyzw
 ;
-; shader debug name: 5dc3a7f7321827f56c42945ec4412bf0.pdb
-; shader hash: 5dc3a7f7321827f56c42945ec4412bf0
+; shader debug name: ac7410e20ebe9df72cdea556433dd4f0.pdb
+; shader hash: ac7410e20ebe9df72cdea556433dd4f0
 ;
 ; Pipeline Runtime Information: 
 ;
@@ -1712,25 +1712,25 @@ define void @draw_ps() {
   %97 = extractvalue %dx.types.CBufRet.f32 %96, 0
   %98 = extractvalue %dx.types.CBufRet.f32 %96, 1
   %99 = extractvalue %dx.types.CBufRet.f32 %96, 2
-  %100 = fadd fast float %97, %93
-  %101 = fadd fast float %98, %94
-  %102 = fadd fast float %99, %95
-  %103 = call float @dx.op.dot3.f32(i32 55, float %100, float %101, float %102, float %100, float %101, float %102)  ; Dot3(ax,ay,az,bx,by,bz)
-  %104 = call float @dx.op.unary.f32(i32 25, float %103)  ; Rsqrt(value)
-  %105 = fmul fast float %100, %104
-  %106 = fmul fast float %101, %104
-  %107 = fmul fast float %102, %104
-  %108 = call float @dx.op.dot3.f32(i32 55, float %77, float %80, float %83, float %97, float %98, float %99)  ; Dot3(ax,ay,az,bx,by,bz)
-  %109 = call float @dx.op.dot3.f32(i32 55, float %77, float %80, float %83, float %93, float %94, float %95)  ; Dot3(ax,ay,az,bx,by,bz)
-  %110 = fcmp fast ole float %109, 0.000000e+00
-  %111 = fcmp fast ole float %108, 0.000000e+00
-  %112 = call float @dx.op.binary.f32(i32 35, float %108, float 0x3EE4F8B580000000)  ; FMax(a,b)
+  %100 = call float @dx.op.dot3.f32(i32 55, float %77, float %80, float %83, float %97, float %98, float %99)  ; Dot3(ax,ay,az,bx,by,bz)
+  %101 = call float @dx.op.dot3.f32(i32 55, float %77, float %80, float %83, float %93, float %94, float %95)  ; Dot3(ax,ay,az,bx,by,bz)
+  %102 = fadd fast float %97, %93
+  %103 = fadd fast float %98, %94
+  %104 = fadd fast float %99, %95
+  %105 = call float @dx.op.dot3.f32(i32 55, float %102, float %103, float %104, float %102, float %103, float %104)  ; Dot3(ax,ay,az,bx,by,bz)
+  %106 = call float @dx.op.unary.f32(i32 25, float %105)  ; Rsqrt(value)
+  %107 = fmul fast float %106, %102
+  %108 = fmul fast float %106, %103
+  %109 = fmul fast float %106, %104
+  %110 = fcmp fast ole float %101, 0.000000e+00
+  %111 = fcmp fast ole float %100, 0.000000e+00
+  %112 = call float @dx.op.binary.f32(i32 35, float %100, float 0x3EE4F8B580000000)  ; FMax(a,b)
   %113 = call float @dx.op.binary.f32(i32 36, float %112, float 1.000000e+00)  ; FMin(a,b)
-  %114 = call float @dx.op.binary.f32(i32 35, float %109, float 0x3EE4F8B580000000)  ; FMax(a,b)
+  %114 = call float @dx.op.binary.f32(i32 35, float %101, float 0x3EE4F8B580000000)  ; FMax(a,b)
   %115 = call float @dx.op.binary.f32(i32 36, float %114, float 1.000000e+00)  ; FMin(a,b)
-  %116 = call float @dx.op.dot3.f32(i32 55, float %97, float %98, float %99, float %105, float %106, float %107)  ; Dot3(ax,ay,az,bx,by,bz)
+  %116 = call float @dx.op.dot3.f32(i32 55, float %97, float %98, float %99, float %107, float %108, float %109)  ; Dot3(ax,ay,az,bx,by,bz)
   %117 = call float @dx.op.unary.f32(i32 7, float %116)  ; Saturate(value)
-  %118 = call float @dx.op.dot3.f32(i32 55, float %77, float %80, float %83, float %105, float %106, float %107)  ; Dot3(ax,ay,az,bx,by,bz)
+  %118 = call float @dx.op.dot3.f32(i32 55, float %77, float %80, float %83, float %107, float %108, float %109)  ; Dot3(ax,ay,az,bx,by,bz)
   %119 = call float @dx.op.unary.f32(i32 7, float %118)  ; Saturate(value)
   %120 = fsub fast float 1.000000e+00, %64
   %121 = fmul fast float %65, %65
@@ -1863,7 +1863,7 @@ define void @draw_ps() {
   %244 = fmul fast float %232, %241
   %245 = fmul fast float %233, %242
   %246 = fmul fast float %234, %243
-  %247 = call float @dx.op.unary.f32(i32 7, float %108)  ; Saturate(value)
+  %247 = call float @dx.op.unary.f32(i32 7, float %100)  ; Saturate(value)
   %248 = call %dx.types.CBufRet.f32 @dx.op.cbufferLoadLegacy.f32(i32 59, %dx.types.Handle %20, i32 4)  ; CBufferLoadLegacy(handle,regIndex)
   %249 = extractvalue %dx.types.CBufRet.f32 %248, 3
   %250 = call %dx.types.CBufRet.f32 @dx.op.cbufferLoadLegacy.f32(i32 59, %dx.types.Handle %20, i32 5)  ; CBufferLoadLegacy(handle,regIndex)
