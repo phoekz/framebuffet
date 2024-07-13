@@ -21,7 +21,7 @@ if(NOT FETCH_CONTENT_HAS_BEEN_RUN)
     FetchContent_Declare(directxtk12 URL "https://globalcdn.nuget.org/packages/directxtk12_desktop_2019.2023.4.28.1.nupkg" URL_MD5 09a48106645ce7296dbe7e8de56b877d)
     FetchContent_Declare(directxmesh URL "https://globalcdn.nuget.org/packages/directxmesh_desktop_win10.2023.4.28.1.nupkg" URL_MD5 18f92d2c5c432004e4c2cb48444defe6)
     FetchContent_Declare(directxtex URL "https://globalcdn.nuget.org/packages/directxtex_desktop_win10.2023.6.14.1.nupkg" URL_MD5 2f800e537e27a7f4a76ef00415b232e7)
-    FetchContent_Declare(winpixeventruntime URL "https://globalcdn.nuget.org/packages/winpixeventruntime.1.0.230302001.nupkg" URL_MD5 dcdc01fbef9e91d4bcdd13d3352d275e)
+    FetchContent_Declare(winpixeventruntime URL "https://globalcdn.nuget.org/packages/winpixeventruntime.1.0.240308001.nupkg" URL_MD5 f376b719c0a7d84dd642ea7830b713f8)
 
     # Fetch.
     message(STATUS "Fetching Dear ImGui...")
