@@ -84,8 +84,8 @@ auto update(Demo& demo, const UpdateDesc& desc) -> void {{
 }}
 
 auto render(Demo& demo, const RenderDesc& desc) -> void {{
-    auto& [cmd, device, frame_index] = desc;
     ZoneScoped;
+    auto& [cmd, device, frame_index] = desc;
     cmd.pix_begin("%s - Render", NAME.data());
 
     cmd.compute_scope([&demo, frame_index](GpuComputeCommandList& cmd) {{

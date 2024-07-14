@@ -211,6 +211,7 @@ auto create(Demo& demo, const CreateDesc& desc) -> void {
 }
 
 auto gui(Demo& demo, const GuiDesc&) -> void {
+    ZoneScoped;
     PIXScopedEvent(PIX_COLOR_DEFAULT, "%s - Gui", NAME.data());
     auto& params = demo.parameters;
     ImGui::SliderFloat("Camera Distance", &params.camera_distance, 0.5f, 10.0f);
@@ -227,6 +228,7 @@ auto gui(Demo& demo, const GuiDesc&) -> void {
 }
 
 auto update(Demo& demo, const UpdateDesc& desc) -> void {
+    ZoneScoped;
     PIXScopedEvent(PIX_COLOR_DEFAULT, "%s - Update", NAME.data());
     auto& params = demo.parameters;
 
@@ -270,6 +272,7 @@ auto update(Demo& demo, const UpdateDesc& desc) -> void {
 }
 
 auto render(Demo& demo, const RenderDesc& desc) -> void {
+    ZoneScoped;
     auto& [cmd, device, frame_index] = desc;
     cmd.pix_begin("%s - Render", NAME.data());
 

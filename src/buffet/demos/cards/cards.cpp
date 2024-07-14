@@ -161,6 +161,7 @@ auto create(Demo& demo, const CreateDesc& desc) -> void {
 }
 
 auto gui(Demo& demo, const GuiDesc& desc) -> void {
+    ZoneScoped;
     PIXScopedEvent(PIX_COLOR_DEFAULT, "%s - Gui", NAME.data());
     auto& params = demo.parameters;
 
@@ -210,6 +211,7 @@ auto gui(Demo& demo, const GuiDesc& desc) -> void {
 }
 
 auto update(Demo& demo, const UpdateDesc& desc) -> void {
+    ZoneScoped;
     PIXScopedEvent(PIX_COLOR_DEFAULT, "%s - Update", NAME.data());
     const auto width = (float)desc.window_size.x;
     const auto height = (float)desc.window_size.y;
@@ -221,9 +223,11 @@ auto update(Demo& demo, const UpdateDesc& desc) -> void {
 }
 
 auto render(Demo& demo, const RenderDesc& desc) -> void {
-    auto& [cmd, device, frame_index] = desc;
-    cmd.pix_begin("%s - Render", NAME.data());
+    ZoneScoped;
 
+    auto& [cmd, device, frame_index] = desc;
+
+    cmd.pix_begin("%s - Render", NAME.data());
     cmd.compute_scope([&demo, frame_index](GpuComputeCommandList& cmd) {
         cmd.pix_begin("Spd");
         cmd.set_pipeline(demo.spd_pipeline);
@@ -240,7 +244,6 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
         }
         cmd.pix_end();
     });
-
     cmd.graphics_scope([&demo, &device, frame_index](GpuGraphicsCommandList& cmd) {
         cmd.pix_begin("Render");
         const auto& params = demo.parameters;
