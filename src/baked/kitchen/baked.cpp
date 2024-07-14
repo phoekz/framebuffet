@@ -22,13 +22,13 @@ auto Assets::imgui_font() const -> Copy {
 }
 
 auto Shaders::load() -> void {
-    // hash: c341ef8bae9f9a40b1a9fde91351e2fe
+    // hash: 2c5468a8e295ff5fce6117f5b163e6bf
     ZoneScoped;
     _data = read_whole_file("fb_kitchen_shaders.bin");
-    FB_ASSERT(_data.size() == 32124);
+    FB_ASSERT(_data.size() == 32080);
 }
 
-// shader_hash: 1a56b389138880d61871707f8f50b695
+// shader_hash: 1cad9f5a99704bc0582cced83353d4d5
 // constant_buffers: 1
 // bound_resources: 1
 // input_parameters: 2
@@ -59,8 +59,8 @@ auto Shaders::load() -> void {
 ; ATTRIBUTE                0   xyzw        1     NONE   float   xyzw
 ; ATTRIBUTE                1   xy          2     NONE   float   xy  
 ;
-; shader debug name: 1a56b389138880d61871707f8f50b695.pdb
-; shader hash: 1a56b389138880d61871707f8f50b695
+; shader debug name: 1cad9f5a99704bc0582cced83353d4d5.pdb
+; shader hash: 1cad9f5a99704bc0582cced83353d4d5
 ;
 ; Pipeline Runtime Information: 
 ;
@@ -272,41 +272,40 @@ attributes #2 = { nounwind readonly }
 
 !llvm.ident = !{!0}
 !dx.version = !{!1}
-!dx.valver = !{!2}
-!dx.shaderModel = !{!3}
-!dx.resources = !{!4}
-!dx.viewIdState = !{!7}
-!dx.entryPoints = !{!8}
+!dx.valver = !{!1}
+!dx.shaderModel = !{!2}
+!dx.resources = !{!3}
+!dx.viewIdState = !{!6}
+!dx.entryPoints = !{!7}
 
 !0 = !{!"dxcoob 1.8.2405.15 (fd7e54bcd)"}
-!1 = !{i32 1, i32 7}
-!2 = !{i32 1, i32 8}
-!3 = !{!"vs", i32 6, i32 7}
-!4 = !{null, null, !5, null}
-!5 = !{!6}
-!6 = !{i32 0, %g_bindings* undef, !"", i32 0, i32 0, i32 1, i32 16, null}
-!7 = !{[7 x i32] [i32 5, i32 10, i32 1023, i32 0, i32 0, i32 0, i32 0]}
-!8 = !{void ()* @draw_vs, !"draw_vs", !9, !4, !22}
-!9 = !{!10, !15, null}
-!10 = !{!11, !14}
-!11 = !{i32 0, !"SV_VertexID", i8 5, i8 1, !12, i8 0, i32 1, i8 1, i32 0, i8 0, !13}
-!12 = !{i32 0}
-!13 = !{i32 3, i32 1}
-!14 = !{i32 1, !"SV_InstanceID", i8 5, i8 2, !12, i8 0, i32 1, i8 1, i32 1, i8 0, null}
-!15 = !{!16, !18, !19}
-!16 = !{i32 0, !"SV_Position", i8 9, i8 3, !12, i8 4, i32 1, i8 4, i32 0, i8 0, !17}
-!17 = !{i32 3, i32 15}
-!18 = !{i32 1, !"ATTRIBUTE", i8 9, i8 0, !12, i8 2, i32 1, i8 4, i32 1, i8 0, !17}
-!19 = !{i32 2, !"ATTRIBUTE", i8 9, i8 0, !20, i8 2, i32 1, i8 2, i32 2, i8 0, !21}
-!20 = !{i32 1}
-!21 = !{i32 3, i32 3}
-!22 = !{i32 0, i64 1082130688}
+!1 = !{i32 1, i32 8}
+!2 = !{!"vs", i32 6, i32 8}
+!3 = !{null, null, !4, null}
+!4 = !{!5}
+!5 = !{i32 0, %g_bindings* undef, !"", i32 0, i32 0, i32 1, i32 16, null}
+!6 = !{[7 x i32] [i32 5, i32 10, i32 1023, i32 0, i32 0, i32 0, i32 0]}
+!7 = !{void ()* @draw_vs, !"draw_vs", !8, !3, !21}
+!8 = !{!9, !14, null}
+!9 = !{!10, !13}
+!10 = !{i32 0, !"SV_VertexID", i8 5, i8 1, !11, i8 0, i32 1, i8 1, i32 0, i8 0, !12}
+!11 = !{i32 0}
+!12 = !{i32 3, i32 1}
+!13 = !{i32 1, !"SV_InstanceID", i8 5, i8 2, !11, i8 0, i32 1, i8 1, i32 1, i8 0, null}
+!14 = !{!15, !17, !18}
+!15 = !{i32 0, !"SV_Position", i8 9, i8 3, !11, i8 4, i32 1, i8 4, i32 0, i8 0, !16}
+!16 = !{i32 3, i32 15}
+!17 = !{i32 1, !"ATTRIBUTE", i8 9, i8 0, !11, i8 2, i32 1, i8 4, i32 1, i8 0, !16}
+!18 = !{i32 2, !"ATTRIBUTE", i8 9, i8 0, !19, i8 2, i32 1, i8 2, i32 2, i8 0, !20}
+!19 = !{i32 1}
+!20 = !{i32 3, i32 3}
+!21 = !{i32 0, i64 1082130688}
 */
 auto Shaders::gui_draw_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(0, 5376);
+    return std::span(_data).subspan(0, 5368);
 }
 
-// shader_hash: f56162255ee90a472ca6e4af5aec7f22
+// shader_hash: 3816d642126d7471245244f3aa914731
 // constant_buffers: 1
 // bound_resources: 1
 // input_parameters: 3
@@ -336,8 +335,8 @@ auto Shaders::gui_draw_vs() const -> std::span<const std::byte> {
 ; -------------------- ----- ------ -------- -------- ------- ------
 ; SV_Target                0   xyzw        0   TARGET   float   xyzw
 ;
-; shader debug name: f56162255ee90a472ca6e4af5aec7f22.pdb
-; shader hash: f56162255ee90a472ca6e4af5aec7f22
+; shader debug name: 3816d642126d7471245244f3aa914731.pdb
+; shader hash: 3816d642126d7471245244f3aa914731
 ;
 ; Pipeline Runtime Information: 
 ;
@@ -470,39 +469,38 @@ attributes #2 = { nounwind readonly }
 
 !llvm.ident = !{!0}
 !dx.version = !{!1}
-!dx.valver = !{!2}
-!dx.shaderModel = !{!3}
-!dx.resources = !{!4}
-!dx.viewIdState = !{!7}
-!dx.entryPoints = !{!8}
+!dx.valver = !{!1}
+!dx.shaderModel = !{!2}
+!dx.resources = !{!3}
+!dx.viewIdState = !{!6}
+!dx.entryPoints = !{!7}
 
 !0 = !{!"dxcoob 1.8.2405.15 (fd7e54bcd)"}
-!1 = !{i32 1, i32 7}
-!2 = !{i32 1, i32 8}
-!3 = !{!"ps", i32 6, i32 7}
-!4 = !{null, null, !5, null}
-!5 = !{!6}
-!6 = !{i32 0, %g_bindings* undef, !"", i32 0, i32 0, i32 1, i32 16, null}
-!7 = !{[12 x i32] [i32 10, i32 4, i32 0, i32 0, i32 0, i32 0, i32 1, i32 2, i32 4, i32 8, i32 15, i32 15]}
-!8 = !{void ()* @draw_ps, !"draw_ps", !9, !4, !20}
-!9 = !{!10, !18, null}
-!10 = !{!11, !13, !15}
-!11 = !{i32 0, !"SV_Position", i8 9, i8 3, !12, i8 4, i32 1, i8 4, i32 0, i8 0, null}
-!12 = !{i32 0}
-!13 = !{i32 1, !"ATTRIBUTE", i8 9, i8 0, !12, i8 2, i32 1, i8 4, i32 1, i8 0, !14}
-!14 = !{i32 3, i32 15}
-!15 = !{i32 2, !"ATTRIBUTE", i8 9, i8 0, !16, i8 2, i32 1, i8 2, i32 2, i8 0, !17}
-!16 = !{i32 1}
-!17 = !{i32 3, i32 3}
-!18 = !{!19}
-!19 = !{i32 0, !"SV_Target", i8 9, i8 16, !12, i8 0, i32 1, i8 4, i32 0, i8 0, !14}
-!20 = !{i32 0, i64 3229614336}
+!1 = !{i32 1, i32 8}
+!2 = !{!"ps", i32 6, i32 8}
+!3 = !{null, null, !4, null}
+!4 = !{!5}
+!5 = !{i32 0, %g_bindings* undef, !"", i32 0, i32 0, i32 1, i32 16, null}
+!6 = !{[12 x i32] [i32 10, i32 4, i32 0, i32 0, i32 0, i32 0, i32 1, i32 2, i32 4, i32 8, i32 15, i32 15]}
+!7 = !{void ()* @draw_ps, !"draw_ps", !8, !3, !19}
+!8 = !{!9, !17, null}
+!9 = !{!10, !12, !14}
+!10 = !{i32 0, !"SV_Position", i8 9, i8 3, !11, i8 4, i32 1, i8 4, i32 0, i8 0, null}
+!11 = !{i32 0}
+!12 = !{i32 1, !"ATTRIBUTE", i8 9, i8 0, !11, i8 2, i32 1, i8 4, i32 1, i8 0, !13}
+!13 = !{i32 3, i32 15}
+!14 = !{i32 2, !"ATTRIBUTE", i8 9, i8 0, !15, i8 2, i32 1, i8 2, i32 2, i8 0, !16}
+!15 = !{i32 1}
+!16 = !{i32 3, i32 3}
+!17 = !{!18}
+!18 = !{i32 0, !"SV_Target", i8 9, i8 16, !11, i8 0, i32 1, i8 4, i32 0, i8 0, !13}
+!19 = !{i32 0, i64 3229614336}
 */
 auto Shaders::gui_draw_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(5376, 4436);
+    return std::span(_data).subspan(5368, 4428);
 }
 
-// shader_hash: a1ad702e1d13ee5a5a0cd09356116e1f
+// shader_hash: 337fdb7d236c292f92fd5e593eb7cddb
 // constant_buffers: 1
 // bound_resources: 1
 // input_parameters: 2
@@ -531,8 +529,8 @@ auto Shaders::gui_draw_ps() const -> std::span<const std::byte> {
 ; SV_Position              0   xyzw        0      POS   float   xyzw
 ; ATTRIBUTE                0   xyzw        1     NONE   float   xyzw
 ;
-; shader debug name: a1ad702e1d13ee5a5a0cd09356116e1f.pdb
-; shader hash: a1ad702e1d13ee5a5a0cd09356116e1f
+; shader debug name: 337fdb7d236c292f92fd5e593eb7cddb.pdb
+; shader hash: 337fdb7d236c292f92fd5e593eb7cddb
 ;
 ; Pipeline Runtime Information: 
 ;
@@ -727,38 +725,37 @@ attributes #2 = { nounwind readonly }
 
 !llvm.ident = !{!0}
 !dx.version = !{!1}
-!dx.valver = !{!2}
-!dx.shaderModel = !{!3}
-!dx.resources = !{!4}
-!dx.viewIdState = !{!7}
-!dx.entryPoints = !{!8}
+!dx.valver = !{!1}
+!dx.shaderModel = !{!2}
+!dx.resources = !{!3}
+!dx.viewIdState = !{!6}
+!dx.entryPoints = !{!7}
 
 !0 = !{!"dxcoob 1.8.2405.15 (fd7e54bcd)"}
-!1 = !{i32 1, i32 7}
-!2 = !{i32 1, i32 8}
-!3 = !{!"vs", i32 6, i32 7}
-!4 = !{null, null, !5, null}
-!5 = !{!6}
-!6 = !{i32 0, %g_bindings* undef, !"", i32 0, i32 0, i32 1, i32 8, null}
-!7 = !{[7 x i32] [i32 5, i32 8, i32 255, i32 0, i32 0, i32 0, i32 0]}
-!8 = !{void ()* @draw_vs, !"draw_vs", !9, !4, !19}
-!9 = !{!10, !15, null}
-!10 = !{!11, !14}
-!11 = !{i32 0, !"SV_VertexID", i8 5, i8 1, !12, i8 0, i32 1, i8 1, i32 0, i8 0, !13}
-!12 = !{i32 0}
-!13 = !{i32 3, i32 1}
-!14 = !{i32 1, !"SV_InstanceID", i8 5, i8 2, !12, i8 0, i32 1, i8 1, i32 1, i8 0, null}
-!15 = !{!16, !18}
-!16 = !{i32 0, !"SV_Position", i8 9, i8 3, !12, i8 4, i32 1, i8 4, i32 0, i8 0, !17}
-!17 = !{i32 3, i32 15}
-!18 = !{i32 1, !"ATTRIBUTE", i8 9, i8 0, !12, i8 2, i32 1, i8 4, i32 1, i8 0, !17}
-!19 = !{i32 0, i64 1082130688}
+!1 = !{i32 1, i32 8}
+!2 = !{!"vs", i32 6, i32 8}
+!3 = !{null, null, !4, null}
+!4 = !{!5}
+!5 = !{i32 0, %g_bindings* undef, !"", i32 0, i32 0, i32 1, i32 8, null}
+!6 = !{[7 x i32] [i32 5, i32 8, i32 255, i32 0, i32 0, i32 0, i32 0]}
+!7 = !{void ()* @draw_vs, !"draw_vs", !8, !3, !18}
+!8 = !{!9, !14, null}
+!9 = !{!10, !13}
+!10 = !{i32 0, !"SV_VertexID", i8 5, i8 1, !11, i8 0, i32 1, i8 1, i32 0, i8 0, !12}
+!11 = !{i32 0}
+!12 = !{i32 3, i32 1}
+!13 = !{i32 1, !"SV_InstanceID", i8 5, i8 2, !11, i8 0, i32 1, i8 1, i32 1, i8 0, null}
+!14 = !{!15, !17}
+!15 = !{i32 0, !"SV_Position", i8 9, i8 3, !11, i8 4, i32 1, i8 4, i32 0, i8 0, !16}
+!16 = !{i32 3, i32 15}
+!17 = !{i32 1, !"ATTRIBUTE", i8 9, i8 0, !11, i8 2, i32 1, i8 4, i32 1, i8 0, !16}
+!18 = !{i32 0, i64 1082130688}
 */
 auto Shaders::debug_draw_draw_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(9812, 5140);
+    return std::span(_data).subspan(9796, 5132);
 }
 
-// shader_hash: fd99ba74a11c0d4a0da57f344f133451
+// shader_hash: 6a5c2981dcef27d06a113094a917f47d
 // input_parameters: 2
 // output_parameters: 1
 // instruction_count: 9
@@ -778,8 +775,8 @@ auto Shaders::debug_draw_draw_vs() const -> std::span<const std::byte> {
 ; -------------------- ----- ------ -------- -------- ------- ------
 ; SV_Target                0   xyzw        0   TARGET   float   xyzw
 ;
-; shader debug name: fd99ba74a11c0d4a0da57f344f133451.pdb
-; shader hash: fd99ba74a11c0d4a0da57f344f133451
+; shader debug name: 6a5c2981dcef27d06a113094a917f47d.pdb
+; shader hash: 6a5c2981dcef27d06a113094a917f47d
 ;
 ; Pipeline Runtime Information: 
 ;
@@ -846,32 +843,31 @@ attributes #1 = { nounwind }
 
 !llvm.ident = !{!0}
 !dx.version = !{!1}
-!dx.valver = !{!2}
-!dx.shaderModel = !{!3}
-!dx.viewIdState = !{!4}
-!dx.entryPoints = !{!5}
+!dx.valver = !{!1}
+!dx.shaderModel = !{!2}
+!dx.viewIdState = !{!3}
+!dx.entryPoints = !{!4}
 
 !0 = !{!"dxcoob 1.8.2405.15 (fd7e54bcd)"}
-!1 = !{i32 1, i32 7}
-!2 = !{i32 1, i32 8}
-!3 = !{!"ps", i32 6, i32 7}
-!4 = !{[10 x i32] [i32 8, i32 4, i32 0, i32 0, i32 0, i32 0, i32 1, i32 2, i32 4, i32 8]}
-!5 = !{void ()* @draw_ps, !"draw_ps", !6, null, !14}
-!6 = !{!7, !12, null}
-!7 = !{!8, !10}
-!8 = !{i32 0, !"SV_Position", i8 9, i8 3, !9, i8 4, i32 1, i8 4, i32 0, i8 0, null}
-!9 = !{i32 0}
-!10 = !{i32 1, !"ATTRIBUTE", i8 9, i8 0, !9, i8 2, i32 1, i8 4, i32 1, i8 0, !11}
-!11 = !{i32 3, i32 15}
-!12 = !{!13}
-!13 = !{i32 0, !"SV_Target", i8 9, i8 16, !9, i8 0, i32 1, i8 4, i32 0, i8 0, !11}
-!14 = !{i32 0, i64 8388864}
+!1 = !{i32 1, i32 8}
+!2 = !{!"ps", i32 6, i32 8}
+!3 = !{[10 x i32] [i32 8, i32 4, i32 0, i32 0, i32 0, i32 0, i32 1, i32 2, i32 4, i32 8]}
+!4 = !{void ()* @draw_ps, !"draw_ps", !5, null, !13}
+!5 = !{!6, !11, null}
+!6 = !{!7, !9}
+!7 = !{i32 0, !"SV_Position", i8 9, i8 3, !8, i8 4, i32 1, i8 4, i32 0, i8 0, null}
+!8 = !{i32 0}
+!9 = !{i32 1, !"ATTRIBUTE", i8 9, i8 0, !8, i8 2, i32 1, i8 4, i32 1, i8 0, !10}
+!10 = !{i32 3, i32 15}
+!11 = !{!12}
+!12 = !{i32 0, !"SV_Target", i8 9, i8 16, !8, i8 0, i32 1, i8 4, i32 0, i8 0, !10}
+!13 = !{i32 0, i64 8388864}
 */
 auto Shaders::debug_draw_draw_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(14952, 3076);
+    return std::span(_data).subspan(14928, 3068);
 }
 
-// shader_hash: accf9e643c113fcb4e7d227c723bc66f
+// shader_hash: 290a049b6b99417aafeb3dbdaaa6e262
 // constant_buffers: 1
 // bound_resources: 1
 // instruction_count: 1533
@@ -907,8 +903,8 @@ auto Shaders::debug_draw_draw_ps() const -> std::span<const std::byte> {
 ; Name                 Index   Mask Register SysValue  Format   Used
 ; -------------------- ----- ------ -------- -------- ------- ------
 ; no parameters
-; shader debug name: accf9e643c113fcb4e7d227c723bc66f.pdb
-; shader hash: accf9e643c113fcb4e7d227c723bc66f
+; shader debug name: 290a049b6b99417aafeb3dbdaaa6e262.pdb
+; shader hash: 290a049b6b99417aafeb3dbdaaa6e262
 ;
 ; Pipeline Runtime Information: 
 ;
@@ -1846,12 +1842,12 @@ define void @downsample_cs() {
 ; <label>:794                                     ; preds = %792
   %795 = shl i32 %5, 2
   %796 = call i32 @dx.op.atomicBinOp.i32(i32 78, %dx.types.Handle %10, i32 0, i32 0, i32 %795, i32 undef, i32 1)  ; AtomicBinOp(handle,atomicOp,offset0,offset1,offset2,newValue)
-  store i32 %796, i32 addrspace(3)* @"\01?gs_counter@@3IA", align 4, !tbaa !10
+  store i32 %796, i32 addrspace(3)* @"\01?gs_counter@@3IA", align 4, !tbaa !9
   br label %797
 
 ; <label>:797                                     ; preds = %794, %792
   call void @dx.op.barrier(i32 80, i32 9)  ; Barrier(barrierMode)
-  %798 = load i32, i32 addrspace(3)* @"\01?gs_counter@@3IA", align 4, !tbaa !10
+  %798 = load i32, i32 addrspace(3)* @"\01?gs_counter@@3IA", align 4, !tbaa !9
   %799 = add i32 %16, -1
   %800 = icmp eq i32 %798, %799
   br i1 %800, label %801, label %1456
@@ -2631,28 +2627,27 @@ attributes #3 = { nounwind }
 
 !llvm.ident = !{!0}
 !dx.version = !{!1}
-!dx.valver = !{!2}
-!dx.shaderModel = !{!3}
-!dx.resources = !{!4}
-!dx.entryPoints = !{!7}
+!dx.valver = !{!1}
+!dx.shaderModel = !{!2}
+!dx.resources = !{!3}
+!dx.entryPoints = !{!6}
 
 !0 = !{!"dxcoob 1.8.2405.15 (fd7e54bcd)"}
-!1 = !{i32 1, i32 7}
-!2 = !{i32 1, i32 8}
-!3 = !{!"cs", i32 6, i32 7}
-!4 = !{null, null, !5, null}
-!5 = !{!6}
-!6 = !{i32 0, %g_bindings* undef, !"", i32 0, i32 0, i32 1, i32 20, null}
-!7 = !{void ()* @downsample_cs, !"downsample_cs", null, !4, !8}
-!8 = !{i32 0, i64 11820081440, i32 4, !9}
-!9 = !{i32 256, i32 1, i32 1}
-!10 = !{!11, !11, i64 0}
-!11 = !{!"int", !12, i64 0}
-!12 = !{!"omnipotent char", !13, i64 0}
-!13 = !{!"Simple C/C++ TBAA"}
+!1 = !{i32 1, i32 8}
+!2 = !{!"cs", i32 6, i32 8}
+!3 = !{null, null, !4, null}
+!4 = !{!5}
+!5 = !{i32 0, %g_bindings* undef, !"", i32 0, i32 0, i32 1, i32 20, null}
+!6 = !{void ()* @downsample_cs, !"downsample_cs", null, !3, !7}
+!7 = !{i32 0, i64 11820081440, i32 4, !8}
+!8 = !{i32 256, i32 1, i32 1}
+!9 = !{!10, !10, i64 0}
+!10 = !{!"int", !11, i64 0}
+!11 = !{!"omnipotent char", !12, i64 0}
+!12 = !{!"Simple C/C++ TBAA"}
 */
 auto Shaders::spd_downsample_cs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(18028, 14096);
+    return std::span(_data).subspan(17996, 14084);
 }
 
 #undef texture_data

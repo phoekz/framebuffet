@@ -130,9 +130,9 @@ auto ShaderCompiler::compile(
     LPCWSTR shader_profile = nullptr;
     // clang-format off
     switch (type) {
-        case ShaderType::Compute: shader_profile = L"cs_6_7"; break;
-        case ShaderType::Vertex: shader_profile = L"vs_6_7"; break;
-        case ShaderType::Pixel: shader_profile = L"ps_6_7"; break;
+        case ShaderType::Compute: shader_profile = L"cs_6_8"; break;
+        case ShaderType::Vertex: shader_profile = L"vs_6_8"; break;
+        case ShaderType::Pixel: shader_profile = L"ps_6_8"; break;
     }
     // clang-format on
 
