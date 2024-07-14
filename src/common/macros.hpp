@@ -1,5 +1,7 @@
 #pragma once
 
+#define FB_INLINE __forceinline
+
 #define FB_NO_COPY(T)     \
                           \
 private:                  \

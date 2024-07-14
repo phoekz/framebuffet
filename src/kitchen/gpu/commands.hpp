@@ -72,7 +72,7 @@ public:
 
     // Scope functions.
     template<GpuGraphicsCommandScope Scope>
-    auto graphics_scope(Scope scope) -> void {
+    FB_INLINE auto graphics_scope(Scope scope) -> void {
         FB_ASSERT(_engine != GpuCommandEngine::Graphics);
         _engine = GpuCommandEngine::Graphics;
         set_global_descriptor_heap();
@@ -83,7 +83,7 @@ public:
     }
 
     template<GpuComputeCommandScope Scope>
-    auto compute_scope(Scope scope) -> void {
+    FB_INLINE auto compute_scope(Scope scope) -> void {
         FB_ASSERT(_engine != GpuCommandEngine::Compute);
         _engine = GpuCommandEngine::Compute;
         set_global_descriptor_heap();
@@ -98,14 +98,14 @@ public:
     //
 
     template<typename... Args>
-    auto pix_begin(const char* fmt, Args... args) const -> void {
+    FB_INLINE auto pix_begin(const char* fmt, Args... args) const -> void {
         PIXBeginEvent(_cmd, PIX_COLOR_DEFAULT, fmt, args...);
     }
 
-    auto pix_end() const -> void { PIXEndEvent(_cmd); }
+    FB_INLINE auto pix_end() const -> void { PIXEndEvent(_cmd); }
 
     template<typename... Args>
-    auto pix_marker(const char* fmt, Args... args) const -> void {
+    FB_INLINE auto pix_marker(const char* fmt, Args... args) const -> void {
         PIXSetMarker(_cmd, PIX_COLOR_DEFAULT, fmt, args...);
     }
 
