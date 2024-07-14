@@ -192,6 +192,9 @@ int main() {
     // Console.
     attach_console();
 
+    // Timing.
+    const auto timer = Instant();
+
     // Bake app datas.
     using sv = std::string_view;
     FB_LOG_INFO("Output directories:");
@@ -206,6 +209,9 @@ int main() {
     bake_app_datas(kitchen_outputs, "kitchen", KITCHEN_ASSET_TASKS, KITCHEN_SHADER_TASKS);
     bake_app_datas(buffet_outputs, "buffet", BUFFET_ASSET_TASKS, BUFFET_SHADER_TASKS);
     bake_app_datas(stockcube_outputs, "stockcube", STOCKCUBE_ASSET_TASKS, STOCKCUBE_SHADER_TASKS);
+
+    // Timing.
+    FB_LOG_INFO("Bake time: {} s", timer.elapsed_time());
 
     return 0;
 }

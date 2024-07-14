@@ -6,7 +6,7 @@ namespace fb {
 
 class Instant {
 public:
-    Instant();
+    explicit Instant();
 
     auto elapsed_time() const -> double;
 

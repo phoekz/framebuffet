@@ -40,7 +40,7 @@ auto buffet_run(Buffet& bf) -> void {
         ZoneScopedN("Init");
         PIXScopedEvent(PIX_COLOR_DEFAULT, "Init");
 
-        auto timer = Instant();
+        const auto timer = Instant();
         DebugScope debug("Buffet");
 
         demos::Baked baked;
