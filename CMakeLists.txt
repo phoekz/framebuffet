@@ -15,7 +15,7 @@ add_subdirectory(external)
 # Global settings.
 # Note: Tracy does not work if /ZI is enabled. Therefore we must use /Zi.
 add_compile_options(
-    /W4 /WX /MP /EHs-c- /GR-
+    /W4 /WX /MP /EHs-c- /GR- /arch:AVX2
     $<$<CONFIG:Debug>:/Zi>
     $<$<CONFIG:Release>:/Ob3>
     $<$<CONFIG:Release>:/Oi>
