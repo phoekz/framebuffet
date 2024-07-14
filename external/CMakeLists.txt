@@ -6,7 +6,7 @@ if(NOT FETCH_CONTENT_HAS_BEEN_RUN)
     # Declarations.
     FetchContent_Declare(dearimgui GIT_REPOSITORY "https://github.com/ocornut/imgui" GIT_TAG cb16be3a3fc1f9cd146ae24d52b615f8a05fa93d) # v1.90.9
     FetchContent_Declare(cgltf GIT_REPOSITORY "https://github.com/jkuhlmann/cgltf" GIT_TAG 52c23814dbb60c2fbb54750ddf41d342d432a498) # v1.14
-    FetchContent_Declare(stb GIT_REPOSITORY "https://github.com/nothings/stb" GIT_TAG 5736b15f7ea0ffb08dd38af21067c314d6a3aae9) # Jan 29, 2023
+    FetchContent_Declare(stb GIT_REPOSITORY "https://github.com/nothings/stb" GIT_TAG 013ac3beddff3dbffafd5177e7972067cd2b5083) # May 31, 2024
     FetchContent_Declare(tinyexr GIT_REPOSITORY "https://github.com/syoyo/tinyexr" GIT_TAG 6e8cac308cdf4d717078f3f37c4aa39bf3b356b4) # v1.0.7
     FetchContent_Declare(fp16 GIT_REPOSITORY "https://github.com/Maratyszcza/FP16" GIT_TAG 0a92994d729ff76a58f692d3028ca1b64b145d91) # Mar 20, 2021
     FetchContent_Declare(xxhash GIT_REPOSITORY "https://github.com/Cyan4973/xxHash" GIT_TAG bbb27a5efb85b92a0486cf361a8635715a53f6ba) # v0.8.2

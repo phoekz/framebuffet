@@ -8,7 +8,7 @@ namespace fb::baked::buffet {
     }
 
 auto Assets::load() -> void {
-    // hash: 5f83faeaeb2f11fdafdc186a1eaabbce
+    // hash: 4963e000bbe32037f8e306ce42d1186c
     ZoneScoped;
     _data = read_whole_file("fb_buffet_assets.bin");
     FB_ASSERT(_data.size() == 182608856);
@@ -73,7 +73,7 @@ auto Assets::sci_fi_case_base_color_texture() const -> Texture {
     decltype(Texture::datas) datas = {};
     // clang-format off
     datas[ 0] = texture_data(4096, 4194304,    122492, 4194304); // hash: 1c0cad906e975f6b2b0f9d24de7c4926, width: 1024, height: 1024
-    datas[ 1] = texture_data(2048, 1048576,   4316796, 1048576); // hash: 0fc5f72ca36e69f9ee7aa3e1007128da, width: 512, height: 512
+    datas[ 1] = texture_data(2048, 1048576,   4316796, 1048576); // hash: 6bebe2067d611dfae3145d5f69099e02, width: 512, height: 512
     datas[ 2] = texture_data(1024,  262144,   5365372,  262144); // hash: 5a31a9aea69b9572403af8c398ff1bb1, width: 256, height: 256
     datas[ 3] = texture_data( 512,   65536,   5627516,   65536); // hash: a7885b770b2e31e7cc2b44a128f01c11, width: 128, height: 128
     datas[ 4] = texture_data( 256,   16384,   5693052,   16384); // hash: 57315ba87386a5f4d7792ac48fafbcc2, width: 64, height: 64
@@ -97,10 +97,10 @@ auto Assets::sci_fi_case_normal_texture() const -> Texture {
     decltype(Texture::datas) datas = {};
     // clang-format off
     datas[ 0] = texture_data(4096, 4194304,   5714896, 4194304); // hash: d5c691d45d7f61290eb8b12ed954e8f1, width: 1024, height: 1024
-    datas[ 1] = texture_data(2048, 1048576,   9909200, 1048576); // hash: 8bd2e1f3f4407531cc8243c08e556004, width: 512, height: 512
-    datas[ 2] = texture_data(1024,  262144,  10957776,  262144); // hash: 65ad91e067821102e44d6e3811da1611, width: 256, height: 256
-    datas[ 3] = texture_data( 512,   65536,  11219920,   65536); // hash: 01920ca08158b9166b3b5f99ea99a101, width: 128, height: 128
-    datas[ 4] = texture_data( 256,   16384,  11285456,   16384); // hash: ab34727e8f142779cfe5eedc131212a3, width: 64, height: 64
+    datas[ 1] = texture_data(2048, 1048576,   9909200, 1048576); // hash: 45737997d8e5603f7261972b99fbaccc, width: 512, height: 512
+    datas[ 2] = texture_data(1024,  262144,  10957776,  262144); // hash: c0351b94f1099be07060ed28304164a7, width: 256, height: 256
+    datas[ 3] = texture_data( 512,   65536,  11219920,   65536); // hash: e055a207782a7cbb779e6399a59d5adb, width: 128, height: 128
+    datas[ 4] = texture_data( 256,   16384,  11285456,   16384); // hash: cbdd29d27d52e586df02e8073b6d017b, width: 64, height: 64
     datas[ 5] = texture_data( 128,    4096,  11301840,    4096); // hash: dfe0b70bf322d90fb2bff80c5ab1d8c9, width: 32, height: 32
     datas[ 6] = texture_data(  64,    1024,  11305936,    1024); // hash: b3aa202e184073b05965c82d4e60ec78, width: 16, height: 16
     datas[ 7] = texture_data(  32,     256,  11306960,     256); // hash: a592dfd5855b6ee57b42d9edfa7f2833, width: 8, height: 8
@@ -121,9 +121,9 @@ auto Assets::sci_fi_case_metallic_roughness_texture() const -> Texture {
     decltype(Texture::datas) datas = {};
     // clang-format off
     datas[ 0] = texture_data(4096, 4194304,  11307300, 4194304); // hash: ed04eb3dfe14725c0ad06ee90e903d7b, width: 1024, height: 1024
-    datas[ 1] = texture_data(2048, 1048576,  15501604, 1048576); // hash: bef9846f192c1a321592fe54f565ab64, width: 512, height: 512
-    datas[ 2] = texture_data(1024,  262144,  16550180,  262144); // hash: 3114a59afa1940f13944b1903aecca77, width: 256, height: 256
-    datas[ 3] = texture_data( 512,   65536,  16812324,   65536); // hash: af552342df2d95a4e8db91c262d030ad, width: 128, height: 128
+    datas[ 1] = texture_data(2048, 1048576,  15501604, 1048576); // hash: f88d97a61574036a8d8003bc83c0509c, width: 512, height: 512
+    datas[ 2] = texture_data(1024,  262144,  16550180,  262144); // hash: b8a656249f0ad55da668079c25e762a7, width: 256, height: 256
+    datas[ 3] = texture_data( 512,   65536,  16812324,   65536); // hash: dab5fa896417c0d46d91b48bbf51b91d, width: 128, height: 128
     datas[ 4] = texture_data( 256,   16384,  16877860,   16384); // hash: ae6b271b6cedc3117259743503987475, width: 64, height: 64
     datas[ 5] = texture_data( 128,    4096,  16894244,    4096); // hash: 803f12a9da7dc4117b935a6570eb6e62, width: 32, height: 32
     datas[ 6] = texture_data(  64,    1024,  16898340,    1024); // hash: 2de9c42bfe1107d80ba68be92c4133dd, width: 16, height: 16
@@ -163,9 +163,9 @@ auto Assets::metal_plane_base_color_texture() const -> Texture {
     decltype(Texture::datas) datas = {};
     // clang-format off
     datas[ 0] = texture_data(4096, 4194304,  16899920, 4194304); // hash: b01e0981487f9386f14d7e555623c2ba, width: 1024, height: 1024
-    datas[ 1] = texture_data(2048, 1048576,  21094224, 1048576); // hash: 75c211006262e9722c80d57b27242a91, width: 512, height: 512
-    datas[ 2] = texture_data(1024,  262144,  22142800,  262144); // hash: 000fa85c2ab807e76e30458d71683c52, width: 256, height: 256
-    datas[ 3] = texture_data( 512,   65536,  22404944,   65536); // hash: 5785c050ddf763147be0e8a10f2fd28b, width: 128, height: 128
+    datas[ 1] = texture_data(2048, 1048576,  21094224, 1048576); // hash: 571945c38522b7a2ddf3b05507efe984, width: 512, height: 512
+    datas[ 2] = texture_data(1024,  262144,  22142800,  262144); // hash: 872860b3b5fcef1b4c5899d1961e67a5, width: 256, height: 256
+    datas[ 3] = texture_data( 512,   65536,  22404944,   65536); // hash: 079ffd2caa9c297f2b04aaab46f01bcb, width: 128, height: 128
     datas[ 4] = texture_data( 256,   16384,  22470480,   16384); // hash: 257a6272975283c2ba3982e0f48f3871, width: 64, height: 64
     datas[ 5] = texture_data( 128,    4096,  22486864,    4096); // hash: f3e2a564cd47f149462ab82d010ac6fc, width: 32, height: 32
     datas[ 6] = texture_data(  64,    1024,  22490960,    1024); // hash: 043e70e3d266bc8fa1af4ad7203787c9, width: 16, height: 16
@@ -187,8 +187,8 @@ auto Assets::metal_plane_normal_texture() const -> Texture {
     decltype(Texture::datas) datas = {};
     // clang-format off
     datas[ 0] = texture_data(4096, 4194304,  22492324, 4194304); // hash: 2c3220bc625827e8a3a07df006fd2577, width: 1024, height: 1024
-    datas[ 1] = texture_data(2048, 1048576,  26686628, 1048576); // hash: fc8ccb58611836d0fe177ea6bb751f8c, width: 512, height: 512
-    datas[ 2] = texture_data(1024,  262144,  27735204,  262144); // hash: c79ba2ff35a7bea09af7cedce7153cb6, width: 256, height: 256
+    datas[ 1] = texture_data(2048, 1048576,  26686628, 1048576); // hash: c3c55beeb71deeb83d1f282bdf57ec76, width: 512, height: 512
+    datas[ 2] = texture_data(1024,  262144,  27735204,  262144); // hash: 78bb93d9adee26e3e1dc1886dae718ae, width: 256, height: 256
     datas[ 3] = texture_data( 512,   65536,  27997348,   65536); // hash: 861b5f55bc01af94eccb54fadede533a, width: 128, height: 128
     datas[ 4] = texture_data( 256,   16384,  28062884,   16384); // hash: c6241fb22bbdb204055a36c59e19eaa7, width: 64, height: 64
     datas[ 5] = texture_data( 128,    4096,  28079268,    4096); // hash: 96a28968bbeb40fd031cca35a218225c, width: 32, height: 32
@@ -211,8 +211,8 @@ auto Assets::metal_plane_metallic_roughness_texture() const -> Texture {
     decltype(Texture::datas) datas = {};
     // clang-format off
     datas[ 0] = texture_data(4096, 4194304,  28084728, 4194304); // hash: a0a8987101c3763d88cded178f004edc, width: 1024, height: 1024
-    datas[ 1] = texture_data(2048, 1048576,  32279032, 1048576); // hash: 703b054f217ed2a761781a5790cc9da1, width: 512, height: 512
-    datas[ 2] = texture_data(1024,  262144,  33327608,  262144); // hash: 2fdd37d099fbc0a45280294c7e26bda2, width: 256, height: 256
+    datas[ 1] = texture_data(2048, 1048576,  32279032, 1048576); // hash: 433096216c0dff0d4b79e43f8ac9a5da, width: 512, height: 512
+    datas[ 2] = texture_data(1024,  262144,  33327608,  262144); // hash: d663dd53772552e20d8c124109041e42, width: 256, height: 256
     datas[ 3] = texture_data( 512,   65536,  33589752,   65536); // hash: 52a2e110668972c369b81ca2f7d03732, width: 128, height: 128
     datas[ 4] = texture_data( 256,   16384,  33655288,   16384); // hash: 8df31f4575f5e3b5bdeb96cc013a2505, width: 64, height: 64
     datas[ 5] = texture_data( 128,    4096,  33671672,    4096); // hash: f06fd168844ac517f257d6cde21e3c3e, width: 32, height: 32
@@ -254,7 +254,7 @@ auto Assets::coconut_tree_base_color_texture() const -> Texture {
     // clang-format off
     datas[ 0] = texture_data(2048, 1048576,  33720068, 1048576); // hash: 61b50bca3a05bbee4e3297d007f5fc25, width: 512, height: 512
     datas[ 1] = texture_data(1024,  262144,  34768644,  262144); // hash: 0edae200d9d108428bd9b503d8169fbf, width: 256, height: 256
-    datas[ 2] = texture_data( 512,   65536,  35030788,   65536); // hash: 594493b0020d694430b571fc79867452, width: 128, height: 128
+    datas[ 2] = texture_data( 512,   65536,  35030788,   65536); // hash: bcf7be7062f52f12be92c226bfaf7e84, width: 128, height: 128
     datas[ 3] = texture_data( 256,   16384,  35096324,   16384); // hash: 7c277a922339cb6f8cee9b7d4fb0d456, width: 64, height: 64
     datas[ 4] = texture_data( 128,    4096,  35112708,    4096); // hash: 2251821b2955fa891380f4eac15bcd6c, width: 32, height: 32
     datas[ 5] = texture_data(  64,    1024,  35116804,    1024); // hash: 5b943a736dfa82072e5cb6affe649865, width: 16, height: 16
@@ -730,12 +730,12 @@ auto Assets::grass_base_color_texture() const -> Texture {
     decltype(Texture::datas) datas = {};
     // clang-format off
     datas[ 0] = texture_data(4096, 4194304, 177016452, 4194304); // hash: 8ba5e6c4c962142b6323c9b718806667, width: 1024, height: 1024
-    datas[ 1] = texture_data(2048, 1048576, 181210756, 1048576); // hash: 0c4af8bfc34ab8ce51d7a8c9e42ece8d, width: 512, height: 512
-    datas[ 2] = texture_data(1024,  262144, 182259332,  262144); // hash: 4fdc69d0f67b28959ad81e578a779ca9, width: 256, height: 256
-    datas[ 3] = texture_data( 512,   65536, 182521476,   65536); // hash: 8dcd83e1988e64bd177306e51d923d80, width: 128, height: 128
-    datas[ 4] = texture_data( 256,   16384, 182587012,   16384); // hash: 22e5b84a9071fa7a3f21e904a9b32b52, width: 64, height: 64
-    datas[ 5] = texture_data( 128,    4096, 182603396,    4096); // hash: ca3308f6c7c5178403822ec22cf328dd, width: 32, height: 32
-    datas[ 6] = texture_data(  64,    1024, 182607492,    1024); // hash: 153e0c2aa0cbe691beb8e7407b4d52db, width: 16, height: 16
+    datas[ 1] = texture_data(2048, 1048576, 181210756, 1048576); // hash: 535c31d03cb632317d06433beff89448, width: 512, height: 512
+    datas[ 2] = texture_data(1024,  262144, 182259332,  262144); // hash: 23a677d2c655fa098c981da6fc12e7a6, width: 256, height: 256
+    datas[ 3] = texture_data( 512,   65536, 182521476,   65536); // hash: 0afea75560cd4eace0ffe2007bdda0af, width: 128, height: 128
+    datas[ 4] = texture_data( 256,   16384, 182587012,   16384); // hash: 0d23e0d7cd4be6aed9c0e4cb80d54bd4, width: 64, height: 64
+    datas[ 5] = texture_data( 128,    4096, 182603396,    4096); // hash: 0b4e5fd48795c7b07206e38c42debfb6, width: 32, height: 32
+    datas[ 6] = texture_data(  64,    1024, 182607492,    1024); // hash: 05f6d3e4041bf8819cc0f7a1e7a28094, width: 16, height: 16
     datas[ 7] = texture_data(  32,     256, 182608516,     256); // hash: b52d391bbabaf303be3a18a0f44e3ba6, width: 8, height: 8
     datas[ 8] = texture_data(  16,      64, 182608772,      64); // hash: a44d4ba5c1df725dabef70679c78a94c, width: 4, height: 4
     datas[ 9] = texture_data(   8,      16, 182608836,      16); // hash: e3cd0daafab292bf484f67daa63cfbef, width: 2, height: 2

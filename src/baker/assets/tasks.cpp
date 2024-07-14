@@ -4,7 +4,7 @@
 #include "../utils/names.hpp"
 
 #include <ttf2mesh.h>
-#include <stb_image_resize.h>
+#include <stb_image_resize2.h>
 #include <directxtk12/GeometricPrimitive.h>
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
@@ -88,12 +88,10 @@ auto mipmapped_texture_asset(
                 (int)dst_width,
                 (int)dst_height,
                 (int)(dst_width * texture.channel_count()),
-                (int)texture.channel_count(),
-                3,
-                0
+                (stbir_pixel_layout)texture.channel_count()
             );
         } else {
-            stbir_resize_uint8(
+            stbir_resize_uint8_linear(
                 (const uint8_t*)src_buffer.data(),
                 (int)src_width,
                 (int)src_height,
@@ -102,7 +100,7 @@ auto mipmapped_texture_asset(
                 (int)dst_width,
                 (int)dst_height,
                 (int)(dst_width * texture.channel_count()),
-                (int)texture.channel_count()
+                (stbir_pixel_layout)texture.channel_count()
             );
         }
 
