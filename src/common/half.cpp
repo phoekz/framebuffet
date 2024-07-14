@@ -2,6 +2,7 @@
 
 #pragma warning(push)
 #pragma warning(disable : 4244)
+#define FP16_USE_NATIVE_CONVERSION 1
 #include <fp16.h>
 #pragma warning(pop)
 
