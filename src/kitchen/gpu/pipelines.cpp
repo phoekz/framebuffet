@@ -270,6 +270,28 @@ auto GpuPipelineBuilder::build(GpuDevice& device, GpuPipeline& pipeline, std::st
                 default: FB_FATAL();
             }
         };
+        auto d3d12_from_gpu_logic_op = [](GpuLogicOp logic_op) {
+            using enum GpuLogicOp;
+            switch (logic_op) {
+                case Clear: return D3D12_LOGIC_OP_CLEAR;
+                case Set: return D3D12_LOGIC_OP_SET;
+                case Copy: return D3D12_LOGIC_OP_COPY;
+                case CopyInverted: return D3D12_LOGIC_OP_COPY_INVERTED;
+                case Noop: return D3D12_LOGIC_OP_NOOP;
+                case Invert: return D3D12_LOGIC_OP_INVERT;
+                case And: return D3D12_LOGIC_OP_AND;
+                case Nand: return D3D12_LOGIC_OP_NAND;
+                case Or: return D3D12_LOGIC_OP_OR;
+                case Nor: return D3D12_LOGIC_OP_NOR;
+                case Xor: return D3D12_LOGIC_OP_XOR;
+                case Equiv: return D3D12_LOGIC_OP_EQUIV;
+                case AndReverse: return D3D12_LOGIC_OP_AND_REVERSE;
+                case AndInverted: return D3D12_LOGIC_OP_AND_INVERTED;
+                case OrReverse: return D3D12_LOGIC_OP_OR_REVERSE;
+                case OrInverted: return D3D12_LOGIC_OP_OR_INVERTED;
+                default: FB_FATAL();
+            }
+        };
 
         // Override `AlphaToCoverageEnable`.
         if (_blend_desc.alpha_to_coverage_enable) {
@@ -285,6 +307,13 @@ auto GpuPipelineBuilder::build(GpuDevice& device, GpuPipeline& pipeline, std::st
             d3d12_desc.RenderTarget[0].BlendEnable = FALSE;
         }
 
+        // Override `LogicOpEnable`.
+        if (_blend_desc.logic_op_enable) {
+            d3d12_desc.RenderTarget[0].LogicOpEnable = TRUE;
+        } else {
+            d3d12_desc.RenderTarget[0].LogicOpEnable = FALSE;
+        }
+
         // Override `SrcBlend`, `DestBlend`, `BlendOp`.
         d3d12_desc.RenderTarget[0].SrcBlend = d3d12_from_gpu_blend(_blend_desc.rgb_blend_src);
         d3d12_desc.RenderTarget[0].DestBlend = d3d12_from_gpu_blend(_blend_desc.rgb_blend_dst);
@@ -297,6 +326,9 @@ auto GpuPipelineBuilder::build(GpuDevice& device, GpuPipeline& pipeline, std::st
             d3d12_from_gpu_blend(_blend_desc.alpha_blend_dst);
         d3d12_desc.RenderTarget[0].BlendOpAlpha =
             d3d12_from_gpu_blend_op(_blend_desc.alpha_blend_op);
+
+        // Override `LogicOp`.
+        d3d12_desc.RenderTarget[0].LogicOp = d3d12_from_gpu_logic_op(_blend_desc.logic_op);
 
         // Add.
         CD3DX12_BLEND_DESC cdesc(d3d12_desc);

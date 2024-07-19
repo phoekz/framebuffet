@@ -136,8 +136,10 @@ auto GpuDevice::create(const Window& window) -> void {
 
     // Device feature support.
     {
+        // clang-format off
         CD3DX12FeatureSupport support;
         FB_ASSERT_HR(support.Init(_device.get()));
+        FB_ASSERT(support.OutputMergerLogicOp() == TRUE);
         FB_ASSERT(support.MinPrecisionSupport() == D3D12_SHADER_MIN_PRECISION_SUPPORT_16_BIT);
         FB_ASSERT(support.ResourceBindingTier() == D3D12_RESOURCE_BINDING_TIER_3);
         FB_ASSERT(support.ResourceHeapTier() == D3D12_RESOURCE_HEAP_TIER_2);
@@ -157,6 +159,7 @@ auto GpuDevice::create(const Window& window) -> void {
         FB_ASSERT(support.MeshShaderPipelineStatsSupported() == TRUE);
         FB_ASSERT(support.EnhancedBarriersSupported() == TRUE);
         FB_ASSERT(support.WorkGraphsTier() == D3D12_WORK_GRAPHS_TIER_1_0);
+        // clang-format off
     }
 
     // Command queue.

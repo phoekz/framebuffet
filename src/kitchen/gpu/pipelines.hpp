@@ -60,15 +60,36 @@ enum class GpuBlendOp {
     Max,
 };
 
+enum class GpuLogicOp {
+    Clear,
+    Set,
+    Copy,
+    CopyInverted,
+    Noop,
+    Invert,
+    And,
+    Nand,
+    Or,
+    Nor,
+    Xor,
+    Equiv,
+    AndReverse,
+    AndInverted,
+    OrReverse,
+    OrInverted,
+};
+
 struct GpuBlendDesc {
     bool alpha_to_coverage_enable = false;
     bool blend_enable = false;
+    bool logic_op_enable = false;
     GpuBlend rgb_blend_src = GpuBlend::One;
     GpuBlend rgb_blend_dst = GpuBlend::Zero;
     GpuBlendOp rgb_blend_op = GpuBlendOp::Add;
     GpuBlend alpha_blend_src = GpuBlend::One;
     GpuBlend alpha_blend_dst = GpuBlend::Zero;
     GpuBlendOp alpha_blend_op = GpuBlendOp::Add;
+    GpuLogicOp logic_op = GpuLogicOp::Clear;
 };
 
 class GpuPipeline {
