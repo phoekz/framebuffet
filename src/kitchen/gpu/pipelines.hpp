@@ -20,6 +20,7 @@ enum class GpuCullMode {
 struct GpuRasterizerDesc {
     GpuFillMode fill_mode = GpuFillMode::Solid;
     GpuCullMode cull_mode = GpuCullMode::Back;
+    bool conservative_rasterization = false;
 };
 
 enum class GpuComparisonFunc {

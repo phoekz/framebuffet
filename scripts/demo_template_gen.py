@@ -2,7 +2,7 @@ import os
 
 base_dir = "src/buffet/demos"
 demos = [
-    ("grass", "Grass"),
+    ("conras", "Conras"),
 ]
 files = {
     "cpp": """#include "{lower_name}.hpp"

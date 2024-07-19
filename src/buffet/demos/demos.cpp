@@ -4,6 +4,7 @@ namespace fb::demos {
 
 auto create(Demos& demos, const CreateDesc& desc) -> void {
     anim::create(demos.anim, {.baked = desc.baked, .device = desc.device});
+    conras::create(demos.conras, {.baked = desc.baked, .device = desc.device});
     crate::create(demos.crate, {.baked = desc.baked, .device = desc.device});
     env::create(demos.env, {.baked = desc.baked, .device = desc.device});
     fibers::create(demos.fibers, {.baked = desc.baked, .device = desc.device});
@@ -19,6 +20,7 @@ auto create(Demos& demos, const CreateDesc& desc) -> void {
             .device = desc.device,
             .render_targets = std::to_array({
                 std::cref(demos.anim.render_targets),
+                std::cref(demos.conras.render_targets),
                 std::cref(demos.crate.render_targets),
                 std::cref(demos.env.render_targets),
                 std::cref(demos.fibers.render_targets),
@@ -48,6 +50,7 @@ auto gui(Demos& demos, const GuiDesc& desc) -> void {
 
     // Then update the rest.
     gui_wrapper(anim);
+    gui_wrapper(conras);
     gui_wrapper(crate);
     gui_wrapper(env);
     gui_wrapper(fibers);
@@ -62,6 +65,7 @@ auto gui(Demos& demos, const GuiDesc& desc) -> void {
 
 auto update(Demos& demos, const UpdateDesc& desc) -> void {
     anim::update(demos.anim, desc);
+    conras::update(demos.conras, desc);
     crate::update(demos.crate, desc);
     env::update(demos.env, desc);
     fibers::update(demos.fibers, desc);
@@ -77,6 +81,7 @@ auto transition_to_render_target(Demos& demos, const RenderDesc& desc) -> void {
     ZoneScoped;
     auto& cmd = desc.cmd;
     demos.anim.render_targets.transition_to_render_target(cmd);
+    demos.conras.render_targets.transition_to_render_target(cmd);
     demos.crate.render_targets.transition_to_render_target(cmd);
     demos.env.render_targets.transition_to_render_target(cmd);
     demos.fibers.render_targets.transition_to_render_target(cmd);
@@ -91,6 +96,7 @@ auto clear_render_targets(Demos& demos, const RenderDesc& desc) -> void {
     ZoneScoped;
     auto& cmd = desc.cmd;
     demos.anim.render_targets.clear(cmd);
+    demos.conras.render_targets.clear(cmd);
     demos.crate.render_targets.clear(cmd);
     demos.env.render_targets.clear(cmd);
     demos.fibers.render_targets.clear(cmd);
@@ -104,6 +110,7 @@ auto clear_render_targets(Demos& demos, const RenderDesc& desc) -> void {
 auto render_demos(Demos& demos, const RenderDesc& desc) -> void {
     ZoneScoped;
     anim::render(demos.anim, desc);
+    conras::render(demos.conras, desc);
     crate::render(demos.crate, desc);
     env::render(demos.env, desc);
     fibers::render(demos.fibers, desc);
@@ -118,6 +125,7 @@ auto transition_to_resolve(Demos& demos, const RenderDesc& desc) -> void {
     ZoneScoped;
     auto& cmd = desc.cmd;
     demos.anim.render_targets.transition_to_resolve(cmd);
+    demos.conras.render_targets.transition_to_resolve(cmd);
     demos.crate.render_targets.transition_to_resolve(cmd);
     demos.env.render_targets.transition_to_resolve(cmd);
     demos.fibers.render_targets.transition_to_resolve(cmd);
@@ -131,6 +139,7 @@ auto resolve_render_targets(Demos& demos, const RenderDesc& desc) -> void {
     ZoneScoped;
     auto& cmd = desc.cmd;
     demos.anim.render_targets.resolve(cmd);
+    demos.conras.render_targets.resolve(cmd);
     demos.crate.render_targets.resolve(cmd);
     demos.env.render_targets.resolve(cmd);
     demos.fibers.render_targets.resolve(cmd);
@@ -144,6 +153,7 @@ auto transition_to_shader_resource(Demos& demos, const RenderDesc& desc) -> void
     ZoneScoped;
     auto& cmd = desc.cmd;
     demos.anim.render_targets.transition_to_shader_resource(cmd);
+    demos.conras.render_targets.transition_to_shader_resource(cmd);
     demos.crate.render_targets.transition_to_shader_resource(cmd);
     demos.env.render_targets.transition_to_shader_resource(cmd);
     demos.fibers.render_targets.transition_to_shader_resource(cmd);

@@ -142,6 +142,7 @@ auto GpuDevice::create(const Window& window) -> void {
         FB_ASSERT(support.OutputMergerLogicOp() == TRUE);
         FB_ASSERT(support.MinPrecisionSupport() == D3D12_SHADER_MIN_PRECISION_SUPPORT_16_BIT);
         FB_ASSERT(support.ResourceBindingTier() == D3D12_RESOURCE_BINDING_TIER_3);
+        FB_ASSERT(support.ConservativeRasterizationTier() == D3D12_CONSERVATIVE_RASTERIZATION_TIER_3);
         FB_ASSERT(support.ResourceHeapTier() == D3D12_RESOURCE_HEAP_TIER_2);
         FB_ASSERT(support.MaxSupportedFeatureLevel() == D3D_FEATURE_LEVEL_12_2);
         FB_ASSERT(support.HighestShaderModel() == D3D_SHADER_MODEL_6_8);

@@ -13,8 +13,8 @@ inline constexpr DXGI_FORMAT DEPTH_FORMAT = DXGI_FORMAT_D32_FLOAT;
 inline constexpr float DEPTH_CLEAR_VALUE = 1.0f;
 inline constexpr uint SAMPLE_COUNT = 1;
 
-inline constexpr uint CARD_COUNT = 9;
-inline constexpr uint CARD_GRID_COLUMNS = 3;
+inline constexpr uint CARD_COUNT = 10;
+inline constexpr uint CARD_GRID_COLUMNS = 4;
 
 struct Parameters {
     std::array<uint, CARD_COUNT> card_indirect_indices;

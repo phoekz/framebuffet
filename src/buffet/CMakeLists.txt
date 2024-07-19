@@ -12,6 +12,9 @@ set(SOURCES
     demos/cards/cards.hlsli
     demos/cards/cards.hpp
     demos/common.hpp
+    demos/conras/conras.cpp
+    demos/conras/conras.hlsli
+    demos/conras/conras.hpp
     demos/crate/crate.cpp
     demos/crate/crate.hlsli
     demos/crate/crate.hpp

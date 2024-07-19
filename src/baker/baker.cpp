@@ -98,6 +98,19 @@ static auto BUFFET_ASSET_TASKS = std::to_array<AssetTask>({
 
 static auto BUFFET_SHADER_TASKS = std::to_array<ShaderTask>({
     {"buffet/demos/cards/cards.hlsl", "cards", {"draw_vs", "draw_ps"}},
+    {
+        "buffet/demos/conras/conras.hlsl",
+        "conras",
+        {
+            "clear_vs",
+            "clear_ps",
+            "raster_vs",
+            "raster_cr_off_ps",
+            "raster_cr_on_ps",
+            "display_vs",
+            "display_ps",
+        },
+    },
     {"buffet/demos/crate/crate.hlsl", "crate", {"draw_vs", "draw_ps"}},
     {"buffet/demos/tree/tree.hlsl", "tree", {"shadow_vs", "draw_vs", "draw_ps"}},
     {"buffet/demos/rain/rain.hlsl", "rain", {"sim_cs", "draw_vs", "draw_ps"}},

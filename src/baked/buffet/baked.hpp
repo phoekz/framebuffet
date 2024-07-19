@@ -63,6 +63,13 @@ public:
 
     auto cards_draw_vs() const -> std::span<const std::byte>;
     auto cards_draw_ps() const -> std::span<const std::byte>;
+    auto conras_clear_vs() const -> std::span<const std::byte>;
+    auto conras_clear_ps() const -> std::span<const std::byte>;
+    auto conras_raster_vs() const -> std::span<const std::byte>;
+    auto conras_raster_cr_off_ps() const -> std::span<const std::byte>;
+    auto conras_raster_cr_on_ps() const -> std::span<const std::byte>;
+    auto conras_display_vs() const -> std::span<const std::byte>;
+    auto conras_display_ps() const -> std::span<const std::byte>;
     auto crate_draw_vs() const -> std::span<const std::byte>;
     auto crate_draw_ps() const -> std::span<const std::byte>;
     auto tree_shadow_vs() const -> std::span<const std::byte>;

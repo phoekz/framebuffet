@@ -161,6 +161,13 @@ auto GpuPipelineBuilder::build(GpuDevice& device, GpuPipeline& pipeline, std::st
             d3d12_desc.LineRasterizationMode = D3D12_LINE_RASTERIZATION_MODE_QUADRILATERAL_WIDE;
         }
 
+        // Override `ConservativeRaster`.
+        if (_rasterizer_desc.conservative_rasterization) {
+            d3d12_desc.ConservativeRaster = D3D12_CONSERVATIVE_RASTERIZATION_MODE_ON;
+        } else {
+            d3d12_desc.ConservativeRaster = D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF;
+        }
+
         // Add.
         CD3DX12_RASTERIZER_DESC2 cdesc(d3d12_desc);
         new (_buffer + _buffet_offset) CD3DX12_PIPELINE_STATE_STREAM_RASTERIZER2(cdesc);
