@@ -4,10 +4,16 @@
 
 namespace fb {
 
+struct Button {
+    int32_t x = 0;
+    int32_t y = 0;
+    bool is_down = false;
+    bool went_down = false;
+    bool went_up = false;
+};
+
 struct Inputs {
-    bool mouse_left = false;
-    int32_t mouse_x = 0;
-    int32_t mouse_y = 0;
+    Button mouse_left;
     float mouse_wheel_y = 0.0f;
 };
 

@@ -31,6 +31,8 @@ struct UpdateDesc {
     float delta_time;
     float elapsed_time;
     uint frame_index;
+    fb::Inputs inputs;
+    bool gui_wants_the_mouse;
 };
 
 struct GuiDesc {

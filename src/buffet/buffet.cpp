@@ -213,6 +213,8 @@ auto buffet_run(Buffet& bf) -> void {
                     .delta_time = bf.frame.smoothed_delta_time(),
                     .elapsed_time = bf.frame.elapsed_time(),
                     .frame_index = bf.device.frame_index(),
+                    .inputs = bf.window.inputs(),
+                    .gui_wants_the_mouse = gui_wants_the_mouse,
                 }
             );
         }

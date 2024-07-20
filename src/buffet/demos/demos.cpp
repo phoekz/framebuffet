@@ -3,6 +3,7 @@
 namespace fb::demos {
 
 auto create(Demos& demos, const CreateDesc& desc) -> void {
+    // Create demos.
     anim::create(demos.anim, {.baked = desc.baked, .device = desc.device});
     conras::create(demos.conras, {.baked = desc.baked, .device = desc.device});
     crate::create(demos.crate, {.baked = desc.baked, .device = desc.device});
@@ -13,54 +14,60 @@ auto create(Demos& demos, const CreateDesc& desc) -> void {
     saber::create(demos.saber, {.baked = desc.baked, .device = desc.device});
     text::create(demos.text, {.baked = desc.baked, .device = desc.device});
     tree::create(demos.tree, {.baked = desc.baked, .device = desc.device});
+
+    // Create cards.
     cards::create(
         demos.cards,
         {
             .baked = desc.baked,
             .device = desc.device,
-            .render_targets = std::to_array({
-                std::cref(demos.anim.render_targets),
-                std::cref(demos.conras.render_targets),
-                std::cref(demos.crate.render_targets),
-                std::cref(demos.env.render_targets),
-                std::cref(demos.fibers.render_targets),
-                std::cref(demos.grass.render_targets),
-                std::cref(demos.rain.render_targets),
-                std::cref(demos.saber.blit.render_targets),
-                std::cref(demos.tree.render_targets),
-                std::cref(demos.text.render_targets),
+            .cards = std::to_array({
+                cards::CardDesc(anim::NAME, std::cref(demos.anim.render_targets)),
+                cards::CardDesc(conras::NAME, std::cref(demos.conras.render_targets)),
+                cards::CardDesc(crate::NAME, std::cref(demos.crate.render_targets)),
+                cards::CardDesc(env::NAME, std::cref(demos.env.render_targets)),
+                cards::CardDesc(fibers::NAME, std::cref(demos.fibers.render_targets)),
+                cards::CardDesc(grass::NAME, std::cref(demos.grass.render_targets)),
+                cards::CardDesc(rain::NAME, std::cref(demos.rain.render_targets)),
+                cards::CardDesc(saber::NAME, std::cref(demos.saber.blit.render_targets)),
+                cards::CardDesc(tree::NAME, std::cref(demos.tree.render_targets)),
+                cards::CardDesc(text::NAME, std::cref(demos.text.render_targets)),
             }),
         }
     );
 }
 
 auto gui(Demos& demos, const GuiDesc& desc) -> void {
-#define gui_wrapper(name)                                                 \
-    {                                                                     \
-        const auto flags = ImGuiTreeNodeFlags_None;                       \
-        ImGui::PushID(#name);                                             \
-        if (ImGui::CollapsingHeader(name::NAME.data(), nullptr, flags)) { \
-            name::gui(demos.name, desc);                                  \
-        }                                                                 \
-        ImGui::PopID();                                                   \
+    // Cards.
+    {
+        const auto flags = ImGuiTreeNodeFlags_DefaultOpen;
+        ImGui::PushID("Cards");
+        if (ImGui::CollapsingHeader(cards::NAME.data(), nullptr, flags)) {
+            cards::gui(demos.cards, desc);
+        }
+        ImGui::PopID();
     }
 
-    // Update cards first.
-    gui_wrapper(cards);
+    ImGui::Separator();
 
-    // Then update the rest.
-    gui_wrapper(anim);
-    gui_wrapper(conras);
-    gui_wrapper(crate);
-    gui_wrapper(env);
-    gui_wrapper(fibers);
-    gui_wrapper(grass);
-    gui_wrapper(rain);
-    gui_wrapper(saber);
-    gui_wrapper(text);
-    gui_wrapper(tree);
-
-#undef gui_wrapper
+    // Hero card.
+    const auto hero_card = demos.cards.parameters.card_indirect_indices.back();
+    const auto hero_name = demos.cards.card_names[hero_card];
+    if (ImGui::CollapsingHeader(hero_name.data(), nullptr, ImGuiTreeNodeFlags_DefaultOpen)) {
+        switch (hero_card) {
+            case 0: anim::gui(demos.anim, desc); break;
+            case 1: conras::gui(demos.conras, desc); break;
+            case 2: crate::gui(demos.crate, desc); break;
+            case 3: env::gui(demos.env, desc); break;
+            case 4: fibers::gui(demos.fibers, desc); break;
+            case 5: grass::gui(demos.grass, desc); break;
+            case 6: rain::gui(demos.rain, desc); break;
+            case 7: saber::gui(demos.saber, desc); break;
+            case 8: text::gui(demos.text, desc); break;
+            case 9: tree::gui(demos.tree, desc); break;
+            default: FB_FATAL(); break;
+        }
+    }
 }
 
 auto update(Demos& demos, const UpdateDesc& desc) -> void {

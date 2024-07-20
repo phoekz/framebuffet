@@ -33,6 +33,7 @@ struct Demo {
     Multibuffer<GpuBufferHostSrv<Card>, FRAME_COUNT> cards;
     GpuBufferHostSrv<Vertex> vertices;
     GpuBufferHostIndex<uint16_t> indices;
+    std::array<std::string_view, CARD_COUNT> card_names;
     std::array<CardDescriptors, CARD_COUNT> card_descriptors;
 
     GpuBufferHostCbv<spd::Constants> spd_constants;
@@ -41,10 +42,15 @@ struct Demo {
     uint3 spd_dispatch;
 };
 
+struct CardDesc {
+    std::string_view name;
+    ConstRef<RenderTargets> render_targets;
+};
+
 struct CreateDesc {
     const Baked& baked;
     GpuDevice& device;
-    std::array<ConstRef<RenderTargets>, CARD_COUNT> render_targets;
+    std::array<CardDesc, CARD_COUNT> cards;
 };
 
 auto create(Demo& demo, const CreateDesc& desc) -> void;

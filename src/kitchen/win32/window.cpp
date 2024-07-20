@@ -135,9 +135,21 @@ auto Window::create(const Desc& desc) -> void {
 }
 
 auto Window::update() -> void {
-    _inputs.mouse_left = g_mouse_left;
-    _inputs.mouse_x = g_mouse_x;
-    _inputs.mouse_y = g_mouse_y;
+    // Update position.
+    _inputs.mouse_left.x = g_mouse_x;
+    _inputs.mouse_left.y = g_mouse_y;
+
+    // Detect change.
+    _inputs.mouse_left.went_up = false;
+    _inputs.mouse_left.went_down = false;
+    if (_inputs.mouse_left.is_down && !g_mouse_left) {
+        _inputs.mouse_left.went_up = true;
+    } else if (!_inputs.mouse_left.is_down && g_mouse_left) {
+        _inputs.mouse_left.went_down = true;
+    }
+    _inputs.mouse_left.is_down = g_mouse_left;
+
+    // Update wheel.
     _inputs.mouse_wheel_y = g_mouse_wheel_y;
     g_mouse_wheel_y = 0.0f;
 }
