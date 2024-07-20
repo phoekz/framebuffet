@@ -19,7 +19,7 @@ struct Parameters {
     float camera_longitude = rad_from_deg(0.0f);
     float camera_rotation_speed = 0.05f;
     float camera_height = 0.2f;
-    bool enable_atoc = false;
+    bool enable_atoc = true;
 };
 
 struct Demo {
