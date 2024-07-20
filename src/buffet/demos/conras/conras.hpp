@@ -13,7 +13,7 @@ inline constexpr float DEPTH_CLEAR_VALUE = 1.0f;
 inline constexpr uint SAMPLE_COUNT = 4;
 
 struct Parameters {
-    ConservativeRasterization conservative_rasterization = ConservativeRasterization::Off;
+    ConservativeRasterization conservative_rasterization = ConservativeRasterization::Under;
 };
 
 struct Demo {
