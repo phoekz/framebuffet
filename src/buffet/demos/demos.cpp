@@ -30,8 +30,8 @@ auto create(Demos& demos, const CreateDesc& desc) -> void {
                 cards::CardDesc(grass::NAME, std::cref(demos.grass.render_targets)),
                 cards::CardDesc(rain::NAME, std::cref(demos.rain.render_targets)),
                 cards::CardDesc(saber::NAME, std::cref(demos.saber.blit.render_targets)),
-                cards::CardDesc(tree::NAME, std::cref(demos.tree.render_targets)),
                 cards::CardDesc(text::NAME, std::cref(demos.text.render_targets)),
+                cards::CardDesc(tree::NAME, std::cref(demos.tree.render_targets)),
             }),
         }
     );
