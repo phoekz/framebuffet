@@ -97,7 +97,7 @@ auto create(Demo& demo, const CreateDesc& desc) -> void {
     demo.constants.create(device, 1, debug.with_name("Constants"));
 
     // Cards.
-    demo.cards.create(device, CARD_COUNT, debug.with_name("Cards"));
+    demo.cards.create(device, CARD_COUNT, debug.with_name(NAME.data()));
 
     // Default card layout.
     for (uint i = 0; i < demo.cards.buffer_count(); i++) {

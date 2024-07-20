@@ -44,7 +44,7 @@ auto gui(Demos& demos, const GuiDesc& desc) -> void {
     // Cards.
     {
         const auto flags = ImGuiTreeNodeFlags_DefaultOpen;
-        ImGui::PushID("Cards");
+        ImGui::PushID(cards::NAME.data());
         if (ImGui::CollapsingHeader(cards::NAME.data(), nullptr, flags)) {
             cards::gui(demos.cards, desc);
         }
