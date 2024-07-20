@@ -189,6 +189,7 @@ auto bake_assets(std::string_view assets_dir, std::span<const AssetTask> asset_t
                     const auto joints = model.vertex_joints();
                     const auto weights = model.vertex_weights();
                     const auto indices = model.indices();
+                    const auto submeshes = model.submeshes();
                     auto tangents = std::vector<float4>(positions.size());
                     generate_tangents(GenerateTangentsDesc {
                         .positions = positions,
@@ -197,6 +198,16 @@ auto bake_assets(std::string_view assets_dir, std::span<const AssetTask> asset_t
                         .indices = indices,
                         .tangents = std::span(tangents),
                     });
+
+                    // Submeshes.
+                    auto asset_submeshes = std::vector<AssetSubmesh>();
+                    for (const auto& submesh : submeshes) {
+                        asset_submeshes.push_back(AssetSubmesh {
+                            .index_count = submesh.index_count,
+                            .start_index = submesh.start_index,
+                            .base_vertex = 0,
+                        });
+                    }
 
                     // Animated vs non-animated.
                     if (joints.empty()) {
@@ -217,6 +228,10 @@ auto bake_assets(std::string_view assets_dir, std::span<const AssetTask> asset_t
                                 std::span<const AssetVertex>(vertices)
                             ),
                             .indices = assets_writer.write("Index", indices),
+                            .submeshes = assets_writer.write(
+                                "Submesh",
+                                std::span<const AssetSubmesh>(asset_submeshes)
+                            ),
                         });
                     } else {
                         auto vertices = std::vector<AssetSkinningVertex>(positions.size());
@@ -241,12 +256,14 @@ auto bake_assets(std::string_view assets_dir, std::span<const AssetTask> asset_t
                                 std::span<const AssetSkinningVertex>(vertices)
                             ),
                             .indices = assets_writer.write("Index", indices),
+                            .submeshes = assets_writer.write(
+                                "Submesh",
+                                std::span<const AssetSubmesh>(asset_submeshes)
+                            ),
                             .joint_nodes = assets_writer.write("uint", model.joint_nodes()),
                             .joint_inverse_binds =
                                 assets_writer.write("float4x4", model.joint_inverse_binds()),
                             .node_parents = assets_writer.write("uint", model.node_parents()),
-                            .node_transforms =
-                                assets_writer.write("float4x4", model.node_transforms()),
                             .node_channels =
                                 assets_writer.write("AnimationChannel", model.node_channels()),
                             .node_channels_times_t =
@@ -354,6 +371,15 @@ auto bake_assets(std::string_view assets_dir, std::span<const AssetTask> asset_t
                         };
                     }
 
+                    // Submesh.
+                    const auto submeshes = std::vector<AssetSubmesh> {
+                        AssetSubmesh {
+                            .index_count = (uint)indices.size(),
+                            .start_index = 0,
+                            .base_vertex = 0,
+                        },
+                    };
+
                     // Mesh.
                     assets.push_back(AssetMesh {
                         .name = names.unique(std::format("{}_mesh", task.name)),
@@ -361,6 +387,10 @@ auto bake_assets(std::string_view assets_dir, std::span<const AssetTask> asset_t
                             assets_writer.write("Vertex", std::span<const AssetVertex>(vertices)),
                         .indices =
                             assets_writer.write("Index", std::span<const AssetIndex>(indices)),
+                        .submeshes = assets_writer.write(
+                            "Submesh",
+                            std::span<const AssetSubmesh>(submeshes)
+                        ),
                     });
                 },
                 [&](const AssetTaskProceduralSphere& task) {
@@ -416,6 +446,15 @@ auto bake_assets(std::string_view assets_dir, std::span<const AssetTask> asset_t
                         };
                     }
 
+                    // Submesh.
+                    const auto submeshes = std::vector<AssetSubmesh> {
+                        AssetSubmesh {
+                            .index_count = (uint)indices.size(),
+                            .start_index = 0,
+                            .base_vertex = 0,
+                        },
+                    };
+
                     // Mesh.
                     assets.push_back(AssetMesh {
                         .name = names.unique(std::format("{}_mesh", task.name)),
@@ -423,6 +462,10 @@ auto bake_assets(std::string_view assets_dir, std::span<const AssetTask> asset_t
                             assets_writer.write("Vertex", std::span<const AssetVertex>(vertices)),
                         .indices =
                             assets_writer.write("Index", std::span<const AssetIndex>(indices)),
+                        .submeshes = assets_writer.write(
+                            "Submesh",
+                            std::span<const AssetSubmesh>(submeshes)
+                        ),
                     });
                 },
                 [&](const AssetTaskProceduralLowPolyGround& task) {
@@ -551,6 +594,15 @@ auto bake_assets(std::string_view assets_dir, std::span<const AssetTask> asset_t
                     }
                     FB_ASSERT(visited_count == cell_vertices.size());
 
+                    // Submesh.
+                    const auto submeshes = std::vector<AssetSubmesh> {
+                        AssetSubmesh {
+                            .index_count = (uint)indices.size(),
+                            .start_index = 0,
+                            .base_vertex = 0,
+                        },
+                    };
+
                     // Mesh.
                     assets.push_back(AssetMesh {
                         .name = names.unique(std::format("{}_mesh", task.name)),
@@ -558,6 +610,10 @@ auto bake_assets(std::string_view assets_dir, std::span<const AssetTask> asset_t
                             assets_writer.write("Vertex", std::span<const AssetVertex>(vertices)),
                         .indices =
                             assets_writer.write("Index", std::span<const AssetIndex>(indices)),
+                        .submeshes = assets_writer.write(
+                            "Submesh",
+                            std::span<const AssetSubmesh>(submeshes)
+                        ),
                     });
                 },
                 [&](const AssetTaskStockcubeOutput& task) {
@@ -725,16 +781,16 @@ auto bake_assets(std::string_view assets_dir, std::span<const AssetTask> asset_t
                         .space_advance = space_glyph->advance,
                         .glyphs = assets_writer.write("Glyph", std::span<const AssetGlyph>(glyphs)),
                     });
-                    assets.push_back(AssetMeshArray {
-                        .name = names.unique(std::format("{}_mesh_array", task.name)),
-                        .submeshes = assets_writer.write(
-                            "Submesh",
-                            std::span<const AssetSubmesh>(submeshes)
-                        ),
+                    assets.push_back(AssetMesh {
+                        .name = names.unique(std::format("{}_mesh", task.name)),
                         .vertices =
                             assets_writer.write("Vertex", std::span<const AssetVertex>(vertices)),
                         .indices =
                             assets_writer.write("Index", std::span<const AssetIndex>(indices)),
+                        .submeshes = assets_writer.write(
+                            "Submesh",
+                            std::span<const AssetSubmesh>(submeshes)
+                        ),
                     });
 
                     // Cleanup.

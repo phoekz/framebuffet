@@ -61,12 +61,10 @@ auto create(Demo& demo, const CreateDesc& desc) -> void {
         pass.constants.create(device, 1, pass_debug.with_name("Constants"));
 
         // Geometry.
-        const auto mesh_array = assets.roboto_medium_mesh_array();
-        pass.submeshes
-            .insert(pass.submeshes.end(), mesh_array.submeshes.begin(), mesh_array.submeshes.end());
-        pass.vertices
-            .create_with_data(device, mesh_array.vertices, pass_debug.with_name("Vertices"));
-        pass.indices.create_with_data(device, mesh_array.indices, pass_debug.with_name("Indices"));
+        const auto mesh = assets.roboto_medium_mesh();
+        pass.submeshes.insert(pass.submeshes.end(), mesh.submeshes.begin(), mesh.submeshes.end());
+        pass.vertices.create_with_data(device, mesh.vertices, pass_debug.with_name("Vertices"));
+        pass.indices.create_with_data(device, mesh.indices, pass_debug.with_name("Indices"));
 
         // Glyphs.
         const auto font = assets.roboto_medium_font();

@@ -49,6 +49,7 @@ static auto BUFFET_ASSET_TASKS = std::to_array<AssetTask>({
         .height_variation = 0.5f,
     },
     AssetTaskGltf {"raccoon", "models/low-poly_racoon_run_animation.glb"},
+    AssetTaskGltf {"mixamo_running", "models/mixamo_running.glb"},
     AssetTaskProceduralCube {"light_bounds", 2.0f, false},
     AssetTaskProceduralCube {"skybox", 2.0f, true},
     AssetTaskProceduralSphere {"sphere", 1.0f, 32, false},

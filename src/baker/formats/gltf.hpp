@@ -12,6 +12,11 @@ using GltfVertexJoint = uint4;
 using GltfVertexWeight = float4;
 using GltfIndex = uint;
 
+struct GltfSubmesh {
+    uint index_count;
+    uint start_index;
+};
+
 struct GltfChannelHeader {
     size_t t_offset = 0;
     size_t t_count = 0;
@@ -46,6 +51,7 @@ public:
     auto vertex_joints() const -> std::span<const GltfVertexJoint> { return _vertex_joints; }
     auto vertex_weights() const -> std::span<const GltfVertexWeight> { return _vertex_weights; }
     auto indices() const -> std::span<const uint> { return _indices; }
+    auto submeshes() const -> std::span<const GltfSubmesh> { return _submeshes; }
 
     auto base_color_texture() const -> const LdrImage& { return _base_color_texture; }
     auto normal_texture() const -> const Option<ConstRef<LdrImage>> {
@@ -63,14 +69,13 @@ public:
     auto alpha_cutoff() const -> float { return _alpha_cutoff; }
     auto alpha_mode() const -> GltfAlphaMode { return _alpha_mode; }
 
-    auto node_count() const -> uint { return (uint)_node_transforms.size(); }
+    auto node_count() const -> uint { return (uint)_node_channels.size(); }
     auto joint_count() const -> uint { return (uint)_joint_nodes.size(); }
     auto animation_duration() const -> float { return _animation_duration; };
 
     auto joint_nodes() const -> std::span<const uint> { return _joint_nodes; };
     auto joint_inverse_binds() const -> std::span<const float4x4> { return _joint_inverse_binds; };
     auto node_parents() const -> std::span<const uint> { return _node_parents; };
-    auto node_transforms() const -> std::span<const float4x4> { return _node_transforms; };
     auto node_channels() const -> std::span<const GltfChannelHeader> { return _node_channels; };
     auto node_channels_times_t() const -> std::span<const float> { return _node_channels_times_t; };
     auto node_channels_times_r() const -> std::span<const float> { return _node_channels_times_r; };
@@ -87,6 +92,7 @@ private:
     std::vector<GltfVertexJoint> _vertex_joints;
     std::vector<GltfVertexWeight> _vertex_weights;
     std::vector<uint> _indices;
+    std::vector<GltfSubmesh> _submeshes;
 
     LdrImage _base_color_texture;
     LdrImage _normal_texture;
@@ -100,7 +106,6 @@ private:
     std::vector<uint> _joint_nodes;
     std::vector<float4x4> _joint_inverse_binds;
     std::vector<uint> _node_parents;
-    std::vector<float4x4> _node_transforms;
     std::vector<GltfChannelHeader> _node_channels;
     std::vector<float> _node_channels_times_t;
     std::vector<float> _node_channels_times_r;

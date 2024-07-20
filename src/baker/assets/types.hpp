@@ -34,25 +34,18 @@ struct AssetSkinningVertex {
 
 using AssetIndex = uint;
 
-struct AssetMesh {
-    std::string name;
-
-    AssetSpan vertices;
-    AssetSpan indices;
-};
-
 struct AssetSubmesh {
     uint index_count;
     uint start_index;
     uint base_vertex;
 };
 
-struct AssetMeshArray {
+struct AssetMesh {
     std::string name;
 
-    AssetSpan submeshes;
     AssetSpan vertices;
     AssetSpan indices;
+    AssetSpan submeshes;
 };
 
 struct AssetTextureData {
@@ -104,10 +97,10 @@ struct AssetAnimationMesh {
 
     AssetSpan skinning_vertices;
     AssetSpan indices;
+    AssetSpan submeshes;
     AssetSpan joint_nodes;
     AssetSpan joint_inverse_binds;
     AssetSpan node_parents;
-    AssetSpan node_transforms;
     AssetSpan node_channels;
     AssetSpan node_channels_times_t;
     AssetSpan node_channels_times_r;
@@ -138,7 +131,6 @@ struct AssetFont {
 using Asset = std::variant<
     AssetCopy,
     AssetMesh,
-    AssetMeshArray,
     AssetTexture,
     AssetCubeTexture,
     AssetMaterial,

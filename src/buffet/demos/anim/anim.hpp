@@ -14,11 +14,16 @@ inline constexpr uint SAMPLE_COUNT = 4;
 
 struct Parameters {
     float camera_distance = 4.0f;
+    float camera_height_offset = 0.5f;
     float camera_fov = rad_from_deg(45.0f);
     float camera_latitude = rad_from_deg(30.0f);
     float camera_longitude = rad_from_deg(0.0f);
-    float camera_rotation_speed = 0.5f;
+    float camera_rotation_speed = 0.25f;
     float2 camera_clip_planes = float2(0.1f, 300.0f);
+    std::array<float4, 2> colors = {
+        float4(0.322f, 0.322f, 0.322f, 1.000f),
+        float4(0.776f, 0.776f, 0.776f, 1.000f),
+    };
 };
 
 struct OwnedAnimationMesh {
@@ -27,10 +32,10 @@ struct OwnedAnimationMesh {
     float duration;
     std::vector<baked::SkinningVertex> skinning_vertices;
     std::vector<baked::Index> indices;
+    std::vector<baked::Submesh> submeshes;
     std::vector<uint> joint_nodes;
     std::vector<float4x4> joint_inverse_binds;
     std::vector<uint> node_parents;
-    std::vector<float4x4> node_transforms;
     std::vector<baked::AnimationChannel> node_channels;
     std::vector<float> node_channels_times_t;
     std::vector<float> node_channels_times_r;
@@ -48,9 +53,7 @@ struct Demo {
     Multibuffer<GpuBufferHostCbv<Constants>, FRAME_COUNT> constants;
     GpuBufferHostSrv<baked::SkinningVertex> vertices;
     GpuBufferHostIndex<baked::Index> indices;
-    GpuBufferHostSrv<float4x4> joint_inverse_bind_buffer;
-    GpuBufferHostSrv<float4x4> joint_global_transform_buffer;
-    GpuTextureSrv texture;
+    GpuBufferHostSrv<float4x4> skinning_matrices;
     float animation_time = 0.0f;
     float animation_duration = 0.0f;
     std::vector<float4x4> node_global_transforms;

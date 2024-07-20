@@ -11,13 +11,54 @@ GltfModel::GltfModel(std::string_view gltf_path) {
     FB_ASSERT(cgltf_parse_file(&options, gltf_path.data(), &data) == cgltf_result_success);
     FB_ASSERT(cgltf_load_buffers(&options, data, gltf_path.data()) == cgltf_result_success);
     FB_ASSERT(cgltf_validate(data) == cgltf_result_success);
-    FB_ASSERT(data->materials_count == 1);
 
-    // Ensure parent are initialized before children when iterating in order.
+    // Node remapping.
+    auto gltf_from_fb = std::vector<uint>();
+    auto fb_from_gltf = std::vector<uint>();
     {
         auto visited = std::vector<bool>(data->nodes_count, false);
-        for (size_t i = 0; i < data->nodes_count; i++) {
-            const auto* node = &data->nodes[i];
+        auto stack = std::vector<uint>();
+        for (uint root_index = 0; root_index < data->nodes_count; root_index++) {
+            const auto* root_node = &data->nodes[root_index];
+            if (root_node->parent) {
+                continue;
+            }
+
+            FB_ASSERT(!visited[root_index]);
+            FB_ASSERT(stack.empty());
+
+            stack.push_back(root_index);
+            while (!stack.empty()) {
+                const auto node_index = stack.back();
+                stack.pop_back();
+
+                if (!visited[node_index]) {
+                    visited[node_index] = true;
+                    gltf_from_fb.push_back(node_index);
+                }
+
+                const auto* gltf_node = &data->nodes[node_index];
+                for (cgltf_size i = 0; i < gltf_node->children_count; i++) {
+                    const auto* gltf_child = gltf_node->children[i];
+                    stack.push_back((uint)(gltf_child - data->nodes));
+                }
+            }
+        }
+        FB_ASSERT(gltf_from_fb.size() == data->nodes_count);
+
+        fb_from_gltf.resize(data->nodes_count);
+        for (size_t i = 0; i < gltf_from_fb.size(); i++) {
+            const auto gltf_node = gltf_from_fb[i];
+            fb_from_gltf[gltf_node] = (uint)i;
+        }
+    }
+
+    // Ensure parents are initialized before the children when iterating in order.
+    {
+        auto visited = std::vector<bool>(data->nodes_count, false);
+        for (size_t fb_i = 0; fb_i < data->nodes_count; fb_i++) {
+            const auto gltf_i = gltf_from_fb[fb_i];
+            const auto* node = &data->nodes[gltf_i];
             const auto curr = (size_t)(node - data->nodes);
             if (node->parent) {
                 const auto parent = (size_t)(node->parent - data->nodes);
@@ -96,17 +137,18 @@ GltfModel::GltfModel(std::string_view gltf_path) {
             i1 += (uint)vertex_offset;
             i2 += (uint)vertex_offset;
         }
+
+        _submeshes.push_back({(uint)index_count, (uint)index_offset});
     }
 
     // Read material.
+    FB_ASSERT(data->materials_count >= 1); // Todo: support multiple materials.
     const auto& material = data->materials[0];
     FB_ASSERT(material.has_pbr_metallic_roughness);
     const auto& pbr = material.pbr_metallic_roughness;
     _metallic_factor = pbr.metallic_factor;
     _roughness_factor = pbr.roughness_factor;
-    FB_ASSERT(pbr.base_color_texture.texture != nullptr);
-    FB_ASSERT(pbr.base_color_texture.texture->image != nullptr);
-    {
+    if (pbr.base_color_texture.texture != nullptr) {
         FB_ASSERT(pbr.base_color_texture.has_transform == false);
         FB_ASSERT(pbr.base_color_texture.texture->image != nullptr);
         const auto& image = *pbr.base_color_texture.texture->image;
@@ -114,6 +156,18 @@ GltfModel::GltfModel(std::string_view gltf_path) {
         const auto image_data = (const std::byte*)cgltf_buffer_view_data(image_view);
         const auto image_span = std::span(image_data, image_view->size);
         _base_color_texture = LdrImage::from_image(image_span);
+    } else {
+        FB_ASSERT(pbr.base_color_factor[0] >= 0.0f && pbr.base_color_factor[0] <= 1.0f);
+        FB_ASSERT(pbr.base_color_factor[1] >= 0.0f && pbr.base_color_factor[1] <= 1.0f);
+        FB_ASSERT(pbr.base_color_factor[2] >= 0.0f && pbr.base_color_factor[2] <= 1.0f);
+        FB_ASSERT(pbr.base_color_factor[3] >= 0.0f && pbr.base_color_factor[3] <= 1.0f);
+        auto color = std::array<std::byte, 4> {
+            (std::byte)(pbr.base_color_factor[0] * 255),
+            (std::byte)(pbr.base_color_factor[1] * 255),
+            (std::byte)(pbr.base_color_factor[2] * 255),
+            (std::byte)(pbr.base_color_factor[3] * 255),
+        };
+        _base_color_texture = LdrImage::from_constant(1, 1, color);
     }
     if (material.normal_texture.texture != nullptr) {
         FB_ASSERT(material.normal_texture.has_transform == false);
@@ -151,41 +205,8 @@ GltfModel::GltfModel(std::string_view gltf_path) {
     _alpha_cutoff = material.alpha_cutoff;
 
     if (data->skins_count > 0) {
-        // Get the mesh.
-        FB_ASSERT(data->meshes_count == 1);
-        const auto& mesh = data->meshes[0];
-        FB_ASSERT(mesh.primitives_count == 1);
-        const auto& primitive = mesh.primitives[0];
-        FB_ASSERT(primitive.type == cgltf_primitive_type_triangles);
-        const auto vertex_count = primitive.attributes[0].data->count;
-
-        // Find accessors.
-        const cgltf_accessor* joints_accessor = nullptr;
-        const cgltf_accessor* weights_accessor = nullptr;
-        for (size_t i = 0; i < primitive.attributes_count; i++) {
-            const auto& attribute = primitive.attributes[i];
-            if (attribute.type == cgltf_attribute_type_joints) {
-                joints_accessor = attribute.data;
-            } else if (attribute.type == cgltf_attribute_type_weights) {
-                weights_accessor = attribute.data;
-            }
-        }
-
-        // Validate.
+        // Validate animations and skins.
         {
-            FB_ASSERT(joints_accessor != nullptr);
-            FB_ASSERT(
-                joints_accessor->component_type == cgltf_component_type_r_16u
-                || joints_accessor->component_type == cgltf_component_type_r_32u
-            );
-            FB_ASSERT(joints_accessor->type == cgltf_type_vec4);
-            FB_ASSERT(joints_accessor->count == vertex_count);
-
-            FB_ASSERT(weights_accessor != nullptr);
-            FB_ASSERT(weights_accessor->component_type == cgltf_component_type_r_32f);
-            FB_ASSERT(weights_accessor->type == cgltf_type_vec4);
-            FB_ASSERT(weights_accessor->count == vertex_count);
-
             FB_ASSERT(data->skins_count == 1);
             const auto& skin = data->skins[0];
             const auto* ibms = skin.inverse_bind_matrices;
@@ -208,14 +229,16 @@ GltfModel::GltfModel(std::string_view gltf_path) {
                     || channel.target_path == cgltf_animation_path_type_rotation
                     || channel.target_path == cgltf_animation_path_type_scale
                 );
-                FB_ASSERT(sampler.interpolation == cgltf_interpolation_type_linear);
+                FB_ASSERT(
+                    sampler.interpolation == cgltf_interpolation_type_linear
+                    || sampler.interpolation == cgltf_interpolation_type_step
+                );
                 FB_ASSERT(sampler.input->component_type == cgltf_component_type_r_32f);
                 FB_ASSERT(sampler.input->type == cgltf_type_scalar);
                 FB_ASSERT(sampler.input->count > 0);
                 FB_ASSERT(sampler.input->has_min);
-                FB_ASSERT(sampler.input->min[0] == 0.0f);
                 FB_ASSERT(sampler.input->has_max);
-                FB_ASSERT(sampler.input->max[0] > 0.0f);
+                FB_ASSERT(sampler.input->max[0] > sampler.input->min[0]);
                 FB_ASSERT(sampler.output->component_type == cgltf_component_type_r_32f);
                 FB_ASSERT(sampler.output->count > 0);
                 FB_ASSERT(sampler.input->count == sampler.output->count);
@@ -239,24 +262,61 @@ GltfModel::GltfModel(std::string_view gltf_path) {
             ));
         }
 
-        // Read skinning vertex data.
-        _vertex_joints.resize(vertex_count);
-        _vertex_weights.resize(vertex_count);
-        for (size_t i = 0; i < vertex_count; i++) {
-            auto& vj = _vertex_joints[i];
-            auto& vw = _vertex_weights[i];
-            FB_ASSERT(cgltf_accessor_read_uint(joints_accessor, i, (uint*)&vj, 4));
-            FB_ASSERT(cgltf_accessor_read_float(weights_accessor, i, (float*)&vw, 4));
+        // Animation vertex data.
+        for (const auto& mesh : std::span(data->meshes, data->meshes_count)) {
+            // Primitive.
+            FB_ASSERT(mesh.primitives_count == 1);
+            const auto& primitive = mesh.primitives[0];
+            FB_ASSERT(primitive.type == cgltf_primitive_type_triangles);
+            const auto vertex_count = primitive.attributes[0].data->count;
+
+            // Find accessors.
+            const cgltf_accessor* joints_accessor = nullptr;
+            const cgltf_accessor* weights_accessor = nullptr;
+            for (size_t i = 0; i < primitive.attributes_count; i++) {
+                const auto& attribute = primitive.attributes[i];
+                if (attribute.type == cgltf_attribute_type_joints) {
+                    joints_accessor = attribute.data;
+                    FB_ASSERT(joints_accessor != nullptr);
+                    FB_ASSERT(
+                        joints_accessor->component_type == cgltf_component_type_r_8u
+                        || joints_accessor->component_type == cgltf_component_type_r_16u
+                        || joints_accessor->component_type == cgltf_component_type_r_32u
+                    );
+                    FB_ASSERT(joints_accessor->type == cgltf_type_vec4);
+                    FB_ASSERT(joints_accessor->count == vertex_count);
+                } else if (attribute.type == cgltf_attribute_type_weights) {
+                    weights_accessor = attribute.data;
+                    FB_ASSERT(weights_accessor != nullptr);
+                    FB_ASSERT(weights_accessor->component_type == cgltf_component_type_r_32f);
+                    FB_ASSERT(weights_accessor->type == cgltf_type_vec4);
+                    FB_ASSERT(weights_accessor->count == vertex_count);
+                }
+            }
+
+            // Extend buffers.
+            const auto vertex_offset = _vertex_joints.size();
+            _vertex_joints.resize(vertex_offset + vertex_count);
+            _vertex_weights.resize(vertex_offset + vertex_count);
+            const auto vertex_joints =
+                std::span(_vertex_joints).subspan(vertex_offset, vertex_count);
+            const auto vertex_weights =
+                std::span(_vertex_weights).subspan(vertex_offset, vertex_count);
+            for (size_t i = 0; i < vertex_count; i++) {
+                auto& vj = vertex_joints[i];
+                auto& vw = vertex_weights[i];
+                FB_ASSERT(cgltf_accessor_read_uint(joints_accessor, i, (uint*)&vj, 4));
+                FB_ASSERT(cgltf_accessor_read_float(weights_accessor, i, (float*)&vw, 4));
+            }
         }
 
         // Read additional node data.
-        auto node_transforms = std::vector<float4x4>(data->nodes_count);
         auto node_parents = std::vector<uint>(data->nodes_count, GLTF_NULL_NODE);
-        for (size_t i = 0; i < data->nodes_count; i++) {
-            const auto& node = data->nodes[i];
-            cgltf_node_transform_local(&node, (float*)&node_transforms[i]);
+        for (size_t fb_i = 0; fb_i < data->nodes_count; fb_i++) {
+            const auto gltf_i = gltf_from_fb[fb_i];
+            const auto& node = data->nodes[gltf_i];
             if (node.parent != nullptr) {
-                node_parents[i] = (uint)(node.parent - data->nodes);
+                node_parents[fb_i] = fb_from_gltf[(uint)(node.parent - data->nodes)];
             }
         }
 
@@ -267,7 +327,7 @@ GltfModel::GltfModel(std::string_view gltf_path) {
         auto joint_nodes = std::vector<uint>(skin.joints_count);
         for (size_t i = 0; i < skin.joints_count; i++) {
             FB_ASSERT(cgltf_accessor_read_float(ibms, i, (float*)&joint_inverse_binds[i], 16));
-            joint_nodes[i] = (uint)(skin.joints[i] - data->nodes);
+            joint_nodes[i] = fb_from_gltf[(uint)(skin.joints[i] - data->nodes)];
         }
 
         // Read animation data.
@@ -276,29 +336,29 @@ GltfModel::GltfModel(std::string_view gltf_path) {
         auto total_t_count = size_t(0);
         auto total_r_count = size_t(0);
         auto total_s_count = size_t(0);
-        for (size_t i = 0; i < animation.channels_count; i++) {
-            const auto& channel = animation.channels[i];
-            const auto& sampler = animation.samplers[i];
+        for (size_t gltf_i = 0; gltf_i < animation.channels_count; gltf_i++) {
+            const auto& channel = animation.channels[gltf_i];
+            const auto& sampler = animation.samplers[gltf_i];
             const auto& output = *sampler.output;
-            auto node_index = channel.target_node - data->nodes;
+            const auto fb_i = fb_from_gltf[(uint)(channel.target_node - data->nodes)];
             switch (channel.target_path) {
                 case cgltf_animation_path_type_translation:
-                    node_channels[node_index].t_count = output.count;
+                    node_channels[fb_i].t_count = output.count;
                     total_t_count += output.count;
                     break;
                 case cgltf_animation_path_type_rotation:
-                    node_channels[node_index].r_count = output.count;
+                    node_channels[fb_i].r_count = output.count;
                     total_r_count += output.count;
                     break;
                 case cgltf_animation_path_type_scale:
-                    node_channels[node_index].s_count = output.count;
+                    node_channels[fb_i].s_count = output.count;
                     total_s_count += output.count;
                     break;
             }
         }
-        for (size_t i = 1; i < node_channels.size(); i++) {
-            const auto& prev = node_channels[i - 1];
-            auto& curr = node_channels[i];
+        for (size_t fb_i = 1; fb_i < node_channels.size(); fb_i++) {
+            const auto& prev = node_channels[fb_i - 1];
+            auto& curr = node_channels[fb_i];
             curr.t_offset = prev.t_offset + prev.t_count;
             curr.r_offset = prev.r_offset + prev.r_count;
             curr.s_offset = prev.s_offset + prev.s_count;
@@ -310,53 +370,89 @@ GltfModel::GltfModel(std::string_view gltf_path) {
         auto node_channels_values_t = std::vector<float3>(total_t_count);
         auto node_channels_values_r = std::vector<Quaternion>(total_r_count);
         auto node_channels_values_s = std::vector<float3>(total_s_count);
-        for (size_t i = 0; i < animation.samplers_count; i++) {
-            const auto& sampler = animation.samplers[i];
+        for (size_t gltf_i = 0; gltf_i < animation.samplers_count; gltf_i++) {
+            const auto& sampler = animation.samplers[gltf_i];
             const auto& input = *sampler.input;
             const auto& output = *sampler.output;
-            const auto& channel = animation.channels[i];
-            const auto node_index = channel.target_node - data->nodes;
-            const auto& node_channel = node_channels[node_index];
+            const auto& channel = animation.channels[gltf_i];
+            const auto fb_i = fb_from_gltf[(uint)(channel.target_node - data->nodes)];
+            const auto& node_channel = node_channels[fb_i];
 
             switch (channel.target_path) {
                 case cgltf_animation_path_type_translation: {
                     auto* times = &node_channels_times_t[node_channel.t_offset];
                     auto* values = &node_channels_values_t[node_channel.t_offset];
-                    for (size_t j = 0; j < output.count; j++) {
-                        FB_ASSERT(cgltf_accessor_read_float(&input, j, &times[j], 1));
-                        FB_ASSERT(cgltf_accessor_read_float(&output, j, (float*)&values[j], 3));
+                    for (size_t i = 0; i < output.count; i++) {
+                        FB_ASSERT(cgltf_accessor_read_float(&input, i, &times[i], 1));
+                        FB_ASSERT(cgltf_accessor_read_float(&output, i, (float*)&values[i], 3));
                     }
                     break;
                 }
                 case cgltf_animation_path_type_rotation: {
                     auto* times = &node_channels_times_r[node_channel.r_offset];
                     auto* values = &node_channels_values_r[node_channel.r_offset];
-                    for (size_t j = 0; j < output.count; j++) {
-                        FB_ASSERT(cgltf_accessor_read_float(&input, j, &times[j], 1));
-                        FB_ASSERT(cgltf_accessor_read_float(&output, j, (float*)&values[j], 4));
+                    for (size_t i = 0; i < output.count; i++) {
+                        FB_ASSERT(cgltf_accessor_read_float(&input, i, &times[i], 1));
+                        FB_ASSERT(cgltf_accessor_read_float(&output, i, (float*)&values[i], 4));
                     }
                     break;
                 }
                 case cgltf_animation_path_type_scale: {
                     auto* times = &node_channels_times_s[node_channel.s_offset];
                     auto* values = &node_channels_values_s[node_channel.s_offset];
-                    for (size_t j = 0; j < output.count; j++) {
-                        FB_ASSERT(cgltf_accessor_read_float(&input, j, &times[j], 1));
-                        FB_ASSERT(cgltf_accessor_read_float(&output, j, (float*)&values[j], 3));
+                    for (size_t i = 0; i < output.count; i++) {
+                        FB_ASSERT(cgltf_accessor_read_float(&input, i, &times[i], 1));
+                        FB_ASSERT(cgltf_accessor_read_float(&output, i, (float*)&values[i], 3));
                     }
                     break;
                 }
             }
         }
 
-        // Animation duration.
-        const auto animation_duration = animation.samplers[0].input->max[0];
+        // Time.
+        auto animation_duration = 0.0f;
+        {
+            auto times_t_min = FLT_MAX;
+            auto times_t_max = -FLT_MAX;
+            auto times_r_min = FLT_MAX;
+            auto times_r_max = -FLT_MAX;
+            auto times_s_min = FLT_MAX;
+            auto times_s_max = -FLT_MAX;
+            for (size_t fb_i = 0; fb_i < node_channels_times_t.size(); fb_i++) {
+                times_t_min = std::min(times_t_min, node_channels_times_t[fb_i]);
+                times_t_max = std::max(times_t_max, node_channels_times_t[fb_i]);
+            }
+            for (size_t fb_i = 0; fb_i < node_channels_times_r.size(); fb_i++) {
+                times_r_min = std::min(times_r_min, node_channels_times_r[fb_i]);
+                times_r_max = std::max(times_r_max, node_channels_times_r[fb_i]);
+            }
+            for (size_t fb_i = 0; fb_i < node_channels_times_s.size(); fb_i++) {
+                times_s_min = std::min(times_s_min, node_channels_times_s[fb_i]);
+                times_s_max = std::max(times_s_max, node_channels_times_s[fb_i]);
+            }
+            FB_ASSERT(times_t_min >= 0.0f && times_t_max > times_t_min);
+            FB_ASSERT(times_r_min >= 0.0f && times_r_max > times_r_min);
+            FB_ASSERT(times_s_min >= 0.0f && times_s_max > times_s_min);
+            FB_ASSERT(times_t_min == times_r_min);
+            FB_ASSERT(times_t_min == times_s_min);
+            FB_ASSERT(times_t_max == times_r_max);
+            FB_ASSERT(times_t_max == times_s_max);
+            for (size_t fb_i = 0; fb_i < node_channels_times_t.size(); fb_i++) {
+                node_channels_times_t[fb_i] -= times_t_min;
+            }
+            for (size_t fb_i = 0; fb_i < node_channels_times_r.size(); fb_i++) {
+                node_channels_times_r[fb_i] -= times_r_min;
+            }
+            for (size_t fb_i = 0; fb_i < node_channels_times_s.size(); fb_i++) {
+                node_channels_times_s[fb_i] -= times_s_min;
+            }
+            animation_duration = times_t_max - times_t_min;
+        }
 
         // Save.
         std::swap(_joint_nodes, joint_nodes);
         std::swap(_joint_inverse_binds, joint_inverse_binds);
         std::swap(_node_parents, node_parents);
-        std::swap(_node_transforms, node_transforms);
         std::swap(_node_channels, node_channels);
         std::swap(_node_channels_times_t, node_channels_times_t);
         std::swap(_node_channels_times_r, node_channels_times_r);

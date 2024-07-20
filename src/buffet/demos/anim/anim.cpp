@@ -8,10 +8,10 @@ auto copy_animation_mesh(OwnedAnimationMesh& dst, const baked::AnimationMesh& sr
     dst.duration = src.duration;
     dst.skinning_vertices.assign(src.skinning_vertices.begin(), src.skinning_vertices.end());
     dst.indices.assign(src.indices.begin(), src.indices.end());
+    dst.submeshes.assign(src.submeshes.begin(), src.submeshes.end());
     dst.joint_nodes.assign(src.joint_nodes.begin(), src.joint_nodes.end());
     dst.joint_inverse_binds.assign(src.joint_inverse_binds.begin(), src.joint_inverse_binds.end());
     dst.node_parents.assign(src.node_parents.begin(), src.node_parents.end());
-    dst.node_transforms.assign(src.node_transforms.begin(), src.node_transforms.end());
     dst.node_channels.assign(src.node_channels.begin(), src.node_channels.end());
     dst.node_channels_times_t.assign(
         src.node_channels_times_t.begin(),
@@ -80,28 +80,14 @@ auto create(Demo& demo, const CreateDesc& desc) -> void {
     demo.constants.create(device, 1, debug.with_name("Constants"));
 
     // Model.
-    const auto mesh = assets.raccoon_animation_mesh();
+    const auto mesh = assets.mixamo_running_animation_mesh();
 
     // Geometry.
     demo.vertices.create_with_data(device, mesh.skinning_vertices, debug.with_name("Vertices"));
     demo.indices.create_with_data(device, mesh.indices, debug.with_name("Indices"));
 
-    // Texture.
-    const auto texture = assets.raccoon_base_color_texture();
-    demo.texture.create_and_transfer_baked(
-        device,
-        texture,
-        D3D12_BARRIER_SYNC_PIXEL_SHADING,
-        D3D12_BARRIER_ACCESS_SHADER_RESOURCE,
-        D3D12_BARRIER_LAYOUT_DIRECT_QUEUE_SHADER_RESOURCE,
-        debug.with_name("Texture")
-    );
-
     // Animations.
-    demo.joint_inverse_bind_buffer
-        .create_with_data(device, mesh.joint_inverse_binds, debug.with_name("Joint Inverse Binds"));
-    demo.joint_global_transform_buffer
-        .create(device, mesh.joint_count, debug.with_name("Joint Global Transforms"));
+    demo.skinning_matrices.create(device, mesh.joint_count, debug.with_name("Skinning Matrices"));
     demo.animation_duration = mesh.duration;
     demo.node_global_transforms.resize(mesh.node_count);
     copy_animation_mesh(demo.animation_mesh, mesh);
@@ -111,7 +97,11 @@ auto gui(Demo& demo, const GuiDesc&) -> void {
     ZoneScoped;
     PIXScopedEvent(PIX_COLOR_DEFAULT, "%s - Gui", NAME.data());
     auto& params = demo.parameters;
+    ImGui::SliderFloat("Animation Time", &demo.animation_time, 0.0f, demo.animation_duration);
+    ImGui::ColorPicker4("Color 0", &params.colors[0].x);
+    ImGui::ColorPicker4("Color 1", &params.colors[1].x);
     ImGui::SliderFloat("Camera Distance", &params.camera_distance, 1.0f, 10.0f);
+    ImGui::SliderFloat("Camera Height Offset", &params.camera_height_offset, 0.0f, 2.0f);
     ImGui::SliderAngle("Camera FOV", &params.camera_fov, 0.0f, 90.0f);
     ImGui::SliderAngle("Camera Latitude", &params.camera_latitude, -90.0f, 90.0f);
     ImGui::SliderAngle("Camera Longitude", &params.camera_longitude, 0.0f, 360.0f);
@@ -225,10 +215,11 @@ auto update(Demo& demo, const UpdateDesc& desc) -> void {
             }
         }
 
-        auto jgt = demo.joint_global_transform_buffer.span();
-        for (uint joint_index = 0; joint_index < jgt.size(); joint_index++) {
+        auto sms = demo.skinning_matrices.span();
+        for (uint joint_index = 0; joint_index < sms.size(); joint_index++) {
             const auto node_index = mesh.joint_nodes[joint_index];
-            jgt[joint_index] = demo.node_global_transforms[node_index];
+            sms[joint_index] =
+                mesh.joint_inverse_binds[joint_index] * demo.node_global_transforms[node_index];
         }
     }
 
@@ -248,9 +239,14 @@ auto update(Demo& demo, const UpdateDesc& desc) -> void {
         );
         auto eye = params.camera_distance
             * dir_from_lonlat(params.camera_longitude, params.camera_latitude);
-        auto view = float4x4::CreateLookAt(eye, float3::Zero, float3::Up);
+        auto height_offset = float3(0.0f, params.camera_height_offset, 0.0f);
+        auto view = float4x4::CreateLookAt(eye + height_offset, height_offset, float3::Up);
         camera_transform = view * projection;
     }
+
+    // Scene transform.
+    const float4x4 fbx_scale = float4x4::CreateScale(0.01f); // Todo: Bake this into the model.
+    const float4x4 transform = fbx_scale * camera_transform;
 
     // Update debug draw.
     demo.debug_draw.begin(desc.frame_index);
@@ -261,7 +257,7 @@ auto update(Demo& demo, const UpdateDesc& desc) -> void {
 
     // Update constants.
     demo.constants.buffer(desc.frame_index).ref() = Constants {
-        .transform = camera_transform,
+        .transform = transform,
     };
 }
 
@@ -275,17 +271,30 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
         demo.debug_draw.render(cmd);
 
         cmd.pix_begin("Animation");
-        cmd.set_constants(Bindings {
-            .constants = demo.constants.buffer(frame_index).cbv_descriptor().index(),
-            .vertices = demo.vertices.srv_descriptor().index(),
-            .joints_inverse_binds = demo.joint_inverse_bind_buffer.srv_descriptor().index(),
-            .joints_global_transforms = demo.joint_global_transform_buffer.srv_descriptor().index(),
-            .texture = demo.texture.srv_descriptor().index(),
-        });
         cmd.set_pipeline(demo.pipeline);
         cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
         cmd.set_index_buffer(demo.indices.index_buffer_view());
-        cmd.draw_indexed_instanced(demo.indices.element_count(), 1, 0, 0, 0);
+        for (uint i = 0; i < demo.animation_mesh.submeshes.size(); i++) {
+            const auto& submesh = demo.animation_mesh.submeshes[i];
+            const uint r = (uint)(demo.parameters.colors[i].x * 255.0f);
+            const uint g = (uint)(demo.parameters.colors[i].y * 255.0f);
+            const uint b = (uint)(demo.parameters.colors[i].z * 255.0f);
+            const uint a = (uint)(demo.parameters.colors[i].w * 255.0f);
+            const uint color = (a << 24) | (b << 16) | (g << 8) | r;
+            cmd.set_constants(Bindings {
+                .constants = demo.constants.buffer(frame_index).cbv_descriptor().index(),
+                .vertices = demo.vertices.srv_descriptor().index(),
+                .skinning_matrices = demo.skinning_matrices.srv_descriptor().index(),
+                .color = color,
+            });
+            cmd.draw_indexed_instanced(
+                submesh.index_count,
+                1,
+                submesh.start_index,
+                submesh.base_vertex,
+                0
+            );
+        }
         cmd.pix_end();
 
         cmd.pix_end();

@@ -11,7 +11,7 @@ template<ImagePixel T>
 class Image {
 public:
     static auto from_image(std::span<const std::byte> src_image) -> Image<T>;
-    static auto from_constant(uint width, uint height, const T (&pixel)[4]) -> Image<T>;
+    static auto from_constant(uint width, uint height, const std::array<T, 4>& pixel) -> Image<T>;
 
     auto width() const -> uint { return _width; }
     auto height() const -> uint { return _height; }

@@ -99,38 +99,20 @@ auto bake_app_datas(
                         R"(auto Assets::{}() const -> Mesh {{
                             // vertex_count: {}
                             // face_count: {}
+                            // submesh_count: {}
                             return Mesh {{
                                 {},
                                 {},
+                                {},
                             }};
                         }})",
                         asset.name,
                         asset.vertices.element_count,
                         asset.indices.element_count / 3,
-                        format_named_asset_span("vertices"sv, asset.vertices),
-                        format_named_asset_span("indices"sv, asset.indices)
-                    );
-                },
-                [&](const AssetMeshArray& asset) {
-                    assets_decls << std::format("auto {}() const -> MeshArray;", asset.name);
-                    assets_defns << std::format(
-                        R"(auto Assets::{}() const -> MeshArray {{
-                            // submesh_count: {}
-                            // vertex_count: {}
-                            // face_count: {}
-                            return MeshArray {{
-                                {},
-                                {},
-                                {},
-                            }};
-                        }})",
-                        asset.name,
                         asset.submeshes.element_count,
-                        asset.vertices.element_count,
-                        asset.indices.element_count / 3,
-                        format_named_asset_span("submeshes"sv, asset.submeshes),
                         format_named_asset_span("vertices"sv, asset.vertices),
-                        format_named_asset_span("indices"sv, asset.indices)
+                        format_named_asset_span("indices"sv, asset.indices),
+                        format_named_asset_span("submeshes"sv, asset.submeshes)
                     );
                 },
                 [&](const AssetTexture& asset) {
@@ -261,6 +243,9 @@ auto bake_app_datas(
                     assets_decls << std::format("auto {}() const -> AnimationMesh;", asset.name);
                     assets_defns << std::format(
                         R"(auto Assets::{}() const -> AnimationMesh {{
+                            // vertex_count: {}
+                            // face_count: {}
+                            // submesh_count: {}
                             return AnimationMesh {{
                                 .node_count = {},
                                 .joint_count = {},
@@ -281,15 +266,18 @@ auto bake_app_datas(
                             }};
                         }})",
                         asset.name,
+                        asset.skinning_vertices.element_count,
+                        asset.indices.element_count / 3,
+                        asset.submeshes.element_count,
                         asset.node_count,
                         asset.joint_count,
                         asset.duration,
                         format_named_asset_span("skinning_vertices"sv, asset.skinning_vertices),
                         format_named_asset_span("indices"sv, asset.indices),
+                        format_named_asset_span("submeshes"sv, asset.submeshes),
                         format_named_asset_span("joint_nodes"sv, asset.joint_nodes),
                         format_named_asset_span("joint_inverse_binds"sv, asset.joint_inverse_binds),
                         format_named_asset_span("node_parents"sv, asset.node_parents),
-                        format_named_asset_span("node_transforms"sv, asset.node_transforms),
                         format_named_asset_span("node_channels"sv, asset.node_channels),
                         format_named_asset_span(
                             "node_channels_times_t"sv,

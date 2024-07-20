@@ -29,6 +29,9 @@ public:
     auto raccoon_base_color_texture() const -> Texture;
     auto raccoon_metallic_roughness_texture() const -> Texture;
     auto raccoon_material() const -> Material;
+    auto mixamo_running_animation_mesh() const -> AnimationMesh;
+    auto mixamo_running_base_color_texture() const -> Texture;
+    auto mixamo_running_material() const -> Material;
     auto light_bounds_mesh() const -> Mesh;
     auto skybox_mesh() const -> Mesh;
     auto sphere_mesh() const -> Mesh;
@@ -40,7 +43,7 @@ public:
     auto shanghai_bund_rad() const -> CubeTexture;
     auto industrial_sunset_02_puresky_irr() const -> CubeTexture;
     auto roboto_medium_font() const -> Font;
-    auto roboto_medium_mesh_array() const -> MeshArray;
+    auto roboto_medium_mesh() const -> Mesh;
     auto lightsaber_mesh() const -> Mesh;
     auto lightsaber_base_color_texture() const -> Texture;
     auto lightsaber_material() const -> Material;

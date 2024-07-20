@@ -7,9 +7,8 @@ FB_NAMESPACE_BEGIN(fb::demos::anim)
 struct Bindings {
     uint constants;
     uint vertices;
-    uint joints_inverse_binds;
-    uint joints_global_transforms;
-    uint texture;
+    uint skinning_matrices;
+    uint color;
 };
 
 struct Constants {

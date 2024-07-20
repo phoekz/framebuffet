@@ -76,13 +76,13 @@ auto Image<float>::from_image(std::span<const std::byte> src_image) -> Image<flo
 }
 
 template<>
-auto Image<std::byte>::from_constant(uint width, uint height, const std::byte (&pixel)[4])
+auto Image<std::byte>::from_constant(uint width, uint height, const std::array<std::byte, 4>& pixel)
     -> Image<std::byte> {
     // Copy.
     std::vector<std::byte> dst_data;
     dst_data.resize(width * height * CHANNEL_COUNT);
     for (size_t i = 0; i < dst_data.size(); i += CHANNEL_COUNT) {
-        memcpy(dst_data.data() + i, pixel, CHANNEL_COUNT);
+        memcpy(dst_data.data() + i, pixel.data(), CHANNEL_COUNT);
     }
 
     // Result.
@@ -97,12 +97,13 @@ auto Image<std::byte>::from_constant(uint width, uint height, const std::byte (&
 }
 
 template<>
-auto Image<float>::from_constant(uint width, uint height, const float (&pixel)[4]) -> Image<float> {
+auto Image<float>::from_constant(uint width, uint height, const std::array<float, 4>& pixel)
+    -> Image<float> {
     // Copy.
     std::vector<float> dst_data;
     dst_data.resize(width * height * CHANNEL_COUNT);
     for (size_t i = 0; i < dst_data.size(); i += CHANNEL_COUNT) {
-        memcpy(dst_data.data() + i, pixel, CHANNEL_COUNT * sizeof(float));
+        memcpy(dst_data.data() + i, pixel.data(), CHANNEL_COUNT * sizeof(float));
     }
 
     // Result.

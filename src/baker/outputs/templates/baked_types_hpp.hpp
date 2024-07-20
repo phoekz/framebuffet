@@ -26,21 +26,16 @@ inline constexpr std::string_view BAKED_TYPES_HPP = R"(#pragma once
 
     using Index = uint;
 
-    struct Mesh {
-        std::span<const Vertex> vertices;
-        std::span<const Index> indices;
-    };
-
     struct Submesh {
         uint index_count;
         uint start_index;
         uint base_vertex;
     };
 
-    struct MeshArray {
-        std::span<const Submesh> submeshes;
+    struct Mesh {
         std::span<const Vertex> vertices;
         std::span<const Index> indices;
+        std::span<const Submesh> submeshes;
     };
 
     inline constexpr uint MAX_MIP_COUNT = {{max_mip_count}};
@@ -102,10 +97,10 @@ inline constexpr std::string_view BAKED_TYPES_HPP = R"(#pragma once
         float duration;
         std::span<const SkinningVertex> skinning_vertices;
         std::span<const Index> indices;
+        std::span<const Submesh> submeshes;
         std::span<const uint> joint_nodes;
         std::span<const float4x4> joint_inverse_binds;
         std::span<const uint> node_parents;
-        std::span<const float4x4> node_transforms;
         std::span<const AnimationChannel> node_channels;
         std::span<const float> node_channels_times_t;
         std::span<const float> node_channels_times_r;
