@@ -83,6 +83,16 @@ auto create(Demo& demo, const CreateDesc& desc) -> void {
 
     // Pipeline.
     GpuPipelineBuilder()
+        .vertex_shader(shaders.cards_background_vs())
+        .pixel_shader(shaders.cards_background_ps())
+        .primitive_topology(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)
+        .render_target_formats({device.swapchain().format()})
+        .depth_stencil(GpuDepthStencilDesc {
+            .depth_read = false,
+            .depth_write = false,
+        })
+        .build(device, demo.background_pipeline, debug.with_name("Background Pipeline"));
+    GpuPipelineBuilder()
         .vertex_shader(shaders.cards_draw_vs())
         .pixel_shader(shaders.cards_draw_ps())
         .primitive_topology(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)
@@ -91,7 +101,7 @@ auto create(Demo& demo, const CreateDesc& desc) -> void {
             .depth_read = false,
             .depth_write = false,
         })
-        .build(device, demo.pipeline, debug.with_name("Pipeline"));
+        .build(device, demo.draw_pipeline, debug.with_name("Draw Pipeline"));
 
     // Constants.
     demo.constants.create(device, 1, debug.with_name("Constants"));
@@ -166,6 +176,9 @@ auto gui(Demo& demo, const GuiDesc& desc) -> void {
     ZoneScoped;
     PIXScopedEvent(PIX_COLOR_DEFAULT, "%s - Gui", NAME.data());
 
+    ImGui::SliderFloat("Zoom Factor", &demo.parameters.zoom_factor, 0.0f, 1.0f);
+    ImGui::SliderFloat("LOD Bias", &demo.parameters.lod_bias, 0.0f, 8.0f);
+
     if (ImGui::Button("Grid")) {
         for (uint i = 0; i < FRAME_COUNT; i++) {
             auto cards = demo.cards.buffer(i).span();
@@ -238,6 +251,8 @@ auto update(Demo& demo, const UpdateDesc& desc) -> void {
     // Update constants.
     demo.constants.buffer(desc.frame_index).ref() = Constants {
         .transform = projection,
+        .zoom_factor = demo.parameters.zoom_factor,
+        .lod_bias = demo.parameters.lod_bias,
     };
 }
 
@@ -265,13 +280,22 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
     });
     cmd.graphics_scope([&demo, &device, frame_index](GpuGraphicsCommandList& cmd) {
         cmd.pix_begin("Render");
+
         const auto& params = demo.parameters;
-        cmd.set_pipeline(demo.pipeline);
         cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+        cmd.set_pipeline(demo.background_pipeline);
+        cmd.set_constants(BackgroundBindings {
+            .constants = demo.constants.buffer(frame_index).cbv_descriptor().index(),
+            .texture = demo.card_descriptors[params.card_indirect_indices.back()].src,
+        });
+        cmd.draw_instanced(3, 1, 0, 0);
+
+        cmd.set_pipeline(demo.draw_pipeline);
         cmd.set_index_buffer(demo.indices.index_buffer_view());
         for (uint i = 0; i < CARD_COUNT; ++i) {
             const auto card_indirect = params.card_indirect_indices[i];
-            cmd.set_constants(Bindings {
+            cmd.set_constants(DrawBindings {
                 .card_index = i,
                 .constants = demo.constants.buffer(frame_index).cbv_descriptor().index(),
                 .cards = demo.cards.buffer(frame_index).srv_descriptor().index(),
@@ -280,6 +304,7 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
             });
             cmd.draw_indexed_instanced(demo.indices.element_count(), 1, 0, 0, 0);
         }
+
         cmd.pix_end();
     });
     cmd.pix_end();

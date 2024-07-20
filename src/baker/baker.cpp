@@ -97,7 +97,16 @@ static auto BUFFET_ASSET_TASKS = std::to_array<AssetTask>({
 });
 
 static auto BUFFET_SHADER_TASKS = std::to_array<ShaderTask>({
-    {"buffet/demos/cards/cards.hlsl", "cards", {"draw_vs", "draw_ps"}},
+    {
+        "buffet/demos/cards/cards.hlsl",
+        "cards",
+        {
+            "background_vs",
+            "background_ps",
+            "draw_vs",
+            "draw_ps",
+        },
+    },
     {
         "buffet/demos/conras/conras.hlsl",
         "conras",

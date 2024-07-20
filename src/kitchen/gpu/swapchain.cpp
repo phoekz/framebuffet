@@ -82,7 +82,7 @@ auto GpuSwapchain::transition_to_render_target(GpuCommandList& cmd, uint frame_i
 }
 
 auto GpuSwapchain::clear_render_target(GpuCommandList& cmd, uint frame_index) -> void {
-    cmd.clear_rtv(_rtv_descriptors[frame_index], float4(0.1f, 0.1f, 0.1f, 1.0f));
+    cmd.clear_rtv(_rtv_descriptors[frame_index], float4(0.0f, 0.0f, 0.0f, 1.0f));
 }
 
 auto GpuSwapchain::set_render_target(GpuGraphicsCommandList& cmd, uint frame_index) -> void {

@@ -4,7 +4,12 @@
 
 FB_NAMESPACE_BEGIN(fb::demos::cards)
 
-struct Bindings {
+struct BackgroundBindings {
+    uint constants;
+    uint texture;
+};
+
+struct DrawBindings {
     uint card_index;
     uint constants;
     uint cards;
@@ -14,7 +19,9 @@ struct Bindings {
 
 struct Constants {
     float4x4 transform;
-    float pad[48];
+    float zoom_factor;
+    float lod_bias;
+    float pad[46];
 };
 
 struct Card {

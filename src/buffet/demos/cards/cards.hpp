@@ -12,7 +12,9 @@ inline constexpr uint CARD_COUNT = 10;
 inline constexpr uint CARD_GRID_COLUMNS = 4;
 
 struct Parameters {
-    std::array<uint, CARD_COUNT> card_indirect_indices;
+    std::array<uint, CARD_COUNT> card_indirect_indices = {};
+    float zoom_factor = 1.0f / 4.0f;
+    float lod_bias = 8.0f;
 };
 
 struct CardDescriptors {
@@ -23,7 +25,8 @@ struct CardDescriptors {
 
 struct Demo {
     Parameters parameters;
-    GpuPipeline pipeline;
+    GpuPipeline background_pipeline;
+    GpuPipeline draw_pipeline;
     Multibuffer<GpuBufferHostCbv<Constants>, FRAME_COUNT> constants;
     Multibuffer<GpuBufferHostSrv<Card>, FRAME_COUNT> cards;
     GpuBufferHostSrv<Vertex> vertices;

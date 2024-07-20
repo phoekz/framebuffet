@@ -758,13 +758,337 @@ auto Assets::grass_material() const -> Material {
 }
 
 auto Shaders::load() -> void {
-    // hash: 907d655ba5e320bd20c3ddedd57c61d7
+    // hash: ab62366e7f08ac6bdbf729d37a99cdba
     ZoneScoped;
     _data = read_whole_file("fb_buffet_shaders.bin");
-    FB_ASSERT(_data.size() == 220884);
+    FB_ASSERT(_data.size() == 228704);
 }
 
-// shader_hash: c2880ce3d77f5a01e0d1eed59cf50270
+// shader_hash: d5c7057e7dc4e62ece119084aa759e6f
+// input_parameters: 2
+// output_parameters: 2
+// instruction_count: 17
+// float_instruction_count: 6
+// uint_instruction_count: 3
+/* disassembly:
+;
+; Input signature:
+;
+; Name                 Index   Mask Register SysValue  Format   Used
+; -------------------- ----- ------ -------- -------- ------- ------
+; SV_VertexID              0   x           0   VERTID    uint   x   
+; SV_InstanceID            0   x           1   INSTID    uint       
+;
+;
+; Output signature:
+;
+; Name                 Index   Mask Register SysValue  Format   Used
+; -------------------- ----- ------ -------- -------- ------- ------
+; SV_Position              0   xyzw        0      POS   float   xyzw
+; ATTRIBUTE                0   xy          1     NONE   float   xy  
+;
+; shader debug name: d5c7057e7dc4e62ece119084aa759e6f.pdb
+; shader hash: d5c7057e7dc4e62ece119084aa759e6f
+;
+; Pipeline Runtime Information: 
+;
+; Vertex Shader
+; OutputPositionPresent=1
+;
+;
+; Input signature:
+;
+; Name                 Index             InterpMode DynIdx
+; -------------------- ----- ---------------------- ------
+; SV_VertexID              0                              
+; SV_InstanceID            0                              
+;
+; Output signature:
+;
+; Name                 Index             InterpMode DynIdx
+; -------------------- ----- ---------------------- ------
+; SV_Position              0          noperspective       
+; ATTRIBUTE                0                 linear       
+;
+; Buffer Definitions:
+;
+;
+; Resource Bindings:
+;
+; Name                                 Type  Format         Dim      ID      HLSL Bind  Count
+; ------------------------------ ---------- ------- ----------- ------- -------------- ------
+;
+;
+; ViewId state:
+;
+; Number of inputs: 5, outputs: 6
+; Outputs dependent on ViewId: {  }
+; Inputs contributing to computation of Outputs:
+;   output 0 depends on inputs: { 0 }
+;   output 1 depends on inputs: { 0 }
+;   output 4 depends on inputs: { 0 }
+;   output 5 depends on inputs: { 0 }
+;
+target datalayout = "e-m:e-p:32:32-i1:32-i8:8-i16:16-i32:32-i64:64-f16:16-f32:32-f64:64-n8:16:32:64"
+target triple = "dxil-ms-dx"
+
+define void @background_vs() {
+  %1 = call i32 @dx.op.loadInput.i32(i32 4, i32 0, i32 0, i8 0, i32 undef)  ; LoadInput(inputSigId,rowIndex,colIndex,gsVertexAxis)
+  %2 = and i32 %1, 2
+  %3 = uitofp i32 %2 to float
+  %4 = shl i32 %1, 1
+  %5 = and i32 %4, 2
+  %6 = uitofp i32 %5 to float
+  %7 = fmul fast float %3, 2.000000e+00
+  %8 = fmul fast float %6, 2.000000e+00
+  %9 = fadd fast float %7, -1.000000e+00
+  %10 = fsub fast float 1.000000e+00, %8
+  call void @dx.op.storeOutput.f32(i32 5, i32 0, i32 0, i8 0, float %9)  ; StoreOutput(outputSigId,rowIndex,colIndex,value)
+  call void @dx.op.storeOutput.f32(i32 5, i32 0, i32 0, i8 1, float %10)  ; StoreOutput(outputSigId,rowIndex,colIndex,value)
+  call void @dx.op.storeOutput.f32(i32 5, i32 0, i32 0, i8 2, float 0.000000e+00)  ; StoreOutput(outputSigId,rowIndex,colIndex,value)
+  call void @dx.op.storeOutput.f32(i32 5, i32 0, i32 0, i8 3, float 1.000000e+00)  ; StoreOutput(outputSigId,rowIndex,colIndex,value)
+  call void @dx.op.storeOutput.f32(i32 5, i32 1, i32 0, i8 0, float %3)  ; StoreOutput(outputSigId,rowIndex,colIndex,value)
+  call void @dx.op.storeOutput.f32(i32 5, i32 1, i32 0, i8 1, float %6)  ; StoreOutput(outputSigId,rowIndex,colIndex,value)
+  ret void
+}
+
+; Function Attrs: nounwind readnone
+declare i32 @dx.op.loadInput.i32(i32, i32, i32, i8, i32) #0
+
+; Function Attrs: nounwind
+declare void @dx.op.storeOutput.f32(i32, i32, i32, i8, float) #1
+
+attributes #0 = { nounwind readnone }
+attributes #1 = { nounwind }
+
+!llvm.ident = !{!0}
+!dx.version = !{!1}
+!dx.valver = !{!1}
+!dx.shaderModel = !{!2}
+!dx.viewIdState = !{!3}
+!dx.entryPoints = !{!4}
+
+!0 = !{!"dxcoob 1.8.2405.15 (fd7e54bcd)"}
+!1 = !{i32 1, i32 8}
+!2 = !{!"vs", i32 6, i32 8}
+!3 = !{[7 x i32] [i32 5, i32 6, i32 51, i32 0, i32 0, i32 0, i32 0]}
+!4 = !{void ()* @background_vs, !"background_vs", !5, null, !16}
+!5 = !{!6, !11, null}
+!6 = !{!7, !10}
+!7 = !{i32 0, !"SV_VertexID", i8 5, i8 1, !8, i8 0, i32 1, i8 1, i32 0, i8 0, !9}
+!8 = !{i32 0}
+!9 = !{i32 3, i32 1}
+!10 = !{i32 1, !"SV_InstanceID", i8 5, i8 2, !8, i8 0, i32 1, i8 1, i32 1, i8 0, null}
+!11 = !{!12, !14}
+!12 = !{i32 0, !"SV_Position", i8 9, i8 3, !8, i8 4, i32 1, i8 4, i32 0, i8 0, !13}
+!13 = !{i32 3, i32 15}
+!14 = !{i32 1, !"ATTRIBUTE", i8 9, i8 0, !8, i8 2, i32 1, i8 2, i32 1, i8 0, !15}
+!15 = !{i32 3, i32 3}
+!16 = !{i32 0, i64 8388864}
+*/
+auto Shaders::cards_background_vs() const -> std::span<const std::byte> {
+    return std::span(_data).subspan(0, 3296);
+}
+
+// shader_hash: 5873bd0f4bfff2b3acae35e080aa87ff
+// constant_buffers: 1
+// bound_resources: 1
+// input_parameters: 2
+// output_parameters: 1
+// instruction_count: 33
+// float_instruction_count: 6
+// texture_bias_instructions: 1
+/* disassembly:
+;
+; Note: shader requires additional functionality:
+;       Resource descriptor heap indexing
+;       Sampler descriptor heap indexing
+;
+;
+; Input signature:
+;
+; Name                 Index   Mask Register SysValue  Format   Used
+; -------------------- ----- ------ -------- -------- ------- ------
+; SV_Position              0   xyzw        0      POS   float       
+; ATTRIBUTE                0   xy          1     NONE   float   xy  
+;
+;
+; Output signature:
+;
+; Name                 Index   Mask Register SysValue  Format   Used
+; -------------------- ----- ------ -------- -------- ------- ------
+; SV_Target                0   xyzw        0   TARGET   float   xyzw
+;
+; shader debug name: 5873bd0f4bfff2b3acae35e080aa87ff.pdb
+; shader hash: 5873bd0f4bfff2b3acae35e080aa87ff
+;
+; Pipeline Runtime Information: 
+;
+; Pixel Shader
+; DepthOutput=0
+; SampleFrequency=0
+;
+;
+; Input signature:
+;
+; Name                 Index             InterpMode DynIdx
+; -------------------- ----- ---------------------- ------
+; SV_Position              0          noperspective       
+; ATTRIBUTE                0                 linear       
+;
+; Output signature:
+;
+; Name                 Index             InterpMode DynIdx
+; -------------------- ----- ---------------------- ------
+; SV_Target                0                              
+;
+; Buffer Definitions:
+;
+; cbuffer g_background_bindings
+; {
+;
+;   struct g_background_bindings
+;   {
+;
+;       struct struct.BackgroundBindings
+;       {
+;
+;           uint constants;                           ; Offset:    0
+;           uint texture;                             ; Offset:    4
+;       
+;       } g_background_bindings;                      ; Offset:    0
+;
+;   
+;   } g_background_bindings;                          ; Offset:    0 Size:     8
+;
+; }
+;
+;
+; Resource Bindings:
+;
+; Name                                 Type  Format         Dim      ID      HLSL Bind  Count
+; ------------------------------ ---------- ------- ----------- ------- -------------- ------
+; g_background_bindings             cbuffer      NA          NA     CB0            cb0     1
+;
+;
+; ViewId state:
+;
+; Number of inputs: 6, outputs: 4
+; Outputs dependent on ViewId: {  }
+; Inputs contributing to computation of Outputs:
+;   output 0 depends on inputs: { 4, 5 }
+;   output 1 depends on inputs: { 4, 5 }
+;   output 2 depends on inputs: { 4, 5 }
+;   output 3 depends on inputs: { 4, 5 }
+;
+target datalayout = "e-m:e-p:32:32-i1:32-i8:8-i16:16-i32:32-i64:64-f16:16-f32:32-f64:64-n8:16:32:64"
+target triple = "dxil-ms-dx"
+
+%dx.types.Handle = type { i8* }
+%dx.types.ResBind = type { i32, i32, i32, i8 }
+%dx.types.ResourceProperties = type { i32, i32 }
+%dx.types.CBufRet.i32 = type { i32, i32, i32, i32 }
+%dx.types.CBufRet.f32 = type { float, float, float, float }
+%dx.types.ResRet.f32 = type { float, float, float, float, i32 }
+%g_background_bindings = type { %struct.BackgroundBindings }
+%struct.BackgroundBindings = type { i32, i32 }
+
+define void @background_ps() {
+  %1 = call %dx.types.Handle @dx.op.createHandleFromBinding(i32 217, %dx.types.ResBind { i32 0, i32 0, i32 0, i8 2 }, i32 0, i1 false)  ; CreateHandleFromBinding(bind,index,nonUniformIndex)
+  %2 = call %dx.types.Handle @dx.op.annotateHandle(i32 216, %dx.types.Handle %1, %dx.types.ResourceProperties { i32 13, i32 8 })  ; AnnotateHandle(res,props)  resource: CBuffer
+  %3 = call float @dx.op.loadInput.f32(i32 4, i32 1, i32 0, i8 0, i32 undef)  ; LoadInput(inputSigId,rowIndex,colIndex,gsVertexAxis)
+  %4 = call float @dx.op.loadInput.f32(i32 4, i32 1, i32 0, i8 1, i32 undef)  ; LoadInput(inputSigId,rowIndex,colIndex,gsVertexAxis)
+  %5 = call %dx.types.CBufRet.i32 @dx.op.cbufferLoadLegacy.i32(i32 59, %dx.types.Handle %2, i32 0)  ; CBufferLoadLegacy(handle,regIndex)
+  %6 = extractvalue %dx.types.CBufRet.i32 %5, 0
+  %7 = call %dx.types.Handle @dx.op.createHandleFromHeap(i32 218, i32 %6, i1 false, i1 false)  ; CreateHandleFromHeap(index,samplerHeap,nonUniformIndex)
+  %8 = call %dx.types.Handle @dx.op.annotateHandle(i32 216, %dx.types.Handle %7, %dx.types.ResourceProperties { i32 13, i32 804 })  ; AnnotateHandle(res,props)  resource: CBuffer
+  %9 = extractvalue %dx.types.CBufRet.i32 %5, 1
+  %10 = call %dx.types.Handle @dx.op.createHandleFromHeap(i32 218, i32 %9, i1 false, i1 false)  ; CreateHandleFromHeap(index,samplerHeap,nonUniformIndex)
+  %11 = call %dx.types.Handle @dx.op.annotateHandle(i32 216, %dx.types.Handle %10, %dx.types.ResourceProperties { i32 2, i32 1033 })  ; AnnotateHandle(res,props)  resource: Texture2D<4xF32>
+  %12 = call %dx.types.Handle @dx.op.createHandleFromHeap(i32 218, i32 0, i1 true, i1 false)  ; CreateHandleFromHeap(index,samplerHeap,nonUniformIndex)
+  %13 = call %dx.types.Handle @dx.op.annotateHandle(i32 216, %dx.types.Handle %12, %dx.types.ResourceProperties { i32 14, i32 0 })  ; AnnotateHandle(res,props)  resource: SamplerState
+  %14 = call %dx.types.CBufRet.f32 @dx.op.cbufferLoadLegacy.f32(i32 59, %dx.types.Handle %8, i32 4)  ; CBufferLoadLegacy(handle,regIndex)
+  %15 = extractvalue %dx.types.CBufRet.f32 %14, 0
+  %16 = fsub fast float 1.000000e+00, %15
+  %17 = fsub fast float %16, %15
+  %18 = fmul fast float %17, %3
+  %19 = fmul fast float %17, %4
+  %20 = fadd fast float %18, %15
+  %21 = fadd fast float %19, %15
+  %22 = call %dx.types.CBufRet.f32 @dx.op.cbufferLoadLegacy.f32(i32 59, %dx.types.Handle %8, i32 4)  ; CBufferLoadLegacy(handle,regIndex)
+  %23 = extractvalue %dx.types.CBufRet.f32 %22, 1
+  %24 = call %dx.types.ResRet.f32 @dx.op.sampleBias.f32(i32 61, %dx.types.Handle %11, %dx.types.Handle %13, float %20, float %21, float undef, float undef, i32 0, i32 0, i32 undef, float %23, float undef)  ; SampleBias(srv,sampler,coord0,coord1,coord2,coord3,offset0,offset1,offset2,bias,clamp)
+  %25 = extractvalue %dx.types.ResRet.f32 %24, 0
+  %26 = extractvalue %dx.types.ResRet.f32 %24, 1
+  %27 = extractvalue %dx.types.ResRet.f32 %24, 2
+  %28 = extractvalue %dx.types.ResRet.f32 %24, 3
+  call void @dx.op.storeOutput.f32(i32 5, i32 0, i32 0, i8 0, float %25)  ; StoreOutput(outputSigId,rowIndex,colIndex,value)
+  call void @dx.op.storeOutput.f32(i32 5, i32 0, i32 0, i8 1, float %26)  ; StoreOutput(outputSigId,rowIndex,colIndex,value)
+  call void @dx.op.storeOutput.f32(i32 5, i32 0, i32 0, i8 2, float %27)  ; StoreOutput(outputSigId,rowIndex,colIndex,value)
+  call void @dx.op.storeOutput.f32(i32 5, i32 0, i32 0, i8 3, float %28)  ; StoreOutput(outputSigId,rowIndex,colIndex,value)
+  ret void
+}
+
+; Function Attrs: nounwind readnone
+declare float @dx.op.loadInput.f32(i32, i32, i32, i8, i32) #0
+
+; Function Attrs: nounwind
+declare void @dx.op.storeOutput.f32(i32, i32, i32, i8, float) #1
+
+; Function Attrs: nounwind readnone
+declare %dx.types.Handle @dx.op.createHandleFromHeap(i32, i32, i1, i1) #0
+
+; Function Attrs: nounwind readonly
+declare %dx.types.CBufRet.f32 @dx.op.cbufferLoadLegacy.f32(i32, %dx.types.Handle, i32) #2
+
+; Function Attrs: nounwind readonly
+declare %dx.types.ResRet.f32 @dx.op.sampleBias.f32(i32, %dx.types.Handle, %dx.types.Handle, float, float, float, float, i32, i32, i32, float, float) #2
+
+; Function Attrs: nounwind readonly
+declare %dx.types.CBufRet.i32 @dx.op.cbufferLoadLegacy.i32(i32, %dx.types.Handle, i32) #2
+
+; Function Attrs: nounwind readnone
+declare %dx.types.Handle @dx.op.annotateHandle(i32, %dx.types.Handle, %dx.types.ResourceProperties) #0
+
+; Function Attrs: nounwind readnone
+declare %dx.types.Handle @dx.op.createHandleFromBinding(i32, %dx.types.ResBind, i32, i1) #0
+
+attributes #0 = { nounwind readnone }
+attributes #1 = { nounwind }
+attributes #2 = { nounwind readonly }
+
+!llvm.ident = !{!0}
+!dx.version = !{!1}
+!dx.valver = !{!1}
+!dx.shaderModel = !{!2}
+!dx.resources = !{!3}
+!dx.viewIdState = !{!6}
+!dx.entryPoints = !{!7}
+
+!0 = !{!"dxcoob 1.8.2405.15 (fd7e54bcd)"}
+!1 = !{i32 1, i32 8}
+!2 = !{!"ps", i32 6, i32 8}
+!3 = !{null, null, !4, null}
+!4 = !{!5}
+!5 = !{i32 0, %g_background_bindings* undef, !"", i32 0, i32 0, i32 1, i32 8, null}
+!6 = !{[8 x i32] [i32 6, i32 4, i32 0, i32 0, i32 0, i32 0, i32 15, i32 15]}
+!7 = !{void ()* @background_ps, !"background_ps", !8, !3, !17}
+!8 = !{!9, !14, null}
+!9 = !{!10, !12}
+!10 = !{i32 0, !"SV_Position", i8 9, i8 3, !11, i8 4, i32 1, i8 4, i32 0, i8 0, null}
+!11 = !{i32 0}
+!12 = !{i32 1, !"ATTRIBUTE", i8 9, i8 0, !11, i8 2, i32 1, i8 2, i32 1, i8 0, !13}
+!13 = !{i32 3, i32 3}
+!14 = !{!15}
+!15 = !{i32 0, !"SV_Target", i8 9, i8 16, !11, i8 0, i32 1, i8 4, i32 0, i8 0, !16}
+!16 = !{i32 3, i32 15}
+!17 = !{i32 0, i64 3229614336}
+*/
+auto Shaders::cards_background_ps() const -> std::span<const std::byte> {
+    return std::span(_data).subspan(3296, 4480);
+}
+
+// shader_hash: 0b7ccc194e0c25f939d634d0dcf0a9c5
 // constant_buffers: 1
 // bound_resources: 1
 // input_parameters: 2
@@ -793,8 +1117,8 @@ auto Shaders::load() -> void {
 ; SV_Position              0   xyzw        0      POS   float   xyzw
 ; ATTRIBUTE                0   xy          1     NONE   float   xy  
 ;
-; shader debug name: c2880ce3d77f5a01e0d1eed59cf50270.pdb
-; shader hash: c2880ce3d77f5a01e0d1eed59cf50270
+; shader debug name: 0b7ccc194e0c25f939d634d0dcf0a9c5.pdb
+; shader hash: 0b7ccc194e0c25f939d634d0dcf0a9c5
 ;
 ; Pipeline Runtime Information: 
 ;
@@ -818,13 +1142,13 @@ auto Shaders::load() -> void {
 ;
 ; Buffer Definitions:
 ;
-; cbuffer g_bindings
+; cbuffer g_draw_bindings
 ; {
 ;
-;   struct g_bindings
+;   struct g_draw_bindings
 ;   {
 ;
-;       struct struct.Bindings
+;       struct struct.DrawBindings
 ;       {
 ;
 ;           uint card_index;                          ; Offset:    0
@@ -833,10 +1157,10 @@ auto Shaders::load() -> void {
 ;           uint vertices;                            ; Offset:   12
 ;           uint texture;                             ; Offset:   16
 ;       
-;       } g_bindings;                                 ; Offset:    0
+;       } g_draw_bindings;                            ; Offset:    0
 ;
 ;   
-;   } g_bindings;                                     ; Offset:    0 Size:    20
+;   } g_draw_bindings;                                ; Offset:    0 Size:    20
 ;
 ; }
 ;
@@ -845,7 +1169,7 @@ auto Shaders::load() -> void {
 ;
 ; Name                                 Type  Format         Dim      ID      HLSL Bind  Count
 ; ------------------------------ ---------- ------- ----------- ------- -------------- ------
-; g_bindings                        cbuffer      NA          NA     CB0            cb0     1
+; g_draw_bindings                   cbuffer      NA          NA     CB0            cb0     1
 ;
 ;
 ; ViewId state:
@@ -869,8 +1193,8 @@ target triple = "dxil-ms-dx"
 %dx.types.CBufRet.i32 = type { i32, i32, i32, i32 }
 %dx.types.ResRet.f32 = type { float, float, float, float, i32 }
 %dx.types.CBufRet.f32 = type { float, float, float, float }
-%g_bindings = type { %struct.Bindings }
-%struct.Bindings = type { i32, i32, i32, i32, i32 }
+%g_draw_bindings = type { %struct.DrawBindings }
+%struct.DrawBindings = type { i32, i32, i32, i32, i32 }
 
 define void @draw_vs() {
   %1 = call %dx.types.Handle @dx.op.createHandleFromBinding(i32 217, %dx.types.ResBind { i32 0, i32 0, i32 0, i8 2 }, i32 0, i1 false)  ; CreateHandleFromBinding(bind,index,nonUniformIndex)
@@ -879,7 +1203,7 @@ define void @draw_vs() {
   %4 = call %dx.types.CBufRet.i32 @dx.op.cbufferLoadLegacy.i32(i32 59, %dx.types.Handle %2, i32 0)  ; CBufferLoadLegacy(handle,regIndex)
   %5 = extractvalue %dx.types.CBufRet.i32 %4, 1
   %6 = call %dx.types.Handle @dx.op.createHandleFromHeap(i32 218, i32 %5, i1 false, i1 false)  ; CreateHandleFromHeap(index,samplerHeap,nonUniformIndex)
-  %7 = call %dx.types.Handle @dx.op.annotateHandle(i32 216, %dx.types.Handle %6, %dx.types.ResourceProperties { i32 13, i32 820 })  ; AnnotateHandle(res,props)  resource: CBuffer
+  %7 = call %dx.types.Handle @dx.op.annotateHandle(i32 216, %dx.types.Handle %6, %dx.types.ResourceProperties { i32 13, i32 804 })  ; AnnotateHandle(res,props)  resource: CBuffer
   %8 = extractvalue %dx.types.CBufRet.i32 %4, 2
   %9 = call %dx.types.Handle @dx.op.createHandleFromHeap(i32 218, i32 %8, i1 false, i1 false)  ; CreateHandleFromHeap(index,samplerHeap,nonUniformIndex)
   %10 = call %dx.types.Handle @dx.op.annotateHandle(i32 216, %dx.types.Handle %9, %dx.types.ResourceProperties { i32 524, i32 16 })  ; AnnotateHandle(res,props)  resource: StructuredBuffer<stride=16>
@@ -983,7 +1307,7 @@ attributes #2 = { nounwind readonly }
 !2 = !{!"vs", i32 6, i32 8}
 !3 = !{null, null, !4, null}
 !4 = !{!5}
-!5 = !{i32 0, %g_bindings* undef, !"", i32 0, i32 0, i32 1, i32 20, null}
+!5 = !{i32 0, %g_draw_bindings* undef, !"", i32 0, i32 0, i32 1, i32 20, null}
 !6 = !{[7 x i32] [i32 5, i32 6, i32 63, i32 0, i32 0, i32 0, i32 0]}
 !7 = !{void ()* @draw_vs, !"draw_vs", !8, !3, !19}
 !8 = !{!9, !14, null}
@@ -1000,10 +1324,10 @@ attributes #2 = { nounwind readonly }
 !19 = !{i32 0, i64 1082130688}
 */
 auto Shaders::cards_draw_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(0, 4872);
+    return std::span(_data).subspan(7776, 4896);
 }
 
-// shader_hash: 829ae1cb6161430695dafe62e6d4d329
+// shader_hash: 3b57576fb46ab00f0187eab225ba0cce
 // constant_buffers: 1
 // bound_resources: 1
 // input_parameters: 2
@@ -1031,8 +1355,8 @@ auto Shaders::cards_draw_vs() const -> std::span<const std::byte> {
 ; -------------------- ----- ------ -------- -------- ------- ------
 ; SV_Target                0   xyzw        0   TARGET   float   xyzw
 ;
-; shader debug name: 829ae1cb6161430695dafe62e6d4d329.pdb
-; shader hash: 829ae1cb6161430695dafe62e6d4d329
+; shader debug name: 3b57576fb46ab00f0187eab225ba0cce.pdb
+; shader hash: 3b57576fb46ab00f0187eab225ba0cce
 ;
 ; Pipeline Runtime Information: 
 ;
@@ -1056,13 +1380,13 @@ auto Shaders::cards_draw_vs() const -> std::span<const std::byte> {
 ;
 ; Buffer Definitions:
 ;
-; cbuffer g_bindings
+; cbuffer g_draw_bindings
 ; {
 ;
-;   struct g_bindings
+;   struct g_draw_bindings
 ;   {
 ;
-;       struct struct.Bindings
+;       struct struct.DrawBindings
 ;       {
 ;
 ;           uint card_index;                          ; Offset:    0
@@ -1071,10 +1395,10 @@ auto Shaders::cards_draw_vs() const -> std::span<const std::byte> {
 ;           uint vertices;                            ; Offset:   12
 ;           uint texture;                             ; Offset:   16
 ;       
-;       } g_bindings;                                 ; Offset:    0
+;       } g_draw_bindings;                            ; Offset:    0
 ;
 ;   
-;   } g_bindings;                                     ; Offset:    0 Size:    20
+;   } g_draw_bindings;                                ; Offset:    0 Size:    20
 ;
 ; }
 ;
@@ -1083,7 +1407,7 @@ auto Shaders::cards_draw_vs() const -> std::span<const std::byte> {
 ;
 ; Name                                 Type  Format         Dim      ID      HLSL Bind  Count
 ; ------------------------------ ---------- ------- ----------- ------- -------------- ------
-; g_bindings                        cbuffer      NA          NA     CB0            cb0     1
+; g_draw_bindings                   cbuffer      NA          NA     CB0            cb0     1
 ;
 ;
 ; ViewId state:
@@ -1104,8 +1428,8 @@ target triple = "dxil-ms-dx"
 %dx.types.ResourceProperties = type { i32, i32 }
 %dx.types.CBufRet.i32 = type { i32, i32, i32, i32 }
 %dx.types.ResRet.f32 = type { float, float, float, float, i32 }
-%g_bindings = type { %struct.Bindings }
-%struct.Bindings = type { i32, i32, i32, i32, i32 }
+%g_draw_bindings = type { %struct.DrawBindings }
+%struct.DrawBindings = type { i32, i32, i32, i32, i32 }
 
 define void @draw_ps() {
   %1 = call %dx.types.Handle @dx.op.createHandleFromBinding(i32 217, %dx.types.ResBind { i32 0, i32 0, i32 0, i8 2 }, i32 0, i1 false)  ; CreateHandleFromBinding(bind,index,nonUniformIndex)
@@ -1168,7 +1492,7 @@ attributes #2 = { nounwind readonly }
 !2 = !{!"ps", i32 6, i32 8}
 !3 = !{null, null, !4, null}
 !4 = !{!5}
-!5 = !{i32 0, %g_bindings* undef, !"", i32 0, i32 0, i32 1, i32 20, null}
+!5 = !{i32 0, %g_draw_bindings* undef, !"", i32 0, i32 0, i32 1, i32 20, null}
 !6 = !{[8 x i32] [i32 6, i32 4, i32 0, i32 0, i32 0, i32 0, i32 15, i32 15]}
 !7 = !{void ()* @draw_ps, !"draw_ps", !8, !3, !17}
 !8 = !{!9, !14, null}
@@ -1183,7 +1507,7 @@ attributes #2 = { nounwind readonly }
 !17 = !{i32 0, i64 3229614336}
 */
 auto Shaders::cards_draw_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(4872, 4236);
+    return std::span(_data).subspan(12672, 4256);
 }
 
 // shader_hash: 15cbce87e26cec13f6b8977c797f0cd9
@@ -1309,7 +1633,7 @@ attributes #1 = { nounwind }
 !16 = !{i32 0, i64 8388864}
 */
 auto Shaders::conras_clear_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(9108, 3268);
+    return std::span(_data).subspan(16928, 3268);
 }
 
 // shader_hash: c358132fa94fcef8c301e912a582faa6
@@ -1473,7 +1797,7 @@ attributes #2 = { nounwind }
 !14 = !{i32 0, i64 9672065280}
 */
 auto Shaders::conras_clear_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(12376, 3892);
+    return std::span(_data).subspan(20196, 3892);
 }
 
 // shader_hash: 4d8e25edf2897dcad66e13139f5f9008
@@ -1698,7 +2022,7 @@ attributes #2 = { nounwind readonly }
 !17 = !{i32 0, i64 1082130688}
 */
 auto Shaders::conras_raster_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(16268, 4800);
+    return std::span(_data).subspan(24088, 4800);
 }
 
 // shader_hash: e2c2a101c144512def6d531bc2823c54
@@ -1857,7 +2181,7 @@ attributes #2 = { nounwind }
 !13 = !{i32 0, i64 9672065280}
 */
 auto Shaders::conras_raster_cr_off_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(21068, 3752);
+    return std::span(_data).subspan(28888, 3752);
 }
 
 // shader_hash: 0024cdc5f5e655e5082dfc0c32cbf5c2
@@ -2024,7 +2348,7 @@ attributes #2 = { nounwind }
 !13 = !{i32 0, i64 9672066304}
 */
 auto Shaders::conras_raster_cr_on_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(24820, 3884);
+    return std::span(_data).subspan(32640, 3884);
 }
 
 // shader_hash: af4151a88d2121bea71ce4681c211f03
@@ -2150,7 +2474,7 @@ attributes #1 = { nounwind }
 !16 = !{i32 0, i64 8388864}
 */
 auto Shaders::conras_display_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(28704, 3284);
+    return std::span(_data).subspan(36524, 3284);
 }
 
 // shader_hash: 795526289feb5fcb97abc2aacf5ee045
@@ -2377,7 +2701,7 @@ attributes #2 = { nounwind readonly }
 !17 = !{i32 0, i64 1082130688}
 */
 auto Shaders::conras_display_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(31988, 4516);
+    return std::span(_data).subspan(39808, 4516);
 }
 
 // shader_hash: ff34f81a9b2fbd77a202421ef918b893
@@ -2680,7 +3004,7 @@ attributes #2 = { nounwind readonly }
 !28 = !{i32 0, i64 1082130688}
 */
 auto Shaders::crate_draw_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(36504, 5788);
+    return std::span(_data).subspan(44324, 5788);
 }
 
 // shader_hash: 3ffa6f49f9d1275666a705cb1fcf8756
@@ -3303,7 +3627,7 @@ attributes #2 = { nounwind readonly }
 !26 = !{i32 0, i64 3229614336}
 */
 auto Shaders::crate_draw_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(42292, 8012);
+    return std::span(_data).subspan(50112, 8012);
 }
 
 // shader_hash: da96164371dd2400e55d53254b743477
@@ -3526,7 +3850,7 @@ attributes #2 = { nounwind readonly }
 !17 = !{i32 0, i64 1082130688}
 */
 auto Shaders::tree_shadow_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(50304, 4672);
+    return std::span(_data).subspan(58124, 4672);
 }
 
 // shader_hash: 02836609226e6e4020c070d23176453a
@@ -3823,7 +4147,7 @@ attributes #2 = { nounwind readonly }
 !24 = !{i32 0, i64 1082130688}
 */
 auto Shaders::tree_draw_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(54976, 5472);
+    return std::span(_data).subspan(62796, 5472);
 }
 
 // shader_hash: dd367431c37c158d4eee8042d74ffd2f
@@ -4066,7 +4390,7 @@ attributes #2 = { nounwind readonly }
 !22 = !{i32 0, i64 3229614336}
 */
 auto Shaders::tree_draw_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(60448, 5236);
+    return std::span(_data).subspan(68268, 5236);
 }
 
 // shader_hash: 594b8b4c846ab4dced1159f304ce8720
@@ -4215,7 +4539,7 @@ attributes #2 = { nounwind }
 !8 = !{i32 128, i32 1, i32 1}
 */
 auto Shaders::rain_sim_cs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(65684, 3752);
+    return std::span(_data).subspan(73504, 3752);
 }
 
 // shader_hash: 5c734c27c8b9608ce06b8b204a05def0
@@ -4480,7 +4804,7 @@ attributes #2 = { nounwind readonly }
 !19 = !{i32 0, i64 1082130688}
 */
 auto Shaders::rain_draw_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(69436, 5076);
+    return std::span(_data).subspan(77256, 5076);
 }
 
 // shader_hash: d8b521f5751ea14b648d3d90c9cf3a6c
@@ -4608,7 +4932,7 @@ attributes #1 = { nounwind }
 !14 = !{i32 0, i64 8388864}
 */
 auto Shaders::rain_draw_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(74512, 3244);
+    return std::span(_data).subspan(82332, 3244);
 }
 
 // shader_hash: ea51244b351fe9e250fa7e46a3037829
@@ -5439,7 +5763,7 @@ attributes #2 = { nounwind readonly }
 !24 = !{i32 0, i64 1082130688}
 */
 auto Shaders::anim_draw_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(77756, 10204);
+    return std::span(_data).subspan(85576, 10204);
 }
 
 // shader_hash: 1c5bf5d04546e6802edf467b2e205f4b
@@ -5646,7 +5970,7 @@ attributes #2 = { nounwind readonly }
 !22 = !{i32 0, i64 3229614336}
 */
 auto Shaders::anim_draw_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(87960, 4800);
+    return std::span(_data).subspan(95780, 4800);
 }
 
 // shader_hash: 4c24160a228de20f6e6b67a3c4dc1f64
@@ -5809,7 +6133,7 @@ attributes #2 = { nounwind }
 !8 = !{i32 32, i32 1, i32 1}
 */
 auto Shaders::fibers_sim_cs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(92760, 4012);
+    return std::span(_data).subspan(100580, 4012);
 }
 
 // shader_hash: 538af1d555e6229ed12eb7826b7744f7
@@ -5935,7 +6259,7 @@ attributes #2 = { nounwind readonly }
 !8 = !{i32 1, i32 1, i32 1}
 */
 auto Shaders::fibers_reset_cs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(96772, 3436);
+    return std::span(_data).subspan(104592, 3436);
 }
 
 // shader_hash: cda447ac08bc8e96d95137c291d7ad57
@@ -6458,7 +6782,7 @@ attributes #3 = { nounwind }
 !12 = !{!"Simple C/C++ TBAA"}
 */
 auto Shaders::fibers_cull_cs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(100208, 7344);
+    return std::span(_data).subspan(108028, 7344);
 }
 
 // shader_hash: d9c0538b37e05e7ddbcd3a4d9120d287
@@ -6741,7 +7065,7 @@ attributes #2 = { nounwind readonly }
 !24 = !{i32 0, i64 1082130688}
 */
 auto Shaders::fibers_light_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(107552, 5508);
+    return std::span(_data).subspan(115372, 5508);
 }
 
 // shader_hash: f27939a6f16349e903dc9af6129dfec6
@@ -6849,7 +7173,7 @@ attributes #0 = { nounwind }
 !17 = !{i32 0, i64 8388864}
 */
 auto Shaders::fibers_light_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(113060, 3156);
+    return std::span(_data).subspan(120880, 3156);
 }
 
 // shader_hash: 4e1239e66cc230f1aaecc7e547156a48
@@ -7124,7 +7448,7 @@ attributes #2 = { nounwind readonly }
 !26 = !{i32 0, i64 1082130688}
 */
 auto Shaders::fibers_plane_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(116216, 5528);
+    return std::span(_data).subspan(124036, 5528);
 }
 
 // shader_hash: 669b63a697e3a5755aabebde6fb866ca
@@ -7434,7 +7758,7 @@ attributes #2 = { nounwind readonly }
 !24 = !{i32 0, i64 1082130688}
 */
 auto Shaders::fibers_plane_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(121744, 5944);
+    return std::span(_data).subspan(129564, 5944);
 }
 
 // shader_hash: 3c7eef96db8f3d7630188b073357bb1d
@@ -7560,7 +7884,7 @@ attributes #1 = { nounwind }
 !16 = !{i32 0, i64 8388864}
 */
 auto Shaders::fibers_debug_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(127688, 3268);
+    return std::span(_data).subspan(135508, 3268);
 }
 
 // shader_hash: bafb272ddc9366ca12cc1f13caf82d43
@@ -7782,7 +8106,7 @@ attributes #2 = { nounwind readonly }
 !17 = !{i32 0, i64 11819548928}
 */
 auto Shaders::fibers_debug_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(130956, 4960);
+    return std::span(_data).subspan(138776, 4960);
 }
 
 // shader_hash: cc2a934663d49520ba211c3cf848160d
@@ -8032,7 +8356,7 @@ attributes #2 = { nounwind readonly }
 !24 = !{i32 0, i64 1082130688}
 */
 auto Shaders::env_background_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(135916, 5196);
+    return std::span(_data).subspan(143736, 5196);
 }
 
 // shader_hash: 8a3c862749ec501ff0b8f3a65bc2e6be
@@ -8282,7 +8606,7 @@ attributes #2 = { nounwind readonly }
 !21 = !{i32 0, i64 3229614336}
 */
 auto Shaders::env_background_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(141112, 5104);
+    return std::span(_data).subspan(148932, 5104);
 }
 
 // shader_hash: 0038661577734484a66656a28dbdc941
@@ -8530,7 +8854,7 @@ attributes #2 = { nounwind readonly }
 !21 = !{i32 0, i64 1082130688}
 */
 auto Shaders::env_model_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(146216, 5100);
+    return std::span(_data).subspan(154036, 5100);
 }
 
 // shader_hash: d9b82a874bca714c1d4129251bfe07fa
@@ -8840,7 +9164,7 @@ attributes #2 = { nounwind readonly }
 !19 = !{i32 0, i64 3229614336}
 */
 auto Shaders::env_model_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(151316, 5612);
+    return std::span(_data).subspan(159136, 5612);
 }
 
 // shader_hash: 821eee7a94d6d2a2fa9e82f5c365d7f6
@@ -9091,7 +9415,7 @@ attributes #2 = { nounwind readonly }
 !24 = !{i32 0, i64 1082130688}
 */
 auto Shaders::text_background_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(156928, 5224);
+    return std::span(_data).subspan(164748, 5224);
 }
 
 // shader_hash: a3925396d8411959d700b45c4725ed70
@@ -9293,7 +9617,7 @@ attributes #2 = { nounwind readonly }
 !21 = !{i32 0, i64 3229614336}
 */
 auto Shaders::text_background_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(162152, 4760);
+    return std::span(_data).subspan(169972, 4760);
 }
 
 // shader_hash: a53097e80b634f80e3bfd6140623a0f4
@@ -9569,7 +9893,7 @@ attributes #2 = { nounwind readonly }
 !19 = !{i32 0, i64 1082130688}
 */
 auto Shaders::text_glyph_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(166912, 5256);
+    return std::span(_data).subspan(174732, 5256);
 }
 
 // shader_hash: 9901d99d4259873d667c147a01fa27e1
@@ -9781,7 +10105,7 @@ attributes #2 = { nounwind readonly }
 !17 = !{i32 0, i64 3229614336}
 */
 auto Shaders::text_glyph_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(172168, 4752);
+    return std::span(_data).subspan(179988, 4752);
 }
 
 // shader_hash: 4008acc81fec37078877fda3791850bc
@@ -10002,7 +10326,7 @@ attributes #2 = { nounwind readonly }
 !17 = !{i32 0, i64 1082130688}
 */
 auto Shaders::saber_scene_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(176920, 4628);
+    return std::span(_data).subspan(184740, 4628);
 }
 
 // shader_hash: 65154cb3872c55fcb84171ea6240d0b6
@@ -10172,7 +10496,7 @@ attributes #2 = { nounwind readonly }
 !15 = !{i32 0, i64 1082130688}
 */
 auto Shaders::saber_scene_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(181548, 3872);
+    return std::span(_data).subspan(189368, 3872);
 }
 
 // shader_hash: f4c16de1384addbaa0a4dff7f3ea09cd
@@ -10351,7 +10675,7 @@ attributes #2 = { nounwind }
 !8 = !{i32 8, i32 8, i32 1}
 */
 auto Shaders::saber_threshold_cs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(185420, 4056);
+    return std::span(_data).subspan(193240, 4056);
 }
 
 // shader_hash: c63f8b566602e338c3f309ebda3b8444
@@ -10645,7 +10969,7 @@ attributes #2 = { nounwind }
 !8 = !{i32 8, i32 8, i32 1}
 */
 auto Shaders::saber_downsample_cs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(189476, 4804);
+    return std::span(_data).subspan(197296, 4804);
 }
 
 // shader_hash: b3eed3d3b1f779262a878da696bb3462
@@ -10904,7 +11228,7 @@ attributes #2 = { nounwind }
 !8 = !{i32 8, i32 8, i32 1}
 */
 auto Shaders::saber_upsample_cs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(194280, 4628);
+    return std::span(_data).subspan(202100, 4628);
 }
 
 // shader_hash: d8a565ad99bfe7bd2ffa3d4dd9ecd7ad
@@ -11030,7 +11354,7 @@ attributes #1 = { nounwind }
 !16 = !{i32 0, i64 8388864}
 */
 auto Shaders::saber_blit_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(198908, 3268);
+    return std::span(_data).subspan(206728, 3268);
 }
 
 // shader_hash: e097ba37e35cd44359398b78600f7605
@@ -11220,7 +11544,7 @@ attributes #2 = { nounwind readonly }
 !17 = !{i32 0, i64 3229614336}
 */
 auto Shaders::saber_blit_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(202176, 4292);
+    return std::span(_data).subspan(209996, 4292);
 }
 
 // shader_hash: f811e0f46dd8880c55e845f1b43de01e
@@ -11468,7 +11792,7 @@ attributes #2 = { nounwind readonly }
 !22 = !{i32 0, i64 1082130688}
 */
 auto Shaders::grass_draw_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(206468, 5036);
+    return std::span(_data).subspan(214288, 5036);
 }
 
 // shader_hash: 528770a44c3f3470b8bad92fc30022a2
@@ -11669,7 +11993,7 @@ attributes #2 = { nounwind readonly }
 !19 = !{i32 0, i64 3229614336}
 */
 auto Shaders::grass_draw_naive_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(211504, 4620);
+    return std::span(_data).subspan(219324, 4620);
 }
 
 // shader_hash: 4afc5d1154d78107f4f7353c14a71966
@@ -11879,7 +12203,7 @@ attributes #2 = { nounwind readonly }
 !19 = !{i32 0, i64 3229614336}
 */
 auto Shaders::grass_draw_atoc_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(216124, 4760);
+    return std::span(_data).subspan(223944, 4760);
 }
 
 #undef texture_data

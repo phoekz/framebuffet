@@ -61,6 +61,8 @@ class Shaders {
 public:
     auto load() -> void;
 
+    auto cards_background_vs() const -> std::span<const std::byte>;
+    auto cards_background_ps() const -> std::span<const std::byte>;
     auto cards_draw_vs() const -> std::span<const std::byte>;
     auto cards_draw_ps() const -> std::span<const std::byte>;
     auto conras_clear_vs() const -> std::span<const std::byte>;
