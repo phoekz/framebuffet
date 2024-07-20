@@ -8,7 +8,7 @@ namespace fb {
 static constexpr uint CHANNEL_COUNT = 4;
 
 template<>
-auto Image<std::byte>::load(std::span<const std::byte> src_image) -> Image<std::byte> {
+auto Image<std::byte>::from_image(std::span<const std::byte> src_image) -> Image<std::byte> {
     // Load.
     uint width = 0;
     uint height = 0;
@@ -41,7 +41,7 @@ auto Image<std::byte>::load(std::span<const std::byte> src_image) -> Image<std::
 }
 
 template<>
-auto Image<float>::load(std::span<const std::byte> src_image) -> Image<float> {
+auto Image<float>::from_image(std::span<const std::byte> src_image) -> Image<float> {
     // Load.
     uint width = 0;
     uint height = 0;
@@ -70,6 +70,47 @@ auto Image<float>::load(std::span<const std::byte> src_image) -> Image<float> {
     image._height = height;
     image._channel_count = CHANNEL_COUNT;
     image._element_byte_count = CHANNEL_COUNT * sizeof(float);
+    image._format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+    image._data = std::move(dst_data);
+    return image;
+}
+
+template<>
+auto Image<std::byte>::from_constant(uint width, uint height, const std::byte (&pixel)[4])
+    -> Image<std::byte> {
+    // Copy.
+    std::vector<std::byte> dst_data;
+    dst_data.resize(width * height * CHANNEL_COUNT);
+    for (size_t i = 0; i < dst_data.size(); i += CHANNEL_COUNT) {
+        memcpy(dst_data.data() + i, pixel, CHANNEL_COUNT);
+    }
+
+    // Result.
+    Image image;
+    image._width = width;
+    image._height = height;
+    image._channel_count = CHANNEL_COUNT;
+    image._element_byte_count = (uint)(dst_data.size() * sizeof(std::byte));
+    image._format = DXGI_FORMAT_R8G8B8A8_UNORM;
+    image._data = std::move(dst_data);
+    return image;
+}
+
+template<>
+auto Image<float>::from_constant(uint width, uint height, const float (&pixel)[4]) -> Image<float> {
+    // Copy.
+    std::vector<float> dst_data;
+    dst_data.resize(width * height * CHANNEL_COUNT);
+    for (size_t i = 0; i < dst_data.size(); i += CHANNEL_COUNT) {
+        memcpy(dst_data.data() + i, pixel, CHANNEL_COUNT * sizeof(float));
+    }
+
+    // Result.
+    Image image;
+    image._width = width;
+    image._height = height;
+    image._channel_count = CHANNEL_COUNT;
+    image._element_byte_count = (uint)(dst_data.size() * sizeof(float));
     image._format = DXGI_FORMAT_R32G32B32A32_FLOAT;
     image._data = std::move(dst_data);
     return image;

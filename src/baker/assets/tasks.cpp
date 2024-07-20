@@ -154,7 +154,7 @@ auto bake_assets(std::string_view assets_dir, std::span<const AssetTask> asset_t
                 [&](const AssetTaskTexture& task) {
                     const auto path = std::format("{}/{}", assets_dir, task.path);
                     const auto file = read_whole_file(path);
-                    const auto image = LdrImage::load(file);
+                    const auto image = LdrImage::from_image(file);
                     assets.push_back(mipmapped_texture_asset(
                         assets_writer,
                         names.unique(std::format("{}_texture", task.name)),
@@ -165,7 +165,7 @@ auto bake_assets(std::string_view assets_dir, std::span<const AssetTask> asset_t
                 },
                 [&](const AssetTaskHdrTexture& task) {
                     const auto file = read_whole_file(std::format("{}/{}", assets_dir, task.path));
-                    const auto image = HdrImage::load(file);
+                    const auto image = HdrImage::from_image(file);
                     assets.push_back(AssetTexture {
                         .name = names.unique(std::format("{}_hdr_texture", task.name)),
                         .format = image.format(),

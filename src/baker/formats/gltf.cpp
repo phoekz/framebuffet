@@ -113,7 +113,7 @@ GltfModel::GltfModel(std::string_view gltf_path) {
         const auto image_view = image.buffer_view;
         const auto image_data = (const std::byte*)cgltf_buffer_view_data(image_view);
         const auto image_span = std::span(image_data, image_view->size);
-        _base_color_texture = LdrImage::load(image_span);
+        _base_color_texture = LdrImage::from_image(image_span);
     }
     if (material.normal_texture.texture != nullptr) {
         FB_ASSERT(material.normal_texture.has_transform == false);
@@ -122,7 +122,7 @@ GltfModel::GltfModel(std::string_view gltf_path) {
         const auto image_view = image.buffer_view;
         const auto image_data = (const std::byte*)cgltf_buffer_view_data(image_view);
         const auto image_span = std::span(image_data, image_view->size);
-        _normal_texture = LdrImage::load(image_span);
+        _normal_texture = LdrImage::from_image(image_span);
     }
     if (pbr.metallic_roughness_texture.texture != nullptr) {
         FB_ASSERT(pbr.metallic_roughness_texture.has_transform == false);
@@ -140,7 +140,7 @@ GltfModel::GltfModel(std::string_view gltf_path) {
                 r = (std::byte)0;
                 a = (std::byte)255;
             };
-        _metallic_roughness_texture = LdrImage::load(image_span).map(map_fn);
+        _metallic_roughness_texture = LdrImage::from_image(image_span).map(map_fn);
     }
     switch (material.alpha_mode) {
         case cgltf_alpha_mode_opaque: _alpha_mode = GltfAlphaMode::Opaque; break;

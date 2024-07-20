@@ -10,7 +10,8 @@ concept ImagePixel = std::same_as<T, std::byte> || std::same_as<T, float>;
 template<ImagePixel T>
 class Image {
 public:
-    static auto load(std::span<const std::byte> src_image) -> Image<T>;
+    static auto from_image(std::span<const std::byte> src_image) -> Image<T>;
+    static auto from_constant(uint width, uint height, const T (&pixel)[4]) -> Image<T>;
 
     auto width() const -> uint { return _width; }
     auto height() const -> uint { return _height; }
