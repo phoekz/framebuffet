@@ -4,37 +4,40 @@ namespace fb::demos {
 
 auto create(Demos& demos, const CreateDesc& desc) -> void {
     // Create demos.
-    anim::create(demos.anim, {.baked = desc.baked, .device = desc.device});
-    conras::create(demos.conras, {.baked = desc.baked, .device = desc.device});
-    crate::create(demos.crate, {.baked = desc.baked, .device = desc.device});
-    env::create(demos.env, {.baked = desc.baked, .device = desc.device});
-    fibers::create(demos.fibers, {.baked = desc.baked, .device = desc.device});
-    grass::create(demos.grass, {.baked = desc.baked, .device = desc.device});
-    rain::create(demos.rain, {.baked = desc.baked, .device = desc.device});
-    saber::create(demos.saber, {.baked = desc.baked, .device = desc.device});
-    text::create(demos.text, {.baked = desc.baked, .device = desc.device});
-    tree::create(demos.tree, {.baked = desc.baked, .device = desc.device});
+#define X(name, _) name::create(demos.name, {.baked = desc.baked, .device = desc.device});
+    DEMO_LIST(X);
+#undef X
+
+    // Configure render targets.
+    //
+    // Todo: this is only for the saber demo because it has two distinct phases
+    // in its rendering. If we moved all transition/clear phases into demos,
+    // this could be removed.
+    demos.render_targets = std::to_array({
+        DemoRenderTargets(&demos.anim.render_targets, &demos.anim.render_targets),
+        DemoRenderTargets(&demos.conras.render_targets, &demos.conras.render_targets),
+        DemoRenderTargets(&demos.crate.render_targets, &demos.crate.render_targets),
+        DemoRenderTargets(&demos.env.render_targets, &demos.env.render_targets),
+        DemoRenderTargets(&demos.fibers.render_targets, &demos.fibers.render_targets),
+        DemoRenderTargets(&demos.grass.render_targets, &demos.grass.render_targets),
+        DemoRenderTargets(&demos.rain.render_targets, &demos.rain.render_targets),
+        DemoRenderTargets(&demos.saber.scene.render_targets, &demos.saber.blit.render_targets),
+        DemoRenderTargets(&demos.text.render_targets, &demos.text.render_targets),
+        DemoRenderTargets(&demos.tree.render_targets, &demos.tree.render_targets),
+    });
 
     // Create cards.
+#define X(lower_name, upper_name) \
+    cards::CardDesc(lower_name::NAME, *demos.render_targets[(uint)Demo::upper_name].post),
     cards::create(
         demos.cards,
         {
             .baked = desc.baked,
             .device = desc.device,
-            .cards = std::to_array({
-                cards::CardDesc(anim::NAME, std::cref(demos.anim.render_targets)),
-                cards::CardDesc(conras::NAME, std::cref(demos.conras.render_targets)),
-                cards::CardDesc(crate::NAME, std::cref(demos.crate.render_targets)),
-                cards::CardDesc(env::NAME, std::cref(demos.env.render_targets)),
-                cards::CardDesc(fibers::NAME, std::cref(demos.fibers.render_targets)),
-                cards::CardDesc(grass::NAME, std::cref(demos.grass.render_targets)),
-                cards::CardDesc(rain::NAME, std::cref(demos.rain.render_targets)),
-                cards::CardDesc(saber::NAME, std::cref(demos.saber.blit.render_targets)),
-                cards::CardDesc(text::NAME, std::cref(demos.text.render_targets)),
-                cards::CardDesc(tree::NAME, std::cref(demos.tree.render_targets)),
-            }),
+            .cards = std::to_array({DEMO_LIST(X)}),
         }
     );
+#undef X
 }
 
 auto gui(Demos& demos, const GuiDesc& desc) -> void {
@@ -54,121 +57,66 @@ auto gui(Demos& demos, const GuiDesc& desc) -> void {
     const auto hero_card = demos.cards.parameters.card_indirect_indices.back();
     const auto hero_name = demos.cards.card_names[hero_card];
     if (ImGui::CollapsingHeader(hero_name.data(), nullptr, ImGuiTreeNodeFlags_DefaultOpen)) {
-        switch (hero_card) {
-            case 0: anim::gui(demos.anim, desc); break;
-            case 1: conras::gui(demos.conras, desc); break;
-            case 2: crate::gui(demos.crate, desc); break;
-            case 3: env::gui(demos.env, desc); break;
-            case 4: fibers::gui(demos.fibers, desc); break;
-            case 5: grass::gui(demos.grass, desc); break;
-            case 6: rain::gui(demos.rain, desc); break;
-            case 7: saber::gui(demos.saber, desc); break;
-            case 8: text::gui(demos.text, desc); break;
-            case 9: tree::gui(demos.tree, desc); break;
+        switch ((Demo)hero_card) {
+#define X(lower_name, upper_name) \
+    case Demo::upper_name: lower_name::gui(demos.lower_name, desc); break;
+            DEMO_LIST(X)
+#undef X
             default: FB_FATAL(); break;
         }
     }
 }
 
 auto update(Demos& demos, const UpdateDesc& desc) -> void {
-    anim::update(demos.anim, desc);
-    conras::update(demos.conras, desc);
-    crate::update(demos.crate, desc);
-    env::update(demos.env, desc);
-    fibers::update(demos.fibers, desc);
-    grass::update(demos.grass, desc);
-    rain::update(demos.rain, desc);
-    saber::update(demos.saber, desc);
-    text::update(demos.text, desc);
-    tree::update(demos.tree, desc);
+#define X(name, _) name::update(demos.name, desc);
+    DEMO_LIST(X);
+#undef X
+
     cards::update(demos.cards, desc);
 }
 
 auto transition_to_render_target(Demos& demos, const RenderDesc& desc) -> void {
     ZoneScoped;
-    auto& cmd = desc.cmd;
-    demos.anim.render_targets.transition_to_render_target(cmd);
-    demos.conras.render_targets.transition_to_render_target(cmd);
-    demos.crate.render_targets.transition_to_render_target(cmd);
-    demos.env.render_targets.transition_to_render_target(cmd);
-    demos.fibers.render_targets.transition_to_render_target(cmd);
-    demos.grass.render_targets.transition_to_render_target(cmd);
-    demos.rain.render_targets.transition_to_render_target(cmd);
-    demos.saber.scene.render_targets.transition_to_render_target(cmd);
-    demos.text.render_targets.transition_to_render_target(cmd);
-    demos.tree.render_targets.transition_to_render_target(cmd);
+#define X(_, name) \
+    demos.render_targets[(uint)Demo::name].pre->transition_to_render_target(desc.cmd);
+    DEMO_LIST(X);
+#undef X
 }
 
 auto clear_render_targets(Demos& demos, const RenderDesc& desc) -> void {
     ZoneScoped;
-    auto& cmd = desc.cmd;
-    demos.anim.render_targets.clear(cmd);
-    demos.conras.render_targets.clear(cmd);
-    demos.crate.render_targets.clear(cmd);
-    demos.env.render_targets.clear(cmd);
-    demos.fibers.render_targets.clear(cmd);
-    demos.grass.render_targets.clear(cmd);
-    demos.rain.render_targets.clear(cmd);
-    demos.saber.scene.render_targets.clear(cmd);
-    demos.text.render_targets.clear(cmd);
-    demos.tree.render_targets.clear(cmd);
+#define X(_, name) demos.render_targets[(uint)Demo::name].pre->clear(desc.cmd);
+    DEMO_LIST(X);
+#undef X
 }
 
 auto render_demos(Demos& demos, const RenderDesc& desc) -> void {
     ZoneScoped;
-    anim::render(demos.anim, desc);
-    conras::render(demos.conras, desc);
-    crate::render(demos.crate, desc);
-    env::render(demos.env, desc);
-    fibers::render(demos.fibers, desc);
-    grass::render(demos.grass, desc);
-    rain::render(demos.rain, desc);
-    saber::render(demos.saber, desc);
-    text::render(demos.text, desc);
-    tree::render(demos.tree, desc);
+#define X(name, _) name::render(demos.name, desc);
+    DEMO_LIST(X);
+#undef X
 }
 
 auto transition_to_resolve(Demos& demos, const RenderDesc& desc) -> void {
     ZoneScoped;
-    auto& cmd = desc.cmd;
-    demos.anim.render_targets.transition_to_resolve(cmd);
-    demos.conras.render_targets.transition_to_resolve(cmd);
-    demos.crate.render_targets.transition_to_resolve(cmd);
-    demos.env.render_targets.transition_to_resolve(cmd);
-    demos.fibers.render_targets.transition_to_resolve(cmd);
-    demos.grass.render_targets.transition_to_resolve(cmd);
-    demos.rain.render_targets.transition_to_resolve(cmd);
-    demos.text.render_targets.transition_to_resolve(cmd);
-    demos.tree.render_targets.transition_to_resolve(cmd);
+#define X(_, name) demos.render_targets[(uint)Demo::name].post->transition_to_resolve(desc.cmd);
+    DEMO_LIST(X);
+#undef X
 }
 
 auto resolve_render_targets(Demos& demos, const RenderDesc& desc) -> void {
     ZoneScoped;
-    auto& cmd = desc.cmd;
-    demos.anim.render_targets.resolve(cmd);
-    demos.conras.render_targets.resolve(cmd);
-    demos.crate.render_targets.resolve(cmd);
-    demos.env.render_targets.resolve(cmd);
-    demos.fibers.render_targets.resolve(cmd);
-    demos.grass.render_targets.resolve(cmd);
-    demos.rain.render_targets.resolve(cmd);
-    demos.text.render_targets.resolve(cmd);
-    demos.tree.render_targets.resolve(cmd);
+#define X(_, name) demos.render_targets[(uint)Demo::name].post->resolve(desc.cmd);
+    DEMO_LIST(X);
+#undef X
 }
 
 auto transition_to_shader_resource(Demos& demos, const RenderDesc& desc) -> void {
     ZoneScoped;
-    auto& cmd = desc.cmd;
-    demos.anim.render_targets.transition_to_shader_resource(cmd);
-    demos.conras.render_targets.transition_to_shader_resource(cmd);
-    demos.crate.render_targets.transition_to_shader_resource(cmd);
-    demos.env.render_targets.transition_to_shader_resource(cmd);
-    demos.fibers.render_targets.transition_to_shader_resource(cmd);
-    demos.grass.render_targets.transition_to_shader_resource(cmd);
-    demos.rain.render_targets.transition_to_shader_resource(cmd);
-    demos.saber.blit.render_targets.transition_to_shader_resource(cmd);
-    demos.text.render_targets.transition_to_shader_resource(cmd);
-    demos.tree.render_targets.transition_to_shader_resource(cmd);
+#define X(_, name) \
+    demos.render_targets[(uint)Demo::name].post->transition_to_shader_resource(desc.cmd);
+    DEMO_LIST(X);
+#undef X
 }
 
 auto render_compose(Demos& demos, const RenderDesc& desc) -> void {

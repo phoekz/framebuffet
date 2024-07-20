@@ -14,22 +14,44 @@
 #include "tree/tree.hpp"
 #include "cards/cards.hpp"
 
+// clang-format off
+#define DEMO_LIST(x) \
+    x(anim, Anim) \
+    x(conras, Conras) \
+    x(crate, Crate) \
+    x(env, Env) \
+    x(fibers, Fibers) \
+    x(grass, Grass) \
+    x(rain, Rain) \
+    x(saber, Saber) \
+    x(text, Text) \
+    x(tree, Tree)
+// clang-format on
+
 namespace fb::demos {
 
 inline constexpr std::string_view NAME = "Buffet"sv;
 
+enum class Demo : uint {
+#define X(_, name) name,
+    DEMO_LIST(X)
+#undef X
+    Count
+};
+
+struct DemoRenderTargets {
+    RenderTargets* pre = nullptr;
+    RenderTargets* post = nullptr;
+};
+
 struct Demos {
-    anim::Demo anim;
-    conras::Demo conras;
-    crate::Demo crate;
-    env::Demo env;
-    fibers::Demo fibers;
-    grass::Demo grass;
-    rain::Demo rain;
-    saber::Demo saber;
-    text::Demo text;
-    tree::Demo tree;
+#define X(name, _) name::Demo name;
+    DEMO_LIST(X);
+#undef X
+
     cards::Demo cards;
+
+    std::array<DemoRenderTargets, (uint)Demo::Count> render_targets = {};
 };
 
 struct CreateDesc {
@@ -50,16 +72,9 @@ auto render_compose(Demos& demos, const RenderDesc& desc) -> void;
 
 template<Archive A>
 auto archive(Demos& demos, A& arc) -> void {
-    anim::archive(demos.anim, arc);
-    conras::archive(demos.conras, arc);
-    crate::archive(demos.crate, arc);
-    env::archive(demos.env, arc);
-    fibers::archive(demos.fibers, arc);
-    grass::archive(demos.grass, arc);
-    rain::archive(demos.rain, arc);
-    saber::archive(demos.saber, arc);
-    text::archive(demos.text, arc);
-    tree::archive(demos.tree, arc);
+#define X(name, _) name::archive(demos.name, arc);
+    DEMO_LIST(X);
+#undef X
     cards::archive(demos.cards, arc);
 }
 
