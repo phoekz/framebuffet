@@ -16,8 +16,8 @@ struct Parameters {
     float camera_distance = 2.0f;
     float camera_fov = rad_from_deg(45.0f);
     float camera_latitude = rad_from_deg(0.0f);
-    float camera_longitude = rad_from_deg(0.0f);
-    float4 saber_color_and_intensity = float4(1.0f, 0.5f, 0.125f, 8.0f);
+    float camera_longitude = rad_from_deg(180.0f);
+    float4 saber_color_and_intensity = float4(0.118f, 0.743f, 1.000f, 8.000f);
 };
 
 struct Demo {
@@ -30,6 +30,7 @@ struct Demo {
         GpuPipeline pipeline;
         GpuBufferDeviceSrv<baked::Vertex> vertices;
         GpuBufferDeviceIndex<baked::Index> indices;
+        GpuBufferDeviceSrv<SceneInstance> instances;
     } scene;
 
     struct {

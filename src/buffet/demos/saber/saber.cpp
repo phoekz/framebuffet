@@ -64,6 +64,23 @@ auto create(Demo& demo, const CreateDesc& desc) -> void {
             D3D12_BARRIER_ACCESS_INDEX_BUFFER,
             pass_debug.with_name("Indices")
         );
+
+        // Instances.
+        const auto lhs_translation = float4x4::CreateTranslation({0.0f, 0.0f, -0.175f});
+        const auto rhs_translation = float4x4::CreateTranslation({0.0f, 0.0f, 0.175f});
+        const auto lhs_rotation = float4x4::CreateRotationX(rad_from_deg(-20.0f));
+        const auto rhs_rotation = float4x4::CreateRotationX(rad_from_deg(20.0f));
+        const auto instances = std::to_array({
+            SceneInstance {.transform = lhs_rotation * lhs_translation},
+            SceneInstance {.transform = rhs_rotation * rhs_translation},
+        });
+        scene.instances.create_and_transfer(
+            device,
+            instances,
+            D3D12_BARRIER_SYNC_VERTEX_SHADING,
+            D3D12_BARRIER_ACCESS_VERTEX_BUFFER,
+            pass_debug.with_name("Instances")
+        );
     }
 
     // Compute pass.
@@ -142,6 +159,9 @@ auto gui(Demo& demo, const GuiDesc&) -> void {
     ZoneScoped;
     PIXScopedEvent(PIX_COLOR_DEFAULT, "%s - Gui", NAME.data());
     auto& params = demo.parameters;
+    if (ImGui::Button("Defaults")) {
+        params = {};
+    }
     ImGui::SliderFloat("Camera Distance", &params.camera_distance, 0.125f, 10.0f);
     float* saber_color = &params.saber_color_and_intensity.x;
     float* saber_intensity = &params.saber_color_and_intensity.w;
@@ -163,7 +183,7 @@ auto update(Demo& demo, const UpdateDesc& desc) -> void {
     const auto camera_transform = view * projection;
 
     // Update saber.
-    const auto amplitude = std::cos(2.0f * desc.elapsed_time) * 0.5f + 0.5f;
+    const auto amplitude = std::cos(1.0f * desc.elapsed_time) * 0.5f + 0.5f;
     params.saber_color_and_intensity.w = 1.0f + 16.0f * amplitude;
 
     // Update debug draw.
@@ -198,8 +218,9 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
         cmd.set_constants(SceneBindings {
             .constants = demo.constants.buffer(frame_index).cbv_descriptor().index(),
             .vertices = scene.vertices.srv_descriptor().index(),
+            .instances = scene.instances.srv_descriptor().index(),
         });
-        cmd.draw_indexed_instanced(scene.indices.element_count(), 1, 0, 0, 0);
+        cmd.draw_indexed_instanced(scene.indices.element_count(), 2, 0, 0, 0);
 
         scene.render_targets.transition_to_resolve(cmd);
         cmd.flush_barriers();

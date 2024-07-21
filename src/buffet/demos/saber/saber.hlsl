@@ -18,10 +18,12 @@ struct SceneVertexOutput {
 SceneVertexOutput scene_vs(FbVertexInput input) {
     ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_scene_bindings.constants];
     StructuredBuffer<FbVertex> vertices = ResourceDescriptorHeap[g_scene_bindings.vertices];
-    FbVertex vertex = vertices[input.vertex_id];
+    StructuredBuffer<SceneInstance> instances = ResourceDescriptorHeap[g_scene_bindings.instances];
+    const FbVertex vertex = vertices[input.vertex_id];
+    const float4x4 transform = instances[input.instance_id].transform;
 
     SceneVertexOutput output;
-    output.position = mul(constants.transform, float4(vertex.position, 1.0f));
+    output.position = mul(constants.transform, mul(transform, float4(vertex.position, 1.0f)));
     return output;
 }
 

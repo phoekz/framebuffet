@@ -13,6 +13,11 @@ FB_CONSTANT float THRESHOLD = 1.0f;
 struct SceneBindings {
     uint constants;
     uint vertices;
+    uint instances;
+};
+
+struct SceneInstance {
+    float4x4 transform;
 };
 
 struct ThresholdBindings {
