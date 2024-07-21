@@ -182,8 +182,8 @@ public:
             );
         }
     }
-    auto create_with_data(GpuDevice& device, std::span<const T> data, std::string_view name)
-        -> void {
+    auto
+    create_with_data(GpuDevice& device, std::span<const T> data, std::string_view name) -> void {
         static_assert(ACCESS_MODE == Host);
         create(device, (uint)data.size(), name);
         memcpy(_raw, data.data(), data.size_bytes());

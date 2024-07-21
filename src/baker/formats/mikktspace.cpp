@@ -13,8 +13,8 @@ static auto get_num_vertices_of_face(const SMikkTSpaceContext*, int) -> int {
     return 3;
 }
 
-static auto get_position(const SMikkTSpaceContext* ctx, float* dst, int face_id, int vertex_id)
-    -> void {
+static auto
+get_position(const SMikkTSpaceContext* ctx, float* dst, int face_id, int vertex_id) -> void {
     const auto& desc = *(const GenerateTangentsDesc*)ctx->m_pUserData;
     const auto index = desc.indices[face_id * 3 + vertex_id];
     const auto& position = desc.positions[index];
@@ -23,8 +23,8 @@ static auto get_position(const SMikkTSpaceContext* ctx, float* dst, int face_id,
     dst[2] = position.z;
 }
 
-static auto get_normal(const SMikkTSpaceContext* ctx, float* dst, int face_id, int vertex_id)
-    -> void {
+static auto
+get_normal(const SMikkTSpaceContext* ctx, float* dst, int face_id, int vertex_id) -> void {
     const auto& desc = *(const GenerateTangentsDesc*)ctx->m_pUserData;
     const auto index = desc.indices[face_id * 3 + vertex_id];
     const auto& normal = desc.normals[index];
@@ -33,8 +33,8 @@ static auto get_normal(const SMikkTSpaceContext* ctx, float* dst, int face_id, i
     dst[2] = normal.z;
 }
 
-static auto get_texcoord(const SMikkTSpaceContext* ctx, float* dst, int face_id, int vertex_id)
-    -> void {
+static auto
+get_texcoord(const SMikkTSpaceContext* ctx, float* dst, int face_id, int vertex_id) -> void {
     const auto& desc = *(const GenerateTangentsDesc*)ctx->m_pUserData;
     const auto index = desc.indices[face_id * 3 + vertex_id];
     const auto& texcoord = desc.texcoords[index];

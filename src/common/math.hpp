@@ -39,8 +39,8 @@ inline constexpr auto dir_from_lonlat(float lon, float lat) -> float3 {
     };
 }
 
-inline constexpr auto float4x4_from_trs(const float3& t, const Quaternion& r, const float3& s)
-    -> float4x4 {
+inline constexpr auto
+float4x4_from_trs(const float3& t, const Quaternion& r, const float3& s) -> float4x4 {
     // Note: inlined quaternion-float3x3 conversion.
     float4x4 m;
     float rxx = r.x * r.x;

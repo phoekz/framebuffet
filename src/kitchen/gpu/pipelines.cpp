@@ -7,8 +7,8 @@ namespace fb {
 
 static_assert(GpuPipelineBuilder::BUFFER_SIZE >= sizeof(CD3DX12_PIPELINE_STATE_STREAM5));
 
-auto GpuPipelineBuilder::primitive_topology(D3D12_PRIMITIVE_TOPOLOGY_TYPE topology)
-    -> GpuPipelineBuilder& {
+auto GpuPipelineBuilder::primitive_topology(D3D12_PRIMITIVE_TOPOLOGY_TYPE topology
+) -> GpuPipelineBuilder& {
     static constexpr uint BIT = (1 << D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_PRIMITIVE_TOPOLOGY);
     FB_ASSERT((_subobject_mask & BIT) == 0);
     new (_buffer + _buffet_offset) CD3DX12_PIPELINE_STATE_STREAM_PRIMITIVE_TOPOLOGY(topology);
@@ -77,8 +77,8 @@ auto GpuPipelineBuilder::rasterizer(GpuRasterizerDesc desc) -> GpuPipelineBuilde
     return *this;
 }
 
-auto GpuPipelineBuilder::render_target_formats(std::initializer_list<DXGI_FORMAT> formats)
-    -> GpuPipelineBuilder& {
+auto GpuPipelineBuilder::render_target_formats(std::initializer_list<DXGI_FORMAT> formats
+) -> GpuPipelineBuilder& {
     static constexpr uint BIT = (1 << D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_RENDER_TARGET_FORMATS);
     FB_ASSERT((_subobject_mask & BIT) == 0);
     FB_ASSERT(formats.size() <= D3D12_SIMULTANEOUS_RENDER_TARGET_COUNT);

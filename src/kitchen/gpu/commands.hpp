@@ -212,8 +212,8 @@ class GpuGraphicsCommandList final: public GpuCommandList {
 public:
     auto set_pipeline(const GpuPipeline& pipeline) const -> void;
 
-    auto set_rtv_dsv(const Option<GpuDescriptor>& rtv, const Option<GpuDescriptor>& dsv) const
-        -> void;
+    auto
+    set_rtv_dsv(const Option<GpuDescriptor>& rtv, const Option<GpuDescriptor>& dsv) const -> void;
 
     auto set_viewport(
         uint left,
