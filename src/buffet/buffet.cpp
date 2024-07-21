@@ -33,7 +33,6 @@ auto buffet_run(Buffet& bf) -> void {
 
     // Tracy configuration.
     TracySetProgramName("framebuffet");
-    FB_LOG_INFO("Tracy enabled: {}", TracyIsConnected ? "true" : "false");
 
     // Init.
     {

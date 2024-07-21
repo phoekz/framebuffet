@@ -37,8 +37,7 @@ auto stockcube_run(Stockcube& sc) -> void {
     FB_ASSERT_HR(SetThreadDescription(GetCurrentThread(), L"Main Thread"));
 
     // Tracy configuration.
-    TracySetProgramName("framebuffet");
-    FB_LOG_INFO("Tracy enabled: {}", TracyIsConnected ? "true" : "false");
+    TracySetProgramName("stockcube");
 
     // Init.
     {
