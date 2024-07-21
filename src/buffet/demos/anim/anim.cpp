@@ -100,7 +100,7 @@ auto create(Demo& demo, const CreateDesc& desc) -> void {
             scope.with_name("Indices")
         );
         dst.animation_duration = src.duration;
-        dst.node_global_transforms.resize(src.node_count);
+        dst.animation_transforms.resize(src.node_count);
         copy_animation_mesh(dst.animation_mesh, src);
     }
 }
@@ -173,9 +173,12 @@ auto update(Demo& demo, const UpdateDesc& desc) -> void {
     PIXScopedEvent(PIX_COLOR_DEFAULT, "%s - Update", NAME.data());
     auto& params = demo.parameters;
 
-    // Update animation.
+    // Update animation transforms.
     using Desc = std::tuple<Model&>;
     for (auto& [model] : {Desc(demo.female), Desc(demo.male)}) {
+        // Unpack.
+        auto* node_transforms = model.animation_transforms.data();
+
         // Timing.
         model.animation_time += desc.delta_time;
         while (model.animation_time > model.animation_duration) {
@@ -234,12 +237,12 @@ auto update(Demo& demo, const UpdateDesc& desc) -> void {
             );
 
             const auto transform = float4x4_from_trs(t, r, s);
+            const auto parent_index = node_parents[node_index];
 
-            if (node_parents[node_index] == ~0u) {
-                model.node_global_transforms[node_index] = transform;
+            if (parent_index == ~0u) {
+                node_transforms[node_index] = transform;
             } else {
-                model.node_global_transforms[node_index] =
-                    transform * model.node_global_transforms[node_parents[node_index]];
+                node_transforms[node_index] = transform * node_transforms[parent_index];
             }
         }
 
@@ -247,8 +250,7 @@ auto update(Demo& demo, const UpdateDesc& desc) -> void {
         auto sms = model.skinning_matrices.buffer(desc.frame_index).span();
         for (uint joint_index = 0; joint_index < sms.size(); joint_index++) {
             const auto node_index = mesh.joint_nodes[joint_index];
-            sms[joint_index] =
-                mesh.joint_inverse_binds[joint_index] * model.node_global_transforms[node_index];
+            sms[joint_index] = mesh.joint_inverse_binds[joint_index] * node_transforms[node_index];
         }
     }
 

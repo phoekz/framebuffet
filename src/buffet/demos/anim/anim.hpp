@@ -56,7 +56,7 @@ struct Model {
     GpuBufferDeviceIndex<baked::Index> indices;
     float animation_time = 0.0f;
     float animation_duration = 0.0f;
-    std::vector<float4x4> node_global_transforms;
+    std::vector<float4x4> animation_transforms;
     OwnedAnimationMesh animation_mesh;
 };
 
