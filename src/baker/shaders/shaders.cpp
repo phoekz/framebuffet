@@ -133,6 +133,7 @@ auto ShaderCompiler::compile(
         case ShaderType::Compute: shader_profile = L"cs_6_8"; break;
         case ShaderType::Vertex: shader_profile = L"vs_6_8"; break;
         case ShaderType::Pixel: shader_profile = L"ps_6_8"; break;
+        default: FB_FATAL();
     }
     // clang-format on
 
@@ -194,10 +195,10 @@ auto ShaderCompiler::compile(
         FB_ASSERT_HR(
             compile_result->GetOutput(DXC_OUT_SHADER_HASH, IID_PPV_ARGS(&shader_hash_blob), nullptr)
         );
-        DxcShaderHash* shader_hash = (DxcShaderHash*)shader_hash_blob->GetBufferPointer();
+        auto* shader_hash = (DxcShaderHash*)shader_hash_blob->GetBufferPointer();
         std::ostringstream oss;
-        for (int i = 0; i < 16; ++i) {
-            oss << std::format("{:02x}", shader_hash->HashDigest[i]);
+        for (auto byte : shader_hash->HashDigest) {
+            oss << std::format("{:02x}", byte);
         }
         hash = oss.str();
     }
@@ -336,7 +337,7 @@ auto bake_shaders(std::string_view buffet_dir, std::span<const ShaderTask> shade
             FB_ASSERT(type != ShaderType::Unknown);
 
             // Compile shader.
-            const auto shader = compiler.compile(name, type, entry_point, hlsl_file, false);
+            auto shader = compiler.compile(name, type, entry_point, hlsl_file, false);
 
             // Log.
             FB_LOG_INFO(

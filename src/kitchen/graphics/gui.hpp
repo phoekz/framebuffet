@@ -6,7 +6,9 @@
 #include <baked/kitchen/baked.hpp>
 #include "gui.hlsli"
 
-class fb::Window;
+namespace fb {
+class Window;
+}
 
 namespace fb::graphics::gui {
 

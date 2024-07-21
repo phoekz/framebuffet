@@ -38,13 +38,13 @@ auto update(Technique&, const UpdateDesc&) -> void {
 }
 
 auto render(Technique& tech, const RenderDesc& desc) -> void {
-    auto& [cmd, device, frame_index] = desc;
+    auto& [cmd, device, _] = desc;
 
     if (tech.done) {
         return;
     }
 
-    cmd.compute_scope([&tech, frame_index](GpuComputeCommandList& cmd) {
+    cmd.compute_scope([&tech](GpuComputeCommandList& cmd) {
         cmd.pix_begin("%s - Render", NAME.data());
         tech.cube_texture.transition(
             cmd,

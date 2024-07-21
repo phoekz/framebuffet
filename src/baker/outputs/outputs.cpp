@@ -51,17 +51,6 @@ auto bake_app_datas(
     const auto [assets, assets_bin] = bake_assets(assets_dir, app_asset_tasks);
 
     // Generate.
-    const auto format_asset_span = [&assets_bin](AssetSpan span) -> std::string {
-        const auto bytes = std::span(assets_bin.data() + span.offset, span.byte_count);
-        const auto hash = hash128(bytes);
-        return std::format(
-            "// hash: {}\n transmuted_span<{}>({}, {})",
-            hash,
-            span.type,
-            span.offset,
-            span.element_count
-        );
-    };
     const auto format_named_asset_span =
         [&assets_bin](std::string_view name, AssetSpan span) -> std::string {
         const auto bytes = std::span(assets_bin.data() + span.offset, span.byte_count);

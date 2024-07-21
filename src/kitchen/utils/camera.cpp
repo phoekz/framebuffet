@@ -57,10 +57,10 @@ auto Camera::update(const UpdateDesc& desc) -> void {
     _target_spherical.z = std::clamp(_target_spherical.z, 2.0f * _near_clip, 0.5f * _far_clip);
 
     // Animation.
-    float* sph = (float*)&_spherical;
-    float* org = (float*)&_origin;
-    float* target_sph = (float*)&_target_spherical;
-    float* target_org = (float*)&_target_origin;
+    auto* sph = (float*)&_spherical;
+    auto* org = (float*)&_origin;
+    auto* target_sph = (float*)&_target_spherical;
+    auto* target_org = (float*)&_target_origin;
     for (size_t i = 0; i < 3; ++i) {
         sph[i] = exponential_lerp(sph[i], target_sph[i], _target_spherical_rate, delta_time);
         org[i] = exponential_lerp(org[i], target_org[i], _target_origin_rate, delta_time);

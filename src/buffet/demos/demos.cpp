@@ -62,7 +62,7 @@ auto gui(Demos& demos, const GuiDesc& desc) -> void {
     case Demo::upper_name: lower_name::gui(demos.lower_name, desc); break;
             DEMO_LIST(X)
 #undef X
-            default: FB_FATAL(); break;
+            default: FB_FATAL();
         }
     }
 }

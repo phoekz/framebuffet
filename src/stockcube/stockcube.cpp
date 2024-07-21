@@ -237,7 +237,7 @@ auto stockcube_run(Stockcube& sc) -> void {
 
 } // namespace fb
 
-int main() {
+auto main() -> int {
     FB_LOG_INFO("sizeof(Stockcube): {} bytes", sizeof(fb::Stockcube));
     auto stockcube = std::make_unique<fb::Stockcube>();
     fb::stockcube_run(*stockcube);

@@ -35,7 +35,7 @@ struct DebugScopeContext {
 static DebugScopeContext debug_scope_context;
 
 DebugScope::DebugScope(std::string_view name) {
-    debug_scope_context.stack.push_back(std::string(name));
+    debug_scope_context.stack.emplace_back(name);
 }
 
 DebugScope::~DebugScope() {

@@ -4,15 +4,12 @@ set(SOURCES
     assets/tasks.cpp
     assets/tasks.hpp
     assets/types.hpp
-    formats/cgltf.cpp
     formats/gltf.cpp
     formats/gltf.hpp
     formats/image.cpp
     formats/image.hpp
     formats/mikktspace.cpp
     formats/mikktspace.hpp
-    formats/stb.cpp
-    formats/tinyexr.cpp
     outputs/outputs.cpp
     outputs/outputs.hpp
     outputs/templates/baked_cpp.hpp
@@ -40,6 +37,8 @@ target_include_directories(
 )
 target_link_libraries(
     ${NAME} PRIVATE
+    ${STB_LIBRARY}
+    ${CGLTF_LIBRARY}
     ${TINYEXR_LIBRARY}
     ${NLOHMANN_JSON_LIBRARY}
     ${TTF2MESH_LIBRARY}

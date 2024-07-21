@@ -308,7 +308,7 @@ auto buffet_run(Buffet& bf) -> void {
 // Main.
 //
 
-int main() {
+auto main() -> int {
     FB_LOG_INFO("sizeof(Buffet): {} bytes", sizeof(fb::Buffet));
     auto buffet = std::make_unique<fb::Buffet>();
     fb::buffet_run(*buffet);

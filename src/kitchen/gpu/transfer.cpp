@@ -39,6 +39,7 @@ struct GpuTransferImpl {
         Option<D3D12_BARRIER_LAYOUT> layout_before;
         Option<D3D12_BARRIER_LAYOUT> layout_after;
 
+        [[nodiscard]]
         auto is_texture() const -> bool {
             return layout_before.has_value() && layout_after.has_value();
         }
@@ -473,7 +474,7 @@ auto GpuTransfer::flush(const GpuDevice& device) -> void {
                 }
                 break;
             }
-            default: FB_FATAL(); break;
+            default: FB_FATAL();
         }
         PIXEndEvent(_impl->command_list.get());
     }

@@ -3,59 +3,59 @@
 namespace fb::demos::cards {
 
 static auto layout_grid(std::span<Card> cards, uint2 window_size, uint columns) -> void {
-    const uint card_count = (uint)cards.size();
-    const float window_w = (float)window_size.x;
-    const float window_h = (float)window_size.y;
-    const float card_w = window_w / (float)columns;
-    const float card_h = card_w * (window_h / window_w);
+    const auto card_count = (uint)cards.size();
+    const auto window_w = (float)window_size.x;
+    const auto window_h = (float)window_size.y;
+    const auto card_w = window_w / (float)columns;
+    const auto card_h = card_w * (window_h / window_w);
     for (uint i = 0; i < card_count; i++) {
-        const float x = (float)(i % columns) * card_w;
-        const float y = (float)(i / columns) * card_h;
-        cards[i].position = {x, y};
-        cards[i].size = {card_w, card_h};
+        const auto x = (float)(i % columns) * card_w;
+        const auto y = (float)(i / columns) * card_h;
+        cards[i].position = float2 {x, y};
+        cards[i].size = float2 {card_w, card_h};
     }
 }
 
 static auto layout_hmosaic(std::span<Card> cards, uint2 window_size) -> void {
-    const uint card_count = (uint)cards.size();
-    const float window_w = (float)window_size.x;
-    const float window_h = (float)window_size.y;
-    const float thumb_w = window_w / (float)(card_count - 1);
-    const float thumb_h = thumb_w * (window_h / window_w);
-    const float hero_h = window_h - thumb_h;
-    const float hero_w = hero_h * (window_w / window_h);
-    const float hero_y = thumb_h;
-    const float hero_x = window_w * 0.5f - hero_w * 0.5f;
+    const auto card_count = (uint)cards.size();
+    const auto window_w = (float)window_size.x;
+    const auto window_h = (float)window_size.y;
+    const auto thumb_w = window_w / (float)(card_count - 1);
+    const auto thumb_h = thumb_w * (window_h / window_w);
+    const auto hero_h = window_h - thumb_h;
+    const auto hero_w = hero_h * (window_w / window_h);
+    const auto hero_y = thumb_h;
+    const auto hero_x = window_w * 0.5f - hero_w * 0.5f;
     for (uint i = 0; i < card_count - 1; i++) {
-        cards[i].position = {thumb_w * (float)i, 0.0f};
-        cards[i].size = {thumb_w, thumb_h};
+        cards[i].position = float2 {thumb_w * (float)i, 0.0f};
+        cards[i].size = float2 {thumb_w, thumb_h};
     }
-    cards[card_count - 1].position = {hero_x, hero_y};
-    cards[card_count - 1].size = {hero_w, hero_h};
+    cards[card_count - 1].position = float2 {hero_x, hero_y};
+    cards[card_count - 1].size = float2 {hero_w, hero_h};
 }
 
 static auto layout_vmosaic(std::span<Card> cards, uint2 window_size) -> void {
-    const uint card_count = (uint)cards.size();
-    const float window_w = (float)window_size.x;
-    const float window_h = (float)window_size.y;
-    const float thumb_h = window_h / (float)(card_count - 1);
-    const float thumb_w = thumb_h * (window_w / window_h);
-    const float hero_w = window_w - thumb_w;
-    const float hero_h = hero_w * (window_h / window_w);
-    const float hero_x = thumb_w;
-    const float hero_y = window_h * 0.5f - hero_h * 0.5f;
+    const auto card_count = (uint)cards.size();
+    const auto window_w = (float)window_size.x;
+    const auto window_h = (float)window_size.y;
+    const auto thumb_h = window_h / (float)(card_count - 1);
+    const auto thumb_w = thumb_h * (window_w / window_h);
+    const auto hero_w = window_w - thumb_w;
+    const auto hero_h = hero_w * (window_h / window_w);
+    const auto hero_x = thumb_w;
+    const auto hero_y = window_h * 0.5f - hero_h * 0.5f;
     for (uint i = 0; i < card_count - 1; i++) {
-        cards[i].position = {0.0f, thumb_h * (float)i};
-        cards[i].size = {thumb_w, thumb_h};
+        cards[i].position = float2 {0.0f, thumb_h * (float)i};
+        cards[i].size = float2 {thumb_w, thumb_h};
     }
-    cards[card_count - 1].position = {hero_x, hero_y};
-    cards[card_count - 1].size = {hero_w, hero_h};
+    cards[card_count - 1].position = float2 {hero_x, hero_y};
+    cards[card_count - 1].size = float2 {hero_w, hero_h};
 }
 
 static auto layout_exclusive(std::span<Card> cards, uint2 window_size) -> void {
     for (auto& card : cards) {
-        card.position = {0.0f, 0.0f};
-        card.size = {(float)window_size.x, (float)window_size.y};
+        card.position = float2 {0.0f, 0.0f};
+        card.size = float2 {(float)window_size.x, (float)window_size.y};
     }
 }
 
@@ -274,7 +274,7 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
     auto& [cmd, device, frame_index] = desc;
 
     cmd.pix_begin("%s - Render", NAME.data());
-    cmd.compute_scope([&demo, frame_index](GpuComputeCommandList& cmd) {
+    cmd.compute_scope([&demo](GpuComputeCommandList& cmd) {
         cmd.pix_begin("Spd");
         cmd.set_pipeline(demo.spd_pipeline);
         for (uint i = 0; i < CARD_COUNT; i++) {
@@ -290,7 +290,7 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
         }
         cmd.pix_end();
     });
-    cmd.graphics_scope([&demo, &device, frame_index](GpuGraphicsCommandList& cmd) {
+    cmd.graphics_scope([&demo, frame_index](GpuGraphicsCommandList& cmd) {
         cmd.pix_begin("Render");
 
         const auto& params = demo.parameters;

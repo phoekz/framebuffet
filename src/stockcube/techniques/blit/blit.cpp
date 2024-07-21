@@ -45,8 +45,8 @@ auto update(Technique& tech, const UpdateDesc&) -> void {
 }
 
 auto render(Technique& tech, const RenderDesc& desc) -> void {
-    auto& [cmd, device, frame_index] = desc;
-    cmd.graphics_scope([&tech, frame_index](GpuGraphicsCommandList& cmd) {
+    auto& [cmd, device, _] = desc;
+    cmd.graphics_scope([&tech](GpuGraphicsCommandList& cmd) {
         cmd.pix_begin("%s - Render", NAME.data());
         cmd.set_pipeline(tech.pipeline);
         cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);

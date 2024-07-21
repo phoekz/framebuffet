@@ -199,8 +199,8 @@ GltfModel::GltfModel(std::string_view gltf_path) {
     switch (material.alpha_mode) {
         case cgltf_alpha_mode_opaque: _alpha_mode = GltfAlphaMode::Opaque; break;
         case cgltf_alpha_mode_mask: _alpha_mode = GltfAlphaMode::Mask; break;
-        case cgltf_alpha_mode_blend: FB_FATAL(); break;
-        default: FB_FATAL(); break;
+        case cgltf_alpha_mode_blend: FB_FATAL();
+        default: FB_FATAL();
     }
     _alpha_cutoff = material.alpha_cutoff;
 
@@ -252,6 +252,7 @@ GltfModel::GltfModel(std::string_view gltf_path) {
                     case cgltf_animation_path_type_scale:
                         FB_ASSERT(sampler.output->type == cgltf_type_vec3);
                         break;
+                    default: break;
                 }
             }
             FB_ASSERT(std::ranges::all_of(
@@ -354,6 +355,7 @@ GltfModel::GltfModel(std::string_view gltf_path) {
                     node_channels[fb_i].s_count = output.count;
                     total_s_count += output.count;
                     break;
+                default: break;
             }
         }
         for (size_t fb_i = 1; fb_i < node_channels.size(); fb_i++) {
@@ -406,6 +408,7 @@ GltfModel::GltfModel(std::string_view gltf_path) {
                     }
                     break;
                 }
+                default: break;
             }
         }
 
@@ -418,17 +421,17 @@ GltfModel::GltfModel(std::string_view gltf_path) {
             auto times_r_max = -FLT_MAX;
             auto times_s_min = FLT_MAX;
             auto times_s_max = -FLT_MAX;
-            for (size_t fb_i = 0; fb_i < node_channels_times_t.size(); fb_i++) {
-                times_t_min = std::min(times_t_min, node_channels_times_t[fb_i]);
-                times_t_max = std::max(times_t_max, node_channels_times_t[fb_i]);
+            for (auto t : node_channels_times_t) {
+                times_t_min = std::min(times_t_min, t);
+                times_t_max = std::max(times_t_max, t);
             }
-            for (size_t fb_i = 0; fb_i < node_channels_times_r.size(); fb_i++) {
-                times_r_min = std::min(times_r_min, node_channels_times_r[fb_i]);
-                times_r_max = std::max(times_r_max, node_channels_times_r[fb_i]);
+            for (auto r : node_channels_times_r) {
+                times_r_min = std::min(times_r_min, r);
+                times_r_max = std::max(times_r_max, r);
             }
-            for (size_t fb_i = 0; fb_i < node_channels_times_s.size(); fb_i++) {
-                times_s_min = std::min(times_s_min, node_channels_times_s[fb_i]);
-                times_s_max = std::max(times_s_max, node_channels_times_s[fb_i]);
+            for (auto s : node_channels_times_s) {
+                times_s_min = std::min(times_s_min, s);
+                times_s_max = std::max(times_s_max, s);
             }
             FB_ASSERT(times_t_min >= 0.0f && times_t_max > times_t_min);
             FB_ASSERT(times_r_min >= 0.0f && times_r_max > times_r_min);
@@ -437,14 +440,14 @@ GltfModel::GltfModel(std::string_view gltf_path) {
             FB_ASSERT(times_t_min == times_s_min);
             FB_ASSERT(times_t_max == times_r_max);
             FB_ASSERT(times_t_max == times_s_max);
-            for (size_t fb_i = 0; fb_i < node_channels_times_t.size(); fb_i++) {
-                node_channels_times_t[fb_i] -= times_t_min;
+            for (auto& t : node_channels_times_t) {
+                t -= times_t_min;
             }
-            for (size_t fb_i = 0; fb_i < node_channels_times_r.size(); fb_i++) {
-                node_channels_times_r[fb_i] -= times_r_min;
+            for (auto& r : node_channels_times_r) {
+                r -= times_r_min;
             }
-            for (size_t fb_i = 0; fb_i < node_channels_times_s.size(); fb_i++) {
-                node_channels_times_s[fb_i] -= times_s_min;
+            for (auto& s : node_channels_times_s) {
+                s -= times_s_min;
             }
             animation_duration = times_t_max - times_t_min;
         }

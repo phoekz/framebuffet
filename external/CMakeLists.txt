@@ -123,6 +123,9 @@ endif()
 # Note: Now every dependency is guaranteed to be available, proceed with
 # configuring them.
 
+# Ignore clang-tidy for external dependencies.
+configure_file(cmake/clang-tidy.in ${CMAKE_BINARY_DIR}/.clang-tidy COPYONLY)
+
 # Dear ImGui.
 add_library(
     ext_dearimgui STATIC
@@ -146,9 +149,25 @@ set(DEARIMGUI_INCLUDE_DIR ${DEARIMGUI_SOURCE_DIR} CACHE INTERNAL "Dear ImGui Inc
 set(DEARIMGUI_LIBRARY ext_dearimgui CACHE INTERNAL "Dear ImGui Library")
 
 # cgltf.
+configure_file(cmake/cgltf.cpp.in ${CGLTF_SOURCE_DIR}/cgltf.cpp COPYONLY)
+add_library(ext_cgltf STATIC ${CGLTF_SOURCE_DIR}/cgltf.cpp)
+target_include_directories(
+    ext_cgltf
+    PUBLIC
+    ${CGLTF_SOURCE_DIR}
+)
+set(CGLTF_LIBRARY ext_cgltf CACHE INTERNAL "cgltf Library")
 set(CGLTF_INCLUDE_DIR ${CGLTF_SOURCE_DIR} CACHE INTERNAL "cgltf Include Directory")
 
 # stb.
+configure_file(cmake/stb.cpp.in ${STB_SOURCE_DIR}/stb.cpp COPYONLY)
+add_library(ext_stb STATIC ${STB_SOURCE_DIR}/stb.cpp)
+target_include_directories(
+    ext_stb
+    PUBLIC
+    ${STB_SOURCE_DIR}
+)
+set(STB_LIBRARY ext_stb CACHE INTERNAL "stb Library")
 set(STB_INCLUDE_DIR ${STB_SOURCE_DIR} CACHE INTERNAL "stb Include Directory")
 
 # tinyexr.

@@ -146,7 +146,7 @@ auto bake_assets(std::string_view assets_dir, std::span<const AssetTask> asset_t
                 [&](const AssetTaskCopy& task) {
                     const auto path = std::format("{}/{}", assets_dir, task.path);
                     const auto file = read_whole_file(path);
-                    assets.push_back(AssetCopy {
+                    assets.emplace_back(AssetCopy {
                         .name = names.unique(std::string(task.name)),
                         .data = assets_writer.write("std::byte", std::span(file)),
                     });
@@ -166,7 +166,7 @@ auto bake_assets(std::string_view assets_dir, std::span<const AssetTask> asset_t
                 [&](const AssetTaskHdrTexture& task) {
                     const auto file = read_whole_file(std::format("{}/{}", assets_dir, task.path));
                     const auto image = HdrImage::from_image(file);
-                    assets.push_back(AssetTexture {
+                    assets.emplace_back(AssetTexture {
                         .name = names.unique(std::format("{}_hdr_texture", task.name)),
                         .format = image.format(),
                         .width = image.width(),
@@ -212,7 +212,7 @@ auto bake_assets(std::string_view assets_dir, std::span<const AssetTask> asset_t
                     // Animated vs non-animated.
                     if (joints.empty()) {
                         auto vertices = std::vector<AssetVertex>(positions.size());
-                        for (auto i = 0; i < vertices.size(); ++i) {
+                        for (size_t i = 0; i < vertices.size(); ++i) {
                             vertices[i] = AssetVertex {
                                 .position = positions[i],
                                 .normal = normals[i],
@@ -221,7 +221,7 @@ auto bake_assets(std::string_view assets_dir, std::span<const AssetTask> asset_t
                             };
                         }
 
-                        assets.push_back(AssetMesh {
+                        assets.emplace_back(AssetMesh {
                             .name = names.unique(std::format("{}_mesh", task.name)),
                             .vertices = assets_writer.write(
                                 "Vertex",
@@ -235,7 +235,7 @@ auto bake_assets(std::string_view assets_dir, std::span<const AssetTask> asset_t
                         });
                     } else {
                         auto vertices = std::vector<AssetSkinningVertex>(positions.size());
-                        for (auto i = 0; i < vertices.size(); ++i) {
+                        for (size_t i = 0; i < vertices.size(); ++i) {
                             vertices[i] = AssetSkinningVertex {
                                 .position = positions[i],
                                 .normal = normals[i],
@@ -246,7 +246,7 @@ auto bake_assets(std::string_view assets_dir, std::span<const AssetTask> asset_t
                             };
                         }
 
-                        assets.push_back(AssetAnimationMesh {
+                        assets.emplace_back(AssetAnimationMesh {
                             .name = names.unique(std::format("{}_animation_mesh", task.name)),
                             .node_count = model.node_count(),
                             .joint_count = model.joint_count(),
@@ -312,7 +312,7 @@ auto bake_assets(std::string_view assets_dir, std::span<const AssetTask> asset_t
 
                     // Materials.
                     {
-                        assets.push_back(AssetMaterial {
+                        assets.emplace_back(AssetMaterial {
                             .name = names.unique(std::format("{}_material", task.name)),
                             .alpha_cutoff = model.alpha_cutoff(),
                             .alpha_mode = (AssetAlphaMode)model.alpha_mode(),
@@ -338,7 +338,7 @@ auto bake_assets(std::string_view assets_dir, std::span<const AssetTask> asset_t
                     auto vertex_positions = std::vector<float3>(dxtk_vertices.size());
                     auto vertex_normals = std::vector<float3>(dxtk_vertices.size());
                     auto vertex_texcoords = std::vector<float2>(dxtk_vertices.size());
-                    for (auto i = 0; i < dxtk_vertices.size(); ++i) {
+                    for (size_t i = 0; i < dxtk_vertices.size(); ++i) {
                         vertex_positions[i] = dxtk_vertices[i].position;
                         vertex_normals[i] = dxtk_vertices[i].normal;
                         vertex_texcoords[i] = dxtk_vertices[i].textureCoordinate;
@@ -346,7 +346,7 @@ auto bake_assets(std::string_view assets_dir, std::span<const AssetTask> asset_t
 
                     // Convert indices.
                     auto indices = std::vector<uint>(dxtk_indices.size());
-                    for (auto i = 0; i < dxtk_indices.size(); ++i) {
+                    for (size_t i = 0; i < dxtk_indices.size(); ++i) {
                         indices[i] = (uint)dxtk_indices[i];
                     }
 
@@ -362,7 +362,7 @@ auto bake_assets(std::string_view assets_dir, std::span<const AssetTask> asset_t
 
                     // Convert.
                     auto vertices = std::vector<AssetVertex>(dxtk_vertices.size());
-                    for (auto i = 0; i < vertices.size(); ++i) {
+                    for (size_t i = 0; i < vertices.size(); ++i) {
                         vertices[i] = AssetVertex {
                             .position = vertex_positions[i],
                             .normal = vertex_normals[i],
@@ -381,7 +381,7 @@ auto bake_assets(std::string_view assets_dir, std::span<const AssetTask> asset_t
                     };
 
                     // Mesh.
-                    assets.push_back(AssetMesh {
+                    assets.emplace_back(AssetMesh {
                         .name = names.unique(std::format("{}_mesh", task.name)),
                         .vertices =
                             assets_writer.write("Vertex", std::span<const AssetVertex>(vertices)),
@@ -413,7 +413,7 @@ auto bake_assets(std::string_view assets_dir, std::span<const AssetTask> asset_t
                     auto vertex_positions = std::vector<float3>(dxtk_vertices.size());
                     auto vertex_normals = std::vector<float3>(dxtk_vertices.size());
                     auto vertex_texcoords = std::vector<float2>(dxtk_vertices.size());
-                    for (auto i = 0; i < dxtk_vertices.size(); ++i) {
+                    for (size_t i = 0; i < dxtk_vertices.size(); ++i) {
                         vertex_positions[i] = dxtk_vertices[i].position;
                         vertex_normals[i] = dxtk_vertices[i].normal;
                         vertex_texcoords[i] = dxtk_vertices[i].textureCoordinate;
@@ -421,7 +421,7 @@ auto bake_assets(std::string_view assets_dir, std::span<const AssetTask> asset_t
 
                     // Convert indices.
                     auto indices = std::vector<uint>(dxtk_indices.size());
-                    for (auto i = 0; i < dxtk_indices.size(); ++i) {
+                    for (size_t i = 0; i < dxtk_indices.size(); ++i) {
                         indices[i] = (uint)dxtk_indices[i];
                     }
 
@@ -437,7 +437,7 @@ auto bake_assets(std::string_view assets_dir, std::span<const AssetTask> asset_t
 
                     // Convert.
                     auto vertices = std::vector<AssetVertex>(dxtk_vertices.size());
-                    for (auto i = 0; i < vertices.size(); ++i) {
+                    for (size_t i = 0; i < vertices.size(); ++i) {
                         vertices[i] = AssetVertex {
                             .position = vertex_positions[i],
                             .normal = vertex_normals[i],
@@ -456,7 +456,7 @@ auto bake_assets(std::string_view assets_dir, std::span<const AssetTask> asset_t
                     };
 
                     // Mesh.
-                    assets.push_back(AssetMesh {
+                    assets.emplace_back(AssetMesh {
                         .name = names.unique(std::format("{}_mesh", task.name)),
                         .vertices =
                             assets_writer.write("Vertex", std::span<const AssetVertex>(vertices)),
@@ -491,18 +491,18 @@ auto bake_assets(std::string_view assets_dir, std::span<const AssetTask> asset_t
 
                     // Re-center.
                     float3 cell_center = float3(0.0f, 0.0f, 0.0f);
-                    for (uint i = 0; i < cell_vertices.size(); i++) {
-                        cell_center += cell_vertices[i];
+                    for (const auto& v : cell_vertices) {
+                        cell_center += v;
                     }
                     cell_center /= (float)cell_vertices.size();
-                    for (uint i = 0; i < cell_vertices.size(); i++) {
-                        cell_vertices[i] -= cell_center;
+                    for (auto& v : cell_vertices) {
+                        v -= cell_center;
                     }
 
                     // Adjust heights.
                     Pcg rand;
-                    for (uint i = 0; i < cell_vertices.size(); i++) {
-                        cell_vertices[i].y += task.height_variation * rand.random_float();
+                    for (auto& v : cell_vertices) {
+                        v.y += task.height_variation * rand.random_float();
                     }
 
                     // Connect and push faces.
@@ -604,7 +604,7 @@ auto bake_assets(std::string_view assets_dir, std::span<const AssetTask> asset_t
                     };
 
                     // Mesh.
-                    assets.push_back(AssetMesh {
+                    assets.emplace_back(AssetMesh {
                         .name = names.unique(std::format("{}_mesh", task.name)),
                         .vertices =
                             assets_writer.write("Vertex", std::span<const AssetVertex>(vertices)),
@@ -655,7 +655,7 @@ auto bake_assets(std::string_view assets_dir, std::span<const AssetTask> asset_t
                             }
                         }
 
-                        assets.push_back(AssetCubeTexture {
+                        assets.emplace_back(AssetCubeTexture {
                             .name = names.unique(std::string(task.name)),
                             .format = format,
                             .width = width,
@@ -666,7 +666,7 @@ auto bake_assets(std::string_view assets_dir, std::span<const AssetTask> asset_t
                     } else {
                         const auto row_pitch = width * unit_byte_count;
                         const auto slice_pitch = row_pitch * height;
-                        assets.push_back(AssetTexture {
+                        assets.emplace_back(AssetTexture {
                             .name = std::string(task.name),
                             .format = format,
                             .width = width,
@@ -774,14 +774,14 @@ auto bake_assets(std::string_view assets_dir, std::span<const AssetTask> asset_t
                     const auto space_glyph = &ttf->glyphs[space_glyph_id];
 
                     // Push assets.
-                    assets.push_back(AssetFont {
+                    assets.emplace_back(AssetFont {
                         .name = names.unique(std::format("{}_font", task.name)),
                         .ascender = ttf->hhea.ascender,
                         .descender = ttf->hhea.descender,
                         .space_advance = space_glyph->advance,
                         .glyphs = assets_writer.write("Glyph", std::span<const AssetGlyph>(glyphs)),
                     });
-                    assets.push_back(AssetMesh {
+                    assets.emplace_back(AssetMesh {
                         .name = names.unique(std::format("{}_mesh", task.name)),
                         .vertices =
                             assets_writer.write("Vertex", std::span<const AssetVertex>(vertices)),

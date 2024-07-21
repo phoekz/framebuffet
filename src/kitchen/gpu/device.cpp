@@ -277,8 +277,8 @@ auto GpuDevice::end_frame(GpuCommandList&&) -> void {
     _command_list->Close();
 
     // Execute command list.
-    ID3D12CommandList* command_lists[] = {(ID3D12CommandList*)_command_list.get()};
-    _command_queue->ExecuteCommandLists(_countof(command_lists), command_lists);
+    const auto command_lists = std::to_array({(ID3D12CommandList*)_command_list.get()});
+    _command_queue->ExecuteCommandLists((uint)command_lists.size(), command_lists.data());
 
     // Present.
     _swapchain.present();
@@ -422,7 +422,7 @@ auto GpuDevice::create_command_signature(
 
     ComPtr<ID3D12CommandSignature> result;
     D3D12_COMMAND_SIGNATURE_DESC desc {
-        .ByteStride = sizeof(uint) * constant_count + arguments_byte_count,
+        .ByteStride = (uint)sizeof(uint) * constant_count + arguments_byte_count,
         .NumArgumentDescs = (uint)argument_descs.size(),
         .pArgumentDescs = argument_descs.data(),
         .NodeMask = 0,

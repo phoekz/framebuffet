@@ -210,7 +210,7 @@ static auto STOCKCUBE_SHADER_TASKS = std::to_array<ShaderTask>({
 
 } // namespace fb
 
-int main() {
+auto main() -> int {
     using namespace fb;
 
     // Console.

@@ -4,7 +4,8 @@
 namespace fb {
 
 auto GpuSamplers::create(GpuDevice& device, GpuDescriptors& descriptors) -> void {
-    std::tuple<GpuSampler, D3D12_SAMPLER_DESC2, GpuDescriptor> samplers[] = {
+    using Sampler = std::tuple<GpuSampler, D3D12_SAMPLER_DESC2, GpuDescriptor>;
+    const auto samplers = std::to_array<Sampler>({
         {
             GpuSampler::LinearClamp,
             {
@@ -124,7 +125,7 @@ auto GpuSamplers::create(GpuDevice& device, GpuDescriptors& descriptors) -> void
             },
             descriptors.sampler().alloc(),
         },
-    };
+    });
 
     for (const auto& [type, desc, handle] : samplers) {
         device.create_sampler(desc, handle.cpu());

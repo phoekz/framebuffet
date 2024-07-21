@@ -149,13 +149,15 @@ auto Gui::render(const GpuDevice& device, GpuCommandList& cmd) -> void {
         float r = ImGui::GetDrawData()->DisplayPos.x + ImGui::GetDrawData()->DisplaySize.x;
         float t = ImGui::GetDrawData()->DisplayPos.y;
         float b = ImGui::GetDrawData()->DisplayPos.y + ImGui::GetDrawData()->DisplaySize.y;
-        float m[4][4] = {
-            {2.0f / (r - l), 0.0f, 0.0f, 0.0f},
-            {0.0f, 2.0f / (t - b), 0.0f, 0.0f},
-            {0.0f, 0.0f, 0.5f, 0.0f},
-            {(r + l) / (l - r), (t + b) / (b - t), 0.5f, 1.0f},
-        };
-        memcpy(_constants.span().data(), m, sizeof(m));
+        // clang-format off
+        auto m = std::to_array({
+            2.0f / (r - l), 0.0f, 0.0f, 0.0f,
+            0.0f, 2.0f / (t - b), 0.0f, 0.0f,
+            0.0f, 0.0f, 0.5f, 0.0f,
+            (r + l) / (l - r), (t + b) / (b - t), 0.5f, 1.0f,
+        });
+        // clang-format on
+        memcpy(_constants.span().data(), m.data(), sizeof(m));
     }
 
     // Render.

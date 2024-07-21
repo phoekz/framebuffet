@@ -71,7 +71,7 @@ auto Window::create(const Desc& desc) -> void {
     class_style |= CS_VREDRAW; // Redraws the client area if the height changes.
     HICON icon = LoadIconA(nullptr, IDI_WINLOGO);
     HCURSOR cursor = LoadCursorA(nullptr, IDC_ARROW);
-    HBRUSH background_brush = (HBRUSH)GetStockObject(BLACK_BRUSH);
+    auto background_brush = (HBRUSH)GetStockObject(BLACK_BRUSH);
     WNDCLASSEXA window_class = {
         .cbSize = sizeof(WNDCLASSEXA),
         .style = class_style,

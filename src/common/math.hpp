@@ -39,8 +39,7 @@ inline constexpr auto dir_from_lonlat(float lon, float lat) -> float3 {
     };
 }
 
-inline constexpr auto
-float4x4_from_trs(const float3& t, const Quaternion& r, const float3& s) -> float4x4 {
+inline auto float4x4_from_trs(const float3& t, const Quaternion& r, const float3& s) -> float4x4 {
     // Note: inlined quaternion-float3x3 conversion.
     float4x4 m;
     float rxx = r.x * r.x;
@@ -73,17 +72,17 @@ inline auto rgb_from_hsv(float3 hsv) -> float3 {
     float x = c * (1.0f - std::fabs(std::fmod(h / 60.0f, 2.0f) - 1.0f));
     float m = v - c;
     if (h < 60.0f) {
-        return float3(c + m, x + m, m);
+        return {c + m, x + m, m};
     } else if (h < 120.0f) {
-        return float3(x + m, c + m, m);
+        return {x + m, c + m, m};
     } else if (h < 180.0f) {
-        return float3(m, c + m, x + m);
+        return {m, c + m, x + m};
     } else if (h < 240.0f) {
-        return float3(m, x + m, c + m);
+        return {m, x + m, c + m};
     } else if (h < 300.0f) {
-        return float3(x + m, m, c + m);
+        return {x + m, m, c + m};
     } else {
-        return float3(c + m, m, x + m);
+        return {c + m, m, x + m};
     }
 }
 
