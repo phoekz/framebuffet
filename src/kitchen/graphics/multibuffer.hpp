@@ -18,6 +18,7 @@ public:
     auto buffer(uint frame_index) -> Buffer& { return _buffers[frame_index]; }
     auto buffer(uint frame_index) const -> const Buffer& { return _buffers[frame_index]; }
     auto buffer_count() const -> uint { return BUFFER_COUNT; }
+    auto byte_count() const -> uint { return _buffers[0].byte_count(); }
 
 private:
     std::array<Buffer, BUFFER_COUNT> _buffers;
