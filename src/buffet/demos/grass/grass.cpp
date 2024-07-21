@@ -34,8 +34,20 @@ auto create(Demo& demo, const CreateDesc& desc) -> void {
 
     // Geometry.
     const auto grass = assets.grass_mesh();
-    demo.vertices.create_with_data(device, grass.vertices, debug.with_name("Vertices"));
-    demo.indices.create_with_data(device, grass.indices, debug.with_name("Indices"));
+    demo.vertices.create_and_transfer(
+        device,
+        grass.vertices,
+        D3D12_BARRIER_SYNC_VERTEX_SHADING,
+        D3D12_BARRIER_ACCESS_VERTEX_BUFFER,
+        debug.with_name("Vertices")
+    );
+    demo.indices.create_and_transfer(
+        device,
+        grass.indices,
+        D3D12_BARRIER_SYNC_INDEX_INPUT,
+        D3D12_BARRIER_ACCESS_INDEX_BUFFER,
+        debug.with_name("Indices")
+    );
 
     // Texture.
     demo.texture.create_and_transfer_baked(

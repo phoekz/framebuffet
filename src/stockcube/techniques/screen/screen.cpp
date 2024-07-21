@@ -92,9 +92,27 @@ auto create(Technique& tech, const CreateDesc& desc) -> void {
         }
     }
 
-    tech.vertices.create_with_data(device, vertices, debug.with_name("Vertices"));
-    tech.indices.create_with_data(device, indices, debug.with_name("Indices"));
-    tech.instances.create_with_data(device, instances, debug.with_name("Instances"));
+    tech.vertices.create_and_transfer(
+        device,
+        vertices,
+        D3D12_BARRIER_SYNC_VERTEX_SHADING,
+        D3D12_BARRIER_ACCESS_VERTEX_BUFFER,
+        debug.with_name("Vertices")
+    );
+    tech.indices.create_and_transfer(
+        device,
+        indices,
+        D3D12_BARRIER_SYNC_INDEX_INPUT,
+        D3D12_BARRIER_ACCESS_INDEX_BUFFER,
+        debug.with_name("Indices")
+    );
+    tech.instances.create_and_transfer(
+        device,
+        instances,
+        D3D12_BARRIER_SYNC_VERTEX_SHADING,
+        D3D12_BARRIER_ACCESS_VERTEX_BUFFER,
+        debug.with_name("Instances")
+    );
 
     GpuPipelineBuilder()
         .vertex_shader(shaders.screen_vs())

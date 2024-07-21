@@ -10,9 +10,9 @@ static constexpr std::string_view NAME = "Screen"sv;
 struct Technique {
     GpuPipeline pipeline;
     GpuBufferHostCbv<Constants> constants;
-    GpuBufferHostSrv<Vertex> vertices;
-    GpuBufferHostIndex<uint> indices;
-    GpuBufferHostSrv<Instance> instances;
+    GpuBufferDeviceSrv<Vertex> vertices;
+    GpuBufferDeviceIndex<uint> indices;
+    GpuBufferDeviceSrv<Instance> instances;
 };
 
 struct CreateDesc {

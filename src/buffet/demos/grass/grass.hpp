@@ -27,8 +27,8 @@ struct Demo {
     RenderTargets render_targets;
     DebugDraw debug_draw;
     Multibuffer<GpuBufferHostCbv<Constants>, FRAME_COUNT> constants;
-    GpuBufferHostSrv<baked::Vertex> vertices;
-    GpuBufferHostIndex<baked::Index> indices;
+    GpuBufferDeviceSrv<baked::Vertex> vertices;
+    GpuBufferDeviceIndex<baked::Index> indices;
     GpuTextureSrv texture;
     baked::Material material;
     GpuPipeline pipeline_naive;

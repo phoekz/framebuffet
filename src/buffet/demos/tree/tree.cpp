@@ -35,10 +35,34 @@ auto create(Demo& demo, const CreateDesc& desc) -> void {
     // Geometry.
     const auto tree = assets.coconut_tree_mesh();
     const auto sand = assets.sand_mesh();
-    demo.tree_vertices.create_with_data(device, tree.vertices, debug.with_name("Tree Vertices"));
-    demo.tree_indices.create_with_data(device, tree.indices, debug.with_name("Tree Indices"));
-    demo.sand_vertices.create_with_data(device, sand.vertices, debug.with_name("Sand Vertices"));
-    demo.sand_indices.create_with_data(device, sand.indices, debug.with_name("Sand Indices"));
+    demo.tree_vertices.create_and_transfer(
+        device,
+        tree.vertices,
+        D3D12_BARRIER_SYNC_VERTEX_SHADING,
+        D3D12_BARRIER_ACCESS_VERTEX_BUFFER,
+        debug.with_name("Tree Vertices")
+    );
+    demo.tree_indices.create_and_transfer(
+        device,
+        tree.indices,
+        D3D12_BARRIER_SYNC_INDEX_INPUT,
+        D3D12_BARRIER_ACCESS_INDEX_BUFFER,
+        debug.with_name("Tree Indices")
+    );
+    demo.sand_vertices.create_and_transfer(
+        device,
+        sand.vertices,
+        D3D12_BARRIER_SYNC_VERTEX_SHADING,
+        D3D12_BARRIER_ACCESS_VERTEX_BUFFER,
+        debug.with_name("Sand Vertices")
+    );
+    demo.sand_indices.create_and_transfer(
+        device,
+        sand.indices,
+        D3D12_BARRIER_SYNC_INDEX_INPUT,
+        D3D12_BARRIER_ACCESS_INDEX_BUFFER,
+        debug.with_name("Sand Indices")
+    );
 
     // Texture.
     demo.tree_texture.create_and_transfer_baked(

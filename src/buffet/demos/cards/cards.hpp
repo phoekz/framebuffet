@@ -29,8 +29,8 @@ struct Demo {
     GpuPipeline draw_pipeline;
     Multibuffer<GpuBufferHostCbv<Constants>, FRAME_COUNT> constants;
     Multibuffer<GpuBufferHostSrv<Card>, FRAME_COUNT> cards;
-    GpuBufferHostSrv<Vertex> vertices;
-    GpuBufferHostIndex<uint16_t> indices;
+    GpuBufferDeviceSrv<Vertex> vertices;
+    GpuBufferDeviceIndex<uint16_t> indices;
     std::array<std::string_view, CARD_COUNT> card_names;
     std::array<CardDescriptors, CARD_COUNT> card_descriptors;
 

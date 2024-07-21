@@ -22,7 +22,7 @@ struct Demo {
     DebugDraw debug_draw;
     Multibuffer<GpuBufferHostCbv<Constants>, FRAME_COUNT> constants;
 
-    GpuBufferHostIndex<uint16_t> star_indices;
+    GpuBufferDeviceIndex<uint16_t> star_indices;
     GpuBufferDeviceSrvUav<uint3> raster_buffer;
     uint2 raster_buffer_size;
     GpuPipeline clear_pipeline;

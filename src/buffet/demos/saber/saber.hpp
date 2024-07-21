@@ -28,8 +28,8 @@ struct Demo {
         RenderTargets render_targets;
         DebugDraw debug_draw;
         GpuPipeline pipeline;
-        GpuBufferHostSrv<baked::Vertex> vertices;
-        GpuBufferHostIndex<baked::Index> indices;
+        GpuBufferDeviceSrv<baked::Vertex> vertices;
+        GpuBufferDeviceIndex<baked::Index> indices;
     } scene;
 
     struct {

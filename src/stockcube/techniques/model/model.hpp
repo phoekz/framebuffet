@@ -18,8 +18,8 @@ struct Technique {
     GpuDescriptor rad_texture;
     uint rad_texture_mip_count;
     Multibuffer<GpuBufferHostCbv<Constants>, FRAME_COUNT> constants;
-    GpuBufferHostSrv<baked::Vertex> vertices;
-    GpuBufferHostIndex<baked::Index> indices;
+    GpuBufferDeviceSrv<baked::Vertex> vertices;
+    GpuBufferDeviceIndex<baked::Index> indices;
     GpuPipeline pipeline;
     Parameters parameters;
 };

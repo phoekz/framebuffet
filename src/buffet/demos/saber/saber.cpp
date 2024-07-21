@@ -50,8 +50,20 @@ auto create(Demo& demo, const CreateDesc& desc) -> void {
 
         // Geometry.
         const auto mesh = assets.lightsaber_mesh();
-        scene.vertices.create_with_data(device, mesh.vertices, pass_debug.with_name("Vertices"));
-        scene.indices.create_with_data(device, mesh.indices, pass_debug.with_name("Indices"));
+        scene.vertices.create_and_transfer(
+            device,
+            mesh.vertices,
+            D3D12_BARRIER_SYNC_VERTEX_SHADING,
+            D3D12_BARRIER_ACCESS_VERTEX_BUFFER,
+            pass_debug.with_name("Vertices")
+        );
+        scene.indices.create_and_transfer(
+            device,
+            mesh.indices,
+            D3D12_BARRIER_SYNC_INDEX_INPUT,
+            D3D12_BARRIER_ACCESS_INDEX_BUFFER,
+            pass_debug.with_name("Indices")
+        );
     }
 
     // Compute pass.

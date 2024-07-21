@@ -32,7 +32,13 @@ auto create(Demo& demo, const CreateDesc& desc) -> void {
     demo.constants.create(device, 1, debug.with_name("Constants"));
 
     // Star.
-    demo.star_indices.create_with_data(device, STAR_INDICES, debug.with_name("Indices"));
+    demo.star_indices.create_and_transfer(
+        device,
+        STAR_INDICES,
+        D3D12_BARRIER_SYNC_INDEX_INPUT,
+        D3D12_BARRIER_ACCESS_INDEX_BUFFER,
+        debug.with_name("Indices")
+    );
 
     // Texture.
     const uint BUFFER_DOWNSCALE_FACTOR = 16;

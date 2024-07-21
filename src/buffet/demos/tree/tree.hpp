@@ -33,11 +33,11 @@ struct Demo {
     RenderTargets render_targets;
     DebugDraw debug_draw;
     Multibuffer<GpuBufferHostCbv<Constants>, FRAME_COUNT> constants;
-    GpuBufferHostSrv<baked::Vertex> tree_vertices;
-    GpuBufferHostIndex<baked::Index> tree_indices;
+    GpuBufferDeviceSrv<baked::Vertex> tree_vertices;
+    GpuBufferDeviceIndex<baked::Index> tree_indices;
     GpuTextureSrv tree_texture;
-    GpuBufferHostSrv<baked::Vertex> sand_vertices;
-    GpuBufferHostIndex<baked::Index> sand_indices;
+    GpuBufferDeviceSrv<baked::Vertex> sand_vertices;
+    GpuBufferDeviceIndex<baked::Index> sand_indices;
     GpuTextureSrv sand_texture;
     GpuPipeline shadow_pipeline;
     GpuTextureSrvDsv shadow_depth;

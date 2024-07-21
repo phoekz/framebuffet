@@ -34,8 +34,8 @@ struct Parameters {
 };
 
 struct Mesh {
-    GpuBufferHostSrv<baked::Vertex> vertices;
-    GpuBufferHostIndex<baked::Index> indices;
+    GpuBufferDeviceSrv<baked::Vertex> vertices;
+    GpuBufferDeviceIndex<baked::Index> indices;
 };
 
 struct Demo {

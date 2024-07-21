@@ -40,8 +40,8 @@ struct Demo {
     struct {
         GpuPipeline pipeline;
         Multibuffer<GpuBufferHostCbv<BackgroundConstants>, FRAME_COUNT> constants;
-        GpuBufferHostSrv<baked::Vertex> vertices;
-        GpuBufferHostIndex<baked::Index> indices;
+        GpuBufferDeviceSrv<baked::Vertex> vertices;
+        GpuBufferDeviceIndex<baked::Index> indices;
     } bg;
 
     struct {
@@ -49,8 +49,8 @@ struct Demo {
         Multibuffer<GpuBufferHostCbv<GlyphConstants>, FRAME_COUNT> constants;
         Multibuffer<GpuBufferHostSrv<GlyphInstance>, FRAME_COUNT> instances;
         std::vector<baked::Submesh> submeshes;
-        GpuBufferHostSrv<baked::Vertex> vertices;
-        GpuBufferHostIndex<baked::Index> indices;
+        GpuBufferDeviceSrv<baked::Vertex> vertices;
+        GpuBufferDeviceIndex<baked::Index> indices;
 
         ComPtr<ID3D12CommandSignature> indirect_command_signature;
         Multibuffer<GpuBufferHostSrv<DrawGlyphCommand>, FRAME_COUNT> indirect_commands;

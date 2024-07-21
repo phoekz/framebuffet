@@ -34,8 +34,8 @@ struct Demo {
     Multibuffer<GpuBufferHostCbv<Constants>, FRAME_COUNT> constants;
     GpuPipeline compute_pipeline;
     GpuPipeline draw_pipeline;
-    GpuBufferHostSrv<Vertex> draw_vertices;
-    GpuBufferHostIndex<uint16_t> draw_indices;
+    GpuBufferDeviceSrv<Vertex> draw_vertices;
+    GpuBufferDeviceIndex<uint16_t> draw_indices;
 };
 
 struct CreateDesc {

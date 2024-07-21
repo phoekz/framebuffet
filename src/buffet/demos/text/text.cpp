@@ -63,8 +63,20 @@ auto create(Demo& demo, const CreateDesc& desc) -> void {
         // Geometry.
         const auto mesh = assets.roboto_medium_mesh();
         pass.submeshes.insert(pass.submeshes.end(), mesh.submeshes.begin(), mesh.submeshes.end());
-        pass.vertices.create_with_data(device, mesh.vertices, pass_debug.with_name("Vertices"));
-        pass.indices.create_with_data(device, mesh.indices, pass_debug.with_name("Indices"));
+        pass.vertices.create_and_transfer(
+            device,
+            mesh.vertices,
+            D3D12_BARRIER_SYNC_VERTEX_SHADING,
+            D3D12_BARRIER_ACCESS_VERTEX_BUFFER,
+            pass_debug.with_name("Vertices")
+        );
+        pass.indices.create_and_transfer(
+            device,
+            mesh.indices,
+            D3D12_BARRIER_SYNC_INDEX_INPUT,
+            D3D12_BARRIER_ACCESS_INDEX_BUFFER,
+            pass_debug.with_name("Indices")
+        );
 
         // Glyphs.
         const auto font = assets.roboto_medium_font();
@@ -102,8 +114,20 @@ auto create(Demo& demo, const CreateDesc& desc) -> void {
         demo.bg.constants.create(device, 1, pass_debug.with_name("Constants"));
 
         const auto mesh = assets.skybox_mesh();
-        demo.bg.vertices.create_with_data(device, mesh.vertices, pass_debug.with_name("Vertices"));
-        demo.bg.indices.create_with_data(device, mesh.indices, pass_debug.with_name("Indices"));
+        demo.bg.vertices.create_and_transfer(
+            device,
+            mesh.vertices,
+            D3D12_BARRIER_SYNC_VERTEX_SHADING,
+            D3D12_BARRIER_ACCESS_VERTEX_BUFFER,
+            pass_debug.with_name("Vertices")
+        );
+        demo.bg.indices.create_and_transfer(
+            device,
+            mesh.indices,
+            D3D12_BARRIER_SYNC_INDEX_INPUT,
+            D3D12_BARRIER_ACCESS_INDEX_BUFFER,
+            pass_debug.with_name("Indices")
+        );
 
         GpuPipelineBuilder()
             .primitive_topology(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)

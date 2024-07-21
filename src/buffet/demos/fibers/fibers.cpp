@@ -89,10 +89,20 @@ auto create(Demo& demo, const CreateDesc& desc) -> void {
     // Geometry.
     {
         const auto mesh = assets.light_bounds_mesh();
-        demo.light_mesh.vertices
-            .create_with_data(device, mesh.vertices, debug.with_name("Light Vertices"));
-        demo.light_mesh.indices
-            .create_with_data(device, mesh.indices, debug.with_name("Light Indices"));
+        demo.light_mesh.vertices.create_and_transfer(
+            device,
+            mesh.vertices,
+            D3D12_BARRIER_SYNC_VERTEX_SHADING,
+            D3D12_BARRIER_ACCESS_VERTEX_BUFFER,
+            debug.with_name("Light Vertices")
+        );
+        demo.light_mesh.indices.create_and_transfer(
+            device,
+            mesh.indices,
+            D3D12_BARRIER_SYNC_INDEX_INPUT,
+            D3D12_BARRIER_ACCESS_INDEX_BUFFER,
+            debug.with_name("Light Indices")
+        );
     }
     {
         const auto vertices = std::to_array<baked::Vertex>({
@@ -102,14 +112,18 @@ auto create(Demo& demo, const CreateDesc& desc) -> void {
             {{-PLANE_RADIUS_X, +PLANE_RADIUS_Y, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
         });
         const auto indices = std::to_array<baked::Index>({0, 1, 2, 0, 2, 3});
-        demo.plane_mesh.vertices.create_with_data(
+        demo.plane_mesh.vertices.create_and_transfer(
             device,
             std::span(vertices.data(), vertices.size()),
+            D3D12_BARRIER_SYNC_VERTEX_SHADING,
+            D3D12_BARRIER_ACCESS_VERTEX_BUFFER,
             debug.with_name("Plane Vertices")
         );
-        demo.plane_mesh.indices.create_with_data(
+        demo.plane_mesh.indices.create_and_transfer(
             device,
             std::span(indices.data(), indices.size()),
+            D3D12_BARRIER_SYNC_INDEX_INPUT,
+            D3D12_BARRIER_ACCESS_INDEX_BUFFER,
             debug.with_name("Plane Indices")
         );
     }

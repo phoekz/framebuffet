@@ -89,8 +89,20 @@ auto create(Demo& demo, const CreateDesc& desc) -> void {
             {{-0.5f, 0.5f, 0.0f}, {0.0f, 1.0f}},
         });
         const auto indices = std::to_array<uint16_t>({0, 1, 2, 0, 2, 3});
-        demo.draw_vertices.create_with_data(device, vertices, debug.with_name("Draw Vertices"));
-        demo.draw_indices.create_with_data(device, indices, debug.with_name("Draw Indices"));
+        demo.draw_vertices.create_and_transfer(
+            device,
+            vertices,
+            D3D12_BARRIER_SYNC_VERTEX_SHADING,
+            D3D12_BARRIER_ACCESS_VERTEX_BUFFER,
+            debug.with_name("Draw Vertices")
+        );
+        demo.draw_indices.create_and_transfer(
+            device,
+            indices,
+            D3D12_BARRIER_SYNC_INDEX_INPUT,
+            D3D12_BARRIER_ACCESS_INDEX_BUFFER,
+            debug.with_name("Draw Indices")
+        );
     }
 }
 

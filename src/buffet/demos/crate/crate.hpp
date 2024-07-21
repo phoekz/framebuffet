@@ -27,8 +27,8 @@ struct Parameters {
 };
 
 struct Model {
-    GpuBufferHostSrv<baked::Vertex> vertices;
-    GpuBufferHostIndex<baked::Index> indices;
+    GpuBufferDeviceSrv<baked::Vertex> vertices;
+    GpuBufferDeviceIndex<baked::Index> indices;
     GpuTextureSrv base_color;
     GpuTextureSrv normal;
     GpuTextureSrv metallic_roughness;

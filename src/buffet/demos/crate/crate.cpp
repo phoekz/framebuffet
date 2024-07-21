@@ -63,8 +63,20 @@ auto create(Demo& demo, const CreateDesc& desc) -> void {
         DebugScope model_debug(model_name);
 
         // Geometry.
-        model.vertices.create_with_data(device, mesh.vertices, model_debug.with_name("Vertices"));
-        model.indices.create_with_data(device, mesh.indices, model_debug.with_name("Indices"));
+        model.vertices.create_and_transfer(
+            device,
+            mesh.vertices,
+            D3D12_BARRIER_SYNC_VERTEX_SHADING,
+            D3D12_BARRIER_ACCESS_VERTEX_BUFFER,
+            model_debug.with_name("Vertices")
+        );
+        model.indices.create_and_transfer(
+            device,
+            mesh.indices,
+            D3D12_BARRIER_SYNC_INDEX_INPUT,
+            D3D12_BARRIER_ACCESS_INDEX_BUFFER,
+            model_debug.with_name("Indices")
+        );
 
         // Textures.
         for (auto& [texture_name, dst_texture, src_texture] : {

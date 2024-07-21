@@ -17,8 +17,20 @@ auto create(Technique& tech, const CreateDesc& desc) -> void {
     tech.rad_texture_mip_count = desc.rad_texture_mip_count;
     tech.constants.create(device, 1, debug.with_name("Constants"));
     const auto mesh = assets.sphere_mesh();
-    tech.vertices.create_with_data(device, mesh.vertices, debug.with_name("Vertices"));
-    tech.indices.create_with_data(device, mesh.indices, debug.with_name("Indices"));
+    tech.vertices.create_and_transfer(
+        device,
+        mesh.vertices,
+        D3D12_BARRIER_SYNC_VERTEX_SHADING,
+        D3D12_BARRIER_ACCESS_VERTEX_BUFFER,
+        debug.with_name("Vertices")
+    );
+    tech.indices.create_and_transfer(
+        device,
+        mesh.indices,
+        D3D12_BARRIER_SYNC_INDEX_INPUT,
+        D3D12_BARRIER_ACCESS_INDEX_BUFFER,
+        debug.with_name("Indices")
+    );
     GpuPipelineBuilder()
         .primitive_topology(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)
         .vertex_shader(shaders.model_vs())

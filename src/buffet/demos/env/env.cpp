@@ -71,8 +71,20 @@ auto create(Demo& demo, const CreateDesc& desc) -> void {
 
         // Geometry.
         const auto mesh = assets.skybox_mesh();
-        pass.vertices.create_with_data(device, mesh.vertices, pass_debug.with_name("Vertices"));
-        pass.indices.create_with_data(device, mesh.indices, pass_debug.with_name("Indices"));
+        pass.vertices.create_and_transfer(
+            device,
+            mesh.vertices,
+            D3D12_BARRIER_SYNC_VERTEX_SHADING,
+            D3D12_BARRIER_ACCESS_VERTEX_BUFFER,
+            pass_debug.with_name("Vertices")
+        );
+        pass.indices.create_and_transfer(
+            device,
+            mesh.indices,
+            D3D12_BARRIER_SYNC_INDEX_INPUT,
+            D3D12_BARRIER_ACCESS_INDEX_BUFFER,
+            pass_debug.with_name("Indices")
+        );
 
         // Pipeline.
         GpuPipelineBuilder()
@@ -100,8 +112,20 @@ auto create(Demo& demo, const CreateDesc& desc) -> void {
 
         // Geometry.
         const auto mesh = assets.sphere_mesh();
-        pass.vertices.create_with_data(device, mesh.vertices, pass_debug.with_name("Vertices"));
-        pass.indices.create_with_data(device, mesh.indices, pass_debug.with_name("Indices"));
+        pass.vertices.create_and_transfer(
+            device,
+            mesh.vertices,
+            D3D12_BARRIER_SYNC_VERTEX_SHADING,
+            D3D12_BARRIER_ACCESS_VERTEX_BUFFER,
+            pass_debug.with_name("Vertices")
+        );
+        pass.indices.create_and_transfer(
+            device,
+            mesh.indices,
+            D3D12_BARRIER_SYNC_INDEX_INPUT,
+            D3D12_BARRIER_ACCESS_INDEX_BUFFER,
+            pass_debug.with_name("Indices")
+        );
 
         // Pipeline.
         GpuPipelineBuilder()
