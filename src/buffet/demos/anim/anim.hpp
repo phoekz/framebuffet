@@ -28,7 +28,7 @@ struct Parameters {
         float3(-0.75f, 0.0f, 0.0f),
         float3(0.75f, 0.0f, 0.0f),
     };
-    float texture_scroll_speed = 1.0f;
+    float texture_scroll_speed = 2.5f;
 };
 
 struct OwnedAnimationMesh {
