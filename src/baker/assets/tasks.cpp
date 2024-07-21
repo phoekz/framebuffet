@@ -223,6 +223,7 @@ auto bake_assets(std::string_view assets_dir, std::span<const AssetTask> asset_t
 
                         assets.emplace_back(AssetMesh {
                             .name = names.unique(std::format("{}_mesh", task.name)),
+                            .transform = model.root_transform(),
                             .vertices = assets_writer.write(
                                 "Vertex",
                                 std::span<const AssetVertex>(vertices)
@@ -248,6 +249,7 @@ auto bake_assets(std::string_view assets_dir, std::span<const AssetTask> asset_t
 
                         assets.emplace_back(AssetAnimationMesh {
                             .name = names.unique(std::format("{}_animation_mesh", task.name)),
+                            .transform = model.root_transform(),
                             .node_count = model.node_count(),
                             .joint_count = model.joint_count(),
                             .duration = model.animation_duration(),

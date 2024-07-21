@@ -68,6 +68,20 @@ GltfModel::GltfModel(std::string_view gltf_path) {
         }
     }
 
+    // Root transform.
+    auto maybe_root_transform = std::optional<float4x4>(std::nullopt);
+    for (size_t fb_i = 0; fb_i < data->nodes_count; fb_i++) {
+        const auto gltf_i = gltf_from_fb[fb_i];
+        const auto& node = data->nodes[gltf_i];
+        if (node.parent == nullptr) {
+            float4x4 root_transform;
+            cgltf_node_transform_world(&node, (cgltf_float*)&root_transform);
+            maybe_root_transform = root_transform;
+        }
+    }
+    FB_ASSERT(maybe_root_transform.has_value());
+    _root_transform = maybe_root_transform.value();
+
     // Read and merge meshes.
     for (const auto& mesh : std::span(data->meshes, data->meshes_count)) {
         FB_ASSERT(mesh.primitives_count == 1);
@@ -311,7 +325,7 @@ GltfModel::GltfModel(std::string_view gltf_path) {
             }
         }
 
-        // Read additional node data.
+        // Node hierarchy.
         auto node_parents = std::vector<uint>(data->nodes_count, GLTF_NULL_NODE);
         for (size_t fb_i = 0; fb_i < data->nodes_count; fb_i++) {
             const auto gltf_i = gltf_from_fb[fb_i];

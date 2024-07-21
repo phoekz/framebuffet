@@ -43,6 +43,7 @@ struct AssetSubmesh {
 struct AssetMesh {
     std::string name;
 
+    float4x4 transform;
     AssetSpan vertices;
     AssetSpan indices;
     AssetSpan submeshes;
@@ -91,6 +92,7 @@ struct AssetMaterial {
 struct AssetAnimationMesh {
     std::string name;
 
+    float4x4 transform;
     uint node_count;
     uint joint_count;
     float duration;

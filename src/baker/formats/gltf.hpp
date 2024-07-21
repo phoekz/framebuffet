@@ -44,6 +44,8 @@ class GltfModel {
 public:
     GltfModel(std::string_view gltf_path);
 
+    auto root_transform() const -> float4x4 { return _root_transform; }
+
     // clang-format off
     auto vertex_positions() const -> std::span<const GltfVertexPosition> { return _vertex_positions; }
     auto vertex_normals() const -> std::span<const GltfVertexNormal> { return _vertex_normals; }
@@ -86,6 +88,8 @@ public:
     // clang-format on
 
 private:
+    float4x4 _root_transform = float4x4::Identity;
+
     std::vector<GltfVertexPosition> _vertex_positions;
     std::vector<GltfVertexNormal> _vertex_normals;
     std::vector<GltfVertexTexcoord> _vertex_texcoords;

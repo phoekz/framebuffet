@@ -33,6 +33,7 @@ inline constexpr std::string_view BAKED_TYPES_HPP = R"(#pragma once
     };
 
     struct Mesh {
+        float4x4 transform;
         std::span<const Vertex> vertices;
         std::span<const Index> indices;
         std::span<const Submesh> submeshes;
@@ -92,6 +93,7 @@ inline constexpr std::string_view BAKED_TYPES_HPP = R"(#pragma once
     };
 
     struct AnimationMesh {
+        float4x4 transform;
         uint node_count;
         uint joint_count;
         float duration;

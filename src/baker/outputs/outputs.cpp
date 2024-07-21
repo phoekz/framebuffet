@@ -51,6 +51,29 @@ auto bake_app_datas(
     const auto [assets, assets_bin] = bake_assets(assets_dir, app_asset_tasks);
 
     // Generate.
+    const auto format_transform =
+        [&assets_bin](std::string_view name, float4x4 transform) -> std::string {
+        return std::format(
+            ".{} = float4x4({:.6f}f, {:.6f}f, {:.6f}f, {:.6f}f, {:.6f}f, {:.6f}f, {:.6f}f, {:.6f}f, {:.6f}f, {:.6f}f, {:.6f}f, {:.6f}f, {:.6f}f, {:.6f}f, {:.6f}f, {:.6f}f)",
+            name,
+            transform._11,
+            transform._12,
+            transform._13,
+            transform._14,
+            transform._21,
+            transform._22,
+            transform._23,
+            transform._24,
+            transform._31,
+            transform._32,
+            transform._33,
+            transform._34,
+            transform._41,
+            transform._42,
+            transform._43,
+            transform._44
+        );
+    };
     const auto format_named_asset_span =
         [&assets_bin](std::string_view name, AssetSpan span) -> std::string {
         const auto bytes = std::span(assets_bin.data() + span.offset, span.byte_count);
@@ -93,12 +116,14 @@ auto bake_app_datas(
                                 {},
                                 {},
                                 {},
+                                {},
                             }};
                         }})",
                         asset.name,
                         asset.vertices.element_count,
                         asset.indices.element_count / 3,
                         asset.submeshes.element_count,
+                        format_transform("transform"sv, asset.transform),
                         format_named_asset_span("vertices"sv, asset.vertices),
                         format_named_asset_span("indices"sv, asset.indices),
                         format_named_asset_span("submeshes"sv, asset.submeshes)
@@ -236,6 +261,7 @@ auto bake_app_datas(
                             // face_count: {}
                             // submesh_count: {}
                             return AnimationMesh {{
+                                {},
                                 .node_count = {},
                                 .joint_count = {},
                                 .duration = {}f,
@@ -258,6 +284,7 @@ auto bake_app_datas(
                         asset.skinning_vertices.element_count,
                         asset.indices.element_count / 3,
                         asset.submeshes.element_count,
+                        format_transform("transform"sv, asset.transform),
                         asset.node_count,
                         asset.joint_count,
                         asset.duration,

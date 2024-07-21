@@ -75,6 +75,24 @@ auto Assets::skybox_mesh() const -> Mesh {
     // face_count: 12
     // submesh_count: 1
     return Mesh {
+        .transform = float4x4(
+            1.000000f,
+            0.000000f,
+            0.000000f,
+            0.000000f,
+            0.000000f,
+            1.000000f,
+            0.000000f,
+            0.000000f,
+            0.000000f,
+            0.000000f,
+            1.000000f,
+            0.000000f,
+            0.000000f,
+            0.000000f,
+            0.000000f,
+            1.000000f
+        ),
         // hash: 952f25941581c525b7890e0284fd3b52
         .vertices = transmuted_span<Vertex>(134217728, 24),
         // hash: 0bbe6ec9d4b61b792981857b935d2c96
@@ -89,6 +107,24 @@ auto Assets::sphere_mesh() const -> Mesh {
     // face_count: 4160
     // submesh_count: 1
     return Mesh {
+        .transform = float4x4(
+            1.000000f,
+            0.000000f,
+            0.000000f,
+            0.000000f,
+            0.000000f,
+            1.000000f,
+            0.000000f,
+            0.000000f,
+            0.000000f,
+            0.000000f,
+            1.000000f,
+            0.000000f,
+            0.000000f,
+            0.000000f,
+            0.000000f,
+            1.000000f
+        ),
         // hash: bdea0aeb8805424705ca957338103a57
         .vertices = transmuted_span<Vertex>(134219036, 2145),
         // hash: b69e987626eec7de0864668ffde28fbe

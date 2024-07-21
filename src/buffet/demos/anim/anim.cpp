@@ -3,6 +3,7 @@
 namespace fb::demos::anim {
 
 auto copy_animation_mesh(OwnedAnimationMesh& dst, const baked::AnimationMesh& src) -> void {
+    dst.transform = src.transform;
     dst.node_count = src.node_count;
     dst.joint_count = src.joint_count;
     dst.duration = src.duration;
@@ -174,8 +175,8 @@ auto update(Demo& demo, const UpdateDesc& desc) -> void {
     auto& params = demo.parameters;
 
     // Update animation transforms.
-    using Desc = std::tuple<Model&>;
-    for (auto& [model] : {Desc(demo.female), Desc(demo.male)}) {
+    using TransformDesc = std::tuple<Model&>;
+    for (auto& [model] : {TransformDesc(demo.female), TransformDesc(demo.male)}) {
         // Unpack.
         auto* node_transforms = model.animation_transforms.data();
 
@@ -276,17 +277,16 @@ auto update(Demo& demo, const UpdateDesc& desc) -> void {
     }
 
     // Update constants.
-    const float4x4 fbx_scale = float4x4::CreateScale(0.01f); // Todo: Bake this into the model.
-    const float4x4 female_translation = float4x4::CreateTranslation(demo.parameters.positions[0]);
-    const float4x4 male_translation = float4x4::CreateTranslation(demo.parameters.positions[1]);
-    const float4x4 female_transform = fbx_scale * female_translation * camera_transform;
-    const float4x4 male_transform = fbx_scale * male_translation * camera_transform;
-    demo.female.constants.buffer(desc.frame_index).ref() = Constants {
-        .transform = female_transform,
-    };
-    demo.male.constants.buffer(desc.frame_index).ref() = Constants {
-        .transform = male_transform,
-    };
+    using ConstantDesc = std::tuple<uint, Model&>;
+    for (auto& [model_index, model] : {ConstantDesc(0, demo.female), ConstantDesc(1, demo.male)}) {
+        const auto& root_transform = model.animation_mesh.transform;
+        const auto translation =
+            float4x4::CreateTranslation(demo.parameters.positions[model_index]);
+        const float4x4 transform = root_transform * translation * camera_transform;
+        model.constants.buffer(desc.frame_index).ref() = Constants {
+            .transform = transform,
+        };
+    }
 
     // Update debug draw.
     demo.debug_draw.begin(desc.frame_index);

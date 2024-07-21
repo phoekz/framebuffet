@@ -31,6 +31,7 @@ struct Parameters {
 };
 
 struct OwnedAnimationMesh {
+    float4x4 transform;
     uint node_count;
     uint joint_count;
     float duration;

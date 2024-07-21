@@ -8,7 +8,7 @@ namespace fb::baked::buffet {
     }
 
 auto Assets::load() -> void {
-    // hash: e99778f84a3fd2473f387f4f086fb047
+    // hash: 22d7e09e509d62774a2bcd476ad75389
     ZoneScoped;
     _data = read_whole_file("fb_buffet_assets.bin");
     FB_ASSERT(_data.size() == 189046280);
@@ -63,6 +63,24 @@ auto Assets::sci_fi_case_mesh() const -> Mesh {
     // face_count: 1767
     // submesh_count: 3
     return Mesh {
+        .transform = float4x4(
+            1.000000f,
+            0.000000f,
+            0.000000f,
+            0.000000f,
+            0.000000f,
+            0.000000f,
+            -1.000000f,
+            0.000000f,
+            0.000000f,
+            1.000000f,
+            0.000000f,
+            0.000000f,
+            0.000000f,
+            0.000000f,
+            0.000000f,
+            1.000000f
+        ),
         // hash: 576ddd3553b833a1778d067f0cfc0f20
         .vertices = transmuted_span<Vertex>(4088, 2025),
         // hash: b4d34f8bbc09c51115542a8b94aec26a
@@ -156,6 +174,24 @@ auto Assets::metal_plane_mesh() const -> Mesh {
     // face_count: 2
     // submesh_count: 1
     return Mesh {
+        .transform = float4x4(
+            1.000000f,
+            0.000000f,
+            0.000000f,
+            0.000000f,
+            0.000000f,
+            1.000000f,
+            0.000000f,
+            0.000000f,
+            0.000000f,
+            0.000000f,
+            1.000000f,
+            0.000000f,
+            0.000000f,
+            0.000000f,
+            0.000000f,
+            1.000000f
+        ),
         // hash: 7513db2c165692b22a3bb4374738dab7
         .vertices = transmuted_span<Vertex>(16899740, 4),
         // hash: 96880b352a2cd08ebe7a559eac217606
@@ -249,6 +285,24 @@ auto Assets::coconut_tree_mesh() const -> Mesh {
     // face_count: 678
     // submesh_count: 1
     return Mesh {
+        .transform = float4x4(
+            1.000000f,
+            0.000000f,
+            0.000000f,
+            0.000000f,
+            0.000000f,
+            0.000000f,
+            -1.000000f,
+            0.000000f,
+            0.000000f,
+            1.000000f,
+            0.000000f,
+            0.000000f,
+            0.000000f,
+            0.000000f,
+            0.000000f,
+            1.000000f
+        ),
         // hash: cee14e1c21b8adac5f904691e307303a
         .vertices = transmuted_span<Vertex>(33677180, 725),
         // hash: 2e21503f47bdce31841a1d7890743c68
@@ -313,6 +367,24 @@ auto Assets::sand_mesh() const -> Mesh {
     // face_count: 1922
     // submesh_count: 1
     return Mesh {
+        .transform = float4x4(
+            1.000000f,
+            0.000000f,
+            0.000000f,
+            0.000000f,
+            0.000000f,
+            1.000000f,
+            0.000000f,
+            0.000000f,
+            0.000000f,
+            0.000000f,
+            1.000000f,
+            0.000000f,
+            0.000000f,
+            0.000000f,
+            0.000000f,
+            1.000000f
+        ),
         // hash: 7fa771f6b82914ced15ac4b1e422d018
         .vertices = transmuted_span<Vertex>(35140072, 5766),
         // hash: 6b2f255bcca5115fc052b8dc1591ccb3
@@ -327,6 +399,24 @@ auto Assets::raccoon_animation_mesh() const -> AnimationMesh {
     // face_count: 1034
     // submesh_count: 1
     return AnimationMesh {
+        .transform = float4x4(
+            0.014462f,
+            0.000000f,
+            0.000000f,
+            0.000000f,
+            0.000000f,
+            0.000000f,
+            -0.014462f,
+            0.000000f,
+            0.000000f,
+            0.014462f,
+            0.000000f,
+            0.000000f,
+            0.000000f,
+            0.000000f,
+            0.000000f,
+            1.000000f
+        ),
         .node_count = 72,
         .joint_count = 63,
         .duration = 0.7916667f,
@@ -403,10 +493,28 @@ auto Assets::mixamo_run_female_animation_mesh() const -> AnimationMesh {
     // face_count: 49112
     // submesh_count: 2
     return AnimationMesh {
+        .transform = float4x4(
+            0.010000f,
+            0.000000f,
+            0.000000f,
+            0.000000f,
+            0.000000f,
+            -0.000000f,
+            0.010000f,
+            0.000000f,
+            0.000000f,
+            -0.010000f,
+            -0.000000f,
+            0.000000f,
+            0.000000f,
+            0.000000f,
+            0.000000f,
+            1.000000f
+        ),
         .node_count = 68,
         .joint_count = 65,
         .duration = 0.5833334f,
-        // hash: 8802ce02210523b575562c2052927471
+        // hash: 418753130b12d972c6b059cf3574ba05
         .skinning_vertices = transmuted_span<SkinningVertex>(35742412, 28374),
         // hash: a8011b7a24a42ccfe41a71da6bfb4420
         .indices = transmuted_span<Index>(38012332, 147336),
@@ -414,7 +522,7 @@ auto Assets::mixamo_run_female_animation_mesh() const -> AnimationMesh {
         .submeshes = transmuted_span<Submesh>(38601676, 2),
         // hash: 88f17a68c86dca0723a0e8beb8c33c42
         .joint_nodes = transmuted_span<uint>(38601700, 65),
-        // hash: db4e3447834f9a3f30f9d59e9f8141e5
+        // hash: be26d2e13165af64c51716bd6803cb8a
         .joint_inverse_binds = transmuted_span<float4x4>(38601960, 65),
         // hash: 84cb50e7cf3334aeab71f485869a54f2
         .node_parents = transmuted_span<uint>(38606120, 68),
@@ -426,9 +534,9 @@ auto Assets::mixamo_run_female_animation_mesh() const -> AnimationMesh {
         .node_channels_times_r = transmuted_span<float>(38610312, 878),
         // hash: 2be0afe218e322612b3848cb4820c1e4
         .node_channels_times_s = transmuted_span<float>(38613824, 130),
-        // hash: ddf47b6785ccf5e3305a564ad9464247
+        // hash: f89423b5d9717d813e3e2349236f4c47
         .node_channels_values_t = transmuted_span<float3>(38614344, 164),
-        // hash: 4aa43b2dd576030753d3bfa1d6ed0890
+        // hash: 8570f2d57e7b63c80933e9f98347df13
         .node_channels_values_r = transmuted_span<Quaternion>(38616312, 878),
         // hash: 0809bf1ba49e1543f903b075bf5eec3a
         .node_channels_values_s = transmuted_span<float3>(38630360, 130),
@@ -461,10 +569,28 @@ auto Assets::mixamo_run_male_animation_mesh() const -> AnimationMesh {
     // face_count: 55320
     // submesh_count: 2
     return AnimationMesh {
+        .transform = float4x4(
+            0.010000f,
+            0.000000f,
+            0.000000f,
+            0.000000f,
+            0.000000f,
+            -0.000000f,
+            0.010000f,
+            0.000000f,
+            0.000000f,
+            -0.010000f,
+            -0.000000f,
+            0.000000f,
+            0.000000f,
+            0.000000f,
+            0.000000f,
+            1.000000f
+        ),
         .node_count = 68,
         .joint_count = 65,
         .duration = 0.6333333f,
-        // hash: c98e8ff90df105058ba09d165112d239
+        // hash: cebce5c9d87384b344c65c6e66d24971
         .skinning_vertices = transmuted_span<SkinningVertex>(38631924, 35434),
         // hash: 6919b0f9c9ff8a8a5f2dd8cc80c6c83f
         .indices = transmuted_span<Index>(41466644, 165960),
@@ -472,7 +598,7 @@ auto Assets::mixamo_run_male_animation_mesh() const -> AnimationMesh {
         .submeshes = transmuted_span<Submesh>(42130484, 2),
         // hash: 88f17a68c86dca0723a0e8beb8c33c42
         .joint_nodes = transmuted_span<uint>(42130508, 65),
-        // hash: 8023d015b2d53a3c11334851a4adc0ef
+        // hash: 889086f83c8991564ccc303d9c0819f0
         .joint_inverse_binds = transmuted_span<float4x4>(42130768, 65),
         // hash: 84cb50e7cf3334aeab71f485869a54f2
         .node_parents = transmuted_span<uint>(42134928, 68),
@@ -484,9 +610,9 @@ auto Assets::mixamo_run_male_animation_mesh() const -> AnimationMesh {
         .node_channels_times_r = transmuted_span<float>(42139132, 2054),
         // hash: e13d3114734eb11c689d92399e24c301
         .node_channels_times_s = transmuted_span<float>(42147348, 130),
-        // hash: d163dbff048749a0e5ffb81b53ce1c3b
+        // hash: de369ac4aa619aa335dd96afb1a419ac
         .node_channels_values_t = transmuted_span<float3>(42147868, 167),
-        // hash: ce27b52a6148206574ed75e43841c8dd
+        // hash: bd7a534dda40aa02182d6fc5746dd0e7
         .node_channels_values_r = transmuted_span<Quaternion>(42149872, 2054),
         // hash: ab35824f64d90616a3b8911e79565008
         .node_channels_values_s = transmuted_span<float3>(42182736, 130),
@@ -519,6 +645,24 @@ auto Assets::light_bounds_mesh() const -> Mesh {
     // face_count: 12
     // submesh_count: 1
     return Mesh {
+        .transform = float4x4(
+            1.000000f,
+            0.000000f,
+            0.000000f,
+            0.000000f,
+            0.000000f,
+            1.000000f,
+            0.000000f,
+            0.000000f,
+            0.000000f,
+            0.000000f,
+            1.000000f,
+            0.000000f,
+            0.000000f,
+            0.000000f,
+            0.000000f,
+            1.000000f
+        ),
         // hash: d83d3ba89f1591682879b254506b0400
         .vertices = transmuted_span<Vertex>(42184300, 24),
         // hash: 616e076015f03b0288fd27d32b7bf256
@@ -533,6 +677,24 @@ auto Assets::skybox_mesh() const -> Mesh {
     // face_count: 12
     // submesh_count: 1
     return Mesh {
+        .transform = float4x4(
+            1.000000f,
+            0.000000f,
+            0.000000f,
+            0.000000f,
+            0.000000f,
+            1.000000f,
+            0.000000f,
+            0.000000f,
+            0.000000f,
+            0.000000f,
+            1.000000f,
+            0.000000f,
+            0.000000f,
+            0.000000f,
+            0.000000f,
+            1.000000f
+        ),
         // hash: 952f25941581c525b7890e0284fd3b52
         .vertices = transmuted_span<Vertex>(42185608, 24),
         // hash: 0bbe6ec9d4b61b792981857b935d2c96
@@ -547,6 +709,24 @@ auto Assets::sphere_mesh() const -> Mesh {
     // face_count: 4160
     // submesh_count: 1
     return Mesh {
+        .transform = float4x4(
+            1.000000f,
+            0.000000f,
+            0.000000f,
+            0.000000f,
+            0.000000f,
+            1.000000f,
+            0.000000f,
+            0.000000f,
+            0.000000f,
+            0.000000f,
+            1.000000f,
+            0.000000f,
+            0.000000f,
+            0.000000f,
+            0.000000f,
+            1.000000f
+        ),
         // hash: bdea0aeb8805424705ca957338103a57
         .vertices = transmuted_span<Vertex>(42186916, 2145),
         // hash: b69e987626eec7de0864668ffde28fbe
@@ -814,6 +994,24 @@ auto Assets::roboto_medium_mesh() const -> Mesh {
     // face_count: 23448
     // submesh_count: 94
     return Mesh {
+        .transform = float4x4(
+            1.000000f,
+            0.000000f,
+            0.000000f,
+            0.000000f,
+            0.000000f,
+            1.000000f,
+            0.000000f,
+            0.000000f,
+            0.000000f,
+            0.000000f,
+            1.000000f,
+            0.000000f,
+            0.000000f,
+            0.000000f,
+            0.000000f,
+            1.000000f
+        ),
         // hash: 29374dddcd21f32bd4d1c96ff182a0ae
         .vertices = transmuted_span<Vertex>(181016960, 35628),
         // hash: 022ec4951ed71315112a36ddd2c7ecf2
@@ -828,6 +1026,24 @@ auto Assets::lightsaber_mesh() const -> Mesh {
     // face_count: 224
     // submesh_count: 1
     return Mesh {
+        .transform = float4x4(
+            1.000000f,
+            0.000000f,
+            0.000000f,
+            0.000000f,
+            0.000000f,
+            1.000000f,
+            0.000000f,
+            0.000000f,
+            0.000000f,
+            0.000000f,
+            1.000000f,
+            0.000000f,
+            0.000000f,
+            0.000000f,
+            0.000000f,
+            1.000000f
+        ),
         // hash: 2ed114c3892782da8bc5e2c500c527cb
         .vertices = transmuted_span<Vertex>(183009608, 371),
         // hash: 63165375d063998e676f3993a3de1c90
@@ -863,6 +1079,24 @@ auto Assets::grass_mesh() const -> Mesh {
     // face_count: 5440
     // submesh_count: 1
     return Mesh {
+        .transform = float4x4(
+            1.000000f,
+            0.000000f,
+            0.000000f,
+            0.000000f,
+            0.000000f,
+            1.000000f,
+            0.000000f,
+            0.000000f,
+            0.000000f,
+            0.000000f,
+            1.000000f,
+            0.000000f,
+            0.000000f,
+            0.000000f,
+            0.000000f,
+            1.000000f
+        ),
         // hash: ce365e55889bb1a329b4528219fbcb39
         .vertices = transmuted_span<Vertex>(183030120, 7468),
         // hash: 5e0e33f101aa3ae1b7be6d552a126fe9
