@@ -13,9 +13,9 @@ struct ShadowVertexOutput {
 };
 
 ShadowVertexOutput shadow_vs(FbVertexInput input) {
-    ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
-    StructuredBuffer<FbVertex> vertices = ResourceDescriptorHeap[g_bindings.vertices];
-    FbVertex vertex = vertices[input.vertex_id];
+    const ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
+    const StructuredBuffer<FbVertex> vertices = ResourceDescriptorHeap[g_bindings.vertices];
+    const FbVertex vertex = vertices[input.vertex_id];
 
     ShadowVertexOutput output;
     output.position = mul(constants.light_transform, float4(vertex.position, 1.0f));
@@ -34,9 +34,9 @@ struct DrawVertexOutput {
 };
 
 DrawVertexOutput draw_vs(FbVertexInput input) {
-    ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
-    StructuredBuffer<FbVertex> vertices = ResourceDescriptorHeap[g_bindings.vertices];
-    FbVertex vertex = vertices[input.vertex_id];
+    const ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
+    const StructuredBuffer<FbVertex> vertices = ResourceDescriptorHeap[g_bindings.vertices];
+    const FbVertex vertex = vertices[input.vertex_id];
 
     DrawVertexOutput output;
     output.position = mul(constants.transform, float4(vertex.position, 1.0f));
@@ -47,24 +47,25 @@ DrawVertexOutput draw_vs(FbVertexInput input) {
 }
 
 FbPixelOutput<1> draw_ps(DrawVertexOutput input) {
-    ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
-    Texture2D texture = ResourceDescriptorHeap[g_bindings.texture];
-    Texture2D shadow_texture = ResourceDescriptorHeap[g_bindings.shadow_texture];
-    SamplerState sampler = SamplerDescriptorHeap[(uint)GpuSampler::LinearClamp];
-    SamplerComparisonState shadow_sampler = SamplerDescriptorHeap[(uint)GpuSampler::Shadow];
+    const ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
+    const Texture2D texture = ResourceDescriptorHeap[g_bindings.texture];
+    const Texture2D shadow_texture = ResourceDescriptorHeap[g_bindings.shadow_texture];
+    const SamplerState sampler = SamplerDescriptorHeap[(uint)GpuSampler::LinearClamp];
+    const SamplerComparisonState shadow_sampler = SamplerDescriptorHeap[(uint)GpuSampler::Shadow];
 
-    float3 shadow_coord = input.shadow_coord.xyz / input.shadow_coord.w;
-    float2 shadow_texcoord = shadow_coord.xy * float2(0.5f, -0.5f) + 0.5f;
-    float shadow_bias = 0.001f;
-    float shadow = (float)shadow_texture.SampleCmpLevelZero(
+    const float3 shadow_coord = input.shadow_coord.xyz / input.shadow_coord.w;
+    const float2 shadow_texcoord = shadow_coord.xy * float2(0.5f, -0.5f) + 0.5f;
+    const float shadow_bias = 0.001f;
+    const float shadow = (float)shadow_texture.SampleCmpLevelZero(
         shadow_sampler,
         shadow_texcoord.xy,
         shadow_coord.z - shadow_bias
     );
 
-    float3 color = texture.Sample(sampler, input.texcoord).rgb;
-    float n_dot_l = shadow * saturate(dot(input.normal, constants.light_direction));
-    float lighting = constants.ambient_light + (1.0 - constants.ambient_light) * n_dot_l;
+    const float3 color = texture.Sample(sampler, input.texcoord).rgb;
+    const float n_dot_l = shadow * saturate(dot(input.normal, constants.light_direction));
+    const float lighting = constants.ambient_light + (1.0 - constants.ambient_light) * n_dot_l;
+
     FbPixelOutput<1> output;
     output.color = float4(color * lighting, 1.0f);
     return output;
