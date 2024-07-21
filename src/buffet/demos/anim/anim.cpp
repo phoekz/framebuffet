@@ -67,42 +67,132 @@ auto create(Demo& demo, const CreateDesc& desc) -> void {
     // Debug draw.
     demo.debug_draw.create(device, kitchen_shaders, demo.render_targets);
 
-    // Pipeline.
-    GpuPipelineBuilder()
-        .primitive_topology(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)
-        .vertex_shader(shaders.anim_draw_vs())
-        .pixel_shader(shaders.anim_draw_ps())
-        .render_target_formats({demo.render_targets.color_format()})
-        .depth_stencil_format(demo.render_targets.depth_format())
-        .sample_desc(demo.render_targets.sample_desc())
-        .build(device, demo.pipeline, debug.with_name("Pipeline"));
+    // Anim.
+    {
+        DebugScope scope("Anim");
+        auto& anim = demo.anim;
 
-    // Models.
-    using Desc = std::tuple<std::string_view, const fb::baked::AnimationMesh&, Model&>;
-    for (auto& [name, src, dst] : {
-             Desc {"Female", assets.mixamo_run_female_animation_mesh(), demo.female},
-             Desc {"Male", assets.mixamo_run_male_animation_mesh(), demo.male},
-         }) {
-        DebugScope scope(name);
-        dst.constants.create(device, 1, debug.with_name("Constants"));
-        dst.skinning_matrices.create(device, src.joint_count, scope.with_name("Skinning Matrices"));
-        dst.vertices.create_and_transfer(
+        // Models.
+        using Desc = std::tuple<std::string_view, const fb::baked::AnimationMesh&, Model&>;
+        for (auto& [name, src, dst] : {
+                 Desc {"Female", assets.mixamo_run_female_animation_mesh(), anim.female},
+                 Desc {"Male", assets.mixamo_run_male_animation_mesh(), anim.male},
+             }) {
+            DebugScope model_scope(name);
+            dst.constants.create(device, 1, debug.with_name("Constants"));
+            dst.skinning_matrices
+                .create(device, src.joint_count, model_scope.with_name("Skinning Matrices"));
+            dst.vertices.create_and_transfer(
+                device,
+                src.skinning_vertices,
+                D3D12_BARRIER_SYNC_VERTEX_SHADING,
+                D3D12_BARRIER_ACCESS_VERTEX_BUFFER,
+                model_scope.with_name("Vertices")
+            );
+            dst.indices.create_and_transfer(
+                device,
+                src.indices,
+                D3D12_BARRIER_SYNC_INDEX_INPUT,
+                D3D12_BARRIER_ACCESS_INDEX_BUFFER,
+                model_scope.with_name("Indices")
+            );
+            dst.animation_duration = src.duration;
+            dst.animation_transforms.resize(src.node_count);
+            copy_animation_mesh(dst.animation_mesh, src);
+        }
+
+        // Pipeline.
+        GpuPipelineBuilder()
+            .primitive_topology(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)
+            .vertex_shader(shaders.anim_anim_vs())
+            .pixel_shader(shaders.anim_anim_ps())
+            .render_target_formats({demo.render_targets.color_format()})
+            .depth_stencil_format(demo.render_targets.depth_format())
+            .sample_desc(demo.render_targets.sample_desc())
+            .build(device, anim.pipeline, scope.with_name("Pipeline"));
+    }
+
+    // Ground.
+    {
+        DebugScope scope("Ground");
+        auto& ground = demo.ground;
+
+        // Constants.
+        ground.constants.create(device, 1, debug.with_name("Constants"));
+
+        // Geometry.
+        const auto scale = 32.0f;
+        const auto vertices = std::to_array<baked::Vertex>({
+            {{-scale, 0.0f, -scale}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}, {}},
+            {{-scale, 0.0f, scale}, {0.0f, 1.0f, 0.0f}, {0.0f, scale}, {}},
+            {{scale, 0.0f, scale}, {0.0f, 1.0f, 0.0f}, {scale, scale}, {}},
+            {{scale, 0.0f, -scale}, {0.0f, 1.0f, 0.0f}, {scale, 0.0f}, {}},
+        });
+        const auto indices = std::to_array<baked::Index>({0, 1, 2, 0, 2, 3});
+        ground.vertices.create_and_transfer(
             device,
-            src.skinning_vertices,
+            std::span(vertices.data(), vertices.size()),
             D3D12_BARRIER_SYNC_VERTEX_SHADING,
             D3D12_BARRIER_ACCESS_VERTEX_BUFFER,
             scope.with_name("Vertices")
         );
-        dst.indices.create_and_transfer(
+        ground.indices.create_and_transfer(
             device,
-            src.indices,
+            std::span(indices.data(), indices.size()),
             D3D12_BARRIER_SYNC_INDEX_INPUT,
             D3D12_BARRIER_ACCESS_INDEX_BUFFER,
             scope.with_name("Indices")
         );
-        dst.animation_duration = src.duration;
-        dst.animation_transforms.resize(src.node_count);
-        copy_animation_mesh(dst.animation_mesh, src);
+
+        // Texture.
+        {
+            const auto width = 4;
+            const auto height = 4;
+            auto pixels = std::vector<uint8_t>(width * height * 4, 0);
+            for (uint y = 0; y < height; y++) {
+                for (uint x = 0; x < width; x++) {
+                    const auto i = y * width + x;
+                    const auto color = (x + y) % 2 == 0 ? (uint8_t)210 : (uint8_t)180;
+                    pixels[i * 4 + 0] = color;
+                    pixels[i * 4 + 1] = color;
+                    pixels[i * 4 + 2] = color;
+                    pixels[i * 4 + 3] = 255;
+                }
+            }
+
+            GpuTextureTransferDesc transfer_desc = {
+                .row_pitch = width * 4,
+                .slice_pitch = width * height * 4,
+                .data = pixels.data(),
+            };
+
+            ground.texture.create_and_transfer(
+                device,
+                GpuTextureDesc {
+                    .format = DXGI_FORMAT_R8G8B8A8_UNORM,
+                    .width = width,
+                    .height = height,
+                    .depth = 1,
+                    .mip_count = 1,
+                    .sample_count = 1,
+                },
+                std::span(&transfer_desc, 1),
+                D3D12_BARRIER_SYNC_PIXEL_SHADING,
+                D3D12_BARRIER_ACCESS_SHADER_RESOURCE,
+                D3D12_BARRIER_LAYOUT_SHADER_RESOURCE,
+                scope.with_name("Texture")
+            );
+        }
+
+        // Pipeline.
+        GpuPipelineBuilder()
+            .primitive_topology(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)
+            .vertex_shader(shaders.anim_ground_vs())
+            .pixel_shader(shaders.anim_ground_ps())
+            .render_target_formats({demo.render_targets.color_format()})
+            .depth_stencil_format(demo.render_targets.depth_format())
+            .sample_desc(demo.render_targets.sample_desc())
+            .build(device, ground.pipeline, debug.with_name("Pipeline"));
     }
 }
 
@@ -110,17 +200,19 @@ auto gui(Demo& demo, const GuiDesc&) -> void {
     ZoneScoped;
     PIXScopedEvent(PIX_COLOR_DEFAULT, "%s - Gui", NAME.data());
     auto& params = demo.parameters;
+    auto& anim = demo.anim;
+    ImGui::SliderFloat("Scroll Speed", &params.texture_scroll_speed, 0.0f, 4.0f);
     ImGui::SliderFloat(
         "Female Animation Time",
-        &demo.female.animation_time,
+        &anim.female.animation_time,
         0.0f,
-        demo.female.animation_duration
+        anim.female.animation_duration
     );
     ImGui::SliderFloat(
         "Male Animation Time",
-        &demo.male.animation_time,
+        &anim.male.animation_time,
         0.0f,
-        demo.male.animation_duration
+        anim.male.animation_duration
     );
     ImGui::SliderFloat3("Female Position", &params.positions[0].x, -10.0f, 10.0f);
     ImGui::SliderFloat3("Male Position", &params.positions[1].x, -10.0f, 10.0f);
@@ -173,15 +265,24 @@ auto update(Demo& demo, const UpdateDesc& desc) -> void {
     ZoneScoped;
     PIXScopedEvent(PIX_COLOR_DEFAULT, "%s - Update", NAME.data());
     auto& params = demo.parameters;
+    auto& ground = demo.ground;
+    auto& anim = demo.anim;
+
+    // Time scales.
+    const float female_time_scale = anim.male.animation_duration / anim.female.animation_duration;
+    const float male_time_scale = 1.0f;
 
     // Update animation transforms.
-    using TransformDesc = std::tuple<Model&>;
-    for (auto& [model] : {TransformDesc(demo.female), TransformDesc(demo.male)}) {
+    using TransformDesc = std::tuple<float, Model&>;
+    for (auto& [time_scale, model] : {
+             TransformDesc(female_time_scale, anim.female),
+             TransformDesc(male_time_scale, anim.male),
+         }) {
         // Unpack.
         auto* node_transforms = model.animation_transforms.data();
 
         // Timing.
-        model.animation_time += desc.delta_time;
+        model.animation_time += time_scale * desc.delta_time;
         while (model.animation_time > model.animation_duration) {
             model.animation_time -= model.animation_duration;
         }
@@ -276,22 +377,37 @@ auto update(Demo& demo, const UpdateDesc& desc) -> void {
         camera_transform = view * projection;
     }
 
+    // Update ground.
+    {
+        ground.texture_scroll += params.texture_scroll_speed * desc.delta_time;
+        if (ground.texture_scroll > 1.0f) {
+            ground.texture_scroll -= 1.0f;
+        }
+    }
+
     // Update constants.
-    using ConstantDesc = std::tuple<uint, Model&>;
-    for (auto& [model_index, model] : {ConstantDesc(0, demo.female), ConstantDesc(1, demo.male)}) {
-        const auto& root_transform = model.animation_mesh.transform;
-        const auto translation =
-            float4x4::CreateTranslation(demo.parameters.positions[model_index]);
-        const float4x4 transform = root_transform * translation * camera_transform;
-        model.constants.buffer(desc.frame_index).ref() = Constants {
-            .transform = transform,
+    {
+        ground.constants.buffer(desc.frame_index).ref() = Constants {
+            .transform = camera_transform,
         };
+    }
+    {
+        using ConstantDesc = std::tuple<uint, Model&>;
+        for (auto& [model_index, model] :
+             {ConstantDesc(0, anim.female), ConstantDesc(1, anim.male)}) {
+            const auto& root_transform = model.animation_mesh.transform;
+            const auto translation =
+                float4x4::CreateTranslation(demo.parameters.positions[model_index]);
+            const float4x4 transform = root_transform * translation * camera_transform;
+            model.constants.buffer(desc.frame_index).ref() = Constants {
+                .transform = transform,
+            };
+        }
     }
 
     // Update debug draw.
     demo.debug_draw.begin(desc.frame_index);
     demo.debug_draw.transform(camera_transform);
-    demo.debug_draw.grid(50);
     demo.debug_draw.axes();
     demo.debug_draw.end();
 }
@@ -300,17 +416,33 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
     ZoneScoped;
     auto& [cmd, device, frame_index] = desc;
     cmd.graphics_scope([&demo, frame_index](GpuGraphicsCommandList& cmd) {
+        auto& ground = demo.ground;
+        auto& anim = demo.anim;
+
         cmd.pix_begin("%s - Render", NAME.data());
 
         demo.render_targets.set(cmd);
         demo.debug_draw.render(cmd);
 
+        cmd.pix_begin("Ground");
+        cmd.set_pipeline(ground.pipeline);
+        cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+        cmd.set_index_buffer(ground.indices.index_buffer_view());
+        cmd.set_constants(Bindings {
+            .constants = ground.constants.buffer(frame_index).cbv_descriptor().index(),
+            .vertices = ground.vertices.srv_descriptor().index(),
+            .texture = ground.texture.srv_descriptor().index(),
+            .texture_scroll = ground.texture_scroll,
+        });
+        cmd.draw_indexed_instanced(6, 1, 0, 0, 0);
+        cmd.pix_end();
+
         cmd.pix_begin("Animation");
-        cmd.set_pipeline(demo.pipeline);
+        cmd.set_pipeline(anim.pipeline);
         cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
         using Desc = std::tuple<uint, Model&>;
-        for (const auto& [model_index, model] : {Desc(0, demo.female), Desc(1, demo.male)}) {
+        for (const auto& [model_index, model] : {Desc(0, anim.female), Desc(1, anim.male)}) {
             const auto& mesh = model.animation_mesh;
             cmd.set_index_buffer(model.indices.index_buffer_view());
             for (uint i = 0; i < mesh.submeshes.size(); i++) {

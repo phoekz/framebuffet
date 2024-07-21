@@ -9,6 +9,8 @@ struct Bindings {
     uint vertices;
     uint skinning_matrices;
     uint color;
+    uint texture;
+    float texture_scroll;
 };
 
 struct Constants {

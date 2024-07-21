@@ -13,21 +13,22 @@ inline constexpr float DEPTH_CLEAR_VALUE = 1.0f;
 inline constexpr uint SAMPLE_COUNT = 4;
 
 struct Parameters {
-    float camera_distance = 4.0f;
+    float camera_distance = 3.5f;
     float camera_height_offset = 0.5f;
-    float camera_fov = rad_from_deg(45.0f);
+    float camera_fov = rad_from_deg(50.0f);
     float camera_latitude = rad_from_deg(30.0f);
-    float camera_longitude = rad_from_deg(130.0f);
+    float camera_longitude = rad_from_deg(120.0f);
     float camera_rotation_speed = 0.0f;
     float2 camera_clip_planes = float2(0.1f, 300.0f);
     std::array<float4, 2> colors = {
-        float4(0.322f, 0.322f, 0.322f, 1.000f),
-        float4(0.776f, 0.776f, 0.776f, 1.000f),
+        float4(0.173f, 0.173f, 0.173f, 1.000f),
+        float4(0.905f, 0.167f, 0.167f, 1.000f),
     };
     std::array<float3, 2> positions = {
         float3(-0.75f, 0.0f, 0.0f),
         float3(0.75f, 0.0f, 0.0f),
     };
+    float texture_scroll_speed = 1.0f;
 };
 
 struct OwnedAnimationMesh {
@@ -61,14 +62,28 @@ struct Model {
     OwnedAnimationMesh animation_mesh;
 };
 
+struct Anim {
+    GpuPipeline pipeline;
+    Model female;
+    Model male;
+};
+
+struct Ground {
+    Multibuffer<GpuBufferHostCbv<Constants>, FRAME_COUNT> constants;
+    GpuBufferDeviceSrv<baked::Vertex> vertices;
+    GpuBufferDeviceIndex<baked::Index> indices;
+    GpuTextureSrv texture;
+    float texture_scroll = 0.0f;
+    GpuPipeline pipeline;
+};
+
 struct Demo {
     Parameters parameters;
     RenderTargets render_targets;
     DebugDraw debug_draw;
-    GpuPipeline pipeline;
 
-    Model female;
-    Model male;
+    Ground ground;
+    Anim anim;
 };
 
 struct CreateDesc {
