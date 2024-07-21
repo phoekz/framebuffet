@@ -16,4 +16,8 @@ struct Constants {
     float pad[48];
 };
 
+struct Instance {
+    float4x4 transform;
+};
+
 FB_NAMESPACE_END(fb::demos::anim)

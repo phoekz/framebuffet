@@ -37,8 +37,8 @@ FbPixelOutput<1> draw_ps(VertexOutput input) {
     const uint32_t4 color_uint = unpack_u8u32(g_bindings.color);
     const float3 color = float3(color_uint.rgb) / 255.0f;
 
-    const float3 light = normalize(float3(1.0f, 1.0f, 1.0f));
-    const float lighting = 0.25 + 0.75 * saturate(dot(input.normal, light));
+    const float3 light = normalize(float3(-1.0f, 1.0f, 1.0f));
+    const float lighting = 0.5 + 0.5 * saturate(dot(input.normal, light));
 
     FbPixelOutput<1> output;
     output.color = float4(color.rgb * lighting, 1.0f);

@@ -76,28 +76,53 @@ auto create(Demo& demo, const CreateDesc& desc) -> void {
         .sample_desc(demo.render_targets.sample_desc())
         .build(device, demo.pipeline, debug.with_name("Pipeline"));
 
-    // Constants.
-    demo.constants.create(device, 1, debug.with_name("Constants"));
-
-    // Model.
-    const auto mesh = assets.mixamo_running_animation_mesh();
-
-    // Geometry.
-    demo.vertices.create_with_data(device, mesh.skinning_vertices, debug.with_name("Vertices"));
-    demo.indices.create_with_data(device, mesh.indices, debug.with_name("Indices"));
-
-    // Animations.
-    demo.skinning_matrices.create(device, mesh.joint_count, debug.with_name("Skinning Matrices"));
-    demo.animation_duration = mesh.duration;
-    demo.node_global_transforms.resize(mesh.node_count);
-    copy_animation_mesh(demo.animation_mesh, mesh);
+    // Models.
+    using Desc = std::tuple<std::string_view, const fb::baked::AnimationMesh&, Model&>;
+    for (auto& [name, src, dst] : {
+             Desc {"Female", assets.mixamo_run_female_animation_mesh(), demo.female},
+             Desc {"Male", assets.mixamo_run_male_animation_mesh(), demo.male},
+         }) {
+        DebugScope scope(name);
+        dst.constants.create(device, 1, debug.with_name("Constants"));
+        dst.skinning_matrices.create(device, src.joint_count, scope.with_name("Skinning Matrices"));
+        dst.vertices.create_and_transfer(
+            device,
+            src.skinning_vertices,
+            D3D12_BARRIER_SYNC_VERTEX_SHADING,
+            D3D12_BARRIER_ACCESS_VERTEX_BUFFER,
+            scope.with_name("Vertices")
+        );
+        dst.indices.create_and_transfer(
+            device,
+            src.indices,
+            D3D12_BARRIER_SYNC_INDEX_INPUT,
+            D3D12_BARRIER_ACCESS_INDEX_BUFFER,
+            scope.with_name("Indices")
+        );
+        dst.animation_duration = src.duration;
+        dst.node_global_transforms.resize(src.node_count);
+        copy_animation_mesh(dst.animation_mesh, src);
+    }
 }
 
 auto gui(Demo& demo, const GuiDesc&) -> void {
     ZoneScoped;
     PIXScopedEvent(PIX_COLOR_DEFAULT, "%s - Gui", NAME.data());
     auto& params = demo.parameters;
-    ImGui::SliderFloat("Animation Time", &demo.animation_time, 0.0f, demo.animation_duration);
+    ImGui::SliderFloat(
+        "Female Animation Time",
+        &demo.female.animation_time,
+        0.0f,
+        demo.female.animation_duration
+    );
+    ImGui::SliderFloat(
+        "Male Animation Time",
+        &demo.male.animation_time,
+        0.0f,
+        demo.male.animation_duration
+    );
+    ImGui::SliderFloat3("Female Position", &params.positions[0].x, -10.0f, 10.0f);
+    ImGui::SliderFloat3("Male Position", &params.positions[1].x, -10.0f, 10.0f);
     ImGui::ColorPicker4("Color 0", &params.colors[0].x);
     ImGui::ColorPicker4("Color 1", &params.colors[1].x);
     ImGui::SliderFloat("Camera Distance", &params.camera_distance, 1.0f, 10.0f);
@@ -149,18 +174,21 @@ auto update(Demo& demo, const UpdateDesc& desc) -> void {
     auto& params = demo.parameters;
 
     // Update animation.
-    {
-        demo.animation_time += desc.delta_time;
-        while (demo.animation_time > demo.animation_duration) {
-            demo.animation_time -= demo.animation_duration;
+    using Desc = std::tuple<Model&>;
+    for (auto& [model] : {Desc(demo.female), Desc(demo.male)}) {
+        // Timing.
+        model.animation_time += desc.delta_time;
+        while (model.animation_time > model.animation_duration) {
+            model.animation_time -= model.animation_duration;
         }
 
-        const auto& mesh = demo.animation_mesh;
-
+        // Helpers.
         const auto span_from = [](const auto& container, size_t offset, size_t count) {
             return std::span(container.data() + offset, count);
         };
 
+        // Interpolation & transform hierarchy.
+        const auto& mesh = model.animation_mesh;
         const auto& node_parents = mesh.node_parents;
         for (size_t node_index = 0; node_index < mesh.node_count; ++node_index) {
             const auto& channel = mesh.node_channels[node_index];
@@ -178,7 +206,7 @@ auto update(Demo& demo, const UpdateDesc& desc) -> void {
                 span_from(mesh.node_channels_values_s, channel.s_offset, channel.s_count);
 
             const auto t = keyframe_interpolation(
-                demo.animation_time,
+                model.animation_time,
                 times_t,
                 values_t,
                 float3::Zero,
@@ -187,7 +215,7 @@ auto update(Demo& demo, const UpdateDesc& desc) -> void {
                 }
             );
             const auto r = keyframe_interpolation(
-                demo.animation_time,
+                model.animation_time,
                 times_r,
                 values_r,
                 Quaternion::Identity,
@@ -196,7 +224,7 @@ auto update(Demo& demo, const UpdateDesc& desc) -> void {
                 }
             );
             const auto s = keyframe_interpolation(
-                demo.animation_time,
+                model.animation_time,
                 times_s,
                 values_s,
                 float3::One,
@@ -208,18 +236,19 @@ auto update(Demo& demo, const UpdateDesc& desc) -> void {
             const auto transform = float4x4_from_trs(t, r, s);
 
             if (node_parents[node_index] == ~0u) {
-                demo.node_global_transforms[node_index] = transform;
+                model.node_global_transforms[node_index] = transform;
             } else {
-                demo.node_global_transforms[node_index] =
-                    transform * demo.node_global_transforms[node_parents[node_index]];
+                model.node_global_transforms[node_index] =
+                    transform * model.node_global_transforms[node_parents[node_index]];
             }
         }
 
-        auto sms = demo.skinning_matrices.span();
+        // Write skinning matrices.
+        auto sms = model.skinning_matrices.buffer(desc.frame_index).span();
         for (uint joint_index = 0; joint_index < sms.size(); joint_index++) {
             const auto node_index = mesh.joint_nodes[joint_index];
             sms[joint_index] =
-                mesh.joint_inverse_binds[joint_index] * demo.node_global_transforms[node_index];
+                mesh.joint_inverse_binds[joint_index] * model.node_global_transforms[node_index];
         }
     }
 
@@ -244,9 +273,18 @@ auto update(Demo& demo, const UpdateDesc& desc) -> void {
         camera_transform = view * projection;
     }
 
-    // Scene transform.
+    // Update constants.
     const float4x4 fbx_scale = float4x4::CreateScale(0.01f); // Todo: Bake this into the model.
-    const float4x4 transform = fbx_scale * camera_transform;
+    const float4x4 female_translation = float4x4::CreateTranslation(demo.parameters.positions[0]);
+    const float4x4 male_translation = float4x4::CreateTranslation(demo.parameters.positions[1]);
+    const float4x4 female_transform = fbx_scale * female_translation * camera_transform;
+    const float4x4 male_transform = fbx_scale * male_translation * camera_transform;
+    demo.female.constants.buffer(desc.frame_index).ref() = Constants {
+        .transform = female_transform,
+    };
+    demo.male.constants.buffer(desc.frame_index).ref() = Constants {
+        .transform = male_transform,
+    };
 
     // Update debug draw.
     demo.debug_draw.begin(desc.frame_index);
@@ -254,11 +292,6 @@ auto update(Demo& demo, const UpdateDesc& desc) -> void {
     demo.debug_draw.grid(50);
     demo.debug_draw.axes();
     demo.debug_draw.end();
-
-    // Update constants.
-    demo.constants.buffer(desc.frame_index).ref() = Constants {
-        .transform = transform,
-    };
 }
 
 auto render(Demo& demo, const RenderDesc& desc) -> void {
@@ -273,28 +306,35 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
         cmd.pix_begin("Animation");
         cmd.set_pipeline(demo.pipeline);
         cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-        cmd.set_index_buffer(demo.indices.index_buffer_view());
-        for (uint i = 0; i < demo.animation_mesh.submeshes.size(); i++) {
-            const auto& submesh = demo.animation_mesh.submeshes[i];
-            const uint r = (uint)(demo.parameters.colors[i].x * 255.0f);
-            const uint g = (uint)(demo.parameters.colors[i].y * 255.0f);
-            const uint b = (uint)(demo.parameters.colors[i].z * 255.0f);
-            const uint a = (uint)(demo.parameters.colors[i].w * 255.0f);
-            const uint color = (a << 24) | (b << 16) | (g << 8) | r;
-            cmd.set_constants(Bindings {
-                .constants = demo.constants.buffer(frame_index).cbv_descriptor().index(),
-                .vertices = demo.vertices.srv_descriptor().index(),
-                .skinning_matrices = demo.skinning_matrices.srv_descriptor().index(),
-                .color = color,
-            });
-            cmd.draw_indexed_instanced(
-                submesh.index_count,
-                1,
-                submesh.start_index,
-                submesh.base_vertex,
-                0
-            );
+
+        using Desc = std::tuple<uint, Model&>;
+        for (const auto& [model_index, model] : {Desc(0, demo.female), Desc(1, demo.male)}) {
+            const auto& mesh = model.animation_mesh;
+            cmd.set_index_buffer(model.indices.index_buffer_view());
+            for (uint i = 0; i < mesh.submeshes.size(); i++) {
+                const auto& submesh = mesh.submeshes[i];
+                const uint r = (uint)(demo.parameters.colors[i].x * 255.0f);
+                const uint g = (uint)(demo.parameters.colors[i].y * 255.0f);
+                const uint b = (uint)(demo.parameters.colors[i].z * 255.0f);
+                const uint a = (uint)(demo.parameters.colors[i].w * 255.0f);
+                const uint color = (a << 24) | (b << 16) | (g << 8) | r;
+                cmd.set_constants(Bindings {
+                    .constants = model.constants.buffer(frame_index).cbv_descriptor().index(),
+                    .vertices = model.vertices.srv_descriptor().index(),
+                    .skinning_matrices =
+                        model.skinning_matrices.buffer(frame_index).srv_descriptor().index(),
+                    .color = color,
+                });
+                cmd.draw_indexed_instanced(
+                    submesh.index_count,
+                    1,
+                    submesh.start_index,
+                    submesh.base_vertex,
+                    0
+                );
+            }
         }
+
         cmd.pix_end();
 
         cmd.pix_end();

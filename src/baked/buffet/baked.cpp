@@ -8,10 +8,10 @@ namespace fb::baked::buffet {
     }
 
 auto Assets::load() -> void {
-    // hash: c8ff26b98e4e8f595474657fac6af73d
+    // hash: e99778f84a3fd2473f387f4f086fb047
     ZoneScoped;
     _data = read_whole_file("fb_buffet_assets.bin");
-    FB_ASSERT(_data.size() == 186216392);
+    FB_ASSERT(_data.size() == 189046280);
 }
 
 auto Assets::heatmap_magma_texture() const -> Texture {
@@ -398,47 +398,47 @@ auto Assets::raccoon_material() const -> Material {
     };
 }
 
-auto Assets::mixamo_running_animation_mesh() const -> AnimationMesh {
-    // vertex_count: 35434
-    // face_count: 55320
+auto Assets::mixamo_run_female_animation_mesh() const -> AnimationMesh {
+    // vertex_count: 28374
+    // face_count: 49112
     // submesh_count: 2
     return AnimationMesh {
         .node_count = 68,
         .joint_count = 65,
-        .duration = 0.6333333f,
-        // hash: c98e8ff90df105058ba09d165112d239
-        .skinning_vertices = transmuted_span<SkinningVertex>(35742412, 35434),
-        // hash: 6919b0f9c9ff8a8a5f2dd8cc80c6c83f
-        .indices = transmuted_span<Index>(38577132, 165960),
-        // hash: 704119a318081a7a547d18a794387893
-        .submeshes = transmuted_span<Submesh>(39240972, 2),
+        .duration = 0.5833334f,
+        // hash: 8802ce02210523b575562c2052927471
+        .skinning_vertices = transmuted_span<SkinningVertex>(35742412, 28374),
+        // hash: a8011b7a24a42ccfe41a71da6bfb4420
+        .indices = transmuted_span<Index>(38012332, 147336),
+        // hash: 5c8f60efa6c0d8fe0660d0726be8c3dc
+        .submeshes = transmuted_span<Submesh>(38601676, 2),
         // hash: 88f17a68c86dca0723a0e8beb8c33c42
-        .joint_nodes = transmuted_span<uint>(39240996, 65),
-        // hash: 8023d015b2d53a3c11334851a4adc0ef
-        .joint_inverse_binds = transmuted_span<float4x4>(39241256, 65),
+        .joint_nodes = transmuted_span<uint>(38601700, 65),
+        // hash: db4e3447834f9a3f30f9d59e9f8141e5
+        .joint_inverse_binds = transmuted_span<float4x4>(38601960, 65),
         // hash: 84cb50e7cf3334aeab71f485869a54f2
-        .node_parents = transmuted_span<uint>(39245416, 68),
-        // hash: 6693e2935c41e29fb2c6d41cdc62a844
-        .node_channels = transmuted_span<AnimationChannel>(39245688, 68),
-        // hash: c415f367be9c5bce87b2009dcfe211ca
-        .node_channels_times_t = transmuted_span<float>(39248952, 2028),
-        // hash: c415f367be9c5bce87b2009dcfe211ca
-        .node_channels_times_r = transmuted_span<float>(39257064, 2028),
-        // hash: c415f367be9c5bce87b2009dcfe211ca
-        .node_channels_times_s = transmuted_span<float>(39265176, 2028),
-        // hash: d0cd830a10b76d9229589d6d99e32954
-        .node_channels_values_t = transmuted_span<float3>(39273288, 2028),
-        // hash: b5855f33ba699f4f83cf2a95ce0a531f
-        .node_channels_values_r = transmuted_span<Quaternion>(39297624, 2028),
-        // hash: 54b7b50e34889dd3cd8568da97e8e6d9
-        .node_channels_values_s = transmuted_span<float3>(39330072, 2028),
+        .node_parents = transmuted_span<uint>(38606120, 68),
+        // hash: ff2c66670bf7cd6ab64dc1b674a32588
+        .node_channels = transmuted_span<AnimationChannel>(38606392, 68),
+        // hash: 8d4cefd6b34018aa65aca9c6a8d0bde3
+        .node_channels_times_t = transmuted_span<float>(38609656, 164),
+        // hash: b1bb3ef9ff6638c88f594ab115caf264
+        .node_channels_times_r = transmuted_span<float>(38610312, 878),
+        // hash: 2be0afe218e322612b3848cb4820c1e4
+        .node_channels_times_s = transmuted_span<float>(38613824, 130),
+        // hash: ddf47b6785ccf5e3305a564ad9464247
+        .node_channels_values_t = transmuted_span<float3>(38614344, 164),
+        // hash: 4aa43b2dd576030753d3bfa1d6ed0890
+        .node_channels_values_r = transmuted_span<Quaternion>(38616312, 878),
+        // hash: 0809bf1ba49e1543f903b075bf5eec3a
+        .node_channels_values_s = transmuted_span<float3>(38630360, 130),
     };
 }
 
-auto Assets::mixamo_running_base_color_texture() const -> Texture {
+auto Assets::mixamo_run_female_base_color_texture() const -> Texture {
     decltype(Texture::datas) datas = {};
     // clang-format off
-    datas[ 0] = texture_data(   4,       4,  39354408,       4); // hash: f2ed0c21de794f794cbcbd42744aab82, width: 1, height: 1
+    datas[ 0] = texture_data(   4,       4,  38631920,       4); // hash: 475aa22946a0428d115c902d375c1ad7, width: 1, height: 1
     // clang-format on
     return Texture {
         .format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB,
@@ -449,7 +449,65 @@ auto Assets::mixamo_running_base_color_texture() const -> Texture {
     };
 }
 
-auto Assets::mixamo_running_material() const -> Material {
+auto Assets::mixamo_run_female_material() const -> Material {
+    return Material {
+        .alpha_cutoff = 0.5f,
+        .alpha_mode = AlphaMode::Opaque,
+    };
+}
+
+auto Assets::mixamo_run_male_animation_mesh() const -> AnimationMesh {
+    // vertex_count: 35434
+    // face_count: 55320
+    // submesh_count: 2
+    return AnimationMesh {
+        .node_count = 68,
+        .joint_count = 65,
+        .duration = 0.6333333f,
+        // hash: c98e8ff90df105058ba09d165112d239
+        .skinning_vertices = transmuted_span<SkinningVertex>(38631924, 35434),
+        // hash: 6919b0f9c9ff8a8a5f2dd8cc80c6c83f
+        .indices = transmuted_span<Index>(41466644, 165960),
+        // hash: 704119a318081a7a547d18a794387893
+        .submeshes = transmuted_span<Submesh>(42130484, 2),
+        // hash: 88f17a68c86dca0723a0e8beb8c33c42
+        .joint_nodes = transmuted_span<uint>(42130508, 65),
+        // hash: 8023d015b2d53a3c11334851a4adc0ef
+        .joint_inverse_binds = transmuted_span<float4x4>(42130768, 65),
+        // hash: 84cb50e7cf3334aeab71f485869a54f2
+        .node_parents = transmuted_span<uint>(42134928, 68),
+        // hash: c001881a9c252172959d66ee25efe058
+        .node_channels = transmuted_span<AnimationChannel>(42135200, 68),
+        // hash: 4df3cc0a60a1616f71845c4ffce8f4f8
+        .node_channels_times_t = transmuted_span<float>(42138464, 167),
+        // hash: e2a3d2030cd5d93652cb8674b6624639
+        .node_channels_times_r = transmuted_span<float>(42139132, 2054),
+        // hash: e13d3114734eb11c689d92399e24c301
+        .node_channels_times_s = transmuted_span<float>(42147348, 130),
+        // hash: d163dbff048749a0e5ffb81b53ce1c3b
+        .node_channels_values_t = transmuted_span<float3>(42147868, 167),
+        // hash: ce27b52a6148206574ed75e43841c8dd
+        .node_channels_values_r = transmuted_span<Quaternion>(42149872, 2054),
+        // hash: ab35824f64d90616a3b8911e79565008
+        .node_channels_values_s = transmuted_span<float3>(42182736, 130),
+    };
+}
+
+auto Assets::mixamo_run_male_base_color_texture() const -> Texture {
+    decltype(Texture::datas) datas = {};
+    // clang-format off
+    datas[ 0] = texture_data(   4,       4,  42184296,       4); // hash: f2ed0c21de794f794cbcbd42744aab82, width: 1, height: 1
+    // clang-format on
+    return Texture {
+        .format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB,
+        .width = 1,
+        .height = 1,
+        .mip_count = 1,
+        .datas = datas,
+    };
+}
+
+auto Assets::mixamo_run_male_material() const -> Material {
     return Material {
         .alpha_cutoff = 0.5f,
         .alpha_mode = AlphaMode::Opaque,
@@ -462,11 +520,11 @@ auto Assets::light_bounds_mesh() const -> Mesh {
     // submesh_count: 1
     return Mesh {
         // hash: d83d3ba89f1591682879b254506b0400
-        .vertices = transmuted_span<Vertex>(39354412, 24),
+        .vertices = transmuted_span<Vertex>(42184300, 24),
         // hash: 616e076015f03b0288fd27d32b7bf256
-        .indices = transmuted_span<Index>(39355564, 36),
+        .indices = transmuted_span<Index>(42185452, 36),
         // hash: c2ef228c18663b2f674e7b338753b24d
-        .submeshes = transmuted_span<Submesh>(39355708, 1),
+        .submeshes = transmuted_span<Submesh>(42185596, 1),
     };
 }
 
@@ -476,11 +534,11 @@ auto Assets::skybox_mesh() const -> Mesh {
     // submesh_count: 1
     return Mesh {
         // hash: 952f25941581c525b7890e0284fd3b52
-        .vertices = transmuted_span<Vertex>(39355720, 24),
+        .vertices = transmuted_span<Vertex>(42185608, 24),
         // hash: 0bbe6ec9d4b61b792981857b935d2c96
-        .indices = transmuted_span<Index>(39356872, 36),
+        .indices = transmuted_span<Index>(42186760, 36),
         // hash: c2ef228c18663b2f674e7b338753b24d
-        .submeshes = transmuted_span<Submesh>(39357016, 1),
+        .submeshes = transmuted_span<Submesh>(42186904, 1),
     };
 }
 
@@ -490,18 +548,18 @@ auto Assets::sphere_mesh() const -> Mesh {
     // submesh_count: 1
     return Mesh {
         // hash: bdea0aeb8805424705ca957338103a57
-        .vertices = transmuted_span<Vertex>(39357028, 2145),
+        .vertices = transmuted_span<Vertex>(42186916, 2145),
         // hash: b69e987626eec7de0864668ffde28fbe
-        .indices = transmuted_span<Index>(39459988, 12480),
+        .indices = transmuted_span<Index>(42289876, 12480),
         // hash: 8c65f745bf5c3f03b65a1b71019cb8a2
-        .submeshes = transmuted_span<Submesh>(39509908, 1),
+        .submeshes = transmuted_span<Submesh>(42339796, 1),
     };
 }
 
 auto Assets::winter_evening_lut() const -> Texture {
     decltype(Texture::datas) datas = {};
     // clang-format off
-    datas[ 0] = texture_data(2048, 1048576,  39509920, 1048576); // hash: 7f7048fcf260a2aa1eae75b62340d74d, width: 512, height: 512
+    datas[ 0] = texture_data(2048, 1048576,  42339808, 1048576); // hash: 7f7048fcf260a2aa1eae75b62340d74d, width: 512, height: 512
     // clang-format on
     return Texture {
         .format = DXGI_FORMAT_R16G16_FLOAT,
@@ -515,12 +573,12 @@ auto Assets::winter_evening_lut() const -> Texture {
 auto Assets::winter_evening_irr() const -> CubeTexture {
     decltype(CubeTexture::datas) datas = {};
     // clang-format off
-    datas[0][ 0] = texture_data(1024,  131072,  40558496,  131072); // hash: f1fca1ec93aaac5c8692900b209366a4, width: 128, height: 128
-    datas[1][ 0] = texture_data(1024,  131072,  40689568,  131072); // hash: ebdcd9687791a33db4101d416f5e246c, width: 128, height: 128
-    datas[2][ 0] = texture_data(1024,  131072,  40820640,  131072); // hash: 9747b535e689e870395045429a78a958, width: 128, height: 128
-    datas[3][ 0] = texture_data(1024,  131072,  40951712,  131072); // hash: a392c47563dd2d8f529d6016031ce565, width: 128, height: 128
-    datas[4][ 0] = texture_data(1024,  131072,  41082784,  131072); // hash: e70d52519c582ded8307aecbc69261c5, width: 128, height: 128
-    datas[5][ 0] = texture_data(1024,  131072,  41213856,  131072); // hash: 06d3e956fa5a867dfb0e6e272bfcc87f, width: 128, height: 128
+    datas[0][ 0] = texture_data(1024,  131072,  43388384,  131072); // hash: f1fca1ec93aaac5c8692900b209366a4, width: 128, height: 128
+    datas[1][ 0] = texture_data(1024,  131072,  43519456,  131072); // hash: ebdcd9687791a33db4101d416f5e246c, width: 128, height: 128
+    datas[2][ 0] = texture_data(1024,  131072,  43650528,  131072); // hash: 9747b535e689e870395045429a78a958, width: 128, height: 128
+    datas[3][ 0] = texture_data(1024,  131072,  43781600,  131072); // hash: a392c47563dd2d8f529d6016031ce565, width: 128, height: 128
+    datas[4][ 0] = texture_data(1024,  131072,  43912672,  131072); // hash: e70d52519c582ded8307aecbc69261c5, width: 128, height: 128
+    datas[5][ 0] = texture_data(1024,  131072,  44043744,  131072); // hash: 06d3e956fa5a867dfb0e6e272bfcc87f, width: 128, height: 128
     // clang-format on
     return CubeTexture {
         .format = DXGI_FORMAT_R16G16B16A16_FLOAT,
@@ -534,72 +592,72 @@ auto Assets::winter_evening_irr() const -> CubeTexture {
 auto Assets::winter_evening_rad() const -> CubeTexture {
     decltype(CubeTexture::datas) datas = {};
     // clang-format off
-    datas[0][ 0] = texture_data(8192, 8388608,  41344928, 8388608); // hash: e70fec4202154d74b817ce87548a491d, width: 1024, height: 1024
-    datas[0][ 1] = texture_data(4096, 2097152,  49733536, 2097152); // hash: 85fc929ac43a8d3c7caa5685b297bde8, width: 512, height: 512
-    datas[0][ 2] = texture_data(2048,  524288,  51830688,  524288); // hash: 271f1d9f9ae40adfd6ee286fd23d39f9, width: 256, height: 256
-    datas[0][ 3] = texture_data(1024,  131072,  52354976,  131072); // hash: dd2419288db4af6d0254f8d7c6822db0, width: 128, height: 128
-    datas[0][ 4] = texture_data( 512,   32768,  52486048,   32768); // hash: b7ce6c5e2b8a2132421a1c608e81ba76, width: 64, height: 64
-    datas[0][ 5] = texture_data( 256,    8192,  52518816,    8192); // hash: 972ee92b49ddbd3d926c06d10509b884, width: 32, height: 32
-    datas[0][ 6] = texture_data( 128,    2048,  52527008,    2048); // hash: d76513ed7aac113939ce51b47e4e2141, width: 16, height: 16
-    datas[0][ 7] = texture_data(  64,     512,  52529056,     512); // hash: 7a7ae37458be6407af077e0109f9f2cc, width: 8, height: 8
-    datas[0][ 8] = texture_data(  32,     128,  52529568,     128); // hash: 53b80a4f80cd4f35d4eac8a528355cdc, width: 4, height: 4
-    datas[0][ 9] = texture_data(  16,      32,  52529696,      32); // hash: 6ea38dfc8963ee6c09ea67573b990ad0, width: 2, height: 2
-    datas[0][10] = texture_data(   8,       8,  52529728,       8); // hash: b6faa2f429d0cf1ecf90387a19007e2b, width: 1, height: 1
-    datas[1][ 0] = texture_data(8192, 8388608,  52529736, 8388608); // hash: dbf0ebc6a6c592cae9ad8e3a3f2568aa, width: 1024, height: 1024
-    datas[1][ 1] = texture_data(4096, 2097152,  60918344, 2097152); // hash: c56c4e38c4b497e7d2896d0022f7e830, width: 512, height: 512
-    datas[1][ 2] = texture_data(2048,  524288,  63015496,  524288); // hash: 284c5bf396722b2c924130675a6259d3, width: 256, height: 256
-    datas[1][ 3] = texture_data(1024,  131072,  63539784,  131072); // hash: 7b46ba89a5ba62fce63a10e903333ba0, width: 128, height: 128
-    datas[1][ 4] = texture_data( 512,   32768,  63670856,   32768); // hash: 8e136d5fc0581d72e060c750ab7fc58f, width: 64, height: 64
-    datas[1][ 5] = texture_data( 256,    8192,  63703624,    8192); // hash: 086133860ad9c48e8524f70cb010ca4d, width: 32, height: 32
-    datas[1][ 6] = texture_data( 128,    2048,  63711816,    2048); // hash: 9002e8a826bfee8cc8ef4e8a986c32c1, width: 16, height: 16
-    datas[1][ 7] = texture_data(  64,     512,  63713864,     512); // hash: f16b5c6316e9a8e819591d2bfeeced15, width: 8, height: 8
-    datas[1][ 8] = texture_data(  32,     128,  63714376,     128); // hash: fe94bf054fd0fa5914e85a3fd840fe83, width: 4, height: 4
-    datas[1][ 9] = texture_data(  16,      32,  63714504,      32); // hash: 7c810dac33ceaf7725a8b6a3b4a6b761, width: 2, height: 2
-    datas[1][10] = texture_data(   8,       8,  63714536,       8); // hash: 95ace211749b7db4373ffb99761b93a6, width: 1, height: 1
-    datas[2][ 0] = texture_data(8192, 8388608,  63714544, 8388608); // hash: 60fc398a716fe918ea5179abdbed5da6, width: 1024, height: 1024
-    datas[2][ 1] = texture_data(4096, 2097152,  72103152, 2097152); // hash: 6b56e3c11a6f4266150518a3b87f34c9, width: 512, height: 512
-    datas[2][ 2] = texture_data(2048,  524288,  74200304,  524288); // hash: 4194387a266567bc073234a28488ab54, width: 256, height: 256
-    datas[2][ 3] = texture_data(1024,  131072,  74724592,  131072); // hash: dda04d5b17e662698ce7d1f09929f5fb, width: 128, height: 128
-    datas[2][ 4] = texture_data( 512,   32768,  74855664,   32768); // hash: e36f842c91fd700c1e324c56690d3d05, width: 64, height: 64
-    datas[2][ 5] = texture_data( 256,    8192,  74888432,    8192); // hash: 5636f81a9c40ddbd37ad4c2be787db58, width: 32, height: 32
-    datas[2][ 6] = texture_data( 128,    2048,  74896624,    2048); // hash: ad241b34b4124b18fb8da354e42cf306, width: 16, height: 16
-    datas[2][ 7] = texture_data(  64,     512,  74898672,     512); // hash: 89495bdab42a8777f81c94e53033194c, width: 8, height: 8
-    datas[2][ 8] = texture_data(  32,     128,  74899184,     128); // hash: e963c240d9a5dbc71e641bbc8fb40aed, width: 4, height: 4
-    datas[2][ 9] = texture_data(  16,      32,  74899312,      32); // hash: 28ba0932c6bfe03072dc26e152d9aff9, width: 2, height: 2
-    datas[2][10] = texture_data(   8,       8,  74899344,       8); // hash: e49d8ddf01bacca3e5c7a600bb6c2dcc, width: 1, height: 1
-    datas[3][ 0] = texture_data(8192, 8388608,  74899352, 8388608); // hash: b6abe08e32d3e208681502545ec9a502, width: 1024, height: 1024
-    datas[3][ 1] = texture_data(4096, 2097152,  83287960, 2097152); // hash: e6f295667f451f1dcd03c57c771a50f8, width: 512, height: 512
-    datas[3][ 2] = texture_data(2048,  524288,  85385112,  524288); // hash: 9ba2bd3e24194414485c0ebc3e458501, width: 256, height: 256
-    datas[3][ 3] = texture_data(1024,  131072,  85909400,  131072); // hash: 29ebe33d875685675874819ee8a818ca, width: 128, height: 128
-    datas[3][ 4] = texture_data( 512,   32768,  86040472,   32768); // hash: 708965672b0d4e23bd2a05d474b625a3, width: 64, height: 64
-    datas[3][ 5] = texture_data( 256,    8192,  86073240,    8192); // hash: 5f6d7d4ca99629b1c15e7ef499559efd, width: 32, height: 32
-    datas[3][ 6] = texture_data( 128,    2048,  86081432,    2048); // hash: 98c2cba26a372c4e766eb30171b1dd8b, width: 16, height: 16
-    datas[3][ 7] = texture_data(  64,     512,  86083480,     512); // hash: 0f469f10c756deff3bc3d6738410532b, width: 8, height: 8
-    datas[3][ 8] = texture_data(  32,     128,  86083992,     128); // hash: b60a19c3b4ffcc58ea798a0e15118275, width: 4, height: 4
-    datas[3][ 9] = texture_data(  16,      32,  86084120,      32); // hash: 713724c115e1bd4901def7feabb124c7, width: 2, height: 2
-    datas[3][10] = texture_data(   8,       8,  86084152,       8); // hash: b04fe0e7106782ae1102d31cd21ed5b6, width: 1, height: 1
-    datas[4][ 0] = texture_data(8192, 8388608,  86084160, 8388608); // hash: b33270086b73324a5eaed477b1b03a6b, width: 1024, height: 1024
-    datas[4][ 1] = texture_data(4096, 2097152,  94472768, 2097152); // hash: eb71724ac6de7c410c611c34e93379d8, width: 512, height: 512
-    datas[4][ 2] = texture_data(2048,  524288,  96569920,  524288); // hash: 3496fe103c6019cb8cb6fdb9e085af48, width: 256, height: 256
-    datas[4][ 3] = texture_data(1024,  131072,  97094208,  131072); // hash: de2f2609b7d4158cb88f84f64901a3ef, width: 128, height: 128
-    datas[4][ 4] = texture_data( 512,   32768,  97225280,   32768); // hash: 96947b3f2ea620a01d6fdff092912a55, width: 64, height: 64
-    datas[4][ 5] = texture_data( 256,    8192,  97258048,    8192); // hash: 5a3747d336e986a8b13f8130e9810f82, width: 32, height: 32
-    datas[4][ 6] = texture_data( 128,    2048,  97266240,    2048); // hash: 0a43e3945958925c7202dc7bed7a28fb, width: 16, height: 16
-    datas[4][ 7] = texture_data(  64,     512,  97268288,     512); // hash: f2bec3deca649d33f94e5d50c34c34b0, width: 8, height: 8
-    datas[4][ 8] = texture_data(  32,     128,  97268800,     128); // hash: 838b85ee55cd58cd173c84757b13a289, width: 4, height: 4
-    datas[4][ 9] = texture_data(  16,      32,  97268928,      32); // hash: 4468b4120baf512adced842a40041405, width: 2, height: 2
-    datas[4][10] = texture_data(   8,       8,  97268960,       8); // hash: ea9cf4b87e3051e5a1a80b458f58df15, width: 1, height: 1
-    datas[5][ 0] = texture_data(8192, 8388608,  97268968, 8388608); // hash: 7e43c9b640bbf8113099bc1f54a3f4d0, width: 1024, height: 1024
-    datas[5][ 1] = texture_data(4096, 2097152, 105657576, 2097152); // hash: 043f9e4a7880bb4bf92ecfd1f8bfe6e1, width: 512, height: 512
-    datas[5][ 2] = texture_data(2048,  524288, 107754728,  524288); // hash: fb6cc9718402d5adbfb1b1ed2b777bf9, width: 256, height: 256
-    datas[5][ 3] = texture_data(1024,  131072, 108279016,  131072); // hash: ac11b78e531199f5a52bb19c06bf65e3, width: 128, height: 128
-    datas[5][ 4] = texture_data( 512,   32768, 108410088,   32768); // hash: 4de8799a3aed4c8d8b9bd9b0f983e1e9, width: 64, height: 64
-    datas[5][ 5] = texture_data( 256,    8192, 108442856,    8192); // hash: 592488bca93776e60489232ba93b9415, width: 32, height: 32
-    datas[5][ 6] = texture_data( 128,    2048, 108451048,    2048); // hash: 6a47f7e57de4b65a3b6f8441291d4274, width: 16, height: 16
-    datas[5][ 7] = texture_data(  64,     512, 108453096,     512); // hash: 4f8116ee9953a5d394c961a00058f844, width: 8, height: 8
-    datas[5][ 8] = texture_data(  32,     128, 108453608,     128); // hash: 79e1654473d8ba7d59667cfe71798ab4, width: 4, height: 4
-    datas[5][ 9] = texture_data(  16,      32, 108453736,      32); // hash: 2b12f35cb941ce5444d6fe010c71e513, width: 2, height: 2
-    datas[5][10] = texture_data(   8,       8, 108453768,       8); // hash: 424dd03dbe2eb284de8a0348871d0704, width: 1, height: 1
+    datas[0][ 0] = texture_data(8192, 8388608,  44174816, 8388608); // hash: e70fec4202154d74b817ce87548a491d, width: 1024, height: 1024
+    datas[0][ 1] = texture_data(4096, 2097152,  52563424, 2097152); // hash: 85fc929ac43a8d3c7caa5685b297bde8, width: 512, height: 512
+    datas[0][ 2] = texture_data(2048,  524288,  54660576,  524288); // hash: 271f1d9f9ae40adfd6ee286fd23d39f9, width: 256, height: 256
+    datas[0][ 3] = texture_data(1024,  131072,  55184864,  131072); // hash: dd2419288db4af6d0254f8d7c6822db0, width: 128, height: 128
+    datas[0][ 4] = texture_data( 512,   32768,  55315936,   32768); // hash: b7ce6c5e2b8a2132421a1c608e81ba76, width: 64, height: 64
+    datas[0][ 5] = texture_data( 256,    8192,  55348704,    8192); // hash: 972ee92b49ddbd3d926c06d10509b884, width: 32, height: 32
+    datas[0][ 6] = texture_data( 128,    2048,  55356896,    2048); // hash: d76513ed7aac113939ce51b47e4e2141, width: 16, height: 16
+    datas[0][ 7] = texture_data(  64,     512,  55358944,     512); // hash: 7a7ae37458be6407af077e0109f9f2cc, width: 8, height: 8
+    datas[0][ 8] = texture_data(  32,     128,  55359456,     128); // hash: 53b80a4f80cd4f35d4eac8a528355cdc, width: 4, height: 4
+    datas[0][ 9] = texture_data(  16,      32,  55359584,      32); // hash: 6ea38dfc8963ee6c09ea67573b990ad0, width: 2, height: 2
+    datas[0][10] = texture_data(   8,       8,  55359616,       8); // hash: b6faa2f429d0cf1ecf90387a19007e2b, width: 1, height: 1
+    datas[1][ 0] = texture_data(8192, 8388608,  55359624, 8388608); // hash: dbf0ebc6a6c592cae9ad8e3a3f2568aa, width: 1024, height: 1024
+    datas[1][ 1] = texture_data(4096, 2097152,  63748232, 2097152); // hash: c56c4e38c4b497e7d2896d0022f7e830, width: 512, height: 512
+    datas[1][ 2] = texture_data(2048,  524288,  65845384,  524288); // hash: 284c5bf396722b2c924130675a6259d3, width: 256, height: 256
+    datas[1][ 3] = texture_data(1024,  131072,  66369672,  131072); // hash: 7b46ba89a5ba62fce63a10e903333ba0, width: 128, height: 128
+    datas[1][ 4] = texture_data( 512,   32768,  66500744,   32768); // hash: 8e136d5fc0581d72e060c750ab7fc58f, width: 64, height: 64
+    datas[1][ 5] = texture_data( 256,    8192,  66533512,    8192); // hash: 086133860ad9c48e8524f70cb010ca4d, width: 32, height: 32
+    datas[1][ 6] = texture_data( 128,    2048,  66541704,    2048); // hash: 9002e8a826bfee8cc8ef4e8a986c32c1, width: 16, height: 16
+    datas[1][ 7] = texture_data(  64,     512,  66543752,     512); // hash: f16b5c6316e9a8e819591d2bfeeced15, width: 8, height: 8
+    datas[1][ 8] = texture_data(  32,     128,  66544264,     128); // hash: fe94bf054fd0fa5914e85a3fd840fe83, width: 4, height: 4
+    datas[1][ 9] = texture_data(  16,      32,  66544392,      32); // hash: 7c810dac33ceaf7725a8b6a3b4a6b761, width: 2, height: 2
+    datas[1][10] = texture_data(   8,       8,  66544424,       8); // hash: 95ace211749b7db4373ffb99761b93a6, width: 1, height: 1
+    datas[2][ 0] = texture_data(8192, 8388608,  66544432, 8388608); // hash: 60fc398a716fe918ea5179abdbed5da6, width: 1024, height: 1024
+    datas[2][ 1] = texture_data(4096, 2097152,  74933040, 2097152); // hash: 6b56e3c11a6f4266150518a3b87f34c9, width: 512, height: 512
+    datas[2][ 2] = texture_data(2048,  524288,  77030192,  524288); // hash: 4194387a266567bc073234a28488ab54, width: 256, height: 256
+    datas[2][ 3] = texture_data(1024,  131072,  77554480,  131072); // hash: dda04d5b17e662698ce7d1f09929f5fb, width: 128, height: 128
+    datas[2][ 4] = texture_data( 512,   32768,  77685552,   32768); // hash: e36f842c91fd700c1e324c56690d3d05, width: 64, height: 64
+    datas[2][ 5] = texture_data( 256,    8192,  77718320,    8192); // hash: 5636f81a9c40ddbd37ad4c2be787db58, width: 32, height: 32
+    datas[2][ 6] = texture_data( 128,    2048,  77726512,    2048); // hash: ad241b34b4124b18fb8da354e42cf306, width: 16, height: 16
+    datas[2][ 7] = texture_data(  64,     512,  77728560,     512); // hash: 89495bdab42a8777f81c94e53033194c, width: 8, height: 8
+    datas[2][ 8] = texture_data(  32,     128,  77729072,     128); // hash: e963c240d9a5dbc71e641bbc8fb40aed, width: 4, height: 4
+    datas[2][ 9] = texture_data(  16,      32,  77729200,      32); // hash: 28ba0932c6bfe03072dc26e152d9aff9, width: 2, height: 2
+    datas[2][10] = texture_data(   8,       8,  77729232,       8); // hash: e49d8ddf01bacca3e5c7a600bb6c2dcc, width: 1, height: 1
+    datas[3][ 0] = texture_data(8192, 8388608,  77729240, 8388608); // hash: b6abe08e32d3e208681502545ec9a502, width: 1024, height: 1024
+    datas[3][ 1] = texture_data(4096, 2097152,  86117848, 2097152); // hash: e6f295667f451f1dcd03c57c771a50f8, width: 512, height: 512
+    datas[3][ 2] = texture_data(2048,  524288,  88215000,  524288); // hash: 9ba2bd3e24194414485c0ebc3e458501, width: 256, height: 256
+    datas[3][ 3] = texture_data(1024,  131072,  88739288,  131072); // hash: 29ebe33d875685675874819ee8a818ca, width: 128, height: 128
+    datas[3][ 4] = texture_data( 512,   32768,  88870360,   32768); // hash: 708965672b0d4e23bd2a05d474b625a3, width: 64, height: 64
+    datas[3][ 5] = texture_data( 256,    8192,  88903128,    8192); // hash: 5f6d7d4ca99629b1c15e7ef499559efd, width: 32, height: 32
+    datas[3][ 6] = texture_data( 128,    2048,  88911320,    2048); // hash: 98c2cba26a372c4e766eb30171b1dd8b, width: 16, height: 16
+    datas[3][ 7] = texture_data(  64,     512,  88913368,     512); // hash: 0f469f10c756deff3bc3d6738410532b, width: 8, height: 8
+    datas[3][ 8] = texture_data(  32,     128,  88913880,     128); // hash: b60a19c3b4ffcc58ea798a0e15118275, width: 4, height: 4
+    datas[3][ 9] = texture_data(  16,      32,  88914008,      32); // hash: 713724c115e1bd4901def7feabb124c7, width: 2, height: 2
+    datas[3][10] = texture_data(   8,       8,  88914040,       8); // hash: b04fe0e7106782ae1102d31cd21ed5b6, width: 1, height: 1
+    datas[4][ 0] = texture_data(8192, 8388608,  88914048, 8388608); // hash: b33270086b73324a5eaed477b1b03a6b, width: 1024, height: 1024
+    datas[4][ 1] = texture_data(4096, 2097152,  97302656, 2097152); // hash: eb71724ac6de7c410c611c34e93379d8, width: 512, height: 512
+    datas[4][ 2] = texture_data(2048,  524288,  99399808,  524288); // hash: 3496fe103c6019cb8cb6fdb9e085af48, width: 256, height: 256
+    datas[4][ 3] = texture_data(1024,  131072,  99924096,  131072); // hash: de2f2609b7d4158cb88f84f64901a3ef, width: 128, height: 128
+    datas[4][ 4] = texture_data( 512,   32768, 100055168,   32768); // hash: 96947b3f2ea620a01d6fdff092912a55, width: 64, height: 64
+    datas[4][ 5] = texture_data( 256,    8192, 100087936,    8192); // hash: 5a3747d336e986a8b13f8130e9810f82, width: 32, height: 32
+    datas[4][ 6] = texture_data( 128,    2048, 100096128,    2048); // hash: 0a43e3945958925c7202dc7bed7a28fb, width: 16, height: 16
+    datas[4][ 7] = texture_data(  64,     512, 100098176,     512); // hash: f2bec3deca649d33f94e5d50c34c34b0, width: 8, height: 8
+    datas[4][ 8] = texture_data(  32,     128, 100098688,     128); // hash: 838b85ee55cd58cd173c84757b13a289, width: 4, height: 4
+    datas[4][ 9] = texture_data(  16,      32, 100098816,      32); // hash: 4468b4120baf512adced842a40041405, width: 2, height: 2
+    datas[4][10] = texture_data(   8,       8, 100098848,       8); // hash: ea9cf4b87e3051e5a1a80b458f58df15, width: 1, height: 1
+    datas[5][ 0] = texture_data(8192, 8388608, 100098856, 8388608); // hash: 7e43c9b640bbf8113099bc1f54a3f4d0, width: 1024, height: 1024
+    datas[5][ 1] = texture_data(4096, 2097152, 108487464, 2097152); // hash: 043f9e4a7880bb4bf92ecfd1f8bfe6e1, width: 512, height: 512
+    datas[5][ 2] = texture_data(2048,  524288, 110584616,  524288); // hash: fb6cc9718402d5adbfb1b1ed2b777bf9, width: 256, height: 256
+    datas[5][ 3] = texture_data(1024,  131072, 111108904,  131072); // hash: ac11b78e531199f5a52bb19c06bf65e3, width: 128, height: 128
+    datas[5][ 4] = texture_data( 512,   32768, 111239976,   32768); // hash: 4de8799a3aed4c8d8b9bd9b0f983e1e9, width: 64, height: 64
+    datas[5][ 5] = texture_data( 256,    8192, 111272744,    8192); // hash: 592488bca93776e60489232ba93b9415, width: 32, height: 32
+    datas[5][ 6] = texture_data( 128,    2048, 111280936,    2048); // hash: 6a47f7e57de4b65a3b6f8441291d4274, width: 16, height: 16
+    datas[5][ 7] = texture_data(  64,     512, 111282984,     512); // hash: 4f8116ee9953a5d394c961a00058f844, width: 8, height: 8
+    datas[5][ 8] = texture_data(  32,     128, 111283496,     128); // hash: 79e1654473d8ba7d59667cfe71798ab4, width: 4, height: 4
+    datas[5][ 9] = texture_data(  16,      32, 111283624,      32); // hash: 2b12f35cb941ce5444d6fe010c71e513, width: 2, height: 2
+    datas[5][10] = texture_data(   8,       8, 111283656,       8); // hash: 424dd03dbe2eb284de8a0348871d0704, width: 1, height: 1
     // clang-format on
     return CubeTexture {
         .format = DXGI_FORMAT_R16G16B16A16_FLOAT,
@@ -613,7 +671,7 @@ auto Assets::winter_evening_rad() const -> CubeTexture {
 auto Assets::shanghai_bund_lut() const -> Texture {
     decltype(Texture::datas) datas = {};
     // clang-format off
-    datas[ 0] = texture_data(2048, 1048576, 108453776, 1048576); // hash: 7f7048fcf260a2aa1eae75b62340d74d, width: 512, height: 512
+    datas[ 0] = texture_data(2048, 1048576, 111283664, 1048576); // hash: 7f7048fcf260a2aa1eae75b62340d74d, width: 512, height: 512
     // clang-format on
     return Texture {
         .format = DXGI_FORMAT_R16G16_FLOAT,
@@ -627,12 +685,12 @@ auto Assets::shanghai_bund_lut() const -> Texture {
 auto Assets::shanghai_bund_irr() const -> CubeTexture {
     decltype(CubeTexture::datas) datas = {};
     // clang-format off
-    datas[0][ 0] = texture_data(1024,  131072, 109502352,  131072); // hash: 2e2aa256fff67123a2a4fc3322c42d71, width: 128, height: 128
-    datas[1][ 0] = texture_data(1024,  131072, 109633424,  131072); // hash: 3bbc601120883a26ccd37f0a530c0b12, width: 128, height: 128
-    datas[2][ 0] = texture_data(1024,  131072, 109764496,  131072); // hash: 45b9b9637ea6e7204764acb1353843db, width: 128, height: 128
-    datas[3][ 0] = texture_data(1024,  131072, 109895568,  131072); // hash: d4983dea763c4559d2c168976b5f778d, width: 128, height: 128
-    datas[4][ 0] = texture_data(1024,  131072, 110026640,  131072); // hash: 14afe16f16de2e066ebd895b3d834142, width: 128, height: 128
-    datas[5][ 0] = texture_data(1024,  131072, 110157712,  131072); // hash: 97d8fac08f450c25bcaa17110f0fa7e9, width: 128, height: 128
+    datas[0][ 0] = texture_data(1024,  131072, 112332240,  131072); // hash: 2e2aa256fff67123a2a4fc3322c42d71, width: 128, height: 128
+    datas[1][ 0] = texture_data(1024,  131072, 112463312,  131072); // hash: 3bbc601120883a26ccd37f0a530c0b12, width: 128, height: 128
+    datas[2][ 0] = texture_data(1024,  131072, 112594384,  131072); // hash: 45b9b9637ea6e7204764acb1353843db, width: 128, height: 128
+    datas[3][ 0] = texture_data(1024,  131072, 112725456,  131072); // hash: d4983dea763c4559d2c168976b5f778d, width: 128, height: 128
+    datas[4][ 0] = texture_data(1024,  131072, 112856528,  131072); // hash: 14afe16f16de2e066ebd895b3d834142, width: 128, height: 128
+    datas[5][ 0] = texture_data(1024,  131072, 112987600,  131072); // hash: 97d8fac08f450c25bcaa17110f0fa7e9, width: 128, height: 128
     // clang-format on
     return CubeTexture {
         .format = DXGI_FORMAT_R16G16B16A16_FLOAT,
@@ -646,72 +704,72 @@ auto Assets::shanghai_bund_irr() const -> CubeTexture {
 auto Assets::shanghai_bund_rad() const -> CubeTexture {
     decltype(CubeTexture::datas) datas = {};
     // clang-format off
-    datas[0][ 0] = texture_data(8192, 8388608, 110288784, 8388608); // hash: f1dac2f642724068cfe5a596095cd1af, width: 1024, height: 1024
-    datas[0][ 1] = texture_data(4096, 2097152, 118677392, 2097152); // hash: 1c8a26b6a21b45ca2e5a85c6f40427de, width: 512, height: 512
-    datas[0][ 2] = texture_data(2048,  524288, 120774544,  524288); // hash: 4d6f669c74778027f6d1906e39178e63, width: 256, height: 256
-    datas[0][ 3] = texture_data(1024,  131072, 121298832,  131072); // hash: c4bc3c5d04987935544004eecea8af9a, width: 128, height: 128
-    datas[0][ 4] = texture_data( 512,   32768, 121429904,   32768); // hash: 86600ba136ef9907f544b129205ab843, width: 64, height: 64
-    datas[0][ 5] = texture_data( 256,    8192, 121462672,    8192); // hash: 54166bee57fd14547e55dcdd21fc8d95, width: 32, height: 32
-    datas[0][ 6] = texture_data( 128,    2048, 121470864,    2048); // hash: da8f24bc0157eb77c104242d1709cef9, width: 16, height: 16
-    datas[0][ 7] = texture_data(  64,     512, 121472912,     512); // hash: 225f6df30d026df02eba6cc2adbf5275, width: 8, height: 8
-    datas[0][ 8] = texture_data(  32,     128, 121473424,     128); // hash: f087a791fb8f4e1347d275d1ee3faf5d, width: 4, height: 4
-    datas[0][ 9] = texture_data(  16,      32, 121473552,      32); // hash: 6d1e1eb8148cc2d9a44918a3ca1f827d, width: 2, height: 2
-    datas[0][10] = texture_data(   8,       8, 121473584,       8); // hash: 9b6001f2a75c12628d93a3bf0e10d296, width: 1, height: 1
-    datas[1][ 0] = texture_data(8192, 8388608, 121473592, 8388608); // hash: 5c262cb25a1e21e5fc9c9e2aacf369b9, width: 1024, height: 1024
-    datas[1][ 1] = texture_data(4096, 2097152, 129862200, 2097152); // hash: dc6de75243f0b0a4742616ada7d91ae8, width: 512, height: 512
-    datas[1][ 2] = texture_data(2048,  524288, 131959352,  524288); // hash: aeccbe3baca29ea206d9191f20c37e5d, width: 256, height: 256
-    datas[1][ 3] = texture_data(1024,  131072, 132483640,  131072); // hash: c41533f8d83dac3f0fbeaff88dc27024, width: 128, height: 128
-    datas[1][ 4] = texture_data( 512,   32768, 132614712,   32768); // hash: abe0b4168f2754fe09ad90f9a50f6d37, width: 64, height: 64
-    datas[1][ 5] = texture_data( 256,    8192, 132647480,    8192); // hash: 7999d6c0343180d3b23ee37de3cb720b, width: 32, height: 32
-    datas[1][ 6] = texture_data( 128,    2048, 132655672,    2048); // hash: 5b6abcb6d2100b59fe8f2f81e203e85f, width: 16, height: 16
-    datas[1][ 7] = texture_data(  64,     512, 132657720,     512); // hash: fb70262f76033cc99248d83f46de534e, width: 8, height: 8
-    datas[1][ 8] = texture_data(  32,     128, 132658232,     128); // hash: 54d914303dd5eefbefcce3f4c58922ac, width: 4, height: 4
-    datas[1][ 9] = texture_data(  16,      32, 132658360,      32); // hash: 26f4fdc1ccac45caa1509b57db7912a3, width: 2, height: 2
-    datas[1][10] = texture_data(   8,       8, 132658392,       8); // hash: a70b8d4ec200454162775b5f8b1ec109, width: 1, height: 1
-    datas[2][ 0] = texture_data(8192, 8388608, 132658400, 8388608); // hash: 655df6523b827f552d2e77a9b26656cf, width: 1024, height: 1024
-    datas[2][ 1] = texture_data(4096, 2097152, 141047008, 2097152); // hash: 36be9339496f43f7eef083712d0a26d4, width: 512, height: 512
-    datas[2][ 2] = texture_data(2048,  524288, 143144160,  524288); // hash: 80897a861e3de3a02552a919606c69ef, width: 256, height: 256
-    datas[2][ 3] = texture_data(1024,  131072, 143668448,  131072); // hash: 6086480b26d0b7ce046f1ca6d5ef8693, width: 128, height: 128
-    datas[2][ 4] = texture_data( 512,   32768, 143799520,   32768); // hash: 11a09eaf78b226c2fe91a2b32a47d9bc, width: 64, height: 64
-    datas[2][ 5] = texture_data( 256,    8192, 143832288,    8192); // hash: 71213a81faa787f7fb9b4d5ed51732b7, width: 32, height: 32
-    datas[2][ 6] = texture_data( 128,    2048, 143840480,    2048); // hash: 4af1ccf6f5c0a8fabff467c323581bcd, width: 16, height: 16
-    datas[2][ 7] = texture_data(  64,     512, 143842528,     512); // hash: 44594d2e62e9535b5be0f465f8536a46, width: 8, height: 8
-    datas[2][ 8] = texture_data(  32,     128, 143843040,     128); // hash: b42139ed8d524ec18340525524b69e77, width: 4, height: 4
-    datas[2][ 9] = texture_data(  16,      32, 143843168,      32); // hash: 8284584e26ed0c92b5d71c5d6ff3bf9d, width: 2, height: 2
-    datas[2][10] = texture_data(   8,       8, 143843200,       8); // hash: aec97c034320ee9b0b2a0dd4d5171e60, width: 1, height: 1
-    datas[3][ 0] = texture_data(8192, 8388608, 143843208, 8388608); // hash: 95b2e9256e59cae29c48f2d7d4ede70b, width: 1024, height: 1024
-    datas[3][ 1] = texture_data(4096, 2097152, 152231816, 2097152); // hash: bdcbdc9f5021c87bc74cc2e79620c711, width: 512, height: 512
-    datas[3][ 2] = texture_data(2048,  524288, 154328968,  524288); // hash: 8f597032a29f04cc7c266b1473189190, width: 256, height: 256
-    datas[3][ 3] = texture_data(1024,  131072, 154853256,  131072); // hash: a522798ddbace386b9748c650d0bd589, width: 128, height: 128
-    datas[3][ 4] = texture_data( 512,   32768, 154984328,   32768); // hash: b39d74423230d4ef34f4a01354f06dbb, width: 64, height: 64
-    datas[3][ 5] = texture_data( 256,    8192, 155017096,    8192); // hash: 16b172ecdc77d53f3f4f910499416e22, width: 32, height: 32
-    datas[3][ 6] = texture_data( 128,    2048, 155025288,    2048); // hash: 8cd998d0b667d36d9d17a7db82b30a88, width: 16, height: 16
-    datas[3][ 7] = texture_data(  64,     512, 155027336,     512); // hash: f39fa59576ca888db963623568bf0ea5, width: 8, height: 8
-    datas[3][ 8] = texture_data(  32,     128, 155027848,     128); // hash: 2add947eb14fada697697931f3a250c1, width: 4, height: 4
-    datas[3][ 9] = texture_data(  16,      32, 155027976,      32); // hash: b2a1d97d48c8032f37cf36ae9cb35ea4, width: 2, height: 2
-    datas[3][10] = texture_data(   8,       8, 155028008,       8); // hash: 563b13464e49eab1a96147576b00c6bc, width: 1, height: 1
-    datas[4][ 0] = texture_data(8192, 8388608, 155028016, 8388608); // hash: 17a3f09f6461513ab3978b63fab6b79d, width: 1024, height: 1024
-    datas[4][ 1] = texture_data(4096, 2097152, 163416624, 2097152); // hash: 5dfa489e2f014ebff7c26136bf7930e3, width: 512, height: 512
-    datas[4][ 2] = texture_data(2048,  524288, 165513776,  524288); // hash: d30d23f72d1d2872a6fbb177c397315f, width: 256, height: 256
-    datas[4][ 3] = texture_data(1024,  131072, 166038064,  131072); // hash: 7ed58d6f690b7d7d1145fb9a1844a2f1, width: 128, height: 128
-    datas[4][ 4] = texture_data( 512,   32768, 166169136,   32768); // hash: 4fd24eb9b5086d7b02bf0cb6680cb56a, width: 64, height: 64
-    datas[4][ 5] = texture_data( 256,    8192, 166201904,    8192); // hash: 20cd0518fb2e562f63cc76472572af74, width: 32, height: 32
-    datas[4][ 6] = texture_data( 128,    2048, 166210096,    2048); // hash: fe758f7b4f6cdd6ce36f3b63bbccebb4, width: 16, height: 16
-    datas[4][ 7] = texture_data(  64,     512, 166212144,     512); // hash: 573f4f668a5c39117daee74b730bd470, width: 8, height: 8
-    datas[4][ 8] = texture_data(  32,     128, 166212656,     128); // hash: 1704840cfb6d56378118f39d7378bf49, width: 4, height: 4
-    datas[4][ 9] = texture_data(  16,      32, 166212784,      32); // hash: a226a62cb18192d068f68dea3b3c2d05, width: 2, height: 2
-    datas[4][10] = texture_data(   8,       8, 166212816,       8); // hash: 16be76e995343fb04ff0c00918a40e90, width: 1, height: 1
-    datas[5][ 0] = texture_data(8192, 8388608, 166212824, 8388608); // hash: 4b3393b50e560bef692124e8d132134d, width: 1024, height: 1024
-    datas[5][ 1] = texture_data(4096, 2097152, 174601432, 2097152); // hash: 1eef69956e198f5357901dd07f464a6d, width: 512, height: 512
-    datas[5][ 2] = texture_data(2048,  524288, 176698584,  524288); // hash: 1af3c6af6280f1792a657deb5a923955, width: 256, height: 256
-    datas[5][ 3] = texture_data(1024,  131072, 177222872,  131072); // hash: 23fc8e43c4bbe4ddef07fc5fd6bd5e85, width: 128, height: 128
-    datas[5][ 4] = texture_data( 512,   32768, 177353944,   32768); // hash: dc8659af1986cd692f12566594ae6da1, width: 64, height: 64
-    datas[5][ 5] = texture_data( 256,    8192, 177386712,    8192); // hash: a101bf90ff26cdbab7d36ae740f5416e, width: 32, height: 32
-    datas[5][ 6] = texture_data( 128,    2048, 177394904,    2048); // hash: e43e67959b0bbe90014604b650cbac75, width: 16, height: 16
-    datas[5][ 7] = texture_data(  64,     512, 177396952,     512); // hash: 18701ec219c94b89f728866e3b401cb8, width: 8, height: 8
-    datas[5][ 8] = texture_data(  32,     128, 177397464,     128); // hash: 1a2d5e4bab40436129b0906c2540abb1, width: 4, height: 4
-    datas[5][ 9] = texture_data(  16,      32, 177397592,      32); // hash: 0064208c729ac8dfa2c4c6a8dadbeea9, width: 2, height: 2
-    datas[5][10] = texture_data(   8,       8, 177397624,       8); // hash: 477b556f26425c0564e42f5471a29448, width: 1, height: 1
+    datas[0][ 0] = texture_data(8192, 8388608, 113118672, 8388608); // hash: f1dac2f642724068cfe5a596095cd1af, width: 1024, height: 1024
+    datas[0][ 1] = texture_data(4096, 2097152, 121507280, 2097152); // hash: 1c8a26b6a21b45ca2e5a85c6f40427de, width: 512, height: 512
+    datas[0][ 2] = texture_data(2048,  524288, 123604432,  524288); // hash: 4d6f669c74778027f6d1906e39178e63, width: 256, height: 256
+    datas[0][ 3] = texture_data(1024,  131072, 124128720,  131072); // hash: c4bc3c5d04987935544004eecea8af9a, width: 128, height: 128
+    datas[0][ 4] = texture_data( 512,   32768, 124259792,   32768); // hash: 86600ba136ef9907f544b129205ab843, width: 64, height: 64
+    datas[0][ 5] = texture_data( 256,    8192, 124292560,    8192); // hash: 54166bee57fd14547e55dcdd21fc8d95, width: 32, height: 32
+    datas[0][ 6] = texture_data( 128,    2048, 124300752,    2048); // hash: da8f24bc0157eb77c104242d1709cef9, width: 16, height: 16
+    datas[0][ 7] = texture_data(  64,     512, 124302800,     512); // hash: 225f6df30d026df02eba6cc2adbf5275, width: 8, height: 8
+    datas[0][ 8] = texture_data(  32,     128, 124303312,     128); // hash: f087a791fb8f4e1347d275d1ee3faf5d, width: 4, height: 4
+    datas[0][ 9] = texture_data(  16,      32, 124303440,      32); // hash: 6d1e1eb8148cc2d9a44918a3ca1f827d, width: 2, height: 2
+    datas[0][10] = texture_data(   8,       8, 124303472,       8); // hash: 9b6001f2a75c12628d93a3bf0e10d296, width: 1, height: 1
+    datas[1][ 0] = texture_data(8192, 8388608, 124303480, 8388608); // hash: 5c262cb25a1e21e5fc9c9e2aacf369b9, width: 1024, height: 1024
+    datas[1][ 1] = texture_data(4096, 2097152, 132692088, 2097152); // hash: dc6de75243f0b0a4742616ada7d91ae8, width: 512, height: 512
+    datas[1][ 2] = texture_data(2048,  524288, 134789240,  524288); // hash: aeccbe3baca29ea206d9191f20c37e5d, width: 256, height: 256
+    datas[1][ 3] = texture_data(1024,  131072, 135313528,  131072); // hash: c41533f8d83dac3f0fbeaff88dc27024, width: 128, height: 128
+    datas[1][ 4] = texture_data( 512,   32768, 135444600,   32768); // hash: abe0b4168f2754fe09ad90f9a50f6d37, width: 64, height: 64
+    datas[1][ 5] = texture_data( 256,    8192, 135477368,    8192); // hash: 7999d6c0343180d3b23ee37de3cb720b, width: 32, height: 32
+    datas[1][ 6] = texture_data( 128,    2048, 135485560,    2048); // hash: 5b6abcb6d2100b59fe8f2f81e203e85f, width: 16, height: 16
+    datas[1][ 7] = texture_data(  64,     512, 135487608,     512); // hash: fb70262f76033cc99248d83f46de534e, width: 8, height: 8
+    datas[1][ 8] = texture_data(  32,     128, 135488120,     128); // hash: 54d914303dd5eefbefcce3f4c58922ac, width: 4, height: 4
+    datas[1][ 9] = texture_data(  16,      32, 135488248,      32); // hash: 26f4fdc1ccac45caa1509b57db7912a3, width: 2, height: 2
+    datas[1][10] = texture_data(   8,       8, 135488280,       8); // hash: a70b8d4ec200454162775b5f8b1ec109, width: 1, height: 1
+    datas[2][ 0] = texture_data(8192, 8388608, 135488288, 8388608); // hash: 655df6523b827f552d2e77a9b26656cf, width: 1024, height: 1024
+    datas[2][ 1] = texture_data(4096, 2097152, 143876896, 2097152); // hash: 36be9339496f43f7eef083712d0a26d4, width: 512, height: 512
+    datas[2][ 2] = texture_data(2048,  524288, 145974048,  524288); // hash: 80897a861e3de3a02552a919606c69ef, width: 256, height: 256
+    datas[2][ 3] = texture_data(1024,  131072, 146498336,  131072); // hash: 6086480b26d0b7ce046f1ca6d5ef8693, width: 128, height: 128
+    datas[2][ 4] = texture_data( 512,   32768, 146629408,   32768); // hash: 11a09eaf78b226c2fe91a2b32a47d9bc, width: 64, height: 64
+    datas[2][ 5] = texture_data( 256,    8192, 146662176,    8192); // hash: 71213a81faa787f7fb9b4d5ed51732b7, width: 32, height: 32
+    datas[2][ 6] = texture_data( 128,    2048, 146670368,    2048); // hash: 4af1ccf6f5c0a8fabff467c323581bcd, width: 16, height: 16
+    datas[2][ 7] = texture_data(  64,     512, 146672416,     512); // hash: 44594d2e62e9535b5be0f465f8536a46, width: 8, height: 8
+    datas[2][ 8] = texture_data(  32,     128, 146672928,     128); // hash: b42139ed8d524ec18340525524b69e77, width: 4, height: 4
+    datas[2][ 9] = texture_data(  16,      32, 146673056,      32); // hash: 8284584e26ed0c92b5d71c5d6ff3bf9d, width: 2, height: 2
+    datas[2][10] = texture_data(   8,       8, 146673088,       8); // hash: aec97c034320ee9b0b2a0dd4d5171e60, width: 1, height: 1
+    datas[3][ 0] = texture_data(8192, 8388608, 146673096, 8388608); // hash: 95b2e9256e59cae29c48f2d7d4ede70b, width: 1024, height: 1024
+    datas[3][ 1] = texture_data(4096, 2097152, 155061704, 2097152); // hash: bdcbdc9f5021c87bc74cc2e79620c711, width: 512, height: 512
+    datas[3][ 2] = texture_data(2048,  524288, 157158856,  524288); // hash: 8f597032a29f04cc7c266b1473189190, width: 256, height: 256
+    datas[3][ 3] = texture_data(1024,  131072, 157683144,  131072); // hash: a522798ddbace386b9748c650d0bd589, width: 128, height: 128
+    datas[3][ 4] = texture_data( 512,   32768, 157814216,   32768); // hash: b39d74423230d4ef34f4a01354f06dbb, width: 64, height: 64
+    datas[3][ 5] = texture_data( 256,    8192, 157846984,    8192); // hash: 16b172ecdc77d53f3f4f910499416e22, width: 32, height: 32
+    datas[3][ 6] = texture_data( 128,    2048, 157855176,    2048); // hash: 8cd998d0b667d36d9d17a7db82b30a88, width: 16, height: 16
+    datas[3][ 7] = texture_data(  64,     512, 157857224,     512); // hash: f39fa59576ca888db963623568bf0ea5, width: 8, height: 8
+    datas[3][ 8] = texture_data(  32,     128, 157857736,     128); // hash: 2add947eb14fada697697931f3a250c1, width: 4, height: 4
+    datas[3][ 9] = texture_data(  16,      32, 157857864,      32); // hash: b2a1d97d48c8032f37cf36ae9cb35ea4, width: 2, height: 2
+    datas[3][10] = texture_data(   8,       8, 157857896,       8); // hash: 563b13464e49eab1a96147576b00c6bc, width: 1, height: 1
+    datas[4][ 0] = texture_data(8192, 8388608, 157857904, 8388608); // hash: 17a3f09f6461513ab3978b63fab6b79d, width: 1024, height: 1024
+    datas[4][ 1] = texture_data(4096, 2097152, 166246512, 2097152); // hash: 5dfa489e2f014ebff7c26136bf7930e3, width: 512, height: 512
+    datas[4][ 2] = texture_data(2048,  524288, 168343664,  524288); // hash: d30d23f72d1d2872a6fbb177c397315f, width: 256, height: 256
+    datas[4][ 3] = texture_data(1024,  131072, 168867952,  131072); // hash: 7ed58d6f690b7d7d1145fb9a1844a2f1, width: 128, height: 128
+    datas[4][ 4] = texture_data( 512,   32768, 168999024,   32768); // hash: 4fd24eb9b5086d7b02bf0cb6680cb56a, width: 64, height: 64
+    datas[4][ 5] = texture_data( 256,    8192, 169031792,    8192); // hash: 20cd0518fb2e562f63cc76472572af74, width: 32, height: 32
+    datas[4][ 6] = texture_data( 128,    2048, 169039984,    2048); // hash: fe758f7b4f6cdd6ce36f3b63bbccebb4, width: 16, height: 16
+    datas[4][ 7] = texture_data(  64,     512, 169042032,     512); // hash: 573f4f668a5c39117daee74b730bd470, width: 8, height: 8
+    datas[4][ 8] = texture_data(  32,     128, 169042544,     128); // hash: 1704840cfb6d56378118f39d7378bf49, width: 4, height: 4
+    datas[4][ 9] = texture_data(  16,      32, 169042672,      32); // hash: a226a62cb18192d068f68dea3b3c2d05, width: 2, height: 2
+    datas[4][10] = texture_data(   8,       8, 169042704,       8); // hash: 16be76e995343fb04ff0c00918a40e90, width: 1, height: 1
+    datas[5][ 0] = texture_data(8192, 8388608, 169042712, 8388608); // hash: 4b3393b50e560bef692124e8d132134d, width: 1024, height: 1024
+    datas[5][ 1] = texture_data(4096, 2097152, 177431320, 2097152); // hash: 1eef69956e198f5357901dd07f464a6d, width: 512, height: 512
+    datas[5][ 2] = texture_data(2048,  524288, 179528472,  524288); // hash: 1af3c6af6280f1792a657deb5a923955, width: 256, height: 256
+    datas[5][ 3] = texture_data(1024,  131072, 180052760,  131072); // hash: 23fc8e43c4bbe4ddef07fc5fd6bd5e85, width: 128, height: 128
+    datas[5][ 4] = texture_data( 512,   32768, 180183832,   32768); // hash: dc8659af1986cd692f12566594ae6da1, width: 64, height: 64
+    datas[5][ 5] = texture_data( 256,    8192, 180216600,    8192); // hash: a101bf90ff26cdbab7d36ae740f5416e, width: 32, height: 32
+    datas[5][ 6] = texture_data( 128,    2048, 180224792,    2048); // hash: e43e67959b0bbe90014604b650cbac75, width: 16, height: 16
+    datas[5][ 7] = texture_data(  64,     512, 180226840,     512); // hash: 18701ec219c94b89f728866e3b401cb8, width: 8, height: 8
+    datas[5][ 8] = texture_data(  32,     128, 180227352,     128); // hash: 1a2d5e4bab40436129b0906c2540abb1, width: 4, height: 4
+    datas[5][ 9] = texture_data(  16,      32, 180227480,      32); // hash: 0064208c729ac8dfa2c4c6a8dadbeea9, width: 2, height: 2
+    datas[5][10] = texture_data(   8,       8, 180227512,       8); // hash: 477b556f26425c0564e42f5471a29448, width: 1, height: 1
     // clang-format on
     return CubeTexture {
         .format = DXGI_FORMAT_R16G16B16A16_FLOAT,
@@ -725,12 +783,12 @@ auto Assets::shanghai_bund_rad() const -> CubeTexture {
 auto Assets::industrial_sunset_02_puresky_irr() const -> CubeTexture {
     decltype(CubeTexture::datas) datas = {};
     // clang-format off
-    datas[0][ 0] = texture_data(1024,  131072, 177397632,  131072); // hash: 14bace1323fdb1b8093dfd31df5652a4, width: 128, height: 128
-    datas[1][ 0] = texture_data(1024,  131072, 177528704,  131072); // hash: be316532626188efaffe393800a2b463, width: 128, height: 128
-    datas[2][ 0] = texture_data(1024,  131072, 177659776,  131072); // hash: 5f9bc366b6a4a7fb368796936dc50d94, width: 128, height: 128
-    datas[3][ 0] = texture_data(1024,  131072, 177790848,  131072); // hash: 6f95ec7a8f2c6167a11879a2af8972d5, width: 128, height: 128
-    datas[4][ 0] = texture_data(1024,  131072, 177921920,  131072); // hash: 0e69d9da1b68db7535563c39e2574521, width: 128, height: 128
-    datas[5][ 0] = texture_data(1024,  131072, 178052992,  131072); // hash: c8dd89cfcc42f96602486d5c12a952c4, width: 128, height: 128
+    datas[0][ 0] = texture_data(1024,  131072, 180227520,  131072); // hash: 14bace1323fdb1b8093dfd31df5652a4, width: 128, height: 128
+    datas[1][ 0] = texture_data(1024,  131072, 180358592,  131072); // hash: be316532626188efaffe393800a2b463, width: 128, height: 128
+    datas[2][ 0] = texture_data(1024,  131072, 180489664,  131072); // hash: 5f9bc366b6a4a7fb368796936dc50d94, width: 128, height: 128
+    datas[3][ 0] = texture_data(1024,  131072, 180620736,  131072); // hash: 6f95ec7a8f2c6167a11879a2af8972d5, width: 128, height: 128
+    datas[4][ 0] = texture_data(1024,  131072, 180751808,  131072); // hash: 0e69d9da1b68db7535563c39e2574521, width: 128, height: 128
+    datas[5][ 0] = texture_data(1024,  131072, 180882880,  131072); // hash: c8dd89cfcc42f96602486d5c12a952c4, width: 128, height: 128
     // clang-format on
     return CubeTexture {
         .format = DXGI_FORMAT_R16G16B16A16_FLOAT,
@@ -747,7 +805,7 @@ auto Assets::roboto_medium_font() const -> Font {
         .descender = -0.24414062f,
         .space_advance = 0.24902344f,
         // hash: 256bbea6356b2b592731c2cb48958d7f
-        .glyphs = transmuted_span<Glyph>(178184064, 94),
+        .glyphs = transmuted_span<Glyph>(181013952, 94),
     };
 }
 
@@ -757,11 +815,11 @@ auto Assets::roboto_medium_mesh() const -> Mesh {
     // submesh_count: 94
     return Mesh {
         // hash: 29374dddcd21f32bd4d1c96ff182a0ae
-        .vertices = transmuted_span<Vertex>(178187072, 35628),
+        .vertices = transmuted_span<Vertex>(181016960, 35628),
         // hash: 022ec4951ed71315112a36ddd2c7ecf2
-        .indices = transmuted_span<Index>(179897216, 70344),
+        .indices = transmuted_span<Index>(182727104, 70344),
         // hash: 8384a220e7f3e90e627e9774b7dbd4c1
-        .submeshes = transmuted_span<Submesh>(180178592, 94),
+        .submeshes = transmuted_span<Submesh>(183008480, 94),
     };
 }
 
@@ -771,18 +829,18 @@ auto Assets::lightsaber_mesh() const -> Mesh {
     // submesh_count: 1
     return Mesh {
         // hash: 2ed114c3892782da8bc5e2c500c527cb
-        .vertices = transmuted_span<Vertex>(180179720, 371),
+        .vertices = transmuted_span<Vertex>(183009608, 371),
         // hash: 63165375d063998e676f3993a3de1c90
-        .indices = transmuted_span<Index>(180197528, 672),
+        .indices = transmuted_span<Index>(183027416, 672),
         // hash: 4de1f7183f3facd76905bc4fab9e4e79
-        .submeshes = transmuted_span<Submesh>(180200216, 1),
+        .submeshes = transmuted_span<Submesh>(183030104, 1),
     };
 }
 
 auto Assets::lightsaber_base_color_texture() const -> Texture {
     decltype(Texture::datas) datas = {};
     // clang-format off
-    datas[ 0] = texture_data(   4,       4, 180200228,       4); // hash: a03472865ceee4a8780952daaa607a20, width: 1, height: 1
+    datas[ 0] = texture_data(   4,       4, 183030116,       4); // hash: a03472865ceee4a8780952daaa607a20, width: 1, height: 1
     // clang-format on
     return Texture {
         .format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB,
@@ -806,28 +864,28 @@ auto Assets::grass_mesh() const -> Mesh {
     // submesh_count: 1
     return Mesh {
         // hash: ce365e55889bb1a329b4528219fbcb39
-        .vertices = transmuted_span<Vertex>(180200232, 7468),
+        .vertices = transmuted_span<Vertex>(183030120, 7468),
         // hash: 5e0e33f101aa3ae1b7be6d552a126fe9
-        .indices = transmuted_span<Index>(180558696, 16320),
+        .indices = transmuted_span<Index>(183388584, 16320),
         // hash: c6415d8cb3741bdc20a1c9e7152aaa87
-        .submeshes = transmuted_span<Submesh>(180623976, 1),
+        .submeshes = transmuted_span<Submesh>(183453864, 1),
     };
 }
 
 auto Assets::grass_base_color_texture() const -> Texture {
     decltype(Texture::datas) datas = {};
     // clang-format off
-    datas[ 0] = texture_data(4096, 4194304, 180623988, 4194304); // hash: 8ba5e6c4c962142b6323c9b718806667, width: 1024, height: 1024
-    datas[ 1] = texture_data(2048, 1048576, 184818292, 1048576); // hash: 535c31d03cb632317d06433beff89448, width: 512, height: 512
-    datas[ 2] = texture_data(1024,  262144, 185866868,  262144); // hash: 23a677d2c655fa098c981da6fc12e7a6, width: 256, height: 256
-    datas[ 3] = texture_data( 512,   65536, 186129012,   65536); // hash: 0afea75560cd4eace0ffe2007bdda0af, width: 128, height: 128
-    datas[ 4] = texture_data( 256,   16384, 186194548,   16384); // hash: 0d23e0d7cd4be6aed9c0e4cb80d54bd4, width: 64, height: 64
-    datas[ 5] = texture_data( 128,    4096, 186210932,    4096); // hash: 0b4e5fd48795c7b07206e38c42debfb6, width: 32, height: 32
-    datas[ 6] = texture_data(  64,    1024, 186215028,    1024); // hash: 05f6d3e4041bf8819cc0f7a1e7a28094, width: 16, height: 16
-    datas[ 7] = texture_data(  32,     256, 186216052,     256); // hash: b52d391bbabaf303be3a18a0f44e3ba6, width: 8, height: 8
-    datas[ 8] = texture_data(  16,      64, 186216308,      64); // hash: a44d4ba5c1df725dabef70679c78a94c, width: 4, height: 4
-    datas[ 9] = texture_data(   8,      16, 186216372,      16); // hash: e3cd0daafab292bf484f67daa63cfbef, width: 2, height: 2
-    datas[10] = texture_data(   4,       4, 186216388,       4); // hash: 2426906e3a0c17efd9b0748b57fe5f46, width: 1, height: 1
+    datas[ 0] = texture_data(4096, 4194304, 183453876, 4194304); // hash: 8ba5e6c4c962142b6323c9b718806667, width: 1024, height: 1024
+    datas[ 1] = texture_data(2048, 1048576, 187648180, 1048576); // hash: 535c31d03cb632317d06433beff89448, width: 512, height: 512
+    datas[ 2] = texture_data(1024,  262144, 188696756,  262144); // hash: 23a677d2c655fa098c981da6fc12e7a6, width: 256, height: 256
+    datas[ 3] = texture_data( 512,   65536, 188958900,   65536); // hash: 0afea75560cd4eace0ffe2007bdda0af, width: 128, height: 128
+    datas[ 4] = texture_data( 256,   16384, 189024436,   16384); // hash: 0d23e0d7cd4be6aed9c0e4cb80d54bd4, width: 64, height: 64
+    datas[ 5] = texture_data( 128,    4096, 189040820,    4096); // hash: 0b4e5fd48795c7b07206e38c42debfb6, width: 32, height: 32
+    datas[ 6] = texture_data(  64,    1024, 189044916,    1024); // hash: 05f6d3e4041bf8819cc0f7a1e7a28094, width: 16, height: 16
+    datas[ 7] = texture_data(  32,     256, 189045940,     256); // hash: b52d391bbabaf303be3a18a0f44e3ba6, width: 8, height: 8
+    datas[ 8] = texture_data(  16,      64, 189046196,      64); // hash: a44d4ba5c1df725dabef70679c78a94c, width: 4, height: 4
+    datas[ 9] = texture_data(   8,      16, 189046260,      16); // hash: e3cd0daafab292bf484f67daa63cfbef, width: 2, height: 2
+    datas[10] = texture_data(   4,       4, 189046276,       4); // hash: 2426906e3a0c17efd9b0748b57fe5f46, width: 1, height: 1
     // clang-format on
     return Texture {
         .format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB,
@@ -846,10 +904,10 @@ auto Assets::grass_material() const -> Material {
 }
 
 auto Shaders::load() -> void {
-    // hash: b12d6e2c7a58761efb3d0b37c9792d8d
+    // hash: b66e2db8a57533d1fecd53df2561a4df
     ZoneScoped;
     _data = read_whole_file("fb_buffet_shaders.bin");
-    FB_ASSERT(_data.size() == 224904);
+    FB_ASSERT(_data.size() == 224908);
 }
 
 // shader_hash: d5c7057e7dc4e62ece119084aa759e6f
@@ -5514,7 +5572,7 @@ auto Shaders::anim_draw_vs() const -> std::span<const std::byte> {
     return std::span(_data).subspan(85576, 6648);
 }
 
-// shader_hash: 91bb46e7111f0e91f5ca4cef5a872063
+// shader_hash: f41202daa0f8face14d759014c1dfb5e
 // constant_buffers: 1
 // bound_resources: 1
 // input_parameters: 4
@@ -5539,8 +5597,8 @@ auto Shaders::anim_draw_vs() const -> std::span<const std::byte> {
 ; -------------------- ----- ------ -------- -------- ------- ------
 ; SV_Target                0   xyzw        0   TARGET   float   xyzw
 ;
-; shader debug name: 91bb46e7111f0e91f5ca4cef5a872063.pdb
-; shader hash: 91bb46e7111f0e91f5ca4cef5a872063
+; shader debug name: f41202daa0f8face14d759014c1dfb5e.pdb
+; shader hash: f41202daa0f8face14d759014c1dfb5e
 ;
 ; Pipeline Runtime Information: 
 ;
@@ -5633,10 +5691,10 @@ define void @draw_ps() {
   %15 = fmul fast float %12, 0x3F70101020000000
   %16 = fmul fast float %13, 0x3F70101020000000
   %17 = fmul fast float %14, 0x3F70101020000000
-  %18 = call float @dx.op.dot3.f32(i32 55, float %3, float %4, float %5, float 0x3FE279A740000000, float 0x3FE279A740000000, float 0x3FE279A740000000)  ; Dot3(ax,ay,az,bx,by,bz)
+  %18 = call float @dx.op.dot3.f32(i32 55, float %3, float %4, float %5, float 0xBFE279A740000000, float 0x3FE279A740000000, float 0x3FE279A740000000)  ; Dot3(ax,ay,az,bx,by,bz)
   %19 = call float @dx.op.unary.f32(i32 7, float %18)  ; Saturate(value)
-  %20 = fmul fast float %19, 7.500000e-01
-  %21 = fadd fast float %20, 2.500000e-01
+  %20 = fmul fast float %19, 5.000000e-01
+  %21 = fadd fast float %20, 5.000000e-01
   %22 = fmul fast float %15, %21
   %23 = fmul fast float %16, %21
   %24 = fmul fast float %17, %21
@@ -5707,7 +5765,7 @@ attributes #2 = { nounwind readonly }
 !21 = !{i32 0, i64 8388864}
 */
 auto Shaders::anim_draw_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(92224, 4556);
+    return std::span(_data).subspan(92224, 4560);
 }
 
 // shader_hash: 4c24160a228de20f6e6b67a3c4dc1f64
@@ -5870,7 +5928,7 @@ attributes #2 = { nounwind }
 !8 = !{i32 32, i32 1, i32 1}
 */
 auto Shaders::fibers_sim_cs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(96780, 4012);
+    return std::span(_data).subspan(96784, 4012);
 }
 
 // shader_hash: 538af1d555e6229ed12eb7826b7744f7
@@ -5996,7 +6054,7 @@ attributes #2 = { nounwind readonly }
 !8 = !{i32 1, i32 1, i32 1}
 */
 auto Shaders::fibers_reset_cs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(100792, 3436);
+    return std::span(_data).subspan(100796, 3436);
 }
 
 // shader_hash: cda447ac08bc8e96d95137c291d7ad57
@@ -6519,7 +6577,7 @@ attributes #3 = { nounwind }
 !12 = !{!"Simple C/C++ TBAA"}
 */
 auto Shaders::fibers_cull_cs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(104228, 7344);
+    return std::span(_data).subspan(104232, 7344);
 }
 
 // shader_hash: d9c0538b37e05e7ddbcd3a4d9120d287
@@ -6802,7 +6860,7 @@ attributes #2 = { nounwind readonly }
 !24 = !{i32 0, i64 1082130688}
 */
 auto Shaders::fibers_light_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(111572, 5508);
+    return std::span(_data).subspan(111576, 5508);
 }
 
 // shader_hash: f27939a6f16349e903dc9af6129dfec6
@@ -6910,7 +6968,7 @@ attributes #0 = { nounwind }
 !17 = !{i32 0, i64 8388864}
 */
 auto Shaders::fibers_light_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(117080, 3156);
+    return std::span(_data).subspan(117084, 3156);
 }
 
 // shader_hash: 4e1239e66cc230f1aaecc7e547156a48
@@ -7185,7 +7243,7 @@ attributes #2 = { nounwind readonly }
 !26 = !{i32 0, i64 1082130688}
 */
 auto Shaders::fibers_plane_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(120236, 5528);
+    return std::span(_data).subspan(120240, 5528);
 }
 
 // shader_hash: 669b63a697e3a5755aabebde6fb866ca
@@ -7495,7 +7553,7 @@ attributes #2 = { nounwind readonly }
 !24 = !{i32 0, i64 1082130688}
 */
 auto Shaders::fibers_plane_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(125764, 5944);
+    return std::span(_data).subspan(125768, 5944);
 }
 
 // shader_hash: 3c7eef96db8f3d7630188b073357bb1d
@@ -7621,7 +7679,7 @@ attributes #1 = { nounwind }
 !16 = !{i32 0, i64 8388864}
 */
 auto Shaders::fibers_debug_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(131708, 3268);
+    return std::span(_data).subspan(131712, 3268);
 }
 
 // shader_hash: bafb272ddc9366ca12cc1f13caf82d43
@@ -7843,7 +7901,7 @@ attributes #2 = { nounwind readonly }
 !17 = !{i32 0, i64 11819548928}
 */
 auto Shaders::fibers_debug_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(134976, 4960);
+    return std::span(_data).subspan(134980, 4960);
 }
 
 // shader_hash: cc2a934663d49520ba211c3cf848160d
@@ -8093,7 +8151,7 @@ attributes #2 = { nounwind readonly }
 !24 = !{i32 0, i64 1082130688}
 */
 auto Shaders::env_background_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(139936, 5196);
+    return std::span(_data).subspan(139940, 5196);
 }
 
 // shader_hash: 8a3c862749ec501ff0b8f3a65bc2e6be
@@ -8343,7 +8401,7 @@ attributes #2 = { nounwind readonly }
 !21 = !{i32 0, i64 3229614336}
 */
 auto Shaders::env_background_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(145132, 5104);
+    return std::span(_data).subspan(145136, 5104);
 }
 
 // shader_hash: 0038661577734484a66656a28dbdc941
@@ -8591,7 +8649,7 @@ attributes #2 = { nounwind readonly }
 !21 = !{i32 0, i64 1082130688}
 */
 auto Shaders::env_model_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(150236, 5100);
+    return std::span(_data).subspan(150240, 5100);
 }
 
 // shader_hash: d9b82a874bca714c1d4129251bfe07fa
@@ -8901,7 +8959,7 @@ attributes #2 = { nounwind readonly }
 !19 = !{i32 0, i64 3229614336}
 */
 auto Shaders::env_model_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(155336, 5612);
+    return std::span(_data).subspan(155340, 5612);
 }
 
 // shader_hash: 821eee7a94d6d2a2fa9e82f5c365d7f6
@@ -9152,7 +9210,7 @@ attributes #2 = { nounwind readonly }
 !24 = !{i32 0, i64 1082130688}
 */
 auto Shaders::text_background_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(160948, 5224);
+    return std::span(_data).subspan(160952, 5224);
 }
 
 // shader_hash: a3925396d8411959d700b45c4725ed70
@@ -9354,7 +9412,7 @@ attributes #2 = { nounwind readonly }
 !21 = !{i32 0, i64 3229614336}
 */
 auto Shaders::text_background_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(166172, 4760);
+    return std::span(_data).subspan(166176, 4760);
 }
 
 // shader_hash: a53097e80b634f80e3bfd6140623a0f4
@@ -9630,7 +9688,7 @@ attributes #2 = { nounwind readonly }
 !19 = !{i32 0, i64 1082130688}
 */
 auto Shaders::text_glyph_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(170932, 5256);
+    return std::span(_data).subspan(170936, 5256);
 }
 
 // shader_hash: 9901d99d4259873d667c147a01fa27e1
@@ -9842,7 +9900,7 @@ attributes #2 = { nounwind readonly }
 !17 = !{i32 0, i64 3229614336}
 */
 auto Shaders::text_glyph_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(176188, 4752);
+    return std::span(_data).subspan(176192, 4752);
 }
 
 // shader_hash: 4008acc81fec37078877fda3791850bc
@@ -10063,7 +10121,7 @@ attributes #2 = { nounwind readonly }
 !17 = !{i32 0, i64 1082130688}
 */
 auto Shaders::saber_scene_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(180940, 4628);
+    return std::span(_data).subspan(180944, 4628);
 }
 
 // shader_hash: 65154cb3872c55fcb84171ea6240d0b6
@@ -10233,7 +10291,7 @@ attributes #2 = { nounwind readonly }
 !15 = !{i32 0, i64 1082130688}
 */
 auto Shaders::saber_scene_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(185568, 3872);
+    return std::span(_data).subspan(185572, 3872);
 }
 
 // shader_hash: f4c16de1384addbaa0a4dff7f3ea09cd
@@ -10412,7 +10470,7 @@ attributes #2 = { nounwind }
 !8 = !{i32 8, i32 8, i32 1}
 */
 auto Shaders::saber_threshold_cs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(189440, 4056);
+    return std::span(_data).subspan(189444, 4056);
 }
 
 // shader_hash: c63f8b566602e338c3f309ebda3b8444
@@ -10706,7 +10764,7 @@ attributes #2 = { nounwind }
 !8 = !{i32 8, i32 8, i32 1}
 */
 auto Shaders::saber_downsample_cs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(193496, 4804);
+    return std::span(_data).subspan(193500, 4804);
 }
 
 // shader_hash: b3eed3d3b1f779262a878da696bb3462
@@ -10965,7 +11023,7 @@ attributes #2 = { nounwind }
 !8 = !{i32 8, i32 8, i32 1}
 */
 auto Shaders::saber_upsample_cs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(198300, 4628);
+    return std::span(_data).subspan(198304, 4628);
 }
 
 // shader_hash: d8a565ad99bfe7bd2ffa3d4dd9ecd7ad
@@ -11091,7 +11149,7 @@ attributes #1 = { nounwind }
 !16 = !{i32 0, i64 8388864}
 */
 auto Shaders::saber_blit_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(202928, 3268);
+    return std::span(_data).subspan(202932, 3268);
 }
 
 // shader_hash: e097ba37e35cd44359398b78600f7605
@@ -11281,7 +11339,7 @@ attributes #2 = { nounwind readonly }
 !17 = !{i32 0, i64 3229614336}
 */
 auto Shaders::saber_blit_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(206196, 4292);
+    return std::span(_data).subspan(206200, 4292);
 }
 
 // shader_hash: f811e0f46dd8880c55e845f1b43de01e
@@ -11529,7 +11587,7 @@ attributes #2 = { nounwind readonly }
 !22 = !{i32 0, i64 1082130688}
 */
 auto Shaders::grass_draw_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(210488, 5036);
+    return std::span(_data).subspan(210492, 5036);
 }
 
 // shader_hash: 528770a44c3f3470b8bad92fc30022a2
@@ -11730,7 +11788,7 @@ attributes #2 = { nounwind readonly }
 !19 = !{i32 0, i64 3229614336}
 */
 auto Shaders::grass_draw_naive_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(215524, 4620);
+    return std::span(_data).subspan(215528, 4620);
 }
 
 // shader_hash: 4afc5d1154d78107f4f7353c14a71966
@@ -11940,7 +11998,7 @@ attributes #2 = { nounwind readonly }
 !19 = !{i32 0, i64 3229614336}
 */
 auto Shaders::grass_draw_atoc_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(220144, 4760);
+    return std::span(_data).subspan(220148, 4760);
 }
 
 #undef texture_data
