@@ -58,13 +58,13 @@ void threshold_cs(FbComputeInput input) {
     const float texture_height = float(g_threshold_bindings.texture_height);
     Texture2D<float4> scene_texture = ResourceDescriptorHeap[scene_texture_id];
     RWTexture2D<float4> downsample_texture = ResourceDescriptorHeap[downsample_texture_id];
-    SamplerState samp = SamplerDescriptorHeap[(uint)GpuSampler::LinearClamp];
+    SamplerState sampler = SamplerDescriptorHeap[(uint)GpuSampler::LinearClamp];
 
     const float2 dst_id_uv = 0.5f + float2(dst_id);
     const float2 dst_texel_size = 1.0f / float2(texture_width, texture_height);
     const float2 dst_uv = float2(dst_id_uv.x * dst_texel_size.x, dst_id_uv.y * dst_texel_size.y);
 
-    const float3 scene_color = scene_texture.Sample(samp, dst_uv).rgb;
+    const float3 scene_color = scene_texture.Sample(sampler, dst_uv).rgb;
     const float3 threshold_color = max(0.0f, scene_color - THRESHOLD);
 
     downsample_texture[dst_id] = float4(threshold_color, 1.0f);
@@ -92,7 +92,7 @@ void downsample_cs(FbComputeInput input) {
     const uint dst_texture_height = g_downsample_bindings.dst_texture_height;
     Texture2D<float4> src_texture = ResourceDescriptorHeap[src_texture_id];
     RWTexture2D<float4> dst_texture = ResourceDescriptorHeap[dst_texture_id + dst_texture_level];
-    SamplerState samp = SamplerDescriptorHeap[(uint)GpuSampler::LinearClamp];
+    SamplerState sampler = SamplerDescriptorHeap[(uint)GpuSampler::LinearClamp];
 
     const float2 dst_id_uv = 0.5f + float2(dst_id);
     const float2 dst_texel_size = 1.0f / float2(dst_texture_width, dst_texture_height);
@@ -108,19 +108,19 @@ void downsample_cs(FbComputeInput input) {
     //
 
     // clang-format off
-    const float3 src_a = src_texture.SampleLevel(samp, dst_uv + dst_texel_size * float2(-1.0f, -1.0f), src_texture_level).rgb;
-    const float3 src_b = src_texture.SampleLevel(samp, dst_uv + dst_texel_size * float2(0.0f, -1.0f), src_texture_level).rgb;
-    const float3 src_c = src_texture.SampleLevel(samp, dst_uv + dst_texel_size * float2(1.0f, -1.0f), src_texture_level).rgb;
-    const float3 src_d = src_texture.SampleLevel(samp, dst_uv + dst_texel_size * float2(-0.5f, -0.5f), src_texture_level).rgb;
-    const float3 src_e = src_texture.SampleLevel(samp, dst_uv + dst_texel_size * float2(0.5f, -0.5f), src_texture_level).rgb;
-    const float3 src_f = src_texture.SampleLevel(samp, dst_uv + dst_texel_size * float2(-1.0f, 0.0f), src_texture_level).rgb;
-    const float3 src_g = src_texture.SampleLevel(samp, dst_uv, src_texture_level).rgb;
-    const float3 src_h = src_texture.SampleLevel(samp, dst_uv + dst_texel_size * float2(1.0f, 0.0f), src_texture_level).rgb;
-    const float3 src_i = src_texture.SampleLevel(samp, dst_uv + dst_texel_size * float2(-0.5f, 0.5f), src_texture_level).rgb;
-    const float3 src_j = src_texture.SampleLevel(samp, dst_uv + dst_texel_size * float2(0.5f, 0.5f), src_texture_level).rgb;
-    const float3 src_k = src_texture.SampleLevel(samp, dst_uv + dst_texel_size * float2(-1.0f, 1.0f), src_texture_level).rgb;
-    const float3 src_l = src_texture.SampleLevel(samp, dst_uv + dst_texel_size * float2(0.0f, 1.0f), src_texture_level).rgb;
-    const float3 src_m = src_texture.SampleLevel(samp, dst_uv + dst_texel_size * float2(1.0f, 1.0f), src_texture_level).rgb;
+    const float3 src_a = src_texture.SampleLevel(sampler, dst_uv + dst_texel_size * float2(-1.0f, -1.0f), src_texture_level).rgb;
+    const float3 src_b = src_texture.SampleLevel(sampler, dst_uv + dst_texel_size * float2(0.0f, -1.0f), src_texture_level).rgb;
+    const float3 src_c = src_texture.SampleLevel(sampler, dst_uv + dst_texel_size * float2(1.0f, -1.0f), src_texture_level).rgb;
+    const float3 src_d = src_texture.SampleLevel(sampler, dst_uv + dst_texel_size * float2(-0.5f, -0.5f), src_texture_level).rgb;
+    const float3 src_e = src_texture.SampleLevel(sampler, dst_uv + dst_texel_size * float2(0.5f, -0.5f), src_texture_level).rgb;
+    const float3 src_f = src_texture.SampleLevel(sampler, dst_uv + dst_texel_size * float2(-1.0f, 0.0f), src_texture_level).rgb;
+    const float3 src_g = src_texture.SampleLevel(sampler, dst_uv, src_texture_level).rgb;
+    const float3 src_h = src_texture.SampleLevel(sampler, dst_uv + dst_texel_size * float2(1.0f, 0.0f), src_texture_level).rgb;
+    const float3 src_i = src_texture.SampleLevel(sampler, dst_uv + dst_texel_size * float2(-0.5f, 0.5f), src_texture_level).rgb;
+    const float3 src_j = src_texture.SampleLevel(sampler, dst_uv + dst_texel_size * float2(0.5f, 0.5f), src_texture_level).rgb;
+    const float3 src_k = src_texture.SampleLevel(sampler, dst_uv + dst_texel_size * float2(-1.0f, 1.0f), src_texture_level).rgb;
+    const float3 src_l = src_texture.SampleLevel(sampler, dst_uv + dst_texel_size * float2(0.0f, 1.0f), src_texture_level).rgb;
+    const float3 src_m = src_texture.SampleLevel(sampler, dst_uv + dst_texel_size * float2(1.0f, 1.0f), src_texture_level).rgb;
     // clang-format on
 
     const float div_0 = 0.5f / 4.0f;
@@ -159,7 +159,7 @@ void upsample_cs(FbComputeInput input) {
     Texture2D<float4> src_dn_texture = ResourceDescriptorHeap[src_dn_texture_id];
     Texture2D<float4> src_up_texture = ResourceDescriptorHeap[src_up_texture_id];
     RWTexture2D<float4> dst_texture = ResourceDescriptorHeap[dst_texture_id + dst_texture_level];
-    SamplerState samp = SamplerDescriptorHeap[(uint)GpuSampler::LinearClamp];
+    SamplerState sampler = SamplerDescriptorHeap[(uint)GpuSampler::LinearClamp];
 
     const float2 dst_id_uv = 0.5f + float2(dst_id);
     const float2 dst_texel_size = 1.0f / float2(dst_texture_width, dst_texture_height);
@@ -167,18 +167,18 @@ void upsample_cs(FbComputeInput input) {
 
     float3 dst_dn_color = float3(0.0f, 0.0f, 0.0f);
     // clang-format off
-    dst_dn_color += 1.0 * src_dn_texture.SampleLevel(samp, dst_uv + dst_texel_size * float2(-1.0f, -1.0f), src_texture_level).rgb;
-    dst_dn_color += 2.0 * src_dn_texture.SampleLevel(samp, dst_uv + dst_texel_size * float2(-0.0f, -1.0f), src_texture_level).rgb;
-    dst_dn_color += 1.0 * src_dn_texture.SampleLevel(samp, dst_uv + dst_texel_size * float2(1.0f, -1.0f), src_texture_level).rgb;
-    dst_dn_color += 2.0 * src_dn_texture.SampleLevel(samp, dst_uv + dst_texel_size * float2(-1.0f, 0.0f), src_texture_level).rgb;
-    dst_dn_color += 4.0 * src_dn_texture.SampleLevel(samp, dst_uv + dst_texel_size * float2(0.0f, 0.0f), src_texture_level).rgb;
-    dst_dn_color += 2.0 * src_dn_texture.SampleLevel(samp, dst_uv + dst_texel_size * float2(1.0f, 0.0f), src_texture_level).rgb;
-    dst_dn_color += 1.0 * src_dn_texture.SampleLevel(samp, dst_uv + dst_texel_size * float2(-1.0f, 1.0f), src_texture_level).rgb;
-    dst_dn_color += 2.0 * src_dn_texture.SampleLevel(samp, dst_uv + dst_texel_size * float2(0.0f, 1.0f), src_texture_level).rgb;
-    dst_dn_color += 1.0 * src_dn_texture.SampleLevel(samp, dst_uv + dst_texel_size * float2(1.0f, 1.0f), src_texture_level).rgb;
+    dst_dn_color += 1.0 * src_dn_texture.SampleLevel(sampler, dst_uv + dst_texel_size * float2(-1.0f, -1.0f), src_texture_level).rgb;
+    dst_dn_color += 2.0 * src_dn_texture.SampleLevel(sampler, dst_uv + dst_texel_size * float2(-0.0f, -1.0f), src_texture_level).rgb;
+    dst_dn_color += 1.0 * src_dn_texture.SampleLevel(sampler, dst_uv + dst_texel_size * float2(1.0f, -1.0f), src_texture_level).rgb;
+    dst_dn_color += 2.0 * src_dn_texture.SampleLevel(sampler, dst_uv + dst_texel_size * float2(-1.0f, 0.0f), src_texture_level).rgb;
+    dst_dn_color += 4.0 * src_dn_texture.SampleLevel(sampler, dst_uv + dst_texel_size * float2(0.0f, 0.0f), src_texture_level).rgb;
+    dst_dn_color += 2.0 * src_dn_texture.SampleLevel(sampler, dst_uv + dst_texel_size * float2(1.0f, 0.0f), src_texture_level).rgb;
+    dst_dn_color += 1.0 * src_dn_texture.SampleLevel(sampler, dst_uv + dst_texel_size * float2(-1.0f, 1.0f), src_texture_level).rgb;
+    dst_dn_color += 2.0 * src_dn_texture.SampleLevel(sampler, dst_uv + dst_texel_size * float2(0.0f, 1.0f), src_texture_level).rgb;
+    dst_dn_color += 1.0 * src_dn_texture.SampleLevel(sampler, dst_uv + dst_texel_size * float2(1.0f, 1.0f), src_texture_level).rgb;
     // clang-format on
 
-    float3 dst_up_color = src_up_texture.SampleLevel(samp, dst_uv, src_texture_level).rgb;
+    float3 dst_up_color = src_up_texture.SampleLevel(sampler, dst_uv, src_texture_level).rgb;
     float3 dst_color = 0.5f * (dst_dn_color + dst_up_color);
 
     dst_texture[dst_id] = float4(dst_color, 1.0f);
@@ -204,10 +204,10 @@ BlitVertexOutput blit_vs(FbVertexInput input) {
 FbPixelOutput<1> blit_ps(BlitVertexOutput input) {
     Texture2D scene_texture = ResourceDescriptorHeap[g_blit_bindings.scene_texture];
     Texture2D bloom_texture = ResourceDescriptorHeap[g_blit_bindings.bloom_texture];
-    SamplerState samp = SamplerDescriptorHeap[(uint)GpuSampler::LinearClamp];
+    SamplerState sampler = SamplerDescriptorHeap[(uint)GpuSampler::LinearClamp];
 
-    const float3 scene_color = scene_texture.Sample(samp, input.texcoord).rgb;
-    const float3 bloom_color = bloom_texture.Sample(samp, input.texcoord).rgb;
+    const float3 scene_color = scene_texture.Sample(sampler, input.texcoord).rgb;
+    const float3 bloom_color = bloom_texture.Sample(sampler, input.texcoord).rgb;
     const float3 color = scene_color + bloom_color;
 
     FbPixelOutput<1> output;

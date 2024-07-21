@@ -35,12 +35,12 @@ FbPixelOutput<1> background_ps(BackgroundVertexOutput input) {
     ConstantBuffer<BackgroundConstants> constants =
         ResourceDescriptorHeap[g_background_bindings.constants];
     TextureCube<float4> texture = ResourceDescriptorHeap[g_background_bindings.texture];
-    SamplerState samp = SamplerDescriptorHeap[(uint)GpuSampler::LinearWrap];
+    SamplerState sampler = SamplerDescriptorHeap[(uint)GpuSampler::LinearWrap];
 
     const float roughness = constants.roughness;
     const uint mip_count = constants.mip_count;
     const float mip_level = roughness * float(mip_count - 1);
-    float3 color = texture.SampleLevel(samp, input.direction, mip_level).rgb;
+    float3 color = texture.SampleLevel(sampler, input.direction, mip_level).rgb;
 
     if (constants.tonemap) {
         color = fb_tonemap_aces(color);
@@ -82,7 +82,7 @@ FbPixelOutput<1> model_ps(ModelVertexOutput input) {
     Texture2D<float2> lut_texture = ResourceDescriptorHeap[g_model_bindings.lut_texture];
     TextureCube<float3> irr_texture = ResourceDescriptorHeap[g_model_bindings.irr_texture];
     TextureCube<float3> rad_texture = ResourceDescriptorHeap[g_model_bindings.rad_texture];
-    SamplerState samp = SamplerDescriptorHeap[(uint)GpuSampler::LinearClamp];
+    SamplerState sampler = SamplerDescriptorHeap[(uint)GpuSampler::LinearClamp];
 
     const float3 n = normalize(input.normal);
     const float3 v = normalize(constants.camera_position - input.world_position);
@@ -92,11 +92,11 @@ FbPixelOutput<1> model_ps(ModelVertexOutput input) {
     const float mip_count = constants.mip_count;
     const float radiance_lod = roughness * float(mip_count - 1);
 
-    const float2 f0_scale_bias = lut_texture.Sample(samp, float2(ndotv, roughness));
+    const float2 f0_scale_bias = lut_texture.Sample(sampler, float2(ndotv, roughness));
     const float f0_scale = f0_scale_bias.x;
     const float f0_bias = f0_scale_bias.y;
-    const float3 irradiance = irr_texture.SampleLevel(samp, n, 0);
-    const float3 radiance = rad_texture.SampleLevel(samp, r, radiance_lod);
+    const float3 irradiance = irr_texture.SampleLevel(sampler, n, 0);
+    const float3 radiance = rad_texture.SampleLevel(sampler, r, radiance_lod);
 
     const float3 base_color = float3(1.0f, 1.0f, 1.0f);
     const float3 specular_f0 = lerp(0.04f.xxx, base_color, constants.metallic);

@@ -26,9 +26,9 @@ FbPixelOutput<1> draw_naive_ps(VertexOutput input) {
     ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
     float alpha_cutoff = constants.alpha_cutoff;
     Texture2D texture = ResourceDescriptorHeap[g_bindings.texture];
-    SamplerState samp = SamplerDescriptorHeap[(uint)GpuSampler::LinearClamp];
+    SamplerState sampler = SamplerDescriptorHeap[(uint)GpuSampler::LinearClamp];
 
-    float4 color_alpha = texture.Sample(samp, input.texcoord);
+    float4 color_alpha = texture.Sample(sampler, input.texcoord);
     float3 color = color_alpha.rgb;
     float alpha = color_alpha.a;
 
@@ -43,9 +43,9 @@ FbPixelOutput<1> draw_atoc_ps(VertexOutput input) {
     ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
     float alpha_cutoff = constants.alpha_cutoff;
     Texture2D texture = ResourceDescriptorHeap[g_bindings.texture];
-    SamplerState samp = SamplerDescriptorHeap[(uint)GpuSampler::LinearClamp];
+    SamplerState sampler = SamplerDescriptorHeap[(uint)GpuSampler::LinearClamp];
 
-    float4 color_alpha = texture.Sample(samp, input.texcoord);
+    float4 color_alpha = texture.Sample(sampler, input.texcoord);
     float3 color = color_alpha.rgb;
     float alpha = color_alpha.a;
 
