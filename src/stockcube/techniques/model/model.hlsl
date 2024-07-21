@@ -10,10 +10,10 @@ struct VertexOutput {
     float3 world_position: ATTRIBUTE1;
 };
 
-VertexOutput vs(FbVertexInput input) {
+VertexOutput vs(fb::VertexInput input) {
     ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
-    StructuredBuffer<FbVertex> vertices = ResourceDescriptorHeap[g_bindings.vertices];
-    FbVertex vertex = vertices[input.vertex_id];
+    StructuredBuffer<fb::Vertex> vertices = ResourceDescriptorHeap[g_bindings.vertices];
+    fb::Vertex vertex = vertices[input.vertex_id];
 
     VertexOutput output;
     output.position = mul(constants.transform, float4(vertex.position, 1.0f));
@@ -22,7 +22,7 @@ VertexOutput vs(FbVertexInput input) {
     return output;
 }
 
-FbPixelOutput<1> ps(VertexOutput input) {
+fb::PixelOutput<1> ps(VertexOutput input) {
     ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
     Texture2D<float2> lut_texture = ResourceDescriptorHeap[g_bindings.lut_texture];
     TextureCube<float3> irr_texture = ResourceDescriptorHeap[g_bindings.irr_texture];
@@ -50,7 +50,7 @@ FbPixelOutput<1> ps(VertexOutput input) {
     const float3 specular = radiance * (specular_f0 * f0_scale + f0_bias);
     const float3 color = diffuse + specular;
 
-    FbPixelOutput<1> output;
+    fb::PixelOutput<1> output;
     output.color = float4(color, 1.0f);
     return output;
 }

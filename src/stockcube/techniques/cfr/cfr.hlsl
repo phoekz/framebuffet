@@ -5,7 +5,7 @@
 ConstantBuffer<Bindings> g_bindings: register(b0);
 
 FB_ATTRIBUTE(numthreads, DISPATCH_X, DISPATCH_Y, DISPATCH_Z)
-void cs(FbComputeInput input) {
+void cs(fb::ComputeInput input) {
     // Global resources.
     ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
     const uint2 cube_texture_size = constants.cube_texture_size;
@@ -19,7 +19,7 @@ void cs(FbComputeInput input) {
     const uint3 dst_id = input.dispatch_thread_id;
 
     // Direction.
-    const float3 dir = fb_cube_direction_from_dispatch_input(src_id, face_id, cube_texture_size);
+    const float3 dir = fb::cube_direction_from_dispatch_input(src_id, face_id, cube_texture_size);
 
     // Normalized latitude/longitude from direction.
     const float lon = 0.5f + atan2(dir.z, dir.x) / (2.0f * FB_PI);

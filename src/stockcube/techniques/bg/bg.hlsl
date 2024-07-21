@@ -11,10 +11,10 @@ struct VertexOutput {
     float3 direction: ATTRIBUTE2;
 };
 
-VertexOutput vs(FbVertexInput input) {
+VertexOutput vs(fb::VertexInput input) {
     ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
-    StructuredBuffer<FbVertex> vertices = ResourceDescriptorHeap[g_bindings.vertices];
-    FbVertex vertex = vertices[input.vertex_id];
+    StructuredBuffer<fb::Vertex> vertices = ResourceDescriptorHeap[g_bindings.vertices];
+    fb::Vertex vertex = vertices[input.vertex_id];
     float3 direction = vertex.position;
 
     VertexOutput output;
@@ -26,7 +26,7 @@ VertexOutput vs(FbVertexInput input) {
     return output;
 }
 
-FbPixelOutput<1> ps(VertexOutput input) {
+fb::PixelOutput<1> ps(VertexOutput input) {
     ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
     TextureCube<float4> texture = ResourceDescriptorHeap[g_bindings.texture];
     SamplerState texture_sampler = SamplerDescriptorHeap[g_bindings.sampler];
@@ -37,7 +37,7 @@ FbPixelOutput<1> ps(VertexOutput input) {
 
     const float3 color = texture.SampleLevel(texture_sampler, input.direction, mip_level).rgb;
 
-    FbPixelOutput<1> output;
+    fb::PixelOutput<1> output;
     output.color = float4(color, 1.0f);
     return output;
 }

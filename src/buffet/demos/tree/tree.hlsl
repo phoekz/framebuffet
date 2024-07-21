@@ -12,10 +12,10 @@ struct ShadowVertexOutput {
     float4 position: SV_Position;
 };
 
-ShadowVertexOutput shadow_vs(FbVertexInput input) {
+ShadowVertexOutput shadow_vs(fb::VertexInput input) {
     const ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
-    const StructuredBuffer<FbVertex> vertices = ResourceDescriptorHeap[g_bindings.vertices];
-    const FbVertex vertex = vertices[input.vertex_id];
+    const StructuredBuffer<fb::Vertex> vertices = ResourceDescriptorHeap[g_bindings.vertices];
+    const fb::Vertex vertex = vertices[input.vertex_id];
 
     ShadowVertexOutput output;
     output.position = mul(constants.light_transform, float4(vertex.position, 1.0f));
@@ -33,10 +33,10 @@ struct DrawVertexOutput {
     float4 shadow_coord: ATTRIBUTE2;
 };
 
-DrawVertexOutput draw_vs(FbVertexInput input) {
+DrawVertexOutput draw_vs(fb::VertexInput input) {
     const ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
-    const StructuredBuffer<FbVertex> vertices = ResourceDescriptorHeap[g_bindings.vertices];
-    const FbVertex vertex = vertices[input.vertex_id];
+    const StructuredBuffer<fb::Vertex> vertices = ResourceDescriptorHeap[g_bindings.vertices];
+    const fb::Vertex vertex = vertices[input.vertex_id];
 
     DrawVertexOutput output;
     output.position = mul(constants.transform, float4(vertex.position, 1.0f));
@@ -46,7 +46,7 @@ DrawVertexOutput draw_vs(FbVertexInput input) {
     return output;
 }
 
-FbPixelOutput<1> draw_ps(DrawVertexOutput input) {
+fb::PixelOutput<1> draw_ps(DrawVertexOutput input) {
     const ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
     const Texture2D texture = ResourceDescriptorHeap[g_bindings.texture];
     const Texture2D shadow_texture = ResourceDescriptorHeap[g_bindings.shadow_texture];
@@ -66,7 +66,7 @@ FbPixelOutput<1> draw_ps(DrawVertexOutput input) {
     const float n_dot_l = shadow * saturate(dot(input.normal, constants.light_direction));
     const float lighting = constants.ambient_light + (1.0 - constants.ambient_light) * n_dot_l;
 
-    FbPixelOutput<1> output;
+    fb::PixelOutput<1> output;
     output.color = float4(color * lighting, 1.0f);
     return output;
 }

@@ -15,11 +15,11 @@ struct SceneVertexOutput {
     float4 position: SV_Position;
 };
 
-SceneVertexOutput scene_vs(FbVertexInput input) {
+SceneVertexOutput scene_vs(fb::VertexInput input) {
     ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_scene_bindings.constants];
-    StructuredBuffer<FbVertex> vertices = ResourceDescriptorHeap[g_scene_bindings.vertices];
+    StructuredBuffer<fb::Vertex> vertices = ResourceDescriptorHeap[g_scene_bindings.vertices];
     StructuredBuffer<SceneInstance> instances = ResourceDescriptorHeap[g_scene_bindings.instances];
-    const FbVertex vertex = vertices[input.vertex_id];
+    const fb::Vertex vertex = vertices[input.vertex_id];
     const float4x4 transform = instances[input.instance_id].transform;
 
     SceneVertexOutput output;
@@ -27,13 +27,13 @@ SceneVertexOutput scene_vs(FbVertexInput input) {
     return output;
 }
 
-FbPixelOutput<1> scene_ps(SceneVertexOutput /*input*/) {
+fb::PixelOutput<1> scene_ps(SceneVertexOutput /*input*/) {
     ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_scene_bindings.constants];
 
     const float3 saber_color = constants.saber_color_and_intensity.rgb;
     const float saber_intensity = constants.saber_color_and_intensity.a;
 
-    FbPixelOutput<1> output;
+    fb::PixelOutput<1> output;
     output.color = float4((saber_color + THRESHOLD) * saber_intensity, 1.0f);
     return output;
 }
@@ -45,7 +45,7 @@ FbPixelOutput<1> scene_ps(SceneVertexOutput /*input*/) {
 ConstantBuffer<ThresholdBindings> g_threshold_bindings: register(b0);
 
 FB_ATTRIBUTE(numthreads, DISPATCH_X, DISPATCH_Y, DISPATCH_Z)
-void threshold_cs(FbComputeInput input) {
+void threshold_cs(fb::ComputeInput input) {
     const uint2 dst_id = input.dispatch_thread_id.xy;
     if (dst_id.x >= g_threshold_bindings.texture_width
         || dst_id.y >= g_threshold_bindings.texture_height) {
@@ -77,7 +77,7 @@ void threshold_cs(FbComputeInput input) {
 ConstantBuffer<DownsampleBindings> g_downsample_bindings: register(b0);
 
 FB_ATTRIBUTE(numthreads, DISPATCH_X, DISPATCH_Y, DISPATCH_Z)
-void downsample_cs(FbComputeInput input) {
+void downsample_cs(fb::ComputeInput input) {
     const uint2 dst_id = input.dispatch_thread_id.xy;
     if (dst_id.x >= g_downsample_bindings.dst_texture_width
         || dst_id.y >= g_downsample_bindings.dst_texture_height) {
@@ -142,7 +142,7 @@ void downsample_cs(FbComputeInput input) {
 ConstantBuffer<UpsampleBindings> g_upsample_bindings: register(b0);
 
 FB_ATTRIBUTE(numthreads, DISPATCH_X, DISPATCH_Y, DISPATCH_Z)
-void upsample_cs(FbComputeInput input) {
+void upsample_cs(fb::ComputeInput input) {
     const uint2 dst_id = input.dispatch_thread_id.xy;
     if (dst_id.x >= g_upsample_bindings.dst_texture_width
         || dst_id.y >= g_upsample_bindings.dst_texture_height) {
@@ -195,13 +195,13 @@ struct BlitVertexOutput {
     float2 texcoord: ATTRIBUTE0;
 };
 
-BlitVertexOutput blit_vs(FbVertexInput input) {
+BlitVertexOutput blit_vs(fb::VertexInput input) {
     BlitVertexOutput output;
-    fb_fullscreen_triangle(input.vertex_id, output.position, output.texcoord);
+    fb::fullscreen_triangle(input.vertex_id, output.position, output.texcoord);
     return output;
 }
 
-FbPixelOutput<1> blit_ps(BlitVertexOutput input) {
+fb::PixelOutput<1> blit_ps(BlitVertexOutput input) {
     Texture2D scene_texture = ResourceDescriptorHeap[g_blit_bindings.scene_texture];
     Texture2D bloom_texture = ResourceDescriptorHeap[g_blit_bindings.bloom_texture];
     SamplerState sampler = SamplerDescriptorHeap[(uint)GpuSampler::LinearClamp];
@@ -210,7 +210,7 @@ FbPixelOutput<1> blit_ps(BlitVertexOutput input) {
     const float3 bloom_color = bloom_texture.Sample(sampler, input.texcoord).rgb;
     const float3 color = scene_color + bloom_color;
 
-    FbPixelOutput<1> output;
+    fb::PixelOutput<1> output;
     output.color = float4(color, 1.0f);
     return output;
 }

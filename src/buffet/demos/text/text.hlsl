@@ -16,11 +16,11 @@ struct BackgroundVertexOutput {
     float3 direction: ATTRIBUTE2;
 };
 
-BackgroundVertexOutput background_vs(FbVertexInput input) {
+BackgroundVertexOutput background_vs(fb::VertexInput input) {
     ConstantBuffer<BackgroundConstants> constants =
         ResourceDescriptorHeap[g_background_bindings.constants];
-    StructuredBuffer<FbVertex> vertices = ResourceDescriptorHeap[g_background_bindings.vertices];
-    FbVertex vertex = vertices[input.vertex_id];
+    StructuredBuffer<fb::Vertex> vertices = ResourceDescriptorHeap[g_background_bindings.vertices];
+    fb::Vertex vertex = vertices[input.vertex_id];
     float3 direction = vertex.position;
 
     BackgroundVertexOutput output;
@@ -32,14 +32,14 @@ BackgroundVertexOutput background_vs(FbVertexInput input) {
     return output;
 }
 
-FbPixelOutput<1> background_ps(BackgroundVertexOutput input) {
+fb::PixelOutput<1> background_ps(BackgroundVertexOutput input) {
     TextureCube<float3> irr_texture = ResourceDescriptorHeap[g_background_bindings.irr_texture];
     SamplerState sampler = SamplerDescriptorHeap[g_background_bindings.sampler];
 
     const float3 direction = normalize(input.direction);
     const float3 irradiance = irr_texture.SampleLevel(sampler, direction, 0);
 
-    FbPixelOutput<1> output;
+    fb::PixelOutput<1> output;
     output.color = float4(irradiance, 1.0f);
     return output;
 }
@@ -53,11 +53,11 @@ struct GlyphVertexOutput {
     float3 direction: ATTRIBUTE0;
 };
 
-GlyphVertexOutput glyph_vs(FbVertexInput input) {
+GlyphVertexOutput glyph_vs(fb::VertexInput input) {
     ConstantBuffer<GlyphConstants> constants = ResourceDescriptorHeap[g_glyph_bindings.constants];
-    StructuredBuffer<FbVertex> vertices = ResourceDescriptorHeap[g_glyph_bindings.vertices];
+    StructuredBuffer<fb::Vertex> vertices = ResourceDescriptorHeap[g_glyph_bindings.vertices];
     StructuredBuffer<GlyphInstance> instances = ResourceDescriptorHeap[g_glyph_bindings.instances];
-    FbVertex vertex = vertices[input.vertex_id + g_glyph_bindings.base_vertex];
+    fb::Vertex vertex = vertices[input.vertex_id + g_glyph_bindings.base_vertex];
     GlyphInstance instance = instances[g_glyph_bindings.instance_id];
 
     const float3 position = vertex.position + instance.position;
@@ -69,7 +69,7 @@ GlyphVertexOutput glyph_vs(FbVertexInput input) {
     return output;
 }
 
-FbPixelOutput<1> glyph_ps(GlyphVertexOutput input) {
+fb::PixelOutput<1> glyph_ps(GlyphVertexOutput input) {
     ConstantBuffer<GlyphConstants> constants = ResourceDescriptorHeap[g_glyph_bindings.constants];
     SamplerState sampler = SamplerDescriptorHeap[g_glyph_bindings.sampler];
     TextureCube<float3> irr_texture = ResourceDescriptorHeap[g_glyph_bindings.irr_texture];
@@ -77,7 +77,7 @@ FbPixelOutput<1> glyph_ps(GlyphVertexOutput input) {
     const float3 direction = normalize(input.direction);
     const float3 irradiance = constants.color.rgb * irr_texture.SampleLevel(sampler, direction, 0);
 
-    FbPixelOutput<1> output;
+    fb::PixelOutput<1> output;
     output.color = float4(irradiance, 1.0f);
     return output;
 }

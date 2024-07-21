@@ -6,7 +6,7 @@
 ConstantBuffer<Bindings> g_bindings: register(b0);
 
 FB_ATTRIBUTE(numthreads, DISPATCH_X, DISPATCH_Y, DISPATCH_Z)
-void cs(FbComputeInput input) {
+void cs(fb::ComputeInput input) {
     // Global resources.
     ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
     RWTexture2D<float2> lut_texture = ResourceDescriptorHeap[g_bindings.lut_texture];
@@ -32,7 +32,7 @@ void cs(FbComputeInput input) {
     float sum_scale = 0.0f;
     float sum_bias = 0.0f;
     for (uint i = 0; i < lut_sample_count; i++) {
-        const float2 u = fb_hammersley2d(i, lut_sample_count);
+        const float2 u = fb::hammersley2d(i, lut_sample_count);
         const float3 h = sample_ggx_vndf(v, alpha.xx, u);
         const float3 l = reflect(-v, h);
         const float hdotl = clamp(dot(h, l), 0.00001f, 1.0f);

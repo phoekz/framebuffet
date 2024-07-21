@@ -13,9 +13,9 @@ struct ClearVertexOutput {
     float2 texcoord: ATTRIBUTE0;
 };
 
-ClearVertexOutput clear_vs(FbVertexInput input) {
+ClearVertexOutput clear_vs(fb::VertexInput input) {
     ClearVertexOutput output;
-    fb_fullscreen_triangle(input.vertex_id, output.position, output.texcoord);
+    fb::fullscreen_triangle(input.vertex_id, output.position, output.texcoord);
     return output;
 }
 
@@ -37,7 +37,7 @@ struct RasterVertexOutput {
     float4 position: SV_Position;
 };
 
-RasterVertexOutput raster_vs(FbVertexInput input) {
+RasterVertexOutput raster_vs(fb::VertexInput input) {
     ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
 
     RasterVertexOutput output;
@@ -75,13 +75,13 @@ struct DisplayVertexOutput {
     float2 texcoord: ATTRIBUTE0;
 };
 
-DisplayVertexOutput display_vs(FbVertexInput input) {
+DisplayVertexOutput display_vs(fb::VertexInput input) {
     DisplayVertexOutput output;
-    fb_fullscreen_triangle(input.vertex_id, output.position, output.texcoord);
+    fb::fullscreen_triangle(input.vertex_id, output.position, output.texcoord);
     return output;
 }
 
-FbPixelOutput<1> display_ps(DisplayVertexOutput input) {
+fb::PixelOutput<1> display_ps(DisplayVertexOutput input) {
     ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
     StructuredBuffer<uint3> raster_buffer = ResourceDescriptorHeap[g_bindings.raster_buffer];
     const uint2 coord2d = (uint2)(input.texcoord * constants.raster_buffer_size);
@@ -111,7 +111,7 @@ FbPixelOutput<1> display_ps(DisplayVertexOutput input) {
     }
     const float3 color = float3(0.0f, value * input.texcoord);
 
-    FbPixelOutput<1> output;
+    fb::PixelOutput<1> output;
     output.color = float4(color, 1.0f);
     return output;
 }

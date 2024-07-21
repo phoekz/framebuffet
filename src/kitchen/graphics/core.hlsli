@@ -18,41 +18,43 @@ static const float FB_ONE_OVER_PI = 0.318309886f;
 // Input/output types.
 //
 
-struct FbVertexInput {
+namespace fb {
+
+struct VertexInput {
     uint vertex_id: SV_VertexID;
     uint instance_id: SV_InstanceID;
 };
 
 template<uint TargetCount>
-struct FbPixelOutput {};
+struct PixelOutput {};
 
 template<>
-struct FbPixelOutput<1> {
+struct PixelOutput<1> {
     float4 color: SV_Target;
 };
 
 template<>
-struct FbPixelOutput<2> {
+struct PixelOutput<2> {
     float4 color_0: SV_Target0;
     float4 color_1: SV_Target1;
 };
 
 template<>
-struct FbPixelOutput<3> {
+struct PixelOutput<3> {
     float4 color_0: SV_Target0;
     float4 color_1: SV_Target1;
     float4 color_2: SV_Target2;
 };
 
 template<>
-struct FbPixelOutput<4> {
+struct PixelOutput<4> {
     float4 color_0: SV_Target0;
     float4 color_1: SV_Target1;
     float4 color_2: SV_Target2;
     float4 color_3: SV_Target3;
 };
 
-struct FbComputeInput {
+struct ComputeInput {
     uint3 group_thread_id: SV_GroupThreadID;
     uint3 group_id: SV_GroupID;
     uint3 dispatch_thread_id: SV_DispatchThreadID;
@@ -63,14 +65,14 @@ struct FbComputeInput {
 // Mesh.
 //
 
-struct FbVertex {
+struct Vertex {
     float3 position;
     float3 normal;
     float2 texcoord;
     float4 tangent;
 };
 
-struct FbSkinningVertex {
+struct SkinningVertex {
     float3 position;
     float3 normal;
     float2 texcoord;
@@ -83,44 +85,44 @@ struct FbSkinningVertex {
 // Utilities.
 //
 
-float fb_pow2(float x) {
+float pow2(float x) {
     return x * x;
 }
 
-float fb_pow4(float x) {
+float pow4(float x) {
     const float x2 = x * x;
     return x2 * x2;
 }
 
-float4 fb_plane_from_points(float3 p0, float3 p1, float3 p2) {
+float4 plane_from_points(float3 p0, float3 p1, float3 p2) {
     const float3 v0 = p1 - p0;
     const float3 v1 = p2 - p0;
     const float3 n = normalize(cross(v0, v1));
     return float4(n, dot(n, p0));
 }
 
-bool fb_sphere_inside_plane(float4 plane, float3 sphere_center, float sphere_radius) {
+bool sphere_inside_plane(float4 plane, float3 sphere_center, float sphere_radius) {
     const float d = dot(plane.xyz, sphere_center) - plane.w;
     return d < -sphere_radius;
 }
 
-void fb_fullscreen_triangle(uint vertex_id, out float4 position, out float2 texcoord) {
+void fullscreen_triangle(uint vertex_id, out float4 position, out float2 texcoord) {
     // Note: counter-clockwise winding.
     texcoord = float2(vertex_id & 2u, (vertex_id << 1u) & 2u);
     position = float4(texcoord * float2(2.0f, -2.0f) + float2(-1.0f, 1.0f), 0.0f, 1.0f);
 }
 
-float2 fb_screen_coord_from_ndc(float4 ndc) {
+float2 screen_coord_from_ndc(float4 ndc) {
     // Note: Y is flipped.
     return ndc.xy / ndc.w * float2(0.5f, -0.5f) + float2(0.5f, 0.5f);
 }
 
-float3 fb_linear_from_srgb(float3 srgb) {
+float3 linear_from_srgb(float3 srgb) {
     // From: https://chilliant.blogspot.com/2012/08/srgb-approximations-for-hlsl.html
     return srgb * (srgb * (srgb * 0.305306011f + 0.682171111f) + 0.012522878f);
 }
 
-float3 fb_cube_direction_from_dispatch_input(uint2 src_id, uint face_id, uint2 face_size) {
+float3 cube_direction_from_dispatch_input(uint2 src_id, uint face_id, uint2 face_size) {
     // Note: Y is flipped.
     const float2 p = float2(
         (2.0f * ((src_id.x + 0.5f) / face_size.x) - 1.0f),
@@ -140,7 +142,7 @@ float3 fb_cube_direction_from_dispatch_input(uint2 src_id, uint face_id, uint2 f
     return dir;
 }
 
-float2 fb_hammersley2d(uint i, uint n) {
+float2 hammersley2d(uint i, uint n) {
     // From: http://holger.dammertz.org/stuff/notes_HammersleyOnHemisphere.html
     uint bits = (i << 16u) | (i >> 16u);
     bits = ((bits & 0x55555555u) << 1u) | ((bits & 0xaaaaaaaau) >> 1u);
@@ -150,7 +152,7 @@ float2 fb_hammersley2d(uint i, uint n) {
     return float2(float(i) / float(n), float(bits) * 2.3283064365386963e-10f);
 }
 
-float3 fb_tonemap_aces(float3 x) {
+float3 tonemap_aces(float3 x) {
     // From: https://knarkowicz.wordpress.com/2016/01/06/aces-filmic-tone-mapping-curve/
     const float a = 2.51f;
     const float b = 0.03f;
@@ -159,3 +161,5 @@ float3 fb_tonemap_aces(float3 x) {
     const float e = 0.14f;
     return saturate((x * (a * x + b)) / (x * (c * x + d) + e));
 }
+
+} // namespace fb

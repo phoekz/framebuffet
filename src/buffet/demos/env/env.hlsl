@@ -15,11 +15,11 @@ struct BackgroundVertexOutput {
 
 ConstantBuffer<BackgroundBindings> g_background_bindings: register(b0);
 
-BackgroundVertexOutput background_vs(FbVertexInput input) {
+BackgroundVertexOutput background_vs(fb::VertexInput input) {
     ConstantBuffer<BackgroundConstants> constants =
         ResourceDescriptorHeap[g_background_bindings.constants];
-    StructuredBuffer<FbVertex> vertices = ResourceDescriptorHeap[g_background_bindings.vertices];
-    FbVertex vertex = vertices[input.vertex_id];
+    StructuredBuffer<fb::Vertex> vertices = ResourceDescriptorHeap[g_background_bindings.vertices];
+    fb::Vertex vertex = vertices[input.vertex_id];
     float3 direction = vertex.position;
 
     BackgroundVertexOutput output;
@@ -31,7 +31,7 @@ BackgroundVertexOutput background_vs(FbVertexInput input) {
     return output;
 }
 
-FbPixelOutput<1> background_ps(BackgroundVertexOutput input) {
+fb::PixelOutput<1> background_ps(BackgroundVertexOutput input) {
     ConstantBuffer<BackgroundConstants> constants =
         ResourceDescriptorHeap[g_background_bindings.constants];
     TextureCube<float4> texture = ResourceDescriptorHeap[g_background_bindings.texture];
@@ -43,12 +43,12 @@ FbPixelOutput<1> background_ps(BackgroundVertexOutput input) {
     float3 color = texture.SampleLevel(sampler, input.direction, mip_level).rgb;
 
     if (constants.tonemap) {
-        color = fb_tonemap_aces(color);
+        color = fb::tonemap_aces(color);
     }
 
     color *= constants.exposure;
 
-    FbPixelOutput<1> output;
+    fb::PixelOutput<1> output;
     output.color = float4(color, 1.0f);
     return output;
 }
@@ -65,10 +65,10 @@ struct ModelVertexOutput {
 
 ConstantBuffer<ModelBindings> g_model_bindings: register(b0);
 
-ModelVertexOutput model_vs(FbVertexInput input) {
+ModelVertexOutput model_vs(fb::VertexInput input) {
     ConstantBuffer<ModelConstants> constants = ResourceDescriptorHeap[g_model_bindings.constants];
-    StructuredBuffer<FbVertex> vertices = ResourceDescriptorHeap[g_model_bindings.vertices];
-    FbVertex vertex = vertices[input.vertex_id];
+    StructuredBuffer<fb::Vertex> vertices = ResourceDescriptorHeap[g_model_bindings.vertices];
+    fb::Vertex vertex = vertices[input.vertex_id];
 
     ModelVertexOutput output;
     output.position = mul(constants.transform, float4(vertex.position, 1.0f));
@@ -77,7 +77,7 @@ ModelVertexOutput model_vs(FbVertexInput input) {
     return output;
 }
 
-FbPixelOutput<1> model_ps(ModelVertexOutput input) {
+fb::PixelOutput<1> model_ps(ModelVertexOutput input) {
     ConstantBuffer<ModelConstants> constants = ResourceDescriptorHeap[g_model_bindings.constants];
     Texture2D<float2> lut_texture = ResourceDescriptorHeap[g_model_bindings.lut_texture];
     TextureCube<float3> irr_texture = ResourceDescriptorHeap[g_model_bindings.irr_texture];
@@ -106,10 +106,10 @@ FbPixelOutput<1> model_ps(ModelVertexOutput input) {
     float3 color = diffuse + specular;
 
     if (constants.tonemap) {
-        color = fb_tonemap_aces(color);
+        color = fb::tonemap_aces(color);
     }
 
-    FbPixelOutput<1> output;
+    fb::PixelOutput<1> output;
     output.color = float4(color, 1.0f);
     return output;
 }

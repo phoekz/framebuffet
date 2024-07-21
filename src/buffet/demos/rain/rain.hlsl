@@ -5,7 +5,7 @@
 ConstantBuffer<Bindings> g_bindings: register(b0);
 
 FB_ATTRIBUTE(numthreads, DISPATCH_X, DISPATCH_Y, DISPATCH_Z)
-void sim_cs(FbComputeInput input) {
+void sim_cs(fb::ComputeInput input) {
     ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
     RWStructuredBuffer<Particle> particles = ResourceDescriptorHeap[g_bindings.particles];
 
@@ -23,7 +23,7 @@ struct VertexOutput {
     float2 texcoord: ATTRIBUTE0;
 };
 
-VertexOutput draw_vs(FbVertexInput input) {
+VertexOutput draw_vs(fb::VertexInput input) {
     ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
     StructuredBuffer<Vertex> vertices = ResourceDescriptorHeap[g_bindings.vertices];
     StructuredBuffer<Particle> particles = ResourceDescriptorHeap[g_bindings.particles];
@@ -41,12 +41,12 @@ VertexOutput draw_vs(FbVertexInput input) {
     return output;
 }
 
-FbPixelOutput<1> draw_ps(VertexOutput input) {
+fb::PixelOutput<1> draw_ps(VertexOutput input) {
     float distance = saturate(length(2.0f * input.texcoord - 1.0f));
     float gradient = pow(1.0f - distance, 3.0f);
     float3 color = gradient.xxx;
 
-    FbPixelOutput<1> output;
+    fb::PixelOutput<1> output;
     output.color = float4(color, gradient);
     return output;
 }

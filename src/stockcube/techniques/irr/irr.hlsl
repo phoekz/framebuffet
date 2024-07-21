@@ -7,7 +7,7 @@ ConstantBuffer<AccBindings> g_acc_bindings: register(b0);
 ConstantBuffer<DivBindings> g_div_bindings: register(b0);
 
 FB_ATTRIBUTE(numthreads, DISPATCH_X, DISPATCH_Y, DISPATCH_Z)
-void acc_cs(FbComputeInput input) {
+void acc_cs(fb::ComputeInput input) {
     // Global resources.
     ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_acc_bindings.constants];
     TextureCube<float3> cube_texture = ResourceDescriptorHeap[g_acc_bindings.cube_texture];
@@ -24,7 +24,7 @@ void acc_cs(FbComputeInput input) {
     const uint3 dst_id = input.dispatch_thread_id;
 
     // Direction.
-    const float3 dir = fb_cube_direction_from_dispatch_input(src_id, face_id, irr_texture_size);
+    const float3 dir = fb::cube_direction_from_dispatch_input(src_id, face_id, irr_texture_size);
 
     // Special: Clear if this is the first dispatch.
     if (dispatch_id == 0) {
@@ -39,7 +39,7 @@ void acc_cs(FbComputeInput input) {
     float3 irradiance = 0.0f.xxx;
     for (uint i = 0; i < irr_sample_count_per_dispatch; i++) {
         const uint global_i = i + dispatch_id * irr_sample_count_per_dispatch;
-        const float2 u = fb_hammersley2d(global_i, irr_sample_count);
+        const float2 u = fb::hammersley2d(global_i, irr_sample_count);
         const float3 n = dir;
         const float4 q_rotation_to_z = get_rotation_to_z_axis(n);
         const float4 q_rotation_from_z = invert_rotation(q_rotation_to_z);
@@ -59,7 +59,7 @@ void acc_cs(FbComputeInput input) {
 }
 
 FB_ATTRIBUTE(numthreads, DISPATCH_X, DISPATCH_Y, DISPATCH_Z)
-void div_cs(FbComputeInput input) {
+void div_cs(fb::ComputeInput input) {
     // Global resources.
     ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_div_bindings.constants];
     RWTexture2DArray<float4> acc_texture = ResourceDescriptorHeap[g_div_bindings.acc_texture];

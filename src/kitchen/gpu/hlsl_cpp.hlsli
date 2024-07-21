@@ -1,6 +1,6 @@
-#pragma once
-
 // This file contains macros that are used to make the code compatible between HLSL and C++.
+
+#pragma once
 
 //
 // Macros.

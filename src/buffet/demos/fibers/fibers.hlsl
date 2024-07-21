@@ -5,7 +5,7 @@
 ConstantBuffer<Bindings> g_bindings: register(b0);
 
 FB_ATTRIBUTE(numthreads, SIM_DISPATCH_X, SIM_DISPATCH_Y, SIM_DISPATCH_Z)
-void sim_cs(FbComputeInput input) {
+void sim_cs(fb::ComputeInput input) {
     ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
     RWStructuredBuffer<Light> lights = ResourceDescriptorHeap[g_bindings.lights];
 
@@ -23,7 +23,7 @@ void sim_cs(FbComputeInput input) {
 }
 
 FB_ATTRIBUTE(numthreads, 1, 1, 1)
-void reset_cs(FbComputeInput /*input*/) {
+void reset_cs(fb::ComputeInput /*input*/) {
     RWStructuredBuffer<uint> light_indices_count =
         ResourceDescriptorHeap[g_bindings.light_indices_count];
     light_indices_count[0] = 0;
@@ -41,7 +41,7 @@ float3 view_point_from_clip(float4x4 view_from_clip, float clip_x, float clip_y)
 }
 
 FB_ATTRIBUTE(numthreads, CULL_DISPATCH_X, CULL_DISPATCH_Y, CULL_DISPATCH_Z)
-void cull_cs(FbComputeInput input) {
+void cull_cs(fb::ComputeInput input) {
     ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
     StructuredBuffer<Light> lights = ResourceDescriptorHeap[g_bindings.lights];
     RWTexture2D<uint> light_counts_texture =
@@ -73,10 +73,10 @@ void cull_cs(FbComputeInput input) {
         const float3 view_point_3 = view_point_from_clip(view_from_clip, clip_x1, clip_y1);
 
         const float3 origin = float3(0.0f, 0.0f, 0.0f);
-        gs_frustum_planes[0] = fb_plane_from_points(origin, view_point_2, view_point_0);
-        gs_frustum_planes[1] = fb_plane_from_points(origin, view_point_1, view_point_3);
-        gs_frustum_planes[2] = fb_plane_from_points(origin, view_point_0, view_point_1);
-        gs_frustum_planes[3] = fb_plane_from_points(origin, view_point_3, view_point_2);
+        gs_frustum_planes[0] = fb::plane_from_points(origin, view_point_2, view_point_0);
+        gs_frustum_planes[1] = fb::plane_from_points(origin, view_point_1, view_point_3);
+        gs_frustum_planes[2] = fb::plane_from_points(origin, view_point_0, view_point_1);
+        gs_frustum_planes[3] = fb::plane_from_points(origin, view_point_3, view_point_2);
 
         gs_light_count = 0;
         gs_light_offset = 0;
@@ -94,7 +94,7 @@ void cull_cs(FbComputeInput input) {
         for (uint i = 0; i < 4; ++i) {
             const float4 plane = gs_frustum_planes[i];
             const float3 light_position = mul(view_from_world, float4(light.position, 1.0f)).xyz;
-            const bool hit = fb_sphere_inside_plane(plane, light_position, light_radius);
+            const bool hit = fb::sphere_inside_plane(plane, light_position, light_radius);
             hit_mask |= (uint)hit << i;
         }
         if (hit_mask == 0) {
@@ -131,13 +131,13 @@ struct LightVertexOutput {
     float3 color: ATTRIBUTE2;
 };
 
-LightVertexOutput light_vs(FbVertexInput input) {
+LightVertexOutput light_vs(fb::VertexInput input) {
     ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
     StructuredBuffer<Light> lights = ResourceDescriptorHeap[g_bindings.lights];
-    StructuredBuffer<FbVertex> vertices = ResourceDescriptorHeap[g_bindings.vertices];
+    StructuredBuffer<fb::Vertex> vertices = ResourceDescriptorHeap[g_bindings.vertices];
 
     Light light = lights[input.instance_id];
-    FbVertex vertex = vertices[input.vertex_id];
+    fb::Vertex vertex = vertices[input.vertex_id];
 
     float3 position = vertex.position * constants.light_range + light.position;
 
@@ -149,8 +149,8 @@ LightVertexOutput light_vs(FbVertexInput input) {
     return output;
 }
 
-FbPixelOutput<1> light_ps(LightVertexOutput /*input*/) {
-    FbPixelOutput<1> output;
+fb::PixelOutput<1> light_ps(LightVertexOutput /*input*/) {
+    fb::PixelOutput<1> output;
     output.color = float4(1.0f, 1.0f, 1.0f, 1.0f);
     return output;
 }
@@ -163,11 +163,11 @@ struct PlaneVertexOutput {
     float4 ndc_position: ATTRIBUTE3;
 };
 
-PlaneVertexOutput plane_vs(FbVertexInput input) {
+PlaneVertexOutput plane_vs(fb::VertexInput input) {
     ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
-    StructuredBuffer<FbVertex> vertices = ResourceDescriptorHeap[g_bindings.vertices];
+    StructuredBuffer<fb::Vertex> vertices = ResourceDescriptorHeap[g_bindings.vertices];
 
-    FbVertex vertex = vertices[input.vertex_id];
+    fb::Vertex vertex = vertices[input.vertex_id];
 
     PlaneVertexOutput output;
     output.position = mul(constants.clip_from_world, float4(vertex.position, 1.0f));
@@ -178,7 +178,7 @@ PlaneVertexOutput plane_vs(FbVertexInput input) {
     return output;
 }
 
-FbPixelOutput<1> plane_ps(PlaneVertexOutput input) {
+fb::PixelOutput<1> plane_ps(PlaneVertexOutput input) {
     ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
     StructuredBuffer<Light> lights = ResourceDescriptorHeap[g_bindings.lights];
     Texture2D<uint> light_counts_texture = ResourceDescriptorHeap[g_bindings.light_counts_texture];
@@ -190,7 +190,7 @@ FbPixelOutput<1> plane_ps(PlaneVertexOutput input) {
 
     const float2 window_size = constants.window_size;
     const float2 tile_size = (float2)CULL_TILE_SIZE;
-    const float2 screen_coord = fb_screen_coord_from_ndc(input.ndc_position);
+    const float2 screen_coord = fb::screen_coord_from_ndc(input.ndc_position);
     const float2 tile_pixel = screen_coord * window_size / tile_size;
     const uint2 tile_index = floor(tile_pixel);
     const uint light_count = light_counts_texture[tile_index];
@@ -202,12 +202,12 @@ FbPixelOutput<1> plane_ps(PlaneVertexOutput input) {
         float3 light_from_surface = light.position - input.world_position;
         float distance = max(0.001f, length(light_from_surface));
         float attenuation =
-            saturate(1.0 - fb_pow4(distance / constants.light_range)) / fb_pow2(distance);
+            saturate(1.0 - fb::pow4(distance / constants.light_range)) / fb::pow2(distance);
         float3 light_color = attenuation * light.color;
         color += constants.light_intensity * light_color;
     }
 
-    FbPixelOutput<1> output;
+    fb::PixelOutput<1> output;
     output.color = float4(color, 1.0f);
     return output;
 }
@@ -217,13 +217,13 @@ struct DebugVertexOutput {
     float2 texcoord: ATTRIBUTE0;
 };
 
-DebugVertexOutput debug_vs(FbVertexInput input) {
+DebugVertexOutput debug_vs(fb::VertexInput input) {
     DebugVertexOutput output;
-    fb_fullscreen_triangle(input.vertex_id, output.position, output.texcoord);
+    fb::fullscreen_triangle(input.vertex_id, output.position, output.texcoord);
     return output;
 }
 
-FbPixelOutput<1> debug_ps(DebugVertexOutput input) {
+fb::PixelOutput<1> debug_ps(DebugVertexOutput input) {
     ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
     RWTexture2D<uint> light_counts_texture =
         ResourceDescriptorHeap[g_bindings.light_counts_texture];
@@ -238,7 +238,7 @@ FbPixelOutput<1> debug_ps(DebugVertexOutput input) {
     float shade = saturate((float)light_count / 5.0f);
     float3 color = heatmap_texture.Sample(heatmap_sampler, float2(shade, 0.5f));
 
-    FbPixelOutput<1> output;
+    fb::PixelOutput<1> output;
     output.color = float4(color, constants.heatmap_opacity);
     return output;
 }

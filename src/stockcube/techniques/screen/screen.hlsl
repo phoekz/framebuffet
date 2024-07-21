@@ -13,7 +13,7 @@ struct VertexOutput {
     nointerpolation uint sampler: ATTRIBUTE4;
 };
 
-VertexOutput vs(FbVertexInput input) {
+VertexOutput vs(fb::VertexInput input) {
     ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
     StructuredBuffer<Vertex> vertices = ResourceDescriptorHeap[g_bindings.vertices];
     StructuredBuffer<Instance> instances = ResourceDescriptorHeap[g_bindings.instances];
@@ -32,7 +32,7 @@ VertexOutput vs(FbVertexInput input) {
     return output;
 }
 
-FbPixelOutput<1> ps(VertexOutput input) {
+fb::PixelOutput<1> ps(VertexOutput input) {
     Texture2DArray<float3> texture = ResourceDescriptorHeap[input.texture];
     SamplerState texture_sampler = SamplerDescriptorHeap[input.sampler];
 
@@ -42,7 +42,7 @@ FbPixelOutput<1> ps(VertexOutput input) {
         input.texture_mip_id
     );
 
-    FbPixelOutput<1> output;
+    fb::PixelOutput<1> output;
     output.color = float4(color, 1.0f);
     return output;
 }

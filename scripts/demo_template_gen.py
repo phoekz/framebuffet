@@ -160,7 +160,7 @@ auto archive(Demo& demo, A& arc) -> void {{
 ConstantBuffer<Bindings> g_bindings: register(b0);
 
 FB_ATTRIBUTE(numthreads, DISPATCH_X, DISPATCH_Y, DISPATCH_Z)
-void todo_cs(FbComputeInput input) {{
+void todo_cs(fb::ComputeInput input) {{
     ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
 }}
 
@@ -169,7 +169,7 @@ struct VertexOutput {{
     float2 texcoord: ATTRIBUTE0;
 }};
 
-VertexOutput todo_vs(FbVertexInput input) {{
+VertexOutput todo_vs(fb::VertexInput input) {{
     ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
 
     VertexOutput output;
@@ -178,10 +178,10 @@ VertexOutput todo_vs(FbVertexInput input) {{
     return output;
 }}
 
-FbPixelOutput<1> todo_ps(VertexOutput input) {{
+fb::PixelOutput<1> todo_ps(VertexOutput input) {{
     ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
 
-    FbPixelOutput<1> output;
+    fb::PixelOutput<1> output;
     output.color = float4(input.texcoord, 0.0f, 1.0f);
     return output;
 }}

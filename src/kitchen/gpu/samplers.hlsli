@@ -1,3 +1,5 @@
+// See: samplers.cpp/hpp
+
 #pragma once
 
 #include <kitchen/gpu/hlsl_cpp.hlsli>

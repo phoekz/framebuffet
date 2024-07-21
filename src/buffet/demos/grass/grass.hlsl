@@ -10,10 +10,10 @@ struct VertexOutput {
     float2 texcoord: ATTRIBUTE1;
 };
 
-VertexOutput draw_vs(FbVertexInput input) {
+VertexOutput draw_vs(fb::VertexInput input) {
     ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
-    StructuredBuffer<FbVertex> vertices = ResourceDescriptorHeap[g_bindings.vertices];
-    FbVertex vertex = vertices[input.vertex_id];
+    StructuredBuffer<fb::Vertex> vertices = ResourceDescriptorHeap[g_bindings.vertices];
+    fb::Vertex vertex = vertices[input.vertex_id];
 
     VertexOutput output;
     output.position = mul(constants.transform, float4(vertex.position, 1.0f));
@@ -22,7 +22,7 @@ VertexOutput draw_vs(FbVertexInput input) {
     return output;
 }
 
-FbPixelOutput<1> draw_naive_ps(VertexOutput input) {
+fb::PixelOutput<1> draw_naive_ps(VertexOutput input) {
     ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
     float alpha_cutoff = constants.alpha_cutoff;
     Texture2D texture = ResourceDescriptorHeap[g_bindings.texture];
@@ -34,12 +34,12 @@ FbPixelOutput<1> draw_naive_ps(VertexOutput input) {
 
     clip(alpha - alpha_cutoff);
 
-    FbPixelOutput<1> output;
+    fb::PixelOutput<1> output;
     output.color = float4(color, alpha);
     return output;
 }
 
-FbPixelOutput<1> draw_atoc_ps(VertexOutput input) {
+fb::PixelOutput<1> draw_atoc_ps(VertexOutput input) {
     ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
     float alpha_cutoff = constants.alpha_cutoff;
     Texture2D texture = ResourceDescriptorHeap[g_bindings.texture];
@@ -52,7 +52,7 @@ FbPixelOutput<1> draw_atoc_ps(VertexOutput input) {
     float epsilon = 1.0 / 8192.0;
     alpha = (alpha - alpha_cutoff) / max(fwidth(alpha), epsilon) + 0.5;
 
-    FbPixelOutput<1> output;
+    fb::PixelOutput<1> output;
     output.color = float4(color, alpha);
     return output;
 }

@@ -14,10 +14,10 @@ struct VertexOutput {
     float3 world_position: ATTRIBUTE4;
 };
 
-VertexOutput draw_vs(FbVertexInput input) {
+VertexOutput draw_vs(fb::VertexInput input) {
     ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
-    StructuredBuffer<FbVertex> vertices = ResourceDescriptorHeap[g_bindings.vertices];
-    FbVertex vertex = vertices[input.vertex_id];
+    StructuredBuffer<fb::Vertex> vertices = ResourceDescriptorHeap[g_bindings.vertices];
+    fb::Vertex vertex = vertices[input.vertex_id];
 
     float3 bitangent = vertex.tangent.w * cross(vertex.normal, vertex.tangent.xyz);
 
@@ -37,7 +37,7 @@ float compute_lighting(Constants constants, float ndotl) {
     return lighting;
 }
 
-FbPixelOutput<1> draw_ps(VertexOutput input) {
+fb::PixelOutput<1> draw_ps(VertexOutput input) {
     // Global resources.
     ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
     Texture2D<float4> base_color_texture = ResourceDescriptorHeap[g_bindings.base_color_texture];
@@ -182,7 +182,7 @@ FbPixelOutput<1> draw_ps(VertexOutput input) {
         }
     }
 
-    FbPixelOutput<1> output;
+    fb::PixelOutput<1> output;
     output.color = float4(final_color, 1.0f);
     return output;
 }

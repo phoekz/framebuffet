@@ -18,7 +18,7 @@ struct VertexOutput {
 
 ConstantBuffer<Bindings> g_bindings: register(b0);
 
-VertexOutput draw_vs(FbVertexInput input) {
+VertexOutput draw_vs(fb::VertexInput input) {
     ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
     StructuredBuffer<Vertex> vertices = ResourceDescriptorHeap[g_bindings.vertices];
     Vertex vertex = vertices[input.vertex_id];
@@ -29,8 +29,8 @@ VertexOutput draw_vs(FbVertexInput input) {
     return output;
 }
 
-FbPixelOutput<1> draw_ps(VertexOutput input) {
-    FbPixelOutput<1> output;
+fb::PixelOutput<1> draw_ps(VertexOutput input) {
+    fb::PixelOutput<1> output;
     output.color = input.color;
     return output;
 }

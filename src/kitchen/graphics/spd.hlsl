@@ -135,7 +135,7 @@ uint2 map_64x1_into_8x8_tile(uint i) {
 //
 
 FB_ATTRIBUTE(numthreads, 256, 1, 1)
-void downsample_cs(FbComputeInput input) {
+void downsample_cs(fb::ComputeInput input) {
     // Globals.
     G_ATOMICS(atomics);
     G_CONSTANTS(constants);
