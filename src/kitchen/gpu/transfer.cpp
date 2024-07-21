@@ -236,15 +236,14 @@ auto GpuTransfer::flush(const GpuDevice& device) -> void {
         std::vector<D3D12_PLACED_SUBRESOURCE_FOOTPRINT>(total_subresource_count);
     auto subresource_row_counts = std::vector<uint>(total_subresource_count);
     auto subresource_row_byte_counts = std::vector<uint64_t>(total_subresource_count);
-    auto resource_offsets = std::vector<uint64_t>(total_resource_count);
     auto resource_dimensions = std::vector<D3D12_RESOURCE_DIMENSION>(total_resource_count);
     auto total_byte_count = 0ull;
     {
         auto resource_offset = 0ull;
         auto subresource_offset = 0ull;
         for (const auto& resource_data : _impl->resource_datas) {
+            // Copyable footprints.
             const auto subresource_count = (uint)resource_data.subresource_count;
-            auto byte_count = 0ull;
             const auto desc = resource_data.resource->GetDesc1();
             device.get_copyable_footprints(
                 desc,
@@ -252,12 +251,25 @@ auto GpuTransfer::flush(const GpuDevice& device) -> void {
                 subresource_count,
                 subresource_footprints.data() + subresource_offset,
                 subresource_row_counts.data() + subresource_offset,
-                subresource_row_byte_counts.data() + subresource_offset,
-                &byte_count
+                subresource_row_byte_counts.data() + subresource_offset
             );
-            resource_offsets[resource_offset] = total_byte_count;
             resource_dimensions[resource_offset] = desc.Dimension;
-            total_byte_count += byte_count;
+
+            // (Aligned) byte count.
+            for (const auto& subresource_footprint :
+                 std::span<const D3D12_PLACED_SUBRESOURCE_FOOTPRINT>(
+                     subresource_footprints.data() + subresource_offset,
+                     subresource_count
+                 )) {
+                const auto& footprint = subresource_footprint.Footprint;
+                for (uint slice = 0; slice < footprint.Depth; slice++) {
+                    for (uint row = 0; row < footprint.Height; row++) {
+                        total_byte_count += footprint.RowPitch;
+                    }
+                }
+            }
+
+            // Advance.
             resource_offset += 1;
             subresource_offset += subresource_count;
         }

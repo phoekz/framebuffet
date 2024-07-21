@@ -94,8 +94,7 @@ public:
         uint subresource_count,
         D3D12_PLACED_SUBRESOURCE_FOOTPRINT* subresource_footprints,
         uint* subresource_row_counts,
-        uint64_t* subresource_row_byte_counts,
-        uint64_t* byte_count
+        uint64_t* subresource_row_byte_counts
     ) const -> void;
 
     // Getters.
