@@ -904,10 +904,10 @@ auto Assets::grass_material() const -> Material {
 }
 
 auto Shaders::load() -> void {
-    // hash: b66e2db8a57533d1fecd53df2561a4df
+    // hash: 0a48f73e240c7bc3afe80d688f641edd
     ZoneScoped;
     _data = read_whole_file("fb_buffet_shaders.bin");
-    FB_ASSERT(_data.size() == 224908);
+    FB_ASSERT(_data.size() == 225292);
 }
 
 // shader_hash: d5c7057e7dc4e62ece119084aa759e6f
@@ -5081,13 +5081,13 @@ auto Shaders::rain_draw_ps() const -> std::span<const std::byte> {
     return std::span(_data).subspan(82332, 3244);
 }
 
-// shader_hash: d5085e48b71d906fe367de5264e8443a
+// shader_hash: 81f388a5f83e066a30d6040e8c672e09
 // constant_buffers: 1
 // bound_resources: 1
 // input_parameters: 2
 // output_parameters: 4
-// instruction_count: 297
-// float_instruction_count: 124
+// instruction_count: 323
+// float_instruction_count: 140
 // texture_load_instructions: 22
 /* disassembly:
 ;
@@ -5110,10 +5110,10 @@ auto Shaders::rain_draw_ps() const -> std::span<const std::byte> {
 ; SV_Position              0   xyzw        0      POS   float   xyzw
 ; ATTRIBUTE                0   xyz         1     NONE   float   xyz 
 ; ATTRIBUTE                1   xy          2     NONE   float   xy  
-; ATTRIBUTE                2   xyzw        3     NONE   float   xyzw
+; ATTRIBUTE                2   xyz         3     NONE   float   xyz 
 ;
-; shader debug name: d5085e48b71d906fe367de5264e8443a.pdb
-; shader hash: d5085e48b71d906fe367de5264e8443a
+; shader debug name: 81f388a5f83e066a30d6040e8c672e09.pdb
+; shader hash: 81f388a5f83e066a30d6040e8c672e09
 ;
 ; Pipeline Runtime Information: 
 ;
@@ -5170,7 +5170,7 @@ auto Shaders::rain_draw_ps() const -> std::span<const std::byte> {
 ;
 ; ViewId state:
 ;
-; Number of inputs: 5, outputs: 16
+; Number of inputs: 5, outputs: 15
 ; Outputs dependent on ViewId: {  }
 ; Inputs contributing to computation of Outputs:
 ;   output 0 depends on inputs: { 0 }
@@ -5185,7 +5185,6 @@ auto Shaders::rain_draw_ps() const -> std::span<const std::byte> {
 ;   output 12 depends on inputs: { 0 }
 ;   output 13 depends on inputs: { 0 }
 ;   output 14 depends on inputs: { 0 }
-;   output 15 depends on inputs: { 0 }
 ;
 target datalayout = "e-m:e-p:32:32-i1:32-i8:8-i16:16-i32:32-i64:64-f16:16-f32:32-f64:64-n8:16:32:64"
 target triple = "dxil-ms-dx"
@@ -5229,161 +5228,161 @@ define void @draw_vs() {
   %26 = extractvalue %dx.types.ResRet.f32 %25, 0
   %27 = extractvalue %dx.types.ResRet.f32 %25, 1
   %28 = extractvalue %dx.types.ResRet.f32 %25, 2
-  %29 = extractvalue %dx.types.ResRet.f32 %25, 3
-  %30 = call %dx.types.ResRet.i32 @dx.op.rawBufferLoad.i32(i32 139, %dx.types.Handle %10, i32 %3, i32 48, i8 15, i32 4)  ; RawBufferLoad(srv,index,elementOffset,mask,alignment)
-  %31 = extractvalue %dx.types.ResRet.i32 %30, 0
-  %32 = extractvalue %dx.types.ResRet.i32 %30, 1
-  %33 = extractvalue %dx.types.ResRet.i32 %30, 2
-  %34 = extractvalue %dx.types.ResRet.i32 %30, 3
-  %35 = call %dx.types.ResRet.f32 @dx.op.rawBufferLoad.f32(i32 139, %dx.types.Handle %10, i32 %3, i32 64, i8 15, i32 4)  ; RawBufferLoad(srv,index,elementOffset,mask,alignment)
-  %36 = extractvalue %dx.types.ResRet.f32 %35, 0
-  %37 = extractvalue %dx.types.ResRet.f32 %35, 1
-  %38 = extractvalue %dx.types.ResRet.f32 %35, 2
-  %39 = extractvalue %dx.types.ResRet.f32 %35, 3
-  %40 = call %dx.types.ResRet.f32 @dx.op.rawBufferLoad.f32(i32 139, %dx.types.Handle %13, i32 %31, i32 0, i8 15, i32 4)  ; RawBufferLoad(srv,index,elementOffset,mask,alignment)
-  %41 = extractvalue %dx.types.ResRet.f32 %40, 0
-  %42 = extractvalue %dx.types.ResRet.f32 %40, 1
-  %43 = extractvalue %dx.types.ResRet.f32 %40, 2
-  %44 = extractvalue %dx.types.ResRet.f32 %40, 3
-  %45 = call %dx.types.ResRet.f32 @dx.op.rawBufferLoad.f32(i32 139, %dx.types.Handle %13, i32 %31, i32 16, i8 15, i32 4)  ; RawBufferLoad(srv,index,elementOffset,mask,alignment)
-  %46 = extractvalue %dx.types.ResRet.f32 %45, 0
-  %47 = extractvalue %dx.types.ResRet.f32 %45, 1
-  %48 = extractvalue %dx.types.ResRet.f32 %45, 2
-  %49 = extractvalue %dx.types.ResRet.f32 %45, 3
-  %50 = call %dx.types.ResRet.f32 @dx.op.rawBufferLoad.f32(i32 139, %dx.types.Handle %13, i32 %31, i32 32, i8 15, i32 4)  ; RawBufferLoad(srv,index,elementOffset,mask,alignment)
-  %51 = extractvalue %dx.types.ResRet.f32 %50, 0
-  %52 = extractvalue %dx.types.ResRet.f32 %50, 1
-  %53 = extractvalue %dx.types.ResRet.f32 %50, 2
-  %54 = extractvalue %dx.types.ResRet.f32 %50, 3
-  %55 = call %dx.types.ResRet.f32 @dx.op.rawBufferLoad.f32(i32 139, %dx.types.Handle %13, i32 %31, i32 48, i8 15, i32 4)  ; RawBufferLoad(srv,index,elementOffset,mask,alignment)
-  %56 = extractvalue %dx.types.ResRet.f32 %55, 0
-  %57 = extractvalue %dx.types.ResRet.f32 %55, 1
-  %58 = extractvalue %dx.types.ResRet.f32 %55, 2
-  %59 = extractvalue %dx.types.ResRet.f32 %55, 3
-  %60 = fmul fast float %41, %36
-  %61 = fmul fast float %46, %36
-  %62 = fmul fast float %51, %36
-  %63 = fmul fast float %56, %36
-  %64 = fmul fast float %42, %36
-  %65 = fmul fast float %47, %36
-  %66 = fmul fast float %52, %36
-  %67 = fmul fast float %57, %36
-  %68 = fmul fast float %43, %36
-  %69 = fmul fast float %48, %36
-  %70 = fmul fast float %53, %36
-  %71 = fmul fast float %58, %36
-  %72 = fmul fast float %44, %36
-  %73 = fmul fast float %49, %36
-  %74 = fmul fast float %54, %36
-  %75 = fmul fast float %59, %36
-  %76 = call %dx.types.ResRet.f32 @dx.op.rawBufferLoad.f32(i32 139, %dx.types.Handle %13, i32 %32, i32 0, i8 15, i32 4)  ; RawBufferLoad(srv,index,elementOffset,mask,alignment)
-  %77 = extractvalue %dx.types.ResRet.f32 %76, 0
-  %78 = extractvalue %dx.types.ResRet.f32 %76, 1
-  %79 = extractvalue %dx.types.ResRet.f32 %76, 2
-  %80 = extractvalue %dx.types.ResRet.f32 %76, 3
-  %81 = call %dx.types.ResRet.f32 @dx.op.rawBufferLoad.f32(i32 139, %dx.types.Handle %13, i32 %32, i32 16, i8 15, i32 4)  ; RawBufferLoad(srv,index,elementOffset,mask,alignment)
-  %82 = extractvalue %dx.types.ResRet.f32 %81, 0
-  %83 = extractvalue %dx.types.ResRet.f32 %81, 1
-  %84 = extractvalue %dx.types.ResRet.f32 %81, 2
-  %85 = extractvalue %dx.types.ResRet.f32 %81, 3
-  %86 = call %dx.types.ResRet.f32 @dx.op.rawBufferLoad.f32(i32 139, %dx.types.Handle %13, i32 %32, i32 32, i8 15, i32 4)  ; RawBufferLoad(srv,index,elementOffset,mask,alignment)
-  %87 = extractvalue %dx.types.ResRet.f32 %86, 0
-  %88 = extractvalue %dx.types.ResRet.f32 %86, 1
-  %89 = extractvalue %dx.types.ResRet.f32 %86, 2
-  %90 = extractvalue %dx.types.ResRet.f32 %86, 3
-  %91 = call %dx.types.ResRet.f32 @dx.op.rawBufferLoad.f32(i32 139, %dx.types.Handle %13, i32 %32, i32 48, i8 15, i32 4)  ; RawBufferLoad(srv,index,elementOffset,mask,alignment)
-  %92 = extractvalue %dx.types.ResRet.f32 %91, 0
-  %93 = extractvalue %dx.types.ResRet.f32 %91, 1
-  %94 = extractvalue %dx.types.ResRet.f32 %91, 2
-  %95 = extractvalue %dx.types.ResRet.f32 %91, 3
-  %96 = fmul fast float %77, %37
-  %97 = fmul fast float %82, %37
-  %98 = fmul fast float %87, %37
-  %99 = fmul fast float %92, %37
-  %100 = fmul fast float %78, %37
-  %101 = fmul fast float %83, %37
-  %102 = fmul fast float %88, %37
-  %103 = fmul fast float %93, %37
-  %104 = fmul fast float %79, %37
-  %105 = fmul fast float %84, %37
-  %106 = fmul fast float %89, %37
-  %107 = fmul fast float %94, %37
-  %108 = fmul fast float %80, %37
-  %109 = fmul fast float %85, %37
-  %110 = fmul fast float %90, %37
-  %111 = fmul fast float %95, %37
-  %112 = call %dx.types.ResRet.f32 @dx.op.rawBufferLoad.f32(i32 139, %dx.types.Handle %13, i32 %33, i32 0, i8 15, i32 4)  ; RawBufferLoad(srv,index,elementOffset,mask,alignment)
-  %113 = extractvalue %dx.types.ResRet.f32 %112, 0
-  %114 = extractvalue %dx.types.ResRet.f32 %112, 1
-  %115 = extractvalue %dx.types.ResRet.f32 %112, 2
-  %116 = extractvalue %dx.types.ResRet.f32 %112, 3
-  %117 = call %dx.types.ResRet.f32 @dx.op.rawBufferLoad.f32(i32 139, %dx.types.Handle %13, i32 %33, i32 16, i8 15, i32 4)  ; RawBufferLoad(srv,index,elementOffset,mask,alignment)
-  %118 = extractvalue %dx.types.ResRet.f32 %117, 0
-  %119 = extractvalue %dx.types.ResRet.f32 %117, 1
-  %120 = extractvalue %dx.types.ResRet.f32 %117, 2
-  %121 = extractvalue %dx.types.ResRet.f32 %117, 3
-  %122 = call %dx.types.ResRet.f32 @dx.op.rawBufferLoad.f32(i32 139, %dx.types.Handle %13, i32 %33, i32 32, i8 15, i32 4)  ; RawBufferLoad(srv,index,elementOffset,mask,alignment)
-  %123 = extractvalue %dx.types.ResRet.f32 %122, 0
-  %124 = extractvalue %dx.types.ResRet.f32 %122, 1
-  %125 = extractvalue %dx.types.ResRet.f32 %122, 2
-  %126 = extractvalue %dx.types.ResRet.f32 %122, 3
-  %127 = call %dx.types.ResRet.f32 @dx.op.rawBufferLoad.f32(i32 139, %dx.types.Handle %13, i32 %33, i32 48, i8 15, i32 4)  ; RawBufferLoad(srv,index,elementOffset,mask,alignment)
-  %128 = extractvalue %dx.types.ResRet.f32 %127, 0
-  %129 = extractvalue %dx.types.ResRet.f32 %127, 1
-  %130 = extractvalue %dx.types.ResRet.f32 %127, 2
-  %131 = extractvalue %dx.types.ResRet.f32 %127, 3
-  %132 = fmul fast float %113, %38
-  %133 = fmul fast float %118, %38
-  %134 = fmul fast float %123, %38
-  %135 = fmul fast float %128, %38
-  %136 = fmul fast float %114, %38
-  %137 = fmul fast float %119, %38
-  %138 = fmul fast float %124, %38
-  %139 = fmul fast float %129, %38
-  %140 = fmul fast float %115, %38
-  %141 = fmul fast float %120, %38
-  %142 = fmul fast float %125, %38
-  %143 = fmul fast float %130, %38
-  %144 = fmul fast float %116, %38
-  %145 = fmul fast float %121, %38
-  %146 = fmul fast float %126, %38
-  %147 = fmul fast float %131, %38
-  %148 = call %dx.types.ResRet.f32 @dx.op.rawBufferLoad.f32(i32 139, %dx.types.Handle %13, i32 %34, i32 0, i8 15, i32 4)  ; RawBufferLoad(srv,index,elementOffset,mask,alignment)
-  %149 = extractvalue %dx.types.ResRet.f32 %148, 0
-  %150 = extractvalue %dx.types.ResRet.f32 %148, 1
-  %151 = extractvalue %dx.types.ResRet.f32 %148, 2
-  %152 = extractvalue %dx.types.ResRet.f32 %148, 3
-  %153 = call %dx.types.ResRet.f32 @dx.op.rawBufferLoad.f32(i32 139, %dx.types.Handle %13, i32 %34, i32 16, i8 15, i32 4)  ; RawBufferLoad(srv,index,elementOffset,mask,alignment)
-  %154 = extractvalue %dx.types.ResRet.f32 %153, 0
-  %155 = extractvalue %dx.types.ResRet.f32 %153, 1
-  %156 = extractvalue %dx.types.ResRet.f32 %153, 2
-  %157 = extractvalue %dx.types.ResRet.f32 %153, 3
-  %158 = call %dx.types.ResRet.f32 @dx.op.rawBufferLoad.f32(i32 139, %dx.types.Handle %13, i32 %34, i32 32, i8 15, i32 4)  ; RawBufferLoad(srv,index,elementOffset,mask,alignment)
-  %159 = extractvalue %dx.types.ResRet.f32 %158, 0
-  %160 = extractvalue %dx.types.ResRet.f32 %158, 1
-  %161 = extractvalue %dx.types.ResRet.f32 %158, 2
-  %162 = extractvalue %dx.types.ResRet.f32 %158, 3
-  %163 = call %dx.types.ResRet.f32 @dx.op.rawBufferLoad.f32(i32 139, %dx.types.Handle %13, i32 %34, i32 48, i8 15, i32 4)  ; RawBufferLoad(srv,index,elementOffset,mask,alignment)
-  %164 = extractvalue %dx.types.ResRet.f32 %163, 0
-  %165 = extractvalue %dx.types.ResRet.f32 %163, 1
-  %166 = extractvalue %dx.types.ResRet.f32 %163, 2
-  %167 = extractvalue %dx.types.ResRet.f32 %163, 3
-  %168 = fmul fast float %149, %39
-  %169 = fmul fast float %154, %39
-  %170 = fmul fast float %159, %39
-  %171 = fmul fast float %164, %39
-  %172 = fmul fast float %150, %39
-  %173 = fmul fast float %155, %39
-  %174 = fmul fast float %160, %39
-  %175 = fmul fast float %165, %39
-  %176 = fmul fast float %151, %39
-  %177 = fmul fast float %156, %39
-  %178 = fmul fast float %161, %39
-  %179 = fmul fast float %166, %39
-  %180 = fmul fast float %152, %39
-  %181 = fmul fast float %157, %39
-  %182 = fmul fast float %162, %39
-  %183 = fmul fast float %167, %39
+  %29 = call %dx.types.ResRet.i32 @dx.op.rawBufferLoad.i32(i32 139, %dx.types.Handle %10, i32 %3, i32 48, i8 15, i32 4)  ; RawBufferLoad(srv,index,elementOffset,mask,alignment)
+  %30 = extractvalue %dx.types.ResRet.i32 %29, 0
+  %31 = extractvalue %dx.types.ResRet.i32 %29, 1
+  %32 = extractvalue %dx.types.ResRet.i32 %29, 2
+  %33 = extractvalue %dx.types.ResRet.i32 %29, 3
+  %34 = call %dx.types.ResRet.f32 @dx.op.rawBufferLoad.f32(i32 139, %dx.types.Handle %10, i32 %3, i32 64, i8 15, i32 4)  ; RawBufferLoad(srv,index,elementOffset,mask,alignment)
+  %35 = extractvalue %dx.types.ResRet.f32 %34, 0
+  %36 = extractvalue %dx.types.ResRet.f32 %34, 1
+  %37 = extractvalue %dx.types.ResRet.f32 %34, 2
+  %38 = extractvalue %dx.types.ResRet.f32 %34, 3
+  %39 = call %dx.types.ResRet.f32 @dx.op.rawBufferLoad.f32(i32 139, %dx.types.Handle %13, i32 %30, i32 0, i8 15, i32 4)  ; RawBufferLoad(srv,index,elementOffset,mask,alignment)
+  %40 = extractvalue %dx.types.ResRet.f32 %39, 0
+  %41 = extractvalue %dx.types.ResRet.f32 %39, 1
+  %42 = extractvalue %dx.types.ResRet.f32 %39, 2
+  %43 = extractvalue %dx.types.ResRet.f32 %39, 3
+  %44 = call %dx.types.ResRet.f32 @dx.op.rawBufferLoad.f32(i32 139, %dx.types.Handle %13, i32 %30, i32 16, i8 15, i32 4)  ; RawBufferLoad(srv,index,elementOffset,mask,alignment)
+  %45 = extractvalue %dx.types.ResRet.f32 %44, 0
+  %46 = extractvalue %dx.types.ResRet.f32 %44, 1
+  %47 = extractvalue %dx.types.ResRet.f32 %44, 2
+  %48 = extractvalue %dx.types.ResRet.f32 %44, 3
+  %49 = call %dx.types.ResRet.f32 @dx.op.rawBufferLoad.f32(i32 139, %dx.types.Handle %13, i32 %30, i32 32, i8 15, i32 4)  ; RawBufferLoad(srv,index,elementOffset,mask,alignment)
+  %50 = extractvalue %dx.types.ResRet.f32 %49, 0
+  %51 = extractvalue %dx.types.ResRet.f32 %49, 1
+  %52 = extractvalue %dx.types.ResRet.f32 %49, 2
+  %53 = extractvalue %dx.types.ResRet.f32 %49, 3
+  %54 = call %dx.types.ResRet.f32 @dx.op.rawBufferLoad.f32(i32 139, %dx.types.Handle %13, i32 %30, i32 48, i8 15, i32 4)  ; RawBufferLoad(srv,index,elementOffset,mask,alignment)
+  %55 = extractvalue %dx.types.ResRet.f32 %54, 0
+  %56 = extractvalue %dx.types.ResRet.f32 %54, 1
+  %57 = extractvalue %dx.types.ResRet.f32 %54, 2
+  %58 = extractvalue %dx.types.ResRet.f32 %54, 3
+  %59 = fmul fast float %40, %35
+  %60 = fmul fast float %45, %35
+  %61 = fmul fast float %50, %35
+  %62 = fmul fast float %55, %35
+  %63 = fmul fast float %41, %35
+  %64 = fmul fast float %46, %35
+  %65 = fmul fast float %51, %35
+  %66 = fmul fast float %56, %35
+  %67 = fmul fast float %42, %35
+  %68 = fmul fast float %47, %35
+  %69 = fmul fast float %52, %35
+  %70 = fmul fast float %57, %35
+  %71 = fmul fast float %43, %35
+  %72 = fmul fast float %48, %35
+  %73 = fmul fast float %53, %35
+  %74 = fmul fast float %58, %35
+  %75 = call %dx.types.ResRet.f32 @dx.op.rawBufferLoad.f32(i32 139, %dx.types.Handle %13, i32 %31, i32 0, i8 15, i32 4)  ; RawBufferLoad(srv,index,elementOffset,mask,alignment)
+  %76 = extractvalue %dx.types.ResRet.f32 %75, 0
+  %77 = extractvalue %dx.types.ResRet.f32 %75, 1
+  %78 = extractvalue %dx.types.ResRet.f32 %75, 2
+  %79 = extractvalue %dx.types.ResRet.f32 %75, 3
+  %80 = call %dx.types.ResRet.f32 @dx.op.rawBufferLoad.f32(i32 139, %dx.types.Handle %13, i32 %31, i32 16, i8 15, i32 4)  ; RawBufferLoad(srv,index,elementOffset,mask,alignment)
+  %81 = extractvalue %dx.types.ResRet.f32 %80, 0
+  %82 = extractvalue %dx.types.ResRet.f32 %80, 1
+  %83 = extractvalue %dx.types.ResRet.f32 %80, 2
+  %84 = extractvalue %dx.types.ResRet.f32 %80, 3
+  %85 = call %dx.types.ResRet.f32 @dx.op.rawBufferLoad.f32(i32 139, %dx.types.Handle %13, i32 %31, i32 32, i8 15, i32 4)  ; RawBufferLoad(srv,index,elementOffset,mask,alignment)
+  %86 = extractvalue %dx.types.ResRet.f32 %85, 0
+  %87 = extractvalue %dx.types.ResRet.f32 %85, 1
+  %88 = extractvalue %dx.types.ResRet.f32 %85, 2
+  %89 = extractvalue %dx.types.ResRet.f32 %85, 3
+  %90 = call %dx.types.ResRet.f32 @dx.op.rawBufferLoad.f32(i32 139, %dx.types.Handle %13, i32 %31, i32 48, i8 15, i32 4)  ; RawBufferLoad(srv,index,elementOffset,mask,alignment)
+  %91 = extractvalue %dx.types.ResRet.f32 %90, 0
+  %92 = extractvalue %dx.types.ResRet.f32 %90, 1
+  %93 = extractvalue %dx.types.ResRet.f32 %90, 2
+  %94 = extractvalue %dx.types.ResRet.f32 %90, 3
+  %95 = fmul fast float %76, %36
+  %96 = fmul fast float %81, %36
+  %97 = fmul fast float %86, %36
+  %98 = fmul fast float %91, %36
+  %99 = fmul fast float %77, %36
+  %100 = fmul fast float %82, %36
+  %101 = fmul fast float %87, %36
+  %102 = fmul fast float %92, %36
+  %103 = fmul fast float %78, %36
+  %104 = fmul fast float %83, %36
+  %105 = fmul fast float %88, %36
+  %106 = fmul fast float %93, %36
+  %107 = fmul fast float %79, %36
+  %108 = fmul fast float %84, %36
+  %109 = fmul fast float %89, %36
+  %110 = fmul fast float %94, %36
+  %111 = call %dx.types.ResRet.f32 @dx.op.rawBufferLoad.f32(i32 139, %dx.types.Handle %13, i32 %32, i32 0, i8 15, i32 4)  ; RawBufferLoad(srv,index,elementOffset,mask,alignment)
+  %112 = extractvalue %dx.types.ResRet.f32 %111, 0
+  %113 = extractvalue %dx.types.ResRet.f32 %111, 1
+  %114 = extractvalue %dx.types.ResRet.f32 %111, 2
+  %115 = extractvalue %dx.types.ResRet.f32 %111, 3
+  %116 = call %dx.types.ResRet.f32 @dx.op.rawBufferLoad.f32(i32 139, %dx.types.Handle %13, i32 %32, i32 16, i8 15, i32 4)  ; RawBufferLoad(srv,index,elementOffset,mask,alignment)
+  %117 = extractvalue %dx.types.ResRet.f32 %116, 0
+  %118 = extractvalue %dx.types.ResRet.f32 %116, 1
+  %119 = extractvalue %dx.types.ResRet.f32 %116, 2
+  %120 = extractvalue %dx.types.ResRet.f32 %116, 3
+  %121 = call %dx.types.ResRet.f32 @dx.op.rawBufferLoad.f32(i32 139, %dx.types.Handle %13, i32 %32, i32 32, i8 15, i32 4)  ; RawBufferLoad(srv,index,elementOffset,mask,alignment)
+  %122 = extractvalue %dx.types.ResRet.f32 %121, 0
+  %123 = extractvalue %dx.types.ResRet.f32 %121, 1
+  %124 = extractvalue %dx.types.ResRet.f32 %121, 2
+  %125 = extractvalue %dx.types.ResRet.f32 %121, 3
+  %126 = call %dx.types.ResRet.f32 @dx.op.rawBufferLoad.f32(i32 139, %dx.types.Handle %13, i32 %32, i32 48, i8 15, i32 4)  ; RawBufferLoad(srv,index,elementOffset,mask,alignment)
+  %127 = extractvalue %dx.types.ResRet.f32 %126, 0
+  %128 = extractvalue %dx.types.ResRet.f32 %126, 1
+  %129 = extractvalue %dx.types.ResRet.f32 %126, 2
+  %130 = extractvalue %dx.types.ResRet.f32 %126, 3
+  %131 = fmul fast float %112, %37
+  %132 = fmul fast float %117, %37
+  %133 = fmul fast float %122, %37
+  %134 = fmul fast float %127, %37
+  %135 = fmul fast float %113, %37
+  %136 = fmul fast float %118, %37
+  %137 = fmul fast float %123, %37
+  %138 = fmul fast float %128, %37
+  %139 = fmul fast float %114, %37
+  %140 = fmul fast float %119, %37
+  %141 = fmul fast float %124, %37
+  %142 = fmul fast float %129, %37
+  %143 = fmul fast float %115, %37
+  %144 = fmul fast float %120, %37
+  %145 = fmul fast float %125, %37
+  %146 = fmul fast float %130, %37
+  %147 = call %dx.types.ResRet.f32 @dx.op.rawBufferLoad.f32(i32 139, %dx.types.Handle %13, i32 %33, i32 0, i8 15, i32 4)  ; RawBufferLoad(srv,index,elementOffset,mask,alignment)
+  %148 = extractvalue %dx.types.ResRet.f32 %147, 0
+  %149 = extractvalue %dx.types.ResRet.f32 %147, 1
+  %150 = extractvalue %dx.types.ResRet.f32 %147, 2
+  %151 = extractvalue %dx.types.ResRet.f32 %147, 3
+  %152 = call %dx.types.ResRet.f32 @dx.op.rawBufferLoad.f32(i32 139, %dx.types.Handle %13, i32 %33, i32 16, i8 15, i32 4)  ; RawBufferLoad(srv,index,elementOffset,mask,alignment)
+  %153 = extractvalue %dx.types.ResRet.f32 %152, 0
+  %154 = extractvalue %dx.types.ResRet.f32 %152, 1
+  %155 = extractvalue %dx.types.ResRet.f32 %152, 2
+  %156 = extractvalue %dx.types.ResRet.f32 %152, 3
+  %157 = call %dx.types.ResRet.f32 @dx.op.rawBufferLoad.f32(i32 139, %dx.types.Handle %13, i32 %33, i32 32, i8 15, i32 4)  ; RawBufferLoad(srv,index,elementOffset,mask,alignment)
+  %158 = extractvalue %dx.types.ResRet.f32 %157, 0
+  %159 = extractvalue %dx.types.ResRet.f32 %157, 1
+  %160 = extractvalue %dx.types.ResRet.f32 %157, 2
+  %161 = extractvalue %dx.types.ResRet.f32 %157, 3
+  %162 = call %dx.types.ResRet.f32 @dx.op.rawBufferLoad.f32(i32 139, %dx.types.Handle %13, i32 %33, i32 48, i8 15, i32 4)  ; RawBufferLoad(srv,index,elementOffset,mask,alignment)
+  %163 = extractvalue %dx.types.ResRet.f32 %162, 0
+  %164 = extractvalue %dx.types.ResRet.f32 %162, 1
+  %165 = extractvalue %dx.types.ResRet.f32 %162, 2
+  %166 = extractvalue %dx.types.ResRet.f32 %162, 3
+  %167 = fmul fast float %148, %38
+  %168 = fmul fast float %153, %38
+  %169 = fmul fast float %158, %38
+  %170 = fmul fast float %163, %38
+  %171 = fmul fast float %149, %38
+  %172 = fmul fast float %154, %38
+  %173 = fmul fast float %159, %38
+  %174 = fmul fast float %164, %38
+  %175 = fmul fast float %150, %38
+  %176 = fmul fast float %155, %38
+  %177 = fmul fast float %160, %38
+  %178 = fmul fast float %165, %38
+  %179 = fmul fast float %151, %38
+  %180 = fmul fast float %156, %38
+  %181 = fmul fast float %161, %38
+  %182 = fmul fast float %166, %38
+  %183 = fadd fast float %95, %59
   %184 = fadd fast float %96, %60
   %185 = fadd fast float %97, %61
   %186 = fadd fast float %98, %62
@@ -5399,7 +5398,7 @@ define void @draw_vs() {
   %196 = fadd fast float %108, %72
   %197 = fadd fast float %109, %73
   %198 = fadd fast float %110, %74
-  %199 = fadd fast float %111, %75
+  %199 = fadd fast float %183, %131
   %200 = fadd fast float %184, %132
   %201 = fadd fast float %185, %133
   %202 = fadd fast float %186, %134
@@ -5415,7 +5414,7 @@ define void @draw_vs() {
   %212 = fadd fast float %196, %144
   %213 = fadd fast float %197, %145
   %214 = fadd fast float %198, %146
-  %215 = fadd fast float %199, %147
+  %215 = fadd fast float %199, %167
   %216 = fadd fast float %200, %168
   %217 = fadd fast float %201, %169
   %218 = fadd fast float %202, %170
@@ -5431,72 +5430,98 @@ define void @draw_vs() {
   %228 = fadd fast float %212, %180
   %229 = fadd fast float %213, %181
   %230 = fadd fast float %214, %182
-  %231 = fadd fast float %215, %183
-  %232 = fmul fast float %216, %15
-  %233 = call float @dx.op.tertiary.f32(i32 46, float %217, float %16, float %232)  ; FMad(a,b,c)
-  %234 = call float @dx.op.tertiary.f32(i32 46, float %218, float %17, float %233)  ; FMad(a,b,c)
-  %235 = fadd fast float %219, %234
-  %236 = fmul fast float %220, %15
-  %237 = call float @dx.op.tertiary.f32(i32 46, float %221, float %16, float %236)  ; FMad(a,b,c)
-  %238 = call float @dx.op.tertiary.f32(i32 46, float %222, float %17, float %237)  ; FMad(a,b,c)
-  %239 = fadd fast float %223, %238
-  %240 = fmul fast float %224, %15
-  %241 = call float @dx.op.tertiary.f32(i32 46, float %225, float %16, float %240)  ; FMad(a,b,c)
-  %242 = call float @dx.op.tertiary.f32(i32 46, float %226, float %17, float %241)  ; FMad(a,b,c)
-  %243 = fadd fast float %227, %242
-  %244 = fmul fast float %228, %15
-  %245 = call float @dx.op.tertiary.f32(i32 46, float %229, float %16, float %244)  ; FMad(a,b,c)
-  %246 = call float @dx.op.tertiary.f32(i32 46, float %230, float %17, float %245)  ; FMad(a,b,c)
-  %247 = fadd fast float %231, %246
-  %248 = call %dx.types.CBufRet.f32 @dx.op.cbufferLoadLegacy.f32(i32 59, %dx.types.Handle %7, i32 0)  ; CBufferLoadLegacy(handle,regIndex)
-  %249 = extractvalue %dx.types.CBufRet.f32 %248, 0
-  %250 = extractvalue %dx.types.CBufRet.f32 %248, 1
-  %251 = extractvalue %dx.types.CBufRet.f32 %248, 2
-  %252 = extractvalue %dx.types.CBufRet.f32 %248, 3
-  %253 = call %dx.types.CBufRet.f32 @dx.op.cbufferLoadLegacy.f32(i32 59, %dx.types.Handle %7, i32 1)  ; CBufferLoadLegacy(handle,regIndex)
-  %254 = extractvalue %dx.types.CBufRet.f32 %253, 0
-  %255 = extractvalue %dx.types.CBufRet.f32 %253, 1
-  %256 = extractvalue %dx.types.CBufRet.f32 %253, 2
-  %257 = extractvalue %dx.types.CBufRet.f32 %253, 3
-  %258 = call %dx.types.CBufRet.f32 @dx.op.cbufferLoadLegacy.f32(i32 59, %dx.types.Handle %7, i32 2)  ; CBufferLoadLegacy(handle,regIndex)
-  %259 = extractvalue %dx.types.CBufRet.f32 %258, 0
-  %260 = extractvalue %dx.types.CBufRet.f32 %258, 1
-  %261 = extractvalue %dx.types.CBufRet.f32 %258, 2
-  %262 = extractvalue %dx.types.CBufRet.f32 %258, 3
-  %263 = call %dx.types.CBufRet.f32 @dx.op.cbufferLoadLegacy.f32(i32 59, %dx.types.Handle %7, i32 3)  ; CBufferLoadLegacy(handle,regIndex)
-  %264 = extractvalue %dx.types.CBufRet.f32 %263, 0
-  %265 = extractvalue %dx.types.CBufRet.f32 %263, 1
-  %266 = extractvalue %dx.types.CBufRet.f32 %263, 2
-  %267 = extractvalue %dx.types.CBufRet.f32 %263, 3
-  %268 = fmul fast float %249, %235
-  %269 = call float @dx.op.tertiary.f32(i32 46, float %254, float %239, float %268)  ; FMad(a,b,c)
-  %270 = call float @dx.op.tertiary.f32(i32 46, float %259, float %243, float %269)  ; FMad(a,b,c)
-  %271 = call float @dx.op.tertiary.f32(i32 46, float %264, float %247, float %270)  ; FMad(a,b,c)
-  %272 = fmul fast float %250, %235
-  %273 = call float @dx.op.tertiary.f32(i32 46, float %255, float %239, float %272)  ; FMad(a,b,c)
-  %274 = call float @dx.op.tertiary.f32(i32 46, float %260, float %243, float %273)  ; FMad(a,b,c)
-  %275 = call float @dx.op.tertiary.f32(i32 46, float %265, float %247, float %274)  ; FMad(a,b,c)
-  %276 = fmul fast float %251, %235
-  %277 = call float @dx.op.tertiary.f32(i32 46, float %256, float %239, float %276)  ; FMad(a,b,c)
-  %278 = call float @dx.op.tertiary.f32(i32 46, float %261, float %243, float %277)  ; FMad(a,b,c)
-  %279 = call float @dx.op.tertiary.f32(i32 46, float %266, float %247, float %278)  ; FMad(a,b,c)
-  %280 = fmul fast float %252, %235
-  %281 = call float @dx.op.tertiary.f32(i32 46, float %257, float %239, float %280)  ; FMad(a,b,c)
-  %282 = call float @dx.op.tertiary.f32(i32 46, float %262, float %243, float %281)  ; FMad(a,b,c)
-  %283 = call float @dx.op.tertiary.f32(i32 46, float %267, float %247, float %282)  ; FMad(a,b,c)
-  call void @dx.op.storeOutput.f32(i32 5, i32 0, i32 0, i8 0, float %271)  ; StoreOutput(outputSigId,rowIndex,colIndex,value)
-  call void @dx.op.storeOutput.f32(i32 5, i32 0, i32 0, i8 1, float %275)  ; StoreOutput(outputSigId,rowIndex,colIndex,value)
-  call void @dx.op.storeOutput.f32(i32 5, i32 0, i32 0, i8 2, float %279)  ; StoreOutput(outputSigId,rowIndex,colIndex,value)
-  call void @dx.op.storeOutput.f32(i32 5, i32 0, i32 0, i8 3, float %283)  ; StoreOutput(outputSigId,rowIndex,colIndex,value)
-  call void @dx.op.storeOutput.f32(i32 5, i32 1, i32 0, i8 0, float %19)  ; StoreOutput(outputSigId,rowIndex,colIndex,value)
-  call void @dx.op.storeOutput.f32(i32 5, i32 1, i32 0, i8 1, float %20)  ; StoreOutput(outputSigId,rowIndex,colIndex,value)
-  call void @dx.op.storeOutput.f32(i32 5, i32 1, i32 0, i8 2, float %21)  ; StoreOutput(outputSigId,rowIndex,colIndex,value)
+  %231 = fmul fast float %215, %15
+  %232 = call float @dx.op.tertiary.f32(i32 46, float %216, float %16, float %231)  ; FMad(a,b,c)
+  %233 = call float @dx.op.tertiary.f32(i32 46, float %217, float %17, float %232)  ; FMad(a,b,c)
+  %234 = fadd fast float %218, %233
+  %235 = fmul fast float %219, %15
+  %236 = call float @dx.op.tertiary.f32(i32 46, float %220, float %16, float %235)  ; FMad(a,b,c)
+  %237 = call float @dx.op.tertiary.f32(i32 46, float %221, float %17, float %236)  ; FMad(a,b,c)
+  %238 = fadd fast float %222, %237
+  %239 = fmul fast float %223, %15
+  %240 = call float @dx.op.tertiary.f32(i32 46, float %224, float %16, float %239)  ; FMad(a,b,c)
+  %241 = call float @dx.op.tertiary.f32(i32 46, float %225, float %17, float %240)  ; FMad(a,b,c)
+  %242 = fadd fast float %226, %241
+  %243 = fmul fast float %227, %15
+  %244 = call float @dx.op.tertiary.f32(i32 46, float %228, float %16, float %243)  ; FMad(a,b,c)
+  %245 = call float @dx.op.tertiary.f32(i32 46, float %229, float %17, float %244)  ; FMad(a,b,c)
+  %246 = fadd fast float %230, %245
+  %247 = call %dx.types.CBufRet.f32 @dx.op.cbufferLoadLegacy.f32(i32 59, %dx.types.Handle %7, i32 0)  ; CBufferLoadLegacy(handle,regIndex)
+  %248 = extractvalue %dx.types.CBufRet.f32 %247, 0
+  %249 = extractvalue %dx.types.CBufRet.f32 %247, 1
+  %250 = extractvalue %dx.types.CBufRet.f32 %247, 2
+  %251 = extractvalue %dx.types.CBufRet.f32 %247, 3
+  %252 = call %dx.types.CBufRet.f32 @dx.op.cbufferLoadLegacy.f32(i32 59, %dx.types.Handle %7, i32 1)  ; CBufferLoadLegacy(handle,regIndex)
+  %253 = extractvalue %dx.types.CBufRet.f32 %252, 0
+  %254 = extractvalue %dx.types.CBufRet.f32 %252, 1
+  %255 = extractvalue %dx.types.CBufRet.f32 %252, 2
+  %256 = extractvalue %dx.types.CBufRet.f32 %252, 3
+  %257 = call %dx.types.CBufRet.f32 @dx.op.cbufferLoadLegacy.f32(i32 59, %dx.types.Handle %7, i32 2)  ; CBufferLoadLegacy(handle,regIndex)
+  %258 = extractvalue %dx.types.CBufRet.f32 %257, 0
+  %259 = extractvalue %dx.types.CBufRet.f32 %257, 1
+  %260 = extractvalue %dx.types.CBufRet.f32 %257, 2
+  %261 = extractvalue %dx.types.CBufRet.f32 %257, 3
+  %262 = call %dx.types.CBufRet.f32 @dx.op.cbufferLoadLegacy.f32(i32 59, %dx.types.Handle %7, i32 3)  ; CBufferLoadLegacy(handle,regIndex)
+  %263 = extractvalue %dx.types.CBufRet.f32 %262, 0
+  %264 = extractvalue %dx.types.CBufRet.f32 %262, 1
+  %265 = extractvalue %dx.types.CBufRet.f32 %262, 2
+  %266 = extractvalue %dx.types.CBufRet.f32 %262, 3
+  %267 = fmul fast float %248, %234
+  %268 = call float @dx.op.tertiary.f32(i32 46, float %253, float %238, float %267)  ; FMad(a,b,c)
+  %269 = call float @dx.op.tertiary.f32(i32 46, float %258, float %242, float %268)  ; FMad(a,b,c)
+  %270 = call float @dx.op.tertiary.f32(i32 46, float %263, float %246, float %269)  ; FMad(a,b,c)
+  %271 = fmul fast float %249, %234
+  %272 = call float @dx.op.tertiary.f32(i32 46, float %254, float %238, float %271)  ; FMad(a,b,c)
+  %273 = call float @dx.op.tertiary.f32(i32 46, float %259, float %242, float %272)  ; FMad(a,b,c)
+  %274 = call float @dx.op.tertiary.f32(i32 46, float %264, float %246, float %273)  ; FMad(a,b,c)
+  %275 = fmul fast float %250, %234
+  %276 = call float @dx.op.tertiary.f32(i32 46, float %255, float %238, float %275)  ; FMad(a,b,c)
+  %277 = call float @dx.op.tertiary.f32(i32 46, float %260, float %242, float %276)  ; FMad(a,b,c)
+  %278 = call float @dx.op.tertiary.f32(i32 46, float %265, float %246, float %277)  ; FMad(a,b,c)
+  %279 = fmul fast float %251, %234
+  %280 = call float @dx.op.tertiary.f32(i32 46, float %256, float %238, float %279)  ; FMad(a,b,c)
+  %281 = call float @dx.op.tertiary.f32(i32 46, float %261, float %242, float %280)  ; FMad(a,b,c)
+  %282 = call float @dx.op.tertiary.f32(i32 46, float %266, float %246, float %281)  ; FMad(a,b,c)
+  %283 = fmul fast float %215, %19
+  %284 = call float @dx.op.tertiary.f32(i32 46, float %216, float %20, float %283)  ; FMad(a,b,c)
+  %285 = call float @dx.op.tertiary.f32(i32 46, float %217, float %21, float %284)  ; FMad(a,b,c)
+  %286 = fmul fast float %219, %19
+  %287 = call float @dx.op.tertiary.f32(i32 46, float %220, float %20, float %286)  ; FMad(a,b,c)
+  %288 = call float @dx.op.tertiary.f32(i32 46, float %221, float %21, float %287)  ; FMad(a,b,c)
+  %289 = fmul fast float %223, %19
+  %290 = call float @dx.op.tertiary.f32(i32 46, float %224, float %20, float %289)  ; FMad(a,b,c)
+  %291 = call float @dx.op.tertiary.f32(i32 46, float %225, float %21, float %290)  ; FMad(a,b,c)
+  %292 = call float @dx.op.dot3.f32(i32 55, float %285, float %288, float %291, float %285, float %288, float %291)  ; Dot3(ax,ay,az,bx,by,bz)
+  %293 = call float @dx.op.unary.f32(i32 25, float %292)  ; Rsqrt(value)
+  %294 = fmul fast float %293, %285
+  %295 = fmul fast float %293, %288
+  %296 = fmul fast float %293, %291
+  %297 = fmul fast float %215, %26
+  %298 = call float @dx.op.tertiary.f32(i32 46, float %216, float %27, float %297)  ; FMad(a,b,c)
+  %299 = call float @dx.op.tertiary.f32(i32 46, float %217, float %28, float %298)  ; FMad(a,b,c)
+  %300 = fmul fast float %219, %26
+  %301 = call float @dx.op.tertiary.f32(i32 46, float %220, float %27, float %300)  ; FMad(a,b,c)
+  %302 = call float @dx.op.tertiary.f32(i32 46, float %221, float %28, float %301)  ; FMad(a,b,c)
+  %303 = fmul fast float %223, %26
+  %304 = call float @dx.op.tertiary.f32(i32 46, float %224, float %27, float %303)  ; FMad(a,b,c)
+  %305 = call float @dx.op.tertiary.f32(i32 46, float %225, float %28, float %304)  ; FMad(a,b,c)
+  %306 = call float @dx.op.dot3.f32(i32 55, float %299, float %302, float %305, float %299, float %302, float %305)  ; Dot3(ax,ay,az,bx,by,bz)
+  %307 = call float @dx.op.unary.f32(i32 25, float %306)  ; Rsqrt(value)
+  %308 = fmul fast float %307, %299
+  %309 = fmul fast float %307, %302
+  %310 = fmul fast float %307, %305
+  call void @dx.op.storeOutput.f32(i32 5, i32 0, i32 0, i8 0, float %270)  ; StoreOutput(outputSigId,rowIndex,colIndex,value)
+  call void @dx.op.storeOutput.f32(i32 5, i32 0, i32 0, i8 1, float %274)  ; StoreOutput(outputSigId,rowIndex,colIndex,value)
+  call void @dx.op.storeOutput.f32(i32 5, i32 0, i32 0, i8 2, float %278)  ; StoreOutput(outputSigId,rowIndex,colIndex,value)
+  call void @dx.op.storeOutput.f32(i32 5, i32 0, i32 0, i8 3, float %282)  ; StoreOutput(outputSigId,rowIndex,colIndex,value)
+  call void @dx.op.storeOutput.f32(i32 5, i32 1, i32 0, i8 0, float %294)  ; StoreOutput(outputSigId,rowIndex,colIndex,value)
+  call void @dx.op.storeOutput.f32(i32 5, i32 1, i32 0, i8 1, float %295)  ; StoreOutput(outputSigId,rowIndex,colIndex,value)
+  call void @dx.op.storeOutput.f32(i32 5, i32 1, i32 0, i8 2, float %296)  ; StoreOutput(outputSigId,rowIndex,colIndex,value)
   call void @dx.op.storeOutput.f32(i32 5, i32 2, i32 0, i8 0, float %23)  ; StoreOutput(outputSigId,rowIndex,colIndex,value)
   call void @dx.op.storeOutput.f32(i32 5, i32 2, i32 0, i8 1, float %24)  ; StoreOutput(outputSigId,rowIndex,colIndex,value)
-  call void @dx.op.storeOutput.f32(i32 5, i32 3, i32 0, i8 0, float %26)  ; StoreOutput(outputSigId,rowIndex,colIndex,value)
-  call void @dx.op.storeOutput.f32(i32 5, i32 3, i32 0, i8 1, float %27)  ; StoreOutput(outputSigId,rowIndex,colIndex,value)
-  call void @dx.op.storeOutput.f32(i32 5, i32 3, i32 0, i8 2, float %28)  ; StoreOutput(outputSigId,rowIndex,colIndex,value)
-  call void @dx.op.storeOutput.f32(i32 5, i32 3, i32 0, i8 3, float %29)  ; StoreOutput(outputSigId,rowIndex,colIndex,value)
+  call void @dx.op.storeOutput.f32(i32 5, i32 3, i32 0, i8 0, float %308)  ; StoreOutput(outputSigId,rowIndex,colIndex,value)
+  call void @dx.op.storeOutput.f32(i32 5, i32 3, i32 0, i8 1, float %309)  ; StoreOutput(outputSigId,rowIndex,colIndex,value)
+  call void @dx.op.storeOutput.f32(i32 5, i32 3, i32 0, i8 2, float %310)  ; StoreOutput(outputSigId,rowIndex,colIndex,value)
   ret void
 }
 
@@ -5517,6 +5542,12 @@ declare %dx.types.ResRet.f32 @dx.op.rawBufferLoad.f32(i32, %dx.types.Handle, i32
 
 ; Function Attrs: nounwind readonly
 declare %dx.types.ResRet.i32 @dx.op.rawBufferLoad.i32(i32, %dx.types.Handle, i32, i32, i8, i32) #2
+
+; Function Attrs: nounwind readnone
+declare float @dx.op.dot3.f32(i32, float, float, float, float, float, float) #0
+
+; Function Attrs: nounwind readnone
+declare float @dx.op.unary.f32(i32, float) #0
 
 ; Function Attrs: nounwind readonly
 declare %dx.types.CBufRet.i32 @dx.op.cbufferLoadLegacy.i32(i32, %dx.types.Handle, i32) #2
@@ -5548,7 +5579,7 @@ attributes #2 = { nounwind readonly }
 !3 = !{null, null, !4, null}
 !4 = !{!5}
 !5 = !{i32 0, %g_bindings* undef, !"", i32 0, i32 0, i32 1, i32 16, null}
-!6 = !{[7 x i32] [i32 5, i32 16, i32 62335, i32 0, i32 0, i32 0, i32 0]}
+!6 = !{[7 x i32] [i32 5, i32 15, i32 29567, i32 0, i32 0, i32 0, i32 0]}
 !7 = !{void ()* @draw_vs, !"draw_vs", !8, !3, !24}
 !8 = !{!9, !14, null}
 !9 = !{!10, !13}
@@ -5564,15 +5595,15 @@ attributes #2 = { nounwind readonly }
 !19 = !{i32 2, !"ATTRIBUTE", i8 9, i8 0, !20, i8 2, i32 1, i8 2, i32 2, i8 0, !21}
 !20 = !{i32 1}
 !21 = !{i32 3, i32 3}
-!22 = !{i32 3, !"ATTRIBUTE", i8 9, i8 0, !23, i8 2, i32 1, i8 4, i32 3, i8 0, !16}
+!22 = !{i32 3, !"ATTRIBUTE", i8 9, i8 0, !23, i8 2, i32 1, i8 3, i32 3, i8 0, !18}
 !23 = !{i32 2}
 !24 = !{i32 0, i64 1082130688}
 */
 auto Shaders::anim_draw_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(85576, 6648);
+    return std::span(_data).subspan(85576, 7032);
 }
 
-// shader_hash: f41202daa0f8face14d759014c1dfb5e
+// shader_hash: fc6a973f25074c58970bfbda77e47319
 // constant_buffers: 1
 // bound_resources: 1
 // input_parameters: 4
@@ -5588,7 +5619,7 @@ auto Shaders::anim_draw_vs() const -> std::span<const std::byte> {
 ; SV_Position              0   xyzw        0      POS   float       
 ; ATTRIBUTE                0   xyz         1     NONE   float   xyz 
 ; ATTRIBUTE                1   xy          2     NONE   float       
-; ATTRIBUTE                2   xyzw        3     NONE   float       
+; ATTRIBUTE                2   xyz         3     NONE   float       
 ;
 ;
 ; Output signature:
@@ -5597,8 +5628,8 @@ auto Shaders::anim_draw_vs() const -> std::span<const std::byte> {
 ; -------------------- ----- ------ -------- -------- ------- ------
 ; SV_Target                0   xyzw        0   TARGET   float   xyzw
 ;
-; shader debug name: f41202daa0f8face14d759014c1dfb5e.pdb
-; shader hash: f41202daa0f8face14d759014c1dfb5e
+; shader debug name: fc6a973f25074c58970bfbda77e47319.pdb
+; shader hash: fc6a973f25074c58970bfbda77e47319
 ;
 ; Pipeline Runtime Information: 
 ;
@@ -5655,7 +5686,7 @@ auto Shaders::anim_draw_vs() const -> std::span<const std::byte> {
 ;
 ; ViewId state:
 ;
-; Number of inputs: 16, outputs: 4
+; Number of inputs: 15, outputs: 4
 ; Outputs dependent on ViewId: {  }
 ; Inputs contributing to computation of Outputs:
 ;   output 0 depends on inputs: { 4, 5, 6 }
@@ -5747,7 +5778,7 @@ attributes #2 = { nounwind readonly }
 !3 = !{null, null, !4, null}
 !4 = !{!5}
 !5 = !{i32 0, %g_bindings* undef, !"", i32 0, i32 0, i32 1, i32 16, null}
-!6 = !{[18 x i32] [i32 16, i32 4, i32 0, i32 0, i32 0, i32 0, i32 7, i32 7, i32 7, i32 0, i32 0, i32 0, i32 0, i32 0, i32 0, i32 0, i32 0, i32 0]}
+!6 = !{[17 x i32] [i32 15, i32 4, i32 0, i32 0, i32 0, i32 0, i32 7, i32 7, i32 7, i32 0, i32 0, i32 0, i32 0, i32 0, i32 0, i32 0, i32 0]}
 !7 = !{void ()* @draw_ps, !"draw_ps", !8, !3, !21}
 !8 = !{!9, !18, null}
 !9 = !{!10, !12, !14, !16}
@@ -5757,7 +5788,7 @@ attributes #2 = { nounwind readonly }
 !13 = !{i32 3, i32 7}
 !14 = !{i32 2, !"ATTRIBUTE", i8 9, i8 0, !15, i8 2, i32 1, i8 2, i32 2, i8 0, null}
 !15 = !{i32 1}
-!16 = !{i32 3, !"ATTRIBUTE", i8 9, i8 0, !17, i8 2, i32 1, i8 4, i32 3, i8 0, null}
+!16 = !{i32 3, !"ATTRIBUTE", i8 9, i8 0, !17, i8 2, i32 1, i8 3, i32 3, i8 0, null}
 !17 = !{i32 2}
 !18 = !{!19}
 !19 = !{i32 0, !"SV_Target", i8 9, i8 16, !11, i8 0, i32 1, i8 4, i32 0, i8 0, !20}
@@ -5765,7 +5796,7 @@ attributes #2 = { nounwind readonly }
 !21 = !{i32 0, i64 8388864}
 */
 auto Shaders::anim_draw_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(92224, 4560);
+    return std::span(_data).subspan(92608, 4560);
 }
 
 // shader_hash: 4c24160a228de20f6e6b67a3c4dc1f64
@@ -5928,7 +5959,7 @@ attributes #2 = { nounwind }
 !8 = !{i32 32, i32 1, i32 1}
 */
 auto Shaders::fibers_sim_cs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(96784, 4012);
+    return std::span(_data).subspan(97168, 4012);
 }
 
 // shader_hash: 538af1d555e6229ed12eb7826b7744f7
@@ -6054,7 +6085,7 @@ attributes #2 = { nounwind readonly }
 !8 = !{i32 1, i32 1, i32 1}
 */
 auto Shaders::fibers_reset_cs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(100796, 3436);
+    return std::span(_data).subspan(101180, 3436);
 }
 
 // shader_hash: cda447ac08bc8e96d95137c291d7ad57
@@ -6577,7 +6608,7 @@ attributes #3 = { nounwind }
 !12 = !{!"Simple C/C++ TBAA"}
 */
 auto Shaders::fibers_cull_cs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(104232, 7344);
+    return std::span(_data).subspan(104616, 7344);
 }
 
 // shader_hash: d9c0538b37e05e7ddbcd3a4d9120d287
@@ -6860,7 +6891,7 @@ attributes #2 = { nounwind readonly }
 !24 = !{i32 0, i64 1082130688}
 */
 auto Shaders::fibers_light_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(111576, 5508);
+    return std::span(_data).subspan(111960, 5508);
 }
 
 // shader_hash: f27939a6f16349e903dc9af6129dfec6
@@ -6968,7 +6999,7 @@ attributes #0 = { nounwind }
 !17 = !{i32 0, i64 8388864}
 */
 auto Shaders::fibers_light_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(117084, 3156);
+    return std::span(_data).subspan(117468, 3156);
 }
 
 // shader_hash: 4e1239e66cc230f1aaecc7e547156a48
@@ -7243,7 +7274,7 @@ attributes #2 = { nounwind readonly }
 !26 = !{i32 0, i64 1082130688}
 */
 auto Shaders::fibers_plane_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(120240, 5528);
+    return std::span(_data).subspan(120624, 5528);
 }
 
 // shader_hash: 669b63a697e3a5755aabebde6fb866ca
@@ -7553,7 +7584,7 @@ attributes #2 = { nounwind readonly }
 !24 = !{i32 0, i64 1082130688}
 */
 auto Shaders::fibers_plane_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(125768, 5944);
+    return std::span(_data).subspan(126152, 5944);
 }
 
 // shader_hash: 3c7eef96db8f3d7630188b073357bb1d
@@ -7679,7 +7710,7 @@ attributes #1 = { nounwind }
 !16 = !{i32 0, i64 8388864}
 */
 auto Shaders::fibers_debug_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(131712, 3268);
+    return std::span(_data).subspan(132096, 3268);
 }
 
 // shader_hash: bafb272ddc9366ca12cc1f13caf82d43
@@ -7901,7 +7932,7 @@ attributes #2 = { nounwind readonly }
 !17 = !{i32 0, i64 11819548928}
 */
 auto Shaders::fibers_debug_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(134980, 4960);
+    return std::span(_data).subspan(135364, 4960);
 }
 
 // shader_hash: cc2a934663d49520ba211c3cf848160d
@@ -8151,7 +8182,7 @@ attributes #2 = { nounwind readonly }
 !24 = !{i32 0, i64 1082130688}
 */
 auto Shaders::env_background_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(139940, 5196);
+    return std::span(_data).subspan(140324, 5196);
 }
 
 // shader_hash: 8a3c862749ec501ff0b8f3a65bc2e6be
@@ -8401,7 +8432,7 @@ attributes #2 = { nounwind readonly }
 !21 = !{i32 0, i64 3229614336}
 */
 auto Shaders::env_background_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(145136, 5104);
+    return std::span(_data).subspan(145520, 5104);
 }
 
 // shader_hash: 0038661577734484a66656a28dbdc941
@@ -8649,7 +8680,7 @@ attributes #2 = { nounwind readonly }
 !21 = !{i32 0, i64 1082130688}
 */
 auto Shaders::env_model_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(150240, 5100);
+    return std::span(_data).subspan(150624, 5100);
 }
 
 // shader_hash: d9b82a874bca714c1d4129251bfe07fa
@@ -8959,7 +8990,7 @@ attributes #2 = { nounwind readonly }
 !19 = !{i32 0, i64 3229614336}
 */
 auto Shaders::env_model_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(155340, 5612);
+    return std::span(_data).subspan(155724, 5612);
 }
 
 // shader_hash: 821eee7a94d6d2a2fa9e82f5c365d7f6
@@ -9210,7 +9241,7 @@ attributes #2 = { nounwind readonly }
 !24 = !{i32 0, i64 1082130688}
 */
 auto Shaders::text_background_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(160952, 5224);
+    return std::span(_data).subspan(161336, 5224);
 }
 
 // shader_hash: a3925396d8411959d700b45c4725ed70
@@ -9412,7 +9443,7 @@ attributes #2 = { nounwind readonly }
 !21 = !{i32 0, i64 3229614336}
 */
 auto Shaders::text_background_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(166176, 4760);
+    return std::span(_data).subspan(166560, 4760);
 }
 
 // shader_hash: a53097e80b634f80e3bfd6140623a0f4
@@ -9688,7 +9719,7 @@ attributes #2 = { nounwind readonly }
 !19 = !{i32 0, i64 1082130688}
 */
 auto Shaders::text_glyph_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(170936, 5256);
+    return std::span(_data).subspan(171320, 5256);
 }
 
 // shader_hash: 9901d99d4259873d667c147a01fa27e1
@@ -9900,7 +9931,7 @@ attributes #2 = { nounwind readonly }
 !17 = !{i32 0, i64 3229614336}
 */
 auto Shaders::text_glyph_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(176192, 4752);
+    return std::span(_data).subspan(176576, 4752);
 }
 
 // shader_hash: 4008acc81fec37078877fda3791850bc
@@ -10121,7 +10152,7 @@ attributes #2 = { nounwind readonly }
 !17 = !{i32 0, i64 1082130688}
 */
 auto Shaders::saber_scene_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(180944, 4628);
+    return std::span(_data).subspan(181328, 4628);
 }
 
 // shader_hash: 65154cb3872c55fcb84171ea6240d0b6
@@ -10291,7 +10322,7 @@ attributes #2 = { nounwind readonly }
 !15 = !{i32 0, i64 1082130688}
 */
 auto Shaders::saber_scene_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(185572, 3872);
+    return std::span(_data).subspan(185956, 3872);
 }
 
 // shader_hash: f4c16de1384addbaa0a4dff7f3ea09cd
@@ -10470,7 +10501,7 @@ attributes #2 = { nounwind }
 !8 = !{i32 8, i32 8, i32 1}
 */
 auto Shaders::saber_threshold_cs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(189444, 4056);
+    return std::span(_data).subspan(189828, 4056);
 }
 
 // shader_hash: c63f8b566602e338c3f309ebda3b8444
@@ -10764,7 +10795,7 @@ attributes #2 = { nounwind }
 !8 = !{i32 8, i32 8, i32 1}
 */
 auto Shaders::saber_downsample_cs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(193500, 4804);
+    return std::span(_data).subspan(193884, 4804);
 }
 
 // shader_hash: b3eed3d3b1f779262a878da696bb3462
@@ -11023,7 +11054,7 @@ attributes #2 = { nounwind }
 !8 = !{i32 8, i32 8, i32 1}
 */
 auto Shaders::saber_upsample_cs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(198304, 4628);
+    return std::span(_data).subspan(198688, 4628);
 }
 
 // shader_hash: d8a565ad99bfe7bd2ffa3d4dd9ecd7ad
@@ -11149,7 +11180,7 @@ attributes #1 = { nounwind }
 !16 = !{i32 0, i64 8388864}
 */
 auto Shaders::saber_blit_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(202932, 3268);
+    return std::span(_data).subspan(203316, 3268);
 }
 
 // shader_hash: e097ba37e35cd44359398b78600f7605
@@ -11339,7 +11370,7 @@ attributes #2 = { nounwind readonly }
 !17 = !{i32 0, i64 3229614336}
 */
 auto Shaders::saber_blit_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(206200, 4292);
+    return std::span(_data).subspan(206584, 4292);
 }
 
 // shader_hash: f811e0f46dd8880c55e845f1b43de01e
@@ -11587,7 +11618,7 @@ attributes #2 = { nounwind readonly }
 !22 = !{i32 0, i64 1082130688}
 */
 auto Shaders::grass_draw_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(210492, 5036);
+    return std::span(_data).subspan(210876, 5036);
 }
 
 // shader_hash: 528770a44c3f3470b8bad92fc30022a2
@@ -11788,7 +11819,7 @@ attributes #2 = { nounwind readonly }
 !19 = !{i32 0, i64 3229614336}
 */
 auto Shaders::grass_draw_naive_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(215528, 4620);
+    return std::span(_data).subspan(215912, 4620);
 }
 
 // shader_hash: 4afc5d1154d78107f4f7353c14a71966
@@ -11998,7 +12029,7 @@ attributes #2 = { nounwind readonly }
 !19 = !{i32 0, i64 3229614336}
 */
 auto Shaders::grass_draw_atoc_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(220148, 4760);
+    return std::span(_data).subspan(220532, 4760);
 }
 
 #undef texture_data

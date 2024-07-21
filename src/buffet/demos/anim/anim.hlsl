@@ -8,7 +8,7 @@ struct VertexOutput {
     float4 position: SV_Position;
     float3 normal: ATTRIBUTE0;
     float2 texcoord: ATTRIBUTE1;
-    float4 tangent: ATTRIBUTE2;
+    float3 tangent: ATTRIBUTE2;
 };
 
 VertexOutput draw_vs(FbVertexInput input) {
@@ -27,9 +27,9 @@ VertexOutput draw_vs(FbVertexInput input) {
 
     VertexOutput output;
     output.position = mul(constants.transform, mul(transform, float4(vertex.position, 1.0f)));
-    output.normal = vertex.normal;
+    output.normal = normalize(mul(transform, float4(vertex.normal, 0.0f)).xyz);
     output.texcoord = vertex.texcoord;
-    output.tangent = vertex.tangent;
+    output.tangent = normalize(mul(transform, float4(vertex.tangent.xyz, 0.0f)).xyz);
     return output;
 }
 
