@@ -53,26 +53,35 @@ auto bake_app_datas(
     // Generate.
     const auto format_transform =
         [&assets_bin](std::string_view name, float4x4 transform) -> std::string {
+#define SIGN(x) ((x) < 0 ? "-" : "")
+#define VALUE(x) SIGN(x), std::abs(x)
         return std::format(
-            ".{} = float4x4({:.6f}f, {:.6f}f, {:.6f}f, {:.6f}f, {:.6f}f, {:.6f}f, {:.6f}f, {:.6f}f, {:.6f}f, {:.6f}f, {:.6f}f, {:.6f}f, {:.6f}f, {:.6f}f, {:.6f}f, {:.6f}f)",
+            ".{} = float4x4(\n"
+            "// clang-format off\n"
+            "            // {:.6f}f, {:.6f}f, {:.6f}f, {:.6f}f\n"
+            "            // {:.6f}f, {:.6f}f, {:.6f}f, {:.6f}f\n"
+            "            // {:.6f}f, {:.6f}f, {:.6f}f, {:.6f}f\n"
+            "            // {:.6f}f, {:.6f}f, {:.6f}f, {:.6f}f\n"
+            "            {}0x{:a}f, {}0x{:a}f, {}0x{:a}f, {}0x{:a}f,\n"
+            "            {}0x{:a}f, {}0x{:a}f, {}0x{:a}f, {}0x{:a}f,\n"
+            "            {}0x{:a}f, {}0x{:a}f, {}0x{:a}f, {}0x{:a}f,\n"
+            "            {}0x{:a}f, {}0x{:a}f, {}0x{:a}f, {}0x{:a}f\n"
+            "// clang-format on\n"
+            ")",
             name,
-            transform._11,
-            transform._12,
-            transform._13,
-            transform._14,
-            transform._21,
-            transform._22,
-            transform._23,
-            transform._24,
-            transform._31,
-            transform._32,
-            transform._33,
-            transform._34,
-            transform._41,
-            transform._42,
-            transform._43,
-            transform._44
+            // clang-format off
+            transform._11, transform._12, transform._13, transform._14,
+            transform._21, transform._22, transform._23, transform._24,
+            transform._31, transform._32, transform._33, transform._34,
+            transform._41, transform._42, transform._43, transform._44,
+            VALUE(transform._11), VALUE(transform._12), VALUE(transform._13), VALUE(transform._14),
+            VALUE(transform._21), VALUE(transform._22), VALUE(transform._23), VALUE(transform._24),
+            VALUE(transform._31), VALUE(transform._32), VALUE(transform._33), VALUE(transform._34),
+            VALUE(transform._41), VALUE(transform._42), VALUE(transform._43), VALUE(transform._44)
+            // clang-format on
         );
+#undef SIGN
+#undef VALUE
     };
     const auto format_named_asset_span =
         [&assets_bin](std::string_view name, AssetSpan span) -> std::string {

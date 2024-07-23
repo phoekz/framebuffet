@@ -64,22 +64,16 @@ auto Assets::sci_fi_case_mesh() const -> Mesh {
     // submesh_count: 3
     return Mesh {
         .transform = float4x4(
-            1.000000f,
-            0.000000f,
-            0.000000f,
-            0.000000f,
-            0.000000f,
-            0.000000f,
-            -1.000000f,
-            0.000000f,
-            0.000000f,
-            1.000000f,
-            0.000000f,
-            0.000000f,
-            0.000000f,
-            0.000000f,
-            0.000000f,
-            1.000000f
+            // clang-format off
+            // 1.000000f, 0.000000f, 0.000000f, 0.000000f
+            // 0.000000f, 0.000000f, -1.000000f, 0.000000f
+            // 0.000000f, 1.000000f, 0.000000f, 0.000000f
+            // 0.000000f, 0.000000f, 0.000000f, 1.000000f
+            0x1p+0f, 0x0p+0f, 0x0p+0f, 0x0p+0f,
+            0x0p+0f, 0x1p-52f, -0x1p+0f, 0x0p+0f,
+            0x0p+0f, 0x1p+0f, 0x1p-52f, 0x0p+0f,
+            0x0p+0f, 0x0p+0f, 0x0p+0f, 0x1p+0f
+            // clang-format on
         ),
         // hash: 576ddd3553b833a1778d067f0cfc0f20
         .vertices = transmuted_span<Vertex>(4088, 2025),
@@ -175,22 +169,16 @@ auto Assets::metal_plane_mesh() const -> Mesh {
     // submesh_count: 1
     return Mesh {
         .transform = float4x4(
-            1.000000f,
-            0.000000f,
-            0.000000f,
-            0.000000f,
-            0.000000f,
-            1.000000f,
-            0.000000f,
-            0.000000f,
-            0.000000f,
-            0.000000f,
-            1.000000f,
-            0.000000f,
-            0.000000f,
-            0.000000f,
-            0.000000f,
-            1.000000f
+            // clang-format off
+            // 1.000000f, 0.000000f, 0.000000f, 0.000000f
+            // 0.000000f, 1.000000f, 0.000000f, 0.000000f
+            // 0.000000f, 0.000000f, 1.000000f, 0.000000f
+            // 0.000000f, 0.000000f, 0.000000f, 1.000000f
+            0x1p+0f, 0x0p+0f, 0x0p+0f, 0x0p+0f,
+            0x0p+0f, 0x1p+0f, 0x0p+0f, 0x0p+0f,
+            0x0p+0f, 0x0p+0f, 0x1p+0f, 0x0p+0f,
+            0x0p+0f, 0x0p+0f, 0x0p+0f, 0x1p+0f
+            // clang-format on
         ),
         // hash: 7513db2c165692b22a3bb4374738dab7
         .vertices = transmuted_span<Vertex>(16899740, 4),
@@ -286,22 +274,16 @@ auto Assets::coconut_tree_mesh() const -> Mesh {
     // submesh_count: 1
     return Mesh {
         .transform = float4x4(
-            1.000000f,
-            0.000000f,
-            0.000000f,
-            0.000000f,
-            0.000000f,
-            0.000000f,
-            -1.000000f,
-            0.000000f,
-            0.000000f,
-            1.000000f,
-            0.000000f,
-            0.000000f,
-            0.000000f,
-            0.000000f,
-            0.000000f,
-            1.000000f
+            // clang-format off
+            // 1.000000f, 0.000000f, 0.000000f, 0.000000f
+            // 0.000000f, 0.000000f, -1.000000f, 0.000000f
+            // 0.000000f, 1.000000f, 0.000000f, 0.000000f
+            // 0.000000f, 0.000000f, 0.000000f, 1.000000f
+            0x1p+0f, 0x0p+0f, 0x0p+0f, 0x0p+0f,
+            0x0p+0f, 0x1p-52f, -0x1p+0f, 0x0p+0f,
+            0x0p+0f, 0x1p+0f, 0x1p-52f, 0x0p+0f,
+            0x0p+0f, 0x0p+0f, 0x0p+0f, 0x1p+0f
+            // clang-format on
         ),
         // hash: cee14e1c21b8adac5f904691e307303a
         .vertices = transmuted_span<Vertex>(33677180, 725),
@@ -368,22 +350,16 @@ auto Assets::sand_mesh() const -> Mesh {
     // submesh_count: 1
     return Mesh {
         .transform = float4x4(
-            1.000000f,
-            0.000000f,
-            0.000000f,
-            0.000000f,
-            0.000000f,
-            1.000000f,
-            0.000000f,
-            0.000000f,
-            0.000000f,
-            0.000000f,
-            1.000000f,
-            0.000000f,
-            0.000000f,
-            0.000000f,
-            0.000000f,
-            1.000000f
+            // clang-format off
+            // 1.000000f, 0.000000f, 0.000000f, 0.000000f
+            // 0.000000f, 1.000000f, 0.000000f, 0.000000f
+            // 0.000000f, 0.000000f, 1.000000f, 0.000000f
+            // 0.000000f, 0.000000f, 0.000000f, 1.000000f
+            0x1p+0f, 0x0p+0f, 0x0p+0f, 0x0p+0f,
+            0x0p+0f, 0x1p+0f, 0x0p+0f, 0x0p+0f,
+            0x0p+0f, 0x0p+0f, 0x1p+0f, 0x0p+0f,
+            0x0p+0f, 0x0p+0f, 0x0p+0f, 0x1p+0f
+            // clang-format on
         ),
         // hash: 7fa771f6b82914ced15ac4b1e422d018
         .vertices = transmuted_span<Vertex>(35140072, 5766),
@@ -400,22 +376,16 @@ auto Assets::raccoon_animation_mesh() const -> AnimationMesh {
     // submesh_count: 1
     return AnimationMesh {
         .transform = float4x4(
-            0.014462f,
-            0.000000f,
-            0.000000f,
-            0.000000f,
-            0.000000f,
-            0.000000f,
-            -0.014462f,
-            0.000000f,
-            0.000000f,
-            0.014462f,
-            0.000000f,
-            0.000000f,
-            0.000000f,
-            0.000000f,
-            0.000000f,
-            1.000000f
+            // clang-format off
+            // 0.014462f, 0.000000f, 0.000000f, 0.000000f
+            // 0.000000f, 0.000000f, -0.014462f, 0.000000f
+            // 0.000000f, 0.014462f, 0.000000f, 0.000000f
+            // 0.000000f, 0.000000f, 0.000000f, 1.000000f
+            0x1.d9e4fap-7f, 0x0p+0f, 0x0p+0f, 0x0p+0f,
+            0x0p+0f, 0x1.d9e4fap-59f, -0x1.d9e4fap-7f, 0x0p+0f,
+            0x0p+0f, 0x1.d9e4fap-7f, 0x1.d9e4fap-59f, 0x0p+0f,
+            0x0p+0f, 0x0p+0f, 0x0p+0f, 0x1p+0f
+            // clang-format on
         ),
         .node_count = 72,
         .joint_count = 63,
@@ -494,22 +464,16 @@ auto Assets::mixamo_run_female_animation_mesh() const -> AnimationMesh {
     // submesh_count: 2
     return AnimationMesh {
         .transform = float4x4(
-            0.010000f,
-            0.000000f,
-            0.000000f,
-            0.000000f,
-            0.000000f,
-            -0.000000f,
-            0.010000f,
-            0.000000f,
-            0.000000f,
-            -0.010000f,
-            -0.000000f,
-            0.000000f,
-            0.000000f,
-            0.000000f,
-            0.000000f,
-            1.000000f
+            // clang-format off
+            // 0.010000f, 0.000000f, 0.000000f, 0.000000f
+            // 0.000000f, -0.000000f, 0.010000f, 0.000000f
+            // 0.000000f, -0.010000f, -0.000000f, 0.000000f
+            // 0.000000f, 0.000000f, 0.000000f, 1.000000f
+            0x1.47ae14p-7f, 0x0p+0f, 0x0p+0f, 0x0p+0f,
+            0x0p+0f, -0x1.47ae14p-30f, 0x1.47ae16p-7f, 0x0p+0f,
+            0x0p+0f, -0x1.47ae16p-7f, -0x1.47ae14p-30f, 0x0p+0f,
+            0x0p+0f, 0x0p+0f, 0x0p+0f, 0x1p+0f
+            // clang-format on
         ),
         .node_count = 68,
         .joint_count = 65,
@@ -570,22 +534,16 @@ auto Assets::mixamo_run_male_animation_mesh() const -> AnimationMesh {
     // submesh_count: 2
     return AnimationMesh {
         .transform = float4x4(
-            0.010000f,
-            0.000000f,
-            0.000000f,
-            0.000000f,
-            0.000000f,
-            -0.000000f,
-            0.010000f,
-            0.000000f,
-            0.000000f,
-            -0.010000f,
-            -0.000000f,
-            0.000000f,
-            0.000000f,
-            0.000000f,
-            0.000000f,
-            1.000000f
+            // clang-format off
+            // 0.010000f, 0.000000f, 0.000000f, 0.000000f
+            // 0.000000f, -0.000000f, 0.010000f, 0.000000f
+            // 0.000000f, -0.010000f, -0.000000f, 0.000000f
+            // 0.000000f, 0.000000f, 0.000000f, 1.000000f
+            0x1.47ae14p-7f, 0x0p+0f, 0x0p+0f, 0x0p+0f,
+            0x0p+0f, -0x1.47ae14p-30f, 0x1.47ae16p-7f, 0x0p+0f,
+            0x0p+0f, -0x1.47ae16p-7f, -0x1.47ae14p-30f, 0x0p+0f,
+            0x0p+0f, 0x0p+0f, 0x0p+0f, 0x1p+0f
+            // clang-format on
         ),
         .node_count = 68,
         .joint_count = 65,
@@ -646,22 +604,16 @@ auto Assets::light_bounds_mesh() const -> Mesh {
     // submesh_count: 1
     return Mesh {
         .transform = float4x4(
-            1.000000f,
-            0.000000f,
-            0.000000f,
-            0.000000f,
-            0.000000f,
-            1.000000f,
-            0.000000f,
-            0.000000f,
-            0.000000f,
-            0.000000f,
-            1.000000f,
-            0.000000f,
-            0.000000f,
-            0.000000f,
-            0.000000f,
-            1.000000f
+            // clang-format off
+            // 1.000000f, 0.000000f, 0.000000f, 0.000000f
+            // 0.000000f, 1.000000f, 0.000000f, 0.000000f
+            // 0.000000f, 0.000000f, 1.000000f, 0.000000f
+            // 0.000000f, 0.000000f, 0.000000f, 1.000000f
+            0x1p+0f, 0x0p+0f, 0x0p+0f, 0x0p+0f,
+            0x0p+0f, 0x1p+0f, 0x0p+0f, 0x0p+0f,
+            0x0p+0f, 0x0p+0f, 0x1p+0f, 0x0p+0f,
+            0x0p+0f, 0x0p+0f, 0x0p+0f, 0x1p+0f
+            // clang-format on
         ),
         // hash: d83d3ba89f1591682879b254506b0400
         .vertices = transmuted_span<Vertex>(42184300, 24),
@@ -678,22 +630,16 @@ auto Assets::skybox_mesh() const -> Mesh {
     // submesh_count: 1
     return Mesh {
         .transform = float4x4(
-            1.000000f,
-            0.000000f,
-            0.000000f,
-            0.000000f,
-            0.000000f,
-            1.000000f,
-            0.000000f,
-            0.000000f,
-            0.000000f,
-            0.000000f,
-            1.000000f,
-            0.000000f,
-            0.000000f,
-            0.000000f,
-            0.000000f,
-            1.000000f
+            // clang-format off
+            // 1.000000f, 0.000000f, 0.000000f, 0.000000f
+            // 0.000000f, 1.000000f, 0.000000f, 0.000000f
+            // 0.000000f, 0.000000f, 1.000000f, 0.000000f
+            // 0.000000f, 0.000000f, 0.000000f, 1.000000f
+            0x1p+0f, 0x0p+0f, 0x0p+0f, 0x0p+0f,
+            0x0p+0f, 0x1p+0f, 0x0p+0f, 0x0p+0f,
+            0x0p+0f, 0x0p+0f, 0x1p+0f, 0x0p+0f,
+            0x0p+0f, 0x0p+0f, 0x0p+0f, 0x1p+0f
+            // clang-format on
         ),
         // hash: 952f25941581c525b7890e0284fd3b52
         .vertices = transmuted_span<Vertex>(42185608, 24),
@@ -710,22 +656,16 @@ auto Assets::sphere_mesh() const -> Mesh {
     // submesh_count: 1
     return Mesh {
         .transform = float4x4(
-            1.000000f,
-            0.000000f,
-            0.000000f,
-            0.000000f,
-            0.000000f,
-            1.000000f,
-            0.000000f,
-            0.000000f,
-            0.000000f,
-            0.000000f,
-            1.000000f,
-            0.000000f,
-            0.000000f,
-            0.000000f,
-            0.000000f,
-            1.000000f
+            // clang-format off
+            // 1.000000f, 0.000000f, 0.000000f, 0.000000f
+            // 0.000000f, 1.000000f, 0.000000f, 0.000000f
+            // 0.000000f, 0.000000f, 1.000000f, 0.000000f
+            // 0.000000f, 0.000000f, 0.000000f, 1.000000f
+            0x1p+0f, 0x0p+0f, 0x0p+0f, 0x0p+0f,
+            0x0p+0f, 0x1p+0f, 0x0p+0f, 0x0p+0f,
+            0x0p+0f, 0x0p+0f, 0x1p+0f, 0x0p+0f,
+            0x0p+0f, 0x0p+0f, 0x0p+0f, 0x1p+0f
+            // clang-format on
         ),
         // hash: bdea0aeb8805424705ca957338103a57
         .vertices = transmuted_span<Vertex>(42186916, 2145),
@@ -995,22 +935,16 @@ auto Assets::roboto_medium_mesh() const -> Mesh {
     // submesh_count: 94
     return Mesh {
         .transform = float4x4(
-            1.000000f,
-            0.000000f,
-            0.000000f,
-            0.000000f,
-            0.000000f,
-            1.000000f,
-            0.000000f,
-            0.000000f,
-            0.000000f,
-            0.000000f,
-            1.000000f,
-            0.000000f,
-            0.000000f,
-            0.000000f,
-            0.000000f,
-            1.000000f
+            // clang-format off
+            // 1.000000f, 0.000000f, 0.000000f, 0.000000f
+            // 0.000000f, 1.000000f, 0.000000f, 0.000000f
+            // 0.000000f, 0.000000f, 1.000000f, 0.000000f
+            // 0.000000f, 0.000000f, 0.000000f, 1.000000f
+            0x1p+0f, 0x0p+0f, 0x0p+0f, 0x0p+0f,
+            0x0p+0f, 0x1p+0f, 0x0p+0f, 0x0p+0f,
+            0x0p+0f, 0x0p+0f, 0x1p+0f, 0x0p+0f,
+            0x0p+0f, 0x0p+0f, 0x0p+0f, 0x1p+0f
+            // clang-format on
         ),
         // hash: 29374dddcd21f32bd4d1c96ff182a0ae
         .vertices = transmuted_span<Vertex>(181016960, 35628),
@@ -1027,22 +961,16 @@ auto Assets::lightsaber_mesh() const -> Mesh {
     // submesh_count: 1
     return Mesh {
         .transform = float4x4(
-            1.000000f,
-            0.000000f,
-            0.000000f,
-            0.000000f,
-            0.000000f,
-            1.000000f,
-            0.000000f,
-            0.000000f,
-            0.000000f,
-            0.000000f,
-            1.000000f,
-            0.000000f,
-            0.000000f,
-            0.000000f,
-            0.000000f,
-            1.000000f
+            // clang-format off
+            // 1.000000f, 0.000000f, 0.000000f, 0.000000f
+            // 0.000000f, 1.000000f, 0.000000f, 0.000000f
+            // 0.000000f, 0.000000f, 1.000000f, 0.000000f
+            // 0.000000f, 0.000000f, 0.000000f, 1.000000f
+            0x1p+0f, 0x0p+0f, 0x0p+0f, 0x0p+0f,
+            0x0p+0f, 0x1p+0f, 0x0p+0f, 0x0p+0f,
+            0x0p+0f, 0x0p+0f, 0x1p+0f, 0x0p+0f,
+            0x0p+0f, 0x0p+0f, 0x0p+0f, 0x1p+0f
+            // clang-format on
         ),
         // hash: 2ed114c3892782da8bc5e2c500c527cb
         .vertices = transmuted_span<Vertex>(183009608, 371),
@@ -1080,22 +1008,16 @@ auto Assets::grass_mesh() const -> Mesh {
     // submesh_count: 1
     return Mesh {
         .transform = float4x4(
-            1.000000f,
-            0.000000f,
-            0.000000f,
-            0.000000f,
-            0.000000f,
-            1.000000f,
-            0.000000f,
-            0.000000f,
-            0.000000f,
-            0.000000f,
-            1.000000f,
-            0.000000f,
-            0.000000f,
-            0.000000f,
-            0.000000f,
-            1.000000f
+            // clang-format off
+            // 1.000000f, 0.000000f, 0.000000f, 0.000000f
+            // 0.000000f, 1.000000f, 0.000000f, 0.000000f
+            // 0.000000f, 0.000000f, 1.000000f, 0.000000f
+            // 0.000000f, 0.000000f, 0.000000f, 1.000000f
+            0x1p+0f, 0x0p+0f, 0x0p+0f, 0x0p+0f,
+            0x0p+0f, 0x1p+0f, 0x0p+0f, 0x0p+0f,
+            0x0p+0f, 0x0p+0f, 0x1p+0f, 0x0p+0f,
+            0x0p+0f, 0x0p+0f, 0x0p+0f, 0x1p+0f
+            // clang-format on
         ),
         // hash: ce365e55889bb1a329b4528219fbcb39
         .vertices = transmuted_span<Vertex>(183030120, 7468),
