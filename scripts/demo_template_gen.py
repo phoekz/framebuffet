@@ -5,6 +5,9 @@ demos = [
     ("conras", "Conras"),
 ]
 files = {
+    #
+    # <demo>.cpp
+    #
     "cpp": """#include "{lower_name}.hpp"
 
 namespace fb::demos::{lower_name} {{
@@ -107,6 +110,10 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {{
 
 }} // namespace fb::demos::{lower_name}
 """,
+
+    #
+    # <demo>.hpp
+    #
     "hpp": """#pragma once
 
 #include "../common.hpp"
@@ -153,6 +160,10 @@ auto archive(Demo& demo, A& arc) -> void {{
 
 }} // namespace fb::demos::{lower_name}
 """,
+
+    #
+    # <demo>.hlsl
+    #
     "hlsl": """#include <buffet/demos/{lower_name}/{lower_name}.hlsli>
 #include <kitchen/gpu/samplers.hlsli>
 #include <kitchen/graphics/core.hlsli>
@@ -164,21 +175,21 @@ void todo_cs(fb::ComputeInput input) {{
     ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
 }}
 
-struct VertexOutput {{
+struct TodoVertexOutput {{
     float4 position: SV_Position;
     float2 texcoord: ATTRIBUTE0;
 }};
 
-VertexOutput todo_vs(fb::VertexInput input) {{
+TodoVertexOutput todo_vs(fb::VertexInput input) {{
     ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
 
-    VertexOutput output;
+    TodoVertexOutput output;
     output.position = float4(0.0f, 0.0f, 0.0f, 1.0f);
     output.texcoord = float2(0.0f, 0.0f);
     return output;
 }}
 
-fb::PixelOutput<1> todo_ps(VertexOutput input) {{
+fb::PixelOutput<1> todo_ps(TodoVertexOutput input) {{
     ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
 
     fb::PixelOutput<1> output;
@@ -187,6 +198,10 @@ fb::PixelOutput<1> todo_ps(VertexOutput input) {{
 }}
 
 """,
+
+    #
+    # <demo>.hlsli
+    #
     "hlsli": """#pragma once
 
 #include <kitchen/gpu/hlsl_cpp.hlsli>
