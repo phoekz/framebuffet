@@ -15,6 +15,7 @@ if(NOT FETCH_CONTENT_HAS_BEEN_RUN)
     FetchContent_Declare(d3d12memalloc GIT_REPOSITORY "https://github.com/GPUOpen-LibrariesAndSDKs/D3D12MemoryAllocator" GIT_TAG 2b7c0d4e31dac5d893722573b0b2654270f907df) # Jun 17, 2024
     FetchContent_Declare(ttf2mesh GIT_REPOSITORY "https://github.com/fetisov/ttf2mesh" GIT_TAG b767f3e1026c979c6f2d6099576f206702065234) # Nov 3, 2023
     FetchContent_Declare(tracy GIT_REPOSITORY "https://github.com/wolfpld/tracy" GIT_TAG 37aff70dfa50cf6307b3fee6074d627dc2929143) # v0.10
+    FetchContent_Declare(glm GIT_REPOSITORY "https://github.com/g-truc/glm.git" GIT_TAG 0af55ccecd98d4e5a8d1fad7de25ba429d60e863) # v1.0.1
     FetchContent_Declare(dxagilitysdk URL "https://globalcdn.nuget.org/packages/microsoft.direct3d.d3d12.1.614.0.nupkg" URL_MD5 65654a2bc55ed1afd8c3ea5b06d34fb1)
     FetchContent_Declare(dxcompiler URL "https://globalcdn.nuget.org/packages/microsoft.direct3d.dxc.1.8.2405.17.nupkg" URL_MD5 c9586b50602b558af84d3aacb43bfc2e)
     FetchContent_Declare(directxmath URL "https://globalcdn.nuget.org/packages/directxmath.2024.2.15.1.nupkg" URL_MD5 c9e372349ee8958b3599e88b89756715)
@@ -90,6 +91,10 @@ if(NOT FETCH_CONTENT_HAS_BEEN_RUN)
     message(STATUS "Fetching Tracy...")
     FetchContent_MakeAvailable(tracy)
     set(TRACY_SOURCE_DIR ${tracy_SOURCE_DIR} CACHE INTERNAL "Tracy Source Directory")
+
+    message(STATUS "Fetching GLM...")
+    FetchContent_MakeAvailable(glm)
+    set(GLM_SOURCE_DIR ${glm_SOURCE_DIR} CACHE INTERNAL "GLM Source Directory")
 
     message(STATUS "Fetching DirectX Agility SDK...")
     FetchContent_MakeAvailable(dxagilitysdk)
@@ -266,6 +271,27 @@ target_compile_definitions(
 )
 set(TRACY_INCLUDE_DIR ${TRACY_SOURCE_DIR}/public CACHE INTERNAL "Tracy Include Directory")
 set(TRACY_LIBRARY ext_tracy CACHE INTERNAL "Tracy Library")
+
+# glm.
+add_library(ext_glm INTERFACE)
+target_include_directories(
+    ext_glm
+    INTERFACE
+    ${GLM_SOURCE_DIR}
+)
+target_compile_definitions(
+    ext_glm
+    INTERFACE
+    GLM_FORCE_CXX20
+    GLM_FORCE_DEPTH_ZERO_TO_ONE
+    GLM_FORCE_RIGHT_HANDED # Doesn't exist, just to communicate handedness.
+    GLM_FORCE_EXPLICIT_CTOR
+    GLM_FORCE_CTOR_INIT
+    GLM_FORCE_XYZW_ONLY
+    GLM_ENABLE_EXPERIMENTAL
+)
+set(GLM_INCLUDE_DIR ${GLM_SOURCE_DIR} CACHE INTERNAL "GLM Include Directory")
+set(GLM_LIBRARY ext_glm CACHE INTERNAL "GLM Library")
 
 # D3D12 Memory Allocator.
 add_library(
