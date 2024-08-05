@@ -13,6 +13,7 @@ inline constexpr float DEPTH_CLEAR_VALUE = 1.0f;
 inline constexpr uint SAMPLE_COUNT = 4;
 
 struct Parameters {
+    float time_scale = 1.0f;
     float camera_distance = 3.5f;
     float camera_height_offset = 0.5f;
     float camera_fov = rad_from_deg(50.0f);
@@ -47,7 +48,7 @@ struct OwnedAnimationMesh {
     std::vector<float> node_channels_times_r;
     std::vector<float> node_channels_times_s;
     std::vector<float3> node_channels_values_t;
-    std::vector<Quaternion> node_channels_values_r;
+    std::vector<float_quat> node_channels_values_r;
     std::vector<float3> node_channels_values_s;
 };
 
@@ -58,7 +59,7 @@ struct Model {
     GpuBufferDeviceIndex<baked::Index> indices;
     float animation_time = 0.0f;
     float animation_duration = 0.0f;
-    std::vector<float4x4> animation_transforms;
+    std::vector<float4x4> animation_global_transforms;
     OwnedAnimationMesh animation_mesh;
 };
 

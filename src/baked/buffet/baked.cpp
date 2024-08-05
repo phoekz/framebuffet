@@ -8,7 +8,7 @@ namespace fb::baked::buffet {
     }
 
 auto Assets::load() -> void {
-    // hash: 22d7e09e509d62774a2bcd476ad75389
+    // hash: 7273f4ab0294d3b0760493e342e3b205
     ZoneScoped;
     _data = read_whole_file("fb_buffet_assets.bin");
     FB_ASSERT(_data.size() == 189046280);
@@ -361,7 +361,7 @@ auto Assets::sand_mesh() const -> Mesh {
             0x0p+0f, 0x0p+0f, 0x0p+0f, 0x1p+0f
             // clang-format on
         ),
-        // hash: 7fa771f6b82914ced15ac4b1e422d018
+        // hash: 35f10ba43fdcd182be277f75c76e2590
         .vertices = transmuted_span<Vertex>(35140072, 5766),
         // hash: 6b2f255bcca5115fc052b8dc1591ccb3
         .indices = transmuted_span<Index>(35416840, 5766),
@@ -413,7 +413,7 @@ auto Assets::raccoon_animation_mesh() const -> AnimationMesh {
         // hash: 753a98c2f50fe96360233f10eadabd37
         .node_channels_values_t = transmuted_span<float3>(35674360, 2256),
         // hash: 6967d1f12a8511fd7375db930f59a2ca
-        .node_channels_values_r = transmuted_span<Quaternion>(35701432, 2274),
+        .node_channels_values_r = transmuted_span<float_quat>(35701432, 2274),
         // hash: 2b1523eab4b57d702b9326dcc49af366
         .node_channels_values_s = transmuted_span<float3>(35737816, 369),
     };
@@ -501,7 +501,7 @@ auto Assets::mixamo_run_female_animation_mesh() const -> AnimationMesh {
         // hash: f89423b5d9717d813e3e2349236f4c47
         .node_channels_values_t = transmuted_span<float3>(38614344, 164),
         // hash: 8570f2d57e7b63c80933e9f98347df13
-        .node_channels_values_r = transmuted_span<Quaternion>(38616312, 878),
+        .node_channels_values_r = transmuted_span<float_quat>(38616312, 878),
         // hash: 0809bf1ba49e1543f903b075bf5eec3a
         .node_channels_values_s = transmuted_span<float3>(38630360, 130),
     };
@@ -571,7 +571,7 @@ auto Assets::mixamo_run_male_animation_mesh() const -> AnimationMesh {
         // hash: de369ac4aa619aa335dd96afb1a419ac
         .node_channels_values_t = transmuted_span<float3>(42147868, 167),
         // hash: bd7a534dda40aa02182d6fc5746dd0e7
-        .node_channels_values_r = transmuted_span<Quaternion>(42149872, 2054),
+        .node_channels_values_r = transmuted_span<float_quat>(42149872, 2054),
         // hash: ab35824f64d90616a3b8911e79565008
         .node_channels_values_s = transmuted_span<float3>(42182736, 130),
     };

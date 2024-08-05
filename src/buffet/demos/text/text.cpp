@@ -233,23 +233,23 @@ auto update(Demo& demo, const UpdateDesc& desc) -> void {
 
     // Update camera.
     params.scene_rotation_angle += params.scene_rotation_speed * desc.delta_time;
-    if (params.scene_rotation_angle > PI * 2.0f) {
-        params.scene_rotation_angle -= PI * 2.0f;
+    if (params.scene_rotation_angle > FLOAT_PI * 2.0f) {
+        params.scene_rotation_angle -= FLOAT_PI * 2.0f;
     }
     const auto projection =
-        float4x4::CreatePerspectiveFieldOfView(params.camera_fov, desc.aspect_ratio, 0.1f, 100.0f);
-    const auto eye =
-        params.camera_distance * dir_from_lonlat(params.camera_longitude, params.camera_latitude);
-    const auto view = float4x4::CreateLookAt(eye, float3::Zero, float3::Up);
-    const auto scene_transform = float4x4::CreateRotationY(params.scene_rotation_angle);
-    const auto camera_transform = view * projection;
+        float4x4_perspective(params.camera_fov, desc.aspect_ratio, 0.1f, 100.0f);
+    const auto eye = params.camera_distance
+        * float3_from_lonlat(params.camera_longitude, params.camera_latitude);
+    const auto view = float4x4_lookat(eye, FLOAT3_ZERO, FLOAT3_UP);
+    const auto scene_transform = float4x4_rotation_y(params.scene_rotation_angle);
+    const auto camera_transform = projection * view;
 
     auto env_view = view;
-    env_view.m[3][0] = 0.0f;
-    env_view.m[3][1] = 0.0f;
-    env_view.m[3][2] = 0.0f;
-    env_view.m[3][3] = 1.0f;
-    const auto env_transform = scene_transform * env_view * projection;
+    env_view[3][0] = 0.0f;
+    env_view[3][1] = 0.0f;
+    env_view[3][2] = 0.0f;
+    env_view[3][3] = 1.0f;
+    const auto env_transform = projection * env_view * scene_transform;
 
     // Update debug draw.
     demo.debug_draw.begin(desc.frame_index);

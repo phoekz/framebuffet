@@ -68,10 +68,10 @@ auto update(Demo& demo, const UpdateDesc& desc) -> void {{
         params.camera_longitude -= PI * 2.0f;
     }}
     const auto projection =
-        float4x4::CreatePerspectiveFieldOfView(params.camera_fov, desc.aspect_ratio, 0.1f, 100.0f);
+        float4x4_perspective(params.camera_fov, desc.aspect_ratio, 0.1f, 100.0f);
     const auto eye =
-        params.camera_distance * dir_from_lonlat(params.camera_longitude, params.camera_latitude);
-    const auto view = float4x4::CreateLookAt(eye, float3::Zero, float3::Up);
+        params.camera_distance * float3_from_lonlat(params.camera_longitude, params.camera_latitude);
+    const auto view = float4x4_lookat(eye, FLOAT3_ZERO, FLOAT3_UP);
     const auto camera_transform = view * projection;
 
     // Update debug draw.
@@ -110,7 +110,6 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {{
 
 }} // namespace fb::demos::{lower_name}
 """,
-
     #
     # <demo>.hpp
     #
@@ -160,7 +159,6 @@ auto archive(Demo& demo, A& arc) -> void {{
 
 }} // namespace fb::demos::{lower_name}
 """,
-
     #
     # <demo>.hlsl
     #
@@ -198,7 +196,6 @@ fb::PixelOutput<1> todo_ps(TodoVertexOutput input) {{
 }}
 
 """,
-
     #
     # <demo>.hlsli
     #

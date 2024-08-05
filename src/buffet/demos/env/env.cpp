@@ -168,19 +168,18 @@ auto update(Demo& demo, const UpdateDesc& desc) -> void {
     // Update camera rotation.
     {
         params.camera_longitude += params.camera_rotation_speed * desc.delta_time;
-        if (params.camera_longitude > PI * 2.0f) {
-            params.camera_longitude -= PI * 2.0f;
+        if (params.camera_longitude > FLOAT_PI * 2.0f) {
+            params.camera_longitude -= FLOAT_PI * 2.0f;
         }
     }
 
     // Update camera transforms.
     const auto aspect_ratio = desc.aspect_ratio;
-    const auto perspective =
-        float4x4::CreatePerspectiveFieldOfView(params.camera_fov, aspect_ratio, 0.1f, 100.0f);
-    const auto eye =
-        params.camera_distance * dir_from_lonlat(params.camera_longitude, params.camera_latitude);
-    const auto view = float4x4::CreateLookAt(eye, float3::Zero, float3::Up);
-    const auto camera_transform = view * perspective;
+    const auto perspective = float4x4_perspective(params.camera_fov, aspect_ratio, 0.1f, 100.0f);
+    const auto eye = params.camera_distance
+        * float3_from_lonlat(params.camera_longitude, params.camera_latitude);
+    const auto view = float4x4_lookat(eye, FLOAT3_ZERO, FLOAT3_UP);
+    const auto camera_transform = perspective * view;
 
     // Update exposure.
     const auto exposure = std::pow(2.0f, -params.exposure);
@@ -196,11 +195,11 @@ auto update(Demo& demo, const UpdateDesc& desc) -> void {
     // Update background constants.
     {
         auto env_view = view;
-        env_view.m[3][0] = 0.0f;
-        env_view.m[3][1] = 0.0f;
-        env_view.m[3][2] = 0.0f;
-        env_view.m[3][3] = 1.0f;
-        const auto env_transform = env_view * perspective;
+        env_view[3][0] = 0.0f;
+        env_view[3][1] = 0.0f;
+        env_view[3][2] = 0.0f;
+        env_view[3][3] = 1.0f;
+        const auto env_transform = perspective * env_view;
 
         demo.background.constants.buffer(desc.frame_index).ref() = BackgroundConstants {
             .transform = env_transform,

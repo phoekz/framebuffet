@@ -57,7 +57,7 @@ auto gui(Technique& tech, const GuiDesc&) -> void {
 auto update(Technique& tech, const UpdateDesc& desc) -> void {
     PIXScopedEvent(PIX_COLOR_DEFAULT, "%s - Update", NAME.data());
 
-    const auto camera_transform = desc.camera_view * desc.camera_projection;
+    const auto camera_transform = desc.camera_projection * desc.camera_view;
     const auto& params = tech.parameters;
 
     tech.constants.buffer(desc.frame_index).ref() = Constants {

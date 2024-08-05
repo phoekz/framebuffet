@@ -55,11 +55,11 @@ auto update(Technique& tech, const UpdateDesc& desc) -> void {
     PIXScopedEvent(PIX_COLOR_DEFAULT, "%s - Update", NAME.data());
 
     auto env_view = desc.camera_view;
-    env_view.m[3][0] = 0.0f;
-    env_view.m[3][1] = 0.0f;
-    env_view.m[3][2] = 0.0f;
-    env_view.m[3][3] = 1.0f;
-    const auto env_transform = env_view * desc.camera_projection;
+    env_view[3][0] = 0.0f;
+    env_view[3][1] = 0.0f;
+    env_view[3][2] = 0.0f;
+    env_view[3][3] = 1.0f;
+    const auto env_transform = desc.camera_projection * env_view;
 
     const auto& params = tech.parameters;
 

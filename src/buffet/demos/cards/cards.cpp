@@ -227,26 +227,20 @@ auto update(Demo& demo, const UpdateDesc& desc) -> void {
     // Projection.
     const auto width = (float)desc.window_size.x;
     const auto height = (float)desc.window_size.y;
-    const auto projection =
-        float4x4::CreateOrthographicOffCenter(0.0f, width, height, 0.0f, 0.0f, 1.0f);
+    const auto projection = float4x4_orthographic(0.0f, width, height, 0.0f, 0.0f, 1.0f);
 
     // Get hovering card.
     const auto& inputs = desc.inputs;
     const auto& mouse_left = inputs.mouse_left;
-    const auto mouse_x = (int32_t)mouse_left.x;
-    const auto mouse_y = (int32_t)mouse_left.y;
+    const auto mouse_x = (float)mouse_left.x;
+    const auto mouse_y = (float)mouse_left.y;
     std::optional<uint> hovering_card = std::nullopt;
     for (uint i = 0; i < CARD_COUNT; i++) {
         const auto card = demo.cards.buffer(desc.frame_index).span()[i];
         const auto position = card.position;
         const auto size = card.size;
-        const auto rect = fb::Rectangle(
-            (int32_t)position.x,
-            (int32_t)position.y,
-            (int32_t)size.x,
-            (int32_t)size.y
-        );
-        if (rect.Contains(mouse_x, mouse_y)) {
+        const auto rect = float_rect(position.x, position.y, size.x, size.y);
+        if (float_rect_contains(rect, mouse_x, mouse_y)) {
             hovering_card = i;
             break;
         }

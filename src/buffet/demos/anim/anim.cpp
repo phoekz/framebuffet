@@ -97,7 +97,7 @@ auto create(Demo& demo, const CreateDesc& desc) -> void {
                 model_scope.with_name("Indices")
             );
             dst.animation_duration = src.duration;
-            dst.animation_transforms.resize(src.node_count);
+            dst.animation_global_transforms.resize(src.node_count);
             copy_animation_mesh(dst.animation_mesh, src);
         }
 
@@ -201,6 +201,7 @@ auto gui(Demo& demo, const GuiDesc&) -> void {
     PIXScopedEvent(PIX_COLOR_DEFAULT, "%s - Gui", NAME.data());
     auto& params = demo.parameters;
     auto& anim = demo.anim;
+    ImGui::SliderFloat("Time Scale", &params.time_scale, 0.0f, 1.0f);
     ImGui::SliderFloat("Scroll Speed", &params.texture_scroll_speed, 0.0f, 4.0f);
     ImGui::SliderFloat(
         "Female Animation Time",
@@ -216,8 +217,8 @@ auto gui(Demo& demo, const GuiDesc&) -> void {
     );
     ImGui::SliderFloat3("Female Position", &params.positions[0].x, -10.0f, 10.0f);
     ImGui::SliderFloat3("Male Position", &params.positions[1].x, -10.0f, 10.0f);
-    ImGui::ColorPicker4("Color 0", &params.colors[0].x);
-    ImGui::ColorPicker4("Color 1", &params.colors[1].x);
+    ImGui::ColorEdit4("Color 0", &params.colors[0].x);
+    ImGui::ColorEdit4("Color 1", &params.colors[1].x);
     ImGui::SliderFloat("Camera Distance", &params.camera_distance, 1.0f, 10.0f);
     ImGui::SliderFloat("Camera Height Offset", &params.camera_height_offset, 0.0f, 2.0f);
     ImGui::SliderAngle("Camera FOV", &params.camera_fov, 0.0f, 90.0f);
@@ -269,8 +270,9 @@ auto update(Demo& demo, const UpdateDesc& desc) -> void {
     auto& anim = demo.anim;
 
     // Time scales.
-    const float female_time_scale = anim.male.animation_duration / anim.female.animation_duration;
-    const float male_time_scale = 1.0f;
+    const float female_time_scale =
+        params.time_scale * anim.male.animation_duration / anim.female.animation_duration;
+    const float male_time_scale = params.time_scale;
 
     // Update animation transforms.
     using TransformDesc = std::tuple<float, Model&>;
@@ -279,7 +281,7 @@ auto update(Demo& demo, const UpdateDesc& desc) -> void {
              TransformDesc(male_time_scale, anim.male),
          }) {
         // Unpack.
-        auto* node_transforms = model.animation_transforms.data();
+        auto* global_transforms = model.animation_global_transforms.data();
 
         // Timing.
         model.animation_time += time_scale * desc.delta_time;
@@ -314,37 +316,36 @@ auto update(Demo& demo, const UpdateDesc& desc) -> void {
                 model.animation_time,
                 times_t,
                 values_t,
-                float3::Zero,
+                FLOAT3_ZERO,
                 [](const float3& lhs, const float3& rhs, float t) {
-                    return float3::Lerp(lhs, rhs, t);
+                    return float3_lerp(lhs, rhs, t);
                 }
             );
             const auto r = keyframe_interpolation(
                 model.animation_time,
                 times_r,
                 values_r,
-                Quaternion::Identity,
-                [](const Quaternion& lhs, const Quaternion& rhs, float t) {
-                    return Quaternion::Slerp(lhs, rhs, t);
+                FLOAT_QUAT_IDENTITY,
+                [](const float_quat& lhs, const float_quat& rhs, float t) {
+                    return float_quat_slerp(lhs, rhs, t);
                 }
             );
             const auto s = keyframe_interpolation(
                 model.animation_time,
                 times_s,
                 values_s,
-                float3::One,
+                FLOAT3_ONE,
                 [](const float3& lhs, const float3& rhs, float t) {
-                    return float3::Lerp(lhs, rhs, t);
+                    return float3_lerp(lhs, rhs, t);
                 }
             );
 
-            const auto transform = float4x4_from_trs(t, r, s);
+            const auto local_transform = float4x4_from_trs(t, r, s);
             const auto parent_index = node_parents[node_index];
-
             if (parent_index == ~0u) {
-                node_transforms[node_index] = transform;
+                global_transforms[node_index] = local_transform;
             } else {
-                node_transforms[node_index] = transform * node_transforms[parent_index];
+                global_transforms[node_index] = global_transforms[parent_index] * local_transform;
             }
         }
 
@@ -352,7 +353,8 @@ auto update(Demo& demo, const UpdateDesc& desc) -> void {
         auto sms = model.skinning_matrices.buffer(desc.frame_index).span();
         for (uint joint_index = 0; joint_index < sms.size(); joint_index++) {
             const auto node_index = mesh.joint_nodes[joint_index];
-            sms[joint_index] = mesh.joint_inverse_binds[joint_index] * node_transforms[node_index];
+            sms[joint_index] =
+                global_transforms[node_index] * mesh.joint_inverse_binds[joint_index];
         }
     }
 
@@ -360,21 +362,21 @@ auto update(Demo& demo, const UpdateDesc& desc) -> void {
     float4x4 camera_transform;
     {
         params.camera_longitude += params.camera_rotation_speed * desc.delta_time;
-        if (params.camera_longitude > PI * 2.0f) {
-            params.camera_longitude -= PI * 2.0f;
+        if (params.camera_longitude > FLOAT_PI * 2.0f) {
+            params.camera_longitude -= FLOAT_PI * 2.0f;
         }
 
-        auto projection = float4x4::CreatePerspectiveFieldOfView(
+        const auto projection = float4x4_perspective(
             params.camera_fov,
             desc.aspect_ratio,
             params.camera_clip_planes.x,
             params.camera_clip_planes.y
         );
-        auto eye = params.camera_distance
-            * dir_from_lonlat(params.camera_longitude, params.camera_latitude);
-        auto height_offset = float3(0.0f, params.camera_height_offset, 0.0f);
-        auto view = float4x4::CreateLookAt(eye + height_offset, height_offset, float3::Up);
-        camera_transform = view * projection;
+        const auto eye = params.camera_distance
+            * float3_from_lonlat(params.camera_longitude, params.camera_latitude);
+        const auto height_offset = float3(0.0f, params.camera_height_offset, 0.0f);
+        const auto view = float4x4_lookat(eye + height_offset, height_offset, FLOAT3_UP);
+        camera_transform = projection * view;
     }
 
     // Update ground.
@@ -396,9 +398,8 @@ auto update(Demo& demo, const UpdateDesc& desc) -> void {
         for (auto& [model_index, model] :
              {ConstantDesc(0, anim.female), ConstantDesc(1, anim.male)}) {
             const auto& root_transform = model.animation_mesh.transform;
-            const auto translation =
-                float4x4::CreateTranslation(demo.parameters.positions[model_index]);
-            const float4x4 transform = root_transform * translation * camera_transform;
+            const auto translation = float4x4_translation(demo.parameters.positions[model_index]);
+            const auto transform = camera_transform * translation * root_transform;
             model.constants.buffer(desc.frame_index).ref() = Constants {
                 .transform = transform,
             };

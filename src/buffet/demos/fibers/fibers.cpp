@@ -145,7 +145,7 @@ auto create(Demo& demo, const CreateDesc& desc) -> void {
                 float min_distance = FLT_MAX;
                 for (uint j = 0; j < i; j++) {
                     const auto& other = lights[j];
-                    const auto distance = float3::Distance(light.position, other.position);
+                    const auto distance = float3_distance(light.position, other.position);
                     min_distance = std::min(min_distance, distance);
                 }
                 if (min_distance > 0.4f) {
@@ -251,17 +251,17 @@ auto update(Demo& demo, const UpdateDesc& desc) -> void {
     float4x4 view_from_clip;
     float4x4 view_from_world;
     {
-        auto projection = float4x4::CreatePerspectiveFieldOfView(
+        auto projection = float4x4_perspective(
             params.camera_fov,
             desc.aspect_ratio,
             params.camera_clip_planes.x,
             params.camera_clip_planes.y
         );
         auto eye = params.camera_distance
-            * dir_from_lonlat(params.camera_longitude, params.camera_latitude);
-        auto view = float4x4::CreateLookAt(eye, float3::Zero, float3::Up);
-        clip_from_world = view * projection;
-        view_from_clip = projection.Invert();
+            * float3_from_lonlat(params.camera_longitude, params.camera_latitude);
+        auto view = float4x4_lookat(eye, FLOAT3_ZERO, FLOAT3_UP);
+        clip_from_world = projection * view;
+        view_from_clip = float4x4_inverse(projection);
         view_from_world = view;
     }
 

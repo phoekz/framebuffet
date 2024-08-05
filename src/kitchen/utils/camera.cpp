@@ -8,16 +8,16 @@ auto Camera::create(const CreateDesc& desc) -> void {
     _near_clip = desc.near_clip;
     _far_clip = desc.far_clip;
 
-    _spherical = float3(0.0f, 0.5f * PI, desc.distance_from_origin);
-    _origin = float3::Zero;
-    _up = float3::Up;
+    _spherical = float3(0.0f, 0.5f * FLOAT_PI, desc.distance_from_origin);
+    _origin = FLOAT3_ZERO;
+    _up = FLOAT3_UP;
 
     _target_spherical = _spherical;
     _target_origin = _origin;
     _target_spherical_rate = 10.0f;
     _target_origin_rate = 10.0f;
 
-    _prev_cursor_position = float2::Zero;
+    _prev_cursor_position = float2(0.0f);
 }
 
 auto Camera::gui(const GuiDesc&) -> void {}
@@ -50,7 +50,7 @@ auto Camera::update(const UpdateDesc& desc) -> void {
     // Clamp spherical phi.
     {
         const auto phi_epsilon = 1.0f / 1024.0f;
-        _target_spherical.y = std::clamp(_target_spherical.y, phi_epsilon, PI - phi_epsilon);
+        _target_spherical.y = std::clamp(_target_spherical.y, phi_epsilon, FLOAT_PI - phi_epsilon);
     }
 
     // Clamp spherical radius.
@@ -71,11 +71,11 @@ auto Camera::update(const UpdateDesc& desc) -> void {
 }
 
 auto Camera::clip_from_view() const -> float4x4 {
-    return float4x4::CreatePerspectiveFieldOfView(_fov, _aspect_ratio, _near_clip, _far_clip);
+    return float4x4_perspective(_fov, _aspect_ratio, _near_clip, _far_clip);
 }
 
 auto Camera::view_from_world() const -> float4x4 {
-    return float4x4::CreateLookAt(position(), float3::Zero, _up);
+    return float4x4_lookat(position(), FLOAT3_ZERO, _up);
 }
 
 auto Camera::clip_from_world() const -> float4x4 {

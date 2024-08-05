@@ -33,6 +33,7 @@ target_precompile_headers(${NAME} PRIVATE pch.hpp)
 target_link_libraries(
     ${NAME}
     PUBLIC
+    ${GLM_LIBRARY}
     ${TRACY_LIBRARY}
     PRIVATE
     ${FP16_LIBRARY}
@@ -41,6 +42,7 @@ target_link_libraries(
 target_include_directories(
     ${NAME}
     PUBLIC
+    ${GLM_INCLUDE_DIR}
     ${TRACY_INCLUDE_DIR}
     ${DIRECTXMATH_INCLUDE_DIR}
     ${DIRECTXTK12_INCLUDE_DIR}

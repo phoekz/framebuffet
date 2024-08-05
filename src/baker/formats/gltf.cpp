@@ -384,7 +384,7 @@ GltfModel::GltfModel(std::string_view gltf_path) {
         auto node_channels_times_r = std::vector<float>(total_r_count);
         auto node_channels_times_s = std::vector<float>(total_s_count);
         auto node_channels_values_t = std::vector<float3>(total_t_count);
-        auto node_channels_values_r = std::vector<Quaternion>(total_r_count);
+        auto node_channels_values_r = std::vector<float_quat>(total_r_count);
         auto node_channels_values_s = std::vector<float3>(total_s_count);
         for (size_t gltf_i = 0; gltf_i < animation.samplers_count; gltf_i++) {
             const auto& sampler = animation.samplers[gltf_i];

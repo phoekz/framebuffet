@@ -66,10 +66,10 @@ auto create(Demo& demo, const CreateDesc& desc) -> void {
         );
 
         // Instances.
-        const auto lhs_translation = float4x4::CreateTranslation({0.0f, 0.0f, -0.175f});
-        const auto rhs_translation = float4x4::CreateTranslation({0.0f, 0.0f, 0.175f});
-        const auto lhs_rotation = float4x4::CreateRotationX(rad_from_deg(-20.0f));
-        const auto rhs_rotation = float4x4::CreateRotationX(rad_from_deg(20.0f));
+        const auto lhs_translation = float4x4_translation(0.0f, 0.0f, -0.175f);
+        const auto rhs_translation = float4x4_translation(0.0f, 0.0f, 0.175f);
+        const auto lhs_rotation = float4x4_rotation_x(rad_from_deg(-20.0f));
+        const auto rhs_rotation = float4x4_rotation_x(rad_from_deg(20.0f));
         const auto instances = std::to_array({
             SceneInstance {.transform = lhs_rotation * lhs_translation},
             SceneInstance {.transform = rhs_rotation * rhs_translation},
@@ -176,11 +176,11 @@ auto update(Demo& demo, const UpdateDesc& desc) -> void {
 
     // Update camera.
     const auto projection =
-        float4x4::CreatePerspectiveFieldOfView(params.camera_fov, desc.aspect_ratio, 0.1f, 100.0f);
-    const auto eye =
-        params.camera_distance * dir_from_lonlat(params.camera_longitude, params.camera_latitude);
-    const auto view = float4x4::CreateLookAt(eye, float3::Zero, float3::Up);
-    const auto camera_transform = view * projection;
+        float4x4_perspective(params.camera_fov, desc.aspect_ratio, 0.1f, 100.0f);
+    const auto eye = params.camera_distance
+        * float3_from_lonlat(params.camera_longitude, params.camera_latitude);
+    const auto view = float4x4_lookat(eye, FLOAT3_ZERO, FLOAT3_UP);
+    const auto camera_transform = projection * view;
 
     // Update saber.
     const auto amplitude = std::cos(1.0f * desc.elapsed_time) * 0.5f + 0.5f;

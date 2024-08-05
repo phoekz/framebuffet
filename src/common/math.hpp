@@ -4,15 +4,27 @@
 
 namespace fb {
 
-using Quaternion = DirectX::SimpleMath::Quaternion;
-using Rectangle = DirectX::SimpleMath::Rectangle;
-using Plane = DirectX::SimpleMath::Plane;
-using RgbaFloat = DirectX::SimpleMath::Color;
-using RgbaByte = DirectX::PackedVector::XMUBYTEN4;
-using Ray = DirectX::SimpleMath::Ray;
-using Viewport = DirectX::SimpleMath::Viewport;
+//
+// Types.
+//
 
-inline constexpr float PI = DirectX::XM_PI;
+using RgbaFloat = float4;
+using RgbaByte = ubyte4;
+
+//
+// Constants.
+//
+
+inline constexpr float FLOAT_PI = glm::pi<float>();
+
+inline constexpr float3 FLOAT3_ZERO = {0.0f, 0.0f, 0.0f};
+inline constexpr float3 FLOAT3_ONE = {1.0f, 1.0f, 1.0f};
+inline constexpr float3 FLOAT3_X = {1.0f, 0.0f, 0.0f};
+inline constexpr float3 FLOAT3_Y = {0.0f, 1.0f, 0.0f};
+inline constexpr float3 FLOAT3_Z = {0.0f, 0.0f, 1.0f};
+inline constexpr float3 FLOAT3_UP = {0.0f, 1.0f, 0.0f};
+
+inline constexpr float_quat FLOAT_QUAT_IDENTITY = glm::identity<float_quat>();
 
 inline constexpr RgbaByte COLOR_RED = {(uint8_t)255, 0, 0, 255};
 inline constexpr RgbaByte COLOR_GREEN = {(uint8_t)0, 255, 0, 255};
@@ -23,15 +35,53 @@ inline constexpr RgbaByte COLOR_CYAN = {(uint8_t)0, 255, 255, 255};
 inline constexpr RgbaByte COLOR_WHITE = {(uint8_t)255, 255, 255, 255};
 inline constexpr RgbaByte COLOR_BLACK = {(uint8_t)0, 0, 0, 255};
 
+//
+// Scalar functions.
+//
+
 inline constexpr auto rad_from_deg(float deg) -> float {
-    return deg * PI / 180.0f;
+    return deg * FLOAT_PI / 180.0f;
 }
 
 inline constexpr auto deg_from_rad(float rad) -> float {
-    return rad * 180.0f / PI;
+    return rad * 180.0f / FLOAT_PI;
 }
 
-inline constexpr auto dir_from_lonlat(float lon, float lat) -> float3 {
+inline constexpr auto mip_count_from_size(uint width, uint height) -> uint {
+    uint mip_count = 1;
+    while (width > 1 || height > 1) {
+        width = std::max(1u, width / 2);
+        height = std::max(1u, height / 2);
+        mip_count++;
+    }
+    return mip_count;
+}
+
+inline constexpr auto mip_count_from_size(uint2 size) -> uint {
+    return mip_count_from_size(size.x, size.y);
+}
+
+//
+// Vector functions.
+//
+
+inline auto float3_normalize(const float3& v) -> float3 {
+    return glm::normalize<3, float, glm::highp>(v);
+}
+
+inline auto float3_cross(const float3& a, const float3& b) -> float3 {
+    return glm::cross<float, glm::highp>(a, b);
+}
+
+inline auto float3_lerp(const float3& a, const float3& b, float t) -> float3 {
+    return glm::lerp<float, glm::highp>(a, b, t);
+}
+
+inline auto float3_distance(const float3& a, const float3& b) -> float {
+    return glm::distance<3, float, glm::highp>(a, b);
+}
+
+inline constexpr auto float3_from_lonlat(float lon, float lat) -> float3 {
     return {
         std::cos(lat) * std::cos(lon),
         std::sin(lat),
@@ -39,30 +89,92 @@ inline constexpr auto dir_from_lonlat(float lon, float lat) -> float3 {
     };
 }
 
-inline auto float4x4_from_trs(const float3& t, const Quaternion& r, const float3& s) -> float4x4 {
+//
+// Matrix functions.
+//
+
+inline auto float4x4_inverse(const float4x4& m) -> float4x4 {
+    return glm::inverse<4, 4, float, glm::highp>(m);
+}
+
+inline auto float4x4_translation(float x, float y, float z) -> float4x4 {
+    return glm::translate<float, glm::highp>(float4x4(1.0f), {x, y, z});
+}
+
+inline auto float4x4_translation(const float3& t) -> float4x4 {
+    return glm::translate<float>(float4x4(1.0f), t);
+}
+
+inline auto float4x4_rotation_x(float angle) -> float4x4 {
+    return glm::rotate<float, glm::highp>(float4x4(1.0f), angle, FLOAT3_X);
+}
+
+inline auto float4x4_rotation_y(float angle) -> float4x4 {
+    return glm::rotate<float, glm::highp>(float4x4(1.0f), angle, FLOAT3_Y);
+}
+
+inline auto float4x4_rotation_z(float angle) -> float4x4 {
+    return glm::rotate<float, glm::highp>(float4x4(1.0f), angle, FLOAT3_Z);
+}
+
+inline auto float4x4_scaling(float x, float y, float z) -> float4x4 {
+    return glm::scale<float, glm::highp>(float4x4(1.0f), {x, y, z});
+}
+
+inline auto float4x4_scaling(const float3& s) -> float4x4 {
+    return glm::scale<float, glm::highp>(float4x4(1.0f), s);
+}
+
+inline auto float4x4_lookat(const float3& eye, const float3& center, const float3& up) -> float4x4 {
+    return glm::lookAt<float, glm::highp>(eye, center, up);
+}
+
+inline auto
+float4x4_orthographic(float left, float right, float bottom, float top, float z_near, float z_far)
+    -> float4x4 {
+    return glm::ortho<float>(left, right, bottom, top, z_near, z_far);
+}
+
+inline auto float4x4_perspective(float fovy, float aspect, float z_near, float z_far) -> float4x4 {
+    return glm::perspective<float>(fovy, aspect, z_near, z_far);
+}
+
+inline auto float4x4_from_trs(const float3& t, const float_quat& r, const float3& s) -> float4x4 {
     // Note: inlined quaternion-float3x3 conversion.
     float4x4 m;
     float rxx = r.x * r.x;
     float ryy = r.y * r.y;
     float rzz = r.z * r.z;
-    m.m[0][0] = s.x * (1.0f - 2.0f * ryy - 2.0f * rzz);
-    m.m[0][1] = (2.0f * r.x * r.y + 2.0f * r.z * r.w);
-    m.m[0][2] = (2.0f * r.x * r.z - 2.0f * r.y * r.w);
-    m.m[0][3] = 0.0f;
-    m.m[1][0] = (2.0f * r.x * r.y - 2.0f * r.z * r.w);
-    m.m[1][1] = s.y * (1.0f - 2.0f * rxx - 2.0f * rzz);
-    m.m[1][2] = (2.0f * r.y * r.z + 2.0f * r.x * r.w);
-    m.m[1][3] = 0.0f;
-    m.m[2][0] = (2.0f * r.x * r.z + 2.0f * r.y * r.w);
-    m.m[2][1] = (2.0f * r.y * r.z - 2.0f * r.x * r.w);
-    m.m[2][2] = s.z * (1.0f - 2.0f * rxx - 2.0f * ryy);
-    m.m[2][3] = 0.0f;
-    m.m[3][0] = t.x;
-    m.m[3][1] = t.y;
-    m.m[3][2] = t.z;
-    m.m[3][3] = 1.0f;
+    m[0][0] = s.x * (1.0f - 2.0f * ryy - 2.0f * rzz);
+    m[0][1] = (2.0f * r.x * r.y + 2.0f * r.z * r.w);
+    m[0][2] = (2.0f * r.x * r.z - 2.0f * r.y * r.w);
+    m[0][3] = 0.0f;
+    m[1][0] = (2.0f * r.x * r.y - 2.0f * r.z * r.w);
+    m[1][1] = s.y * (1.0f - 2.0f * rxx - 2.0f * rzz);
+    m[1][2] = (2.0f * r.y * r.z + 2.0f * r.x * r.w);
+    m[1][3] = 0.0f;
+    m[2][0] = (2.0f * r.x * r.z + 2.0f * r.y * r.w);
+    m[2][1] = (2.0f * r.y * r.z - 2.0f * r.x * r.w);
+    m[2][2] = s.z * (1.0f - 2.0f * rxx - 2.0f * ryy);
+    m[2][3] = 0.0f;
+    m[3][0] = t.x;
+    m[3][1] = t.y;
+    m[3][2] = t.z;
+    m[3][3] = 1.0f;
     return m;
 }
+
+//
+// Quaternion functions.
+//
+
+inline auto float_quat_slerp(const float_quat& a, const float_quat& b, float t) -> float_quat {
+    return glm::slerp(a, b, t);
+}
+
+//
+// Color functions.
+//
 
 inline auto rgb_from_hsv(float3 hsv) -> float3 {
     float h = hsv.x;
@@ -86,18 +198,33 @@ inline auto rgb_from_hsv(float3 hsv) -> float3 {
     }
 }
 
-inline constexpr auto mip_count_from_size(uint width, uint height) -> uint {
-    uint mip_count = 1;
-    while (width > 1 || height > 1) {
-        width = std::max(1u, width / 2);
-        height = std::max(1u, height / 2);
-        mip_count++;
-    }
-    return mip_count;
+//
+// Rectangle.
+//
+
+struct float_rect {
+    float2 min;
+    float2 max;
+
+    float_rect(float x, float y, float w, float h)
+        : min(x, y)
+        , max(x + w, y + h) {}
+};
+
+inline auto float_rect_center(const float_rect& r) -> float2 {
+    return (r.min + r.max) * 0.5f;
 }
 
-inline constexpr auto mip_count_from_size(uint2 size) -> uint {
-    return mip_count_from_size(size.x, size.y);
+inline auto float_rect_size(const float_rect& r) -> float2 {
+    return r.max - r.min;
+}
+
+inline auto float_rect_contains(const float_rect& r, float x, float y) -> bool {
+    return x >= r.min.x && x <= r.max.x && y >= r.min.y && y <= r.max.y;
+}
+
+inline auto float_rect_contains(const float_rect& r, float2 p) -> bool {
+    return p.x >= r.min.x && p.x <= r.max.x && p.y >= r.min.y && p.y <= r.max.y;
 }
 
 } // namespace fb
@@ -141,22 +268,22 @@ struct std::formatter<fb::float4x4>: std::formatter<char> {
             "\n|{:6.3f} {:6.3f} {:6.3f} {:6.3f}|"
             "\n|{:6.3f} {:6.3f} {:6.3f} {:6.3f}|"
             "",
-            m.m[0][0],
-            m.m[1][0],
-            m.m[2][0],
-            m.m[3][0],
-            m.m[0][1],
-            m.m[1][1],
-            m.m[2][1],
-            m.m[3][1],
-            m.m[0][2],
-            m.m[1][2],
-            m.m[2][2],
-            m.m[3][2],
-            m.m[0][3],
-            m.m[1][3],
-            m.m[2][3],
-            m.m[3][3]
+            m[0][0],
+            m[1][0],
+            m[2][0],
+            m[3][0],
+            m[0][1],
+            m[1][1],
+            m[2][1],
+            m[3][1],
+            m[0][2],
+            m[1][2],
+            m[2][2],
+            m[3][2],
+            m[0][3],
+            m[1][3],
+            m[2][3],
+            m[3][3]
         );
     }
 };

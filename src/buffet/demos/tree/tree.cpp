@@ -148,43 +148,40 @@ auto update(Demo& demo, const UpdateDesc& desc) -> void {
     // Update light angle.
     {
         params.light_longitude += desc.delta_time;
-        if (params.light_longitude > PI * 2.0f) {
-            params.light_longitude -= PI * 2.0f;
+        if (params.light_longitude > FLOAT_PI * 2.0f) {
+            params.light_longitude -= FLOAT_PI * 2.0f;
         }
     }
 
     // Light direction.
-    auto light_direction = dir_from_lonlat(params.light_longitude, params.light_latitude);
+    auto light_direction = float3_from_lonlat(params.light_longitude, params.light_latitude);
 
     // Shadow pass - constants.
     float4x4 light_transform;
     {
-        auto projection = float4x4::CreateOrthographic(
-            params.light_projection_size,
-            params.light_projection_size,
+        auto projection = float4x4_orthographic(
+            -0.5f * params.light_projection_size,
+            0.5f * params.light_projection_size,
+            -0.5f * params.light_projection_size,
+            0.5f * params.light_projection_size,
             params.shadow_near_plane,
             params.shadow_far_plane
         );
         auto eye = params.light_distance * light_direction;
-        auto view = float4x4::CreateLookAt(eye, float3::Zero, float3::Up);
+        auto view = float4x4_lookat(eye, FLOAT3_ZERO, FLOAT3_UP);
 
-        light_transform = view * projection;
+        light_transform = projection * view;
     }
 
     // Main pass - constants.
     float4x4 transform;
     {
-        auto projection = float4x4::CreatePerspectiveFieldOfView(
-            params.camera_fov,
-            desc.aspect_ratio,
-            0.1f,
-            100.0f
-        );
+        auto projection = float4x4_perspective(params.camera_fov, desc.aspect_ratio, 0.1f, 100.0f);
         auto eye = params.camera_distance
-            * dir_from_lonlat(params.camera_longitude, params.camera_latitude);
+            * float3_from_lonlat(params.camera_longitude, params.camera_latitude);
         auto at = float3(0.0f, 3.0f, 0.0f);
-        auto view = float4x4::CreateLookAt(eye, at, float3::Up);
-        transform = view * projection;
+        auto view = float4x4_lookat(eye, at, FLOAT3_UP);
+        transform = projection * view;
     }
 
     // Debug.

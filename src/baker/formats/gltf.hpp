@@ -83,12 +83,12 @@ public:
     auto node_channels_times_r() const -> std::span<const float> { return _node_channels_times_r; };
     auto node_channels_times_s() const -> std::span<const float> { return _node_channels_times_s; };
     auto node_channels_values_t() const -> std::span<const float3> { return _node_channels_values_t; };
-    auto node_channels_values_r() const -> std::span<const Quaternion> { return _node_channels_values_r; };
+    auto node_channels_values_r() const -> std::span<const float_quat> { return _node_channels_values_r; };
     auto node_channels_values_s() const -> std::span<const float3> { return _node_channels_values_s; };
     // clang-format on
 
 private:
-    float4x4 _root_transform = float4x4::Identity;
+    float4x4 _root_transform = float4x4(1.0f);
 
     std::vector<GltfVertexPosition> _vertex_positions;
     std::vector<GltfVertexNormal> _vertex_normals;
@@ -115,7 +115,7 @@ private:
     std::vector<float> _node_channels_times_r;
     std::vector<float> _node_channels_times_s;
     std::vector<float3> _node_channels_values_t;
-    std::vector<Quaternion> _node_channels_values_r;
+    std::vector<float_quat> _node_channels_values_r;
     std::vector<float3> _node_channels_values_s;
     float _animation_duration = 0.0f;
 };

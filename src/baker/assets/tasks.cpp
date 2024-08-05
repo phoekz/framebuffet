@@ -277,7 +277,7 @@ auto bake_assets(std::string_view assets_dir, std::span<const AssetTask> asset_t
                             .node_channels_values_t =
                                 assets_writer.write("float3", model.node_channels_values_t()),
                             .node_channels_values_r =
-                                assets_writer.write("Quaternion", model.node_channels_values_r()),
+                                assets_writer.write("float_quat", model.node_channels_values_r()),
                             .node_channels_values_s =
                                 assets_writer.write("float3", model.node_channels_values_s()),
                         });
@@ -341,9 +341,12 @@ auto bake_assets(std::string_view assets_dir, std::span<const AssetTask> asset_t
                     auto vertex_normals = std::vector<float3>(dxtk_vertices.size());
                     auto vertex_texcoords = std::vector<float2>(dxtk_vertices.size());
                     for (size_t i = 0; i < dxtk_vertices.size(); ++i) {
-                        vertex_positions[i] = dxtk_vertices[i].position;
-                        vertex_normals[i] = dxtk_vertices[i].normal;
-                        vertex_texcoords[i] = dxtk_vertices[i].textureCoordinate;
+                        const DirectX::XMFLOAT3 position = dxtk_vertices[i].position;
+                        const DirectX::XMFLOAT3 normal = dxtk_vertices[i].normal;
+                        const DirectX::XMFLOAT2 texcoord = dxtk_vertices[i].textureCoordinate;
+                        vertex_positions[i] = float3(position.x, position.y, position.z);
+                        vertex_normals[i] = float3(normal.x, normal.y, normal.z);
+                        vertex_texcoords[i] = float2(texcoord.x, texcoord.y);
                     }
 
                     // Convert indices.
@@ -416,9 +419,12 @@ auto bake_assets(std::string_view assets_dir, std::span<const AssetTask> asset_t
                     auto vertex_normals = std::vector<float3>(dxtk_vertices.size());
                     auto vertex_texcoords = std::vector<float2>(dxtk_vertices.size());
                     for (size_t i = 0; i < dxtk_vertices.size(); ++i) {
-                        vertex_positions[i] = dxtk_vertices[i].position;
-                        vertex_normals[i] = dxtk_vertices[i].normal;
-                        vertex_texcoords[i] = dxtk_vertices[i].textureCoordinate;
+                        const DirectX::XMFLOAT3 position = dxtk_vertices[i].position;
+                        const DirectX::XMFLOAT3 normal = dxtk_vertices[i].normal;
+                        const DirectX::XMFLOAT2 texcoord = dxtk_vertices[i].textureCoordinate;
+                        vertex_positions[i] = float3(position.x, position.y, position.z);
+                        vertex_normals[i] = float3(normal.x, normal.y, normal.z);
+                        vertex_texcoords[i] = float2(texcoord.x, texcoord.y);
                     }
 
                     // Convert indices.
@@ -517,8 +523,7 @@ auto bake_assets(std::string_view assets_dir, std::span<const AssetTask> asset_t
 
                         const float3 d_ab = p_b - p_a;
                         const float3 d_ac = p_c - p_a;
-                        float3 n = d_ab.Cross(d_ac);
-                        n.Normalize();
+                        const float3 n = float3_normalize(float3_cross(d_ab, d_ac));
 
                         AssetVertex v_a;
                         AssetVertex v_b;

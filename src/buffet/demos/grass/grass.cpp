@@ -112,17 +112,17 @@ auto update(Demo& demo, const UpdateDesc& desc) -> void {
 
     // Update camera.
     params.camera_longitude += params.camera_rotation_speed * desc.delta_time;
-    if (params.camera_longitude > PI * 2.0f) {
-        params.camera_longitude -= PI * 2.0f;
+    if (params.camera_longitude > FLOAT_PI * 2.0f) {
+        params.camera_longitude -= FLOAT_PI * 2.0f;
     }
     const auto projection =
-        float4x4::CreatePerspectiveFieldOfView(params.camera_fov, desc.aspect_ratio, 0.1f, 100.0f);
+        float4x4_perspective(params.camera_fov, desc.aspect_ratio, 0.1f, 100.0f);
     const auto eye =
-        params.camera_distance * dir_from_lonlat(params.camera_longitude, params.camera_latitude)
-        + float3::Up * params.camera_height;
-    const auto target = float3::Up * params.camera_height;
-    const auto view = float4x4::CreateLookAt(eye, target, float3::Up);
-    const auto camera_transform = view * projection;
+        params.camera_distance * float3_from_lonlat(params.camera_longitude, params.camera_latitude)
+        + FLOAT3_UP * params.camera_height;
+    const auto target = FLOAT3_UP * params.camera_height;
+    const auto view = float4x4_lookat(eye, target, FLOAT3_UP);
+    const auto camera_transform = projection * view;
 
     // Update debug draw.
     demo.debug_draw.begin(desc.frame_index);

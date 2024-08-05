@@ -181,22 +181,22 @@ auto update(Demo& demo, const UpdateDesc& desc) -> void {
 
     // Update camera.
     params.camera_longitude += params.camera_rotation_speed * desc.delta_time;
-    if (params.camera_longitude > PI * 2.0f) {
-        params.camera_longitude -= PI * 2.0f;
+    if (params.camera_longitude > FLOAT_PI * 2.0f) {
+        params.camera_longitude -= FLOAT_PI * 2.0f;
     }
     const auto projection =
-        float4x4::CreatePerspectiveFieldOfView(params.camera_fov, desc.aspect_ratio, 0.1f, 100.0f);
-    const auto eye =
-        params.camera_distance * dir_from_lonlat(params.camera_longitude, params.camera_latitude);
-    const auto view = float4x4::CreateLookAt(eye, float3::Zero, float3::Up);
-    const auto camera_transform = view * projection;
+        float4x4_perspective(params.camera_fov, desc.aspect_ratio, 0.1f, 100.0f);
+    const auto eye = params.camera_distance
+        * float3_from_lonlat(params.camera_longitude, params.camera_latitude);
+    const auto view = float4x4_lookat(eye, FLOAT3_ZERO, FLOAT3_UP);
+    const auto camera_transform = projection * view;
 
     // Update light.
     params.light_longitude += params.light_rotation_speed * desc.delta_time;
-    if (params.light_longitude > PI * 2.0f) {
-        params.light_longitude -= PI * 2.0f;
+    if (params.light_longitude > FLOAT_PI * 2.0f) {
+        params.light_longitude -= FLOAT_PI * 2.0f;
     }
-    const auto light_direction = dir_from_lonlat(params.light_longitude, params.light_latitude);
+    const auto light_direction = float3_from_lonlat(params.light_longitude, params.light_latitude);
 
     // Update debug draw.
     demo.debug_draw.begin(desc.frame_index);
@@ -207,8 +207,8 @@ auto update(Demo& demo, const UpdateDesc& desc) -> void {
         const auto xyz = light_direction;
         const auto xz = xyz * float3(1.0f, 0.0f, 1.0f);
         const auto scale = 2.0f;
-        demo.debug_draw.line(float3::Zero, scale * xyz, COLOR_YELLOW);
-        demo.debug_draw.line(float3::Zero, scale * xz, COLOR_YELLOW);
+        demo.debug_draw.line(FLOAT3_ZERO, scale * xyz, COLOR_YELLOW);
+        demo.debug_draw.line(FLOAT3_ZERO, scale * xz, COLOR_YELLOW);
         demo.debug_draw.line(scale * xyz, scale * xz, COLOR_YELLOW);
     }
     demo.debug_draw.end();

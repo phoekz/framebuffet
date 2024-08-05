@@ -108,7 +108,7 @@ struct AnimationMesh {
     std::span<const float> node_channels_times_r;
     std::span<const float> node_channels_times_s;
     std::span<const float3> node_channels_values_t;
-    std::span<const Quaternion> node_channels_values_r;
+    std::span<const float_quat> node_channels_values_r;
     std::span<const float3> node_channels_values_s;
 };
 

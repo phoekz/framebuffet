@@ -70,14 +70,14 @@ auto bake_app_datas(
             ")",
             name,
             // clang-format off
-            transform._11, transform._12, transform._13, transform._14,
-            transform._21, transform._22, transform._23, transform._24,
-            transform._31, transform._32, transform._33, transform._34,
-            transform._41, transform._42, transform._43, transform._44,
-            VALUE(transform._11), VALUE(transform._12), VALUE(transform._13), VALUE(transform._14),
-            VALUE(transform._21), VALUE(transform._22), VALUE(transform._23), VALUE(transform._24),
-            VALUE(transform._31), VALUE(transform._32), VALUE(transform._33), VALUE(transform._34),
-            VALUE(transform._41), VALUE(transform._42), VALUE(transform._43), VALUE(transform._44)
+            transform[0][0], transform[0][1], transform[0][2], transform[0][3],
+            transform[1][0], transform[1][1], transform[1][2], transform[1][3],
+            transform[2][0], transform[2][1], transform[2][2], transform[2][3],
+            transform[3][0], transform[3][1], transform[3][2], transform[3][3],
+            VALUE(transform[0][0]), VALUE(transform[0][1]), VALUE(transform[0][2]), VALUE(transform[0][3]),
+            VALUE(transform[1][0]), VALUE(transform[1][1]), VALUE(transform[1][2]), VALUE(transform[1][3]),
+            VALUE(transform[2][0]), VALUE(transform[2][1]), VALUE(transform[2][2]), VALUE(transform[2][3]),
+            VALUE(transform[3][0]), VALUE(transform[3][1]), VALUE(transform[3][2]), VALUE(transform[3][3])
             // clang-format on
         );
 #undef SIGN

@@ -105,15 +105,17 @@ auto update(Demo& demo, const UpdateDesc& desc) -> void {
 
     // Projection.
     const float projection_scale = 1.0f;
-    const float4x4 projection = float4x4::CreateOrthographic(
-        desc.aspect_ratio * projection_scale,
-        projection_scale,
-        -1.0f,
+    const float4x4 projection = float4x4_orthographic(
+        -0.5f * desc.aspect_ratio * projection_scale,
+        0.5f * desc.aspect_ratio * projection_scale,
+        -0.5f * projection_scale,
+        0.5f * projection_scale,
+        0.0f,
         1.0f
     );
-    const float rotatiton_angle = 0.5f * desc.elapsed_time;
-    const float4x4 rotation_transform = float4x4::CreateRotationZ(rotatiton_angle);
-    const float4x4 transform = rotation_transform * projection;
+    const float rotation_angle = 0.5f * desc.elapsed_time;
+    const float4x4 view = float4x4_rotation_z(rotation_angle);
+    const float4x4 transform = projection * view;
 
     // Debug draw - begin.
     demo.debug_draw.begin(desc.frame_index);
@@ -123,16 +125,16 @@ auto update(Demo& demo, const UpdateDesc& desc) -> void {
     for (uint i = 0; i < STAR_TRIANGLE_COUNT; i++) {
         const uint16_t v0 = STAR_INDICES[i * 3 + 0];
         const uint16_t v1 = STAR_INDICES[i * 3 + 1];
-        demo.debug_draw.line(STAR_VERTICES[v0], STAR_VERTICES[v1], {1.0f, 1.0f, 1.0f, 1.0f});
+        demo.debug_draw.line(STAR_VERTICES[v0], STAR_VERTICES[v1], {255, 255, 255, 255});
 
         const uint16_t i0 = STAR_INDICES[i * 3 + 1];
         const uint16_t i1 = STAR_INDICES[i * 3 + 2];
-        demo.debug_draw.line(STAR_VERTICES[i0], STAR_VERTICES[i1], {1.0f, 1.0f, 1.0f, 1.0f});
+        demo.debug_draw.line(STAR_VERTICES[i0], STAR_VERTICES[i1], {255, 255, 255, 255});
     }
 
     // Axis.
-    demo.debug_draw.line({0.0f, 0.0f, 0.0f}, {0.1f, 0.0f, 0.0f}, {1.0f, 0.0f, 0.0f, 1.0f});
-    demo.debug_draw.line({0.0f, 0.0f, 0.0f}, {0.0f, 0.1f, 0.0f}, {0.0f, 1.0f, 0.0f, 1.0f});
+    demo.debug_draw.line({0.0f, 0.0f, 0.0f}, {0.1f, 0.0f, 0.0f}, {255, 0, 0, 255});
+    demo.debug_draw.line({0.0f, 0.0f, 0.0f}, {0.0f, 0.1f, 0.0f}, {0, 255, 0, 255});
 
     // Debug draw - end.
     demo.debug_draw.end();

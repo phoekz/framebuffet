@@ -127,22 +127,21 @@ auto update(Demo& demo, const UpdateDesc& desc) -> void {
 
     // Update camera.
     params.camera_longitude += params.camera_rotation_speed * desc.delta_time;
-    if (params.camera_longitude > PI * 2.0f) {
-        params.camera_longitude -= PI * 2.0f;
+    if (params.camera_longitude > FLOAT_PI * 2.0f) {
+        params.camera_longitude -= FLOAT_PI * 2.0f;
     }
     auto aspect_ratio = desc.aspect_ratio;
-    auto projection =
-        float4x4::CreatePerspectiveFieldOfView(params.camera_fov, aspect_ratio, 0.1f, 100.0f);
-    auto eye =
-        params.camera_distance * dir_from_lonlat(params.camera_longitude, params.camera_latitude);
-    auto view = float4x4::CreateLookAt(eye, float3::Zero, float3::Up);
-    auto from_dir = float3::UnitZ;
+    auto projection = float4x4_perspective(params.camera_fov, aspect_ratio, 0.1f, 100.0f);
+    auto eye = params.camera_distance
+        * float3_from_lonlat(params.camera_longitude, params.camera_latitude);
+    auto view = float4x4_lookat(eye, FLOAT3_ZERO, FLOAT3_UP);
+    auto from_dir = FLOAT3_Z;
     auto to_dir = float3(eye.x, 0.0f, eye.z);
-    auto rot_quat = Quaternion::FromToRotation(from_dir, to_dir);
-    auto rot = float4x4::CreateFromQuaternion(rot_quat);
-    auto scale = float4x4::CreateScale(params.particle_width, params.particle_height, 1.0f);
-    auto particle_transform = scale * rot;
-    auto camera_transform = view * projection;
+    auto rot_quat = float_quat(from_dir, to_dir);
+    auto rotation = (float4x4)rot_quat;
+    auto scale = float4x4_scaling(params.particle_width, params.particle_height, 1.0f);
+    auto particle_transform = rotation * scale;
+    auto camera_transform = projection * view;
 
     // Update debug draw.
     demo.debug_draw.begin(desc.frame_index);

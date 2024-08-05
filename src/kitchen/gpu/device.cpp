@@ -82,11 +82,16 @@ auto GpuDevice::create(const Window& window) -> void {
             DXGI_OUTPUT_DESC1 desc;
             output6->GetDesc1(&desc);
 
-            Rectangle desktop_rect(desc.DesktopCoordinates);
+            const long left = desc.DesktopCoordinates.left;
+            const long top = desc.DesktopCoordinates.top;
+            const long right = desc.DesktopCoordinates.right;
+            const long bottom = desc.DesktopCoordinates.bottom;
+            const long width = right - left;
+            const long height = bottom - top;
             FB_LOG_INFO(
                 "Display: {} x {} @ {}bpp, luminance: {} to {}",
-                desktop_rect.width,
-                desktop_rect.height,
+                width,
+                height,
                 desc.BitsPerColor,
                 desc.MinLuminance,
                 desc.MaxLuminance
