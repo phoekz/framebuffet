@@ -40,16 +40,18 @@ GltfModel::GltfModel(std::string_view gltf_path) {
                 const auto* gltf_node = &data->nodes[node_index];
                 for (cgltf_size i = 0; i < gltf_node->children_count; i++) {
                     const auto* gltf_child = gltf_node->children[i];
-                    stack.push_back((uint)(gltf_child - data->nodes));
+                    stack.push_back((uint)cgltf_node_index(data, gltf_child));
                 }
             }
         }
         FB_ASSERT(gltf_from_fb.size() == data->nodes_count);
+        for (const auto& visited_node : visited) {
+            FB_ASSERT(visited_node);
+        }
 
         fb_from_gltf.resize(data->nodes_count);
         for (size_t i = 0; i < gltf_from_fb.size(); i++) {
-            const auto gltf_node = gltf_from_fb[i];
-            fb_from_gltf[gltf_node] = (uint)i;
+            fb_from_gltf[gltf_from_fb[i]] = (uint)i;
         }
     }
 
@@ -59,12 +61,15 @@ GltfModel::GltfModel(std::string_view gltf_path) {
         for (size_t fb_i = 0; fb_i < data->nodes_count; fb_i++) {
             const auto gltf_i = gltf_from_fb[fb_i];
             const auto* node = &data->nodes[gltf_i];
-            const auto curr = (size_t)(node - data->nodes);
+            const auto curr = cgltf_node_index(data, node);
             if (node->parent) {
-                const auto parent = (size_t)(node->parent - data->nodes);
+                const auto parent = cgltf_node_index(data, node->parent);
                 FB_ASSERT(visited[parent]);
             }
             visited[curr] = true;
+        }
+        for (const auto& visited_node : visited) {
+            FB_ASSERT(visited_node);
         }
     }
 
@@ -106,10 +111,15 @@ GltfModel::GltfModel(std::string_view gltf_path) {
         FB_ASSERT(texcoord_accessor != nullptr);
         FB_ASSERT(index_accessor != nullptr);
         FB_ASSERT(position_accessor->type == cgltf_type_vec3);
+        FB_ASSERT(position_accessor->component_type == cgltf_component_type_r_32f);
         FB_ASSERT(normal_accessor->type == cgltf_type_vec3);
+        FB_ASSERT(normal_accessor->component_type == cgltf_component_type_r_32f);
         FB_ASSERT(texcoord_accessor->type == cgltf_type_vec2);
+        FB_ASSERT(texcoord_accessor->component_type == cgltf_component_type_r_32f);
+        FB_ASSERT(index_accessor->type == cgltf_type_scalar);
         FB_ASSERT(
-            index_accessor->component_type == cgltf_component_type_r_16u
+            index_accessor->component_type == cgltf_component_type_r_8u
+            || index_accessor->component_type == cgltf_component_type_r_16u
             || index_accessor->component_type == cgltf_component_type_r_32u
         );
         const auto vertex_count = position_accessor->count;
@@ -126,12 +136,10 @@ GltfModel::GltfModel(std::string_view gltf_path) {
         _vertex_normals.resize(vertex_offset + vertex_count);
         _vertex_texcoords.resize(vertex_offset + vertex_count);
         _indices.resize(index_offset + index_count);
-        const auto vertex_positions =
-            std::span(_vertex_positions).subspan(vertex_offset, vertex_count);
-        const auto vertex_normals = std::span(_vertex_normals).subspan(vertex_offset, vertex_count);
-        const auto vertex_texcoords =
-            std::span(_vertex_texcoords).subspan(vertex_offset, vertex_count);
-        const auto indices = std::span(_indices).subspan(index_offset, index_count);
+        auto vertex_positions = std::span(_vertex_positions).subspan(vertex_offset, vertex_count);
+        auto vertex_normals = std::span(_vertex_normals).subspan(vertex_offset, vertex_count);
+        auto vertex_texcoords = std::span(_vertex_texcoords).subspan(vertex_offset, vertex_count);
+        auto indices = std::span(_indices).subspan(index_offset, index_count);
         for (size_t i = 0; i < vertex_count; i++) {
             auto& vp = vertex_positions[i];
             auto& vn = vertex_normals[i];
@@ -331,7 +339,7 @@ GltfModel::GltfModel(std::string_view gltf_path) {
             const auto gltf_i = gltf_from_fb[fb_i];
             const auto& node = data->nodes[gltf_i];
             if (node.parent != nullptr) {
-                node_parents[fb_i] = fb_from_gltf[(uint)(node.parent - data->nodes)];
+                node_parents[fb_i] = fb_from_gltf[cgltf_node_index(data, node.parent)];
             }
         }
 
@@ -342,7 +350,7 @@ GltfModel::GltfModel(std::string_view gltf_path) {
         auto joint_nodes = std::vector<uint>(skin.joints_count);
         for (size_t i = 0; i < skin.joints_count; i++) {
             FB_ASSERT(cgltf_accessor_read_float(ibms, i, (float*)&joint_inverse_binds[i], 16));
-            joint_nodes[i] = fb_from_gltf[(uint)(skin.joints[i] - data->nodes)];
+            joint_nodes[i] = fb_from_gltf[cgltf_node_index(data, skin.joints[i])];
         }
 
         // Read animation data.
@@ -355,7 +363,7 @@ GltfModel::GltfModel(std::string_view gltf_path) {
             const auto& channel = animation.channels[gltf_i];
             const auto& sampler = animation.samplers[gltf_i];
             const auto& output = *sampler.output;
-            const auto fb_i = fb_from_gltf[(uint)(channel.target_node - data->nodes)];
+            const auto fb_i = fb_from_gltf[cgltf_node_index(data, channel.target_node)];
             switch (channel.target_path) {
                 case cgltf_animation_path_type_translation:
                     node_channels[fb_i].t_count = output.count;
@@ -391,7 +399,7 @@ GltfModel::GltfModel(std::string_view gltf_path) {
             const auto& input = *sampler.input;
             const auto& output = *sampler.output;
             const auto& channel = animation.channels[gltf_i];
-            const auto fb_i = fb_from_gltf[(uint)(channel.target_node - data->nodes)];
+            const auto fb_i = fb_from_gltf[cgltf_node_index(data, channel.target_node)];
             const auto& node_channel = node_channels[fb_i];
 
             switch (channel.target_path) {
