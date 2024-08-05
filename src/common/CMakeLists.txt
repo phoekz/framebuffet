@@ -44,8 +44,6 @@ target_include_directories(
     PUBLIC
     ${GLM_INCLUDE_DIR}
     ${TRACY_INCLUDE_DIR}
-    ${DIRECTXMATH_INCLUDE_DIR}
-    ${DIRECTXTK12_INCLUDE_DIR}
     PRIVATE
     ${CMAKE_SOURCE_DIR}/src
 )

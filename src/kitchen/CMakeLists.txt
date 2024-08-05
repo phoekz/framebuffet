@@ -57,7 +57,6 @@ target_link_libraries(
     dxguid.lib
     ${DEARIMGUI_LIBRARY}
     ${DXAGILITYSDK_LIBRARY}
-    ${DIRECTXTK12_LIBRARY}
     ${WINPIXEVENTRUNTIME_LIBRARY}
 )
 target_include_directories(

@@ -33,6 +33,7 @@ target_include_directories(
     ${STB_INCLUDE_DIR}
     ${TINYEXR_INCLUDE_DIR}
     ${CGLTF_INCLUDE_DIR}
+    ${DIRECTXTK12_INCLUDE_DIR}
     ${DXCOMPILER_INCLUDE_DIR}
 )
 target_link_libraries(
