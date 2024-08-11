@@ -85,7 +85,12 @@ auto transition_to_render_target(Demos& demos, const RenderDesc& desc) -> void {
 
 auto clear_render_targets(Demos& demos, const RenderDesc& desc) -> void {
     ZoneScoped;
-#define X(_, name) demos.render_targets[(uint)Demo::name].pre->clear(desc.cmd);
+#define X(lower_name, upper_name)                                          \
+    {                                                                      \
+        desc.cmd.pix_begin("Clear - %s", #upper_name);                     \
+        demos.render_targets[(uint)Demo::upper_name].pre->clear(desc.cmd); \
+        desc.cmd.pix_end();                                                \
+    }
     DEMO_LIST(X);
 #undef X
 }
