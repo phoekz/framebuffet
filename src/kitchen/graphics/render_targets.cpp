@@ -96,7 +96,7 @@ auto RenderTargets::clear(GpuCommandList& cmd) -> void {
     }
 
     if (_has_depth) {
-        cmd.clear_dsv(_depth.dsv_descriptor(), _depth_clear_value);
+        cmd.clear_dsv(_depth.dsv_descriptor(), _depth_clear_value, 0);
     }
 }
 

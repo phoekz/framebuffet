@@ -115,7 +115,7 @@ public:
 
     auto clear_rtv(const GpuDescriptor& rtv, float4 color) const -> void;
 
-    auto clear_dsv(const GpuDescriptor& dsv, float depth) const -> void;
+    auto clear_dsv(const GpuDescriptor& dsv, float depth, uint8_t stencil) const -> void;
 
     auto copy_texture_to_buffer(
         const ComPtr<ID3D12Resource2>& dst_buffer,

@@ -220,7 +220,7 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
             cmd.set_viewport(0, 0, SHADOW_MAP_SIZE, SHADOW_MAP_SIZE);
             cmd.set_scissor(0, 0, SHADOW_MAP_SIZE, SHADOW_MAP_SIZE);
             cmd.set_rtv_dsv(std::nullopt, demo.shadow_depth.dsv_descriptor());
-            cmd.clear_dsv(demo.shadow_depth.dsv_descriptor(), 1.0f);
+            cmd.clear_dsv(demo.shadow_depth.dsv_descriptor(), 1.0f, 0);
             cmd.set_constants(Bindings {
                 demo.constants.buffer(frame_index).cbv_descriptor().index(),
                 demo.tree_vertices.srv_descriptor().index(),

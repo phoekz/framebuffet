@@ -12,8 +12,16 @@ auto GpuCommandList::clear_rtv(const GpuDescriptor& rtv, float4 color) const -> 
     _cmd->ClearRenderTargetView(rtv.cpu(), (const float*)&color, 0, nullptr);
 }
 
-auto GpuCommandList::clear_dsv(const GpuDescriptor& dsv, float depth) const -> void {
-    _cmd->ClearDepthStencilView(dsv.cpu(), D3D12_CLEAR_FLAG_DEPTH, depth, 0, 0, nullptr);
+auto GpuCommandList::clear_dsv(const GpuDescriptor& dsv, float depth, uint8_t stencil) const
+    -> void {
+    _cmd->ClearDepthStencilView(
+        dsv.cpu(),
+        D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL,
+        depth,
+        stencil,
+        0,
+        nullptr
+    );
 }
 
 auto GpuCommandList::set_global_descriptor_heap() const -> void {
