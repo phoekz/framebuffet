@@ -1060,10 +1060,10 @@ auto Assets::grass_material() const -> Material {
 }
 
 auto Shaders::load() -> void {
-    // hash: f0b35766d4c9b290a2a9f888c337b134
+    // hash: f4deb326e931298497cc95cdb042bc08
     ZoneScoped;
     _data = read_whole_file("fb_buffet_shaders.bin");
-    FB_ASSERT(_data.size() == 236220);
+    FB_ASSERT(_data.size() == 236632);
 }
 
 // shader_hash: d5c7057e7dc4e62ece119084aa759e6f
@@ -10852,13 +10852,13 @@ auto Shaders::saber_scene_vs() const -> std::span<const std::byte> {
     return std::span(_data).subspan(191836, 5020);
 }
 
-// shader_hash: 7463851ce3601dd2beb39a2322d858c4
+// shader_hash: 55750886c6f4f619a5e4c6c102456ee7
 // constant_buffers: 1
 // bound_resources: 1
 // input_parameters: 1
 // output_parameters: 1
-// instruction_count: 22
-// float_instruction_count: 6
+// instruction_count: 25
+// float_instruction_count: 9
 /* disassembly:
 ;
 ; Note: shader requires additional functionality:
@@ -10878,8 +10878,8 @@ auto Shaders::saber_scene_vs() const -> std::span<const std::byte> {
 ; -------------------- ----- ------ -------- -------- ------- ------
 ; SV_Target                0   xyzw        0   TARGET   float   xyzw
 ;
-; shader debug name: 7463851ce3601dd2beb39a2322d858c4.pdb
-; shader hash: 7463851ce3601dd2beb39a2322d858c4
+; shader debug name: 55750886c6f4f619a5e4c6c102456ee7.pdb
+; shader hash: 55750886c6f4f619a5e4c6c102456ee7
 ;
 ; Pipeline Runtime Information: 
 ;
@@ -10962,12 +10962,15 @@ define void @scene_ps() {
   %12 = fadd fast float %8, 1.000000e+00
   %13 = fadd fast float %9, 1.000000e+00
   %14 = fadd fast float %10, 1.000000e+00
-  %15 = fmul fast float %12, %11
-  %16 = fmul fast float %13, %11
-  %17 = fmul fast float %14, %11
-  call void @dx.op.storeOutput.f32(i32 5, i32 0, i32 0, i8 0, float %15)  ; StoreOutput(outputSigId,rowIndex,colIndex,value)
-  call void @dx.op.storeOutput.f32(i32 5, i32 0, i32 0, i8 1, float %16)  ; StoreOutput(outputSigId,rowIndex,colIndex,value)
-  call void @dx.op.storeOutput.f32(i32 5, i32 0, i32 0, i8 2, float %17)  ; StoreOutput(outputSigId,rowIndex,colIndex,value)
+  %15 = fmul fast float %11, %8
+  %16 = fmul fast float %11, %9
+  %17 = fmul fast float %11, %10
+  %18 = fadd fast float %12, %15
+  %19 = fadd fast float %13, %16
+  %20 = fadd fast float %14, %17
+  call void @dx.op.storeOutput.f32(i32 5, i32 0, i32 0, i8 0, float %18)  ; StoreOutput(outputSigId,rowIndex,colIndex,value)
+  call void @dx.op.storeOutput.f32(i32 5, i32 0, i32 0, i8 1, float %19)  ; StoreOutput(outputSigId,rowIndex,colIndex,value)
+  call void @dx.op.storeOutput.f32(i32 5, i32 0, i32 0, i8 2, float %20)  ; StoreOutput(outputSigId,rowIndex,colIndex,value)
   call void @dx.op.storeOutput.f32(i32 5, i32 0, i32 0, i8 3, float 1.000000e+00)  ; StoreOutput(outputSigId,rowIndex,colIndex,value)
   ret void
 }
@@ -11020,7 +11023,7 @@ attributes #2 = { nounwind readonly }
 !15 = !{i32 0, i64 1082130688}
 */
 auto Shaders::saber_scene_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(196856, 3900);
+    return std::span(_data).subspan(196856, 3916);
 }
 
 // shader_hash: f4c16de1384addbaa0a4dff7f3ea09cd
@@ -11199,7 +11202,7 @@ attributes #2 = { nounwind }
 !8 = !{i32 8, i32 8, i32 1}
 */
 auto Shaders::saber_threshold_cs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(200756, 4056);
+    return std::span(_data).subspan(200772, 4056);
 }
 
 // shader_hash: c63f8b566602e338c3f309ebda3b8444
@@ -11493,7 +11496,7 @@ attributes #2 = { nounwind }
 !8 = !{i32 8, i32 8, i32 1}
 */
 auto Shaders::saber_downsample_cs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(204812, 4804);
+    return std::span(_data).subspan(204828, 4804);
 }
 
 // shader_hash: b3eed3d3b1f779262a878da696bb3462
@@ -11752,7 +11755,7 @@ attributes #2 = { nounwind }
 !8 = !{i32 8, i32 8, i32 1}
 */
 auto Shaders::saber_upsample_cs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(209616, 4628);
+    return std::span(_data).subspan(209632, 4628);
 }
 
 // shader_hash: d8a565ad99bfe7bd2ffa3d4dd9ecd7ad
@@ -11878,16 +11881,18 @@ attributes #1 = { nounwind }
 !16 = !{i32 0, i64 8388864}
 */
 auto Shaders::saber_blit_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(214244, 3268);
+    return std::span(_data).subspan(214260, 3268);
 }
 
-// shader_hash: e097ba37e35cd44359398b78600f7605
+// shader_hash: 0329c3562ba20e4d9d69be6476714f02
 // constant_buffers: 1
 // bound_resources: 1
 // input_parameters: 2
 // output_parameters: 1
-// instruction_count: 29
-// float_instruction_count: 3
+// instruction_count: 67
+// dynamic_flow_control_count: 1
+// float_instruction_count: 30
+// int_instruction_count: 1
 // texture_normal_instructions: 2
 /* disassembly:
 ;
@@ -11910,8 +11915,8 @@ auto Shaders::saber_blit_vs() const -> std::span<const std::byte> {
 ; -------------------- ----- ------ -------- -------- ------- ------
 ; SV_Target                0   xyzw        0   TARGET   float   xyzw
 ;
-; shader debug name: e097ba37e35cd44359398b78600f7605.pdb
-; shader hash: e097ba37e35cd44359398b78600f7605
+; shader debug name: 0329c3562ba20e4d9d69be6476714f02.pdb
+; shader hash: 0329c3562ba20e4d9d69be6476714f02
 ;
 ; Pipeline Runtime Information: 
 ;
@@ -11989,28 +11994,70 @@ define void @blit_ps() {
   %3 = call float @dx.op.loadInput.f32(i32 4, i32 1, i32 0, i8 0, i32 undef)  ; LoadInput(inputSigId,rowIndex,colIndex,gsVertexAxis)
   %4 = call float @dx.op.loadInput.f32(i32 4, i32 1, i32 0, i8 1, i32 undef)  ; LoadInput(inputSigId,rowIndex,colIndex,gsVertexAxis)
   %5 = call %dx.types.CBufRet.i32 @dx.op.cbufferLoadLegacy.i32(i32 59, %dx.types.Handle %2, i32 0)  ; CBufferLoadLegacy(handle,regIndex)
-  %6 = extractvalue %dx.types.CBufRet.i32 %5, 1
+  %6 = extractvalue %dx.types.CBufRet.i32 %5, 0
   %7 = call %dx.types.Handle @dx.op.createHandleFromHeap(i32 218, i32 %6, i1 false, i1 false)  ; CreateHandleFromHeap(index,samplerHeap,nonUniformIndex)
-  %8 = call %dx.types.Handle @dx.op.annotateHandle(i32 216, %dx.types.Handle %7, %dx.types.ResourceProperties { i32 2, i32 1033 })  ; AnnotateHandle(res,props)  resource: Texture2D<4xF32>
-  %9 = extractvalue %dx.types.CBufRet.i32 %5, 2
+  %8 = call %dx.types.Handle @dx.op.annotateHandle(i32 216, %dx.types.Handle %7, %dx.types.ResourceProperties { i32 13, i32 772 })  ; AnnotateHandle(res,props)  resource: CBuffer
+  %9 = extractvalue %dx.types.CBufRet.i32 %5, 1
   %10 = call %dx.types.Handle @dx.op.createHandleFromHeap(i32 218, i32 %9, i1 false, i1 false)  ; CreateHandleFromHeap(index,samplerHeap,nonUniformIndex)
   %11 = call %dx.types.Handle @dx.op.annotateHandle(i32 216, %dx.types.Handle %10, %dx.types.ResourceProperties { i32 2, i32 1033 })  ; AnnotateHandle(res,props)  resource: Texture2D<4xF32>
-  %12 = call %dx.types.Handle @dx.op.createHandleFromHeap(i32 218, i32 0, i1 true, i1 false)  ; CreateHandleFromHeap(index,samplerHeap,nonUniformIndex)
-  %13 = call %dx.types.Handle @dx.op.annotateHandle(i32 216, %dx.types.Handle %12, %dx.types.ResourceProperties { i32 14, i32 0 })  ; AnnotateHandle(res,props)  resource: SamplerState
-  %14 = call %dx.types.ResRet.f32 @dx.op.sample.f32(i32 60, %dx.types.Handle %8, %dx.types.Handle %13, float %3, float %4, float undef, float undef, i32 0, i32 0, i32 undef, float undef)  ; Sample(srv,sampler,coord0,coord1,coord2,coord3,offset0,offset1,offset2,clamp)
-  %15 = extractvalue %dx.types.ResRet.f32 %14, 0
-  %16 = extractvalue %dx.types.ResRet.f32 %14, 1
-  %17 = extractvalue %dx.types.ResRet.f32 %14, 2
-  %18 = call %dx.types.ResRet.f32 @dx.op.sample.f32(i32 60, %dx.types.Handle %11, %dx.types.Handle %13, float %3, float %4, float undef, float undef, i32 0, i32 0, i32 undef, float undef)  ; Sample(srv,sampler,coord0,coord1,coord2,coord3,offset0,offset1,offset2,clamp)
-  %19 = extractvalue %dx.types.ResRet.f32 %18, 0
-  %20 = extractvalue %dx.types.ResRet.f32 %18, 1
-  %21 = extractvalue %dx.types.ResRet.f32 %18, 2
-  %22 = fadd fast float %19, %15
-  %23 = fadd fast float %20, %16
-  %24 = fadd fast float %21, %17
-  call void @dx.op.storeOutput.f32(i32 5, i32 0, i32 0, i8 0, float %22)  ; StoreOutput(outputSigId,rowIndex,colIndex,value)
-  call void @dx.op.storeOutput.f32(i32 5, i32 0, i32 0, i8 1, float %23)  ; StoreOutput(outputSigId,rowIndex,colIndex,value)
-  call void @dx.op.storeOutput.f32(i32 5, i32 0, i32 0, i8 2, float %24)  ; StoreOutput(outputSigId,rowIndex,colIndex,value)
+  %12 = extractvalue %dx.types.CBufRet.i32 %5, 2
+  %13 = call %dx.types.Handle @dx.op.createHandleFromHeap(i32 218, i32 %12, i1 false, i1 false)  ; CreateHandleFromHeap(index,samplerHeap,nonUniformIndex)
+  %14 = call %dx.types.Handle @dx.op.annotateHandle(i32 216, %dx.types.Handle %13, %dx.types.ResourceProperties { i32 2, i32 1033 })  ; AnnotateHandle(res,props)  resource: Texture2D<4xF32>
+  %15 = call %dx.types.Handle @dx.op.createHandleFromHeap(i32 218, i32 0, i1 true, i1 false)  ; CreateHandleFromHeap(index,samplerHeap,nonUniformIndex)
+  %16 = call %dx.types.Handle @dx.op.annotateHandle(i32 216, %dx.types.Handle %15, %dx.types.ResourceProperties { i32 14, i32 0 })  ; AnnotateHandle(res,props)  resource: SamplerState
+  %17 = call %dx.types.CBufRet.i32 @dx.op.cbufferLoadLegacy.i32(i32 59, %dx.types.Handle %8, i32 5)  ; CBufferLoadLegacy(handle,regIndex)
+  %18 = extractvalue %dx.types.CBufRet.i32 %17, 0
+  %19 = icmp eq i32 %18, 0
+  %20 = call %dx.types.ResRet.f32 @dx.op.sample.f32(i32 60, %dx.types.Handle %11, %dx.types.Handle %16, float %3, float %4, float undef, float undef, i32 0, i32 0, i32 undef, float undef)  ; Sample(srv,sampler,coord0,coord1,coord2,coord3,offset0,offset1,offset2,clamp)
+  %21 = extractvalue %dx.types.ResRet.f32 %20, 0
+  %22 = extractvalue %dx.types.ResRet.f32 %20, 1
+  %23 = extractvalue %dx.types.ResRet.f32 %20, 2
+  %24 = call %dx.types.ResRet.f32 @dx.op.sample.f32(i32 60, %dx.types.Handle %14, %dx.types.Handle %16, float %3, float %4, float undef, float undef, i32 0, i32 0, i32 undef, float undef)  ; Sample(srv,sampler,coord0,coord1,coord2,coord3,offset0,offset1,offset2,clamp)
+  %25 = extractvalue %dx.types.ResRet.f32 %24, 0
+  %26 = extractvalue %dx.types.ResRet.f32 %24, 1
+  %27 = extractvalue %dx.types.ResRet.f32 %24, 2
+  %28 = fadd fast float %25, %21
+  %29 = fadd fast float %26, %22
+  %30 = fadd fast float %27, %23
+  br i1 %19, label %59, label %31
+
+; <label>:31                                      ; preds = %0
+  %32 = fmul fast float %28, 0x4004147AE0000000
+  %33 = fmul fast float %29, 0x4004147AE0000000
+  %34 = fmul fast float %30, 0x4004147AE0000000
+  %35 = fadd fast float %32, 0x3F9EB851E0000000
+  %36 = fadd fast float %33, 0x3F9EB851E0000000
+  %37 = fadd fast float %34, 0x3F9EB851E0000000
+  %38 = fmul fast float %35, %28
+  %39 = fmul fast float %36, %29
+  %40 = fmul fast float %37, %30
+  %41 = fmul fast float %28, 0x400370A3E0000000
+  %42 = fmul fast float %29, 0x400370A3E0000000
+  %43 = fmul fast float %30, 0x400370A3E0000000
+  %44 = fadd fast float %41, 0x3FE2E147A0000000
+  %45 = fadd fast float %42, 0x3FE2E147A0000000
+  %46 = fadd fast float %43, 0x3FE2E147A0000000
+  %47 = fmul fast float %44, %28
+  %48 = fmul fast float %45, %29
+  %49 = fmul fast float %46, %30
+  %50 = fadd fast float %47, 0x3FC1EB8520000000
+  %51 = fadd fast float %48, 0x3FC1EB8520000000
+  %52 = fadd fast float %49, 0x3FC1EB8520000000
+  %53 = fdiv fast float %38, %50
+  %54 = fdiv fast float %39, %51
+  %55 = fdiv fast float %40, %52
+  %56 = call float @dx.op.unary.f32(i32 7, float %53)  ; Saturate(value)
+  %57 = call float @dx.op.unary.f32(i32 7, float %54)  ; Saturate(value)
+  %58 = call float @dx.op.unary.f32(i32 7, float %55)  ; Saturate(value)
+  br label %59
+
+; <label>:59                                      ; preds = %31, %0
+  %60 = phi float [ %56, %31 ], [ %28, %0 ]
+  %61 = phi float [ %57, %31 ], [ %29, %0 ]
+  %62 = phi float [ %58, %31 ], [ %30, %0 ]
+  call void @dx.op.storeOutput.f32(i32 5, i32 0, i32 0, i8 0, float %60)  ; StoreOutput(outputSigId,rowIndex,colIndex,value)
+  call void @dx.op.storeOutput.f32(i32 5, i32 0, i32 0, i8 1, float %61)  ; StoreOutput(outputSigId,rowIndex,colIndex,value)
+  call void @dx.op.storeOutput.f32(i32 5, i32 0, i32 0, i8 2, float %62)  ; StoreOutput(outputSigId,rowIndex,colIndex,value)
   call void @dx.op.storeOutput.f32(i32 5, i32 0, i32 0, i8 3, float 1.000000e+00)  ; StoreOutput(outputSigId,rowIndex,colIndex,value)
   ret void
 }
@@ -12025,10 +12072,13 @@ declare void @dx.op.storeOutput.f32(i32, i32, i32, i8, float) #1
 declare %dx.types.Handle @dx.op.createHandleFromHeap(i32, i32, i1, i1) #0
 
 ; Function Attrs: nounwind readonly
-declare %dx.types.ResRet.f32 @dx.op.sample.f32(i32, %dx.types.Handle, %dx.types.Handle, float, float, float, float, i32, i32, i32, float) #2
+declare %dx.types.CBufRet.i32 @dx.op.cbufferLoadLegacy.i32(i32, %dx.types.Handle, i32) #2
 
 ; Function Attrs: nounwind readonly
-declare %dx.types.CBufRet.i32 @dx.op.cbufferLoadLegacy.i32(i32, %dx.types.Handle, i32) #2
+declare %dx.types.ResRet.f32 @dx.op.sample.f32(i32, %dx.types.Handle, %dx.types.Handle, float, float, float, float, i32, i32, i32, float) #2
+
+; Function Attrs: nounwind readnone
+declare float @dx.op.unary.f32(i32, float) #0
 
 ; Function Attrs: nounwind readnone
 declare %dx.types.Handle @dx.op.annotateHandle(i32, %dx.types.Handle, %dx.types.ResourceProperties) #0
@@ -12068,7 +12118,7 @@ attributes #2 = { nounwind readonly }
 !17 = !{i32 0, i64 3229614336}
 */
 auto Shaders::saber_blit_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(217512, 4292);
+    return std::span(_data).subspan(217528, 4688);
 }
 
 // shader_hash: f811e0f46dd8880c55e845f1b43de01e
@@ -12316,7 +12366,7 @@ attributes #2 = { nounwind readonly }
 !22 = !{i32 0, i64 1082130688}
 */
 auto Shaders::grass_draw_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(221804, 5036);
+    return std::span(_data).subspan(222216, 5036);
 }
 
 // shader_hash: 528770a44c3f3470b8bad92fc30022a2
@@ -12517,7 +12567,7 @@ attributes #2 = { nounwind readonly }
 !19 = !{i32 0, i64 3229614336}
 */
 auto Shaders::grass_draw_naive_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(226840, 4620);
+    return std::span(_data).subspan(227252, 4620);
 }
 
 // shader_hash: 4afc5d1154d78107f4f7353c14a71966
@@ -12727,7 +12777,7 @@ attributes #2 = { nounwind readonly }
 !19 = !{i32 0, i64 3229614336}
 */
 auto Shaders::grass_draw_atoc_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(231460, 4760);
+    return std::span(_data).subspan(231872, 4760);
 }
 
 #undef texture_data

@@ -162,11 +162,13 @@ auto gui(Demo& demo, const GuiDesc&) -> void {
     if (ImGui::Button("Defaults")) {
         params = {};
     }
-    ImGui::SliderFloat("Camera Distance", &params.camera_distance, 0.125f, 10.0f);
     float* saber_color = &params.saber_color_and_intensity.x;
     float* saber_intensity = &params.saber_color_and_intensity.w;
     ImGui::ColorEdit3("Saber Color", saber_color);
-    ImGui::SliderFloat("Saber Intensity", saber_intensity, 1.0f, 16.0f);
+    ImGui::Checkbox("Animated", (bool*)&params.animated);
+    ImGui::Checkbox("Tonemap", (bool*)&params.tonemap);
+    ImGui::SliderFloat("Saber Intensity", saber_intensity, 1.0f, MAX_SABER_INTENSITY);
+    ImGui::SliderFloat("Camera Distance", &params.camera_distance, 0.125f, 10.0f);
 }
 
 auto update(Demo& demo, const UpdateDesc& desc) -> void {
@@ -183,9 +185,20 @@ auto update(Demo& demo, const UpdateDesc& desc) -> void {
     const auto camera_transform = projection * view;
 
     // Update saber.
-    const auto amplitude = std::cos(1.0f * desc.elapsed_time) * 0.5f + 0.5f;
-    params.saber_color_and_intensity.w = 1.0f + 16.0f * amplitude;
+    {
+        // Clamp to always have some contribution.
+        static constexpr auto MIN_COLOR = 1.0f / 256.0f;
+        float* saber_color = &params.saber_color_and_intensity.x;
+        saber_color[0] = std::max(MIN_COLOR, saber_color[0]);
+        saber_color[1] = std::max(MIN_COLOR, saber_color[1]);
+        saber_color[2] = std::max(MIN_COLOR, saber_color[2]);
 
+        // Animate.
+        if (params.animated) {
+            const auto amplitude = std::cos(1.0f * desc.elapsed_time) * 0.5f + 0.5f;
+            params.saber_color_and_intensity.w = 1.0f + MAX_SABER_INTENSITY * amplitude;
+        }
+    }
     // Update debug draw.
     demo.scene.debug_draw.begin(desc.frame_index);
     demo.scene.debug_draw.transform(camera_transform);
@@ -196,6 +209,7 @@ auto update(Demo& demo, const UpdateDesc& desc) -> void {
     demo.constants.buffer(desc.frame_index).ref() = Constants {
         .transform = camera_transform,
         .saber_color_and_intensity = params.saber_color_and_intensity,
+        .tonemap = params.tonemap,
     };
 }
 

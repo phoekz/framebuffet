@@ -12,12 +12,16 @@ inline constexpr DXGI_FORMAT DEPTH_FORMAT = DXGI_FORMAT_D32_FLOAT;
 inline constexpr float DEPTH_CLEAR_VALUE = 1.0f;
 inline constexpr uint SAMPLE_COUNT = 4;
 
+inline constexpr float MAX_SABER_INTENSITY = 64.0f;
+
 struct Parameters {
+    float4 saber_color_and_intensity = float4(0.118f, 0.743f, 1.000f, 16.000f);
+    uint animated = (uint)(true);
+    uint tonemap = (uint)(true);
     float camera_distance = 2.0f;
     float camera_fov = rad_from_deg(45.0f);
     float camera_latitude = rad_from_deg(0.0f);
     float camera_longitude = rad_from_deg(180.0f);
-    float4 saber_color_and_intensity = float4(0.118f, 0.743f, 1.000f, 8.000f);
 };
 
 struct Demo {

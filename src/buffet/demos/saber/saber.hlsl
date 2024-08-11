@@ -34,7 +34,7 @@ fb::PixelOutput<1> scene_ps(SceneVertexOutput /*input*/) {
     const float saber_intensity = constants.saber_color_and_intensity.a;
 
     fb::PixelOutput<1> output;
-    output.color = float4((saber_color + THRESHOLD) * saber_intensity, 1.0f);
+    output.color = float4((saber_color + THRESHOLD) + (saber_color * saber_intensity), 1.0f);
     return output;
 }
 
@@ -202,15 +202,18 @@ BlitVertexOutput blit_vs(fb::VertexInput input) {
 }
 
 fb::PixelOutput<1> blit_ps(BlitVertexOutput input) {
+    ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_blit_bindings.constants];
     Texture2D scene_texture = ResourceDescriptorHeap[g_blit_bindings.scene_texture];
     Texture2D bloom_texture = ResourceDescriptorHeap[g_blit_bindings.bloom_texture];
     SamplerState sampler = SamplerDescriptorHeap[(uint)GpuSampler::LinearClamp];
+    const bool tonemap = constants.tonemap != 0u;
 
     const float3 scene_color = scene_texture.Sample(sampler, input.texcoord).rgb;
     const float3 bloom_color = bloom_texture.Sample(sampler, input.texcoord).rgb;
     const float3 color = scene_color + bloom_color;
+    const float3 tonemapped_color = tonemap ? fb::tonemap_aces(color) : color;
 
     fb::PixelOutput<1> output;
-    output.color = float4(color, 1.0f);
+    output.color = float4(tonemapped_color, 1.0f);
     return output;
 }

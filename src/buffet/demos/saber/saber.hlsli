@@ -66,7 +66,8 @@ struct BlitBindings {
 struct Constants {
     float4x4 transform;
     float4 saber_color_and_intensity;
-    float pad[44];
+    uint tonemap;
+    float pad[43];
 };
 
 FB_NAMESPACE_END(fb::demos::saber)
