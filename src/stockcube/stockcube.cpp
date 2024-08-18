@@ -159,16 +159,16 @@ auto stockcube_run(Stockcube& sc) -> void {
             {
                 auto& swapchain = sc.device.swapchain();
                 const auto frame_index = sc.device.frame_index();
-                auto& render_targets = sc.techniques.render_targets;
+                auto& render_target_view = sc.techniques.render_target_view;
 
                 cmd.pix_begin("Frame %zu", sc.frame.count());
 
                 {
                     cmd.pix_begin("Clear");
-                    render_targets.transition_to_render_target(cmd);
+                    render_target_view.transition_to_render_target(cmd);
                     swapchain.transition_to_render_target(cmd, frame_index);
                     cmd.flush_barriers();
-                    render_targets.clear(cmd);
+                    render_target_view.clear(cmd);
                     swapchain.clear_render_target(cmd, frame_index);
                     cmd.pix_end();
                 }
@@ -180,16 +180,16 @@ auto stockcube_run(Stockcube& sc) -> void {
                         .device = sc.device,
                         .frame_index = frame_index,
                     };
-                    techniques::render_main(sc.techniques, render_targets, desc);
+                    techniques::render_main(sc.techniques, render_target_view, desc);
                     cmd.pix_end();
                 }
 
                 {
                     cmd.pix_begin("Resolve");
-                    render_targets.transition_to_resolve(cmd);
+                    render_target_view.transition_to_resolve(cmd);
                     cmd.flush_barriers();
-                    render_targets.resolve(cmd);
-                    render_targets.transition_to_shader_resource(cmd);
+                    render_target_view.resolve(cmd);
+                    render_target_view.transition_to_shader_resource(cmd);
                     cmd.flush_barriers();
                     cmd.pix_end();
                 }

@@ -39,9 +39,9 @@ enum class Demo : uint {
     Count
 };
 
-struct DemoRenderTargets {
-    RenderTargets* pre = nullptr;
-    RenderTargets* post = nullptr;
+struct DemoRenderTargetViews {
+    RenderTargetView* pre = nullptr;
+    RenderTargetView* post = nullptr;
 };
 
 struct Demos {
@@ -51,7 +51,7 @@ struct Demos {
 
     cards::Demo cards;
 
-    std::array<DemoRenderTargets, (uint)Demo::Count> render_targets = {};
+    std::array<DemoRenderTargetViews, (uint)Demo::Count> render_target_views = {};
 };
 
 struct CreateDesc {

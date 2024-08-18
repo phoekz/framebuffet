@@ -24,20 +24,19 @@ auto create(Demo& demo, const CreateDesc& desc) -> void {{
     auto& device = desc.device;
 
     // Render targets.
-    demo.render_targets.create(
+    demo.render_target.create(
         device,
         {{
             .size = device.swapchain().size(),
-            .color_format = COLOR_FORMAT,
-            .color_clear_value = COLOR_CLEAR_VALUE,
-            .depth_format = DEPTH_FORMAT,
-            .depth_clear_value = DEPTH_CLEAR_VALUE,
             .sample_count = SAMPLE_COUNT,
+            .colors = COLOR_ATTACHMENTS,
+            .depth_stencil = DEPTH_STENCIL_ATTACHMENT,
         }}
     );
+    demo.render_target_view.create(demo.render_target.view_desc());
 
     // Debug draw.
-    demo.debug_draw.create(device, kitchen_shaders, demo.render_targets);
+    demo.debug_draw.create(device, kitchen_shaders, demo.render_target_view);
 
     // Constants.
     demo.constants.create(device, 1, debug.with_name("Constants"));
@@ -97,7 +96,7 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {{
     }});
 
     cmd.graphics_scope([&demo, frame_index](GpuGraphicsCommandList& cmd) {{
-        demo.render_targets.set(cmd);
+        demo.render_target_view.set_graphics(cmd);
 
         demo.debug_draw.render(cmd);
 
@@ -121,10 +120,15 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {{
 namespace fb::demos::{lower_name} {{
 
 inline constexpr std::string_view NAME = "{upper_name}"sv;
-inline constexpr DXGI_FORMAT COLOR_FORMAT = DXGI_FORMAT_R8G8B8A8_UNORM;
-inline constexpr float4 COLOR_CLEAR_VALUE = {{0.5f, 0.5f, 0.5f, 1.0f}};
-inline constexpr DXGI_FORMAT DEPTH_FORMAT = DXGI_FORMAT_D32_FLOAT;
-inline constexpr float DEPTH_CLEAR_VALUE = 1.0f;
+inline constexpr ColorAttachmentDescs COLOR_ATTACHMENTS = {{ColorAttachmentDesc {{
+    .format = DXGI_FORMAT_R8G8B8A8_UNORM,
+    .clear_color = {{0.0f, 0.0f, 0.0f, 1.0f}},
+}}}};
+inline constexpr DepthStencilAttachmentDesc DEPTH_STENCIL_ATTACHMENT = {{
+    .format = DXGI_FORMAT_D32_FLOAT,
+    .clear_depth = 1.0f,
+    .clear_stencil = 0,
+}};
 inline constexpr uint SAMPLE_COUNT = 1;
 
 struct Parameters {{
@@ -137,7 +141,8 @@ struct Parameters {{
 
 struct Demo {{
     Parameters parameters;
-    RenderTargets render_targets;
+    RenderTarget render_target;
+    RenderTargetView render_target_view;
     DebugDraw debug_draw;
     Multibuffer<GpuBufferHostCbv<Constants>, FRAME_COUNT> constants;
 }};

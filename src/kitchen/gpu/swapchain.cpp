@@ -88,7 +88,7 @@ auto GpuSwapchain::clear_render_target(GpuCommandList& cmd, uint frame_index) ->
 auto GpuSwapchain::set_render_target(GpuGraphicsCommandList& cmd, uint frame_index) -> void {
     cmd.set_viewport(0, 0, _size.x, _size.y);
     cmd.set_scissor(0, 0, _size.x, _size.y);
-    cmd.set_rtv_dsv(_rtv_descriptors[frame_index], std::nullopt);
+    cmd.set_rtvs_dsv(std::span(&_rtv_descriptors[frame_index], 1), std::nullopt);
 }
 
 auto GpuSwapchain::transition_to_present(GpuCommandList& cmd, uint frame_index) -> void {

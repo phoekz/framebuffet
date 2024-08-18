@@ -3,7 +3,7 @@
 #include "../pch.hpp"
 #include "../gpu/gpu.hpp"
 #include <baked/kitchen/baked.hpp>
-#include "render_targets.hpp"
+#include "render_target.hpp"
 #include "debug_draw.hlsli"
 
 namespace fb::graphics::debug_draw {
@@ -19,7 +19,7 @@ public:
     auto create(
         GpuDevice& device,
         const baked::kitchen::Shaders& shaders,
-        const render_targets::RenderTargets& render_targets
+        const render_target::RenderTargetView& render_target_view
     ) -> void;
     auto begin(uint frame_index) -> void;
     auto transform(const float4x4& transform) -> void;

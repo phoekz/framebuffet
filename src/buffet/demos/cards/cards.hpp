@@ -42,7 +42,7 @@ struct Demo {
 
 struct CardDesc {
     std::string_view name;
-    ConstRef<RenderTargets> render_targets;
+    ConstRef<RenderTargetView> render_target_view;
 };
 
 struct CreateDesc {

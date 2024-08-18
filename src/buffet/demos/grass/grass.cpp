@@ -14,20 +14,19 @@ auto create(Demo& demo, const CreateDesc& desc) -> void {
     auto& device = desc.device;
 
     // Render targets.
-    demo.render_targets.create(
+    demo.render_target.create(
         device,
         {
             .size = device.swapchain().size(),
-            .color_format = COLOR_FORMAT,
-            .color_clear_value = COLOR_CLEAR_VALUE,
-            .depth_format = DEPTH_FORMAT,
-            .depth_clear_value = DEPTH_CLEAR_VALUE,
             .sample_count = SAMPLE_COUNT,
+            .colors = COLOR_ATTACHMENTS,
+            .depth_stencil = DEPTH_STENCIL_ATTACHMENT,
         }
     );
+    demo.render_target_view.create(demo.render_target.view_desc());
 
     // Debug draw.
-    demo.debug_draw.create(device, kitchen_shaders, demo.render_targets);
+    demo.debug_draw.create(device, kitchen_shaders, demo.render_target_view);
 
     // Constants.
     demo.constants.create(device, 1, debug.with_name("Constants"));
@@ -71,9 +70,9 @@ auto create(Demo& demo, const CreateDesc& desc) -> void {
             .fill_mode = GpuFillMode::Solid,
             .cull_mode = GpuCullMode::None,
         })
-        .render_target_formats({demo.render_targets.color_format()})
-        .depth_stencil_format(demo.render_targets.depth_format())
-        .sample_desc(demo.render_targets.sample_desc())
+        .render_target_formats({demo.render_target.color_format(0)})
+        .depth_stencil_format(demo.render_target.depth_format())
+        .sample_desc(demo.render_target.sample_desc())
         .build(device, demo.pipeline_naive, debug.with_name("Pipeline - Naive"));
     GpuPipelineBuilder()
         .primitive_topology(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)
@@ -86,9 +85,9 @@ auto create(Demo& demo, const CreateDesc& desc) -> void {
             .fill_mode = GpuFillMode::Solid,
             .cull_mode = GpuCullMode::None,
         })
-        .render_target_formats({demo.render_targets.color_format()})
-        .depth_stencil_format(demo.render_targets.depth_format())
-        .sample_desc(demo.render_targets.sample_desc())
+        .render_target_formats({demo.render_target.color_format(0)})
+        .depth_stencil_format(demo.render_target.depth_format())
+        .sample_desc(demo.render_target.sample_desc())
         .build(device, demo.pipeline_atoc, debug.with_name("Pipeline - AtoC"));
 }
 
@@ -143,7 +142,7 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
     cmd.pix_begin("%s - Render", NAME.data());
 
     cmd.graphics_scope([&demo, frame_index](GpuGraphicsCommandList& cmd) {
-        demo.render_targets.set(cmd);
+        demo.render_target_view.set_graphics(cmd);
 
         demo.debug_draw.render(cmd);
 

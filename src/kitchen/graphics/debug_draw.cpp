@@ -5,7 +5,7 @@ namespace fb::graphics::debug_draw {
 auto DebugDraw::create(
     GpuDevice& device,
     const baked::kitchen::Shaders& shaders,
-    const render_targets::RenderTargets& render_targets
+    const render_target::RenderTargetView& render_target_view
 ) -> void {
     ZoneScoped;
     DebugScope debug("Debug Draw");
@@ -30,9 +30,9 @@ auto DebugDraw::create(
         .rasterizer(GpuRasterizerDesc {
             .cull_mode = GpuCullMode::None,
         })
-        .render_target_formats({render_targets.color_format()})
-        .depth_stencil_format(render_targets.depth_format())
-        .sample_desc(render_targets.sample_desc())
+        .render_target_formats({render_target_view.color_format(0)})
+        .depth_stencil_format(render_target_view.depth_format())
+        .sample_desc(render_target_view.sample_desc())
         .build(device, _pipeline, debug.with_name("Pipeline"));
 
     // Frame resources.

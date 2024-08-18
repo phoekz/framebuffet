@@ -22,7 +22,7 @@ struct Technique {
 };
 
 struct CreateDesc {
-    const RenderTargets& render_targets;
+    const RenderTargetView& render_target_view;
     const Baked& baked;
     GpuDevice& device;
     GpuDescriptor rad_texture;

@@ -220,13 +220,19 @@ auto GpuGraphicsCommandList::set_pipeline(const GpuPipeline& pipeline) const -> 
     _cmd->SetPipelineState(pipeline.get());
 }
 
-auto GpuGraphicsCommandList::set_rtv_dsv(
-    const Option<GpuDescriptor>& rtv,
+auto GpuGraphicsCommandList::set_rtvs_dsv(
+    const std::span<const GpuDescriptor>& rtvs,
     const Option<GpuDescriptor>& dsv
 ) const -> void {
+    FB_ASSERT(rtvs.size() <= D3D12_SIMULTANEOUS_RENDER_TARGET_COUNT);
+    std::array<D3D12_CPU_DESCRIPTOR_HANDLE, D3D12_SIMULTANEOUS_RENDER_TARGET_COUNT> rtv_descs = {};
+    for (size_t i = 0; i < rtvs.size(); ++i) {
+        rtv_descs[i] = rtvs[i].cpu();
+    }
+
     _cmd->OMSetRenderTargets(
-        rtv.has_value() ? 1 : 0,
-        rtv.has_value() ? rtv.value().cpu_ptr() : nullptr,
+        (uint)rtvs.size(),
+        rtv_descs.data(),
         false,
         dsv.has_value() ? dsv.value().cpu_ptr() : nullptr
     );

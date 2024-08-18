@@ -35,8 +35,8 @@ set(SOURCES
     graphics/gui.hlsli
     graphics/gui.hpp
     graphics/multibuffer.hpp
-    graphics/render_targets.cpp
-    graphics/render_targets.hpp
+    graphics/render_target.cpp
+    graphics/render_target.hpp
     graphics/spd.hlsli
     utils/camera.cpp
     utils/camera.hpp

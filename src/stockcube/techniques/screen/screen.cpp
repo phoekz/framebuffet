@@ -6,7 +6,7 @@ auto create(Technique& tech, const CreateDesc& desc) -> void {
     PIXScopedEvent(PIX_COLOR_DEFAULT, "%s - Create", NAME.data());
     DebugScope debug(NAME);
 
-    const auto& render_targets = desc.render_targets;
+    const auto& render_target_view = desc.render_target_view;
     const auto& shaders = desc.baked.stockcube.shaders;
     auto& device = desc.device;
 
@@ -125,8 +125,8 @@ auto create(Technique& tech, const CreateDesc& desc) -> void {
         .rasterizer(GpuRasterizerDesc {
             .cull_mode = GpuCullMode::None,
         })
-        .render_target_formats({render_targets.color_format()})
-        .sample_desc(render_targets.sample_desc())
+        .render_target_formats({render_target_view.color_format(0)})
+        .sample_desc(render_target_view.sample_desc())
         .build(device, tech.pipeline, debug.with_name("Pipeline"));
 }
 

@@ -72,7 +72,7 @@ auto create(Demo& demo, const CreateDesc& desc) -> void {
     // Descriptors.
     for (uint i = 0; i < CARD_COUNT; i++) {
         const auto& [name, rt] = desc.cards[i];
-        const auto& color = rt.get().color();
+        const auto& color = *rt.get().color(0);
         demo.card_names[i] = name;
         demo.card_descriptors[i] = CardDescriptors {
             .src = color.srv_descriptor().index(),

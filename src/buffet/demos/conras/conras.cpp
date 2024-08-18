@@ -13,20 +13,19 @@ auto create(Demo& demo, const CreateDesc& desc) -> void {
     auto& device = desc.device;
 
     // Render targets.
-    demo.render_targets.create(
+    demo.render_target.create(
         device,
         {
             .size = device.swapchain().size(),
-            .color_format = COLOR_FORMAT,
-            .color_clear_value = COLOR_CLEAR_VALUE,
-            .depth_format = DEPTH_FORMAT,
-            .depth_clear_value = DEPTH_CLEAR_VALUE,
             .sample_count = SAMPLE_COUNT,
+            .colors = COLOR_ATTACHMENTS,
+            .depth_stencil = DEPTH_STENCIL_ATTACHMENT,
         }
     );
+    demo.render_target_view.create(demo.render_target.view_desc());
 
     // Debug draw.
-    demo.debug_draw.create(device, kitchen_shaders, demo.render_targets);
+    demo.debug_draw.create(device, kitchen_shaders, demo.render_target_view);
 
     // Constants.
     demo.constants.create(device, 1, debug.with_name("Constants"));
@@ -83,8 +82,8 @@ auto create(Demo& demo, const CreateDesc& desc) -> void {
         .vertex_shader(shaders.conras_display_vs())
         .pixel_shader(shaders.conras_display_ps())
         .depth_stencil({.depth_read = false, .depth_write = false})
-        .render_target_formats({demo.render_targets.color_format()})
-        .sample_desc(demo.render_targets.sample_desc())
+        .render_target_formats({demo.render_target.color_format(0)})
+        .sample_desc(demo.render_target.sample_desc())
         .build(device, demo.display_pipeline, debug.with_name("Display"));
 }
 
@@ -164,7 +163,7 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
         cmd.set_viewport(0, 0, raster_buffer_width, raster_buffer_height);
         cmd.set_scissor(0, 0, raster_buffer_width, raster_buffer_height);
         cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-        cmd.set_rtv_dsv(std::nullopt, std::nullopt);
+        cmd.set_rtvs_dsv({}, std::nullopt);
 
         // Clear.
         cmd.pix_begin("Clear");
@@ -199,7 +198,7 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
 
         // Display.
         cmd.pix_begin("Display");
-        demo.render_targets.set(cmd);
+        demo.render_target_view.set_graphics(cmd);
         demo.raster_buffer.transition(
             cmd,
             D3D12_BARRIER_SYNC_PIXEL_SHADING,

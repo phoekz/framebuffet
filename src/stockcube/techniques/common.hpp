@@ -4,14 +4,6 @@
 #include <kitchen/kitchen.hpp>
 #include <baked/stockcube/baked.hpp>
 
-namespace fb {
-template<typename Buffer, uint BufferCount>
-using Multibuffer = graphics::multibuffer::Multibuffer<Buffer, BufferCount>;
-using RenderTargets = graphics::render_targets::RenderTargets;
-using DebugDraw = graphics::debug_draw::DebugDraw;
-using Gui = graphics::gui::Gui;
-} // namespace fb
-
 namespace fb::techniques {
 
 struct Baked {

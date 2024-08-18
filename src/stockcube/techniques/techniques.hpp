@@ -18,7 +18,8 @@ namespace fb::techniques {
 inline constexpr std::string_view NAME = "Stockcube"sv;
 
 struct Techniques {
-    RenderTargets render_targets;
+    RenderTarget render_target;
+    RenderTargetView render_target_view;
     std::string rect_texture_name;
     GpuTextureSrv rect_texture;
     cfr::Technique cfr;
@@ -40,7 +41,8 @@ struct CreateDesc {
 auto create(Techniques& techs, const CreateDesc& desc) -> void;
 auto gui(Techniques& techs, const GuiDesc& desc) -> void;
 auto update(Techniques& techs, const UpdateDesc& desc) -> void;
-auto render_main(Techniques& techs, RenderTargets& render_targets, const RenderDesc& desc) -> void;
+auto render_main(Techniques& techs, RenderTargetView& render_target_view, const RenderDesc& desc)
+    -> void;
 auto render_compositing(Techniques& techs, const RenderDesc& desc) -> void;
 
 } // namespace fb::techniques

@@ -8,7 +8,7 @@ auto create(Technique& tech, const CreateDesc& desc) -> void {
 
     const auto& assets = desc.baked.stockcube.assets;
     const auto& shaders = desc.baked.stockcube.shaders;
-    const auto& render_targets = desc.render_targets;
+    const auto& render_target_view = desc.render_target_view;
     auto& device = desc.device;
 
     tech.rad_texture = desc.rad_texture;
@@ -38,9 +38,9 @@ auto create(Technique& tech, const CreateDesc& desc) -> void {
             .depth_write = true,
             .depth_func = GpuComparisonFunc::LessEqual,
         })
-        .render_target_formats({render_targets.color_format()})
-        .depth_stencil_format(render_targets.depth_format())
-        .sample_desc(render_targets.sample_desc())
+        .render_target_formats({render_target_view.color_format(0)})
+        .depth_stencil_format(render_target_view.depth_format())
+        .sample_desc(render_target_view.sample_desc())
         .build(device, tech.pipeline, debug.with_name("Pipeline"));
 }
 

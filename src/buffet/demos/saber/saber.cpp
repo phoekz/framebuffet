@@ -23,29 +23,28 @@ auto create(Demo& demo, const CreateDesc& desc) -> void {
         auto& scene = demo.scene;
 
         // Render targets.
-        scene.render_targets.create(
+        scene.render_target.create(
             device,
             {
                 .size = device.swapchain().size(),
-                .color_format = COLOR_FORMAT,
-                .color_clear_value = COLOR_CLEAR_VALUE,
-                .depth_format = DEPTH_FORMAT,
-                .depth_clear_value = DEPTH_CLEAR_VALUE,
                 .sample_count = SAMPLE_COUNT,
+                .colors = COLOR_ATTACHMENTS,
+                .depth_stencil = DEPTH_STENCIL_ATTACHMENT,
             }
         );
+        scene.render_target_view.create(scene.render_target.view_desc());
 
         // Debug draw.
-        scene.debug_draw.create(device, kitchen_shaders, scene.render_targets);
+        scene.debug_draw.create(device, kitchen_shaders, scene.render_target_view);
 
         // Pipeline.
         GpuPipelineBuilder()
             .primitive_topology(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)
             .vertex_shader(shaders.saber_scene_vs())
             .pixel_shader(shaders.saber_scene_ps())
-            .render_target_formats({scene.render_targets.color_format()})
-            .depth_stencil_format(scene.render_targets.depth_format())
-            .sample_desc(scene.render_targets.sample_desc())
+            .render_target_formats({scene.render_target.color_format(0)})
+            .depth_stencil_format(scene.render_target.depth_format())
+            .sample_desc(scene.render_target.sample_desc())
             .build(device, scene.pipeline, pass_debug.with_name("Pipeline"));
 
         // Geometry.
@@ -106,7 +105,7 @@ auto create(Demo& demo, const CreateDesc& desc) -> void {
         compute.downsample.create(
             device,
             GpuTextureDesc {
-                .format = COLOR_FORMAT,
+                .format = COLOR_ATTACHMENTS[0].format,
                 .width = size.x,
                 .height = size.y,
                 .mip_count = mip_count,
@@ -116,7 +115,7 @@ auto create(Demo& demo, const CreateDesc& desc) -> void {
         compute.upsample.create(
             device,
             GpuTextureDesc {
-                .format = COLOR_FORMAT,
+                .format = COLOR_ATTACHMENTS[0].format,
                 .width = size.x,
                 .height = size.y,
                 .mip_count = mip_count,
@@ -132,14 +131,14 @@ auto create(Demo& demo, const CreateDesc& desc) -> void {
         auto& blit = demo.blit;
 
         // Render targets.
-        blit.render_targets.create(
+        blit.render_target.create(
             device,
             {
                 .size = device.swapchain().size(),
-                .color_format = COLOR_FORMAT,
-                .color_clear_value = COLOR_CLEAR_VALUE,
+                .colors = {ColorAttachmentDesc {.format = COLOR_ATTACHMENTS[0].format}},
             }
         );
+        blit.render_target_view.create(blit.render_target.view_desc());
 
         // Pipeline.
         GpuPipelineBuilder()
@@ -150,7 +149,7 @@ auto create(Demo& demo, const CreateDesc& desc) -> void {
                 .depth_read = false,
                 .depth_write = false,
             })
-            .render_target_formats({blit.render_targets.color_format()})
+            .render_target_formats({blit.render_target.color_format(0)})
             .build(device, blit.pipeline, debug.with_name("Pipeline"));
     }
 }
@@ -224,7 +223,7 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
 
         cmd.pix_begin("Scene");
 
-        scene.render_targets.set(cmd);
+        scene.render_target_view.set_graphics(cmd);
         scene.debug_draw.render(cmd);
         cmd.set_pipeline(scene.pipeline);
         cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -236,12 +235,12 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
         });
         cmd.draw_indexed_instanced(scene.indices.element_count(), 2, 0, 0, 0);
 
-        scene.render_targets.transition_to_resolve(cmd);
+        scene.render_target_view.transition_to_resolve(cmd);
         cmd.flush_barriers();
 
-        scene.render_targets.resolve(cmd);
+        scene.render_target_view.resolve(cmd);
 
-        scene.render_targets.transition_to_shader_resource(cmd);
+        scene.render_target_view.transition_to_shader_resource(cmd);
         cmd.flush_barriers();
 
         cmd.pix_end();
@@ -269,7 +268,7 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
         cmd.flush_barriers();
 
         // Common.
-        const auto size = scene.render_targets.color().size();
+        const auto size = scene.render_target.color(0).size();
         const auto mip_count = mip_count_from_size(size);
 
         // Thresholding.
@@ -277,7 +276,7 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
         cmd.set_pipeline(compute.threshold_pipeline);
         cmd.set_constants(ThresholdBindings {
             .constants = demo.constants.buffer(frame_index).cbv_descriptor().index(),
-            .scene_texture = scene.render_targets.color().srv_descriptor().index(),
+            .scene_texture = scene.render_target.color(0).srv_descriptor().index(),
             .downsample_texture = compute.downsample.uav_descriptor().index(),
             .texture_width = size.x,
             .texture_height = size.y,
@@ -364,17 +363,17 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
             D3D12_BARRIER_ACCESS_SHADER_RESOURCE,
             D3D12_BARRIER_LAYOUT_SHADER_RESOURCE
         );
-        blit.render_targets.transition_to_render_target(cmd);
+        blit.render_target_view.transition_to_render_target(cmd);
         cmd.flush_barriers();
 
         cmd.pix_begin("Blit");
 
-        blit.render_targets.set(cmd);
+        blit.render_target_view.set_graphics(cmd);
         cmd.set_pipeline(blit.pipeline);
         cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
         cmd.set_constants(BlitBindings {
             .constants = demo.constants.buffer(frame_index).cbv_descriptor().index(),
-            .scene_texture = scene.render_targets.color().srv_descriptor().index(),
+            .scene_texture = scene.render_target.color(0).srv_descriptor().index(),
             .bloom_texture = compute.upsample.srv_descriptor().index(),
         });
         cmd.draw_instanced(3, 1, 0, 0);

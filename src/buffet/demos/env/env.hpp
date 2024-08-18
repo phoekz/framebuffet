@@ -6,10 +6,15 @@
 namespace fb::demos::env {
 
 inline constexpr std::string_view NAME = "Env"sv;
-inline constexpr DXGI_FORMAT COLOR_FORMAT = DXGI_FORMAT_R16G16B16A16_FLOAT;
-inline constexpr float4 COLOR_CLEAR_VALUE = {0.0f, 0.0f, 0.0f, 1.0f};
-inline constexpr DXGI_FORMAT DEPTH_FORMAT = DXGI_FORMAT_D32_FLOAT;
-inline constexpr float DEPTH_CLEAR_VALUE = 1.0f;
+inline constexpr ColorAttachmentDescs COLOR_ATTACHMENTS = {ColorAttachmentDesc {
+    .format = DXGI_FORMAT_R16G16B16A16_FLOAT,
+    .clear_color = {0.0f, 0.0f, 0.0f, 1.0f},
+}};
+inline constexpr DepthStencilAttachmentDesc DEPTH_STENCIL_ATTACHMENT = {
+    .format = DXGI_FORMAT_D32_FLOAT,
+    .clear_depth = 1.0f,
+    .clear_stencil = 0,
+};
 inline constexpr uint SAMPLE_COUNT = 4;
 
 struct Parameters {
@@ -27,7 +32,8 @@ struct Parameters {
 
 struct Demo {
     Parameters parameters;
-    RenderTargets render_targets;
+    RenderTarget render_target;
+    RenderTargetView render_target_view;
     DebugDraw debug_draw;
 
     struct {

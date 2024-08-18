@@ -13,22 +13,25 @@ auto create(Demos& demos, const CreateDesc& desc) -> void {
     // Todo: this is only for the saber demo because it has two distinct phases
     // in its rendering. If we moved all transition/clear phases into demos,
     // this could be removed.
-    demos.render_targets = std::to_array({
-        DemoRenderTargets(&demos.anim.render_targets, &demos.anim.render_targets),
-        DemoRenderTargets(&demos.conras.render_targets, &demos.conras.render_targets),
-        DemoRenderTargets(&demos.crate.render_targets, &demos.crate.render_targets),
-        DemoRenderTargets(&demos.env.render_targets, &demos.env.render_targets),
-        DemoRenderTargets(&demos.fibers.render_targets, &demos.fibers.render_targets),
-        DemoRenderTargets(&demos.grass.render_targets, &demos.grass.render_targets),
-        DemoRenderTargets(&demos.rain.render_targets, &demos.rain.render_targets),
-        DemoRenderTargets(&demos.saber.scene.render_targets, &demos.saber.blit.render_targets),
-        DemoRenderTargets(&demos.text.render_targets, &demos.text.render_targets),
-        DemoRenderTargets(&demos.tree.render_targets, &demos.tree.render_targets),
+    demos.render_target_views = std::to_array({
+        DemoRenderTargetViews(&demos.anim.render_target_view, &demos.anim.render_target_view),
+        DemoRenderTargetViews(&demos.conras.render_target_view, &demos.conras.render_target_view),
+        DemoRenderTargetViews(&demos.crate.render_target_view, &demos.crate.render_target_view),
+        DemoRenderTargetViews(&demos.env.render_target_view, &demos.env.render_target_view),
+        DemoRenderTargetViews(&demos.fibers.render_target_view, &demos.fibers.render_target_view),
+        DemoRenderTargetViews(&demos.grass.render_target_view, &demos.grass.render_target_view),
+        DemoRenderTargetViews(&demos.rain.render_target_view, &demos.rain.render_target_view),
+        DemoRenderTargetViews(
+            &demos.saber.scene.render_target_view,
+            &demos.saber.blit.render_target_view
+        ),
+        DemoRenderTargetViews(&demos.text.render_target_view, &demos.text.render_target_view),
+        DemoRenderTargetViews(&demos.tree.render_target_view, &demos.tree.render_target_view),
     });
 
     // Create cards.
 #define X(lower_name, upper_name) \
-    cards::CardDesc(lower_name::NAME, *demos.render_targets[(uint)Demo::upper_name].post),
+    cards::CardDesc(lower_name::NAME, *demos.render_target_views[(uint)Demo::upper_name].post),
     cards::create(
         demos.cards,
         {
@@ -78,18 +81,18 @@ auto update(Demos& demos, const UpdateDesc& desc) -> void {
 auto transition_to_render_target(Demos& demos, const RenderDesc& desc) -> void {
     ZoneScoped;
 #define X(_, name) \
-    demos.render_targets[(uint)Demo::name].pre->transition_to_render_target(desc.cmd);
+    demos.render_target_views[(uint)Demo::name].pre->transition_to_render_target(desc.cmd);
     DEMO_LIST(X);
 #undef X
 }
 
 auto clear_render_targets(Demos& demos, const RenderDesc& desc) -> void {
     ZoneScoped;
-#define X(lower_name, upper_name)                                          \
-    {                                                                      \
-        desc.cmd.pix_begin("Clear - %s", #upper_name);                     \
-        demos.render_targets[(uint)Demo::upper_name].pre->clear(desc.cmd); \
-        desc.cmd.pix_end();                                                \
+#define X(lower_name, upper_name)                                               \
+    {                                                                           \
+        desc.cmd.pix_begin("Clear - %s", #upper_name);                          \
+        demos.render_target_views[(uint)Demo::upper_name].pre->clear(desc.cmd); \
+        desc.cmd.pix_end();                                                     \
     }
     DEMO_LIST(X);
 #undef X
@@ -104,14 +107,15 @@ auto render_demos(Demos& demos, const RenderDesc& desc) -> void {
 
 auto transition_to_resolve(Demos& demos, const RenderDesc& desc) -> void {
     ZoneScoped;
-#define X(_, name) demos.render_targets[(uint)Demo::name].post->transition_to_resolve(desc.cmd);
+#define X(_, name) \
+    demos.render_target_views[(uint)Demo::name].post->transition_to_resolve(desc.cmd);
     DEMO_LIST(X);
 #undef X
 }
 
 auto resolve_render_targets(Demos& demos, const RenderDesc& desc) -> void {
     ZoneScoped;
-#define X(_, name) demos.render_targets[(uint)Demo::name].post->resolve(desc.cmd);
+#define X(_, name) demos.render_target_views[(uint)Demo::name].post->resolve(desc.cmd);
     DEMO_LIST(X);
 #undef X
 }
@@ -119,7 +123,7 @@ auto resolve_render_targets(Demos& demos, const RenderDesc& desc) -> void {
 auto transition_to_shader_resource(Demos& demos, const RenderDesc& desc) -> void {
     ZoneScoped;
 #define X(_, name) \
-    demos.render_targets[(uint)Demo::name].post->transition_to_shader_resource(desc.cmd);
+    demos.render_target_views[(uint)Demo::name].post->transition_to_shader_resource(desc.cmd);
     DEMO_LIST(X);
 #undef X
 }

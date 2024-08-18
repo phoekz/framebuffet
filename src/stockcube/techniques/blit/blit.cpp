@@ -10,7 +10,7 @@ auto create(Technique& tech, const CreateDesc& desc) -> void {
     auto& device = desc.device;
 
     tech.size = device.swapchain().size();
-    tech.render_target = desc.render_targets.color().srv_descriptor();
+    tech.render_target = desc.render_target_view.color(0)->srv_descriptor();
     tech.constants.create(device, 1, debug.with_name("Constants"));
     GpuPipelineBuilder()
         .vertex_shader(shaders.blit_vs())
