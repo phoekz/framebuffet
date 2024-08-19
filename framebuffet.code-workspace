@@ -116,7 +116,7 @@
 		"editor.fontLigatures": true,
 		"editor.formatOnSave": true,
 		"editor.minimap.enabled": false,
-		"editor.stickyScroll.enabled": true,
+		"editor.stickyScroll.enabled": false,
 		"explorer.autoReveal": false,
 		"files.insertFinalNewline": true,
 		"files.trimTrailingWhitespace": true,
