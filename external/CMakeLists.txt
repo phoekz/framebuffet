@@ -38,51 +38,28 @@ if(NOT FETCH_CONTENT_HAS_BEEN_RUN)
     set(STB_SOURCE_DIR ${stb_SOURCE_DIR} CACHE INTERNAL "stb Source Directory")
 
     message(STATUS "Fetching tinyexr...")
-    FetchContent_GetProperties(tinyexr)
-
-    if(NOT tinyexr_POPULATED)
-        FetchContent_Populate(tinyexr)
-        set(TINYEXR_SOURCE_DIR ${tinyexr_SOURCE_DIR} CACHE INTERNAL "tinyexr Source Directory")
-    endif()
+    FetchContent_MakeAvailable(tinyexr)
+    set(TINYEXR_SOURCE_DIR ${tinyexr_SOURCE_DIR} CACHE INTERNAL "tinyexr Source Directory")
 
     message(STATUS "Fetching fp16...")
-    FetchContent_GetProperties(fp16)
-
-    if(NOT fp16_POPULATED)
-        FetchContent_Populate(fp16)
-        set(FP16_SOURCE_DIR ${fp16_SOURCE_DIR} CACHE INTERNAL "fp16 Source Directory")
-    endif()
+    FetchContent_MakeAvailable(fp16)
+    set(FP16_SOURCE_DIR ${fp16_SOURCE_DIR} CACHE INTERNAL "fp16 Source Directory")
 
     message(STATUS "Fetching xxHash...")
-    FetchContent_GetProperties(xxhash)
-
-    if(NOT xxhash_POPULATED)
-        FetchContent_Populate(xxhash)
-        set(XXHASH_SOURCE_DIR ${xxhash_SOURCE_DIR} CACHE INTERNAL "xxHash Source Directory")
-    endif()
+    FetchContent_MakeAvailable(xxhash)
+    set(XXHASH_SOURCE_DIR ${xxhash_SOURCE_DIR} CACHE INTERNAL "xxHash Source Directory")
 
     message(STATUS "Fetching mikktspace...")
-    FetchContent_GetProperties(mikktspace)
+    FetchContent_MakeAvailable(mikktspace)
+    set(MIKKTSPACE_SOURCE_DIR ${mikktspace_SOURCE_DIR} CACHE INTERNAL "mikktspace Source Directory")
 
-    if(NOT mikktspace_POPULATED)
-        FetchContent_Populate(mikktspace)
-        set(MIKKTSPACE_SOURCE_DIR ${mikktspace_SOURCE_DIR} CACHE INTERNAL "mikktspace Source Directory")
-    endif()
-
-    FetchContent_GetProperties(nlohmann_json)
-
-    if(NOT nlohmann_json_POPULATED)
-        FetchContent_Populate(nlohmann_json)
-        set(NLOHMANN_JSON_SOURCE_DIR ${nlohmann_json_SOURCE_DIR} CACHE INTERNAL "nlohmann_json Source Directory")
-    endif()
+    message(STATUS "Fetching nlohmann_json...")
+    FetchContent_MakeAvailable(nlohmann_json)
+    set(NLOHMANN_JSON_SOURCE_DIR ${nlohmann_json_SOURCE_DIR} CACHE INTERNAL "nlohmann_json Source Directory")
 
     message(STATUS "Fetching D3D12MemoryAllocator...")
-    FetchContent_GetProperties(d3d12memalloc)
-
-    if(NOT d3d12memalloc_POPULATED)
-        FetchContent_Populate(d3d12memalloc)
-        set(D3D12MEMALLOC_SOURCE_DIR ${d3d12memalloc_SOURCE_DIR} CACHE INTERNAL "D3D12 Memory Allocator Source Directory")
-    endif()
+    FetchContent_MakeAvailable(d3d12memalloc)
+    set(D3D12MEMALLOC_SOURCE_DIR ${d3d12memalloc_SOURCE_DIR} CACHE INTERNAL "D3D12 Memory Allocator Source Directory")
 
     message(STATUS "Fetching ttf2mesh...")
     FetchContent_MakeAvailable(ttf2mesh)
