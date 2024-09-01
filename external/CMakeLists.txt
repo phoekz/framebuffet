@@ -4,7 +4,7 @@ include(FetchContent)
 # time to run, so we want to reuse the results in our subsequent runs.
 if(NOT FETCH_CONTENT_HAS_BEEN_RUN)
     # Declarations.
-    FetchContent_Declare(dearimgui GIT_REPOSITORY "https://github.com/ocornut/imgui" GIT_TAG cb16be3a3fc1f9cd146ae24d52b615f8a05fa93d) # v1.90.9
+    FetchContent_Declare(dearimgui GIT_REPOSITORY "https://github.com/ocornut/imgui" GIT_TAG 8199457a7d9e453f8d3d9cadc14683fb54a858b5) # v1.91.0
     FetchContent_Declare(cgltf GIT_REPOSITORY "https://github.com/jkuhlmann/cgltf" GIT_TAG 52c23814dbb60c2fbb54750ddf41d342d432a498) # v1.14
     FetchContent_Declare(stb GIT_REPOSITORY "https://github.com/nothings/stb" GIT_TAG 013ac3beddff3dbffafd5177e7972067cd2b5083) # May 31, 2024
     FetchContent_Declare(tinyexr GIT_REPOSITORY "https://github.com/syoyo/tinyexr" GIT_TAG 6c8742cc8145c8f629698cd8248900990946d6b1) # v1.0.8
