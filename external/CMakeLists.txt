@@ -14,7 +14,7 @@ if(NOT FETCH_CONTENT_HAS_BEEN_RUN)
     FetchContent_Declare(nlohmann_json GIT_REPOSITORY "https://github.com/nlohmann/json" GIT_TAG 9cca280a4d0ccf0c08f47a99aa71d1b0e52f8d03) # v3.11.3
     FetchContent_Declare(d3d12memalloc GIT_REPOSITORY "https://github.com/GPUOpen-LibrariesAndSDKs/D3D12MemoryAllocator" GIT_TAG 2b7c0d4e31dac5d893722573b0b2654270f907df) # Jun 17, 2024
     FetchContent_Declare(ttf2mesh GIT_REPOSITORY "https://github.com/fetisov/ttf2mesh" GIT_TAG b767f3e1026c979c6f2d6099576f206702065234) # Nov 3, 2023
-    FetchContent_Declare(tracy GIT_REPOSITORY "https://github.com/wolfpld/tracy" GIT_TAG 37aff70dfa50cf6307b3fee6074d627dc2929143) # v0.10
+    FetchContent_Declare(tracy GIT_REPOSITORY "https://github.com/wolfpld/tracy" GIT_TAG 5d542dc09f3d9378d005092a4ad446bd405f819a) # v0.11.1
     FetchContent_Declare(glm GIT_REPOSITORY "https://github.com/g-truc/glm.git" GIT_TAG 0af55ccecd98d4e5a8d1fad7de25ba429d60e863) # v1.0.1
     FetchContent_Declare(dxagilitysdk URL "https://globalcdn.nuget.org/packages/microsoft.direct3d.d3d12.1.614.0.nupkg" URL_MD5 65654a2bc55ed1afd8c3ea5b06d34fb1)
     FetchContent_Declare(dxcompiler URL "https://globalcdn.nuget.org/packages/microsoft.direct3d.dxc.1.8.2405.17.nupkg" URL_MD5 c9586b50602b558af84d3aacb43bfc2e)
