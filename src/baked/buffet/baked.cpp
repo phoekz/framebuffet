@@ -1060,13 +1060,13 @@ auto Assets::grass_material() const -> Material {
 }
 
 auto Shaders::load() -> void {
-    // hash: f4deb326e931298497cc95cdb042bc08
+    // hash: d95c0de000b24ffc36233b31f08a61ca
     ZoneScoped;
     _data = read_whole_file("fb_buffet_shaders.bin");
-    FB_ASSERT(_data.size() == 236632);
+    FB_ASSERT(_data.size() == 236468);
 }
 
-// shader_hash: d5c7057e7dc4e62ece119084aa759e6f
+// shader_hash: 423ee856efa0e0a8792a80bab1b2ba7c
 // input_parameters: 2
 // output_parameters: 2
 // instruction_count: 17
@@ -1089,8 +1089,8 @@ auto Shaders::load() -> void {
 ; SV_Position              0   xyzw        0      POS   float   xyzw
 ; ATTRIBUTE                0   xy          1     NONE   float   xy  
 ;
-; shader debug name: d5c7057e7dc4e62ece119084aa759e6f.pdb
-; shader hash: d5c7057e7dc4e62ece119084aa759e6f
+; shader debug name: 423ee856efa0e0a8792a80bab1b2ba7c.pdb
+; shader hash: 423ee856efa0e0a8792a80bab1b2ba7c
 ;
 ; Pipeline Runtime Information: 
 ;
@@ -1170,7 +1170,7 @@ attributes #1 = { nounwind }
 !dx.viewIdState = !{!3}
 !dx.entryPoints = !{!4}
 
-!0 = !{!"dxcoob 1.8.2405.15 (fd7e54bcd)"}
+!0 = !{!"dxcoob 1.8.2407.7 (416fab6b5)"}
 !1 = !{i32 1, i32 8}
 !2 = !{!"vs", i32 6, i32 8}
 !3 = !{[7 x i32] [i32 5, i32 6, i32 51, i32 0, i32 0, i32 0, i32 0]}
@@ -1189,10 +1189,10 @@ attributes #1 = { nounwind }
 !16 = !{i32 0, i64 8388864}
 */
 auto Shaders::cards_background_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(0, 3296);
+    return std::span(_data).subspan(0, 3292);
 }
 
-// shader_hash: 5873bd0f4bfff2b3acae35e080aa87ff
+// shader_hash: 36ae4136c5dee68bf623fab408c4ec0a
 // constant_buffers: 1
 // bound_resources: 1
 // input_parameters: 2
@@ -1221,8 +1221,8 @@ auto Shaders::cards_background_vs() const -> std::span<const std::byte> {
 ; -------------------- ----- ------ -------- -------- ------- ------
 ; SV_Target                0   xyzw        0   TARGET   float   xyzw
 ;
-; shader debug name: 5873bd0f4bfff2b3acae35e080aa87ff.pdb
-; shader hash: 5873bd0f4bfff2b3acae35e080aa87ff
+; shader debug name: 36ae4136c5dee68bf623fab408c4ec0a.pdb
+; shader hash: 36ae4136c5dee68bf623fab408c4ec0a
 ;
 ; Pipeline Runtime Information: 
 ;
@@ -1367,7 +1367,7 @@ attributes #2 = { nounwind readonly }
 !dx.viewIdState = !{!6}
 !dx.entryPoints = !{!7}
 
-!0 = !{!"dxcoob 1.8.2405.15 (fd7e54bcd)"}
+!0 = !{!"dxcoob 1.8.2407.7 (416fab6b5)"}
 !1 = !{i32 1, i32 8}
 !2 = !{!"ps", i32 6, i32 8}
 !3 = !{null, null, !4, null}
@@ -1387,10 +1387,10 @@ attributes #2 = { nounwind readonly }
 !17 = !{i32 0, i64 3229614336}
 */
 auto Shaders::cards_background_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(3296, 4480);
+    return std::span(_data).subspan(3292, 4480);
 }
 
-// shader_hash: 0b7ccc194e0c25f939d634d0dcf0a9c5
+// shader_hash: 5f33c3b3efb2ad88e5bcdbfd47739c5d
 // constant_buffers: 1
 // bound_resources: 1
 // input_parameters: 2
@@ -1419,8 +1419,8 @@ auto Shaders::cards_background_ps() const -> std::span<const std::byte> {
 ; SV_Position              0   xyzw        0      POS   float   xyzw
 ; ATTRIBUTE                0   xy          1     NONE   float   xy  
 ;
-; shader debug name: 0b7ccc194e0c25f939d634d0dcf0a9c5.pdb
-; shader hash: 0b7ccc194e0c25f939d634d0dcf0a9c5
+; shader debug name: 5f33c3b3efb2ad88e5bcdbfd47739c5d.pdb
+; shader hash: 5f33c3b3efb2ad88e5bcdbfd47739c5d
 ;
 ; Pipeline Runtime Information: 
 ;
@@ -1604,7 +1604,7 @@ attributes #2 = { nounwind readonly }
 !dx.viewIdState = !{!6}
 !dx.entryPoints = !{!7}
 
-!0 = !{!"dxcoob 1.8.2405.15 (fd7e54bcd)"}
+!0 = !{!"dxcoob 1.8.2407.7 (416fab6b5)"}
 !1 = !{i32 1, i32 8}
 !2 = !{!"vs", i32 6, i32 8}
 !3 = !{null, null, !4, null}
@@ -1626,10 +1626,10 @@ attributes #2 = { nounwind readonly }
 !19 = !{i32 0, i64 1082130688}
 */
 auto Shaders::cards_draw_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(7776, 4896);
+    return std::span(_data).subspan(7772, 4892);
 }
 
-// shader_hash: 3b57576fb46ab00f0187eab225ba0cce
+// shader_hash: 6c337a5f3c152936fe570f8a0a0766e4
 // constant_buffers: 1
 // bound_resources: 1
 // input_parameters: 2
@@ -1657,8 +1657,8 @@ auto Shaders::cards_draw_vs() const -> std::span<const std::byte> {
 ; -------------------- ----- ------ -------- -------- ------- ------
 ; SV_Target                0   xyzw        0   TARGET   float   xyzw
 ;
-; shader debug name: 3b57576fb46ab00f0187eab225ba0cce.pdb
-; shader hash: 3b57576fb46ab00f0187eab225ba0cce
+; shader debug name: 6c337a5f3c152936fe570f8a0a0766e4.pdb
+; shader hash: 6c337a5f3c152936fe570f8a0a0766e4
 ;
 ; Pipeline Runtime Information: 
 ;
@@ -1789,7 +1789,7 @@ attributes #2 = { nounwind readonly }
 !dx.viewIdState = !{!6}
 !dx.entryPoints = !{!7}
 
-!0 = !{!"dxcoob 1.8.2405.15 (fd7e54bcd)"}
+!0 = !{!"dxcoob 1.8.2407.7 (416fab6b5)"}
 !1 = !{i32 1, i32 8}
 !2 = !{!"ps", i32 6, i32 8}
 !3 = !{null, null, !4, null}
@@ -1809,10 +1809,10 @@ attributes #2 = { nounwind readonly }
 !17 = !{i32 0, i64 3229614336}
 */
 auto Shaders::cards_draw_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(12672, 4256);
+    return std::span(_data).subspan(12664, 4256);
 }
 
-// shader_hash: 15cbce87e26cec13f6b8977c797f0cd9
+// shader_hash: 3ae7290a8245f87c9e40fdadbffdafbb
 // input_parameters: 2
 // output_parameters: 2
 // instruction_count: 17
@@ -1835,8 +1835,8 @@ auto Shaders::cards_draw_ps() const -> std::span<const std::byte> {
 ; SV_Position              0   xyzw        0      POS   float   xyzw
 ; ATTRIBUTE                0   xy          1     NONE   float   xy  
 ;
-; shader debug name: 15cbce87e26cec13f6b8977c797f0cd9.pdb
-; shader hash: 15cbce87e26cec13f6b8977c797f0cd9
+; shader debug name: 3ae7290a8245f87c9e40fdadbffdafbb.pdb
+; shader hash: 3ae7290a8245f87c9e40fdadbffdafbb
 ;
 ; Pipeline Runtime Information: 
 ;
@@ -1916,7 +1916,7 @@ attributes #1 = { nounwind }
 !dx.viewIdState = !{!3}
 !dx.entryPoints = !{!4}
 
-!0 = !{!"dxcoob 1.8.2405.15 (fd7e54bcd)"}
+!0 = !{!"dxcoob 1.8.2407.7 (416fab6b5)"}
 !1 = !{i32 1, i32 8}
 !2 = !{!"vs", i32 6, i32 8}
 !3 = !{[7 x i32] [i32 5, i32 6, i32 51, i32 0, i32 0, i32 0, i32 0]}
@@ -1935,10 +1935,10 @@ attributes #1 = { nounwind }
 !16 = !{i32 0, i64 8388864}
 */
 auto Shaders::conras_clear_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(16928, 3268);
+    return std::span(_data).subspan(16920, 3268);
 }
 
-// shader_hash: c358132fa94fcef8c301e912a582faa6
+// shader_hash: f13ca82f62061c6c886a0ad0ffd0f816
 // constant_buffers: 1
 // bound_resources: 1
 // input_parameters: 2
@@ -1965,8 +1965,8 @@ auto Shaders::conras_clear_vs() const -> std::span<const std::byte> {
 ; Name                 Index   Mask Register SysValue  Format   Used
 ; -------------------- ----- ------ -------- -------- ------- ------
 ; no parameters
-; shader debug name: c358132fa94fcef8c301e912a582faa6.pdb
-; shader hash: c358132fa94fcef8c301e912a582faa6
+; shader debug name: f13ca82f62061c6c886a0ad0ffd0f816.pdb
+; shader hash: f13ca82f62061c6c886a0ad0ffd0f816
 ;
 ; Pipeline Runtime Information: 
 ;
@@ -2082,7 +2082,7 @@ attributes #2 = { nounwind }
 !dx.viewIdState = !{!6}
 !dx.entryPoints = !{!7}
 
-!0 = !{!"dxcoob 1.8.2405.15 (fd7e54bcd)"}
+!0 = !{!"dxcoob 1.8.2407.7 (416fab6b5)"}
 !1 = !{i32 1, i32 8}
 !2 = !{!"ps", i32 6, i32 8}
 !3 = !{null, null, !4, null}
@@ -2099,10 +2099,10 @@ attributes #2 = { nounwind }
 !14 = !{i32 0, i64 9672065280}
 */
 auto Shaders::conras_clear_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(20196, 3892);
+    return std::span(_data).subspan(20188, 3892);
 }
 
-// shader_hash: 4d8e25edf2897dcad66e13139f5f9008
+// shader_hash: fed7aadeea3ea8f828f709c2499b70c6
 // constant_buffers: 1
 // bound_resources: 1
 // input_parameters: 2
@@ -2130,8 +2130,8 @@ auto Shaders::conras_clear_ps() const -> std::span<const std::byte> {
 ; -------------------- ----- ------ -------- -------- ------- ------
 ; SV_Position              0   xyzw        0      POS   float   xyzw
 ;
-; shader debug name: 4d8e25edf2897dcad66e13139f5f9008.pdb
-; shader hash: 4d8e25edf2897dcad66e13139f5f9008
+; shader debug name: fed7aadeea3ea8f828f709c2499b70c6.pdb
+; shader hash: fed7aadeea3ea8f828f709c2499b70c6
 ;
 ; Pipeline Runtime Information: 
 ;
@@ -2304,7 +2304,7 @@ attributes #2 = { nounwind readonly }
 !dx.viewIdState = !{!6}
 !dx.entryPoints = !{!7}
 
-!0 = !{!"dxcoob 1.8.2405.15 (fd7e54bcd)"}
+!0 = !{!"dxcoob 1.8.2407.7 (416fab6b5)"}
 !1 = !{i32 1, i32 8}
 !2 = !{!"vs", i32 6, i32 8}
 !3 = !{null, null, !4, null}
@@ -2324,10 +2324,10 @@ attributes #2 = { nounwind readonly }
 !17 = !{i32 0, i64 1082130688}
 */
 auto Shaders::conras_raster_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(24088, 4800);
+    return std::span(_data).subspan(24080, 4796);
 }
 
-// shader_hash: e2c2a101c144512def6d531bc2823c54
+// shader_hash: 284ccfb7b9e8b1cfafd15badafd40bd6
 // constant_buffers: 1
 // bound_resources: 1
 // input_parameters: 1
@@ -2353,8 +2353,8 @@ auto Shaders::conras_raster_vs() const -> std::span<const std::byte> {
 ; Name                 Index   Mask Register SysValue  Format   Used
 ; -------------------- ----- ------ -------- -------- ------- ------
 ; no parameters
-; shader debug name: e2c2a101c144512def6d531bc2823c54.pdb
-; shader hash: e2c2a101c144512def6d531bc2823c54
+; shader debug name: 284ccfb7b9e8b1cfafd15badafd40bd6.pdb
+; shader hash: 284ccfb7b9e8b1cfafd15badafd40bd6
 ;
 ; Pipeline Runtime Information: 
 ;
@@ -2467,7 +2467,7 @@ attributes #2 = { nounwind }
 !dx.viewIdState = !{!6}
 !dx.entryPoints = !{!7}
 
-!0 = !{!"dxcoob 1.8.2405.15 (fd7e54bcd)"}
+!0 = !{!"dxcoob 1.8.2407.7 (416fab6b5)"}
 !1 = !{i32 1, i32 8}
 !2 = !{!"ps", i32 6, i32 8}
 !3 = !{null, null, !4, null}
@@ -2483,10 +2483,10 @@ attributes #2 = { nounwind }
 !13 = !{i32 0, i64 9672065280}
 */
 auto Shaders::conras_raster_cr_off_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(28888, 3752);
+    return std::span(_data).subspan(28876, 3748);
 }
 
-// shader_hash: 0024cdc5f5e655e5082dfc0c32cbf5c2
+// shader_hash: f9b3c84b2f718337cb9e6b12f7d55214
 // constant_buffers: 1
 // bound_resources: 1
 // input_parameters: 1
@@ -2514,8 +2514,8 @@ auto Shaders::conras_raster_cr_off_ps() const -> std::span<const std::byte> {
 ; Name                 Index   Mask Register SysValue  Format   Used
 ; -------------------- ----- ------ -------- -------- ------- ------
 ; no parameters
-; shader debug name: 0024cdc5f5e655e5082dfc0c32cbf5c2.pdb
-; shader hash: 0024cdc5f5e655e5082dfc0c32cbf5c2
+; shader debug name: f9b3c84b2f718337cb9e6b12f7d55214.pdb
+; shader hash: f9b3c84b2f718337cb9e6b12f7d55214
 ;
 ; Pipeline Runtime Information: 
 ;
@@ -2634,7 +2634,7 @@ attributes #2 = { nounwind }
 !dx.viewIdState = !{!6}
 !dx.entryPoints = !{!7}
 
-!0 = !{!"dxcoob 1.8.2405.15 (fd7e54bcd)"}
+!0 = !{!"dxcoob 1.8.2407.7 (416fab6b5)"}
 !1 = !{i32 1, i32 8}
 !2 = !{!"ps", i32 6, i32 8}
 !3 = !{null, null, !4, null}
@@ -2650,10 +2650,10 @@ attributes #2 = { nounwind }
 !13 = !{i32 0, i64 9672066304}
 */
 auto Shaders::conras_raster_cr_on_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(32640, 3884);
+    return std::span(_data).subspan(32624, 3880);
 }
 
-// shader_hash: af4151a88d2121bea71ce4681c211f03
+// shader_hash: 15386e2abebc61e87196ea6ba4e75335
 // input_parameters: 2
 // output_parameters: 2
 // instruction_count: 17
@@ -2676,8 +2676,8 @@ auto Shaders::conras_raster_cr_on_ps() const -> std::span<const std::byte> {
 ; SV_Position              0   xyzw        0      POS   float   xyzw
 ; ATTRIBUTE                0   xy          1     NONE   float   xy  
 ;
-; shader debug name: af4151a88d2121bea71ce4681c211f03.pdb
-; shader hash: af4151a88d2121bea71ce4681c211f03
+; shader debug name: 15386e2abebc61e87196ea6ba4e75335.pdb
+; shader hash: 15386e2abebc61e87196ea6ba4e75335
 ;
 ; Pipeline Runtime Information: 
 ;
@@ -2757,7 +2757,7 @@ attributes #1 = { nounwind }
 !dx.viewIdState = !{!3}
 !dx.entryPoints = !{!4}
 
-!0 = !{!"dxcoob 1.8.2405.15 (fd7e54bcd)"}
+!0 = !{!"dxcoob 1.8.2407.7 (416fab6b5)"}
 !1 = !{i32 1, i32 8}
 !2 = !{!"vs", i32 6, i32 8}
 !3 = !{[7 x i32] [i32 5, i32 6, i32 51, i32 0, i32 0, i32 0, i32 0]}
@@ -2776,10 +2776,10 @@ attributes #1 = { nounwind }
 !16 = !{i32 0, i64 8388864}
 */
 auto Shaders::conras_display_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(36524, 3284);
+    return std::span(_data).subspan(36504, 3284);
 }
 
-// shader_hash: 795526289feb5fcb97abc2aacf5ee045
+// shader_hash: 205ecb3eec8e6c87cc53fea9b7bc88b6
 // constant_buffers: 1
 // bound_resources: 1
 // input_parameters: 2
@@ -2809,8 +2809,8 @@ auto Shaders::conras_display_vs() const -> std::span<const std::byte> {
 ; -------------------- ----- ------ -------- -------- ------- ------
 ; SV_Target                0   xyzw        0   TARGET   float   xyzw
 ;
-; shader debug name: 795526289feb5fcb97abc2aacf5ee045.pdb
-; shader hash: 795526289feb5fcb97abc2aacf5ee045
+; shader debug name: 205ecb3eec8e6c87cc53fea9b7bc88b6.pdb
+; shader hash: 205ecb3eec8e6c87cc53fea9b7bc88b6
 ;
 ; Pipeline Runtime Information: 
 ;
@@ -2983,7 +2983,7 @@ attributes #2 = { nounwind readonly }
 !dx.viewIdState = !{!6}
 !dx.entryPoints = !{!7}
 
-!0 = !{!"dxcoob 1.8.2405.15 (fd7e54bcd)"}
+!0 = !{!"dxcoob 1.8.2407.7 (416fab6b5)"}
 !1 = !{i32 1, i32 8}
 !2 = !{!"ps", i32 6, i32 8}
 !3 = !{null, null, !4, null}
@@ -3003,10 +3003,10 @@ attributes #2 = { nounwind readonly }
 !17 = !{i32 0, i64 1082130688}
 */
 auto Shaders::conras_display_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(39808, 4516);
+    return std::span(_data).subspan(39788, 4516);
 }
 
-// shader_hash: ff34f81a9b2fbd77a202421ef918b893
+// shader_hash: 1a62bea3cf2101b073dbe07536583b9d
 // constant_buffers: 1
 // bound_resources: 1
 // input_parameters: 2
@@ -3039,8 +3039,8 @@ auto Shaders::conras_display_ps() const -> std::span<const std::byte> {
 ; ATTRIBUTE                3   xyz         4     NONE   float   xyz 
 ; ATTRIBUTE                4   xyz         5     NONE   float   xyz 
 ;
-; shader debug name: ff34f81a9b2fbd77a202421ef918b893.pdb
-; shader hash: ff34f81a9b2fbd77a202421ef918b893
+; shader debug name: 1a62bea3cf2101b073dbe07536583b9d.pdb
+; shader hash: 1a62bea3cf2101b073dbe07536583b9d
 ;
 ; Pipeline Runtime Information: 
 ;
@@ -3275,7 +3275,7 @@ attributes #2 = { nounwind readonly }
 !dx.viewIdState = !{!6}
 !dx.entryPoints = !{!7}
 
-!0 = !{!"dxcoob 1.8.2405.15 (fd7e54bcd)"}
+!0 = !{!"dxcoob 1.8.2407.7 (416fab6b5)"}
 !1 = !{i32 1, i32 8}
 !2 = !{!"vs", i32 6, i32 8}
 !3 = !{null, null, !4, null}
@@ -3306,17 +3306,17 @@ attributes #2 = { nounwind readonly }
 !28 = !{i32 0, i64 1082130688}
 */
 auto Shaders::crate_draw_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(44324, 5788);
+    return std::span(_data).subspan(44304, 5788);
 }
 
-// shader_hash: 3ffa6f49f9d1275666a705cb1fcf8756
+// shader_hash: cb5e0f6a5afcdc2944189db5b2b1ba42
 // constant_buffers: 1
 // bound_resources: 1
 // input_parameters: 6
 // output_parameters: 1
-// instruction_count: 344
+// instruction_count: 342
 // dynamic_flow_control_count: 1
-// float_instruction_count: 219
+// float_instruction_count: 217
 // int_instruction_count: 1
 // uint_instruction_count: 1
 // texture_normal_instructions: 6
@@ -3345,8 +3345,8 @@ auto Shaders::crate_draw_vs() const -> std::span<const std::byte> {
 ; -------------------- ----- ------ -------- -------- ------- ------
 ; SV_Target                0   xyzw        0   TARGET   float   xyzw
 ;
-; shader debug name: 3ffa6f49f9d1275666a705cb1fcf8756.pdb
-; shader hash: 3ffa6f49f9d1275666a705cb1fcf8756
+; shader debug name: cb5e0f6a5afcdc2944189db5b2b1ba42.pdb
+; shader hash: cb5e0f6a5afcdc2944189db5b2b1ba42
 ;
 ; Pipeline Runtime Information: 
 ;
@@ -3549,299 +3549,297 @@ define void @draw_ps() {
   %117 = call float @dx.op.unary.f32(i32 7, float %116)  ; Saturate(value)
   %118 = call float @dx.op.dot3.f32(i32 55, float %77, float %80, float %83, float %107, float %108, float %109)  ; Dot3(ax,ay,az,bx,by,bz)
   %119 = call float @dx.op.unary.f32(i32 7, float %118)  ; Saturate(value)
-  %120 = fsub fast float 1.000000e+00, %64
-  %121 = fmul fast float %65, %65
-  %122 = fmul fast float %121, %121
-  %123 = call float @dx.op.dot3.f32(i32 55, float %72, float %73, float %74, float 0x3FCB367A00000000, float 0x3FE6E2EB20000000, float 0x3FB27BB300000000)  ; Dot3(ax,ay,az,bx,by,bz)
-  %124 = fmul fast float %123, 2.500000e+01
-  %125 = call float @dx.op.binary.f32(i32 36, float 1.000000e+00, float %124)  ; FMin(a,b)
-  %126 = fsub fast float %125, %72
-  %127 = fsub fast float %125, %73
-  %128 = fsub fast float %125, %74
-  %129 = fsub fast float 1.000000e+00, %117
-  %130 = call float @dx.op.unary.f32(i32 23, float %129)  ; Log(value)
-  %131 = fmul fast float %130, 5.000000e+00
-  %132 = call float @dx.op.unary.f32(i32 21, float %131)  ; Exp(value)
-  %133 = fmul fast float %132, %126
-  %134 = fmul fast float %132, %127
-  %135 = fmul fast float %132, %128
-  %136 = fadd fast float %133, %72
-  %137 = fadd fast float %134, %73
-  %138 = fadd fast float %135, %74
-  %139 = or i1 %111, %110
-  br i1 %139, label %202, label %140
+  %120 = fmul fast float %65, %65
+  %121 = fmul fast float %120, %120
+  %122 = call float @dx.op.dot3.f32(i32 55, float %72, float %73, float %74, float 0x3FCB367A00000000, float 0x3FE6E2EB20000000, float 0x3FB27BB300000000)  ; Dot3(ax,ay,az,bx,by,bz)
+  %123 = fmul fast float %122, 2.500000e+01
+  %124 = call float @dx.op.binary.f32(i32 36, float 1.000000e+00, float %123)  ; FMin(a,b)
+  %125 = fsub fast float %124, %72
+  %126 = fsub fast float %124, %73
+  %127 = fsub fast float %124, %74
+  %128 = fsub fast float 1.000000e+00, %117
+  %129 = call float @dx.op.unary.f32(i32 23, float %128)  ; Log(value)
+  %130 = fmul fast float %129, 5.000000e+00
+  %131 = call float @dx.op.unary.f32(i32 21, float %130)  ; Exp(value)
+  %132 = fmul fast float %131, %125
+  %133 = fmul fast float %131, %126
+  %134 = fmul fast float %131, %127
+  %135 = fadd fast float %132, %72
+  %136 = fadd fast float %133, %73
+  %137 = fadd fast float %134, %74
+  %138 = or i1 %111, %110
+  br i1 %138, label %200, label %139
 
-; <label>:140                                     ; preds = %0
-  %141 = fmul fast float %120, %47
-  %142 = fmul fast float %120, %46
-  %143 = fmul fast float %120, %45
-  %144 = call float @dx.op.binary.f32(i32 35, float 0x3EE4F8B580000000, float %122)  ; FMax(a,b)
-  %145 = fadd fast float %144, -1.000000e+00
-  %146 = fmul fast float %119, %119
-  %147 = fmul fast float %146, %145
-  %148 = fadd fast float %147, 1.000000e+00
-  %149 = fmul fast float %148, %148
-  %150 = fmul fast float %149, 0x400921FB60000000
-  %151 = fdiv fast float %144, %150
-  %152 = fmul fast float %113, %122
-  %153 = fsub fast float %113, %152
-  %154 = fmul fast float %153, %113
-  %155 = fadd fast float %154, %122
-  %156 = call float @dx.op.unary.f32(i32 24, float %155)  ; Sqrt(value)
+; <label>:139                                     ; preds = %0
+  %140 = fsub fast float 1.000000e+00, %64
+  %141 = call float @dx.op.binary.f32(i32 35, float 0x3EE4F8B580000000, float %121)  ; FMax(a,b)
+  %142 = fadd fast float %141, -1.000000e+00
+  %143 = fmul fast float %119, %119
+  %144 = fmul fast float %143, %142
+  %145 = fadd fast float %144, 1.000000e+00
+  %146 = fmul fast float %145, %145
+  %147 = fmul fast float %146, 0x400921FB60000000
+  %148 = fdiv fast float %141, %147
+  %149 = fmul fast float %113, %121
+  %150 = fsub fast float %113, %149
+  %151 = fmul fast float %150, %113
+  %152 = fadd fast float %151, %121
+  %153 = call float @dx.op.unary.f32(i32 24, float %152)  ; Sqrt(value)
+  %154 = fmul fast float %153, %115
+  %155 = fmul fast float %115, %121
+  %156 = fsub fast float %115, %155
   %157 = fmul fast float %156, %115
-  %158 = fmul fast float %115, %122
-  %159 = fsub fast float %115, %158
-  %160 = fmul fast float %159, %115
-  %161 = fadd fast float %160, %122
-  %162 = call float @dx.op.unary.f32(i32 24, float %161)  ; Sqrt(value)
-  %163 = fmul fast float %162, %113
-  %164 = fadd fast float %163, %157
-  %165 = fdiv fast float 5.000000e-01, %164
-  %166 = fmul fast float %151, %113
-  %167 = fmul fast float %166, %165
-  %168 = fmul fast float %167, %136
-  %169 = fmul fast float %167, %137
-  %170 = fmul fast float %167, %138
-  %171 = fmul fast float %65, 2.000000e+00
-  %172 = fmul fast float %117, %117
-  %173 = fmul fast float %172, %171
-  %174 = fadd fast float %173, -5.000000e-01
-  %175 = fsub fast float 1.000000e+00, %113
-  %176 = call float @dx.op.unary.f32(i32 23, float %175)  ; Log(value)
-  %177 = fmul fast float %176, 5.000000e+00
-  %178 = call float @dx.op.unary.f32(i32 21, float %177)  ; Exp(value)
-  %179 = fmul fast float %178, %174
-  %180 = fadd fast float %179, 1.000000e+00
-  %181 = fsub fast float 1.000000e+00, %115
-  %182 = call float @dx.op.unary.f32(i32 23, float %181)  ; Log(value)
-  %183 = fmul fast float %182, 5.000000e+00
-  %184 = call float @dx.op.unary.f32(i32 21, float %183)  ; Exp(value)
-  %185 = fmul fast float %184, %174
-  %186 = fadd fast float %185, 1.000000e+00
-  %187 = fmul fast float %113, 0x3FD45F3060000000
-  %188 = fmul fast float %187, %180
-  %189 = fmul fast float %188, %186
-  %190 = fsub fast float 1.000000e+00, %136
-  %191 = fsub fast float 1.000000e+00, %137
-  %192 = fsub fast float 1.000000e+00, %138
-  %193 = fmul fast float %143, %190
-  %194 = fmul fast float %193, %189
-  %195 = fmul fast float %142, %191
-  %196 = fmul fast float %195, %189
-  %197 = fmul fast float %141, %192
-  %198 = fmul fast float %197, %189
-  %199 = fadd fast float %194, %168
-  %200 = fadd fast float %196, %169
-  %201 = fadd fast float %198, %170
-  br label %202
+  %158 = fadd fast float %157, %121
+  %159 = call float @dx.op.unary.f32(i32 24, float %158)  ; Sqrt(value)
+  %160 = fmul fast float %159, %113
+  %161 = fadd fast float %160, %154
+  %162 = fdiv fast float 5.000000e-01, %161
+  %163 = fmul fast float %148, %113
+  %164 = fmul fast float %163, %162
+  %165 = fmul fast float %164, %135
+  %166 = fmul fast float %164, %136
+  %167 = fmul fast float %164, %137
+  %168 = fmul fast float %65, 2.000000e+00
+  %169 = fmul fast float %117, %117
+  %170 = fmul fast float %169, %168
+  %171 = fadd fast float %170, -5.000000e-01
+  %172 = fsub fast float 1.000000e+00, %113
+  %173 = call float @dx.op.unary.f32(i32 23, float %172)  ; Log(value)
+  %174 = fmul fast float %173, 5.000000e+00
+  %175 = call float @dx.op.unary.f32(i32 21, float %174)  ; Exp(value)
+  %176 = fmul fast float %175, %171
+  %177 = fadd fast float %176, 1.000000e+00
+  %178 = fsub fast float 1.000000e+00, %115
+  %179 = call float @dx.op.unary.f32(i32 23, float %178)  ; Log(value)
+  %180 = fmul fast float %179, 5.000000e+00
+  %181 = call float @dx.op.unary.f32(i32 21, float %180)  ; Exp(value)
+  %182 = fmul fast float %181, %171
+  %183 = fadd fast float %182, 1.000000e+00
+  %184 = fsub fast float 1.000000e+00, %135
+  %185 = fsub fast float 1.000000e+00, %136
+  %186 = fsub fast float 1.000000e+00, %137
+  %187 = fmul fast float %140, 0x3FD45F3060000000
+  %188 = fmul fast float %187, %113
+  %189 = fmul fast float %188, %177
+  %190 = fmul fast float %189, %183
+  %191 = fmul fast float %184, %45
+  %192 = fmul fast float %191, %190
+  %193 = fmul fast float %185, %46
+  %194 = fmul fast float %193, %190
+  %195 = fmul fast float %186, %47
+  %196 = fmul fast float %195, %190
+  %197 = fadd fast float %192, %165
+  %198 = fadd fast float %194, %166
+  %199 = fadd fast float %196, %167
+  br label %200
 
-; <label>:202                                     ; preds = %140, %0
-  %203 = phi float [ %199, %140 ], [ 0.000000e+00, %0 ]
-  %204 = phi float [ %200, %140 ], [ 0.000000e+00, %0 ]
-  %205 = phi float [ %201, %140 ], [ 0.000000e+00, %0 ]
-  %206 = fsub fast float -0.000000e+00, %93
-  %207 = fsub fast float -0.000000e+00, %94
-  %208 = fsub fast float -0.000000e+00, %95
-  %209 = call float @dx.op.dot3.f32(i32 55, float %206, float %207, float %208, float %77, float %80, float %83)  ; Dot3(ax,ay,az,bx,by,bz)
-  %210 = fmul fast float %209, 2.000000e+00
-  %211 = fmul fast float %210, %77
-  %212 = fmul fast float %210, %80
-  %213 = fmul fast float %210, %83
+; <label>:200                                     ; preds = %139, %0
+  %201 = phi float [ %197, %139 ], [ 0.000000e+00, %0 ]
+  %202 = phi float [ %198, %139 ], [ 0.000000e+00, %0 ]
+  %203 = phi float [ %199, %139 ], [ 0.000000e+00, %0 ]
+  %204 = fsub fast float -0.000000e+00, %93
+  %205 = fsub fast float -0.000000e+00, %94
+  %206 = fsub fast float -0.000000e+00, %95
+  %207 = call float @dx.op.dot3.f32(i32 55, float %204, float %205, float %206, float %77, float %80, float %83)  ; Dot3(ax,ay,az,bx,by,bz)
+  %208 = fmul fast float %207, 2.000000e+00
+  %209 = fmul fast float %208, %77
+  %210 = fmul fast float %208, %80
+  %211 = fmul fast float %208, %83
+  %212 = fsub fast float %204, %209
+  %213 = fsub fast float %205, %210
   %214 = fsub fast float %206, %211
-  %215 = fsub fast float %207, %212
-  %216 = fsub fast float %208, %213
-  %217 = call float @dx.op.dot3.f32(i32 55, float %77, float %80, float %83, float %214, float %215, float %216)  ; Dot3(ax,ay,az,bx,by,bz)
-  %218 = call float @dx.op.unary.f32(i32 7, float %217)  ; Saturate(value)
-  %219 = call %dx.types.CBufRet.i32 @dx.op.cbufferLoadLegacy.i32(i32 59, %dx.types.Handle %20, i32 6)  ; CBufferLoadLegacy(handle,regIndex)
-  %220 = extractvalue %dx.types.CBufRet.i32 %219, 1
-  %221 = add i32 %220, -1
-  %222 = uitofp i32 %221 to float
-  %223 = fmul fast float %222, %65
-  %224 = call %dx.types.ResRet.f32 @dx.op.sample.f32(i32 60, %dx.types.Handle %36, %dx.types.Handle %33, float %218, float %65, float undef, float undef, i32 0, i32 0, i32 undef, float undef)  ; Sample(srv,sampler,coord0,coord1,coord2,coord3,offset0,offset1,offset2,clamp)
-  %225 = extractvalue %dx.types.ResRet.f32 %224, 0
-  %226 = extractvalue %dx.types.ResRet.f32 %224, 1
-  %227 = call %dx.types.ResRet.f32 @dx.op.sampleLevel.f32(i32 62, %dx.types.Handle %39, %dx.types.Handle %33, float %77, float %80, float %83, float undef, i32 undef, i32 undef, i32 undef, float 0.000000e+00)  ; SampleLevel(srv,sampler,coord0,coord1,coord2,coord3,offset0,offset1,offset2,LOD)
-  %228 = extractvalue %dx.types.ResRet.f32 %227, 0
-  %229 = extractvalue %dx.types.ResRet.f32 %227, 1
-  %230 = extractvalue %dx.types.ResRet.f32 %227, 2
-  %231 = call %dx.types.ResRet.f32 @dx.op.sampleLevel.f32(i32 62, %dx.types.Handle %43, %dx.types.Handle %33, float %214, float %215, float %216, float undef, i32 undef, i32 undef, i32 undef, float %223)  ; SampleLevel(srv,sampler,coord0,coord1,coord2,coord3,offset0,offset1,offset2,LOD)
-  %232 = extractvalue %dx.types.ResRet.f32 %231, 0
-  %233 = extractvalue %dx.types.ResRet.f32 %231, 1
-  %234 = extractvalue %dx.types.ResRet.f32 %231, 2
-  %235 = fmul fast float %228, %45
-  %236 = fmul fast float %229, %46
-  %237 = fmul fast float %230, %47
-  %238 = fmul fast float %225, %72
-  %239 = fmul fast float %225, %73
-  %240 = fmul fast float %225, %74
-  %241 = fadd fast float %238, %226
-  %242 = fadd fast float %239, %226
-  %243 = fadd fast float %240, %226
+  %215 = call float @dx.op.dot3.f32(i32 55, float %77, float %80, float %83, float %212, float %213, float %214)  ; Dot3(ax,ay,az,bx,by,bz)
+  %216 = call float @dx.op.unary.f32(i32 7, float %215)  ; Saturate(value)
+  %217 = call %dx.types.CBufRet.i32 @dx.op.cbufferLoadLegacy.i32(i32 59, %dx.types.Handle %20, i32 6)  ; CBufferLoadLegacy(handle,regIndex)
+  %218 = extractvalue %dx.types.CBufRet.i32 %217, 1
+  %219 = add i32 %218, -1
+  %220 = uitofp i32 %219 to float
+  %221 = fmul fast float %220, %65
+  %222 = call %dx.types.ResRet.f32 @dx.op.sample.f32(i32 60, %dx.types.Handle %36, %dx.types.Handle %33, float %216, float %65, float undef, float undef, i32 0, i32 0, i32 undef, float undef)  ; Sample(srv,sampler,coord0,coord1,coord2,coord3,offset0,offset1,offset2,clamp)
+  %223 = extractvalue %dx.types.ResRet.f32 %222, 0
+  %224 = extractvalue %dx.types.ResRet.f32 %222, 1
+  %225 = call %dx.types.ResRet.f32 @dx.op.sampleLevel.f32(i32 62, %dx.types.Handle %39, %dx.types.Handle %33, float %77, float %80, float %83, float undef, i32 undef, i32 undef, i32 undef, float 0.000000e+00)  ; SampleLevel(srv,sampler,coord0,coord1,coord2,coord3,offset0,offset1,offset2,LOD)
+  %226 = extractvalue %dx.types.ResRet.f32 %225, 0
+  %227 = extractvalue %dx.types.ResRet.f32 %225, 1
+  %228 = extractvalue %dx.types.ResRet.f32 %225, 2
+  %229 = call %dx.types.ResRet.f32 @dx.op.sampleLevel.f32(i32 62, %dx.types.Handle %43, %dx.types.Handle %33, float %212, float %213, float %214, float undef, i32 undef, i32 undef, i32 undef, float %221)  ; SampleLevel(srv,sampler,coord0,coord1,coord2,coord3,offset0,offset1,offset2,LOD)
+  %230 = extractvalue %dx.types.ResRet.f32 %229, 0
+  %231 = extractvalue %dx.types.ResRet.f32 %229, 1
+  %232 = extractvalue %dx.types.ResRet.f32 %229, 2
+  %233 = fmul fast float %226, %45
+  %234 = fmul fast float %227, %46
+  %235 = fmul fast float %228, %47
+  %236 = fmul fast float %223, %72
+  %237 = fmul fast float %223, %73
+  %238 = fmul fast float %223, %74
+  %239 = fadd fast float %236, %224
+  %240 = fadd fast float %237, %224
+  %241 = fadd fast float %238, %224
+  %242 = fmul fast float %230, %239
+  %243 = fmul fast float %231, %240
   %244 = fmul fast float %232, %241
-  %245 = fmul fast float %233, %242
-  %246 = fmul fast float %234, %243
-  %247 = call float @dx.op.unary.f32(i32 7, float %100)  ; Saturate(value)
-  %248 = call %dx.types.CBufRet.f32 @dx.op.cbufferLoadLegacy.f32(i32 59, %dx.types.Handle %20, i32 4)  ; CBufferLoadLegacy(handle,regIndex)
-  %249 = extractvalue %dx.types.CBufRet.f32 %248, 3
-  %250 = call %dx.types.CBufRet.f32 @dx.op.cbufferLoadLegacy.f32(i32 59, %dx.types.Handle %20, i32 5)  ; CBufferLoadLegacy(handle,regIndex)
-  %251 = extractvalue %dx.types.CBufRet.f32 %250, 0
-  %252 = fsub fast float 1.000000e+00, %249
-  %253 = fmul fast float %252, %247
-  %254 = fadd fast float %253, %249
-  %255 = fmul fast float %254, %251
-  %256 = call %dx.types.CBufRet.i32 @dx.op.cbufferLoadLegacy.i32(i32 59, %dx.types.Handle %20, i32 6)  ; CBufferLoadLegacy(handle,regIndex)
-  %257 = extractvalue %dx.types.CBufRet.i32 %256, 0
-  switch i32 %257, label %336 [
-    i32 0, label %258
-    i32 1, label %262
-    i32 2, label %263
-    i32 3, label %264
-    i32 4, label %265
-    i32 5, label %266
-    i32 6, label %267
-    i32 7, label %271
-    i32 8, label %272
-    i32 9, label %278
-    i32 10, label %285
-    i32 11, label %286
-    i32 12, label %293
-    i32 13, label %294
-    i32 14, label %295
-    i32 15, label %298
-    i32 16, label %305
-    i32 17, label %312
-    i32 18, label %319
-    i32 19, label %322
-    i32 20, label %329
+  %245 = call float @dx.op.unary.f32(i32 7, float %100)  ; Saturate(value)
+  %246 = call %dx.types.CBufRet.f32 @dx.op.cbufferLoadLegacy.f32(i32 59, %dx.types.Handle %20, i32 4)  ; CBufferLoadLegacy(handle,regIndex)
+  %247 = extractvalue %dx.types.CBufRet.f32 %246, 3
+  %248 = call %dx.types.CBufRet.f32 @dx.op.cbufferLoadLegacy.f32(i32 59, %dx.types.Handle %20, i32 5)  ; CBufferLoadLegacy(handle,regIndex)
+  %249 = extractvalue %dx.types.CBufRet.f32 %248, 0
+  %250 = fsub fast float 1.000000e+00, %247
+  %251 = fmul fast float %250, %245
+  %252 = fadd fast float %251, %247
+  %253 = fmul fast float %252, %249
+  %254 = call %dx.types.CBufRet.i32 @dx.op.cbufferLoadLegacy.i32(i32 59, %dx.types.Handle %20, i32 6)  ; CBufferLoadLegacy(handle,regIndex)
+  %255 = extractvalue %dx.types.CBufRet.i32 %254, 0
+  switch i32 %255, label %334 [
+    i32 0, label %256
+    i32 1, label %260
+    i32 2, label %261
+    i32 3, label %262
+    i32 4, label %263
+    i32 5, label %264
+    i32 6, label %265
+    i32 7, label %269
+    i32 8, label %270
+    i32 9, label %276
+    i32 10, label %283
+    i32 11, label %284
+    i32 12, label %291
+    i32 13, label %292
+    i32 14, label %293
+    i32 15, label %296
+    i32 16, label %303
+    i32 17, label %310
+    i32 18, label %317
+    i32 19, label %320
+    i32 20, label %327
   ]
 
-; <label>:258                                     ; preds = %202
+; <label>:256                                     ; preds = %200
+  %257 = fadd fast float %242, %233
+  %258 = fadd fast float %243, %234
   %259 = fadd fast float %244, %235
-  %260 = fadd fast float %245, %236
-  %261 = fadd fast float %246, %237
-  br label %336
+  br label %334
 
-; <label>:262                                     ; preds = %202
-  br label %336
+; <label>:260                                     ; preds = %200
+  br label %334
 
-; <label>:263                                     ; preds = %202
-  br label %336
+; <label>:261                                     ; preds = %200
+  br label %334
 
-; <label>:264                                     ; preds = %202
-  br label %336
+; <label>:262                                     ; preds = %200
+  br label %334
 
-; <label>:265                                     ; preds = %202
-  br label %336
+; <label>:263                                     ; preds = %200
+  br label %334
 
-; <label>:266                                     ; preds = %202
-  br label %336
+; <label>:264                                     ; preds = %200
+  br label %334
 
-; <label>:267                                     ; preds = %202
-  %268 = fmul fast float %255, %203
-  %269 = fmul fast float %255, %204
-  %270 = fmul fast float %255, %205
-  br label %336
+; <label>:265                                     ; preds = %200
+  %266 = fmul fast float %253, %201
+  %267 = fmul fast float %253, %202
+  %268 = fmul fast float %253, %203
+  br label %334
 
-; <label>:271                                     ; preds = %202
-  br label %336
+; <label>:269                                     ; preds = %200
+  br label %334
 
-; <label>:272                                     ; preds = %202
-  %273 = call float @dx.op.dot3.f32(i32 55, float %14, float %15, float %16, float %97, float %98, float %99)  ; Dot3(ax,ay,az,bx,by,bz)
-  %274 = call float @dx.op.unary.f32(i32 7, float %273)  ; Saturate(value)
-  %275 = fmul fast float %252, %274
-  %276 = fadd fast float %275, %249
-  %277 = fmul fast float %276, %251
-  br label %336
+; <label>:270                                     ; preds = %200
+  %271 = call float @dx.op.dot3.f32(i32 55, float %14, float %15, float %16, float %97, float %98, float %99)  ; Dot3(ax,ay,az,bx,by,bz)
+  %272 = call float @dx.op.unary.f32(i32 7, float %271)  ; Saturate(value)
+  %273 = fmul fast float %272, %250
+  %274 = fadd fast float %273, %247
+  %275 = fmul fast float %274, %249
+  br label %334
 
-; <label>:278                                     ; preds = %202
-  %279 = fadd fast float %77, 1.000000e+00
-  %280 = fadd fast float %80, 1.000000e+00
-  %281 = fadd fast float %83, 1.000000e+00
+; <label>:276                                     ; preds = %200
+  %277 = fadd fast float %77, 1.000000e+00
+  %278 = fadd fast float %80, 1.000000e+00
+  %279 = fadd fast float %83, 1.000000e+00
+  %280 = fmul fast float %277, 5.000000e-01
+  %281 = fmul fast float %278, 5.000000e-01
   %282 = fmul fast float %279, 5.000000e-01
-  %283 = fmul fast float %280, 5.000000e-01
-  %284 = fmul fast float %281, 5.000000e-01
-  br label %336
+  br label %334
 
-; <label>:285                                     ; preds = %202
-  br label %336
+; <label>:283                                     ; preds = %200
+  br label %334
 
-; <label>:286                                     ; preds = %202
-  %287 = fadd fast float %60, 1.000000e+00
-  %288 = fadd fast float %61, 1.000000e+00
-  %289 = fadd fast float %62, 1.000000e+00
+; <label>:284                                     ; preds = %200
+  %285 = fadd fast float %60, 1.000000e+00
+  %286 = fadd fast float %61, 1.000000e+00
+  %287 = fadd fast float %62, 1.000000e+00
+  %288 = fmul fast float %285, 5.000000e-01
+  %289 = fmul fast float %286, 5.000000e-01
   %290 = fmul fast float %287, 5.000000e-01
-  %291 = fmul fast float %288, 5.000000e-01
-  %292 = fmul fast float %289, 5.000000e-01
-  br label %336
+  br label %334
 
-; <label>:293                                     ; preds = %202
-  br label %336
+; <label>:291                                     ; preds = %200
+  br label %334
 
-; <label>:294                                     ; preds = %202
-  br label %336
+; <label>:292                                     ; preds = %200
+  br label %334
 
-; <label>:295                                     ; preds = %202
-  %296 = call float @dx.op.unary.f32(i32 22, float %12)  ; Frc(value)
-  %297 = call float @dx.op.unary.f32(i32 22, float %13)  ; Frc(value)
-  br label %336
+; <label>:293                                     ; preds = %200
+  %294 = call float @dx.op.unary.f32(i32 22, float %12)  ; Frc(value)
+  %295 = call float @dx.op.unary.f32(i32 22, float %13)  ; Frc(value)
+  br label %334
 
-; <label>:298                                     ; preds = %202
-  %299 = fadd fast float %14, 1.000000e+00
-  %300 = fadd fast float %15, 1.000000e+00
-  %301 = fadd fast float %16, 1.000000e+00
+; <label>:296                                     ; preds = %200
+  %297 = fadd fast float %14, 1.000000e+00
+  %298 = fadd fast float %15, 1.000000e+00
+  %299 = fadd fast float %16, 1.000000e+00
+  %300 = fmul fast float %297, 5.000000e-01
+  %301 = fmul fast float %298, 5.000000e-01
   %302 = fmul fast float %299, 5.000000e-01
-  %303 = fmul fast float %300, 5.000000e-01
-  %304 = fmul fast float %301, 5.000000e-01
-  br label %336
+  br label %334
 
-; <label>:305                                     ; preds = %202
-  %306 = fadd fast float %9, 1.000000e+00
-  %307 = fadd fast float %10, 1.000000e+00
-  %308 = fadd fast float %11, 1.000000e+00
+; <label>:303                                     ; preds = %200
+  %304 = fadd fast float %9, 1.000000e+00
+  %305 = fadd fast float %10, 1.000000e+00
+  %306 = fadd fast float %11, 1.000000e+00
+  %307 = fmul fast float %304, 5.000000e-01
+  %308 = fmul fast float %305, 5.000000e-01
   %309 = fmul fast float %306, 5.000000e-01
-  %310 = fmul fast float %307, 5.000000e-01
-  %311 = fmul fast float %308, 5.000000e-01
-  br label %336
+  br label %334
 
-; <label>:312                                     ; preds = %202
-  %313 = fadd fast float %6, 1.000000e+00
-  %314 = fadd fast float %7, 1.000000e+00
-  %315 = fadd fast float %8, 1.000000e+00
+; <label>:310                                     ; preds = %200
+  %311 = fadd fast float %6, 1.000000e+00
+  %312 = fadd fast float %7, 1.000000e+00
+  %313 = fadd fast float %8, 1.000000e+00
+  %314 = fmul fast float %311, 5.000000e-01
+  %315 = fmul fast float %312, 5.000000e-01
   %316 = fmul fast float %313, 5.000000e-01
-  %317 = fmul fast float %314, 5.000000e-01
-  %318 = fmul fast float %315, 5.000000e-01
-  br label %336
+  br label %334
 
-; <label>:319                                     ; preds = %202
-  %320 = call float @dx.op.calculateLOD.f32(i32 81, %dx.types.Handle %23, %dx.types.Handle %33, float %12, float %13, float undef, i1 true)  ; CalculateLOD(handle,sampler,coord0,coord1,coord2,clamped)
-  %321 = call float @dx.op.unary.f32(i32 22, float %320)  ; Frc(value)
-  br label %336
+; <label>:317                                     ; preds = %200
+  %318 = call float @dx.op.calculateLOD.f32(i32 81, %dx.types.Handle %23, %dx.types.Handle %33, float %12, float %13, float undef, i1 true)  ; CalculateLOD(handle,sampler,coord0,coord1,coord2,clamped)
+  %319 = call float @dx.op.unary.f32(i32 22, float %318)  ; Frc(value)
+  br label %334
 
-; <label>:322                                     ; preds = %202
-  %323 = fadd fast float %93, 1.000000e+00
-  %324 = fadd fast float %94, 1.000000e+00
-  %325 = fadd fast float %95, 1.000000e+00
+; <label>:320                                     ; preds = %200
+  %321 = fadd fast float %93, 1.000000e+00
+  %322 = fadd fast float %94, 1.000000e+00
+  %323 = fadd fast float %95, 1.000000e+00
+  %324 = fmul fast float %321, 5.000000e-01
+  %325 = fmul fast float %322, 5.000000e-01
   %326 = fmul fast float %323, 5.000000e-01
-  %327 = fmul fast float %324, 5.000000e-01
-  %328 = fmul fast float %325, 5.000000e-01
-  br label %336
+  br label %334
 
-; <label>:329                                     ; preds = %202
-  %330 = fadd fast float %97, 1.000000e+00
-  %331 = fadd fast float %98, 1.000000e+00
-  %332 = fadd fast float %99, 1.000000e+00
+; <label>:327                                     ; preds = %200
+  %328 = fadd fast float %97, 1.000000e+00
+  %329 = fadd fast float %98, 1.000000e+00
+  %330 = fadd fast float %99, 1.000000e+00
+  %331 = fmul fast float %328, 5.000000e-01
+  %332 = fmul fast float %329, 5.000000e-01
   %333 = fmul fast float %330, 5.000000e-01
-  %334 = fmul fast float %331, 5.000000e-01
-  %335 = fmul fast float %332, 5.000000e-01
-  br label %336
+  br label %334
 
-; <label>:336                                     ; preds = %329, %322, %319, %312, %305, %298, %295, %294, %293, %286, %285, %278, %272, %271, %267, %266, %265, %264, %263, %262, %258, %202
-  %337 = phi float [ undef, %202 ], [ %333, %329 ], [ %326, %322 ], [ %321, %319 ], [ %316, %312 ], [ %309, %305 ], [ %302, %298 ], [ %296, %295 ], [ %65, %294 ], [ %64, %293 ], [ %290, %286 ], [ %45, %285 ], [ %282, %278 ], [ %277, %272 ], [ %203, %271 ], [ %268, %267 ], [ %232, %266 ], [ %228, %265 ], [ %225, %264 ], [ %244, %263 ], [ %235, %262 ], [ %259, %258 ]
-  %338 = phi float [ undef, %202 ], [ %334, %329 ], [ %327, %322 ], [ %321, %319 ], [ %317, %312 ], [ %310, %305 ], [ %303, %298 ], [ %297, %295 ], [ %65, %294 ], [ %64, %293 ], [ %291, %286 ], [ %46, %285 ], [ %283, %278 ], [ %277, %272 ], [ %204, %271 ], [ %269, %267 ], [ %233, %266 ], [ %229, %265 ], [ %226, %264 ], [ %245, %263 ], [ %236, %262 ], [ %260, %258 ]
-  %339 = phi float [ undef, %202 ], [ %335, %329 ], [ %328, %322 ], [ %321, %319 ], [ %318, %312 ], [ %311, %305 ], [ %304, %298 ], [ 0.000000e+00, %295 ], [ %65, %294 ], [ %64, %293 ], [ %292, %286 ], [ %47, %285 ], [ %284, %278 ], [ %277, %272 ], [ %205, %271 ], [ %270, %267 ], [ %234, %266 ], [ %230, %265 ], [ 0.000000e+00, %264 ], [ %246, %263 ], [ %237, %262 ], [ %261, %258 ]
-  call void @dx.op.storeOutput.f32(i32 5, i32 0, i32 0, i8 0, float %337)  ; StoreOutput(outputSigId,rowIndex,colIndex,value)
-  call void @dx.op.storeOutput.f32(i32 5, i32 0, i32 0, i8 1, float %338)  ; StoreOutput(outputSigId,rowIndex,colIndex,value)
-  call void @dx.op.storeOutput.f32(i32 5, i32 0, i32 0, i8 2, float %339)  ; StoreOutput(outputSigId,rowIndex,colIndex,value)
+; <label>:334                                     ; preds = %327, %320, %317, %310, %303, %296, %293, %292, %291, %284, %283, %276, %270, %269, %265, %264, %263, %262, %261, %260, %256, %200
+  %335 = phi float [ undef, %200 ], [ %331, %327 ], [ %324, %320 ], [ %319, %317 ], [ %314, %310 ], [ %307, %303 ], [ %300, %296 ], [ %294, %293 ], [ %65, %292 ], [ %64, %291 ], [ %288, %284 ], [ %45, %283 ], [ %280, %276 ], [ %275, %270 ], [ %201, %269 ], [ %266, %265 ], [ %230, %264 ], [ %226, %263 ], [ %223, %262 ], [ %242, %261 ], [ %233, %260 ], [ %257, %256 ]
+  %336 = phi float [ undef, %200 ], [ %332, %327 ], [ %325, %320 ], [ %319, %317 ], [ %315, %310 ], [ %308, %303 ], [ %301, %296 ], [ %295, %293 ], [ %65, %292 ], [ %64, %291 ], [ %289, %284 ], [ %46, %283 ], [ %281, %276 ], [ %275, %270 ], [ %202, %269 ], [ %267, %265 ], [ %231, %264 ], [ %227, %263 ], [ %224, %262 ], [ %243, %261 ], [ %234, %260 ], [ %258, %256 ]
+  %337 = phi float [ undef, %200 ], [ %333, %327 ], [ %326, %320 ], [ %319, %317 ], [ %316, %310 ], [ %309, %303 ], [ %302, %296 ], [ 0.000000e+00, %293 ], [ %65, %292 ], [ %64, %291 ], [ %290, %284 ], [ %47, %283 ], [ %282, %276 ], [ %275, %270 ], [ %203, %269 ], [ %268, %265 ], [ %232, %264 ], [ %228, %263 ], [ 0.000000e+00, %262 ], [ %244, %261 ], [ %235, %260 ], [ %259, %256 ]
+  call void @dx.op.storeOutput.f32(i32 5, i32 0, i32 0, i8 0, float %335)  ; StoreOutput(outputSigId,rowIndex,colIndex,value)
+  call void @dx.op.storeOutput.f32(i32 5, i32 0, i32 0, i8 1, float %336)  ; StoreOutput(outputSigId,rowIndex,colIndex,value)
+  call void @dx.op.storeOutput.f32(i32 5, i32 0, i32 0, i8 2, float %337)  ; StoreOutput(outputSigId,rowIndex,colIndex,value)
   call void @dx.op.storeOutput.f32(i32 5, i32 0, i32 0, i8 3, float 1.000000e+00)  ; StoreOutput(outputSigId,rowIndex,colIndex,value)
   ret void
 }
@@ -3900,7 +3898,7 @@ attributes #2 = { nounwind readonly }
 !dx.viewIdState = !{!6}
 !dx.entryPoints = !{!7}
 
-!0 = !{!"dxcoob 1.8.2405.15 (fd7e54bcd)"}
+!0 = !{!"dxcoob 1.8.2407.7 (416fab6b5)"}
 !1 = !{i32 1, i32 8}
 !2 = !{!"ps", i32 6, i32 8}
 !3 = !{null, null, !4, null}
@@ -3929,10 +3927,10 @@ attributes #2 = { nounwind readonly }
 !26 = !{i32 0, i64 3229614336}
 */
 auto Shaders::crate_draw_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(50112, 8012);
+    return std::span(_data).subspan(50092, 8000);
 }
 
-// shader_hash: da96164371dd2400e55d53254b743477
+// shader_hash: b1acb60cf5984060a26986a2f75fba9d
 // constant_buffers: 1
 // bound_resources: 1
 // input_parameters: 2
@@ -3960,8 +3958,8 @@ auto Shaders::crate_draw_ps() const -> std::span<const std::byte> {
 ; -------------------- ----- ------ -------- -------- ------- ------
 ; SV_Position              0   xyzw        0      POS   float   xyzw
 ;
-; shader debug name: da96164371dd2400e55d53254b743477.pdb
-; shader hash: da96164371dd2400e55d53254b743477
+; shader debug name: b1acb60cf5984060a26986a2f75fba9d.pdb
+; shader hash: b1acb60cf5984060a26986a2f75fba9d
 ;
 ; Pipeline Runtime Information: 
 ;
@@ -4132,7 +4130,7 @@ attributes #2 = { nounwind readonly }
 !dx.viewIdState = !{!6}
 !dx.entryPoints = !{!7}
 
-!0 = !{!"dxcoob 1.8.2405.15 (fd7e54bcd)"}
+!0 = !{!"dxcoob 1.8.2407.7 (416fab6b5)"}
 !1 = !{i32 1, i32 8}
 !2 = !{!"vs", i32 6, i32 8}
 !3 = !{null, null, !4, null}
@@ -4152,10 +4150,10 @@ attributes #2 = { nounwind readonly }
 !17 = !{i32 0, i64 1082130688}
 */
 auto Shaders::tree_shadow_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(58124, 4672);
+    return std::span(_data).subspan(58092, 4668);
 }
 
-// shader_hash: 02836609226e6e4020c070d23176453a
+// shader_hash: 5a3df4deddc04d7bec0d1833a91d2506
 // constant_buffers: 1
 // bound_resources: 1
 // input_parameters: 2
@@ -4186,8 +4184,8 @@ auto Shaders::tree_shadow_vs() const -> std::span<const std::byte> {
 ; ATTRIBUTE                1   xy          2     NONE   float   xy  
 ; ATTRIBUTE                2   xyzw        3     NONE   float   xyzw
 ;
-; shader debug name: 02836609226e6e4020c070d23176453a.pdb
-; shader hash: 02836609226e6e4020c070d23176453a
+; shader debug name: 5a3df4deddc04d7bec0d1833a91d2506.pdb
+; shader hash: 5a3df4deddc04d7bec0d1833a91d2506
 ;
 ; Pipeline Runtime Information: 
 ;
@@ -4422,7 +4420,7 @@ attributes #2 = { nounwind readonly }
 !dx.viewIdState = !{!6}
 !dx.entryPoints = !{!7}
 
-!0 = !{!"dxcoob 1.8.2405.15 (fd7e54bcd)"}
+!0 = !{!"dxcoob 1.8.2407.7 (416fab6b5)"}
 !1 = !{i32 1, i32 8}
 !2 = !{!"vs", i32 6, i32 8}
 !3 = !{null, null, !4, null}
@@ -4449,10 +4447,10 @@ attributes #2 = { nounwind readonly }
 !24 = !{i32 0, i64 1082130688}
 */
 auto Shaders::tree_draw_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(62796, 5472);
+    return std::span(_data).subspan(62760, 5472);
 }
 
-// shader_hash: dd367431c37c158d4eee8042d74ffd2f
+// shader_hash: 8636b0831a03e273527383b05470fcb2
 // constant_buffers: 1
 // bound_resources: 1
 // input_parameters: 4
@@ -4484,8 +4482,8 @@ auto Shaders::tree_draw_vs() const -> std::span<const std::byte> {
 ; -------------------- ----- ------ -------- -------- ------- ------
 ; SV_Target                0   xyzw        0   TARGET   float   xyzw
 ;
-; shader debug name: dd367431c37c158d4eee8042d74ffd2f.pdb
-; shader hash: dd367431c37c158d4eee8042d74ffd2f
+; shader debug name: 8636b0831a03e273527383b05470fcb2.pdb
+; shader hash: 8636b0831a03e273527383b05470fcb2
 ;
 ; Pipeline Runtime Information: 
 ;
@@ -4667,7 +4665,7 @@ attributes #2 = { nounwind readonly }
 !dx.viewIdState = !{!6}
 !dx.entryPoints = !{!7}
 
-!0 = !{!"dxcoob 1.8.2405.15 (fd7e54bcd)"}
+!0 = !{!"dxcoob 1.8.2407.7 (416fab6b5)"}
 !1 = !{i32 1, i32 8}
 !2 = !{!"ps", i32 6, i32 8}
 !3 = !{null, null, !4, null}
@@ -4692,10 +4690,10 @@ attributes #2 = { nounwind readonly }
 !22 = !{i32 0, i64 3229614336}
 */
 auto Shaders::tree_draw_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(68268, 5236);
+    return std::span(_data).subspan(68232, 5232);
 }
 
-// shader_hash: 594b8b4c846ab4dced1159f304ce8720
+// shader_hash: d34199bd948318570c2d8ca22b2c64a2
 // constant_buffers: 1
 // bound_resources: 1
 // instruction_count: 23
@@ -4719,8 +4717,8 @@ auto Shaders::tree_draw_ps() const -> std::span<const std::byte> {
 ; Name                 Index   Mask Register SysValue  Format   Used
 ; -------------------- ----- ------ -------- -------- ------- ------
 ; no parameters
-; shader debug name: 594b8b4c846ab4dced1159f304ce8720.pdb
-; shader hash: 594b8b4c846ab4dced1159f304ce8720
+; shader debug name: d34199bd948318570c2d8ca22b2c64a2.pdb
+; shader hash: d34199bd948318570c2d8ca22b2c64a2
 ;
 ; Pipeline Runtime Information: 
 ;
@@ -4830,7 +4828,7 @@ attributes #2 = { nounwind }
 !dx.resources = !{!3}
 !dx.entryPoints = !{!6}
 
-!0 = !{!"dxcoob 1.8.2405.15 (fd7e54bcd)"}
+!0 = !{!"dxcoob 1.8.2407.7 (416fab6b5)"}
 !1 = !{i32 1, i32 8}
 !2 = !{!"cs", i32 6, i32 8}
 !3 = !{null, null, !4, null}
@@ -4841,10 +4839,10 @@ attributes #2 = { nounwind }
 !8 = !{i32 128, i32 1, i32 1}
 */
 auto Shaders::rain_sim_cs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(73504, 3752);
+    return std::span(_data).subspan(73464, 3752);
 }
 
-// shader_hash: 5c734c27c8b9608ce06b8b204a05def0
+// shader_hash: e175ea1ec9ff3e0c9a45c0391ce3c5cd
 // constant_buffers: 1
 // bound_resources: 1
 // input_parameters: 2
@@ -4873,8 +4871,8 @@ auto Shaders::rain_sim_cs() const -> std::span<const std::byte> {
 ; SV_Position              0   xyzw        0      POS   float   xyzw
 ; ATTRIBUTE                0   xy          1     NONE   float   xy  
 ;
-; shader debug name: 5c734c27c8b9608ce06b8b204a05def0.pdb
-; shader hash: 5c734c27c8b9608ce06b8b204a05def0
+; shader debug name: e175ea1ec9ff3e0c9a45c0391ce3c5cd.pdb
+; shader hash: e175ea1ec9ff3e0c9a45c0391ce3c5cd
 ;
 ; Pipeline Runtime Information: 
 ;
@@ -5084,7 +5082,7 @@ attributes #2 = { nounwind readonly }
 !dx.viewIdState = !{!6}
 !dx.entryPoints = !{!7}
 
-!0 = !{!"dxcoob 1.8.2405.15 (fd7e54bcd)"}
+!0 = !{!"dxcoob 1.8.2407.7 (416fab6b5)"}
 !1 = !{i32 1, i32 8}
 !2 = !{!"vs", i32 6, i32 8}
 !3 = !{null, null, !4, null}
@@ -5106,10 +5104,10 @@ attributes #2 = { nounwind readonly }
 !19 = !{i32 0, i64 1082130688}
 */
 auto Shaders::rain_draw_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(77256, 5076);
+    return std::span(_data).subspan(77216, 5076);
 }
 
-// shader_hash: d8b521f5751ea14b648d3d90c9cf3a6c
+// shader_hash: f365d6b10844949d5b27ce6e274b75fc
 // input_parameters: 2
 // output_parameters: 1
 // instruction_count: 20
@@ -5130,8 +5128,8 @@ auto Shaders::rain_draw_vs() const -> std::span<const std::byte> {
 ; -------------------- ----- ------ -------- -------- ------- ------
 ; SV_Target                0   xyzw        0   TARGET   float   xyzw
 ;
-; shader debug name: d8b521f5751ea14b648d3d90c9cf3a6c.pdb
-; shader hash: d8b521f5751ea14b648d3d90c9cf3a6c
+; shader debug name: f365d6b10844949d5b27ce6e274b75fc.pdb
+; shader hash: f365d6b10844949d5b27ce6e274b75fc
 ;
 ; Pipeline Runtime Information: 
 ;
@@ -5217,7 +5215,7 @@ attributes #1 = { nounwind }
 !dx.viewIdState = !{!3}
 !dx.entryPoints = !{!4}
 
-!0 = !{!"dxcoob 1.8.2405.15 (fd7e54bcd)"}
+!0 = !{!"dxcoob 1.8.2407.7 (416fab6b5)"}
 !1 = !{i32 1, i32 8}
 !2 = !{!"ps", i32 6, i32 8}
 !3 = !{[8 x i32] [i32 6, i32 4, i32 0, i32 0, i32 0, i32 0, i32 15, i32 15]}
@@ -5234,10 +5232,10 @@ attributes #1 = { nounwind }
 !14 = !{i32 0, i64 8388864}
 */
 auto Shaders::rain_draw_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(82332, 3244);
+    return std::span(_data).subspan(82292, 3244);
 }
 
-// shader_hash: e9f880601bac54b41883afbf7dd54905
+// shader_hash: 47177143ff072b00eb934d0dcf6884d9
 // constant_buffers: 1
 // bound_resources: 1
 // input_parameters: 2
@@ -5268,8 +5266,8 @@ auto Shaders::rain_draw_ps() const -> std::span<const std::byte> {
 ; ATTRIBUTE                1   xy          2     NONE   float   xy  
 ; ATTRIBUTE                2   xyz         3     NONE   float   xyz 
 ;
-; shader debug name: e9f880601bac54b41883afbf7dd54905.pdb
-; shader hash: e9f880601bac54b41883afbf7dd54905
+; shader debug name: 47177143ff072b00eb934d0dcf6884d9.pdb
+; shader hash: 47177143ff072b00eb934d0dcf6884d9
 ;
 ; Pipeline Runtime Information: 
 ;
@@ -5468,7 +5466,7 @@ attributes #2 = { nounwind readonly }
 !dx.viewIdState = !{!6}
 !dx.entryPoints = !{!7}
 
-!0 = !{!"dxcoob 1.8.2405.15 (fd7e54bcd)"}
+!0 = !{!"dxcoob 1.8.2407.7 (416fab6b5)"}
 !1 = !{i32 1, i32 8}
 !2 = !{!"vs", i32 6, i32 8}
 !3 = !{null, null, !4, null}
@@ -5495,10 +5493,10 @@ attributes #2 = { nounwind readonly }
 !24 = !{i32 0, i64 1082130688}
 */
 auto Shaders::anim_ground_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(85576, 5280);
+    return std::span(_data).subspan(85536, 5276);
 }
 
-// shader_hash: bb2415c445d29cf08a31585c321c9261
+// shader_hash: f7ee95d72a2d8f28e9e8e83ee515cebe
 // constant_buffers: 1
 // bound_resources: 1
 // input_parameters: 4
@@ -5529,8 +5527,8 @@ auto Shaders::anim_ground_vs() const -> std::span<const std::byte> {
 ; -------------------- ----- ------ -------- -------- ------- ------
 ; SV_Target                0   xyzw        0   TARGET   float   xyzw
 ;
-; shader debug name: bb2415c445d29cf08a31585c321c9261.pdb
-; shader hash: bb2415c445d29cf08a31585c321c9261
+; shader debug name: f7ee95d72a2d8f28e9e8e83ee515cebe.pdb
+; shader hash: f7ee95d72a2d8f28e9e8e83ee515cebe
 ;
 ; Pipeline Runtime Information: 
 ;
@@ -5705,7 +5703,7 @@ attributes #2 = { nounwind readonly }
 !dx.viewIdState = !{!6}
 !dx.entryPoints = !{!7}
 
-!0 = !{!"dxcoob 1.8.2405.15 (fd7e54bcd)"}
+!0 = !{!"dxcoob 1.8.2407.7 (416fab6b5)"}
 !1 = !{i32 1, i32 8}
 !2 = !{!"ps", i32 6, i32 8}
 !3 = !{null, null, !4, null}
@@ -5730,10 +5728,10 @@ attributes #2 = { nounwind readonly }
 !22 = !{i32 0, i64 3229614336}
 */
 auto Shaders::anim_ground_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(90856, 5104);
+    return std::span(_data).subspan(90812, 5100);
 }
 
-// shader_hash: 0d2bf462b95030f1de951d11eee54d35
+// shader_hash: fc7d46c76c9d4add9ed583fa357298c1
 // constant_buffers: 1
 // bound_resources: 1
 // input_parameters: 2
@@ -5764,8 +5762,8 @@ auto Shaders::anim_ground_ps() const -> std::span<const std::byte> {
 ; ATTRIBUTE                1   xy          2     NONE   float   xy  
 ; ATTRIBUTE                2   xyz         3     NONE   float   xyz 
 ;
-; shader debug name: 0d2bf462b95030f1de951d11eee54d35.pdb
-; shader hash: 0d2bf462b95030f1de951d11eee54d35
+; shader debug name: fc7d46c76c9d4add9ed583fa357298c1.pdb
+; shader hash: fc7d46c76c9d4add9ed583fa357298c1
 ;
 ; Pipeline Runtime Information: 
 ;
@@ -6227,7 +6225,7 @@ attributes #2 = { nounwind readonly }
 !dx.viewIdState = !{!6}
 !dx.entryPoints = !{!7}
 
-!0 = !{!"dxcoob 1.8.2405.15 (fd7e54bcd)"}
+!0 = !{!"dxcoob 1.8.2407.7 (416fab6b5)"}
 !1 = !{i32 1, i32 8}
 !2 = !{!"vs", i32 6, i32 8}
 !3 = !{null, null, !4, null}
@@ -6254,16 +6252,16 @@ attributes #2 = { nounwind readonly }
 !24 = !{i32 0, i64 1082130688}
 */
 auto Shaders::anim_anim_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(95960, 7092);
+    return std::span(_data).subspan(95912, 7092);
 }
 
-// shader_hash: 84e53889c321f6c1f76962650f96da99
+// shader_hash: b0253828cb41b1f3fcab80316420edc8
 // constant_buffers: 1
 // bound_resources: 1
 // input_parameters: 4
 // output_parameters: 1
-// instruction_count: 29
-// float_instruction_count: 13
+// instruction_count: 26
+// float_instruction_count: 10
 /* disassembly:
 ;
 ; Input signature:
@@ -6282,8 +6280,8 @@ auto Shaders::anim_anim_vs() const -> std::span<const std::byte> {
 ; -------------------- ----- ------ -------- -------- ------- ------
 ; SV_Target                0   xyzw        0   TARGET   float   xyzw
 ;
-; shader debug name: 84e53889c321f6c1f76962650f96da99.pdb
-; shader hash: 84e53889c321f6c1f76962650f96da99
+; shader debug name: b0253828cb41b1f3fcab80316420edc8.pdb
+; shader hash: b0253828cb41b1f3fcab80316420edc8
 ;
 ; Pipeline Runtime Information: 
 ;
@@ -6375,19 +6373,16 @@ define void @anim_ps() {
   %12 = uitofp i32 %9 to float
   %13 = uitofp i32 %10 to float
   %14 = uitofp i32 %11 to float
-  %15 = fmul fast float %12, 0x3F70101020000000
-  %16 = fmul fast float %13, 0x3F70101020000000
-  %17 = fmul fast float %14, 0x3F70101020000000
-  %18 = call float @dx.op.dot3.f32(i32 55, float %3, float %4, float %5, float 0xBFE279A740000000, float 0x3FE279A740000000, float 0x3FE279A740000000)  ; Dot3(ax,ay,az,bx,by,bz)
-  %19 = call float @dx.op.unary.f32(i32 7, float %18)  ; Saturate(value)
-  %20 = fmul fast float %19, 5.000000e-01
-  %21 = fadd fast float %20, 5.000000e-01
-  %22 = fmul fast float %15, %21
-  %23 = fmul fast float %16, %21
-  %24 = fmul fast float %17, %21
-  call void @dx.op.storeOutput.f32(i32 5, i32 0, i32 0, i8 0, float %22)  ; StoreOutput(outputSigId,rowIndex,colIndex,value)
-  call void @dx.op.storeOutput.f32(i32 5, i32 0, i32 0, i8 1, float %23)  ; StoreOutput(outputSigId,rowIndex,colIndex,value)
-  call void @dx.op.storeOutput.f32(i32 5, i32 0, i32 0, i8 2, float %24)  ; StoreOutput(outputSigId,rowIndex,colIndex,value)
+  %15 = call float @dx.op.dot3.f32(i32 55, float %3, float %4, float %5, float 0xBFE279A740000000, float 0x3FE279A740000000, float 0x3FE279A740000000)  ; Dot3(ax,ay,az,bx,by,bz)
+  %16 = call float @dx.op.unary.f32(i32 7, float %15)  ; Saturate(value)
+  %17 = fmul fast float %16, 0x3F60101020000000
+  %18 = fadd fast float %17, 0x3F60101020000000
+  %19 = fmul fast float %18, %12
+  %20 = fmul fast float %18, %13
+  %21 = fmul fast float %18, %14
+  call void @dx.op.storeOutput.f32(i32 5, i32 0, i32 0, i8 0, float %19)  ; StoreOutput(outputSigId,rowIndex,colIndex,value)
+  call void @dx.op.storeOutput.f32(i32 5, i32 0, i32 0, i8 1, float %20)  ; StoreOutput(outputSigId,rowIndex,colIndex,value)
+  call void @dx.op.storeOutput.f32(i32 5, i32 0, i32 0, i8 2, float %21)  ; StoreOutput(outputSigId,rowIndex,colIndex,value)
   call void @dx.op.storeOutput.f32(i32 5, i32 0, i32 0, i8 3, float 1.000000e+00)  ; StoreOutput(outputSigId,rowIndex,colIndex,value)
   ret void
 }
@@ -6428,7 +6423,7 @@ attributes #2 = { nounwind readonly }
 !dx.viewIdState = !{!6}
 !dx.entryPoints = !{!7}
 
-!0 = !{!"dxcoob 1.8.2405.15 (fd7e54bcd)"}
+!0 = !{!"dxcoob 1.8.2407.7 (416fab6b5)"}
 !1 = !{i32 1, i32 8}
 !2 = !{!"ps", i32 6, i32 8}
 !3 = !{null, null, !4, null}
@@ -6452,10 +6447,10 @@ attributes #2 = { nounwind readonly }
 !21 = !{i32 0, i64 8388864}
 */
 auto Shaders::anim_anim_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(103052, 4624);
+    return std::span(_data).subspan(103004, 4604);
 }
 
-// shader_hash: 4c24160a228de20f6e6b67a3c4dc1f64
+// shader_hash: 5a6edd86d2a8ab7f3d207acfa78a86b2
 // constant_buffers: 1
 // bound_resources: 1
 // instruction_count: 32
@@ -6479,8 +6474,8 @@ auto Shaders::anim_anim_ps() const -> std::span<const std::byte> {
 ; Name                 Index   Mask Register SysValue  Format   Used
 ; -------------------- ----- ------ -------- -------- ------- ------
 ; no parameters
-; shader debug name: 4c24160a228de20f6e6b67a3c4dc1f64.pdb
-; shader hash: 4c24160a228de20f6e6b67a3c4dc1f64
+; shader debug name: 5a6edd86d2a8ab7f3d207acfa78a86b2.pdb
+; shader hash: 5a6edd86d2a8ab7f3d207acfa78a86b2
 ;
 ; Pipeline Runtime Information: 
 ;
@@ -6604,7 +6599,7 @@ attributes #2 = { nounwind }
 !dx.resources = !{!3}
 !dx.entryPoints = !{!6}
 
-!0 = !{!"dxcoob 1.8.2405.15 (fd7e54bcd)"}
+!0 = !{!"dxcoob 1.8.2407.7 (416fab6b5)"}
 !1 = !{i32 1, i32 8}
 !2 = !{!"cs", i32 6, i32 8}
 !3 = !{null, null, !4, null}
@@ -6615,10 +6610,10 @@ attributes #2 = { nounwind }
 !8 = !{i32 32, i32 1, i32 1}
 */
 auto Shaders::fibers_sim_cs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(107676, 4012);
+    return std::span(_data).subspan(107608, 4012);
 }
 
-// shader_hash: 538af1d555e6229ed12eb7826b7744f7
+// shader_hash: 7073ad7f4f48d7d970aba1c9d7e9c5d2
 // constant_buffers: 1
 // bound_resources: 1
 // instruction_count: 8
@@ -6640,8 +6635,8 @@ auto Shaders::fibers_sim_cs() const -> std::span<const std::byte> {
 ; Name                 Index   Mask Register SysValue  Format   Used
 ; -------------------- ----- ------ -------- -------- ------- ------
 ; no parameters
-; shader debug name: 538af1d555e6229ed12eb7826b7744f7.pdb
-; shader hash: 538af1d555e6229ed12eb7826b7744f7
+; shader debug name: 7073ad7f4f48d7d970aba1c9d7e9c5d2.pdb
+; shader hash: 7073ad7f4f48d7d970aba1c9d7e9c5d2
 ;
 ; Pipeline Runtime Information: 
 ;
@@ -6730,7 +6725,7 @@ attributes #2 = { nounwind readonly }
 !dx.resources = !{!3}
 !dx.entryPoints = !{!6}
 
-!0 = !{!"dxcoob 1.8.2405.15 (fd7e54bcd)"}
+!0 = !{!"dxcoob 1.8.2407.7 (416fab6b5)"}
 !1 = !{i32 1, i32 8}
 !2 = !{!"cs", i32 6, i32 8}
 !3 = !{null, null, !4, null}
@@ -6741,10 +6736,10 @@ attributes #2 = { nounwind readonly }
 !8 = !{i32 1, i32 1, i32 1}
 */
 auto Shaders::fibers_reset_cs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(111688, 3436);
+    return std::span(_data).subspan(111620, 3436);
 }
 
-// shader_hash: cda447ac08bc8e96d95137c291d7ad57
+// shader_hash: 47c3a2e61f938304324985124d1ad1a0
 // constant_buffers: 1
 // bound_resources: 1
 // instruction_count: 322
@@ -6775,8 +6770,8 @@ auto Shaders::fibers_reset_cs() const -> std::span<const std::byte> {
 ; Name                 Index   Mask Register SysValue  Format   Used
 ; -------------------- ----- ------ -------- -------- ------- ------
 ; no parameters
-; shader debug name: cda447ac08bc8e96d95137c291d7ad57.pdb
-; shader hash: cda447ac08bc8e96d95137c291d7ad57
+; shader debug name: 47c3a2e61f938304324985124d1ad1a0.pdb
+; shader hash: 47c3a2e61f938304324985124d1ad1a0
 ;
 ; Pipeline Runtime Information: 
 ;
@@ -7249,7 +7244,7 @@ attributes #3 = { nounwind }
 !dx.resources = !{!3}
 !dx.entryPoints = !{!6}
 
-!0 = !{!"dxcoob 1.8.2405.15 (fd7e54bcd)"}
+!0 = !{!"dxcoob 1.8.2407.7 (416fab6b5)"}
 !1 = !{i32 1, i32 8}
 !2 = !{!"cs", i32 6, i32 8}
 !3 = !{null, null, !4, null}
@@ -7264,10 +7259,10 @@ attributes #3 = { nounwind }
 !12 = !{!"Simple C/C++ TBAA"}
 */
 auto Shaders::fibers_cull_cs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(115124, 7344);
+    return std::span(_data).subspan(115056, 7340);
 }
 
-// shader_hash: d9c0538b37e05e7ddbcd3a4d9120d287
+// shader_hash: 3a1415121d9cb850e21d009368ba56bc
 // constant_buffers: 1
 // bound_resources: 1
 // input_parameters: 2
@@ -7298,8 +7293,8 @@ auto Shaders::fibers_cull_cs() const -> std::span<const std::byte> {
 ; ATTRIBUTE                1   xy          2     NONE   float   xy  
 ; ATTRIBUTE                2   xyz         3     NONE   float   xyz 
 ;
-; shader debug name: d9c0538b37e05e7ddbcd3a4d9120d287.pdb
-; shader hash: d9c0538b37e05e7ddbcd3a4d9120d287
+; shader debug name: 3a1415121d9cb850e21d009368ba56bc.pdb
+; shader hash: 3a1415121d9cb850e21d009368ba56bc
 ;
 ; Pipeline Runtime Information: 
 ;
@@ -7520,7 +7515,7 @@ attributes #2 = { nounwind readonly }
 !dx.viewIdState = !{!6}
 !dx.entryPoints = !{!7}
 
-!0 = !{!"dxcoob 1.8.2405.15 (fd7e54bcd)"}
+!0 = !{!"dxcoob 1.8.2407.7 (416fab6b5)"}
 !1 = !{i32 1, i32 8}
 !2 = !{!"vs", i32 6, i32 8}
 !3 = !{null, null, !4, null}
@@ -7547,10 +7542,10 @@ attributes #2 = { nounwind readonly }
 !24 = !{i32 0, i64 1082130688}
 */
 auto Shaders::fibers_light_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(122468, 5508);
+    return std::span(_data).subspan(122396, 5504);
 }
 
-// shader_hash: f27939a6f16349e903dc9af6129dfec6
+// shader_hash: 736f9f1feb31a56780fe3953e8413756
 // input_parameters: 4
 // output_parameters: 1
 // instruction_count: 5
@@ -7572,8 +7567,8 @@ auto Shaders::fibers_light_vs() const -> std::span<const std::byte> {
 ; -------------------- ----- ------ -------- -------- ------- ------
 ; SV_Target                0   xyzw        0   TARGET   float   xyzw
 ;
-; shader debug name: f27939a6f16349e903dc9af6129dfec6.pdb
-; shader hash: f27939a6f16349e903dc9af6129dfec6
+; shader debug name: 736f9f1feb31a56780fe3953e8413756.pdb
+; shader hash: 736f9f1feb31a56780fe3953e8413756
 ;
 ; Pipeline Runtime Information: 
 ;
@@ -7635,7 +7630,7 @@ attributes #0 = { nounwind }
 !dx.viewIdState = !{!3}
 !dx.entryPoints = !{!4}
 
-!0 = !{!"dxcoob 1.8.2405.15 (fd7e54bcd)"}
+!0 = !{!"dxcoob 1.8.2407.7 (416fab6b5)"}
 !1 = !{i32 1, i32 8}
 !2 = !{!"ps", i32 6, i32 8}
 !3 = !{[17 x i32] [i32 15, i32 4, i32 0, i32 0, i32 0, i32 0, i32 0, i32 0, i32 0, i32 0, i32 0, i32 0, i32 0, i32 0, i32 0, i32 0, i32 0]}
@@ -7655,10 +7650,10 @@ attributes #0 = { nounwind }
 !17 = !{i32 0, i64 8388864}
 */
 auto Shaders::fibers_light_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(127976, 3156);
+    return std::span(_data).subspan(127900, 3156);
 }
 
-// shader_hash: 4e1239e66cc230f1aaecc7e547156a48
+// shader_hash: 433f95b228369d7ad0d9c941cf32f14f
 // constant_buffers: 1
 // bound_resources: 1
 // input_parameters: 2
@@ -7690,8 +7685,8 @@ auto Shaders::fibers_light_ps() const -> std::span<const std::byte> {
 ; ATTRIBUTE                2   xyz         3     NONE   float   xyz 
 ; ATTRIBUTE                3   xyzw        4     NONE   float   xyzw
 ;
-; shader debug name: 4e1239e66cc230f1aaecc7e547156a48.pdb
-; shader hash: 4e1239e66cc230f1aaecc7e547156a48
+; shader debug name: 433f95b228369d7ad0d9c941cf32f14f.pdb
+; shader hash: 433f95b228369d7ad0d9c941cf32f14f
 ;
 ; Pipeline Runtime Information: 
 ;
@@ -7901,7 +7896,7 @@ attributes #2 = { nounwind readonly }
 !dx.viewIdState = !{!6}
 !dx.entryPoints = !{!7}
 
-!0 = !{!"dxcoob 1.8.2405.15 (fd7e54bcd)"}
+!0 = !{!"dxcoob 1.8.2407.7 (416fab6b5)"}
 !1 = !{i32 1, i32 8}
 !2 = !{!"vs", i32 6, i32 8}
 !3 = !{null, null, !4, null}
@@ -7930,17 +7925,17 @@ attributes #2 = { nounwind readonly }
 !26 = !{i32 0, i64 1082130688}
 */
 auto Shaders::fibers_plane_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(131132, 5528);
+    return std::span(_data).subspan(131056, 5528);
 }
 
-// shader_hash: 669b63a697e3a5755aabebde6fb866ca
+// shader_hash: a5c6d4b72cf64cf131a781411be9d420
 // constant_buffers: 1
 // bound_resources: 1
 // input_parameters: 5
 // output_parameters: 1
-// instruction_count: 105
+// instruction_count: 103
 // dynamic_flow_control_count: 2
-// float_instruction_count: 40
+// float_instruction_count: 38
 // int_instruction_count: 4
 // texture_load_instructions: 5
 /* disassembly:
@@ -7966,8 +7961,8 @@ auto Shaders::fibers_plane_vs() const -> std::span<const std::byte> {
 ; -------------------- ----- ------ -------- -------- ------- ------
 ; SV_Target                0   xyzw        0   TARGET   float   xyzw
 ;
-; shader debug name: 669b63a697e3a5755aabebde6fb866ca.pdb
-; shader hash: 669b63a697e3a5755aabebde6fb866ca
+; shader debug name: a5c6d4b72cf64cf131a781411be9d420.pdb
+; shader hash: a5c6d4b72cf64cf131a781411be9d420
 ;
 ; Pipeline Runtime Information: 
 ;
@@ -8106,9 +8101,9 @@ define void @plane_ps() {
   br label %50
 
 ; <label>:50                                      ; preds = %49, %0
-  %51 = phi float [ 0x3F947AE140000000, %0 ], [ %96, %49 ]
-  %52 = phi float [ 0x3F947AE140000000, %0 ], [ %97, %49 ]
-  %53 = phi float [ 0x3F947AE140000000, %0 ], [ %98, %49 ]
+  %51 = phi float [ 0x3F947AE140000000, %0 ], [ %94, %49 ]
+  %52 = phi float [ 0x3F947AE140000000, %0 ], [ %95, %49 ]
+  %53 = phi float [ 0x3F947AE140000000, %0 ], [ %96, %49 ]
   call void @dx.op.storeOutput.f32(i32 5, i32 0, i32 0, i8 0, float %51)  ; StoreOutput(outputSigId,rowIndex,colIndex,value)
   call void @dx.op.storeOutput.f32(i32 5, i32 0, i32 0, i8 1, float %52)  ; StoreOutput(outputSigId,rowIndex,colIndex,value)
   call void @dx.op.storeOutput.f32(i32 5, i32 0, i32 0, i8 2, float %53)  ; StoreOutput(outputSigId,rowIndex,colIndex,value)
@@ -8116,10 +8111,10 @@ define void @plane_ps() {
   ret void
 
 ; <label>:54                                      ; preds = %54, %48
-  %55 = phi float [ %96, %54 ], [ 0x3F947AE140000000, %48 ]
-  %56 = phi float [ %97, %54 ], [ 0x3F947AE140000000, %48 ]
-  %57 = phi float [ %98, %54 ], [ 0x3F947AE140000000, %48 ]
-  %58 = phi i32 [ %99, %54 ], [ 0, %48 ]
+  %55 = phi float [ %94, %54 ], [ 0x3F947AE140000000, %48 ]
+  %56 = phi float [ %95, %54 ], [ 0x3F947AE140000000, %48 ]
+  %57 = phi float [ %96, %54 ], [ 0x3F947AE140000000, %48 ]
+  %58 = phi i32 [ %97, %54 ], [ 0, %48 ]
   %59 = add i32 %58, %46
   %60 = call %dx.types.ResRet.i32 @dx.op.rawBufferLoad.i32(i32 139, %dx.types.Handle %25, i32 %59, i32 0, i8 1, i32 4)  ; RawBufferLoad(srv,index,elementOffset,mask,alignment)
   %61 = extractvalue %dx.types.ResRet.i32 %60, 0
@@ -8150,19 +8145,17 @@ define void @plane_ps() {
   %86 = call float @dx.op.unary.f32(i32 7, float %85)  ; Saturate(value)
   %87 = fmul fast float %79, %79
   %88 = fdiv fast float %86, %87
-  %89 = fmul fast float %88, %67
-  %90 = fmul fast float %88, %68
-  %91 = fmul fast float %88, %69
-  %92 = extractvalue %dx.types.CBufRet.f32 %80, 1
-  %93 = fmul fast float %89, %92
-  %94 = fmul fast float %90, %92
-  %95 = fmul fast float %91, %92
-  %96 = fadd fast float %93, %55
-  %97 = fadd fast float %94, %56
-  %98 = fadd fast float %95, %57
-  %99 = add nuw i32 %58, 1
-  %100 = icmp eq i32 %99, %44
-  br i1 %100, label %49, label %54
+  %89 = extractvalue %dx.types.CBufRet.f32 %80, 1
+  %90 = fmul fast float %88, %89
+  %91 = fmul fast float %90, %67
+  %92 = fmul fast float %90, %68
+  %93 = fmul fast float %90, %69
+  %94 = fadd fast float %91, %55
+  %95 = fadd fast float %92, %56
+  %96 = fadd fast float %93, %57
+  %97 = add nuw i32 %58, 1
+  %98 = icmp eq i32 %97, %44
+  br i1 %98, label %49, label %54
 }
 
 ; Function Attrs: nounwind readnone
@@ -8213,7 +8206,7 @@ attributes #2 = { nounwind readonly }
 !dx.viewIdState = !{!6}
 !dx.entryPoints = !{!7}
 
-!0 = !{!"dxcoob 1.8.2405.15 (fd7e54bcd)"}
+!0 = !{!"dxcoob 1.8.2407.7 (416fab6b5)"}
 !1 = !{i32 1, i32 8}
 !2 = !{!"ps", i32 6, i32 8}
 !3 = !{null, null, !4, null}
@@ -8240,10 +8233,10 @@ attributes #2 = { nounwind readonly }
 !24 = !{i32 0, i64 1082130688}
 */
 auto Shaders::fibers_plane_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(136660, 5944);
+    return std::span(_data).subspan(136584, 5936);
 }
 
-// shader_hash: 3c7eef96db8f3d7630188b073357bb1d
+// shader_hash: 89df82fc059b84abe2a6bc7637689ea7
 // input_parameters: 2
 // output_parameters: 2
 // instruction_count: 17
@@ -8266,8 +8259,8 @@ auto Shaders::fibers_plane_ps() const -> std::span<const std::byte> {
 ; SV_Position              0   xyzw        0      POS   float   xyzw
 ; ATTRIBUTE                0   xy          1     NONE   float   xy  
 ;
-; shader debug name: 3c7eef96db8f3d7630188b073357bb1d.pdb
-; shader hash: 3c7eef96db8f3d7630188b073357bb1d
+; shader debug name: 89df82fc059b84abe2a6bc7637689ea7.pdb
+; shader hash: 89df82fc059b84abe2a6bc7637689ea7
 ;
 ; Pipeline Runtime Information: 
 ;
@@ -8347,7 +8340,7 @@ attributes #1 = { nounwind }
 !dx.viewIdState = !{!3}
 !dx.entryPoints = !{!4}
 
-!0 = !{!"dxcoob 1.8.2405.15 (fd7e54bcd)"}
+!0 = !{!"dxcoob 1.8.2407.7 (416fab6b5)"}
 !1 = !{i32 1, i32 8}
 !2 = !{!"vs", i32 6, i32 8}
 !3 = !{[7 x i32] [i32 5, i32 6, i32 51, i32 0, i32 0, i32 0, i32 0]}
@@ -8366,10 +8359,10 @@ attributes #1 = { nounwind }
 !16 = !{i32 0, i64 8388864}
 */
 auto Shaders::fibers_debug_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(142604, 3268);
+    return std::span(_data).subspan(142520, 3268);
 }
 
-// shader_hash: bafb272ddc9366ca12cc1f13caf82d43
+// shader_hash: 9f4ebce6510849709e58481d11a27f36
 // constant_buffers: 1
 // bound_resources: 1
 // input_parameters: 2
@@ -8399,8 +8392,8 @@ auto Shaders::fibers_debug_vs() const -> std::span<const std::byte> {
 ; -------------------- ----- ------ -------- -------- ------- ------
 ; SV_Target                0   xyzw        0   TARGET   float   xyzw
 ;
-; shader debug name: bafb272ddc9366ca12cc1f13caf82d43.pdb
-; shader hash: bafb272ddc9366ca12cc1f13caf82d43
+; shader debug name: 9f4ebce6510849709e58481d11a27f36.pdb
+; shader hash: 9f4ebce6510849709e58481d11a27f36
 ;
 ; Pipeline Runtime Information: 
 ;
@@ -8568,7 +8561,7 @@ attributes #2 = { nounwind readonly }
 !dx.viewIdState = !{!6}
 !dx.entryPoints = !{!7}
 
-!0 = !{!"dxcoob 1.8.2405.15 (fd7e54bcd)"}
+!0 = !{!"dxcoob 1.8.2407.7 (416fab6b5)"}
 !1 = !{i32 1, i32 8}
 !2 = !{!"ps", i32 6, i32 8}
 !3 = !{null, null, !4, null}
@@ -8588,10 +8581,10 @@ attributes #2 = { nounwind readonly }
 !17 = !{i32 0, i64 11819548928}
 */
 auto Shaders::fibers_debug_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(145872, 4960);
+    return std::span(_data).subspan(145788, 4956);
 }
 
-// shader_hash: cc2a934663d49520ba211c3cf848160d
+// shader_hash: ffbc9c74a0f370b9b8aa8360e16cc9ab
 // constant_buffers: 1
 // bound_resources: 1
 // input_parameters: 2
@@ -8622,8 +8615,8 @@ auto Shaders::fibers_debug_ps() const -> std::span<const std::byte> {
 ; ATTRIBUTE                1   xy          2     NONE   float   xy  
 ; ATTRIBUTE                2   xyz         3     NONE   float   xyz 
 ;
-; shader debug name: cc2a934663d49520ba211c3cf848160d.pdb
-; shader hash: cc2a934663d49520ba211c3cf848160d
+; shader debug name: ffbc9c74a0f370b9b8aa8360e16cc9ab.pdb
+; shader hash: ffbc9c74a0f370b9b8aa8360e16cc9ab
 ;
 ; Pipeline Runtime Information: 
 ;
@@ -8811,7 +8804,7 @@ attributes #2 = { nounwind readonly }
 !dx.viewIdState = !{!6}
 !dx.entryPoints = !{!7}
 
-!0 = !{!"dxcoob 1.8.2405.15 (fd7e54bcd)"}
+!0 = !{!"dxcoob 1.8.2407.7 (416fab6b5)"}
 !1 = !{i32 1, i32 8}
 !2 = !{!"vs", i32 6, i32 8}
 !3 = !{null, null, !4, null}
@@ -8838,10 +8831,10 @@ attributes #2 = { nounwind readonly }
 !24 = !{i32 0, i64 1082130688}
 */
 auto Shaders::env_background_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(150832, 5196);
+    return std::span(_data).subspan(150744, 5196);
 }
 
-// shader_hash: 8a3c862749ec501ff0b8f3a65bc2e6be
+// shader_hash: d3a90d5a560c9d93ceb8f1716a171aa7
 // constant_buffers: 1
 // bound_resources: 1
 // input_parameters: 4
@@ -8874,8 +8867,8 @@ auto Shaders::env_background_vs() const -> std::span<const std::byte> {
 ; -------------------- ----- ------ -------- -------- ------- ------
 ; SV_Target                0   xyzw        0   TARGET   float   xyzw
 ;
-; shader debug name: 8a3c862749ec501ff0b8f3a65bc2e6be.pdb
-; shader hash: 8a3c862749ec501ff0b8f3a65bc2e6be
+; shader debug name: d3a90d5a560c9d93ceb8f1716a171aa7.pdb
+; shader hash: d3a90d5a560c9d93ceb8f1716a171aa7
 ;
 ; Pipeline Runtime Information: 
 ;
@@ -9015,9 +9008,9 @@ define void @background_ps() {
   %58 = phi float [ %54, %28 ], [ %24, %0 ]
   %59 = phi float [ %55, %28 ], [ %25, %0 ]
   %60 = extractvalue %dx.types.CBufRet.f32 %15, 1
-  %61 = fmul fast float %60, %57
-  %62 = fmul fast float %60, %58
-  %63 = fmul fast float %60, %59
+  %61 = fmul fast float %57, %60
+  %62 = fmul fast float %58, %60
+  %63 = fmul fast float %59, %60
   call void @dx.op.storeOutput.f32(i32 5, i32 0, i32 0, i8 0, float %61)  ; StoreOutput(outputSigId,rowIndex,colIndex,value)
   call void @dx.op.storeOutput.f32(i32 5, i32 0, i32 0, i8 1, float %62)  ; StoreOutput(outputSigId,rowIndex,colIndex,value)
   call void @dx.op.storeOutput.f32(i32 5, i32 0, i32 0, i8 2, float %63)  ; StoreOutput(outputSigId,rowIndex,colIndex,value)
@@ -9064,7 +9057,7 @@ attributes #2 = { nounwind readonly }
 !dx.viewIdState = !{!6}
 !dx.entryPoints = !{!7}
 
-!0 = !{!"dxcoob 1.8.2405.15 (fd7e54bcd)"}
+!0 = !{!"dxcoob 1.8.2407.7 (416fab6b5)"}
 !1 = !{i32 1, i32 8}
 !2 = !{!"ps", i32 6, i32 8}
 !3 = !{null, null, !4, null}
@@ -9088,10 +9081,10 @@ attributes #2 = { nounwind readonly }
 !21 = !{i32 0, i64 3229614336}
 */
 auto Shaders::env_background_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(156028, 5104);
+    return std::span(_data).subspan(155940, 5100);
 }
 
-// shader_hash: 0038661577734484a66656a28dbdc941
+// shader_hash: ab4a922abe0c2874bba54f917d3e9a80
 // constant_buffers: 1
 // bound_resources: 1
 // input_parameters: 2
@@ -9121,8 +9114,8 @@ auto Shaders::env_background_ps() const -> std::span<const std::byte> {
 ; ATTRIBUTE                0   xyz         1     NONE   float   xyz 
 ; ATTRIBUTE                1   xyz         2     NONE   float   xyz 
 ;
-; shader debug name: 0038661577734484a66656a28dbdc941.pdb
-; shader hash: 0038661577734484a66656a28dbdc941
+; shader debug name: ab4a922abe0c2874bba54f917d3e9a80.pdb
+; shader hash: ab4a922abe0c2874bba54f917d3e9a80
 ;
 ; Pipeline Runtime Information: 
 ;
@@ -9312,7 +9305,7 @@ attributes #2 = { nounwind readonly }
 !dx.viewIdState = !{!6}
 !dx.entryPoints = !{!7}
 
-!0 = !{!"dxcoob 1.8.2405.15 (fd7e54bcd)"}
+!0 = !{!"dxcoob 1.8.2407.7 (416fab6b5)"}
 !1 = !{i32 1, i32 8}
 !2 = !{!"vs", i32 6, i32 8}
 !3 = !{null, null, !4, null}
@@ -9336,10 +9329,10 @@ attributes #2 = { nounwind readonly }
 !21 = !{i32 0, i64 1082130688}
 */
 auto Shaders::env_model_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(161132, 5100);
+    return std::span(_data).subspan(161040, 5100);
 }
 
-// shader_hash: d9b82a874bca714c1d4129251bfe07fa
+// shader_hash: 1e6d94b8efaae2115d64371127d4f805
 // constant_buffers: 1
 // bound_resources: 1
 // input_parameters: 3
@@ -9371,8 +9364,8 @@ auto Shaders::env_model_vs() const -> std::span<const std::byte> {
 ; -------------------- ----- ------ -------- -------- ------- ------
 ; SV_Target                0   xyzw        0   TARGET   float   xyzw
 ;
-; shader debug name: d9b82a874bca714c1d4129251bfe07fa.pdb
-; shader hash: d9b82a874bca714c1d4129251bfe07fa
+; shader debug name: 1e6d94b8efaae2115d64371127d4f805.pdb
+; shader hash: 1e6d94b8efaae2115d64371127d4f805
 ;
 ; Pipeline Runtime Information: 
 ;
@@ -9624,7 +9617,7 @@ attributes #2 = { nounwind readonly }
 !dx.viewIdState = !{!6}
 !dx.entryPoints = !{!7}
 
-!0 = !{!"dxcoob 1.8.2405.15 (fd7e54bcd)"}
+!0 = !{!"dxcoob 1.8.2407.7 (416fab6b5)"}
 !1 = !{i32 1, i32 8}
 !2 = !{!"ps", i32 6, i32 8}
 !3 = !{null, null, !4, null}
@@ -9646,10 +9639,10 @@ attributes #2 = { nounwind readonly }
 !19 = !{i32 0, i64 3229614336}
 */
 auto Shaders::env_model_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(166232, 5612);
+    return std::span(_data).subspan(166140, 5608);
 }
 
-// shader_hash: 821eee7a94d6d2a2fa9e82f5c365d7f6
+// shader_hash: 9949ddea9ae010cbf73b45e4242e26ff
 // constant_buffers: 1
 // bound_resources: 1
 // input_parameters: 2
@@ -9680,8 +9673,8 @@ auto Shaders::env_model_ps() const -> std::span<const std::byte> {
 ; ATTRIBUTE                1   xy          2     NONE   float   xy  
 ; ATTRIBUTE                2   xyz         3     NONE   float   xyz 
 ;
-; shader debug name: 821eee7a94d6d2a2fa9e82f5c365d7f6.pdb
-; shader hash: 821eee7a94d6d2a2fa9e82f5c365d7f6
+; shader debug name: 9949ddea9ae010cbf73b45e4242e26ff.pdb
+; shader hash: 9949ddea9ae010cbf73b45e4242e26ff
 ;
 ; Pipeline Runtime Information: 
 ;
@@ -9870,7 +9863,7 @@ attributes #2 = { nounwind readonly }
 !dx.viewIdState = !{!6}
 !dx.entryPoints = !{!7}
 
-!0 = !{!"dxcoob 1.8.2405.15 (fd7e54bcd)"}
+!0 = !{!"dxcoob 1.8.2407.7 (416fab6b5)"}
 !1 = !{i32 1, i32 8}
 !2 = !{!"vs", i32 6, i32 8}
 !3 = !{null, null, !4, null}
@@ -9897,10 +9890,10 @@ attributes #2 = { nounwind readonly }
 !24 = !{i32 0, i64 1082130688}
 */
 auto Shaders::text_background_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(171844, 5224);
+    return std::span(_data).subspan(171748, 5220);
 }
 
-// shader_hash: a3925396d8411959d700b45c4725ed70
+// shader_hash: c59be777646d538a4546b860a83b8cf7
 // constant_buffers: 1
 // bound_resources: 1
 // input_parameters: 4
@@ -9931,8 +9924,8 @@ auto Shaders::text_background_vs() const -> std::span<const std::byte> {
 ; -------------------- ----- ------ -------- -------- ------- ------
 ; SV_Target                0   xyzw        0   TARGET   float   xyzw
 ;
-; shader debug name: a3925396d8411959d700b45c4725ed70.pdb
-; shader hash: a3925396d8411959d700b45c4725ed70
+; shader debug name: c59be777646d538a4546b860a83b8cf7.pdb
+; shader hash: c59be777646d538a4546b860a83b8cf7
 ;
 ; Pipeline Runtime Information: 
 ;
@@ -10075,7 +10068,7 @@ attributes #2 = { nounwind readonly }
 !dx.viewIdState = !{!6}
 !dx.entryPoints = !{!7}
 
-!0 = !{!"dxcoob 1.8.2405.15 (fd7e54bcd)"}
+!0 = !{!"dxcoob 1.8.2407.7 (416fab6b5)"}
 !1 = !{i32 1, i32 8}
 !2 = !{!"ps", i32 6, i32 8}
 !3 = !{null, null, !4, null}
@@ -10099,10 +10092,10 @@ attributes #2 = { nounwind readonly }
 !21 = !{i32 0, i64 3229614336}
 */
 auto Shaders::text_background_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(177068, 4760);
+    return std::span(_data).subspan(176968, 4760);
 }
 
-// shader_hash: a53097e80b634f80e3bfd6140623a0f4
+// shader_hash: dace6d509a34d5301023713cf0080127
 // constant_buffers: 1
 // bound_resources: 1
 // input_parameters: 2
@@ -10132,8 +10125,8 @@ auto Shaders::text_background_ps() const -> std::span<const std::byte> {
 ; SV_Position              0   xyzw        0      POS   float   xyzw
 ; ATTRIBUTE                0   xyz         1     NONE   float   xyz 
 ;
-; shader debug name: a53097e80b634f80e3bfd6140623a0f4.pdb
-; shader hash: a53097e80b634f80e3bfd6140623a0f4
+; shader debug name: dace6d509a34d5301023713cf0080127.pdb
+; shader hash: dace6d509a34d5301023713cf0080127
 ;
 ; Pipeline Runtime Information: 
 ;
@@ -10353,7 +10346,7 @@ attributes #2 = { nounwind readonly }
 !dx.viewIdState = !{!6}
 !dx.entryPoints = !{!7}
 
-!0 = !{!"dxcoob 1.8.2405.15 (fd7e54bcd)"}
+!0 = !{!"dxcoob 1.8.2407.7 (416fab6b5)"}
 !1 = !{i32 1, i32 8}
 !2 = !{!"vs", i32 6, i32 8}
 !3 = !{null, null, !4, null}
@@ -10375,10 +10368,10 @@ attributes #2 = { nounwind readonly }
 !19 = !{i32 0, i64 1082130688}
 */
 auto Shaders::text_glyph_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(181828, 5256);
+    return std::span(_data).subspan(181728, 5256);
 }
 
-// shader_hash: 9901d99d4259873d667c147a01fa27e1
+// shader_hash: 80113b3cc4f5de0c882b1efbb836e36c
 // constant_buffers: 1
 // bound_resources: 1
 // input_parameters: 2
@@ -10407,8 +10400,8 @@ auto Shaders::text_glyph_vs() const -> std::span<const std::byte> {
 ; -------------------- ----- ------ -------- -------- ------- ------
 ; SV_Target                0   xyzw        0   TARGET   float   xyzw
 ;
-; shader debug name: 9901d99d4259873d667c147a01fa27e1.pdb
-; shader hash: 9901d99d4259873d667c147a01fa27e1
+; shader debug name: 80113b3cc4f5de0c882b1efbb836e36c.pdb
+; shader hash: 80113b3cc4f5de0c882b1efbb836e36c
 ;
 ; Pipeline Runtime Information: 
 ;
@@ -10567,7 +10560,7 @@ attributes #2 = { nounwind readonly }
 !dx.viewIdState = !{!6}
 !dx.entryPoints = !{!7}
 
-!0 = !{!"dxcoob 1.8.2405.15 (fd7e54bcd)"}
+!0 = !{!"dxcoob 1.8.2407.7 (416fab6b5)"}
 !1 = !{i32 1, i32 8}
 !2 = !{!"ps", i32 6, i32 8}
 !3 = !{null, null, !4, null}
@@ -10587,10 +10580,10 @@ attributes #2 = { nounwind readonly }
 !17 = !{i32 0, i64 3229614336}
 */
 auto Shaders::text_glyph_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(187084, 4752);
+    return std::span(_data).subspan(186984, 4748);
 }
 
-// shader_hash: 8de171fd593e20e89dffec38a71cb538
+// shader_hash: 36097e642bc6a414ca2427c1354dfc9c
 // constant_buffers: 1
 // bound_resources: 1
 // input_parameters: 2
@@ -10618,8 +10611,8 @@ auto Shaders::text_glyph_ps() const -> std::span<const std::byte> {
 ; -------------------- ----- ------ -------- -------- ------- ------
 ; SV_Position              0   xyzw        0      POS   float   xyzw
 ;
-; shader debug name: 8de171fd593e20e89dffec38a71cb538.pdb
-; shader hash: 8de171fd593e20e89dffec38a71cb538
+; shader debug name: 36097e642bc6a414ca2427c1354dfc9c.pdb
+; shader hash: 36097e642bc6a414ca2427c1354dfc9c
 ;
 ; Pipeline Runtime Information: 
 ;
@@ -10829,7 +10822,7 @@ attributes #2 = { nounwind readonly }
 !dx.viewIdState = !{!6}
 !dx.entryPoints = !{!7}
 
-!0 = !{!"dxcoob 1.8.2405.15 (fd7e54bcd)"}
+!0 = !{!"dxcoob 1.8.2407.7 (416fab6b5)"}
 !1 = !{i32 1, i32 8}
 !2 = !{!"vs", i32 6, i32 8}
 !3 = !{null, null, !4, null}
@@ -10849,10 +10842,10 @@ attributes #2 = { nounwind readonly }
 !17 = !{i32 0, i64 1082130688}
 */
 auto Shaders::saber_scene_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(191836, 5020);
+    return std::span(_data).subspan(191732, 5020);
 }
 
-// shader_hash: 55750886c6f4f619a5e4c6c102456ee7
+// shader_hash: 2f2d53121c138f5e7ce0c51b06e09f1d
 // constant_buffers: 1
 // bound_resources: 1
 // input_parameters: 1
@@ -10878,8 +10871,8 @@ auto Shaders::saber_scene_vs() const -> std::span<const std::byte> {
 ; -------------------- ----- ------ -------- -------- ------- ------
 ; SV_Target                0   xyzw        0   TARGET   float   xyzw
 ;
-; shader debug name: 55750886c6f4f619a5e4c6c102456ee7.pdb
-; shader hash: 55750886c6f4f619a5e4c6c102456ee7
+; shader debug name: 2f2d53121c138f5e7ce0c51b06e09f1d.pdb
+; shader hash: 2f2d53121c138f5e7ce0c51b06e09f1d
 ;
 ; Pipeline Runtime Information: 
 ;
@@ -11005,7 +10998,7 @@ attributes #2 = { nounwind readonly }
 !dx.viewIdState = !{!6}
 !dx.entryPoints = !{!7}
 
-!0 = !{!"dxcoob 1.8.2405.15 (fd7e54bcd)"}
+!0 = !{!"dxcoob 1.8.2407.7 (416fab6b5)"}
 !1 = !{i32 1, i32 8}
 !2 = !{!"ps", i32 6, i32 8}
 !3 = !{null, null, !4, null}
@@ -11023,10 +11016,10 @@ attributes #2 = { nounwind readonly }
 !15 = !{i32 0, i64 1082130688}
 */
 auto Shaders::saber_scene_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(196856, 3916);
+    return std::span(_data).subspan(196752, 3916);
 }
 
-// shader_hash: f4c16de1384addbaa0a4dff7f3ea09cd
+// shader_hash: 6868597ba6bb49bcf835e5d2403f6600
 // constant_buffers: 1
 // bound_resources: 1
 // instruction_count: 43
@@ -11053,8 +11046,8 @@ auto Shaders::saber_scene_ps() const -> std::span<const std::byte> {
 ; Name                 Index   Mask Register SysValue  Format   Used
 ; -------------------- ----- ------ -------- -------- ------- ------
 ; no parameters
-; shader debug name: f4c16de1384addbaa0a4dff7f3ea09cd.pdb
-; shader hash: f4c16de1384addbaa0a4dff7f3ea09cd
+; shader debug name: 6868597ba6bb49bcf835e5d2403f6600.pdb
+; shader hash: 6868597ba6bb49bcf835e5d2403f6600
 ;
 ; Pipeline Runtime Information: 
 ;
@@ -11191,7 +11184,7 @@ attributes #2 = { nounwind }
 !dx.resources = !{!3}
 !dx.entryPoints = !{!6}
 
-!0 = !{!"dxcoob 1.8.2405.15 (fd7e54bcd)"}
+!0 = !{!"dxcoob 1.8.2407.7 (416fab6b5)"}
 !1 = !{i32 1, i32 8}
 !2 = !{!"cs", i32 6, i32 8}
 !3 = !{null, null, !4, null}
@@ -11202,15 +11195,15 @@ attributes #2 = { nounwind }
 !8 = !{i32 8, i32 8, i32 1}
 */
 auto Shaders::saber_threshold_cs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(200772, 4056);
+    return std::span(_data).subspan(200668, 4052);
 }
 
-// shader_hash: c63f8b566602e338c3f309ebda3b8444
+// shader_hash: 88b38e45ff54c3993b913b719fca71f9
 // constant_buffers: 1
 // bound_resources: 1
-// instruction_count: 157
+// instruction_count: 148
 // dynamic_flow_control_count: 2
-// float_instruction_count: 78
+// float_instruction_count: 69
 // int_instruction_count: 3
 // texture_normal_instructions: 13
 // texture_store_instructions: 1
@@ -11232,8 +11225,8 @@ auto Shaders::saber_threshold_cs() const -> std::span<const std::byte> {
 ; Name                 Index   Mask Register SysValue  Format   Used
 ; -------------------- ----- ------ -------- -------- ------- ------
 ; no parameters
-; shader debug name: c63f8b566602e338c3f309ebda3b8444.pdb
-; shader hash: c63f8b566602e338c3f309ebda3b8444
+; shader debug name: 88b38e45ff54c3993b913b719fca71f9.pdb
+; shader hash: 88b38e45ff54c3993b913b719fca71f9
 ;
 ; Pipeline Runtime Information: 
 ;
@@ -11295,13 +11288,13 @@ define void @downsample_cs() {
   %5 = call %dx.types.CBufRet.i32 @dx.op.cbufferLoadLegacy.i32(i32 59, %dx.types.Handle %2, i32 1)  ; CBufferLoadLegacy(handle,regIndex)
   %6 = extractvalue %dx.types.CBufRet.i32 %5, 3
   %7 = icmp ult i32 %3, %6
-  br i1 %7, label %8, label %155
+  br i1 %7, label %8, label %146
 
 ; <label>:8                                       ; preds = %0
   %9 = call %dx.types.CBufRet.i32 @dx.op.cbufferLoadLegacy.i32(i32 59, %dx.types.Handle %2, i32 2)  ; CBufferLoadLegacy(handle,regIndex)
   %10 = extractvalue %dx.types.CBufRet.i32 %9, 0
   %11 = icmp ult i32 %4, %10
-  br i1 %11, label %12, label %155
+  br i1 %11, label %12, label %146
 
 ; <label>:12                                      ; preds = %8
   %13 = call %dx.types.CBufRet.i32 @dx.op.cbufferLoadLegacy.i32(i32 59, %dx.types.Handle %2, i32 0)  ; CBufferLoadLegacy(handle,regIndex)
@@ -11401,55 +11394,46 @@ define void @downsample_cs() {
   %107 = fmul fast float %104, 1.250000e-01
   %108 = fmul fast float %105, 1.250000e-01
   %109 = fmul fast float %106, 1.250000e-01
-  %110 = fmul fast float %91, 2.000000e+00
-  %111 = fmul fast float %72, 2.000000e+00
-  %112 = fmul fast float %68, 2.000000e+00
-  %113 = fadd fast float %64, %43
-  %114 = fadd fast float %113, %68
+  %110 = fmul fast float %68, 2.000000e+00
+  %111 = fadd fast float %64, %43
+  %112 = fadd fast float %111, %72
+  %113 = fadd fast float %112, %91
+  %114 = fadd fast float %113, %110
   %115 = fmul fast float %114, 2.000000e+00
   %116 = fadd fast float %48, %39
   %117 = fadd fast float %116, %87
   %118 = fadd fast float %117, %95
-  %119 = fadd fast float %118, %110
-  %120 = fadd fast float %119, %111
-  %121 = fadd fast float %120, %112
-  %122 = fadd fast float %121, %115
-  %123 = fmul fast float %122, 3.125000e-02
-  %124 = fadd fast float %123, %107
-  %125 = fmul fast float %92, 2.000000e+00
-  %126 = fmul fast float %73, 2.000000e+00
-  %127 = fmul fast float %69, 2.000000e+00
-  %128 = fadd fast float %65, %44
-  %129 = fadd fast float %128, %69
-  %130 = fmul fast float %129, 2.000000e+00
-  %131 = fadd fast float %49, %40
-  %132 = fadd fast float %131, %88
-  %133 = fadd fast float %132, %96
-  %134 = fadd fast float %133, %125
-  %135 = fadd fast float %134, %126
-  %136 = fadd fast float %135, %127
-  %137 = fadd fast float %136, %130
-  %138 = fmul fast float %137, 3.125000e-02
-  %139 = fadd fast float %138, %108
-  %140 = fmul fast float %93, 2.000000e+00
-  %141 = fmul fast float %74, 2.000000e+00
-  %142 = fmul fast float %70, 2.000000e+00
-  %143 = fadd fast float %66, %45
-  %144 = fadd fast float %143, %70
-  %145 = fmul fast float %144, 2.000000e+00
-  %146 = fadd fast float %50, %41
-  %147 = fadd fast float %146, %89
-  %148 = fadd fast float %147, %97
-  %149 = fadd fast float %148, %140
-  %150 = fadd fast float %149, %141
-  %151 = fadd fast float %150, %142
-  %152 = fadd fast float %151, %145
-  %153 = fmul fast float %152, 3.125000e-02
-  %154 = fadd fast float %153, %109
-  call void @dx.op.textureStore.f32(i32 67, %dx.types.Handle %22, i32 %3, i32 %4, i32 undef, float %124, float %139, float %154, float 1.000000e+00, i8 15)  ; TextureStore(srv,coord0,coord1,coord2,value0,value1,value2,value3,mask)
-  br label %155
+  %119 = fadd fast float %118, %115
+  %120 = fmul fast float %119, 3.125000e-02
+  %121 = fadd fast float %120, %107
+  %122 = fmul fast float %69, 2.000000e+00
+  %123 = fadd fast float %65, %44
+  %124 = fadd fast float %123, %73
+  %125 = fadd fast float %124, %92
+  %126 = fadd fast float %125, %122
+  %127 = fmul fast float %126, 2.000000e+00
+  %128 = fadd fast float %49, %40
+  %129 = fadd fast float %128, %88
+  %130 = fadd fast float %129, %96
+  %131 = fadd fast float %130, %127
+  %132 = fmul fast float %131, 3.125000e-02
+  %133 = fadd fast float %132, %108
+  %134 = fmul fast float %70, 2.000000e+00
+  %135 = fadd fast float %66, %45
+  %136 = fadd fast float %135, %74
+  %137 = fadd fast float %136, %93
+  %138 = fadd fast float %137, %134
+  %139 = fmul fast float %138, 2.000000e+00
+  %140 = fadd fast float %50, %41
+  %141 = fadd fast float %140, %89
+  %142 = fadd fast float %141, %97
+  %143 = fadd fast float %142, %139
+  %144 = fmul fast float %143, 3.125000e-02
+  %145 = fadd fast float %144, %109
+  call void @dx.op.textureStore.f32(i32 67, %dx.types.Handle %22, i32 %3, i32 %4, i32 undef, float %121, float %133, float %145, float 1.000000e+00, i8 15)  ; TextureStore(srv,coord0,coord1,coord2,value0,value1,value2,value3,mask)
+  br label %146
 
-; <label>:155                                     ; preds = %12, %8, %0
+; <label>:146                                     ; preds = %12, %8, %0
   ret void
 }
 
@@ -11485,7 +11469,7 @@ attributes #2 = { nounwind }
 !dx.resources = !{!3}
 !dx.entryPoints = !{!6}
 
-!0 = !{!"dxcoob 1.8.2405.15 (fd7e54bcd)"}
+!0 = !{!"dxcoob 1.8.2407.7 (416fab6b5)"}
 !1 = !{i32 1, i32 8}
 !2 = !{!"cs", i32 6, i32 8}
 !3 = !{null, null, !4, null}
@@ -11496,10 +11480,10 @@ attributes #2 = { nounwind }
 !8 = !{i32 8, i32 8, i32 1}
 */
 auto Shaders::saber_downsample_cs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(204828, 4804);
+    return std::span(_data).subspan(204720, 4764);
 }
 
-// shader_hash: b3eed3d3b1f779262a878da696bb3462
+// shader_hash: 819394f7cbe097b8f64e2340747783b6
 // constant_buffers: 1
 // bound_resources: 1
 // instruction_count: 121
@@ -11526,8 +11510,8 @@ auto Shaders::saber_downsample_cs() const -> std::span<const std::byte> {
 ; Name                 Index   Mask Register SysValue  Format   Used
 ; -------------------- ----- ------ -------- -------- ------- ------
 ; no parameters
-; shader debug name: b3eed3d3b1f779262a878da696bb3462.pdb
-; shader hash: b3eed3d3b1f779262a878da696bb3462
+; shader debug name: 819394f7cbe097b8f64e2340747783b6.pdb
+; shader hash: 819394f7cbe097b8f64e2340747783b6
 ;
 ; Pipeline Runtime Information: 
 ;
@@ -11744,7 +11728,7 @@ attributes #2 = { nounwind }
 !dx.resources = !{!3}
 !dx.entryPoints = !{!6}
 
-!0 = !{!"dxcoob 1.8.2405.15 (fd7e54bcd)"}
+!0 = !{!"dxcoob 1.8.2407.7 (416fab6b5)"}
 !1 = !{i32 1, i32 8}
 !2 = !{!"cs", i32 6, i32 8}
 !3 = !{null, null, !4, null}
@@ -11755,10 +11739,10 @@ attributes #2 = { nounwind }
 !8 = !{i32 8, i32 8, i32 1}
 */
 auto Shaders::saber_upsample_cs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(209632, 4628);
+    return std::span(_data).subspan(209484, 4628);
 }
 
-// shader_hash: d8a565ad99bfe7bd2ffa3d4dd9ecd7ad
+// shader_hash: 85a57ab6a0e4e5c21bb88ad863df96c6
 // input_parameters: 2
 // output_parameters: 2
 // instruction_count: 17
@@ -11781,8 +11765,8 @@ auto Shaders::saber_upsample_cs() const -> std::span<const std::byte> {
 ; SV_Position              0   xyzw        0      POS   float   xyzw
 ; ATTRIBUTE                0   xy          1     NONE   float   xy  
 ;
-; shader debug name: d8a565ad99bfe7bd2ffa3d4dd9ecd7ad.pdb
-; shader hash: d8a565ad99bfe7bd2ffa3d4dd9ecd7ad
+; shader debug name: 85a57ab6a0e4e5c21bb88ad863df96c6.pdb
+; shader hash: 85a57ab6a0e4e5c21bb88ad863df96c6
 ;
 ; Pipeline Runtime Information: 
 ;
@@ -11862,7 +11846,7 @@ attributes #1 = { nounwind }
 !dx.viewIdState = !{!3}
 !dx.entryPoints = !{!4}
 
-!0 = !{!"dxcoob 1.8.2405.15 (fd7e54bcd)"}
+!0 = !{!"dxcoob 1.8.2407.7 (416fab6b5)"}
 !1 = !{i32 1, i32 8}
 !2 = !{!"vs", i32 6, i32 8}
 !3 = !{[7 x i32] [i32 5, i32 6, i32 51, i32 0, i32 0, i32 0, i32 0]}
@@ -11881,10 +11865,10 @@ attributes #1 = { nounwind }
 !16 = !{i32 0, i64 8388864}
 */
 auto Shaders::saber_blit_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(214260, 3268);
+    return std::span(_data).subspan(214112, 3264);
 }
 
-// shader_hash: 0329c3562ba20e4d9d69be6476714f02
+// shader_hash: 78dad131659b9ff98ba825606572f04b
 // constant_buffers: 1
 // bound_resources: 1
 // input_parameters: 2
@@ -11915,8 +11899,8 @@ auto Shaders::saber_blit_vs() const -> std::span<const std::byte> {
 ; -------------------- ----- ------ -------- -------- ------- ------
 ; SV_Target                0   xyzw        0   TARGET   float   xyzw
 ;
-; shader debug name: 0329c3562ba20e4d9d69be6476714f02.pdb
-; shader hash: 0329c3562ba20e4d9d69be6476714f02
+; shader debug name: 78dad131659b9ff98ba825606572f04b.pdb
+; shader hash: 78dad131659b9ff98ba825606572f04b
 ;
 ; Pipeline Runtime Information: 
 ;
@@ -12098,7 +12082,7 @@ attributes #2 = { nounwind readonly }
 !dx.viewIdState = !{!6}
 !dx.entryPoints = !{!7}
 
-!0 = !{!"dxcoob 1.8.2405.15 (fd7e54bcd)"}
+!0 = !{!"dxcoob 1.8.2407.7 (416fab6b5)"}
 !1 = !{i32 1, i32 8}
 !2 = !{!"ps", i32 6, i32 8}
 !3 = !{null, null, !4, null}
@@ -12118,10 +12102,10 @@ attributes #2 = { nounwind readonly }
 !17 = !{i32 0, i64 3229614336}
 */
 auto Shaders::saber_blit_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(217528, 4688);
+    return std::span(_data).subspan(217376, 4684);
 }
 
-// shader_hash: f811e0f46dd8880c55e845f1b43de01e
+// shader_hash: 5d815de99926252b2f6b57dbd5ad97c5
 // constant_buffers: 1
 // bound_resources: 1
 // input_parameters: 2
@@ -12151,8 +12135,8 @@ auto Shaders::saber_blit_ps() const -> std::span<const std::byte> {
 ; ATTRIBUTE                0   xyz         1     NONE   float   xyz 
 ; ATTRIBUTE                1   xy          2     NONE   float   xy  
 ;
-; shader debug name: f811e0f46dd8880c55e845f1b43de01e.pdb
-; shader hash: f811e0f46dd8880c55e845f1b43de01e
+; shader debug name: 5d815de99926252b2f6b57dbd5ad97c5.pdb
+; shader hash: 5d815de99926252b2f6b57dbd5ad97c5
 ;
 ; Pipeline Runtime Information: 
 ;
@@ -12341,7 +12325,7 @@ attributes #2 = { nounwind readonly }
 !dx.viewIdState = !{!6}
 !dx.entryPoints = !{!7}
 
-!0 = !{!"dxcoob 1.8.2405.15 (fd7e54bcd)"}
+!0 = !{!"dxcoob 1.8.2407.7 (416fab6b5)"}
 !1 = !{i32 1, i32 8}
 !2 = !{!"vs", i32 6, i32 8}
 !3 = !{null, null, !4, null}
@@ -12366,10 +12350,10 @@ attributes #2 = { nounwind readonly }
 !22 = !{i32 0, i64 1082130688}
 */
 auto Shaders::grass_draw_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(222216, 5036);
+    return std::span(_data).subspan(222060, 5028);
 }
 
-// shader_hash: 528770a44c3f3470b8bad92fc30022a2
+// shader_hash: d32674802d840aa90af0ae62563dabe1
 // constant_buffers: 1
 // bound_resources: 1
 // input_parameters: 3
@@ -12399,8 +12383,8 @@ auto Shaders::grass_draw_vs() const -> std::span<const std::byte> {
 ; -------------------- ----- ------ -------- -------- ------- ------
 ; SV_Target                0   xyzw        0   TARGET   float   xyzw
 ;
-; shader debug name: 528770a44c3f3470b8bad92fc30022a2.pdb
-; shader hash: 528770a44c3f3470b8bad92fc30022a2
+; shader debug name: d32674802d840aa90af0ae62563dabe1.pdb
+; shader hash: d32674802d840aa90af0ae62563dabe1
 ;
 ; Pipeline Runtime Information: 
 ;
@@ -12545,7 +12529,7 @@ attributes #2 = { nounwind readonly }
 !dx.viewIdState = !{!6}
 !dx.entryPoints = !{!7}
 
-!0 = !{!"dxcoob 1.8.2405.15 (fd7e54bcd)"}
+!0 = !{!"dxcoob 1.8.2407.7 (416fab6b5)"}
 !1 = !{i32 1, i32 8}
 !2 = !{!"ps", i32 6, i32 8}
 !3 = !{null, null, !4, null}
@@ -12567,10 +12551,10 @@ attributes #2 = { nounwind readonly }
 !19 = !{i32 0, i64 3229614336}
 */
 auto Shaders::grass_draw_naive_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(227252, 4620);
+    return std::span(_data).subspan(227088, 4620);
 }
 
-// shader_hash: 4afc5d1154d78107f4f7353c14a71966
+// shader_hash: e3cdcf454894a6d93cddac94f9cfc672
 // constant_buffers: 1
 // bound_resources: 1
 // input_parameters: 3
@@ -12600,8 +12584,8 @@ auto Shaders::grass_draw_naive_ps() const -> std::span<const std::byte> {
 ; -------------------- ----- ------ -------- -------- ------- ------
 ; SV_Target                0   xyzw        0   TARGET   float   xyzw
 ;
-; shader debug name: 4afc5d1154d78107f4f7353c14a71966.pdb
-; shader hash: 4afc5d1154d78107f4f7353c14a71966
+; shader debug name: e3cdcf454894a6d93cddac94f9cfc672.pdb
+; shader hash: e3cdcf454894a6d93cddac94f9cfc672
 ;
 ; Pipeline Runtime Information: 
 ;
@@ -12755,7 +12739,7 @@ attributes #2 = { nounwind readonly }
 !dx.viewIdState = !{!6}
 !dx.entryPoints = !{!7}
 
-!0 = !{!"dxcoob 1.8.2405.15 (fd7e54bcd)"}
+!0 = !{!"dxcoob 1.8.2407.7 (416fab6b5)"}
 !1 = !{i32 1, i32 8}
 !2 = !{!"ps", i32 6, i32 8}
 !3 = !{null, null, !4, null}
@@ -12777,7 +12761,7 @@ attributes #2 = { nounwind readonly }
 !19 = !{i32 0, i64 3229614336}
 */
 auto Shaders::grass_draw_atoc_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(231872, 4760);
+    return std::span(_data).subspan(231708, 4760);
 }
 
 #undef texture_data

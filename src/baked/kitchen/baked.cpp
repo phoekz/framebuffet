@@ -22,13 +22,13 @@ auto Assets::imgui_font() const -> Copy {
 }
 
 auto Shaders::load() -> void {
-    // hash: 2c5468a8e295ff5fce6117f5b163e6bf
+    // hash: 5c1fcb0f3e68fd4dca87af13e32834c2
     ZoneScoped;
     _data = read_whole_file("fb_kitchen_shaders.bin");
-    FB_ASSERT(_data.size() == 32080);
+    FB_ASSERT(_data.size() == 32068);
 }
 
-// shader_hash: 1cad9f5a99704bc0582cced83353d4d5
+// shader_hash: 3ed0e9910f97b72a68fdcae6b89ef30d
 // constant_buffers: 1
 // bound_resources: 1
 // input_parameters: 2
@@ -59,8 +59,8 @@ auto Shaders::load() -> void {
 ; ATTRIBUTE                0   xyzw        1     NONE   float   xyzw
 ; ATTRIBUTE                1   xy          2     NONE   float   xy  
 ;
-; shader debug name: 1cad9f5a99704bc0582cced83353d4d5.pdb
-; shader hash: 1cad9f5a99704bc0582cced83353d4d5
+; shader debug name: 3ed0e9910f97b72a68fdcae6b89ef30d.pdb
+; shader hash: 3ed0e9910f97b72a68fdcae6b89ef30d
 ;
 ; Pipeline Runtime Information: 
 ;
@@ -278,7 +278,7 @@ attributes #2 = { nounwind readonly }
 !dx.viewIdState = !{!6}
 !dx.entryPoints = !{!7}
 
-!0 = !{!"dxcoob 1.8.2405.15 (fd7e54bcd)"}
+!0 = !{!"dxcoob 1.8.2407.7 (416fab6b5)"}
 !1 = !{i32 1, i32 8}
 !2 = !{!"vs", i32 6, i32 8}
 !3 = !{null, null, !4, null}
@@ -302,10 +302,10 @@ attributes #2 = { nounwind readonly }
 !21 = !{i32 0, i64 1082130688}
 */
 auto Shaders::gui_draw_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(0, 5368);
+    return std::span(_data).subspan(0, 5364);
 }
 
-// shader_hash: 3816d642126d7471245244f3aa914731
+// shader_hash: 1c14709bc74f6a3302945799741f3777
 // constant_buffers: 1
 // bound_resources: 1
 // input_parameters: 3
@@ -335,8 +335,8 @@ auto Shaders::gui_draw_vs() const -> std::span<const std::byte> {
 ; -------------------- ----- ------ -------- -------- ------- ------
 ; SV_Target                0   xyzw        0   TARGET   float   xyzw
 ;
-; shader debug name: 3816d642126d7471245244f3aa914731.pdb
-; shader hash: 3816d642126d7471245244f3aa914731
+; shader debug name: 1c14709bc74f6a3302945799741f3777.pdb
+; shader hash: 1c14709bc74f6a3302945799741f3777
 ;
 ; Pipeline Runtime Information: 
 ;
@@ -475,7 +475,7 @@ attributes #2 = { nounwind readonly }
 !dx.viewIdState = !{!6}
 !dx.entryPoints = !{!7}
 
-!0 = !{!"dxcoob 1.8.2405.15 (fd7e54bcd)"}
+!0 = !{!"dxcoob 1.8.2407.7 (416fab6b5)"}
 !1 = !{i32 1, i32 8}
 !2 = !{!"ps", i32 6, i32 8}
 !3 = !{null, null, !4, null}
@@ -497,10 +497,10 @@ attributes #2 = { nounwind readonly }
 !19 = !{i32 0, i64 3229614336}
 */
 auto Shaders::gui_draw_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(5368, 4428);
+    return std::span(_data).subspan(5364, 4428);
 }
 
-// shader_hash: 337fdb7d236c292f92fd5e593eb7cddb
+// shader_hash: cb1199f8880950b8d9c0da52b5009da0
 // constant_buffers: 1
 // bound_resources: 1
 // input_parameters: 2
@@ -529,8 +529,8 @@ auto Shaders::gui_draw_ps() const -> std::span<const std::byte> {
 ; SV_Position              0   xyzw        0      POS   float   xyzw
 ; ATTRIBUTE                0   xyzw        1     NONE   float   xyzw
 ;
-; shader debug name: 337fdb7d236c292f92fd5e593eb7cddb.pdb
-; shader hash: 337fdb7d236c292f92fd5e593eb7cddb
+; shader debug name: cb1199f8880950b8d9c0da52b5009da0.pdb
+; shader hash: cb1199f8880950b8d9c0da52b5009da0
 ;
 ; Pipeline Runtime Information: 
 ;
@@ -731,7 +731,7 @@ attributes #2 = { nounwind readonly }
 !dx.viewIdState = !{!6}
 !dx.entryPoints = !{!7}
 
-!0 = !{!"dxcoob 1.8.2405.15 (fd7e54bcd)"}
+!0 = !{!"dxcoob 1.8.2407.7 (416fab6b5)"}
 !1 = !{i32 1, i32 8}
 !2 = !{!"vs", i32 6, i32 8}
 !3 = !{null, null, !4, null}
@@ -752,10 +752,10 @@ attributes #2 = { nounwind readonly }
 !18 = !{i32 0, i64 1082130688}
 */
 auto Shaders::debug_draw_draw_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(9796, 5132);
+    return std::span(_data).subspan(9792, 5128);
 }
 
-// shader_hash: 6a5c2981dcef27d06a113094a917f47d
+// shader_hash: fbe5f57464d4b02a60afdfab97c43f1a
 // input_parameters: 2
 // output_parameters: 1
 // instruction_count: 9
@@ -775,8 +775,8 @@ auto Shaders::debug_draw_draw_vs() const -> std::span<const std::byte> {
 ; -------------------- ----- ------ -------- -------- ------- ------
 ; SV_Target                0   xyzw        0   TARGET   float   xyzw
 ;
-; shader debug name: 6a5c2981dcef27d06a113094a917f47d.pdb
-; shader hash: 6a5c2981dcef27d06a113094a917f47d
+; shader debug name: fbe5f57464d4b02a60afdfab97c43f1a.pdb
+; shader hash: fbe5f57464d4b02a60afdfab97c43f1a
 ;
 ; Pipeline Runtime Information: 
 ;
@@ -848,7 +848,7 @@ attributes #1 = { nounwind }
 !dx.viewIdState = !{!3}
 !dx.entryPoints = !{!4}
 
-!0 = !{!"dxcoob 1.8.2405.15 (fd7e54bcd)"}
+!0 = !{!"dxcoob 1.8.2407.7 (416fab6b5)"}
 !1 = !{i32 1, i32 8}
 !2 = !{!"ps", i32 6, i32 8}
 !3 = !{[10 x i32] [i32 8, i32 4, i32 0, i32 0, i32 0, i32 0, i32 1, i32 2, i32 4, i32 8]}
@@ -864,19 +864,19 @@ attributes #1 = { nounwind }
 !13 = !{i32 0, i64 8388864}
 */
 auto Shaders::debug_draw_draw_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(14928, 3068);
+    return std::span(_data).subspan(14920, 3068);
 }
 
-// shader_hash: 290a049b6b99417aafeb3dbdaaa6e262
+// shader_hash: a1dcc597e997b635f78cc6e2d532990a
 // constant_buffers: 1
 // bound_resources: 1
-// instruction_count: 1533
+// instruction_count: 1532
 // temp_array_count: 2048
 // dynamic_flow_control_count: 30
 // array_instruction_count: 76
 // float_instruction_count: 449
 // int_instruction_count: 347
-// uint_instruction_count: 122
+// uint_instruction_count: 121
 // texture_normal_instructions: 4
 // texture_load_instructions: 16
 // barrier_instructions: 9
@@ -903,8 +903,8 @@ auto Shaders::debug_draw_draw_ps() const -> std::span<const std::byte> {
 ; Name                 Index   Mask Register SysValue  Format   Used
 ; -------------------- ----- ------ -------- -------- ------- ------
 ; no parameters
-; shader debug name: 290a049b6b99417aafeb3dbdaaa6e262.pdb
-; shader hash: 290a049b6b99417aafeb3dbdaaa6e262
+; shader debug name: a1dcc597e997b635f78cc6e2d532990a.pdb
+; shader hash: a1dcc597e997b635f78cc6e2d532990a
 ;
 ; Pipeline Runtime Information: 
 ;
@@ -1063,1515 +1063,1514 @@ define void @downsample_cs() {
   %100 = fpext half %91 to float
   call void @dx.op.textureStore.f32(i32 67, %dx.types.Handle %96, i32 %75, i32 %43, i32 %5, float %97, float %98, float %99, float %100, i8 15)  ; TextureStore(srv,coord0,coord1,coord2,value0,value1,value2,value3,mask)
   %101 = or i32 %37, 32
-  %102 = add i32 %101, %35
-  %103 = or i32 %41, 16
-  %104 = add i32 %103, %33
-  %105 = call %dx.types.CBufRet.i32 @dx.op.cbufferLoadLegacy.i32(i32 59, %dx.types.Handle %2, i32 0)  ; CBufferLoadLegacy(handle,regIndex)
-  %106 = extractvalue %dx.types.CBufRet.i32 %105, 2
-  %107 = call %dx.types.Handle @dx.op.createHandleFromHeap(i32 218, i32 %106, i1 false, i1 false)  ; CreateHandleFromHeap(index,samplerHeap,nonUniformIndex)
-  %108 = call %dx.types.Handle @dx.op.annotateHandle(i32 216, %dx.types.Handle %107, %dx.types.ResourceProperties { i32 7, i32 1033 })  ; AnnotateHandle(res,props)  resource: Texture2DArray<4xF32>
-  %109 = uitofp i32 %102 to float
-  %110 = fmul fast float %19, %109
-  %111 = fadd fast float %110, %19
-  %112 = call %dx.types.ResRet.f32 @dx.op.sampleLevel.f32(i32 62, %dx.types.Handle %108, %dx.types.Handle %48, float %53, float %111, float %55, float undef, i32 0, i32 0, i32 undef, float 0.000000e+00)  ; SampleLevel(srv,sampler,coord0,coord1,coord2,coord3,offset0,offset1,offset2,LOD)
-  %113 = extractvalue %dx.types.ResRet.f32 %112, 0
-  %114 = extractvalue %dx.types.ResRet.f32 %112, 1
-  %115 = extractvalue %dx.types.ResRet.f32 %112, 2
-  %116 = extractvalue %dx.types.ResRet.f32 %112, 3
+  %102 = add i32 %35, %101
+  %103 = add i32 %43, 16
+  %104 = call %dx.types.CBufRet.i32 @dx.op.cbufferLoadLegacy.i32(i32 59, %dx.types.Handle %2, i32 0)  ; CBufferLoadLegacy(handle,regIndex)
+  %105 = extractvalue %dx.types.CBufRet.i32 %104, 2
+  %106 = call %dx.types.Handle @dx.op.createHandleFromHeap(i32 218, i32 %105, i1 false, i1 false)  ; CreateHandleFromHeap(index,samplerHeap,nonUniformIndex)
+  %107 = call %dx.types.Handle @dx.op.annotateHandle(i32 216, %dx.types.Handle %106, %dx.types.ResourceProperties { i32 7, i32 1033 })  ; AnnotateHandle(res,props)  resource: Texture2DArray<4xF32>
+  %108 = uitofp i32 %102 to float
+  %109 = fmul fast float %19, %108
+  %110 = fadd fast float %109, %19
+  %111 = call %dx.types.ResRet.f32 @dx.op.sampleLevel.f32(i32 62, %dx.types.Handle %107, %dx.types.Handle %48, float %53, float %110, float %55, float undef, i32 0, i32 0, i32 undef, float 0.000000e+00)  ; SampleLevel(srv,sampler,coord0,coord1,coord2,coord3,offset0,offset1,offset2,LOD)
+  %112 = extractvalue %dx.types.ResRet.f32 %111, 0
+  %113 = extractvalue %dx.types.ResRet.f32 %111, 1
+  %114 = extractvalue %dx.types.ResRet.f32 %111, 2
+  %115 = extractvalue %dx.types.ResRet.f32 %111, 3
+  %116 = fptrunc float %112 to half
   %117 = fptrunc float %113 to half
   %118 = fptrunc float %114 to half
   %119 = fptrunc float %115 to half
-  %120 = fptrunc float %116 to half
-  %121 = call %dx.types.CBufRet.i32 @dx.op.cbufferLoadLegacy.i32(i32 59, %dx.types.Handle %2, i32 1)  ; CBufferLoadLegacy(handle,regIndex)
-  %122 = extractvalue %dx.types.CBufRet.i32 %121, 0
-  %123 = add i32 %122, 1
-  %124 = call %dx.types.Handle @dx.op.createHandleFromHeap(i32 218, i32 %123, i1 false, i1 false)  ; CreateHandleFromHeap(index,samplerHeap,nonUniformIndex)
-  %125 = call %dx.types.Handle @dx.op.annotateHandle(i32 216, %dx.types.Handle %124, %dx.types.ResourceProperties { i32 4103, i32 1033 })  ; AnnotateHandle(res,props)  resource: RWTexture2DArray<4xF32>
+  %120 = call %dx.types.CBufRet.i32 @dx.op.cbufferLoadLegacy.i32(i32 59, %dx.types.Handle %2, i32 1)  ; CBufferLoadLegacy(handle,regIndex)
+  %121 = extractvalue %dx.types.CBufRet.i32 %120, 0
+  %122 = add i32 %121, 1
+  %123 = call %dx.types.Handle @dx.op.createHandleFromHeap(i32 218, i32 %122, i1 false, i1 false)  ; CreateHandleFromHeap(index,samplerHeap,nonUniformIndex)
+  %124 = call %dx.types.Handle @dx.op.annotateHandle(i32 216, %dx.types.Handle %123, %dx.types.ResourceProperties { i32 4103, i32 1033 })  ; AnnotateHandle(res,props)  resource: RWTexture2DArray<4xF32>
+  %125 = fpext half %116 to float
   %126 = fpext half %117 to float
   %127 = fpext half %118 to float
   %128 = fpext half %119 to float
-  %129 = fpext half %120 to float
-  call void @dx.op.textureStore.f32(i32 67, %dx.types.Handle %125, i32 %42, i32 %104, i32 %5, float %126, float %127, float %128, float %129, i8 15)  ; TextureStore(srv,coord0,coord1,coord2,value0,value1,value2,value3,mask)
-  %130 = call %dx.types.CBufRet.i32 @dx.op.cbufferLoadLegacy.i32(i32 59, %dx.types.Handle %2, i32 0)  ; CBufferLoadLegacy(handle,regIndex)
-  %131 = extractvalue %dx.types.CBufRet.i32 %130, 2
-  %132 = call %dx.types.Handle @dx.op.createHandleFromHeap(i32 218, i32 %131, i1 false, i1 false)  ; CreateHandleFromHeap(index,samplerHeap,nonUniformIndex)
-  %133 = call %dx.types.Handle @dx.op.annotateHandle(i32 216, %dx.types.Handle %132, %dx.types.ResourceProperties { i32 7, i32 1033 })  ; AnnotateHandle(res,props)  resource: Texture2DArray<4xF32>
-  %134 = call %dx.types.ResRet.f32 @dx.op.sampleLevel.f32(i32 62, %dx.types.Handle %133, %dx.types.Handle %48, float %82, float %111, float %55, float undef, i32 0, i32 0, i32 undef, float 0.000000e+00)  ; SampleLevel(srv,sampler,coord0,coord1,coord2,coord3,offset0,offset1,offset2,LOD)
-  %135 = extractvalue %dx.types.ResRet.f32 %134, 0
-  %136 = extractvalue %dx.types.ResRet.f32 %134, 1
-  %137 = extractvalue %dx.types.ResRet.f32 %134, 2
-  %138 = extractvalue %dx.types.ResRet.f32 %134, 3
+  call void @dx.op.textureStore.f32(i32 67, %dx.types.Handle %124, i32 %42, i32 %103, i32 %5, float %125, float %126, float %127, float %128, i8 15)  ; TextureStore(srv,coord0,coord1,coord2,value0,value1,value2,value3,mask)
+  %129 = call %dx.types.CBufRet.i32 @dx.op.cbufferLoadLegacy.i32(i32 59, %dx.types.Handle %2, i32 0)  ; CBufferLoadLegacy(handle,regIndex)
+  %130 = extractvalue %dx.types.CBufRet.i32 %129, 2
+  %131 = call %dx.types.Handle @dx.op.createHandleFromHeap(i32 218, i32 %130, i1 false, i1 false)  ; CreateHandleFromHeap(index,samplerHeap,nonUniformIndex)
+  %132 = call %dx.types.Handle @dx.op.annotateHandle(i32 216, %dx.types.Handle %131, %dx.types.ResourceProperties { i32 7, i32 1033 })  ; AnnotateHandle(res,props)  resource: Texture2DArray<4xF32>
+  %133 = call %dx.types.ResRet.f32 @dx.op.sampleLevel.f32(i32 62, %dx.types.Handle %132, %dx.types.Handle %48, float %82, float %110, float %55, float undef, i32 0, i32 0, i32 undef, float 0.000000e+00)  ; SampleLevel(srv,sampler,coord0,coord1,coord2,coord3,offset0,offset1,offset2,LOD)
+  %134 = extractvalue %dx.types.ResRet.f32 %133, 0
+  %135 = extractvalue %dx.types.ResRet.f32 %133, 1
+  %136 = extractvalue %dx.types.ResRet.f32 %133, 2
+  %137 = extractvalue %dx.types.ResRet.f32 %133, 3
+  %138 = fptrunc float %134 to half
   %139 = fptrunc float %135 to half
   %140 = fptrunc float %136 to half
   %141 = fptrunc float %137 to half
-  %142 = fptrunc float %138 to half
-  %143 = call %dx.types.CBufRet.i32 @dx.op.cbufferLoadLegacy.i32(i32 59, %dx.types.Handle %2, i32 1)  ; CBufferLoadLegacy(handle,regIndex)
-  %144 = extractvalue %dx.types.CBufRet.i32 %143, 0
-  %145 = add i32 %144, 1
-  %146 = call %dx.types.Handle @dx.op.createHandleFromHeap(i32 218, i32 %145, i1 false, i1 false)  ; CreateHandleFromHeap(index,samplerHeap,nonUniformIndex)
-  %147 = call %dx.types.Handle @dx.op.annotateHandle(i32 216, %dx.types.Handle %146, %dx.types.ResourceProperties { i32 4103, i32 1033 })  ; AnnotateHandle(res,props)  resource: RWTexture2DArray<4xF32>
+  %142 = call %dx.types.CBufRet.i32 @dx.op.cbufferLoadLegacy.i32(i32 59, %dx.types.Handle %2, i32 1)  ; CBufferLoadLegacy(handle,regIndex)
+  %143 = extractvalue %dx.types.CBufRet.i32 %142, 0
+  %144 = add i32 %143, 1
+  %145 = call %dx.types.Handle @dx.op.createHandleFromHeap(i32 218, i32 %144, i1 false, i1 false)  ; CreateHandleFromHeap(index,samplerHeap,nonUniformIndex)
+  %146 = call %dx.types.Handle @dx.op.annotateHandle(i32 216, %dx.types.Handle %145, %dx.types.ResourceProperties { i32 4103, i32 1033 })  ; AnnotateHandle(res,props)  resource: RWTexture2DArray<4xF32>
+  %147 = fpext half %138 to float
   %148 = fpext half %139 to float
   %149 = fpext half %140 to float
   %150 = fpext half %141 to float
-  %151 = fpext half %142 to float
-  call void @dx.op.textureStore.f32(i32 67, %dx.types.Handle %147, i32 %75, i32 %104, i32 %5, float %148, float %149, float %150, float %151, i8 15)  ; TextureStore(srv,coord0,coord1,coord2,value0,value1,value2,value3,mask)
-  %152 = icmp ult i32 %15, 2
-  br i1 %152, label %1456, label %153
+  call void @dx.op.textureStore.f32(i32 67, %dx.types.Handle %146, i32 %75, i32 %103, i32 %5, float %147, float %148, float %149, float %150, i8 15)  ; TextureStore(srv,coord0,coord1,coord2,value0,value1,value2,value3,mask)
+  %151 = icmp ult i32 %15, 2
+  br i1 %151, label %1455, label %152
 
-; <label>:153                                     ; preds = %0
-  %154 = call i32 @dx.op.waveGetLaneIndex(i32 111)  ; WaveGetLaneIndex()
-  %155 = and i32 %154, -4
-  %156 = or i32 %155, 1
-  %157 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %61, i32 %156)  ; WaveReadLaneAt(value,lane)
-  %158 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %62, i32 %156)  ; WaveReadLaneAt(value,lane)
-  %159 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %63, i32 %156)  ; WaveReadLaneAt(value,lane)
-  %160 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %64, i32 %156)  ; WaveReadLaneAt(value,lane)
-  %161 = or i32 %155, 2
-  %162 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %61, i32 %161)  ; WaveReadLaneAt(value,lane)
-  %163 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %62, i32 %161)  ; WaveReadLaneAt(value,lane)
-  %164 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %63, i32 %161)  ; WaveReadLaneAt(value,lane)
-  %165 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %64, i32 %161)  ; WaveReadLaneAt(value,lane)
-  %166 = or i32 %154, 3
-  %167 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %61, i32 %166)  ; WaveReadLaneAt(value,lane)
-  %168 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %62, i32 %166)  ; WaveReadLaneAt(value,lane)
-  %169 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %63, i32 %166)  ; WaveReadLaneAt(value,lane)
-  %170 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %64, i32 %166)  ; WaveReadLaneAt(value,lane)
-  %171 = fadd fast half %157, %61
-  %172 = fadd fast half %158, %62
-  %173 = fadd fast half %159, %63
-  %174 = fadd fast half %160, %64
+; <label>:152                                     ; preds = %0
+  %153 = call i32 @dx.op.waveGetLaneIndex(i32 111)  ; WaveGetLaneIndex()
+  %154 = and i32 %153, -4
+  %155 = or i32 %154, 1
+  %156 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %61, i32 %155)  ; WaveReadLaneAt(value,lane)
+  %157 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %62, i32 %155)  ; WaveReadLaneAt(value,lane)
+  %158 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %63, i32 %155)  ; WaveReadLaneAt(value,lane)
+  %159 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %64, i32 %155)  ; WaveReadLaneAt(value,lane)
+  %160 = or i32 %154, 2
+  %161 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %61, i32 %160)  ; WaveReadLaneAt(value,lane)
+  %162 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %62, i32 %160)  ; WaveReadLaneAt(value,lane)
+  %163 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %63, i32 %160)  ; WaveReadLaneAt(value,lane)
+  %164 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %64, i32 %160)  ; WaveReadLaneAt(value,lane)
+  %165 = or i32 %153, 3
+  %166 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %61, i32 %165)  ; WaveReadLaneAt(value,lane)
+  %167 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %62, i32 %165)  ; WaveReadLaneAt(value,lane)
+  %168 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %63, i32 %165)  ; WaveReadLaneAt(value,lane)
+  %169 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %64, i32 %165)  ; WaveReadLaneAt(value,lane)
+  %170 = fadd fast half %156, %61
+  %171 = fadd fast half %157, %62
+  %172 = fadd fast half %158, %63
+  %173 = fadd fast half %159, %64
+  %174 = fadd fast half %170, %161
   %175 = fadd fast half %171, %162
   %176 = fadd fast half %172, %163
   %177 = fadd fast half %173, %164
-  %178 = fadd fast half %174, %165
+  %178 = fadd fast half %174, %166
   %179 = fadd fast half %175, %167
   %180 = fadd fast half %176, %168
   %181 = fadd fast half %177, %169
-  %182 = fadd fast half %178, %170
+  %182 = fmul fast half %178, 0xH3400
   %183 = fmul fast half %179, 0xH3400
   %184 = fmul fast half %180, 0xH3400
   %185 = fmul fast half %181, 0xH3400
-  %186 = fmul fast half %182, 0xH3400
-  %187 = call i32 @dx.op.waveGetLaneIndex(i32 111)  ; WaveGetLaneIndex()
-  %188 = and i32 %187, -4
-  %189 = or i32 %188, 1
-  %190 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %88, i32 %189)  ; WaveReadLaneAt(value,lane)
-  %191 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %89, i32 %189)  ; WaveReadLaneAt(value,lane)
-  %192 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %90, i32 %189)  ; WaveReadLaneAt(value,lane)
-  %193 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %91, i32 %189)  ; WaveReadLaneAt(value,lane)
-  %194 = or i32 %188, 2
-  %195 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %88, i32 %194)  ; WaveReadLaneAt(value,lane)
-  %196 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %89, i32 %194)  ; WaveReadLaneAt(value,lane)
-  %197 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %90, i32 %194)  ; WaveReadLaneAt(value,lane)
-  %198 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %91, i32 %194)  ; WaveReadLaneAt(value,lane)
-  %199 = or i32 %187, 3
-  %200 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %88, i32 %199)  ; WaveReadLaneAt(value,lane)
-  %201 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %89, i32 %199)  ; WaveReadLaneAt(value,lane)
-  %202 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %90, i32 %199)  ; WaveReadLaneAt(value,lane)
-  %203 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %91, i32 %199)  ; WaveReadLaneAt(value,lane)
-  %204 = fadd fast half %190, %88
-  %205 = fadd fast half %191, %89
-  %206 = fadd fast half %192, %90
-  %207 = fadd fast half %193, %91
+  %186 = call i32 @dx.op.waveGetLaneIndex(i32 111)  ; WaveGetLaneIndex()
+  %187 = and i32 %186, -4
+  %188 = or i32 %187, 1
+  %189 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %88, i32 %188)  ; WaveReadLaneAt(value,lane)
+  %190 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %89, i32 %188)  ; WaveReadLaneAt(value,lane)
+  %191 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %90, i32 %188)  ; WaveReadLaneAt(value,lane)
+  %192 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %91, i32 %188)  ; WaveReadLaneAt(value,lane)
+  %193 = or i32 %187, 2
+  %194 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %88, i32 %193)  ; WaveReadLaneAt(value,lane)
+  %195 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %89, i32 %193)  ; WaveReadLaneAt(value,lane)
+  %196 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %90, i32 %193)  ; WaveReadLaneAt(value,lane)
+  %197 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %91, i32 %193)  ; WaveReadLaneAt(value,lane)
+  %198 = or i32 %186, 3
+  %199 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %88, i32 %198)  ; WaveReadLaneAt(value,lane)
+  %200 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %89, i32 %198)  ; WaveReadLaneAt(value,lane)
+  %201 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %90, i32 %198)  ; WaveReadLaneAt(value,lane)
+  %202 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %91, i32 %198)  ; WaveReadLaneAt(value,lane)
+  %203 = fadd fast half %189, %88
+  %204 = fadd fast half %190, %89
+  %205 = fadd fast half %191, %90
+  %206 = fadd fast half %192, %91
+  %207 = fadd fast half %203, %194
   %208 = fadd fast half %204, %195
   %209 = fadd fast half %205, %196
   %210 = fadd fast half %206, %197
-  %211 = fadd fast half %207, %198
+  %211 = fadd fast half %207, %199
   %212 = fadd fast half %208, %200
   %213 = fadd fast half %209, %201
   %214 = fadd fast half %210, %202
-  %215 = fadd fast half %211, %203
+  %215 = fmul fast half %211, 0xH3400
   %216 = fmul fast half %212, 0xH3400
   %217 = fmul fast half %213, 0xH3400
   %218 = fmul fast half %214, 0xH3400
-  %219 = fmul fast half %215, 0xH3400
-  %220 = call i32 @dx.op.waveGetLaneIndex(i32 111)  ; WaveGetLaneIndex()
-  %221 = and i32 %220, -4
-  %222 = or i32 %221, 1
-  %223 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %117, i32 %222)  ; WaveReadLaneAt(value,lane)
-  %224 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %118, i32 %222)  ; WaveReadLaneAt(value,lane)
-  %225 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %119, i32 %222)  ; WaveReadLaneAt(value,lane)
-  %226 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %120, i32 %222)  ; WaveReadLaneAt(value,lane)
-  %227 = or i32 %221, 2
-  %228 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %117, i32 %227)  ; WaveReadLaneAt(value,lane)
-  %229 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %118, i32 %227)  ; WaveReadLaneAt(value,lane)
-  %230 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %119, i32 %227)  ; WaveReadLaneAt(value,lane)
-  %231 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %120, i32 %227)  ; WaveReadLaneAt(value,lane)
-  %232 = or i32 %220, 3
-  %233 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %117, i32 %232)  ; WaveReadLaneAt(value,lane)
-  %234 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %118, i32 %232)  ; WaveReadLaneAt(value,lane)
-  %235 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %119, i32 %232)  ; WaveReadLaneAt(value,lane)
-  %236 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %120, i32 %232)  ; WaveReadLaneAt(value,lane)
+  %219 = call i32 @dx.op.waveGetLaneIndex(i32 111)  ; WaveGetLaneIndex()
+  %220 = and i32 %219, -4
+  %221 = or i32 %220, 1
+  %222 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %116, i32 %221)  ; WaveReadLaneAt(value,lane)
+  %223 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %117, i32 %221)  ; WaveReadLaneAt(value,lane)
+  %224 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %118, i32 %221)  ; WaveReadLaneAt(value,lane)
+  %225 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %119, i32 %221)  ; WaveReadLaneAt(value,lane)
+  %226 = or i32 %220, 2
+  %227 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %116, i32 %226)  ; WaveReadLaneAt(value,lane)
+  %228 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %117, i32 %226)  ; WaveReadLaneAt(value,lane)
+  %229 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %118, i32 %226)  ; WaveReadLaneAt(value,lane)
+  %230 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %119, i32 %226)  ; WaveReadLaneAt(value,lane)
+  %231 = or i32 %219, 3
+  %232 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %116, i32 %231)  ; WaveReadLaneAt(value,lane)
+  %233 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %117, i32 %231)  ; WaveReadLaneAt(value,lane)
+  %234 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %118, i32 %231)  ; WaveReadLaneAt(value,lane)
+  %235 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %119, i32 %231)  ; WaveReadLaneAt(value,lane)
+  %236 = fadd fast half %222, %116
   %237 = fadd fast half %223, %117
   %238 = fadd fast half %224, %118
   %239 = fadd fast half %225, %119
-  %240 = fadd fast half %226, %120
+  %240 = fadd fast half %236, %227
   %241 = fadd fast half %237, %228
   %242 = fadd fast half %238, %229
   %243 = fadd fast half %239, %230
-  %244 = fadd fast half %240, %231
+  %244 = fadd fast half %240, %232
   %245 = fadd fast half %241, %233
   %246 = fadd fast half %242, %234
   %247 = fadd fast half %243, %235
-  %248 = fadd fast half %244, %236
+  %248 = fmul fast half %244, 0xH3400
   %249 = fmul fast half %245, 0xH3400
   %250 = fmul fast half %246, 0xH3400
   %251 = fmul fast half %247, 0xH3400
-  %252 = fmul fast half %248, 0xH3400
-  %253 = call i32 @dx.op.waveGetLaneIndex(i32 111)  ; WaveGetLaneIndex()
-  %254 = and i32 %253, -4
-  %255 = or i32 %254, 1
-  %256 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %139, i32 %255)  ; WaveReadLaneAt(value,lane)
-  %257 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %140, i32 %255)  ; WaveReadLaneAt(value,lane)
-  %258 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %141, i32 %255)  ; WaveReadLaneAt(value,lane)
-  %259 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %142, i32 %255)  ; WaveReadLaneAt(value,lane)
-  %260 = or i32 %254, 2
-  %261 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %139, i32 %260)  ; WaveReadLaneAt(value,lane)
-  %262 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %140, i32 %260)  ; WaveReadLaneAt(value,lane)
-  %263 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %141, i32 %260)  ; WaveReadLaneAt(value,lane)
-  %264 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %142, i32 %260)  ; WaveReadLaneAt(value,lane)
-  %265 = or i32 %253, 3
-  %266 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %139, i32 %265)  ; WaveReadLaneAt(value,lane)
-  %267 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %140, i32 %265)  ; WaveReadLaneAt(value,lane)
-  %268 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %141, i32 %265)  ; WaveReadLaneAt(value,lane)
-  %269 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %142, i32 %265)  ; WaveReadLaneAt(value,lane)
+  %252 = call i32 @dx.op.waveGetLaneIndex(i32 111)  ; WaveGetLaneIndex()
+  %253 = and i32 %252, -4
+  %254 = or i32 %253, 1
+  %255 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %138, i32 %254)  ; WaveReadLaneAt(value,lane)
+  %256 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %139, i32 %254)  ; WaveReadLaneAt(value,lane)
+  %257 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %140, i32 %254)  ; WaveReadLaneAt(value,lane)
+  %258 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %141, i32 %254)  ; WaveReadLaneAt(value,lane)
+  %259 = or i32 %253, 2
+  %260 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %138, i32 %259)  ; WaveReadLaneAt(value,lane)
+  %261 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %139, i32 %259)  ; WaveReadLaneAt(value,lane)
+  %262 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %140, i32 %259)  ; WaveReadLaneAt(value,lane)
+  %263 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %141, i32 %259)  ; WaveReadLaneAt(value,lane)
+  %264 = or i32 %252, 3
+  %265 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %138, i32 %264)  ; WaveReadLaneAt(value,lane)
+  %266 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %139, i32 %264)  ; WaveReadLaneAt(value,lane)
+  %267 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %140, i32 %264)  ; WaveReadLaneAt(value,lane)
+  %268 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %141, i32 %264)  ; WaveReadLaneAt(value,lane)
+  %269 = fadd fast half %255, %138
   %270 = fadd fast half %256, %139
   %271 = fadd fast half %257, %140
   %272 = fadd fast half %258, %141
-  %273 = fadd fast half %259, %142
+  %273 = fadd fast half %269, %260
   %274 = fadd fast half %270, %261
   %275 = fadd fast half %271, %262
   %276 = fadd fast half %272, %263
-  %277 = fadd fast half %273, %264
+  %277 = fadd fast half %273, %265
   %278 = fadd fast half %274, %266
   %279 = fadd fast half %275, %267
   %280 = fadd fast half %276, %268
-  %281 = fadd fast half %277, %269
+  %281 = fmul fast half %277, 0xH3400
   %282 = fmul fast half %278, 0xH3400
   %283 = fmul fast half %279, 0xH3400
   %284 = fmul fast half %280, 0xH3400
-  %285 = fmul fast half %281, 0xH3400
-  %286 = and i32 %6, 3
-  %287 = icmp eq i32 %286, 0
-  br i1 %287, label %288, label %416
+  %285 = and i32 %6, 3
+  %286 = icmp eq i32 %285, 0
+  br i1 %286, label %287, label %415
 
-; <label>:288                                     ; preds = %153
-  %289 = lshr i32 %30, 1
-  %290 = lshr i32 %33, 1
-  %291 = shl i32 %3, 4
-  %292 = shl i32 %4, 4
-  %293 = or i32 %289, %291
-  %294 = add i32 %290, %292
-  %295 = call %dx.types.CBufRet.i32 @dx.op.cbufferLoadLegacy.i32(i32 59, %dx.types.Handle %2, i32 1)  ; CBufferLoadLegacy(handle,regIndex)
-  %296 = extractvalue %dx.types.CBufRet.i32 %295, 0
-  %297 = add i32 %296, 2
-  %298 = call %dx.types.Handle @dx.op.createHandleFromHeap(i32 218, i32 %297, i1 false, i1 false)  ; CreateHandleFromHeap(index,samplerHeap,nonUniformIndex)
-  %299 = call %dx.types.Handle @dx.op.annotateHandle(i32 216, %dx.types.Handle %298, %dx.types.ResourceProperties { i32 4103, i32 1033 })  ; AnnotateHandle(res,props)  resource: RWTexture2DArray<4xF32>
+; <label>:287                                     ; preds = %152
+  %288 = lshr i32 %30, 1
+  %289 = lshr i32 %33, 1
+  %290 = shl i32 %3, 4
+  %291 = shl i32 %4, 4
+  %292 = or i32 %288, %290
+  %293 = add i32 %289, %291
+  %294 = call %dx.types.CBufRet.i32 @dx.op.cbufferLoadLegacy.i32(i32 59, %dx.types.Handle %2, i32 1)  ; CBufferLoadLegacy(handle,regIndex)
+  %295 = extractvalue %dx.types.CBufRet.i32 %294, 0
+  %296 = add i32 %295, 2
+  %297 = call %dx.types.Handle @dx.op.createHandleFromHeap(i32 218, i32 %296, i1 false, i1 false)  ; CreateHandleFromHeap(index,samplerHeap,nonUniformIndex)
+  %298 = call %dx.types.Handle @dx.op.annotateHandle(i32 216, %dx.types.Handle %297, %dx.types.ResourceProperties { i32 4103, i32 1033 })  ; AnnotateHandle(res,props)  resource: RWTexture2DArray<4xF32>
+  %299 = fpext half %182 to float
   %300 = fpext half %183 to float
   %301 = fpext half %184 to float
   %302 = fpext half %185 to float
-  %303 = fpext half %186 to float
-  call void @dx.op.textureStore.f32(i32 67, %dx.types.Handle %299, i32 %293, i32 %294, i32 %5, float %300, float %301, float %302, float %303, i8 15)  ; TextureStore(srv,coord0,coord1,coord2,value0,value1,value2,value3,mask)
-  %304 = mul i32 %289, 16
-  %305 = add i32 %290, %304
-  %306 = mul i32 %305, 2
-  %307 = add i32 0, %306
-  %308 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_rg@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %307
-  store half %183, half addrspace(3)* %308, align 2
-  %309 = mul i32 %289, 16
-  %310 = add i32 %290, %309
-  %311 = mul i32 %310, 2
-  %312 = add i32 1, %311
-  %313 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_rg@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %312
-  store half %184, half addrspace(3)* %313, align 2
-  %314 = mul i32 %289, 16
-  %315 = add i32 %290, %314
-  %316 = mul i32 %315, 2
-  %317 = add i32 0, %316
-  %318 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_ba@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %317
-  store half %185, half addrspace(3)* %318, align 2
-  %319 = mul i32 %289, 16
-  %320 = add i32 %290, %319
-  %321 = mul i32 %320, 2
-  %322 = add i32 1, %321
-  %323 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_ba@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %322
-  store half %186, half addrspace(3)* %323, align 2
-  %324 = or i32 %293, 8
-  %325 = or i32 %289, 8
-  %326 = call %dx.types.CBufRet.i32 @dx.op.cbufferLoadLegacy.i32(i32 59, %dx.types.Handle %2, i32 1)  ; CBufferLoadLegacy(handle,regIndex)
-  %327 = extractvalue %dx.types.CBufRet.i32 %326, 0
-  %328 = add i32 %327, 2
-  %329 = call %dx.types.Handle @dx.op.createHandleFromHeap(i32 218, i32 %328, i1 false, i1 false)  ; CreateHandleFromHeap(index,samplerHeap,nonUniformIndex)
-  %330 = call %dx.types.Handle @dx.op.annotateHandle(i32 216, %dx.types.Handle %329, %dx.types.ResourceProperties { i32 4103, i32 1033 })  ; AnnotateHandle(res,props)  resource: RWTexture2DArray<4xF32>
+  call void @dx.op.textureStore.f32(i32 67, %dx.types.Handle %298, i32 %292, i32 %293, i32 %5, float %299, float %300, float %301, float %302, i8 15)  ; TextureStore(srv,coord0,coord1,coord2,value0,value1,value2,value3,mask)
+  %303 = mul i32 %288, 16
+  %304 = add i32 %289, %303
+  %305 = mul i32 %304, 2
+  %306 = add i32 0, %305
+  %307 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_rg@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %306
+  store half %182, half addrspace(3)* %307, align 2
+  %308 = mul i32 %288, 16
+  %309 = add i32 %289, %308
+  %310 = mul i32 %309, 2
+  %311 = add i32 1, %310
+  %312 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_rg@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %311
+  store half %183, half addrspace(3)* %312, align 2
+  %313 = mul i32 %288, 16
+  %314 = add i32 %289, %313
+  %315 = mul i32 %314, 2
+  %316 = add i32 0, %315
+  %317 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_ba@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %316
+  store half %184, half addrspace(3)* %317, align 2
+  %318 = mul i32 %288, 16
+  %319 = add i32 %289, %318
+  %320 = mul i32 %319, 2
+  %321 = add i32 1, %320
+  %322 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_ba@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %321
+  store half %185, half addrspace(3)* %322, align 2
+  %323 = or i32 %292, 8
+  %324 = or i32 %288, 8
+  %325 = call %dx.types.CBufRet.i32 @dx.op.cbufferLoadLegacy.i32(i32 59, %dx.types.Handle %2, i32 1)  ; CBufferLoadLegacy(handle,regIndex)
+  %326 = extractvalue %dx.types.CBufRet.i32 %325, 0
+  %327 = add i32 %326, 2
+  %328 = call %dx.types.Handle @dx.op.createHandleFromHeap(i32 218, i32 %327, i1 false, i1 false)  ; CreateHandleFromHeap(index,samplerHeap,nonUniformIndex)
+  %329 = call %dx.types.Handle @dx.op.annotateHandle(i32 216, %dx.types.Handle %328, %dx.types.ResourceProperties { i32 4103, i32 1033 })  ; AnnotateHandle(res,props)  resource: RWTexture2DArray<4xF32>
+  %330 = fpext half %215 to float
   %331 = fpext half %216 to float
   %332 = fpext half %217 to float
   %333 = fpext half %218 to float
-  %334 = fpext half %219 to float
-  call void @dx.op.textureStore.f32(i32 67, %dx.types.Handle %330, i32 %324, i32 %294, i32 %5, float %331, float %332, float %333, float %334, i8 15)  ; TextureStore(srv,coord0,coord1,coord2,value0,value1,value2,value3,mask)
-  %335 = mul i32 %325, 16
-  %336 = add i32 %290, %335
-  %337 = mul i32 %336, 2
-  %338 = add i32 0, %337
-  %339 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_rg@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %338
-  store half %216, half addrspace(3)* %339, align 2
-  %340 = mul i32 %325, 16
-  %341 = add i32 %290, %340
-  %342 = mul i32 %341, 2
-  %343 = add i32 1, %342
-  %344 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_rg@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %343
-  store half %217, half addrspace(3)* %344, align 2
-  %345 = mul i32 %325, 16
-  %346 = add i32 %290, %345
-  %347 = mul i32 %346, 2
-  %348 = add i32 0, %347
-  %349 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_ba@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %348
-  store half %218, half addrspace(3)* %349, align 2
-  %350 = mul i32 %325, 16
-  %351 = add i32 %290, %350
-  %352 = mul i32 %351, 2
-  %353 = add i32 1, %352
-  %354 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_ba@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %353
-  store half %219, half addrspace(3)* %354, align 2
-  %355 = or i32 %292, 8
-  %356 = add i32 %355, %290
-  %357 = add nuw nsw i32 %290, 8
-  %358 = call %dx.types.CBufRet.i32 @dx.op.cbufferLoadLegacy.i32(i32 59, %dx.types.Handle %2, i32 1)  ; CBufferLoadLegacy(handle,regIndex)
-  %359 = extractvalue %dx.types.CBufRet.i32 %358, 0
-  %360 = add i32 %359, 2
-  %361 = call %dx.types.Handle @dx.op.createHandleFromHeap(i32 218, i32 %360, i1 false, i1 false)  ; CreateHandleFromHeap(index,samplerHeap,nonUniformIndex)
-  %362 = call %dx.types.Handle @dx.op.annotateHandle(i32 216, %dx.types.Handle %361, %dx.types.ResourceProperties { i32 4103, i32 1033 })  ; AnnotateHandle(res,props)  resource: RWTexture2DArray<4xF32>
+  call void @dx.op.textureStore.f32(i32 67, %dx.types.Handle %329, i32 %323, i32 %293, i32 %5, float %330, float %331, float %332, float %333, i8 15)  ; TextureStore(srv,coord0,coord1,coord2,value0,value1,value2,value3,mask)
+  %334 = mul i32 %324, 16
+  %335 = add i32 %289, %334
+  %336 = mul i32 %335, 2
+  %337 = add i32 0, %336
+  %338 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_rg@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %337
+  store half %215, half addrspace(3)* %338, align 2
+  %339 = mul i32 %324, 16
+  %340 = add i32 %289, %339
+  %341 = mul i32 %340, 2
+  %342 = add i32 1, %341
+  %343 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_rg@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %342
+  store half %216, half addrspace(3)* %343, align 2
+  %344 = mul i32 %324, 16
+  %345 = add i32 %289, %344
+  %346 = mul i32 %345, 2
+  %347 = add i32 0, %346
+  %348 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_ba@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %347
+  store half %217, half addrspace(3)* %348, align 2
+  %349 = mul i32 %324, 16
+  %350 = add i32 %289, %349
+  %351 = mul i32 %350, 2
+  %352 = add i32 1, %351
+  %353 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_ba@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %352
+  store half %218, half addrspace(3)* %353, align 2
+  %354 = or i32 %291, 8
+  %355 = add i32 %289, %354
+  %356 = add nuw nsw i32 %289, 8
+  %357 = call %dx.types.CBufRet.i32 @dx.op.cbufferLoadLegacy.i32(i32 59, %dx.types.Handle %2, i32 1)  ; CBufferLoadLegacy(handle,regIndex)
+  %358 = extractvalue %dx.types.CBufRet.i32 %357, 0
+  %359 = add i32 %358, 2
+  %360 = call %dx.types.Handle @dx.op.createHandleFromHeap(i32 218, i32 %359, i1 false, i1 false)  ; CreateHandleFromHeap(index,samplerHeap,nonUniformIndex)
+  %361 = call %dx.types.Handle @dx.op.annotateHandle(i32 216, %dx.types.Handle %360, %dx.types.ResourceProperties { i32 4103, i32 1033 })  ; AnnotateHandle(res,props)  resource: RWTexture2DArray<4xF32>
+  %362 = fpext half %248 to float
   %363 = fpext half %249 to float
   %364 = fpext half %250 to float
   %365 = fpext half %251 to float
-  %366 = fpext half %252 to float
-  call void @dx.op.textureStore.f32(i32 67, %dx.types.Handle %362, i32 %293, i32 %356, i32 %5, float %363, float %364, float %365, float %366, i8 15)  ; TextureStore(srv,coord0,coord1,coord2,value0,value1,value2,value3,mask)
-  %367 = mul i32 %289, 16
-  %368 = add i32 %357, %367
-  %369 = mul i32 %368, 2
-  %370 = add i32 0, %369
-  %371 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_rg@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %370
-  store half %249, half addrspace(3)* %371, align 2
-  %372 = mul i32 %289, 16
-  %373 = add i32 %357, %372
-  %374 = mul i32 %373, 2
-  %375 = add i32 1, %374
-  %376 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_rg@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %375
-  store half %250, half addrspace(3)* %376, align 2
-  %377 = mul i32 %289, 16
-  %378 = add i32 %357, %377
-  %379 = mul i32 %378, 2
-  %380 = add i32 0, %379
-  %381 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_ba@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %380
-  store half %251, half addrspace(3)* %381, align 2
-  %382 = mul i32 %289, 16
-  %383 = add i32 %357, %382
-  %384 = mul i32 %383, 2
-  %385 = add i32 1, %384
-  %386 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_ba@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %385
-  store half %252, half addrspace(3)* %386, align 2
-  %387 = call %dx.types.CBufRet.i32 @dx.op.cbufferLoadLegacy.i32(i32 59, %dx.types.Handle %2, i32 1)  ; CBufferLoadLegacy(handle,regIndex)
-  %388 = extractvalue %dx.types.CBufRet.i32 %387, 0
-  %389 = add i32 %388, 2
-  %390 = call %dx.types.Handle @dx.op.createHandleFromHeap(i32 218, i32 %389, i1 false, i1 false)  ; CreateHandleFromHeap(index,samplerHeap,nonUniformIndex)
-  %391 = call %dx.types.Handle @dx.op.annotateHandle(i32 216, %dx.types.Handle %390, %dx.types.ResourceProperties { i32 4103, i32 1033 })  ; AnnotateHandle(res,props)  resource: RWTexture2DArray<4xF32>
+  call void @dx.op.textureStore.f32(i32 67, %dx.types.Handle %361, i32 %292, i32 %355, i32 %5, float %362, float %363, float %364, float %365, i8 15)  ; TextureStore(srv,coord0,coord1,coord2,value0,value1,value2,value3,mask)
+  %366 = mul i32 %288, 16
+  %367 = add i32 %356, %366
+  %368 = mul i32 %367, 2
+  %369 = add i32 0, %368
+  %370 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_rg@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %369
+  store half %248, half addrspace(3)* %370, align 2
+  %371 = mul i32 %288, 16
+  %372 = add i32 %356, %371
+  %373 = mul i32 %372, 2
+  %374 = add i32 1, %373
+  %375 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_rg@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %374
+  store half %249, half addrspace(3)* %375, align 2
+  %376 = mul i32 %288, 16
+  %377 = add i32 %356, %376
+  %378 = mul i32 %377, 2
+  %379 = add i32 0, %378
+  %380 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_ba@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %379
+  store half %250, half addrspace(3)* %380, align 2
+  %381 = mul i32 %288, 16
+  %382 = add i32 %356, %381
+  %383 = mul i32 %382, 2
+  %384 = add i32 1, %383
+  %385 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_ba@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %384
+  store half %251, half addrspace(3)* %385, align 2
+  %386 = call %dx.types.CBufRet.i32 @dx.op.cbufferLoadLegacy.i32(i32 59, %dx.types.Handle %2, i32 1)  ; CBufferLoadLegacy(handle,regIndex)
+  %387 = extractvalue %dx.types.CBufRet.i32 %386, 0
+  %388 = add i32 %387, 2
+  %389 = call %dx.types.Handle @dx.op.createHandleFromHeap(i32 218, i32 %388, i1 false, i1 false)  ; CreateHandleFromHeap(index,samplerHeap,nonUniformIndex)
+  %390 = call %dx.types.Handle @dx.op.annotateHandle(i32 216, %dx.types.Handle %389, %dx.types.ResourceProperties { i32 4103, i32 1033 })  ; AnnotateHandle(res,props)  resource: RWTexture2DArray<4xF32>
+  %391 = fpext half %281 to float
   %392 = fpext half %282 to float
   %393 = fpext half %283 to float
   %394 = fpext half %284 to float
-  %395 = fpext half %285 to float
-  call void @dx.op.textureStore.f32(i32 67, %dx.types.Handle %391, i32 %324, i32 %356, i32 %5, float %392, float %393, float %394, float %395, i8 15)  ; TextureStore(srv,coord0,coord1,coord2,value0,value1,value2,value3,mask)
-  %396 = mul i32 %325, 16
-  %397 = add i32 %357, %396
-  %398 = mul i32 %397, 2
-  %399 = add i32 0, %398
-  %400 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_rg@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %399
-  store half %282, half addrspace(3)* %400, align 2
-  %401 = mul i32 %325, 16
-  %402 = add i32 %357, %401
-  %403 = mul i32 %402, 2
-  %404 = add i32 1, %403
-  %405 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_rg@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %404
-  store half %283, half addrspace(3)* %405, align 2
-  %406 = mul i32 %325, 16
-  %407 = add i32 %357, %406
-  %408 = mul i32 %407, 2
-  %409 = add i32 0, %408
-  %410 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_ba@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %409
-  store half %284, half addrspace(3)* %410, align 2
-  %411 = mul i32 %325, 16
-  %412 = add i32 %357, %411
-  %413 = mul i32 %412, 2
-  %414 = add i32 1, %413
-  %415 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_ba@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %414
-  store half %285, half addrspace(3)* %415, align 2
-  br label %416
+  call void @dx.op.textureStore.f32(i32 67, %dx.types.Handle %390, i32 %323, i32 %355, i32 %5, float %391, float %392, float %393, float %394, i8 15)  ; TextureStore(srv,coord0,coord1,coord2,value0,value1,value2,value3,mask)
+  %395 = mul i32 %324, 16
+  %396 = add i32 %356, %395
+  %397 = mul i32 %396, 2
+  %398 = add i32 0, %397
+  %399 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_rg@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %398
+  store half %281, half addrspace(3)* %399, align 2
+  %400 = mul i32 %324, 16
+  %401 = add i32 %356, %400
+  %402 = mul i32 %401, 2
+  %403 = add i32 1, %402
+  %404 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_rg@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %403
+  store half %282, half addrspace(3)* %404, align 2
+  %405 = mul i32 %324, 16
+  %406 = add i32 %356, %405
+  %407 = mul i32 %406, 2
+  %408 = add i32 0, %407
+  %409 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_ba@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %408
+  store half %283, half addrspace(3)* %409, align 2
+  %410 = mul i32 %324, 16
+  %411 = add i32 %356, %410
+  %412 = mul i32 %411, 2
+  %413 = add i32 1, %412
+  %414 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_ba@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %413
+  store half %284, half addrspace(3)* %414, align 2
+  br label %415
 
-; <label>:416                                     ; preds = %288, %153
-  %417 = icmp ult i32 %15, 3
-  br i1 %417, label %1456, label %418
+; <label>:415                                     ; preds = %287, %152
+  %416 = icmp ult i32 %15, 3
+  br i1 %416, label %1455, label %417
 
-; <label>:418                                     ; preds = %416
+; <label>:417                                     ; preds = %415
   call void @dx.op.barrier(i32 80, i32 9)  ; Barrier(barrierMode)
-  %419 = icmp ult i32 %6, 256
-  br i1 %419, label %420, label %516
+  %418 = icmp ult i32 %6, 256
+  br i1 %418, label %419, label %515
 
-; <label>:420                                     ; preds = %418
-  %421 = mul i32 %30, 16
-  %422 = add i32 %33, %421
-  %423 = mul i32 %422, 2
-  %424 = add i32 0, %423
-  %425 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_rg@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %424
-  %426 = load half, half addrspace(3)* %425, align 2
-  %427 = mul i32 %30, 16
-  %428 = add i32 %33, %427
-  %429 = mul i32 %428, 2
-  %430 = add i32 1, %429
-  %431 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_rg@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %430
-  %432 = load half, half addrspace(3)* %431, align 2
-  %433 = mul i32 %30, 16
-  %434 = add i32 %33, %433
-  %435 = mul i32 %434, 2
-  %436 = add i32 0, %435
-  %437 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_ba@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %436
-  %438 = load half, half addrspace(3)* %437, align 2
-  %439 = mul i32 %30, 16
-  %440 = add i32 %33, %439
-  %441 = mul i32 %440, 2
-  %442 = add i32 1, %441
-  %443 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_ba@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %442
-  %444 = load half, half addrspace(3)* %443, align 2
-  %445 = call i32 @dx.op.waveGetLaneIndex(i32 111)  ; WaveGetLaneIndex()
-  %446 = and i32 %445, -4
-  %447 = or i32 %446, 1
-  %448 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %426, i32 %447)  ; WaveReadLaneAt(value,lane)
-  %449 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %432, i32 %447)  ; WaveReadLaneAt(value,lane)
-  %450 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %438, i32 %447)  ; WaveReadLaneAt(value,lane)
-  %451 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %444, i32 %447)  ; WaveReadLaneAt(value,lane)
-  %452 = or i32 %446, 2
-  %453 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %426, i32 %452)  ; WaveReadLaneAt(value,lane)
-  %454 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %432, i32 %452)  ; WaveReadLaneAt(value,lane)
-  %455 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %438, i32 %452)  ; WaveReadLaneAt(value,lane)
-  %456 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %444, i32 %452)  ; WaveReadLaneAt(value,lane)
-  %457 = or i32 %445, 3
-  %458 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %426, i32 %457)  ; WaveReadLaneAt(value,lane)
-  %459 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %432, i32 %457)  ; WaveReadLaneAt(value,lane)
-  %460 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %438, i32 %457)  ; WaveReadLaneAt(value,lane)
-  %461 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %444, i32 %457)  ; WaveReadLaneAt(value,lane)
-  %462 = fadd fast half %448, %426
-  %463 = fadd fast half %449, %432
-  %464 = fadd fast half %450, %438
-  %465 = fadd fast half %451, %444
+; <label>:419                                     ; preds = %417
+  %420 = mul i32 %30, 16
+  %421 = add i32 %33, %420
+  %422 = mul i32 %421, 2
+  %423 = add i32 0, %422
+  %424 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_rg@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %423
+  %425 = load half, half addrspace(3)* %424, align 2
+  %426 = mul i32 %30, 16
+  %427 = add i32 %33, %426
+  %428 = mul i32 %427, 2
+  %429 = add i32 1, %428
+  %430 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_rg@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %429
+  %431 = load half, half addrspace(3)* %430, align 2
+  %432 = mul i32 %30, 16
+  %433 = add i32 %33, %432
+  %434 = mul i32 %433, 2
+  %435 = add i32 0, %434
+  %436 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_ba@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %435
+  %437 = load half, half addrspace(3)* %436, align 2
+  %438 = mul i32 %30, 16
+  %439 = add i32 %33, %438
+  %440 = mul i32 %439, 2
+  %441 = add i32 1, %440
+  %442 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_ba@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %441
+  %443 = load half, half addrspace(3)* %442, align 2
+  %444 = call i32 @dx.op.waveGetLaneIndex(i32 111)  ; WaveGetLaneIndex()
+  %445 = and i32 %444, -4
+  %446 = or i32 %445, 1
+  %447 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %425, i32 %446)  ; WaveReadLaneAt(value,lane)
+  %448 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %431, i32 %446)  ; WaveReadLaneAt(value,lane)
+  %449 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %437, i32 %446)  ; WaveReadLaneAt(value,lane)
+  %450 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %443, i32 %446)  ; WaveReadLaneAt(value,lane)
+  %451 = or i32 %445, 2
+  %452 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %425, i32 %451)  ; WaveReadLaneAt(value,lane)
+  %453 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %431, i32 %451)  ; WaveReadLaneAt(value,lane)
+  %454 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %437, i32 %451)  ; WaveReadLaneAt(value,lane)
+  %455 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %443, i32 %451)  ; WaveReadLaneAt(value,lane)
+  %456 = or i32 %444, 3
+  %457 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %425, i32 %456)  ; WaveReadLaneAt(value,lane)
+  %458 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %431, i32 %456)  ; WaveReadLaneAt(value,lane)
+  %459 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %437, i32 %456)  ; WaveReadLaneAt(value,lane)
+  %460 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %443, i32 %456)  ; WaveReadLaneAt(value,lane)
+  %461 = fadd fast half %447, %425
+  %462 = fadd fast half %448, %431
+  %463 = fadd fast half %449, %437
+  %464 = fadd fast half %450, %443
+  %465 = fadd fast half %461, %452
   %466 = fadd fast half %462, %453
   %467 = fadd fast half %463, %454
   %468 = fadd fast half %464, %455
-  %469 = fadd fast half %465, %456
+  %469 = fadd fast half %465, %457
   %470 = fadd fast half %466, %458
   %471 = fadd fast half %467, %459
   %472 = fadd fast half %468, %460
-  %473 = fadd fast half %469, %461
+  %473 = fmul fast half %469, 0xH3400
   %474 = fmul fast half %470, 0xH3400
   %475 = fmul fast half %471, 0xH3400
   %476 = fmul fast half %472, 0xH3400
-  %477 = fmul fast half %473, 0xH3400
-  br i1 %287, label %478, label %516
+  br i1 %286, label %477, label %515
 
-; <label>:478                                     ; preds = %420
-  %479 = lshr i32 %30, 1
-  %480 = lshr i32 %33, 1
-  %481 = shl i32 %3, 3
-  %482 = shl i32 %4, 3
-  %483 = or i32 %479, %481
-  %484 = add i32 %480, %482
-  %485 = and i32 %23, 1
-  %486 = add nuw nsw i32 %30, %485
-  %487 = call %dx.types.CBufRet.i32 @dx.op.cbufferLoadLegacy.i32(i32 59, %dx.types.Handle %2, i32 1)  ; CBufferLoadLegacy(handle,regIndex)
-  %488 = extractvalue %dx.types.CBufRet.i32 %487, 0
-  %489 = add i32 %488, 3
-  %490 = call %dx.types.Handle @dx.op.createHandleFromHeap(i32 218, i32 %489, i1 false, i1 false)  ; CreateHandleFromHeap(index,samplerHeap,nonUniformIndex)
-  %491 = call %dx.types.Handle @dx.op.annotateHandle(i32 216, %dx.types.Handle %490, %dx.types.ResourceProperties { i32 4103, i32 1033 })  ; AnnotateHandle(res,props)  resource: RWTexture2DArray<4xF32>
+; <label>:477                                     ; preds = %419
+  %478 = lshr i32 %30, 1
+  %479 = lshr i32 %33, 1
+  %480 = shl i32 %3, 3
+  %481 = shl i32 %4, 3
+  %482 = or i32 %478, %480
+  %483 = add i32 %479, %481
+  %484 = and i32 %23, 1
+  %485 = add nuw nsw i32 %30, %484
+  %486 = call %dx.types.CBufRet.i32 @dx.op.cbufferLoadLegacy.i32(i32 59, %dx.types.Handle %2, i32 1)  ; CBufferLoadLegacy(handle,regIndex)
+  %487 = extractvalue %dx.types.CBufRet.i32 %486, 0
+  %488 = add i32 %487, 3
+  %489 = call %dx.types.Handle @dx.op.createHandleFromHeap(i32 218, i32 %488, i1 false, i1 false)  ; CreateHandleFromHeap(index,samplerHeap,nonUniformIndex)
+  %490 = call %dx.types.Handle @dx.op.annotateHandle(i32 216, %dx.types.Handle %489, %dx.types.ResourceProperties { i32 4103, i32 1033 })  ; AnnotateHandle(res,props)  resource: RWTexture2DArray<4xF32>
+  %491 = fpext half %473 to float
   %492 = fpext half %474 to float
   %493 = fpext half %475 to float
   %494 = fpext half %476 to float
-  %495 = fpext half %477 to float
-  call void @dx.op.textureStore.f32(i32 67, %dx.types.Handle %491, i32 %483, i32 %484, i32 %5, float %492, float %493, float %494, float %495, i8 15)  ; TextureStore(srv,coord0,coord1,coord2,value0,value1,value2,value3,mask)
-  %496 = mul i32 %486, 16
-  %497 = add i32 %33, %496
-  %498 = mul i32 %497, 2
-  %499 = add i32 0, %498
-  %500 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_rg@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %499
-  store half %474, half addrspace(3)* %500, align 2
-  %501 = mul i32 %486, 16
-  %502 = add i32 %33, %501
-  %503 = mul i32 %502, 2
-  %504 = add i32 1, %503
-  %505 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_rg@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %504
-  store half %475, half addrspace(3)* %505, align 2
-  %506 = mul i32 %486, 16
-  %507 = add i32 %33, %506
-  %508 = mul i32 %507, 2
-  %509 = add i32 0, %508
-  %510 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_ba@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %509
-  store half %476, half addrspace(3)* %510, align 2
-  %511 = mul i32 %486, 16
-  %512 = add i32 %33, %511
-  %513 = mul i32 %512, 2
-  %514 = add i32 1, %513
-  %515 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_ba@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %514
-  store half %477, half addrspace(3)* %515, align 2
-  br label %516
+  call void @dx.op.textureStore.f32(i32 67, %dx.types.Handle %490, i32 %482, i32 %483, i32 %5, float %491, float %492, float %493, float %494, i8 15)  ; TextureStore(srv,coord0,coord1,coord2,value0,value1,value2,value3,mask)
+  %495 = mul i32 %485, 16
+  %496 = add i32 %33, %495
+  %497 = mul i32 %496, 2
+  %498 = add i32 0, %497
+  %499 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_rg@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %498
+  store half %473, half addrspace(3)* %499, align 2
+  %500 = mul i32 %485, 16
+  %501 = add i32 %33, %500
+  %502 = mul i32 %501, 2
+  %503 = add i32 1, %502
+  %504 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_rg@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %503
+  store half %474, half addrspace(3)* %504, align 2
+  %505 = mul i32 %485, 16
+  %506 = add i32 %33, %505
+  %507 = mul i32 %506, 2
+  %508 = add i32 0, %507
+  %509 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_ba@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %508
+  store half %475, half addrspace(3)* %509, align 2
+  %510 = mul i32 %485, 16
+  %511 = add i32 %33, %510
+  %512 = mul i32 %511, 2
+  %513 = add i32 1, %512
+  %514 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_ba@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %513
+  store half %476, half addrspace(3)* %514, align 2
+  br label %515
 
-; <label>:516                                     ; preds = %478, %420, %418
-  %517 = icmp ult i32 %15, 4
-  br i1 %517, label %1456, label %518
+; <label>:515                                     ; preds = %477, %419, %417
+  %516 = icmp ult i32 %15, 4
+  br i1 %516, label %1455, label %517
 
-; <label>:518                                     ; preds = %516
+; <label>:517                                     ; preds = %515
   call void @dx.op.barrier(i32 80, i32 9)  ; Barrier(barrierMode)
-  %519 = icmp ult i32 %6, 64
-  br i1 %519, label %520, label %617
+  %518 = icmp ult i32 %6, 64
+  br i1 %518, label %519, label %616
 
-; <label>:520                                     ; preds = %518
-  %521 = and i32 %21, 1
-  %522 = or i32 %34, %521
-  %523 = mul i32 %522, 16
-  %524 = add i32 %35, %523
-  %525 = mul i32 %524, 2
-  %526 = add i32 0, %525
-  %527 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_rg@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %526
-  %528 = load half, half addrspace(3)* %527, align 2
-  %529 = mul i32 %522, 16
-  %530 = add i32 %35, %529
-  %531 = mul i32 %530, 2
-  %532 = add i32 1, %531
-  %533 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_rg@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %532
-  %534 = load half, half addrspace(3)* %533, align 2
-  %535 = mul i32 %522, 16
-  %536 = add i32 %35, %535
-  %537 = mul i32 %536, 2
-  %538 = add i32 0, %537
-  %539 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_ba@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %538
-  %540 = load half, half addrspace(3)* %539, align 2
-  %541 = mul i32 %522, 16
-  %542 = add i32 %35, %541
-  %543 = mul i32 %542, 2
-  %544 = add i32 1, %543
-  %545 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_ba@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %544
-  %546 = load half, half addrspace(3)* %545, align 2
-  %547 = call i32 @dx.op.waveGetLaneIndex(i32 111)  ; WaveGetLaneIndex()
-  %548 = and i32 %547, -4
-  %549 = or i32 %548, 1
-  %550 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %528, i32 %549)  ; WaveReadLaneAt(value,lane)
-  %551 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %534, i32 %549)  ; WaveReadLaneAt(value,lane)
-  %552 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %540, i32 %549)  ; WaveReadLaneAt(value,lane)
-  %553 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %546, i32 %549)  ; WaveReadLaneAt(value,lane)
-  %554 = or i32 %548, 2
-  %555 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %528, i32 %554)  ; WaveReadLaneAt(value,lane)
-  %556 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %534, i32 %554)  ; WaveReadLaneAt(value,lane)
-  %557 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %540, i32 %554)  ; WaveReadLaneAt(value,lane)
-  %558 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %546, i32 %554)  ; WaveReadLaneAt(value,lane)
-  %559 = or i32 %547, 3
-  %560 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %528, i32 %559)  ; WaveReadLaneAt(value,lane)
-  %561 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %534, i32 %559)  ; WaveReadLaneAt(value,lane)
-  %562 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %540, i32 %559)  ; WaveReadLaneAt(value,lane)
-  %563 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %546, i32 %559)  ; WaveReadLaneAt(value,lane)
-  %564 = fadd fast half %550, %528
-  %565 = fadd fast half %551, %534
-  %566 = fadd fast half %552, %540
-  %567 = fadd fast half %553, %546
+; <label>:519                                     ; preds = %517
+  %520 = and i32 %21, 1
+  %521 = or i32 %34, %520
+  %522 = mul i32 %521, 16
+  %523 = add i32 %35, %522
+  %524 = mul i32 %523, 2
+  %525 = add i32 0, %524
+  %526 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_rg@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %525
+  %527 = load half, half addrspace(3)* %526, align 2
+  %528 = mul i32 %521, 16
+  %529 = add i32 %35, %528
+  %530 = mul i32 %529, 2
+  %531 = add i32 1, %530
+  %532 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_rg@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %531
+  %533 = load half, half addrspace(3)* %532, align 2
+  %534 = mul i32 %521, 16
+  %535 = add i32 %35, %534
+  %536 = mul i32 %535, 2
+  %537 = add i32 0, %536
+  %538 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_ba@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %537
+  %539 = load half, half addrspace(3)* %538, align 2
+  %540 = mul i32 %521, 16
+  %541 = add i32 %35, %540
+  %542 = mul i32 %541, 2
+  %543 = add i32 1, %542
+  %544 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_ba@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %543
+  %545 = load half, half addrspace(3)* %544, align 2
+  %546 = call i32 @dx.op.waveGetLaneIndex(i32 111)  ; WaveGetLaneIndex()
+  %547 = and i32 %546, -4
+  %548 = or i32 %547, 1
+  %549 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %527, i32 %548)  ; WaveReadLaneAt(value,lane)
+  %550 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %533, i32 %548)  ; WaveReadLaneAt(value,lane)
+  %551 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %539, i32 %548)  ; WaveReadLaneAt(value,lane)
+  %552 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %545, i32 %548)  ; WaveReadLaneAt(value,lane)
+  %553 = or i32 %547, 2
+  %554 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %527, i32 %553)  ; WaveReadLaneAt(value,lane)
+  %555 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %533, i32 %553)  ; WaveReadLaneAt(value,lane)
+  %556 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %539, i32 %553)  ; WaveReadLaneAt(value,lane)
+  %557 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %545, i32 %553)  ; WaveReadLaneAt(value,lane)
+  %558 = or i32 %546, 3
+  %559 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %527, i32 %558)  ; WaveReadLaneAt(value,lane)
+  %560 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %533, i32 %558)  ; WaveReadLaneAt(value,lane)
+  %561 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %539, i32 %558)  ; WaveReadLaneAt(value,lane)
+  %562 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %545, i32 %558)  ; WaveReadLaneAt(value,lane)
+  %563 = fadd fast half %549, %527
+  %564 = fadd fast half %550, %533
+  %565 = fadd fast half %551, %539
+  %566 = fadd fast half %552, %545
+  %567 = fadd fast half %563, %554
   %568 = fadd fast half %564, %555
   %569 = fadd fast half %565, %556
   %570 = fadd fast half %566, %557
-  %571 = fadd fast half %567, %558
+  %571 = fadd fast half %567, %559
   %572 = fadd fast half %568, %560
   %573 = fadd fast half %569, %561
   %574 = fadd fast half %570, %562
-  %575 = fadd fast half %571, %563
+  %575 = fmul fast half %571, 0xH3400
   %576 = fmul fast half %572, 0xH3400
   %577 = fmul fast half %573, 0xH3400
   %578 = fmul fast half %574, 0xH3400
-  %579 = fmul fast half %575, 0xH3400
-  br i1 %287, label %580, label %617
+  br i1 %286, label %579, label %616
 
-; <label>:580                                     ; preds = %520
-  %581 = lshr i32 %30, 1
-  %582 = lshr i32 %33, 1
-  %583 = shl i32 %3, 2
-  %584 = shl i32 %4, 2
+; <label>:579                                     ; preds = %519
+  %580 = lshr i32 %30, 1
+  %581 = lshr i32 %33, 1
+  %582 = shl i32 %3, 2
+  %583 = shl i32 %4, 2
+  %584 = add i32 %580, %582
   %585 = add i32 %581, %583
-  %586 = add i32 %582, %584
-  %587 = add nuw nsw i32 %34, %582
-  %588 = call %dx.types.CBufRet.i32 @dx.op.cbufferLoadLegacy.i32(i32 59, %dx.types.Handle %2, i32 1)  ; CBufferLoadLegacy(handle,regIndex)
-  %589 = extractvalue %dx.types.CBufRet.i32 %588, 0
-  %590 = add i32 %589, 4
-  %591 = call %dx.types.Handle @dx.op.createHandleFromHeap(i32 218, i32 %590, i1 false, i1 false)  ; CreateHandleFromHeap(index,samplerHeap,nonUniformIndex)
-  %592 = call %dx.types.Handle @dx.op.annotateHandle(i32 216, %dx.types.Handle %591, %dx.types.ResourceProperties { i32 4103, i32 1033 })  ; AnnotateHandle(res,props)  resource: RWTexture2DArray<4xF32>
+  %586 = add nuw nsw i32 %34, %581
+  %587 = call %dx.types.CBufRet.i32 @dx.op.cbufferLoadLegacy.i32(i32 59, %dx.types.Handle %2, i32 1)  ; CBufferLoadLegacy(handle,regIndex)
+  %588 = extractvalue %dx.types.CBufRet.i32 %587, 0
+  %589 = add i32 %588, 4
+  %590 = call %dx.types.Handle @dx.op.createHandleFromHeap(i32 218, i32 %589, i1 false, i1 false)  ; CreateHandleFromHeap(index,samplerHeap,nonUniformIndex)
+  %591 = call %dx.types.Handle @dx.op.annotateHandle(i32 216, %dx.types.Handle %590, %dx.types.ResourceProperties { i32 4103, i32 1033 })  ; AnnotateHandle(res,props)  resource: RWTexture2DArray<4xF32>
+  %592 = fpext half %575 to float
   %593 = fpext half %576 to float
   %594 = fpext half %577 to float
   %595 = fpext half %578 to float
-  %596 = fpext half %579 to float
-  call void @dx.op.textureStore.f32(i32 67, %dx.types.Handle %592, i32 %585, i32 %586, i32 %5, float %593, float %594, float %595, float %596, i8 15)  ; TextureStore(srv,coord0,coord1,coord2,value0,value1,value2,value3,mask)
-  %597 = mul i32 %587, 16
-  %598 = add i32 %35, %597
-  %599 = mul i32 %598, 2
-  %600 = add i32 0, %599
-  %601 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_rg@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %600
-  store half %576, half addrspace(3)* %601, align 2
-  %602 = mul i32 %587, 16
-  %603 = add i32 %35, %602
-  %604 = mul i32 %603, 2
-  %605 = add i32 1, %604
-  %606 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_rg@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %605
-  store half %577, half addrspace(3)* %606, align 2
-  %607 = mul i32 %587, 16
-  %608 = add i32 %35, %607
-  %609 = mul i32 %608, 2
-  %610 = add i32 0, %609
-  %611 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_ba@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %610
-  store half %578, half addrspace(3)* %611, align 2
-  %612 = mul i32 %587, 16
-  %613 = add i32 %35, %612
-  %614 = mul i32 %613, 2
-  %615 = add i32 1, %614
-  %616 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_ba@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %615
-  store half %579, half addrspace(3)* %616, align 2
-  br label %617
+  call void @dx.op.textureStore.f32(i32 67, %dx.types.Handle %591, i32 %584, i32 %585, i32 %5, float %592, float %593, float %594, float %595, i8 15)  ; TextureStore(srv,coord0,coord1,coord2,value0,value1,value2,value3,mask)
+  %596 = mul i32 %586, 16
+  %597 = add i32 %35, %596
+  %598 = mul i32 %597, 2
+  %599 = add i32 0, %598
+  %600 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_rg@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %599
+  store half %575, half addrspace(3)* %600, align 2
+  %601 = mul i32 %586, 16
+  %602 = add i32 %35, %601
+  %603 = mul i32 %602, 2
+  %604 = add i32 1, %603
+  %605 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_rg@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %604
+  store half %576, half addrspace(3)* %605, align 2
+  %606 = mul i32 %586, 16
+  %607 = add i32 %35, %606
+  %608 = mul i32 %607, 2
+  %609 = add i32 0, %608
+  %610 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_ba@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %609
+  store half %577, half addrspace(3)* %610, align 2
+  %611 = mul i32 %586, 16
+  %612 = add i32 %35, %611
+  %613 = mul i32 %612, 2
+  %614 = add i32 1, %613
+  %615 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_ba@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %614
+  store half %578, half addrspace(3)* %615, align 2
+  br label %616
 
-; <label>:617                                     ; preds = %580, %520, %518
-  %618 = icmp ult i32 %15, 5
-  br i1 %618, label %1456, label %619
+; <label>:616                                     ; preds = %579, %519, %517
+  %617 = icmp ult i32 %15, 5
+  br i1 %617, label %1455, label %618
 
-; <label>:619                                     ; preds = %617
+; <label>:618                                     ; preds = %616
   call void @dx.op.barrier(i32 80, i32 9)  ; Barrier(barrierMode)
-  %620 = icmp ult i32 %6, 16
-  br i1 %620, label %621, label %719
+  %619 = icmp ult i32 %6, 16
+  br i1 %619, label %620, label %718
 
-; <label>:621                                     ; preds = %619
-  %622 = shl nuw nsw i32 %30, 2
-  %623 = add nuw nsw i32 %622, %33
-  %624 = shl nuw nsw i32 %33, 2
-  %625 = mul i32 %623, 16
-  %626 = add i32 %624, %625
-  %627 = mul i32 %626, 2
-  %628 = add i32 0, %627
-  %629 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_rg@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %628
-  %630 = load half, half addrspace(3)* %629, align 2
-  %631 = mul i32 %623, 16
-  %632 = add i32 %624, %631
-  %633 = mul i32 %632, 2
-  %634 = add i32 1, %633
-  %635 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_rg@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %634
-  %636 = load half, half addrspace(3)* %635, align 2
-  %637 = mul i32 %623, 16
-  %638 = add i32 %624, %637
-  %639 = mul i32 %638, 2
-  %640 = add i32 0, %639
-  %641 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_ba@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %640
-  %642 = load half, half addrspace(3)* %641, align 2
-  %643 = mul i32 %623, 16
-  %644 = add i32 %624, %643
-  %645 = mul i32 %644, 2
-  %646 = add i32 1, %645
-  %647 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_ba@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %646
-  %648 = load half, half addrspace(3)* %647, align 2
-  %649 = call i32 @dx.op.waveGetLaneIndex(i32 111)  ; WaveGetLaneIndex()
-  %650 = and i32 %649, -4
-  %651 = or i32 %650, 1
-  %652 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %630, i32 %651)  ; WaveReadLaneAt(value,lane)
-  %653 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %636, i32 %651)  ; WaveReadLaneAt(value,lane)
-  %654 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %642, i32 %651)  ; WaveReadLaneAt(value,lane)
-  %655 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %648, i32 %651)  ; WaveReadLaneAt(value,lane)
-  %656 = or i32 %650, 2
-  %657 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %630, i32 %656)  ; WaveReadLaneAt(value,lane)
-  %658 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %636, i32 %656)  ; WaveReadLaneAt(value,lane)
-  %659 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %642, i32 %656)  ; WaveReadLaneAt(value,lane)
-  %660 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %648, i32 %656)  ; WaveReadLaneAt(value,lane)
-  %661 = or i32 %649, 3
-  %662 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %630, i32 %661)  ; WaveReadLaneAt(value,lane)
-  %663 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %636, i32 %661)  ; WaveReadLaneAt(value,lane)
-  %664 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %642, i32 %661)  ; WaveReadLaneAt(value,lane)
-  %665 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %648, i32 %661)  ; WaveReadLaneAt(value,lane)
-  %666 = fadd fast half %652, %630
-  %667 = fadd fast half %653, %636
-  %668 = fadd fast half %654, %642
-  %669 = fadd fast half %655, %648
+; <label>:620                                     ; preds = %618
+  %621 = shl nuw nsw i32 %30, 2
+  %622 = add nuw nsw i32 %621, %33
+  %623 = shl nuw nsw i32 %33, 2
+  %624 = mul i32 %622, 16
+  %625 = add i32 %623, %624
+  %626 = mul i32 %625, 2
+  %627 = add i32 0, %626
+  %628 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_rg@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %627
+  %629 = load half, half addrspace(3)* %628, align 2
+  %630 = mul i32 %622, 16
+  %631 = add i32 %623, %630
+  %632 = mul i32 %631, 2
+  %633 = add i32 1, %632
+  %634 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_rg@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %633
+  %635 = load half, half addrspace(3)* %634, align 2
+  %636 = mul i32 %622, 16
+  %637 = add i32 %623, %636
+  %638 = mul i32 %637, 2
+  %639 = add i32 0, %638
+  %640 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_ba@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %639
+  %641 = load half, half addrspace(3)* %640, align 2
+  %642 = mul i32 %622, 16
+  %643 = add i32 %623, %642
+  %644 = mul i32 %643, 2
+  %645 = add i32 1, %644
+  %646 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_ba@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %645
+  %647 = load half, half addrspace(3)* %646, align 2
+  %648 = call i32 @dx.op.waveGetLaneIndex(i32 111)  ; WaveGetLaneIndex()
+  %649 = and i32 %648, -4
+  %650 = or i32 %649, 1
+  %651 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %629, i32 %650)  ; WaveReadLaneAt(value,lane)
+  %652 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %635, i32 %650)  ; WaveReadLaneAt(value,lane)
+  %653 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %641, i32 %650)  ; WaveReadLaneAt(value,lane)
+  %654 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %647, i32 %650)  ; WaveReadLaneAt(value,lane)
+  %655 = or i32 %649, 2
+  %656 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %629, i32 %655)  ; WaveReadLaneAt(value,lane)
+  %657 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %635, i32 %655)  ; WaveReadLaneAt(value,lane)
+  %658 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %641, i32 %655)  ; WaveReadLaneAt(value,lane)
+  %659 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %647, i32 %655)  ; WaveReadLaneAt(value,lane)
+  %660 = or i32 %648, 3
+  %661 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %629, i32 %660)  ; WaveReadLaneAt(value,lane)
+  %662 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %635, i32 %660)  ; WaveReadLaneAt(value,lane)
+  %663 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %641, i32 %660)  ; WaveReadLaneAt(value,lane)
+  %664 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %647, i32 %660)  ; WaveReadLaneAt(value,lane)
+  %665 = fadd fast half %651, %629
+  %666 = fadd fast half %652, %635
+  %667 = fadd fast half %653, %641
+  %668 = fadd fast half %654, %647
+  %669 = fadd fast half %665, %656
   %670 = fadd fast half %666, %657
   %671 = fadd fast half %667, %658
   %672 = fadd fast half %668, %659
-  %673 = fadd fast half %669, %660
+  %673 = fadd fast half %669, %661
   %674 = fadd fast half %670, %662
   %675 = fadd fast half %671, %663
   %676 = fadd fast half %672, %664
-  %677 = fadd fast half %673, %665
+  %677 = fmul fast half %673, 0xH3400
   %678 = fmul fast half %674, 0xH3400
   %679 = fmul fast half %675, 0xH3400
   %680 = fmul fast half %676, 0xH3400
-  %681 = fmul fast half %677, 0xH3400
-  br i1 %287, label %682, label %719
+  br i1 %286, label %681, label %718
 
-; <label>:682                                     ; preds = %621
-  %683 = lshr i32 %30, 1
-  %684 = lshr i32 %33, 1
-  %685 = shl i32 %3, 1
-  %686 = shl i32 %4, 1
+; <label>:681                                     ; preds = %620
+  %682 = lshr i32 %30, 1
+  %683 = lshr i32 %33, 1
+  %684 = shl i32 %3, 1
+  %685 = shl i32 %4, 1
+  %686 = add i32 %682, %684
   %687 = add i32 %683, %685
-  %688 = add i32 %684, %686
-  %689 = add nuw nsw i32 %683, %33
-  %690 = call %dx.types.CBufRet.i32 @dx.op.cbufferLoadLegacy.i32(i32 59, %dx.types.Handle %2, i32 1)  ; CBufferLoadLegacy(handle,regIndex)
-  %691 = extractvalue %dx.types.CBufRet.i32 %690, 0
-  %692 = add i32 %691, 5
-  %693 = call %dx.types.Handle @dx.op.createHandleFromHeap(i32 218, i32 %692, i1 false, i1 false)  ; CreateHandleFromHeap(index,samplerHeap,nonUniformIndex)
-  %694 = call %dx.types.Handle @dx.op.annotateHandle(i32 216, %dx.types.Handle %693, %dx.types.ResourceProperties { i32 4103, i32 1033 })  ; AnnotateHandle(res,props)  resource: RWTexture2DArray<4xF32>
+  %688 = add nuw nsw i32 %682, %33
+  %689 = call %dx.types.CBufRet.i32 @dx.op.cbufferLoadLegacy.i32(i32 59, %dx.types.Handle %2, i32 1)  ; CBufferLoadLegacy(handle,regIndex)
+  %690 = extractvalue %dx.types.CBufRet.i32 %689, 0
+  %691 = add i32 %690, 5
+  %692 = call %dx.types.Handle @dx.op.createHandleFromHeap(i32 218, i32 %691, i1 false, i1 false)  ; CreateHandleFromHeap(index,samplerHeap,nonUniformIndex)
+  %693 = call %dx.types.Handle @dx.op.annotateHandle(i32 216, %dx.types.Handle %692, %dx.types.ResourceProperties { i32 4103, i32 1033 })  ; AnnotateHandle(res,props)  resource: RWTexture2DArray<4xF32>
+  %694 = fpext half %677 to float
   %695 = fpext half %678 to float
   %696 = fpext half %679 to float
   %697 = fpext half %680 to float
-  %698 = fpext half %681 to float
-  call void @dx.op.textureStore.f32(i32 67, %dx.types.Handle %694, i32 %687, i32 %688, i32 %5, float %695, float %696, float %697, float %698, i8 15)  ; TextureStore(srv,coord0,coord1,coord2,value0,value1,value2,value3,mask)
-  %699 = mul i32 %689, 16
-  %700 = add i32 0, %699
-  %701 = mul i32 %700, 2
-  %702 = add i32 0, %701
-  %703 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_rg@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %702
-  store half %678, half addrspace(3)* %703, align 2
-  %704 = mul i32 %689, 16
-  %705 = add i32 0, %704
-  %706 = mul i32 %705, 2
-  %707 = add i32 1, %706
-  %708 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_rg@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %707
-  store half %679, half addrspace(3)* %708, align 2
-  %709 = mul i32 %689, 16
-  %710 = add i32 0, %709
-  %711 = mul i32 %710, 2
-  %712 = add i32 0, %711
-  %713 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_ba@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %712
-  store half %680, half addrspace(3)* %713, align 2
-  %714 = mul i32 %689, 16
-  %715 = add i32 0, %714
-  %716 = mul i32 %715, 2
-  %717 = add i32 1, %716
-  %718 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_ba@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %717
-  store half %681, half addrspace(3)* %718, align 2
-  br label %719
+  call void @dx.op.textureStore.f32(i32 67, %dx.types.Handle %693, i32 %686, i32 %687, i32 %5, float %694, float %695, float %696, float %697, i8 15)  ; TextureStore(srv,coord0,coord1,coord2,value0,value1,value2,value3,mask)
+  %698 = mul i32 %688, 16
+  %699 = add i32 0, %698
+  %700 = mul i32 %699, 2
+  %701 = add i32 0, %700
+  %702 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_rg@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %701
+  store half %677, half addrspace(3)* %702, align 2
+  %703 = mul i32 %688, 16
+  %704 = add i32 0, %703
+  %705 = mul i32 %704, 2
+  %706 = add i32 1, %705
+  %707 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_rg@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %706
+  store half %678, half addrspace(3)* %707, align 2
+  %708 = mul i32 %688, 16
+  %709 = add i32 0, %708
+  %710 = mul i32 %709, 2
+  %711 = add i32 0, %710
+  %712 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_ba@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %711
+  store half %679, half addrspace(3)* %712, align 2
+  %713 = mul i32 %688, 16
+  %714 = add i32 0, %713
+  %715 = mul i32 %714, 2
+  %716 = add i32 1, %715
+  %717 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_ba@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %716
+  store half %680, half addrspace(3)* %717, align 2
+  br label %718
 
-; <label>:719                                     ; preds = %682, %621, %619
-  %720 = icmp ult i32 %15, 6
-  br i1 %720, label %1456, label %721
+; <label>:718                                     ; preds = %681, %620, %618
+  %719 = icmp ult i32 %15, 6
+  br i1 %719, label %1455, label %720
 
-; <label>:721                                     ; preds = %719
+; <label>:720                                     ; preds = %718
   call void @dx.op.barrier(i32 80, i32 9)  ; Barrier(barrierMode)
-  %722 = icmp ult i32 %6, 4
-  br i1 %722, label %723, label %790
+  %721 = icmp ult i32 %6, 4
+  br i1 %721, label %722, label %789
 
-; <label>:723                                     ; preds = %721
-  %724 = mul i32 %6, 16
-  %725 = add i32 0, %724
-  %726 = mul i32 %725, 2
-  %727 = add i32 0, %726
-  %728 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_rg@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %727
-  %729 = load half, half addrspace(3)* %728, align 2
-  %730 = mul i32 %6, 16
-  %731 = add i32 0, %730
-  %732 = mul i32 %731, 2
-  %733 = add i32 1, %732
-  %734 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_rg@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %733
-  %735 = load half, half addrspace(3)* %734, align 2
-  %736 = mul i32 %6, 16
-  %737 = add i32 0, %736
-  %738 = mul i32 %737, 2
-  %739 = add i32 0, %738
-  %740 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_ba@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %739
-  %741 = load half, half addrspace(3)* %740, align 2
-  %742 = mul i32 %6, 16
-  %743 = add i32 0, %742
-  %744 = mul i32 %743, 2
-  %745 = add i32 1, %744
-  %746 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_ba@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %745
-  %747 = load half, half addrspace(3)* %746, align 2
-  %748 = call i32 @dx.op.waveGetLaneIndex(i32 111)  ; WaveGetLaneIndex()
-  %749 = and i32 %748, -4
-  %750 = or i32 %749, 1
-  %751 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %729, i32 %750)  ; WaveReadLaneAt(value,lane)
-  %752 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %735, i32 %750)  ; WaveReadLaneAt(value,lane)
-  %753 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %741, i32 %750)  ; WaveReadLaneAt(value,lane)
-  %754 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %747, i32 %750)  ; WaveReadLaneAt(value,lane)
-  %755 = or i32 %749, 2
-  %756 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %729, i32 %755)  ; WaveReadLaneAt(value,lane)
-  %757 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %735, i32 %755)  ; WaveReadLaneAt(value,lane)
-  %758 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %741, i32 %755)  ; WaveReadLaneAt(value,lane)
-  %759 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %747, i32 %755)  ; WaveReadLaneAt(value,lane)
-  %760 = or i32 %748, 3
-  %761 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %729, i32 %760)  ; WaveReadLaneAt(value,lane)
-  %762 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %735, i32 %760)  ; WaveReadLaneAt(value,lane)
-  %763 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %741, i32 %760)  ; WaveReadLaneAt(value,lane)
-  %764 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %747, i32 %760)  ; WaveReadLaneAt(value,lane)
-  br i1 %287, label %765, label %790
+; <label>:722                                     ; preds = %720
+  %723 = mul i32 %6, 16
+  %724 = add i32 0, %723
+  %725 = mul i32 %724, 2
+  %726 = add i32 0, %725
+  %727 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_rg@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %726
+  %728 = load half, half addrspace(3)* %727, align 2
+  %729 = mul i32 %6, 16
+  %730 = add i32 0, %729
+  %731 = mul i32 %730, 2
+  %732 = add i32 1, %731
+  %733 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_rg@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %732
+  %734 = load half, half addrspace(3)* %733, align 2
+  %735 = mul i32 %6, 16
+  %736 = add i32 0, %735
+  %737 = mul i32 %736, 2
+  %738 = add i32 0, %737
+  %739 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_ba@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %738
+  %740 = load half, half addrspace(3)* %739, align 2
+  %741 = mul i32 %6, 16
+  %742 = add i32 0, %741
+  %743 = mul i32 %742, 2
+  %744 = add i32 1, %743
+  %745 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_ba@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %744
+  %746 = load half, half addrspace(3)* %745, align 2
+  %747 = call i32 @dx.op.waveGetLaneIndex(i32 111)  ; WaveGetLaneIndex()
+  %748 = and i32 %747, -4
+  %749 = or i32 %748, 1
+  %750 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %728, i32 %749)  ; WaveReadLaneAt(value,lane)
+  %751 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %734, i32 %749)  ; WaveReadLaneAt(value,lane)
+  %752 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %740, i32 %749)  ; WaveReadLaneAt(value,lane)
+  %753 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %746, i32 %749)  ; WaveReadLaneAt(value,lane)
+  %754 = or i32 %748, 2
+  %755 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %728, i32 %754)  ; WaveReadLaneAt(value,lane)
+  %756 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %734, i32 %754)  ; WaveReadLaneAt(value,lane)
+  %757 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %740, i32 %754)  ; WaveReadLaneAt(value,lane)
+  %758 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %746, i32 %754)  ; WaveReadLaneAt(value,lane)
+  %759 = or i32 %747, 3
+  %760 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %728, i32 %759)  ; WaveReadLaneAt(value,lane)
+  %761 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %734, i32 %759)  ; WaveReadLaneAt(value,lane)
+  %762 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %740, i32 %759)  ; WaveReadLaneAt(value,lane)
+  %763 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %746, i32 %759)  ; WaveReadLaneAt(value,lane)
+  br i1 %286, label %764, label %789
 
-; <label>:765                                     ; preds = %723
-  %766 = fadd fast half %754, %747
-  %767 = fadd fast half %766, %759
-  %768 = fadd fast half %767, %764
-  %769 = fmul fast half %768, 0xH3400
-  %770 = fadd fast half %753, %741
-  %771 = fadd fast half %770, %758
-  %772 = fadd fast half %771, %763
-  %773 = fmul fast half %772, 0xH3400
-  %774 = fadd fast half %752, %735
-  %775 = fadd fast half %774, %757
-  %776 = fadd fast half %775, %762
-  %777 = fmul fast half %776, 0xH3400
-  %778 = fadd fast half %751, %729
-  %779 = fadd fast half %778, %756
-  %780 = fadd fast half %779, %761
-  %781 = fmul fast half %780, 0xH3400
-  %782 = call %dx.types.CBufRet.i32 @dx.op.cbufferLoadLegacy.i32(i32 59, %dx.types.Handle %2, i32 0)  ; CBufferLoadLegacy(handle,regIndex)
-  %783 = extractvalue %dx.types.CBufRet.i32 %782, 3
-  %784 = call %dx.types.Handle @dx.op.createHandleFromHeap(i32 218, i32 %783, i1 false, i1 false)  ; CreateHandleFromHeap(index,samplerHeap,nonUniformIndex)
-  %785 = call %dx.types.Handle @dx.op.annotateHandle(i32 216, %dx.types.Handle %784, %dx.types.ResourceProperties { i32 20487, i32 1033 })  ; AnnotateHandle(res,props)  resource: globallycoherent RWTexture2DArray<4xF32>
-  %786 = fpext half %781 to float
-  %787 = fpext half %777 to float
-  %788 = fpext half %773 to float
-  %789 = fpext half %769 to float
-  call void @dx.op.textureStore.f32(i32 67, %dx.types.Handle %785, i32 %3, i32 %4, i32 %5, float %786, float %787, float %788, float %789, i8 15)  ; TextureStore(srv,coord0,coord1,coord2,value0,value1,value2,value3,mask)
-  br label %790
+; <label>:764                                     ; preds = %722
+  %765 = fadd fast half %753, %746
+  %766 = fadd fast half %765, %758
+  %767 = fadd fast half %766, %763
+  %768 = fmul fast half %767, 0xH3400
+  %769 = fadd fast half %752, %740
+  %770 = fadd fast half %769, %757
+  %771 = fadd fast half %770, %762
+  %772 = fmul fast half %771, 0xH3400
+  %773 = fadd fast half %751, %734
+  %774 = fadd fast half %773, %756
+  %775 = fadd fast half %774, %761
+  %776 = fmul fast half %775, 0xH3400
+  %777 = fadd fast half %750, %728
+  %778 = fadd fast half %777, %755
+  %779 = fadd fast half %778, %760
+  %780 = fmul fast half %779, 0xH3400
+  %781 = call %dx.types.CBufRet.i32 @dx.op.cbufferLoadLegacy.i32(i32 59, %dx.types.Handle %2, i32 0)  ; CBufferLoadLegacy(handle,regIndex)
+  %782 = extractvalue %dx.types.CBufRet.i32 %781, 3
+  %783 = call %dx.types.Handle @dx.op.createHandleFromHeap(i32 218, i32 %782, i1 false, i1 false)  ; CreateHandleFromHeap(index,samplerHeap,nonUniformIndex)
+  %784 = call %dx.types.Handle @dx.op.annotateHandle(i32 216, %dx.types.Handle %783, %dx.types.ResourceProperties { i32 20487, i32 1033 })  ; AnnotateHandle(res,props)  resource: globallycoherent RWTexture2DArray<4xF32>
+  %785 = fpext half %780 to float
+  %786 = fpext half %776 to float
+  %787 = fpext half %772 to float
+  %788 = fpext half %768 to float
+  call void @dx.op.textureStore.f32(i32 67, %dx.types.Handle %784, i32 %3, i32 %4, i32 %5, float %785, float %786, float %787, float %788, i8 15)  ; TextureStore(srv,coord0,coord1,coord2,value0,value1,value2,value3,mask)
+  br label %789
 
-; <label>:790                                     ; preds = %765, %723, %721
-  %791 = icmp ult i32 %15, 7
-  br i1 %791, label %1456, label %792
+; <label>:789                                     ; preds = %764, %722, %720
+  %790 = icmp ult i32 %15, 7
+  br i1 %790, label %1455, label %791
 
-; <label>:792                                     ; preds = %790
-  %793 = icmp eq i32 %6, 0
-  br i1 %793, label %794, label %797
+; <label>:791                                     ; preds = %789
+  %792 = icmp eq i32 %6, 0
+  br i1 %792, label %793, label %796
 
-; <label>:794                                     ; preds = %792
-  %795 = shl i32 %5, 2
-  %796 = call i32 @dx.op.atomicBinOp.i32(i32 78, %dx.types.Handle %10, i32 0, i32 0, i32 %795, i32 undef, i32 1)  ; AtomicBinOp(handle,atomicOp,offset0,offset1,offset2,newValue)
-  store i32 %796, i32 addrspace(3)* @"\01?gs_counter@@3IA", align 4, !tbaa !9
-  br label %797
+; <label>:793                                     ; preds = %791
+  %794 = shl i32 %5, 2
+  %795 = call i32 @dx.op.atomicBinOp.i32(i32 78, %dx.types.Handle %10, i32 0, i32 0, i32 %794, i32 undef, i32 1)  ; AtomicBinOp(handle,atomicOp,offset0,offset1,offset2,newValue)
+  store i32 %795, i32 addrspace(3)* @"\01?gs_counter@@3IA", align 4, !tbaa !9
+  br label %796
 
-; <label>:797                                     ; preds = %794, %792
+; <label>:796                                     ; preds = %793, %791
   call void @dx.op.barrier(i32 80, i32 9)  ; Barrier(barrierMode)
-  %798 = load i32, i32 addrspace(3)* @"\01?gs_counter@@3IA", align 4, !tbaa !9
-  %799 = add i32 %16, -1
-  %800 = icmp eq i32 %798, %799
-  br i1 %800, label %801, label %1456
+  %797 = load i32, i32 addrspace(3)* @"\01?gs_counter@@3IA", align 4, !tbaa !9
+  %798 = add i32 %16, -1
+  %799 = icmp eq i32 %797, %798
+  br i1 %799, label %800, label %1455
 
-; <label>:801                                     ; preds = %797
-  %802 = shl i32 %5, 2
-  call void @dx.op.rawBufferStore.i32(i32 140, %dx.types.Handle %10, i32 0, i32 %802, i32 0, i32 undef, i32 undef, i32 undef, i8 1, i32 4)  ; RawBufferStore(uav,index,elementOffset,value0,value1,value2,value3,mask,alignment)
-  %803 = shl nuw nsw i32 %30, 2
-  %804 = shl nuw nsw i32 %33, 2
-  %805 = call %dx.types.CBufRet.i32 @dx.op.cbufferLoadLegacy.i32(i32 59, %dx.types.Handle %2, i32 0)  ; CBufferLoadLegacy(handle,regIndex)
-  %806 = extractvalue %dx.types.CBufRet.i32 %805, 3
-  %807 = call %dx.types.Handle @dx.op.createHandleFromHeap(i32 218, i32 %806, i1 false, i1 false)  ; CreateHandleFromHeap(index,samplerHeap,nonUniformIndex)
-  %808 = call %dx.types.Handle @dx.op.annotateHandle(i32 216, %dx.types.Handle %807, %dx.types.ResourceProperties { i32 20487, i32 1033 })  ; AnnotateHandle(res,props)  resource: globallycoherent RWTexture2DArray<4xF32>
-  %809 = call %dx.types.ResRet.f32 @dx.op.textureLoad.f32(i32 66, %dx.types.Handle %808, i32 undef, i32 %803, i32 %804, i32 %5, i32 undef, i32 undef, i32 undef)  ; TextureLoad(srv,mipLevelOrSampleCount,coord0,coord1,coord2,offset0,offset1,offset2)
-  %810 = extractvalue %dx.types.ResRet.f32 %809, 0
-  %811 = extractvalue %dx.types.ResRet.f32 %809, 1
-  %812 = extractvalue %dx.types.ResRet.f32 %809, 2
-  %813 = extractvalue %dx.types.ResRet.f32 %809, 3
+; <label>:800                                     ; preds = %796
+  %801 = shl i32 %5, 2
+  call void @dx.op.rawBufferStore.i32(i32 140, %dx.types.Handle %10, i32 0, i32 %801, i32 0, i32 undef, i32 undef, i32 undef, i8 1, i32 4)  ; RawBufferStore(uav,index,elementOffset,value0,value1,value2,value3,mask,alignment)
+  %802 = shl nuw nsw i32 %30, 2
+  %803 = shl nuw nsw i32 %33, 2
+  %804 = call %dx.types.CBufRet.i32 @dx.op.cbufferLoadLegacy.i32(i32 59, %dx.types.Handle %2, i32 0)  ; CBufferLoadLegacy(handle,regIndex)
+  %805 = extractvalue %dx.types.CBufRet.i32 %804, 3
+  %806 = call %dx.types.Handle @dx.op.createHandleFromHeap(i32 218, i32 %805, i1 false, i1 false)  ; CreateHandleFromHeap(index,samplerHeap,nonUniformIndex)
+  %807 = call %dx.types.Handle @dx.op.annotateHandle(i32 216, %dx.types.Handle %806, %dx.types.ResourceProperties { i32 20487, i32 1033 })  ; AnnotateHandle(res,props)  resource: globallycoherent RWTexture2DArray<4xF32>
+  %808 = call %dx.types.ResRet.f32 @dx.op.textureLoad.f32(i32 66, %dx.types.Handle %807, i32 undef, i32 %802, i32 %803, i32 %5, i32 undef, i32 undef, i32 undef)  ; TextureLoad(srv,mipLevelOrSampleCount,coord0,coord1,coord2,offset0,offset1,offset2)
+  %809 = extractvalue %dx.types.ResRet.f32 %808, 0
+  %810 = extractvalue %dx.types.ResRet.f32 %808, 1
+  %811 = extractvalue %dx.types.ResRet.f32 %808, 2
+  %812 = extractvalue %dx.types.ResRet.f32 %808, 3
+  %813 = fptrunc float %809 to half
   %814 = fptrunc float %810 to half
   %815 = fptrunc float %811 to half
   %816 = fptrunc float %812 to half
-  %817 = fptrunc float %813 to half
-  %818 = or i32 %804, 1
-  %819 = call %dx.types.ResRet.f32 @dx.op.textureLoad.f32(i32 66, %dx.types.Handle %808, i32 undef, i32 %803, i32 %818, i32 %5, i32 undef, i32 undef, i32 undef)  ; TextureLoad(srv,mipLevelOrSampleCount,coord0,coord1,coord2,offset0,offset1,offset2)
-  %820 = extractvalue %dx.types.ResRet.f32 %819, 0
-  %821 = extractvalue %dx.types.ResRet.f32 %819, 1
-  %822 = extractvalue %dx.types.ResRet.f32 %819, 2
-  %823 = extractvalue %dx.types.ResRet.f32 %819, 3
+  %817 = or i32 %803, 1
+  %818 = call %dx.types.ResRet.f32 @dx.op.textureLoad.f32(i32 66, %dx.types.Handle %807, i32 undef, i32 %802, i32 %817, i32 %5, i32 undef, i32 undef, i32 undef)  ; TextureLoad(srv,mipLevelOrSampleCount,coord0,coord1,coord2,offset0,offset1,offset2)
+  %819 = extractvalue %dx.types.ResRet.f32 %818, 0
+  %820 = extractvalue %dx.types.ResRet.f32 %818, 1
+  %821 = extractvalue %dx.types.ResRet.f32 %818, 2
+  %822 = extractvalue %dx.types.ResRet.f32 %818, 3
+  %823 = fptrunc float %819 to half
   %824 = fptrunc float %820 to half
   %825 = fptrunc float %821 to half
   %826 = fptrunc float %822 to half
-  %827 = fptrunc float %823 to half
-  %828 = or i32 %803, 1
-  %829 = call %dx.types.ResRet.f32 @dx.op.textureLoad.f32(i32 66, %dx.types.Handle %808, i32 undef, i32 %828, i32 %804, i32 %5, i32 undef, i32 undef, i32 undef)  ; TextureLoad(srv,mipLevelOrSampleCount,coord0,coord1,coord2,offset0,offset1,offset2)
-  %830 = extractvalue %dx.types.ResRet.f32 %829, 0
-  %831 = extractvalue %dx.types.ResRet.f32 %829, 1
-  %832 = extractvalue %dx.types.ResRet.f32 %829, 2
-  %833 = extractvalue %dx.types.ResRet.f32 %829, 3
+  %827 = or i32 %802, 1
+  %828 = call %dx.types.ResRet.f32 @dx.op.textureLoad.f32(i32 66, %dx.types.Handle %807, i32 undef, i32 %827, i32 %803, i32 %5, i32 undef, i32 undef, i32 undef)  ; TextureLoad(srv,mipLevelOrSampleCount,coord0,coord1,coord2,offset0,offset1,offset2)
+  %829 = extractvalue %dx.types.ResRet.f32 %828, 0
+  %830 = extractvalue %dx.types.ResRet.f32 %828, 1
+  %831 = extractvalue %dx.types.ResRet.f32 %828, 2
+  %832 = extractvalue %dx.types.ResRet.f32 %828, 3
+  %833 = fptrunc float %829 to half
   %834 = fptrunc float %830 to half
   %835 = fptrunc float %831 to half
   %836 = fptrunc float %832 to half
-  %837 = fptrunc float %833 to half
-  %838 = call %dx.types.ResRet.f32 @dx.op.textureLoad.f32(i32 66, %dx.types.Handle %808, i32 undef, i32 %828, i32 %818, i32 %5, i32 undef, i32 undef, i32 undef)  ; TextureLoad(srv,mipLevelOrSampleCount,coord0,coord1,coord2,offset0,offset1,offset2)
-  %839 = extractvalue %dx.types.ResRet.f32 %838, 0
-  %840 = extractvalue %dx.types.ResRet.f32 %838, 1
-  %841 = extractvalue %dx.types.ResRet.f32 %838, 2
-  %842 = extractvalue %dx.types.ResRet.f32 %838, 3
+  %837 = call %dx.types.ResRet.f32 @dx.op.textureLoad.f32(i32 66, %dx.types.Handle %807, i32 undef, i32 %827, i32 %817, i32 %5, i32 undef, i32 undef, i32 undef)  ; TextureLoad(srv,mipLevelOrSampleCount,coord0,coord1,coord2,offset0,offset1,offset2)
+  %838 = extractvalue %dx.types.ResRet.f32 %837, 0
+  %839 = extractvalue %dx.types.ResRet.f32 %837, 1
+  %840 = extractvalue %dx.types.ResRet.f32 %837, 2
+  %841 = extractvalue %dx.types.ResRet.f32 %837, 3
+  %842 = fptrunc float %838 to half
   %843 = fptrunc float %839 to half
   %844 = fptrunc float %840 to half
   %845 = fptrunc float %841 to half
-  %846 = fptrunc float %842 to half
+  %846 = fadd fast half %823, %813
   %847 = fadd fast half %824, %814
   %848 = fadd fast half %825, %815
   %849 = fadd fast half %826, %816
-  %850 = fadd fast half %827, %817
+  %850 = fadd fast half %846, %833
   %851 = fadd fast half %847, %834
   %852 = fadd fast half %848, %835
   %853 = fadd fast half %849, %836
-  %854 = fadd fast half %850, %837
+  %854 = fadd fast half %850, %842
   %855 = fadd fast half %851, %843
   %856 = fadd fast half %852, %844
   %857 = fadd fast half %853, %845
-  %858 = fadd fast half %854, %846
+  %858 = fmul fast half %854, 0xH3400
   %859 = fmul fast half %855, 0xH3400
   %860 = fmul fast half %856, 0xH3400
   %861 = fmul fast half %857, 0xH3400
-  %862 = fmul fast half %858, 0xH3400
-  %863 = call %dx.types.CBufRet.i32 @dx.op.cbufferLoadLegacy.i32(i32 59, %dx.types.Handle %2, i32 1)  ; CBufferLoadLegacy(handle,regIndex)
-  %864 = extractvalue %dx.types.CBufRet.i32 %863, 0
-  %865 = add i32 %864, 7
-  %866 = call %dx.types.Handle @dx.op.createHandleFromHeap(i32 218, i32 %865, i1 false, i1 false)  ; CreateHandleFromHeap(index,samplerHeap,nonUniformIndex)
-  %867 = call %dx.types.Handle @dx.op.annotateHandle(i32 216, %dx.types.Handle %866, %dx.types.ResourceProperties { i32 4103, i32 1033 })  ; AnnotateHandle(res,props)  resource: RWTexture2DArray<4xF32>
+  %862 = call %dx.types.CBufRet.i32 @dx.op.cbufferLoadLegacy.i32(i32 59, %dx.types.Handle %2, i32 1)  ; CBufferLoadLegacy(handle,regIndex)
+  %863 = extractvalue %dx.types.CBufRet.i32 %862, 0
+  %864 = add i32 %863, 7
+  %865 = call %dx.types.Handle @dx.op.createHandleFromHeap(i32 218, i32 %864, i1 false, i1 false)  ; CreateHandleFromHeap(index,samplerHeap,nonUniformIndex)
+  %866 = call %dx.types.Handle @dx.op.annotateHandle(i32 216, %dx.types.Handle %865, %dx.types.ResourceProperties { i32 4103, i32 1033 })  ; AnnotateHandle(res,props)  resource: RWTexture2DArray<4xF32>
+  %867 = fpext half %858 to float
   %868 = fpext half %859 to float
   %869 = fpext half %860 to float
   %870 = fpext half %861 to float
-  %871 = fpext half %862 to float
-  call void @dx.op.textureStore.f32(i32 67, %dx.types.Handle %867, i32 %34, i32 %35, i32 %5, float %868, float %869, float %870, float %871, i8 15)  ; TextureStore(srv,coord0,coord1,coord2,value0,value1,value2,value3,mask)
-  %872 = or i32 %803, 2
-  %873 = or i32 %34, 1
-  %874 = call %dx.types.CBufRet.i32 @dx.op.cbufferLoadLegacy.i32(i32 59, %dx.types.Handle %2, i32 0)  ; CBufferLoadLegacy(handle,regIndex)
-  %875 = extractvalue %dx.types.CBufRet.i32 %874, 3
-  %876 = call %dx.types.Handle @dx.op.createHandleFromHeap(i32 218, i32 %875, i1 false, i1 false)  ; CreateHandleFromHeap(index,samplerHeap,nonUniformIndex)
-  %877 = call %dx.types.Handle @dx.op.annotateHandle(i32 216, %dx.types.Handle %876, %dx.types.ResourceProperties { i32 20487, i32 1033 })  ; AnnotateHandle(res,props)  resource: globallycoherent RWTexture2DArray<4xF32>
-  %878 = call %dx.types.ResRet.f32 @dx.op.textureLoad.f32(i32 66, %dx.types.Handle %877, i32 undef, i32 %872, i32 %804, i32 %5, i32 undef, i32 undef, i32 undef)  ; TextureLoad(srv,mipLevelOrSampleCount,coord0,coord1,coord2,offset0,offset1,offset2)
-  %879 = extractvalue %dx.types.ResRet.f32 %878, 0
-  %880 = extractvalue %dx.types.ResRet.f32 %878, 1
-  %881 = extractvalue %dx.types.ResRet.f32 %878, 2
-  %882 = extractvalue %dx.types.ResRet.f32 %878, 3
+  call void @dx.op.textureStore.f32(i32 67, %dx.types.Handle %866, i32 %34, i32 %35, i32 %5, float %867, float %868, float %869, float %870, i8 15)  ; TextureStore(srv,coord0,coord1,coord2,value0,value1,value2,value3,mask)
+  %871 = or i32 %802, 2
+  %872 = or i32 %34, 1
+  %873 = call %dx.types.CBufRet.i32 @dx.op.cbufferLoadLegacy.i32(i32 59, %dx.types.Handle %2, i32 0)  ; CBufferLoadLegacy(handle,regIndex)
+  %874 = extractvalue %dx.types.CBufRet.i32 %873, 3
+  %875 = call %dx.types.Handle @dx.op.createHandleFromHeap(i32 218, i32 %874, i1 false, i1 false)  ; CreateHandleFromHeap(index,samplerHeap,nonUniformIndex)
+  %876 = call %dx.types.Handle @dx.op.annotateHandle(i32 216, %dx.types.Handle %875, %dx.types.ResourceProperties { i32 20487, i32 1033 })  ; AnnotateHandle(res,props)  resource: globallycoherent RWTexture2DArray<4xF32>
+  %877 = call %dx.types.ResRet.f32 @dx.op.textureLoad.f32(i32 66, %dx.types.Handle %876, i32 undef, i32 %871, i32 %803, i32 %5, i32 undef, i32 undef, i32 undef)  ; TextureLoad(srv,mipLevelOrSampleCount,coord0,coord1,coord2,offset0,offset1,offset2)
+  %878 = extractvalue %dx.types.ResRet.f32 %877, 0
+  %879 = extractvalue %dx.types.ResRet.f32 %877, 1
+  %880 = extractvalue %dx.types.ResRet.f32 %877, 2
+  %881 = extractvalue %dx.types.ResRet.f32 %877, 3
+  %882 = fptrunc float %878 to half
   %883 = fptrunc float %879 to half
   %884 = fptrunc float %880 to half
   %885 = fptrunc float %881 to half
-  %886 = fptrunc float %882 to half
-  %887 = call %dx.types.ResRet.f32 @dx.op.textureLoad.f32(i32 66, %dx.types.Handle %877, i32 undef, i32 %872, i32 %818, i32 %5, i32 undef, i32 undef, i32 undef)  ; TextureLoad(srv,mipLevelOrSampleCount,coord0,coord1,coord2,offset0,offset1,offset2)
-  %888 = extractvalue %dx.types.ResRet.f32 %887, 0
-  %889 = extractvalue %dx.types.ResRet.f32 %887, 1
-  %890 = extractvalue %dx.types.ResRet.f32 %887, 2
-  %891 = extractvalue %dx.types.ResRet.f32 %887, 3
+  %886 = call %dx.types.ResRet.f32 @dx.op.textureLoad.f32(i32 66, %dx.types.Handle %876, i32 undef, i32 %871, i32 %817, i32 %5, i32 undef, i32 undef, i32 undef)  ; TextureLoad(srv,mipLevelOrSampleCount,coord0,coord1,coord2,offset0,offset1,offset2)
+  %887 = extractvalue %dx.types.ResRet.f32 %886, 0
+  %888 = extractvalue %dx.types.ResRet.f32 %886, 1
+  %889 = extractvalue %dx.types.ResRet.f32 %886, 2
+  %890 = extractvalue %dx.types.ResRet.f32 %886, 3
+  %891 = fptrunc float %887 to half
   %892 = fptrunc float %888 to half
   %893 = fptrunc float %889 to half
   %894 = fptrunc float %890 to half
-  %895 = fptrunc float %891 to half
-  %896 = or i32 %803, 3
-  %897 = call %dx.types.ResRet.f32 @dx.op.textureLoad.f32(i32 66, %dx.types.Handle %877, i32 undef, i32 %896, i32 %804, i32 %5, i32 undef, i32 undef, i32 undef)  ; TextureLoad(srv,mipLevelOrSampleCount,coord0,coord1,coord2,offset0,offset1,offset2)
-  %898 = extractvalue %dx.types.ResRet.f32 %897, 0
-  %899 = extractvalue %dx.types.ResRet.f32 %897, 1
-  %900 = extractvalue %dx.types.ResRet.f32 %897, 2
-  %901 = extractvalue %dx.types.ResRet.f32 %897, 3
+  %895 = or i32 %802, 3
+  %896 = call %dx.types.ResRet.f32 @dx.op.textureLoad.f32(i32 66, %dx.types.Handle %876, i32 undef, i32 %895, i32 %803, i32 %5, i32 undef, i32 undef, i32 undef)  ; TextureLoad(srv,mipLevelOrSampleCount,coord0,coord1,coord2,offset0,offset1,offset2)
+  %897 = extractvalue %dx.types.ResRet.f32 %896, 0
+  %898 = extractvalue %dx.types.ResRet.f32 %896, 1
+  %899 = extractvalue %dx.types.ResRet.f32 %896, 2
+  %900 = extractvalue %dx.types.ResRet.f32 %896, 3
+  %901 = fptrunc float %897 to half
   %902 = fptrunc float %898 to half
   %903 = fptrunc float %899 to half
   %904 = fptrunc float %900 to half
-  %905 = fptrunc float %901 to half
-  %906 = call %dx.types.ResRet.f32 @dx.op.textureLoad.f32(i32 66, %dx.types.Handle %877, i32 undef, i32 %896, i32 %818, i32 %5, i32 undef, i32 undef, i32 undef)  ; TextureLoad(srv,mipLevelOrSampleCount,coord0,coord1,coord2,offset0,offset1,offset2)
-  %907 = extractvalue %dx.types.ResRet.f32 %906, 0
-  %908 = extractvalue %dx.types.ResRet.f32 %906, 1
-  %909 = extractvalue %dx.types.ResRet.f32 %906, 2
-  %910 = extractvalue %dx.types.ResRet.f32 %906, 3
+  %905 = call %dx.types.ResRet.f32 @dx.op.textureLoad.f32(i32 66, %dx.types.Handle %876, i32 undef, i32 %895, i32 %817, i32 %5, i32 undef, i32 undef, i32 undef)  ; TextureLoad(srv,mipLevelOrSampleCount,coord0,coord1,coord2,offset0,offset1,offset2)
+  %906 = extractvalue %dx.types.ResRet.f32 %905, 0
+  %907 = extractvalue %dx.types.ResRet.f32 %905, 1
+  %908 = extractvalue %dx.types.ResRet.f32 %905, 2
+  %909 = extractvalue %dx.types.ResRet.f32 %905, 3
+  %910 = fptrunc float %906 to half
   %911 = fptrunc float %907 to half
   %912 = fptrunc float %908 to half
   %913 = fptrunc float %909 to half
-  %914 = fptrunc float %910 to half
+  %914 = fadd fast half %891, %882
   %915 = fadd fast half %892, %883
   %916 = fadd fast half %893, %884
   %917 = fadd fast half %894, %885
-  %918 = fadd fast half %895, %886
+  %918 = fadd fast half %914, %901
   %919 = fadd fast half %915, %902
   %920 = fadd fast half %916, %903
   %921 = fadd fast half %917, %904
-  %922 = fadd fast half %918, %905
+  %922 = fadd fast half %918, %910
   %923 = fadd fast half %919, %911
   %924 = fadd fast half %920, %912
   %925 = fadd fast half %921, %913
-  %926 = fadd fast half %922, %914
+  %926 = fmul fast half %922, 0xH3400
   %927 = fmul fast half %923, 0xH3400
   %928 = fmul fast half %924, 0xH3400
   %929 = fmul fast half %925, 0xH3400
-  %930 = fmul fast half %926, 0xH3400
-  %931 = call %dx.types.CBufRet.i32 @dx.op.cbufferLoadLegacy.i32(i32 59, %dx.types.Handle %2, i32 1)  ; CBufferLoadLegacy(handle,regIndex)
-  %932 = extractvalue %dx.types.CBufRet.i32 %931, 0
-  %933 = add i32 %932, 7
-  %934 = call %dx.types.Handle @dx.op.createHandleFromHeap(i32 218, i32 %933, i1 false, i1 false)  ; CreateHandleFromHeap(index,samplerHeap,nonUniformIndex)
-  %935 = call %dx.types.Handle @dx.op.annotateHandle(i32 216, %dx.types.Handle %934, %dx.types.ResourceProperties { i32 4103, i32 1033 })  ; AnnotateHandle(res,props)  resource: RWTexture2DArray<4xF32>
+  %930 = call %dx.types.CBufRet.i32 @dx.op.cbufferLoadLegacy.i32(i32 59, %dx.types.Handle %2, i32 1)  ; CBufferLoadLegacy(handle,regIndex)
+  %931 = extractvalue %dx.types.CBufRet.i32 %930, 0
+  %932 = add i32 %931, 7
+  %933 = call %dx.types.Handle @dx.op.createHandleFromHeap(i32 218, i32 %932, i1 false, i1 false)  ; CreateHandleFromHeap(index,samplerHeap,nonUniformIndex)
+  %934 = call %dx.types.Handle @dx.op.annotateHandle(i32 216, %dx.types.Handle %933, %dx.types.ResourceProperties { i32 4103, i32 1033 })  ; AnnotateHandle(res,props)  resource: RWTexture2DArray<4xF32>
+  %935 = fpext half %926 to float
   %936 = fpext half %927 to float
   %937 = fpext half %928 to float
   %938 = fpext half %929 to float
-  %939 = fpext half %930 to float
-  call void @dx.op.textureStore.f32(i32 67, %dx.types.Handle %935, i32 %873, i32 %35, i32 %5, float %936, float %937, float %938, float %939, i8 15)  ; TextureStore(srv,coord0,coord1,coord2,value0,value1,value2,value3,mask)
-  %940 = or i32 %804, 2
-  %941 = or i32 %35, 1
-  %942 = call %dx.types.CBufRet.i32 @dx.op.cbufferLoadLegacy.i32(i32 59, %dx.types.Handle %2, i32 0)  ; CBufferLoadLegacy(handle,regIndex)
-  %943 = extractvalue %dx.types.CBufRet.i32 %942, 3
-  %944 = call %dx.types.Handle @dx.op.createHandleFromHeap(i32 218, i32 %943, i1 false, i1 false)  ; CreateHandleFromHeap(index,samplerHeap,nonUniformIndex)
-  %945 = call %dx.types.Handle @dx.op.annotateHandle(i32 216, %dx.types.Handle %944, %dx.types.ResourceProperties { i32 20487, i32 1033 })  ; AnnotateHandle(res,props)  resource: globallycoherent RWTexture2DArray<4xF32>
-  %946 = call %dx.types.ResRet.f32 @dx.op.textureLoad.f32(i32 66, %dx.types.Handle %945, i32 undef, i32 %803, i32 %940, i32 %5, i32 undef, i32 undef, i32 undef)  ; TextureLoad(srv,mipLevelOrSampleCount,coord0,coord1,coord2,offset0,offset1,offset2)
-  %947 = extractvalue %dx.types.ResRet.f32 %946, 0
-  %948 = extractvalue %dx.types.ResRet.f32 %946, 1
-  %949 = extractvalue %dx.types.ResRet.f32 %946, 2
-  %950 = extractvalue %dx.types.ResRet.f32 %946, 3
+  call void @dx.op.textureStore.f32(i32 67, %dx.types.Handle %934, i32 %872, i32 %35, i32 %5, float %935, float %936, float %937, float %938, i8 15)  ; TextureStore(srv,coord0,coord1,coord2,value0,value1,value2,value3,mask)
+  %939 = or i32 %803, 2
+  %940 = or i32 %35, 1
+  %941 = call %dx.types.CBufRet.i32 @dx.op.cbufferLoadLegacy.i32(i32 59, %dx.types.Handle %2, i32 0)  ; CBufferLoadLegacy(handle,regIndex)
+  %942 = extractvalue %dx.types.CBufRet.i32 %941, 3
+  %943 = call %dx.types.Handle @dx.op.createHandleFromHeap(i32 218, i32 %942, i1 false, i1 false)  ; CreateHandleFromHeap(index,samplerHeap,nonUniformIndex)
+  %944 = call %dx.types.Handle @dx.op.annotateHandle(i32 216, %dx.types.Handle %943, %dx.types.ResourceProperties { i32 20487, i32 1033 })  ; AnnotateHandle(res,props)  resource: globallycoherent RWTexture2DArray<4xF32>
+  %945 = call %dx.types.ResRet.f32 @dx.op.textureLoad.f32(i32 66, %dx.types.Handle %944, i32 undef, i32 %802, i32 %939, i32 %5, i32 undef, i32 undef, i32 undef)  ; TextureLoad(srv,mipLevelOrSampleCount,coord0,coord1,coord2,offset0,offset1,offset2)
+  %946 = extractvalue %dx.types.ResRet.f32 %945, 0
+  %947 = extractvalue %dx.types.ResRet.f32 %945, 1
+  %948 = extractvalue %dx.types.ResRet.f32 %945, 2
+  %949 = extractvalue %dx.types.ResRet.f32 %945, 3
+  %950 = fptrunc float %946 to half
   %951 = fptrunc float %947 to half
   %952 = fptrunc float %948 to half
   %953 = fptrunc float %949 to half
-  %954 = fptrunc float %950 to half
-  %955 = or i32 %804, 3
-  %956 = call %dx.types.ResRet.f32 @dx.op.textureLoad.f32(i32 66, %dx.types.Handle %945, i32 undef, i32 %803, i32 %955, i32 %5, i32 undef, i32 undef, i32 undef)  ; TextureLoad(srv,mipLevelOrSampleCount,coord0,coord1,coord2,offset0,offset1,offset2)
-  %957 = extractvalue %dx.types.ResRet.f32 %956, 0
-  %958 = extractvalue %dx.types.ResRet.f32 %956, 1
-  %959 = extractvalue %dx.types.ResRet.f32 %956, 2
-  %960 = extractvalue %dx.types.ResRet.f32 %956, 3
+  %954 = or i32 %803, 3
+  %955 = call %dx.types.ResRet.f32 @dx.op.textureLoad.f32(i32 66, %dx.types.Handle %944, i32 undef, i32 %802, i32 %954, i32 %5, i32 undef, i32 undef, i32 undef)  ; TextureLoad(srv,mipLevelOrSampleCount,coord0,coord1,coord2,offset0,offset1,offset2)
+  %956 = extractvalue %dx.types.ResRet.f32 %955, 0
+  %957 = extractvalue %dx.types.ResRet.f32 %955, 1
+  %958 = extractvalue %dx.types.ResRet.f32 %955, 2
+  %959 = extractvalue %dx.types.ResRet.f32 %955, 3
+  %960 = fptrunc float %956 to half
   %961 = fptrunc float %957 to half
   %962 = fptrunc float %958 to half
   %963 = fptrunc float %959 to half
-  %964 = fptrunc float %960 to half
-  %965 = call %dx.types.ResRet.f32 @dx.op.textureLoad.f32(i32 66, %dx.types.Handle %945, i32 undef, i32 %828, i32 %940, i32 %5, i32 undef, i32 undef, i32 undef)  ; TextureLoad(srv,mipLevelOrSampleCount,coord0,coord1,coord2,offset0,offset1,offset2)
-  %966 = extractvalue %dx.types.ResRet.f32 %965, 0
-  %967 = extractvalue %dx.types.ResRet.f32 %965, 1
-  %968 = extractvalue %dx.types.ResRet.f32 %965, 2
-  %969 = extractvalue %dx.types.ResRet.f32 %965, 3
+  %964 = call %dx.types.ResRet.f32 @dx.op.textureLoad.f32(i32 66, %dx.types.Handle %944, i32 undef, i32 %827, i32 %939, i32 %5, i32 undef, i32 undef, i32 undef)  ; TextureLoad(srv,mipLevelOrSampleCount,coord0,coord1,coord2,offset0,offset1,offset2)
+  %965 = extractvalue %dx.types.ResRet.f32 %964, 0
+  %966 = extractvalue %dx.types.ResRet.f32 %964, 1
+  %967 = extractvalue %dx.types.ResRet.f32 %964, 2
+  %968 = extractvalue %dx.types.ResRet.f32 %964, 3
+  %969 = fptrunc float %965 to half
   %970 = fptrunc float %966 to half
   %971 = fptrunc float %967 to half
   %972 = fptrunc float %968 to half
-  %973 = fptrunc float %969 to half
-  %974 = call %dx.types.ResRet.f32 @dx.op.textureLoad.f32(i32 66, %dx.types.Handle %945, i32 undef, i32 %828, i32 %955, i32 %5, i32 undef, i32 undef, i32 undef)  ; TextureLoad(srv,mipLevelOrSampleCount,coord0,coord1,coord2,offset0,offset1,offset2)
-  %975 = extractvalue %dx.types.ResRet.f32 %974, 0
-  %976 = extractvalue %dx.types.ResRet.f32 %974, 1
-  %977 = extractvalue %dx.types.ResRet.f32 %974, 2
-  %978 = extractvalue %dx.types.ResRet.f32 %974, 3
+  %973 = call %dx.types.ResRet.f32 @dx.op.textureLoad.f32(i32 66, %dx.types.Handle %944, i32 undef, i32 %827, i32 %954, i32 %5, i32 undef, i32 undef, i32 undef)  ; TextureLoad(srv,mipLevelOrSampleCount,coord0,coord1,coord2,offset0,offset1,offset2)
+  %974 = extractvalue %dx.types.ResRet.f32 %973, 0
+  %975 = extractvalue %dx.types.ResRet.f32 %973, 1
+  %976 = extractvalue %dx.types.ResRet.f32 %973, 2
+  %977 = extractvalue %dx.types.ResRet.f32 %973, 3
+  %978 = fptrunc float %974 to half
   %979 = fptrunc float %975 to half
   %980 = fptrunc float %976 to half
   %981 = fptrunc float %977 to half
-  %982 = fptrunc float %978 to half
+  %982 = fadd fast half %960, %950
   %983 = fadd fast half %961, %951
   %984 = fadd fast half %962, %952
   %985 = fadd fast half %963, %953
-  %986 = fadd fast half %964, %954
+  %986 = fadd fast half %982, %969
   %987 = fadd fast half %983, %970
   %988 = fadd fast half %984, %971
   %989 = fadd fast half %985, %972
-  %990 = fadd fast half %986, %973
+  %990 = fadd fast half %986, %978
   %991 = fadd fast half %987, %979
   %992 = fadd fast half %988, %980
   %993 = fadd fast half %989, %981
-  %994 = fadd fast half %990, %982
+  %994 = fmul fast half %990, 0xH3400
   %995 = fmul fast half %991, 0xH3400
   %996 = fmul fast half %992, 0xH3400
   %997 = fmul fast half %993, 0xH3400
-  %998 = fmul fast half %994, 0xH3400
-  %999 = call %dx.types.CBufRet.i32 @dx.op.cbufferLoadLegacy.i32(i32 59, %dx.types.Handle %2, i32 1)  ; CBufferLoadLegacy(handle,regIndex)
-  %1000 = extractvalue %dx.types.CBufRet.i32 %999, 0
-  %1001 = add i32 %1000, 7
-  %1002 = call %dx.types.Handle @dx.op.createHandleFromHeap(i32 218, i32 %1001, i1 false, i1 false)  ; CreateHandleFromHeap(index,samplerHeap,nonUniformIndex)
-  %1003 = call %dx.types.Handle @dx.op.annotateHandle(i32 216, %dx.types.Handle %1002, %dx.types.ResourceProperties { i32 4103, i32 1033 })  ; AnnotateHandle(res,props)  resource: RWTexture2DArray<4xF32>
+  %998 = call %dx.types.CBufRet.i32 @dx.op.cbufferLoadLegacy.i32(i32 59, %dx.types.Handle %2, i32 1)  ; CBufferLoadLegacy(handle,regIndex)
+  %999 = extractvalue %dx.types.CBufRet.i32 %998, 0
+  %1000 = add i32 %999, 7
+  %1001 = call %dx.types.Handle @dx.op.createHandleFromHeap(i32 218, i32 %1000, i1 false, i1 false)  ; CreateHandleFromHeap(index,samplerHeap,nonUniformIndex)
+  %1002 = call %dx.types.Handle @dx.op.annotateHandle(i32 216, %dx.types.Handle %1001, %dx.types.ResourceProperties { i32 4103, i32 1033 })  ; AnnotateHandle(res,props)  resource: RWTexture2DArray<4xF32>
+  %1003 = fpext half %994 to float
   %1004 = fpext half %995 to float
   %1005 = fpext half %996 to float
   %1006 = fpext half %997 to float
-  %1007 = fpext half %998 to float
-  call void @dx.op.textureStore.f32(i32 67, %dx.types.Handle %1003, i32 %34, i32 %941, i32 %5, float %1004, float %1005, float %1006, float %1007, i8 15)  ; TextureStore(srv,coord0,coord1,coord2,value0,value1,value2,value3,mask)
-  %1008 = call %dx.types.CBufRet.i32 @dx.op.cbufferLoadLegacy.i32(i32 59, %dx.types.Handle %2, i32 0)  ; CBufferLoadLegacy(handle,regIndex)
-  %1009 = extractvalue %dx.types.CBufRet.i32 %1008, 3
-  %1010 = call %dx.types.Handle @dx.op.createHandleFromHeap(i32 218, i32 %1009, i1 false, i1 false)  ; CreateHandleFromHeap(index,samplerHeap,nonUniformIndex)
-  %1011 = call %dx.types.Handle @dx.op.annotateHandle(i32 216, %dx.types.Handle %1010, %dx.types.ResourceProperties { i32 20487, i32 1033 })  ; AnnotateHandle(res,props)  resource: globallycoherent RWTexture2DArray<4xF32>
-  %1012 = call %dx.types.ResRet.f32 @dx.op.textureLoad.f32(i32 66, %dx.types.Handle %1011, i32 undef, i32 %872, i32 %940, i32 %5, i32 undef, i32 undef, i32 undef)  ; TextureLoad(srv,mipLevelOrSampleCount,coord0,coord1,coord2,offset0,offset1,offset2)
-  %1013 = extractvalue %dx.types.ResRet.f32 %1012, 0
-  %1014 = extractvalue %dx.types.ResRet.f32 %1012, 1
-  %1015 = extractvalue %dx.types.ResRet.f32 %1012, 2
-  %1016 = extractvalue %dx.types.ResRet.f32 %1012, 3
+  call void @dx.op.textureStore.f32(i32 67, %dx.types.Handle %1002, i32 %34, i32 %940, i32 %5, float %1003, float %1004, float %1005, float %1006, i8 15)  ; TextureStore(srv,coord0,coord1,coord2,value0,value1,value2,value3,mask)
+  %1007 = call %dx.types.CBufRet.i32 @dx.op.cbufferLoadLegacy.i32(i32 59, %dx.types.Handle %2, i32 0)  ; CBufferLoadLegacy(handle,regIndex)
+  %1008 = extractvalue %dx.types.CBufRet.i32 %1007, 3
+  %1009 = call %dx.types.Handle @dx.op.createHandleFromHeap(i32 218, i32 %1008, i1 false, i1 false)  ; CreateHandleFromHeap(index,samplerHeap,nonUniformIndex)
+  %1010 = call %dx.types.Handle @dx.op.annotateHandle(i32 216, %dx.types.Handle %1009, %dx.types.ResourceProperties { i32 20487, i32 1033 })  ; AnnotateHandle(res,props)  resource: globallycoherent RWTexture2DArray<4xF32>
+  %1011 = call %dx.types.ResRet.f32 @dx.op.textureLoad.f32(i32 66, %dx.types.Handle %1010, i32 undef, i32 %871, i32 %939, i32 %5, i32 undef, i32 undef, i32 undef)  ; TextureLoad(srv,mipLevelOrSampleCount,coord0,coord1,coord2,offset0,offset1,offset2)
+  %1012 = extractvalue %dx.types.ResRet.f32 %1011, 0
+  %1013 = extractvalue %dx.types.ResRet.f32 %1011, 1
+  %1014 = extractvalue %dx.types.ResRet.f32 %1011, 2
+  %1015 = extractvalue %dx.types.ResRet.f32 %1011, 3
+  %1016 = fptrunc float %1012 to half
   %1017 = fptrunc float %1013 to half
   %1018 = fptrunc float %1014 to half
   %1019 = fptrunc float %1015 to half
-  %1020 = fptrunc float %1016 to half
-  %1021 = call %dx.types.ResRet.f32 @dx.op.textureLoad.f32(i32 66, %dx.types.Handle %1011, i32 undef, i32 %872, i32 %955, i32 %5, i32 undef, i32 undef, i32 undef)  ; TextureLoad(srv,mipLevelOrSampleCount,coord0,coord1,coord2,offset0,offset1,offset2)
-  %1022 = extractvalue %dx.types.ResRet.f32 %1021, 0
-  %1023 = extractvalue %dx.types.ResRet.f32 %1021, 1
-  %1024 = extractvalue %dx.types.ResRet.f32 %1021, 2
-  %1025 = extractvalue %dx.types.ResRet.f32 %1021, 3
+  %1020 = call %dx.types.ResRet.f32 @dx.op.textureLoad.f32(i32 66, %dx.types.Handle %1010, i32 undef, i32 %871, i32 %954, i32 %5, i32 undef, i32 undef, i32 undef)  ; TextureLoad(srv,mipLevelOrSampleCount,coord0,coord1,coord2,offset0,offset1,offset2)
+  %1021 = extractvalue %dx.types.ResRet.f32 %1020, 0
+  %1022 = extractvalue %dx.types.ResRet.f32 %1020, 1
+  %1023 = extractvalue %dx.types.ResRet.f32 %1020, 2
+  %1024 = extractvalue %dx.types.ResRet.f32 %1020, 3
+  %1025 = fptrunc float %1021 to half
   %1026 = fptrunc float %1022 to half
   %1027 = fptrunc float %1023 to half
   %1028 = fptrunc float %1024 to half
-  %1029 = fptrunc float %1025 to half
-  %1030 = call %dx.types.ResRet.f32 @dx.op.textureLoad.f32(i32 66, %dx.types.Handle %1011, i32 undef, i32 %896, i32 %940, i32 %5, i32 undef, i32 undef, i32 undef)  ; TextureLoad(srv,mipLevelOrSampleCount,coord0,coord1,coord2,offset0,offset1,offset2)
-  %1031 = extractvalue %dx.types.ResRet.f32 %1030, 0
-  %1032 = extractvalue %dx.types.ResRet.f32 %1030, 1
-  %1033 = extractvalue %dx.types.ResRet.f32 %1030, 2
-  %1034 = extractvalue %dx.types.ResRet.f32 %1030, 3
+  %1029 = call %dx.types.ResRet.f32 @dx.op.textureLoad.f32(i32 66, %dx.types.Handle %1010, i32 undef, i32 %895, i32 %939, i32 %5, i32 undef, i32 undef, i32 undef)  ; TextureLoad(srv,mipLevelOrSampleCount,coord0,coord1,coord2,offset0,offset1,offset2)
+  %1030 = extractvalue %dx.types.ResRet.f32 %1029, 0
+  %1031 = extractvalue %dx.types.ResRet.f32 %1029, 1
+  %1032 = extractvalue %dx.types.ResRet.f32 %1029, 2
+  %1033 = extractvalue %dx.types.ResRet.f32 %1029, 3
+  %1034 = fptrunc float %1030 to half
   %1035 = fptrunc float %1031 to half
   %1036 = fptrunc float %1032 to half
   %1037 = fptrunc float %1033 to half
-  %1038 = fptrunc float %1034 to half
-  %1039 = call %dx.types.ResRet.f32 @dx.op.textureLoad.f32(i32 66, %dx.types.Handle %1011, i32 undef, i32 %896, i32 %955, i32 %5, i32 undef, i32 undef, i32 undef)  ; TextureLoad(srv,mipLevelOrSampleCount,coord0,coord1,coord2,offset0,offset1,offset2)
-  %1040 = extractvalue %dx.types.ResRet.f32 %1039, 0
-  %1041 = extractvalue %dx.types.ResRet.f32 %1039, 1
-  %1042 = extractvalue %dx.types.ResRet.f32 %1039, 2
-  %1043 = extractvalue %dx.types.ResRet.f32 %1039, 3
+  %1038 = call %dx.types.ResRet.f32 @dx.op.textureLoad.f32(i32 66, %dx.types.Handle %1010, i32 undef, i32 %895, i32 %954, i32 %5, i32 undef, i32 undef, i32 undef)  ; TextureLoad(srv,mipLevelOrSampleCount,coord0,coord1,coord2,offset0,offset1,offset2)
+  %1039 = extractvalue %dx.types.ResRet.f32 %1038, 0
+  %1040 = extractvalue %dx.types.ResRet.f32 %1038, 1
+  %1041 = extractvalue %dx.types.ResRet.f32 %1038, 2
+  %1042 = extractvalue %dx.types.ResRet.f32 %1038, 3
+  %1043 = fptrunc float %1039 to half
   %1044 = fptrunc float %1040 to half
   %1045 = fptrunc float %1041 to half
   %1046 = fptrunc float %1042 to half
-  %1047 = fptrunc float %1043 to half
+  %1047 = fadd fast half %1025, %1016
   %1048 = fadd fast half %1026, %1017
   %1049 = fadd fast half %1027, %1018
   %1050 = fadd fast half %1028, %1019
-  %1051 = fadd fast half %1029, %1020
+  %1051 = fadd fast half %1047, %1034
   %1052 = fadd fast half %1048, %1035
   %1053 = fadd fast half %1049, %1036
   %1054 = fadd fast half %1050, %1037
-  %1055 = fadd fast half %1051, %1038
+  %1055 = fadd fast half %1051, %1043
   %1056 = fadd fast half %1052, %1044
   %1057 = fadd fast half %1053, %1045
   %1058 = fadd fast half %1054, %1046
-  %1059 = fadd fast half %1055, %1047
+  %1059 = fmul fast half %1055, 0xH3400
   %1060 = fmul fast half %1056, 0xH3400
   %1061 = fmul fast half %1057, 0xH3400
   %1062 = fmul fast half %1058, 0xH3400
-  %1063 = fmul fast half %1059, 0xH3400
-  %1064 = call %dx.types.CBufRet.i32 @dx.op.cbufferLoadLegacy.i32(i32 59, %dx.types.Handle %2, i32 1)  ; CBufferLoadLegacy(handle,regIndex)
-  %1065 = extractvalue %dx.types.CBufRet.i32 %1064, 0
-  %1066 = add i32 %1065, 7
-  %1067 = call %dx.types.Handle @dx.op.createHandleFromHeap(i32 218, i32 %1066, i1 false, i1 false)  ; CreateHandleFromHeap(index,samplerHeap,nonUniformIndex)
-  %1068 = call %dx.types.Handle @dx.op.annotateHandle(i32 216, %dx.types.Handle %1067, %dx.types.ResourceProperties { i32 4103, i32 1033 })  ; AnnotateHandle(res,props)  resource: RWTexture2DArray<4xF32>
+  %1063 = call %dx.types.CBufRet.i32 @dx.op.cbufferLoadLegacy.i32(i32 59, %dx.types.Handle %2, i32 1)  ; CBufferLoadLegacy(handle,regIndex)
+  %1064 = extractvalue %dx.types.CBufRet.i32 %1063, 0
+  %1065 = add i32 %1064, 7
+  %1066 = call %dx.types.Handle @dx.op.createHandleFromHeap(i32 218, i32 %1065, i1 false, i1 false)  ; CreateHandleFromHeap(index,samplerHeap,nonUniformIndex)
+  %1067 = call %dx.types.Handle @dx.op.annotateHandle(i32 216, %dx.types.Handle %1066, %dx.types.ResourceProperties { i32 4103, i32 1033 })  ; AnnotateHandle(res,props)  resource: RWTexture2DArray<4xF32>
+  %1068 = fpext half %1059 to float
   %1069 = fpext half %1060 to float
   %1070 = fpext half %1061 to float
   %1071 = fpext half %1062 to float
-  %1072 = fpext half %1063 to float
-  call void @dx.op.textureStore.f32(i32 67, %dx.types.Handle %1068, i32 %873, i32 %941, i32 %5, float %1069, float %1070, float %1071, float %1072, i8 15)  ; TextureStore(srv,coord0,coord1,coord2,value0,value1,value2,value3,mask)
-  %1073 = icmp ult i32 %15, 8
-  br i1 %1073, label %1456, label %1074
+  call void @dx.op.textureStore.f32(i32 67, %dx.types.Handle %1067, i32 %872, i32 %940, i32 %5, float %1068, float %1069, float %1070, float %1071, i8 15)  ; TextureStore(srv,coord0,coord1,coord2,value0,value1,value2,value3,mask)
+  %1072 = icmp ult i32 %15, 8
+  br i1 %1072, label %1455, label %1073
 
-; <label>:1074                                    ; preds = %801
+; <label>:1073                                    ; preds = %800
+  %1074 = fadd fast half %922, %854
   %1075 = fadd fast half %923, %855
   %1076 = fadd fast half %924, %856
   %1077 = fadd fast half %925, %857
-  %1078 = fadd fast half %926, %858
+  %1078 = fadd fast half %1074, %990
   %1079 = fadd fast half %1075, %991
   %1080 = fadd fast half %1076, %992
   %1081 = fadd fast half %1077, %993
-  %1082 = fadd fast half %1078, %994
+  %1082 = fadd fast half %1078, %1055
   %1083 = fadd fast half %1079, %1056
   %1084 = fadd fast half %1080, %1057
   %1085 = fadd fast half %1081, %1058
-  %1086 = fadd fast half %1082, %1059
+  %1086 = fmul fast half %1082, 0xH2C00
   %1087 = fmul fast half %1083, 0xH2C00
   %1088 = fmul fast half %1084, 0xH2C00
   %1089 = fmul fast half %1085, 0xH2C00
-  %1090 = fmul fast half %1086, 0xH2C00
-  %1091 = call %dx.types.CBufRet.i32 @dx.op.cbufferLoadLegacy.i32(i32 59, %dx.types.Handle %2, i32 1)  ; CBufferLoadLegacy(handle,regIndex)
-  %1092 = extractvalue %dx.types.CBufRet.i32 %1091, 0
-  %1093 = add i32 %1092, 8
-  %1094 = call %dx.types.Handle @dx.op.createHandleFromHeap(i32 218, i32 %1093, i1 false, i1 false)  ; CreateHandleFromHeap(index,samplerHeap,nonUniformIndex)
-  %1095 = call %dx.types.Handle @dx.op.annotateHandle(i32 216, %dx.types.Handle %1094, %dx.types.ResourceProperties { i32 4103, i32 1033 })  ; AnnotateHandle(res,props)  resource: RWTexture2DArray<4xF32>
+  %1090 = call %dx.types.CBufRet.i32 @dx.op.cbufferLoadLegacy.i32(i32 59, %dx.types.Handle %2, i32 1)  ; CBufferLoadLegacy(handle,regIndex)
+  %1091 = extractvalue %dx.types.CBufRet.i32 %1090, 0
+  %1092 = add i32 %1091, 8
+  %1093 = call %dx.types.Handle @dx.op.createHandleFromHeap(i32 218, i32 %1092, i1 false, i1 false)  ; CreateHandleFromHeap(index,samplerHeap,nonUniformIndex)
+  %1094 = call %dx.types.Handle @dx.op.annotateHandle(i32 216, %dx.types.Handle %1093, %dx.types.ResourceProperties { i32 4103, i32 1033 })  ; AnnotateHandle(res,props)  resource: RWTexture2DArray<4xF32>
+  %1095 = fpext half %1086 to float
   %1096 = fpext half %1087 to float
   %1097 = fpext half %1088 to float
   %1098 = fpext half %1089 to float
-  %1099 = fpext half %1090 to float
-  call void @dx.op.textureStore.f32(i32 67, %dx.types.Handle %1095, i32 %30, i32 %33, i32 %5, float %1096, float %1097, float %1098, float %1099, i8 15)  ; TextureStore(srv,coord0,coord1,coord2,value0,value1,value2,value3,mask)
-  %1100 = mul i32 %30, 16
-  %1101 = add i32 %33, %1100
-  %1102 = mul i32 %1101, 2
-  %1103 = add i32 0, %1102
-  %1104 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_rg@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %1103
-  store half %1087, half addrspace(3)* %1104, align 2
-  %1105 = mul i32 %30, 16
-  %1106 = add i32 %33, %1105
-  %1107 = mul i32 %1106, 2
-  %1108 = add i32 1, %1107
-  %1109 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_rg@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %1108
-  store half %1088, half addrspace(3)* %1109, align 2
-  %1110 = mul i32 %30, 16
-  %1111 = add i32 %33, %1110
-  %1112 = mul i32 %1111, 2
-  %1113 = add i32 0, %1112
-  %1114 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_ba@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %1113
-  store half %1089, half addrspace(3)* %1114, align 2
-  %1115 = mul i32 %30, 16
-  %1116 = add i32 %33, %1115
-  %1117 = mul i32 %1116, 2
-  %1118 = add i32 1, %1117
-  %1119 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_ba@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %1118
-  store half %1090, half addrspace(3)* %1119, align 2
-  %1120 = icmp ult i32 %15, 9
-  br i1 %1120, label %1456, label %1121
+  call void @dx.op.textureStore.f32(i32 67, %dx.types.Handle %1094, i32 %30, i32 %33, i32 %5, float %1095, float %1096, float %1097, float %1098, i8 15)  ; TextureStore(srv,coord0,coord1,coord2,value0,value1,value2,value3,mask)
+  %1099 = mul i32 %30, 16
+  %1100 = add i32 %33, %1099
+  %1101 = mul i32 %1100, 2
+  %1102 = add i32 0, %1101
+  %1103 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_rg@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %1102
+  store half %1086, half addrspace(3)* %1103, align 2
+  %1104 = mul i32 %30, 16
+  %1105 = add i32 %33, %1104
+  %1106 = mul i32 %1105, 2
+  %1107 = add i32 1, %1106
+  %1108 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_rg@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %1107
+  store half %1087, half addrspace(3)* %1108, align 2
+  %1109 = mul i32 %30, 16
+  %1110 = add i32 %33, %1109
+  %1111 = mul i32 %1110, 2
+  %1112 = add i32 0, %1111
+  %1113 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_ba@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %1112
+  store half %1088, half addrspace(3)* %1113, align 2
+  %1114 = mul i32 %30, 16
+  %1115 = add i32 %33, %1114
+  %1116 = mul i32 %1115, 2
+  %1117 = add i32 1, %1116
+  %1118 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_ba@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %1117
+  store half %1089, half addrspace(3)* %1118, align 2
+  %1119 = icmp ult i32 %15, 9
+  br i1 %1119, label %1455, label %1120
 
-; <label>:1121                                    ; preds = %1074
+; <label>:1120                                    ; preds = %1073
   call void @dx.op.barrier(i32 80, i32 9)  ; Barrier(barrierMode)
-  br i1 %419, label %1122, label %1194
+  br i1 %418, label %1121, label %1193
 
-; <label>:1122                                    ; preds = %1121
-  %1123 = load half, half addrspace(3)* %1104, align 2
-  %1124 = load half, half addrspace(3)* %1109, align 2
-  %1125 = load half, half addrspace(3)* %1114, align 2
-  %1126 = load half, half addrspace(3)* %1119, align 2
-  %1127 = call i32 @dx.op.waveGetLaneIndex(i32 111)  ; WaveGetLaneIndex()
-  %1128 = and i32 %1127, -4
-  %1129 = or i32 %1128, 1
-  %1130 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %1123, i32 %1129)  ; WaveReadLaneAt(value,lane)
-  %1131 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %1124, i32 %1129)  ; WaveReadLaneAt(value,lane)
-  %1132 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %1125, i32 %1129)  ; WaveReadLaneAt(value,lane)
-  %1133 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %1126, i32 %1129)  ; WaveReadLaneAt(value,lane)
-  %1134 = or i32 %1128, 2
-  %1135 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %1123, i32 %1134)  ; WaveReadLaneAt(value,lane)
-  %1136 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %1124, i32 %1134)  ; WaveReadLaneAt(value,lane)
-  %1137 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %1125, i32 %1134)  ; WaveReadLaneAt(value,lane)
-  %1138 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %1126, i32 %1134)  ; WaveReadLaneAt(value,lane)
-  %1139 = or i32 %1127, 3
-  %1140 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %1123, i32 %1139)  ; WaveReadLaneAt(value,lane)
-  %1141 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %1124, i32 %1139)  ; WaveReadLaneAt(value,lane)
-  %1142 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %1125, i32 %1139)  ; WaveReadLaneAt(value,lane)
-  %1143 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %1126, i32 %1139)  ; WaveReadLaneAt(value,lane)
+; <label>:1121                                    ; preds = %1120
+  %1122 = load half, half addrspace(3)* %1103, align 2
+  %1123 = load half, half addrspace(3)* %1108, align 2
+  %1124 = load half, half addrspace(3)* %1113, align 2
+  %1125 = load half, half addrspace(3)* %1118, align 2
+  %1126 = call i32 @dx.op.waveGetLaneIndex(i32 111)  ; WaveGetLaneIndex()
+  %1127 = and i32 %1126, -4
+  %1128 = or i32 %1127, 1
+  %1129 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %1122, i32 %1128)  ; WaveReadLaneAt(value,lane)
+  %1130 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %1123, i32 %1128)  ; WaveReadLaneAt(value,lane)
+  %1131 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %1124, i32 %1128)  ; WaveReadLaneAt(value,lane)
+  %1132 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %1125, i32 %1128)  ; WaveReadLaneAt(value,lane)
+  %1133 = or i32 %1127, 2
+  %1134 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %1122, i32 %1133)  ; WaveReadLaneAt(value,lane)
+  %1135 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %1123, i32 %1133)  ; WaveReadLaneAt(value,lane)
+  %1136 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %1124, i32 %1133)  ; WaveReadLaneAt(value,lane)
+  %1137 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %1125, i32 %1133)  ; WaveReadLaneAt(value,lane)
+  %1138 = or i32 %1126, 3
+  %1139 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %1122, i32 %1138)  ; WaveReadLaneAt(value,lane)
+  %1140 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %1123, i32 %1138)  ; WaveReadLaneAt(value,lane)
+  %1141 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %1124, i32 %1138)  ; WaveReadLaneAt(value,lane)
+  %1142 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %1125, i32 %1138)  ; WaveReadLaneAt(value,lane)
+  %1143 = fadd fast half %1129, %1122
   %1144 = fadd fast half %1130, %1123
   %1145 = fadd fast half %1131, %1124
   %1146 = fadd fast half %1132, %1125
-  %1147 = fadd fast half %1133, %1126
+  %1147 = fadd fast half %1143, %1134
   %1148 = fadd fast half %1144, %1135
   %1149 = fadd fast half %1145, %1136
   %1150 = fadd fast half %1146, %1137
-  %1151 = fadd fast half %1147, %1138
+  %1151 = fadd fast half %1147, %1139
   %1152 = fadd fast half %1148, %1140
   %1153 = fadd fast half %1149, %1141
   %1154 = fadd fast half %1150, %1142
-  %1155 = fadd fast half %1151, %1143
+  %1155 = fmul fast half %1151, 0xH3400
   %1156 = fmul fast half %1152, 0xH3400
   %1157 = fmul fast half %1153, 0xH3400
   %1158 = fmul fast half %1154, 0xH3400
-  %1159 = fmul fast half %1155, 0xH3400
-  br i1 %287, label %1160, label %1194
+  br i1 %286, label %1159, label %1193
 
-; <label>:1160                                    ; preds = %1122
-  %1161 = lshr i32 %30, 1
-  %1162 = lshr i32 %33, 1
-  %1163 = and i32 %23, 1
-  %1164 = add nuw nsw i32 %30, %1163
-  %1165 = call %dx.types.CBufRet.i32 @dx.op.cbufferLoadLegacy.i32(i32 59, %dx.types.Handle %2, i32 1)  ; CBufferLoadLegacy(handle,regIndex)
-  %1166 = extractvalue %dx.types.CBufRet.i32 %1165, 0
-  %1167 = add i32 %1166, 9
-  %1168 = call %dx.types.Handle @dx.op.createHandleFromHeap(i32 218, i32 %1167, i1 false, i1 false)  ; CreateHandleFromHeap(index,samplerHeap,nonUniformIndex)
-  %1169 = call %dx.types.Handle @dx.op.annotateHandle(i32 216, %dx.types.Handle %1168, %dx.types.ResourceProperties { i32 4103, i32 1033 })  ; AnnotateHandle(res,props)  resource: RWTexture2DArray<4xF32>
+; <label>:1159                                    ; preds = %1121
+  %1160 = lshr i32 %30, 1
+  %1161 = lshr i32 %33, 1
+  %1162 = and i32 %23, 1
+  %1163 = add nuw nsw i32 %30, %1162
+  %1164 = call %dx.types.CBufRet.i32 @dx.op.cbufferLoadLegacy.i32(i32 59, %dx.types.Handle %2, i32 1)  ; CBufferLoadLegacy(handle,regIndex)
+  %1165 = extractvalue %dx.types.CBufRet.i32 %1164, 0
+  %1166 = add i32 %1165, 9
+  %1167 = call %dx.types.Handle @dx.op.createHandleFromHeap(i32 218, i32 %1166, i1 false, i1 false)  ; CreateHandleFromHeap(index,samplerHeap,nonUniformIndex)
+  %1168 = call %dx.types.Handle @dx.op.annotateHandle(i32 216, %dx.types.Handle %1167, %dx.types.ResourceProperties { i32 4103, i32 1033 })  ; AnnotateHandle(res,props)  resource: RWTexture2DArray<4xF32>
+  %1169 = fpext half %1155 to float
   %1170 = fpext half %1156 to float
   %1171 = fpext half %1157 to float
   %1172 = fpext half %1158 to float
-  %1173 = fpext half %1159 to float
-  call void @dx.op.textureStore.f32(i32 67, %dx.types.Handle %1169, i32 %1161, i32 %1162, i32 %5, float %1170, float %1171, float %1172, float %1173, i8 15)  ; TextureStore(srv,coord0,coord1,coord2,value0,value1,value2,value3,mask)
-  %1174 = mul i32 %1164, 16
-  %1175 = add i32 %33, %1174
-  %1176 = mul i32 %1175, 2
-  %1177 = add i32 0, %1176
-  %1178 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_rg@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %1177
-  store half %1156, half addrspace(3)* %1178, align 2
-  %1179 = mul i32 %1164, 16
-  %1180 = add i32 %33, %1179
-  %1181 = mul i32 %1180, 2
-  %1182 = add i32 1, %1181
-  %1183 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_rg@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %1182
-  store half %1157, half addrspace(3)* %1183, align 2
-  %1184 = mul i32 %1164, 16
-  %1185 = add i32 %33, %1184
-  %1186 = mul i32 %1185, 2
-  %1187 = add i32 0, %1186
-  %1188 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_ba@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %1187
-  store half %1158, half addrspace(3)* %1188, align 2
-  %1189 = mul i32 %1164, 16
-  %1190 = add i32 %33, %1189
-  %1191 = mul i32 %1190, 2
-  %1192 = add i32 1, %1191
-  %1193 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_ba@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %1192
-  store half %1159, half addrspace(3)* %1193, align 2
-  br label %1194
+  call void @dx.op.textureStore.f32(i32 67, %dx.types.Handle %1168, i32 %1160, i32 %1161, i32 %5, float %1169, float %1170, float %1171, float %1172, i8 15)  ; TextureStore(srv,coord0,coord1,coord2,value0,value1,value2,value3,mask)
+  %1173 = mul i32 %1163, 16
+  %1174 = add i32 %33, %1173
+  %1175 = mul i32 %1174, 2
+  %1176 = add i32 0, %1175
+  %1177 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_rg@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %1176
+  store half %1155, half addrspace(3)* %1177, align 2
+  %1178 = mul i32 %1163, 16
+  %1179 = add i32 %33, %1178
+  %1180 = mul i32 %1179, 2
+  %1181 = add i32 1, %1180
+  %1182 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_rg@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %1181
+  store half %1156, half addrspace(3)* %1182, align 2
+  %1183 = mul i32 %1163, 16
+  %1184 = add i32 %33, %1183
+  %1185 = mul i32 %1184, 2
+  %1186 = add i32 0, %1185
+  %1187 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_ba@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %1186
+  store half %1157, half addrspace(3)* %1187, align 2
+  %1188 = mul i32 %1163, 16
+  %1189 = add i32 %33, %1188
+  %1190 = mul i32 %1189, 2
+  %1191 = add i32 1, %1190
+  %1192 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_ba@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %1191
+  store half %1158, half addrspace(3)* %1192, align 2
+  br label %1193
 
-; <label>:1194                                    ; preds = %1160, %1122, %1121
-  %1195 = icmp ult i32 %15, 10
-  br i1 %1195, label %1456, label %1196
+; <label>:1193                                    ; preds = %1159, %1121, %1120
+  %1194 = icmp ult i32 %15, 10
+  br i1 %1194, label %1455, label %1195
 
-; <label>:1196                                    ; preds = %1194
+; <label>:1195                                    ; preds = %1193
   call void @dx.op.barrier(i32 80, i32 9)  ; Barrier(barrierMode)
-  br i1 %519, label %1197, label %1290
+  br i1 %518, label %1196, label %1289
 
-; <label>:1197                                    ; preds = %1196
-  %1198 = and i32 %21, 1
-  %1199 = or i32 %34, %1198
-  %1200 = mul i32 %1199, 16
-  %1201 = add i32 %35, %1200
-  %1202 = mul i32 %1201, 2
-  %1203 = add i32 0, %1202
-  %1204 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_rg@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %1203
-  %1205 = load half, half addrspace(3)* %1204, align 2
-  %1206 = mul i32 %1199, 16
-  %1207 = add i32 %35, %1206
-  %1208 = mul i32 %1207, 2
-  %1209 = add i32 1, %1208
-  %1210 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_rg@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %1209
-  %1211 = load half, half addrspace(3)* %1210, align 2
-  %1212 = mul i32 %1199, 16
-  %1213 = add i32 %35, %1212
-  %1214 = mul i32 %1213, 2
-  %1215 = add i32 0, %1214
-  %1216 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_ba@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %1215
-  %1217 = load half, half addrspace(3)* %1216, align 2
-  %1218 = mul i32 %1199, 16
-  %1219 = add i32 %35, %1218
-  %1220 = mul i32 %1219, 2
-  %1221 = add i32 1, %1220
-  %1222 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_ba@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %1221
-  %1223 = load half, half addrspace(3)* %1222, align 2
-  %1224 = call i32 @dx.op.waveGetLaneIndex(i32 111)  ; WaveGetLaneIndex()
-  %1225 = and i32 %1224, -4
-  %1226 = or i32 %1225, 1
-  %1227 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %1205, i32 %1226)  ; WaveReadLaneAt(value,lane)
-  %1228 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %1211, i32 %1226)  ; WaveReadLaneAt(value,lane)
-  %1229 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %1217, i32 %1226)  ; WaveReadLaneAt(value,lane)
-  %1230 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %1223, i32 %1226)  ; WaveReadLaneAt(value,lane)
-  %1231 = or i32 %1225, 2
-  %1232 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %1205, i32 %1231)  ; WaveReadLaneAt(value,lane)
-  %1233 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %1211, i32 %1231)  ; WaveReadLaneAt(value,lane)
-  %1234 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %1217, i32 %1231)  ; WaveReadLaneAt(value,lane)
-  %1235 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %1223, i32 %1231)  ; WaveReadLaneAt(value,lane)
-  %1236 = or i32 %1224, 3
-  %1237 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %1205, i32 %1236)  ; WaveReadLaneAt(value,lane)
-  %1238 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %1211, i32 %1236)  ; WaveReadLaneAt(value,lane)
-  %1239 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %1217, i32 %1236)  ; WaveReadLaneAt(value,lane)
-  %1240 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %1223, i32 %1236)  ; WaveReadLaneAt(value,lane)
-  %1241 = fadd fast half %1227, %1205
-  %1242 = fadd fast half %1228, %1211
-  %1243 = fadd fast half %1229, %1217
-  %1244 = fadd fast half %1230, %1223
+; <label>:1196                                    ; preds = %1195
+  %1197 = and i32 %21, 1
+  %1198 = or i32 %34, %1197
+  %1199 = mul i32 %1198, 16
+  %1200 = add i32 %35, %1199
+  %1201 = mul i32 %1200, 2
+  %1202 = add i32 0, %1201
+  %1203 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_rg@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %1202
+  %1204 = load half, half addrspace(3)* %1203, align 2
+  %1205 = mul i32 %1198, 16
+  %1206 = add i32 %35, %1205
+  %1207 = mul i32 %1206, 2
+  %1208 = add i32 1, %1207
+  %1209 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_rg@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %1208
+  %1210 = load half, half addrspace(3)* %1209, align 2
+  %1211 = mul i32 %1198, 16
+  %1212 = add i32 %35, %1211
+  %1213 = mul i32 %1212, 2
+  %1214 = add i32 0, %1213
+  %1215 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_ba@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %1214
+  %1216 = load half, half addrspace(3)* %1215, align 2
+  %1217 = mul i32 %1198, 16
+  %1218 = add i32 %35, %1217
+  %1219 = mul i32 %1218, 2
+  %1220 = add i32 1, %1219
+  %1221 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_ba@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %1220
+  %1222 = load half, half addrspace(3)* %1221, align 2
+  %1223 = call i32 @dx.op.waveGetLaneIndex(i32 111)  ; WaveGetLaneIndex()
+  %1224 = and i32 %1223, -4
+  %1225 = or i32 %1224, 1
+  %1226 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %1204, i32 %1225)  ; WaveReadLaneAt(value,lane)
+  %1227 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %1210, i32 %1225)  ; WaveReadLaneAt(value,lane)
+  %1228 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %1216, i32 %1225)  ; WaveReadLaneAt(value,lane)
+  %1229 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %1222, i32 %1225)  ; WaveReadLaneAt(value,lane)
+  %1230 = or i32 %1224, 2
+  %1231 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %1204, i32 %1230)  ; WaveReadLaneAt(value,lane)
+  %1232 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %1210, i32 %1230)  ; WaveReadLaneAt(value,lane)
+  %1233 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %1216, i32 %1230)  ; WaveReadLaneAt(value,lane)
+  %1234 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %1222, i32 %1230)  ; WaveReadLaneAt(value,lane)
+  %1235 = or i32 %1223, 3
+  %1236 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %1204, i32 %1235)  ; WaveReadLaneAt(value,lane)
+  %1237 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %1210, i32 %1235)  ; WaveReadLaneAt(value,lane)
+  %1238 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %1216, i32 %1235)  ; WaveReadLaneAt(value,lane)
+  %1239 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %1222, i32 %1235)  ; WaveReadLaneAt(value,lane)
+  %1240 = fadd fast half %1226, %1204
+  %1241 = fadd fast half %1227, %1210
+  %1242 = fadd fast half %1228, %1216
+  %1243 = fadd fast half %1229, %1222
+  %1244 = fadd fast half %1240, %1231
   %1245 = fadd fast half %1241, %1232
   %1246 = fadd fast half %1242, %1233
   %1247 = fadd fast half %1243, %1234
-  %1248 = fadd fast half %1244, %1235
+  %1248 = fadd fast half %1244, %1236
   %1249 = fadd fast half %1245, %1237
   %1250 = fadd fast half %1246, %1238
   %1251 = fadd fast half %1247, %1239
-  %1252 = fadd fast half %1248, %1240
+  %1252 = fmul fast half %1248, 0xH3400
   %1253 = fmul fast half %1249, 0xH3400
   %1254 = fmul fast half %1250, 0xH3400
   %1255 = fmul fast half %1251, 0xH3400
-  %1256 = fmul fast half %1252, 0xH3400
-  br i1 %287, label %1257, label %1290
+  br i1 %286, label %1256, label %1289
 
-; <label>:1257                                    ; preds = %1197
-  %1258 = lshr i32 %30, 1
-  %1259 = lshr i32 %33, 1
-  %1260 = add nuw nsw i32 %34, %1259
-  %1261 = call %dx.types.CBufRet.i32 @dx.op.cbufferLoadLegacy.i32(i32 59, %dx.types.Handle %2, i32 1)  ; CBufferLoadLegacy(handle,regIndex)
-  %1262 = extractvalue %dx.types.CBufRet.i32 %1261, 0
-  %1263 = add i32 %1262, 10
-  %1264 = call %dx.types.Handle @dx.op.createHandleFromHeap(i32 218, i32 %1263, i1 false, i1 false)  ; CreateHandleFromHeap(index,samplerHeap,nonUniformIndex)
-  %1265 = call %dx.types.Handle @dx.op.annotateHandle(i32 216, %dx.types.Handle %1264, %dx.types.ResourceProperties { i32 4103, i32 1033 })  ; AnnotateHandle(res,props)  resource: RWTexture2DArray<4xF32>
+; <label>:1256                                    ; preds = %1196
+  %1257 = lshr i32 %30, 1
+  %1258 = lshr i32 %33, 1
+  %1259 = add nuw nsw i32 %34, %1258
+  %1260 = call %dx.types.CBufRet.i32 @dx.op.cbufferLoadLegacy.i32(i32 59, %dx.types.Handle %2, i32 1)  ; CBufferLoadLegacy(handle,regIndex)
+  %1261 = extractvalue %dx.types.CBufRet.i32 %1260, 0
+  %1262 = add i32 %1261, 10
+  %1263 = call %dx.types.Handle @dx.op.createHandleFromHeap(i32 218, i32 %1262, i1 false, i1 false)  ; CreateHandleFromHeap(index,samplerHeap,nonUniformIndex)
+  %1264 = call %dx.types.Handle @dx.op.annotateHandle(i32 216, %dx.types.Handle %1263, %dx.types.ResourceProperties { i32 4103, i32 1033 })  ; AnnotateHandle(res,props)  resource: RWTexture2DArray<4xF32>
+  %1265 = fpext half %1252 to float
   %1266 = fpext half %1253 to float
   %1267 = fpext half %1254 to float
   %1268 = fpext half %1255 to float
-  %1269 = fpext half %1256 to float
-  call void @dx.op.textureStore.f32(i32 67, %dx.types.Handle %1265, i32 %1258, i32 %1259, i32 %5, float %1266, float %1267, float %1268, float %1269, i8 15)  ; TextureStore(srv,coord0,coord1,coord2,value0,value1,value2,value3,mask)
-  %1270 = mul i32 %1260, 16
-  %1271 = add i32 %35, %1270
-  %1272 = mul i32 %1271, 2
-  %1273 = add i32 0, %1272
-  %1274 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_rg@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %1273
-  store half %1253, half addrspace(3)* %1274, align 2
-  %1275 = mul i32 %1260, 16
-  %1276 = add i32 %35, %1275
-  %1277 = mul i32 %1276, 2
-  %1278 = add i32 1, %1277
-  %1279 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_rg@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %1278
-  store half %1254, half addrspace(3)* %1279, align 2
-  %1280 = mul i32 %1260, 16
-  %1281 = add i32 %35, %1280
-  %1282 = mul i32 %1281, 2
-  %1283 = add i32 0, %1282
-  %1284 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_ba@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %1283
-  store half %1255, half addrspace(3)* %1284, align 2
-  %1285 = mul i32 %1260, 16
-  %1286 = add i32 %35, %1285
-  %1287 = mul i32 %1286, 2
-  %1288 = add i32 1, %1287
-  %1289 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_ba@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %1288
-  store half %1256, half addrspace(3)* %1289, align 2
-  br label %1290
+  call void @dx.op.textureStore.f32(i32 67, %dx.types.Handle %1264, i32 %1257, i32 %1258, i32 %5, float %1265, float %1266, float %1267, float %1268, i8 15)  ; TextureStore(srv,coord0,coord1,coord2,value0,value1,value2,value3,mask)
+  %1269 = mul i32 %1259, 16
+  %1270 = add i32 %35, %1269
+  %1271 = mul i32 %1270, 2
+  %1272 = add i32 0, %1271
+  %1273 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_rg@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %1272
+  store half %1252, half addrspace(3)* %1273, align 2
+  %1274 = mul i32 %1259, 16
+  %1275 = add i32 %35, %1274
+  %1276 = mul i32 %1275, 2
+  %1277 = add i32 1, %1276
+  %1278 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_rg@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %1277
+  store half %1253, half addrspace(3)* %1278, align 2
+  %1279 = mul i32 %1259, 16
+  %1280 = add i32 %35, %1279
+  %1281 = mul i32 %1280, 2
+  %1282 = add i32 0, %1281
+  %1283 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_ba@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %1282
+  store half %1254, half addrspace(3)* %1283, align 2
+  %1284 = mul i32 %1259, 16
+  %1285 = add i32 %35, %1284
+  %1286 = mul i32 %1285, 2
+  %1287 = add i32 1, %1286
+  %1288 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_ba@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %1287
+  store half %1255, half addrspace(3)* %1288, align 2
+  br label %1289
 
-; <label>:1290                                    ; preds = %1257, %1197, %1196
-  %1291 = icmp ult i32 %15, 11
-  br i1 %1291, label %1456, label %1292
+; <label>:1289                                    ; preds = %1256, %1196, %1195
+  %1290 = icmp ult i32 %15, 11
+  br i1 %1290, label %1455, label %1291
 
-; <label>:1292                                    ; preds = %1290
+; <label>:1291                                    ; preds = %1289
   call void @dx.op.barrier(i32 80, i32 9)  ; Barrier(barrierMode)
-  br i1 %620, label %1293, label %1385
+  br i1 %619, label %1292, label %1384
 
-; <label>:1293                                    ; preds = %1292
-  %1294 = add nuw nsw i32 %803, %33
-  %1295 = mul i32 %1294, 16
-  %1296 = add i32 %804, %1295
-  %1297 = mul i32 %1296, 2
-  %1298 = add i32 0, %1297
-  %1299 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_rg@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %1298
-  %1300 = load half, half addrspace(3)* %1299, align 2
-  %1301 = mul i32 %1294, 16
-  %1302 = add i32 %804, %1301
-  %1303 = mul i32 %1302, 2
-  %1304 = add i32 1, %1303
-  %1305 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_rg@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %1304
-  %1306 = load half, half addrspace(3)* %1305, align 2
-  %1307 = mul i32 %1294, 16
-  %1308 = add i32 %804, %1307
-  %1309 = mul i32 %1308, 2
-  %1310 = add i32 0, %1309
-  %1311 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_ba@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %1310
-  %1312 = load half, half addrspace(3)* %1311, align 2
-  %1313 = mul i32 %1294, 16
-  %1314 = add i32 %804, %1313
-  %1315 = mul i32 %1314, 2
-  %1316 = add i32 1, %1315
-  %1317 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_ba@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %1316
-  %1318 = load half, half addrspace(3)* %1317, align 2
-  %1319 = call i32 @dx.op.waveGetLaneIndex(i32 111)  ; WaveGetLaneIndex()
-  %1320 = and i32 %1319, -4
-  %1321 = or i32 %1320, 1
-  %1322 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %1300, i32 %1321)  ; WaveReadLaneAt(value,lane)
-  %1323 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %1306, i32 %1321)  ; WaveReadLaneAt(value,lane)
-  %1324 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %1312, i32 %1321)  ; WaveReadLaneAt(value,lane)
-  %1325 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %1318, i32 %1321)  ; WaveReadLaneAt(value,lane)
-  %1326 = or i32 %1320, 2
-  %1327 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %1300, i32 %1326)  ; WaveReadLaneAt(value,lane)
-  %1328 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %1306, i32 %1326)  ; WaveReadLaneAt(value,lane)
-  %1329 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %1312, i32 %1326)  ; WaveReadLaneAt(value,lane)
-  %1330 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %1318, i32 %1326)  ; WaveReadLaneAt(value,lane)
-  %1331 = or i32 %1319, 3
-  %1332 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %1300, i32 %1331)  ; WaveReadLaneAt(value,lane)
-  %1333 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %1306, i32 %1331)  ; WaveReadLaneAt(value,lane)
-  %1334 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %1312, i32 %1331)  ; WaveReadLaneAt(value,lane)
-  %1335 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %1318, i32 %1331)  ; WaveReadLaneAt(value,lane)
-  %1336 = fadd fast half %1322, %1300
-  %1337 = fadd fast half %1323, %1306
-  %1338 = fadd fast half %1324, %1312
-  %1339 = fadd fast half %1325, %1318
+; <label>:1292                                    ; preds = %1291
+  %1293 = add nuw nsw i32 %802, %33
+  %1294 = mul i32 %1293, 16
+  %1295 = add i32 %803, %1294
+  %1296 = mul i32 %1295, 2
+  %1297 = add i32 0, %1296
+  %1298 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_rg@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %1297
+  %1299 = load half, half addrspace(3)* %1298, align 2
+  %1300 = mul i32 %1293, 16
+  %1301 = add i32 %803, %1300
+  %1302 = mul i32 %1301, 2
+  %1303 = add i32 1, %1302
+  %1304 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_rg@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %1303
+  %1305 = load half, half addrspace(3)* %1304, align 2
+  %1306 = mul i32 %1293, 16
+  %1307 = add i32 %803, %1306
+  %1308 = mul i32 %1307, 2
+  %1309 = add i32 0, %1308
+  %1310 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_ba@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %1309
+  %1311 = load half, half addrspace(3)* %1310, align 2
+  %1312 = mul i32 %1293, 16
+  %1313 = add i32 %803, %1312
+  %1314 = mul i32 %1313, 2
+  %1315 = add i32 1, %1314
+  %1316 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_ba@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %1315
+  %1317 = load half, half addrspace(3)* %1316, align 2
+  %1318 = call i32 @dx.op.waveGetLaneIndex(i32 111)  ; WaveGetLaneIndex()
+  %1319 = and i32 %1318, -4
+  %1320 = or i32 %1319, 1
+  %1321 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %1299, i32 %1320)  ; WaveReadLaneAt(value,lane)
+  %1322 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %1305, i32 %1320)  ; WaveReadLaneAt(value,lane)
+  %1323 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %1311, i32 %1320)  ; WaveReadLaneAt(value,lane)
+  %1324 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %1317, i32 %1320)  ; WaveReadLaneAt(value,lane)
+  %1325 = or i32 %1319, 2
+  %1326 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %1299, i32 %1325)  ; WaveReadLaneAt(value,lane)
+  %1327 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %1305, i32 %1325)  ; WaveReadLaneAt(value,lane)
+  %1328 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %1311, i32 %1325)  ; WaveReadLaneAt(value,lane)
+  %1329 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %1317, i32 %1325)  ; WaveReadLaneAt(value,lane)
+  %1330 = or i32 %1318, 3
+  %1331 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %1299, i32 %1330)  ; WaveReadLaneAt(value,lane)
+  %1332 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %1305, i32 %1330)  ; WaveReadLaneAt(value,lane)
+  %1333 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %1311, i32 %1330)  ; WaveReadLaneAt(value,lane)
+  %1334 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %1317, i32 %1330)  ; WaveReadLaneAt(value,lane)
+  %1335 = fadd fast half %1321, %1299
+  %1336 = fadd fast half %1322, %1305
+  %1337 = fadd fast half %1323, %1311
+  %1338 = fadd fast half %1324, %1317
+  %1339 = fadd fast half %1335, %1326
   %1340 = fadd fast half %1336, %1327
   %1341 = fadd fast half %1337, %1328
   %1342 = fadd fast half %1338, %1329
-  %1343 = fadd fast half %1339, %1330
+  %1343 = fadd fast half %1339, %1331
   %1344 = fadd fast half %1340, %1332
   %1345 = fadd fast half %1341, %1333
   %1346 = fadd fast half %1342, %1334
-  %1347 = fadd fast half %1343, %1335
+  %1347 = fmul fast half %1343, 0xH3400
   %1348 = fmul fast half %1344, 0xH3400
   %1349 = fmul fast half %1345, 0xH3400
   %1350 = fmul fast half %1346, 0xH3400
-  %1351 = fmul fast half %1347, 0xH3400
-  br i1 %287, label %1352, label %1385
+  br i1 %286, label %1351, label %1384
 
-; <label>:1352                                    ; preds = %1293
-  %1353 = lshr i32 %30, 1
-  %1354 = lshr i32 %33, 1
-  %1355 = add nuw nsw i32 %1353, %33
-  %1356 = call %dx.types.CBufRet.i32 @dx.op.cbufferLoadLegacy.i32(i32 59, %dx.types.Handle %2, i32 1)  ; CBufferLoadLegacy(handle,regIndex)
-  %1357 = extractvalue %dx.types.CBufRet.i32 %1356, 0
-  %1358 = add i32 %1357, 11
-  %1359 = call %dx.types.Handle @dx.op.createHandleFromHeap(i32 218, i32 %1358, i1 false, i1 false)  ; CreateHandleFromHeap(index,samplerHeap,nonUniformIndex)
-  %1360 = call %dx.types.Handle @dx.op.annotateHandle(i32 216, %dx.types.Handle %1359, %dx.types.ResourceProperties { i32 4103, i32 1033 })  ; AnnotateHandle(res,props)  resource: RWTexture2DArray<4xF32>
+; <label>:1351                                    ; preds = %1292
+  %1352 = lshr i32 %30, 1
+  %1353 = lshr i32 %33, 1
+  %1354 = add nuw nsw i32 %1352, %33
+  %1355 = call %dx.types.CBufRet.i32 @dx.op.cbufferLoadLegacy.i32(i32 59, %dx.types.Handle %2, i32 1)  ; CBufferLoadLegacy(handle,regIndex)
+  %1356 = extractvalue %dx.types.CBufRet.i32 %1355, 0
+  %1357 = add i32 %1356, 11
+  %1358 = call %dx.types.Handle @dx.op.createHandleFromHeap(i32 218, i32 %1357, i1 false, i1 false)  ; CreateHandleFromHeap(index,samplerHeap,nonUniformIndex)
+  %1359 = call %dx.types.Handle @dx.op.annotateHandle(i32 216, %dx.types.Handle %1358, %dx.types.ResourceProperties { i32 4103, i32 1033 })  ; AnnotateHandle(res,props)  resource: RWTexture2DArray<4xF32>
+  %1360 = fpext half %1347 to float
   %1361 = fpext half %1348 to float
   %1362 = fpext half %1349 to float
   %1363 = fpext half %1350 to float
-  %1364 = fpext half %1351 to float
-  call void @dx.op.textureStore.f32(i32 67, %dx.types.Handle %1360, i32 %1353, i32 %1354, i32 %5, float %1361, float %1362, float %1363, float %1364, i8 15)  ; TextureStore(srv,coord0,coord1,coord2,value0,value1,value2,value3,mask)
-  %1365 = mul i32 %1355, 16
-  %1366 = add i32 0, %1365
-  %1367 = mul i32 %1366, 2
-  %1368 = add i32 0, %1367
-  %1369 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_rg@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %1368
-  store half %1348, half addrspace(3)* %1369, align 2
-  %1370 = mul i32 %1355, 16
-  %1371 = add i32 0, %1370
-  %1372 = mul i32 %1371, 2
-  %1373 = add i32 1, %1372
-  %1374 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_rg@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %1373
-  store half %1349, half addrspace(3)* %1374, align 2
-  %1375 = mul i32 %1355, 16
-  %1376 = add i32 0, %1375
-  %1377 = mul i32 %1376, 2
-  %1378 = add i32 0, %1377
-  %1379 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_ba@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %1378
-  store half %1350, half addrspace(3)* %1379, align 2
-  %1380 = mul i32 %1355, 16
-  %1381 = add i32 0, %1380
-  %1382 = mul i32 %1381, 2
-  %1383 = add i32 1, %1382
-  %1384 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_ba@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %1383
-  store half %1351, half addrspace(3)* %1384, align 2
-  br label %1385
+  call void @dx.op.textureStore.f32(i32 67, %dx.types.Handle %1359, i32 %1352, i32 %1353, i32 %5, float %1360, float %1361, float %1362, float %1363, i8 15)  ; TextureStore(srv,coord0,coord1,coord2,value0,value1,value2,value3,mask)
+  %1364 = mul i32 %1354, 16
+  %1365 = add i32 0, %1364
+  %1366 = mul i32 %1365, 2
+  %1367 = add i32 0, %1366
+  %1368 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_rg@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %1367
+  store half %1347, half addrspace(3)* %1368, align 2
+  %1369 = mul i32 %1354, 16
+  %1370 = add i32 0, %1369
+  %1371 = mul i32 %1370, 2
+  %1372 = add i32 1, %1371
+  %1373 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_rg@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %1372
+  store half %1348, half addrspace(3)* %1373, align 2
+  %1374 = mul i32 %1354, 16
+  %1375 = add i32 0, %1374
+  %1376 = mul i32 %1375, 2
+  %1377 = add i32 0, %1376
+  %1378 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_ba@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %1377
+  store half %1349, half addrspace(3)* %1378, align 2
+  %1379 = mul i32 %1354, 16
+  %1380 = add i32 0, %1379
+  %1381 = mul i32 %1380, 2
+  %1382 = add i32 1, %1381
+  %1383 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_ba@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %1382
+  store half %1350, half addrspace(3)* %1383, align 2
+  br label %1384
 
-; <label>:1385                                    ; preds = %1352, %1293, %1292
-  %1386 = icmp ult i32 %15, 12
-  br i1 %1386, label %1456, label %1387
+; <label>:1384                                    ; preds = %1351, %1292, %1291
+  %1385 = icmp ult i32 %15, 12
+  br i1 %1385, label %1455, label %1386
 
-; <label>:1387                                    ; preds = %1385
+; <label>:1386                                    ; preds = %1384
   call void @dx.op.barrier(i32 80, i32 9)  ; Barrier(barrierMode)
-  br i1 %722, label %1388, label %1456
+  br i1 %721, label %1387, label %1455
 
-; <label>:1388                                    ; preds = %1387
-  %1389 = mul i32 %6, 16
-  %1390 = add i32 0, %1389
-  %1391 = mul i32 %1390, 2
-  %1392 = add i32 0, %1391
-  %1393 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_rg@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %1392
-  %1394 = load half, half addrspace(3)* %1393, align 2
-  %1395 = mul i32 %6, 16
-  %1396 = add i32 0, %1395
-  %1397 = mul i32 %1396, 2
-  %1398 = add i32 1, %1397
-  %1399 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_rg@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %1398
-  %1400 = load half, half addrspace(3)* %1399, align 2
-  %1401 = mul i32 %6, 16
-  %1402 = add i32 0, %1401
-  %1403 = mul i32 %1402, 2
-  %1404 = add i32 0, %1403
-  %1405 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_ba@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %1404
-  %1406 = load half, half addrspace(3)* %1405, align 2
-  %1407 = mul i32 %6, 16
-  %1408 = add i32 0, %1407
-  %1409 = mul i32 %1408, 2
-  %1410 = add i32 1, %1409
-  %1411 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_ba@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %1410
-  %1412 = load half, half addrspace(3)* %1411, align 2
-  %1413 = call i32 @dx.op.waveGetLaneIndex(i32 111)  ; WaveGetLaneIndex()
-  %1414 = and i32 %1413, -4
-  %1415 = or i32 %1414, 1
-  %1416 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %1394, i32 %1415)  ; WaveReadLaneAt(value,lane)
-  %1417 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %1400, i32 %1415)  ; WaveReadLaneAt(value,lane)
-  %1418 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %1406, i32 %1415)  ; WaveReadLaneAt(value,lane)
-  %1419 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %1412, i32 %1415)  ; WaveReadLaneAt(value,lane)
-  %1420 = or i32 %1414, 2
-  %1421 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %1394, i32 %1420)  ; WaveReadLaneAt(value,lane)
-  %1422 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %1400, i32 %1420)  ; WaveReadLaneAt(value,lane)
-  %1423 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %1406, i32 %1420)  ; WaveReadLaneAt(value,lane)
-  %1424 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %1412, i32 %1420)  ; WaveReadLaneAt(value,lane)
-  %1425 = or i32 %1413, 3
-  %1426 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %1394, i32 %1425)  ; WaveReadLaneAt(value,lane)
-  %1427 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %1400, i32 %1425)  ; WaveReadLaneAt(value,lane)
-  %1428 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %1406, i32 %1425)  ; WaveReadLaneAt(value,lane)
-  %1429 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %1412, i32 %1425)  ; WaveReadLaneAt(value,lane)
-  br i1 %287, label %1430, label %1456
+; <label>:1387                                    ; preds = %1386
+  %1388 = mul i32 %6, 16
+  %1389 = add i32 0, %1388
+  %1390 = mul i32 %1389, 2
+  %1391 = add i32 0, %1390
+  %1392 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_rg@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %1391
+  %1393 = load half, half addrspace(3)* %1392, align 2
+  %1394 = mul i32 %6, 16
+  %1395 = add i32 0, %1394
+  %1396 = mul i32 %1395, 2
+  %1397 = add i32 1, %1396
+  %1398 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_rg@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %1397
+  %1399 = load half, half addrspace(3)* %1398, align 2
+  %1400 = mul i32 %6, 16
+  %1401 = add i32 0, %1400
+  %1402 = mul i32 %1401, 2
+  %1403 = add i32 0, %1402
+  %1404 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_ba@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %1403
+  %1405 = load half, half addrspace(3)* %1404, align 2
+  %1406 = mul i32 %6, 16
+  %1407 = add i32 0, %1406
+  %1408 = mul i32 %1407, 2
+  %1409 = add i32 1, %1408
+  %1410 = getelementptr [512 x half], [512 x half] addrspace(3)* @"\01?gs_tmp_ba@@3PAY0BA@$$CAV?$vector@$f16@$01@@A.v.1dim", i32 0, i32 %1409
+  %1411 = load half, half addrspace(3)* %1410, align 2
+  %1412 = call i32 @dx.op.waveGetLaneIndex(i32 111)  ; WaveGetLaneIndex()
+  %1413 = and i32 %1412, -4
+  %1414 = or i32 %1413, 1
+  %1415 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %1393, i32 %1414)  ; WaveReadLaneAt(value,lane)
+  %1416 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %1399, i32 %1414)  ; WaveReadLaneAt(value,lane)
+  %1417 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %1405, i32 %1414)  ; WaveReadLaneAt(value,lane)
+  %1418 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %1411, i32 %1414)  ; WaveReadLaneAt(value,lane)
+  %1419 = or i32 %1413, 2
+  %1420 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %1393, i32 %1419)  ; WaveReadLaneAt(value,lane)
+  %1421 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %1399, i32 %1419)  ; WaveReadLaneAt(value,lane)
+  %1422 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %1405, i32 %1419)  ; WaveReadLaneAt(value,lane)
+  %1423 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %1411, i32 %1419)  ; WaveReadLaneAt(value,lane)
+  %1424 = or i32 %1412, 3
+  %1425 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %1393, i32 %1424)  ; WaveReadLaneAt(value,lane)
+  %1426 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %1399, i32 %1424)  ; WaveReadLaneAt(value,lane)
+  %1427 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %1405, i32 %1424)  ; WaveReadLaneAt(value,lane)
+  %1428 = call half @dx.op.waveReadLaneAt.f16(i32 117, half %1411, i32 %1424)  ; WaveReadLaneAt(value,lane)
+  br i1 %286, label %1429, label %1455
 
-; <label>:1430                                    ; preds = %1388
-  %1431 = fadd fast half %1419, %1412
-  %1432 = fadd fast half %1431, %1424
-  %1433 = fadd fast half %1432, %1429
-  %1434 = fmul fast half %1433, 0xH3400
-  %1435 = fadd fast half %1418, %1406
-  %1436 = fadd fast half %1435, %1423
-  %1437 = fadd fast half %1436, %1428
-  %1438 = fmul fast half %1437, 0xH3400
-  %1439 = fadd fast half %1417, %1400
-  %1440 = fadd fast half %1439, %1422
-  %1441 = fadd fast half %1440, %1427
-  %1442 = fmul fast half %1441, 0xH3400
-  %1443 = fadd fast half %1416, %1394
-  %1444 = fadd fast half %1443, %1421
-  %1445 = fadd fast half %1444, %1426
-  %1446 = fmul fast half %1445, 0xH3400
-  %1447 = call %dx.types.CBufRet.i32 @dx.op.cbufferLoadLegacy.i32(i32 59, %dx.types.Handle %2, i32 1)  ; CBufferLoadLegacy(handle,regIndex)
-  %1448 = extractvalue %dx.types.CBufRet.i32 %1447, 0
-  %1449 = add i32 %1448, 12
-  %1450 = call %dx.types.Handle @dx.op.createHandleFromHeap(i32 218, i32 %1449, i1 false, i1 false)  ; CreateHandleFromHeap(index,samplerHeap,nonUniformIndex)
-  %1451 = call %dx.types.Handle @dx.op.annotateHandle(i32 216, %dx.types.Handle %1450, %dx.types.ResourceProperties { i32 4103, i32 1033 })  ; AnnotateHandle(res,props)  resource: RWTexture2DArray<4xF32>
-  %1452 = fpext half %1446 to float
-  %1453 = fpext half %1442 to float
-  %1454 = fpext half %1438 to float
-  %1455 = fpext half %1434 to float
-  call void @dx.op.textureStore.f32(i32 67, %dx.types.Handle %1451, i32 0, i32 0, i32 %5, float %1452, float %1453, float %1454, float %1455, i8 15)  ; TextureStore(srv,coord0,coord1,coord2,value0,value1,value2,value3,mask)
-  br label %1456
+; <label>:1429                                    ; preds = %1387
+  %1430 = fadd fast half %1418, %1411
+  %1431 = fadd fast half %1430, %1423
+  %1432 = fadd fast half %1431, %1428
+  %1433 = fmul fast half %1432, 0xH3400
+  %1434 = fadd fast half %1417, %1405
+  %1435 = fadd fast half %1434, %1422
+  %1436 = fadd fast half %1435, %1427
+  %1437 = fmul fast half %1436, 0xH3400
+  %1438 = fadd fast half %1416, %1399
+  %1439 = fadd fast half %1438, %1421
+  %1440 = fadd fast half %1439, %1426
+  %1441 = fmul fast half %1440, 0xH3400
+  %1442 = fadd fast half %1415, %1393
+  %1443 = fadd fast half %1442, %1420
+  %1444 = fadd fast half %1443, %1425
+  %1445 = fmul fast half %1444, 0xH3400
+  %1446 = call %dx.types.CBufRet.i32 @dx.op.cbufferLoadLegacy.i32(i32 59, %dx.types.Handle %2, i32 1)  ; CBufferLoadLegacy(handle,regIndex)
+  %1447 = extractvalue %dx.types.CBufRet.i32 %1446, 0
+  %1448 = add i32 %1447, 12
+  %1449 = call %dx.types.Handle @dx.op.createHandleFromHeap(i32 218, i32 %1448, i1 false, i1 false)  ; CreateHandleFromHeap(index,samplerHeap,nonUniformIndex)
+  %1450 = call %dx.types.Handle @dx.op.annotateHandle(i32 216, %dx.types.Handle %1449, %dx.types.ResourceProperties { i32 4103, i32 1033 })  ; AnnotateHandle(res,props)  resource: RWTexture2DArray<4xF32>
+  %1451 = fpext half %1445 to float
+  %1452 = fpext half %1441 to float
+  %1453 = fpext half %1437 to float
+  %1454 = fpext half %1433 to float
+  call void @dx.op.textureStore.f32(i32 67, %dx.types.Handle %1450, i32 0, i32 0, i32 %5, float %1451, float %1452, float %1453, float %1454, i8 15)  ; TextureStore(srv,coord0,coord1,coord2,value0,value1,value2,value3,mask)
+  br label %1455
 
-; <label>:1456                                    ; preds = %1430, %1388, %1387, %1385, %1290, %1194, %1074, %801, %797, %790, %719, %617, %516, %416, %0
+; <label>:1455                                    ; preds = %1429, %1387, %1386, %1384, %1289, %1193, %1073, %800, %796, %789, %718, %616, %515, %415, %0
   ret void
 }
 
@@ -2632,7 +2631,7 @@ attributes #3 = { nounwind }
 !dx.resources = !{!3}
 !dx.entryPoints = !{!6}
 
-!0 = !{!"dxcoob 1.8.2405.15 (fd7e54bcd)"}
+!0 = !{!"dxcoob 1.8.2407.7 (416fab6b5)"}
 !1 = !{i32 1, i32 8}
 !2 = !{!"cs", i32 6, i32 8}
 !3 = !{null, null, !4, null}
@@ -2647,7 +2646,7 @@ attributes #3 = { nounwind }
 !12 = !{!"Simple C/C++ TBAA"}
 */
 auto Shaders::spd_downsample_cs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(17996, 14084);
+    return std::span(_data).subspan(17988, 14080);
 }
 
 #undef texture_data
