@@ -34,9 +34,9 @@ Authors: Sergej Majboroda, Jarod Guest
 
 "Coconut Tree" (https://skfb.ly/6WGQx) by sujirour is licensed under Creative Commons Attribution (http://creativecommons.org/licenses/by/4.0/).
 
-## `models/low-poly_racoon_run_animation.glb`
+## `models/mixamo_run_female_60fps.fbx` & `models/mixamo_run_male_60fps.fbx`
 
-"Low-poly Racoon Run Animation" (https://skfb.ly/6RG6Q) by avatrass is licensed under Creative Commons Attribution (http://creativecommons.org/licenses/by/4.0/).
+Source: (https://www.mixamo.com)
 
 ## `models/grass3.glb`
 
