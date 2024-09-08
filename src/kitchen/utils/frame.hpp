@@ -15,6 +15,10 @@ public:
     auto delta_time() const -> float { return _delta_time_sec; }
     auto smoothed_delta_time() const -> float { return _smoothed_delta_time; }
     auto elapsed_time() const -> float { return _elapsed_time_sec; }
+    auto delta_time_history() const -> std::span<const float> {
+        return {_delta_time_history.data(), _delta_time_history.size()};
+    }
+    auto delta_time_history_index() const -> size_t { return _delta_time_history_index; }
     auto last_delta_time() const -> float { return _last_delta_time; }
     auto last_fps() const -> float {
         return _last_delta_time != 0.0f ? 1.0f / _last_delta_time : 0.0f;

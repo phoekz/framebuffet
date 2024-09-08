@@ -160,6 +160,31 @@ auto buffet_run(Buffet& bf) -> void {
                     bf.frame.last_fps()
                 );
 
+                {
+                    struct PlotData {
+                        std::span<const float> data;
+                        uint32_t offset;
+                    };
+                    const auto plot_data = PlotData {
+                        .data = bf.frame.delta_time_history(),
+                        .offset = (uint32_t)bf.frame.delta_time_history_index(),
+                    };
+                    ImGui::PlotLines(
+                        "Frame time (ms)",
+                        [](void* data, int32_t idx) -> float {
+                            const auto& plot_data = *(PlotData*)data;
+                            const auto i = (plot_data.offset + idx) % plot_data.data.size();
+                            return 1e3f * plot_data.data[i];
+                        },
+                        (void*)&plot_data,
+                        (int32_t)plot_data.data.size(),
+                        0,
+                        nullptr,
+                        0.0f,
+                        1.0f / 240.0f
+                    );
+                }
+
                 const auto vmem = bf.device.video_memory_info();
                 ImGui::Text(
                     "Video memory: %.2f MB / %.2f MB (%.2f%%)",
