@@ -144,15 +144,17 @@ auto GpuPipelineBuilder::build(GpuDevice& device, GpuPipeline& pipeline, std::st
 
         // Override `FillMode`.
         switch (_rasterizer_desc.fill_mode) {
-            case GpuFillMode::Solid: d3d12_desc.FillMode = D3D12_FILL_MODE_SOLID; break;
-            case GpuFillMode::Wireframe: d3d12_desc.FillMode = D3D12_FILL_MODE_WIREFRAME; break;
+            using enum GpuFillMode;
+            case Solid: d3d12_desc.FillMode = D3D12_FILL_MODE_SOLID; break;
+            case Wireframe: d3d12_desc.FillMode = D3D12_FILL_MODE_WIREFRAME; break;
         }
 
         // Override `CullMode`.
         switch (_rasterizer_desc.cull_mode) {
-            case GpuCullMode::None: d3d12_desc.CullMode = D3D12_CULL_MODE_NONE; break;
-            case GpuCullMode::Front: d3d12_desc.CullMode = D3D12_CULL_MODE_FRONT; break;
-            case GpuCullMode::Back: d3d12_desc.CullMode = D3D12_CULL_MODE_BACK; break;
+            using enum GpuCullMode;
+            case None: d3d12_desc.CullMode = D3D12_CULL_MODE_NONE; break;
+            case Front: d3d12_desc.CullMode = D3D12_CULL_MODE_FRONT; break;
+            case Back: d3d12_desc.CullMode = D3D12_CULL_MODE_BACK; break;
         }
 
         // Override `LineRasterizationMode`.
