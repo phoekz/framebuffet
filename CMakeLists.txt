@@ -38,6 +38,13 @@ add_link_options(
 string(REGEX REPLACE "/EH[a-z]+" "" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
 string(REGEX REPLACE "/Ob2" "" CMAKE_CXX_FLAGS_RELEASE ${CMAKE_CXX_FLAGS})
 
+# Helper functions.
+function(fb_setup_visual_studio_directories current_source_dir sources)
+    get_filename_component(LAST_DIR_NAME ${current_source_dir} NAME)
+    source_group(TREE ${current_source_dir} PREFIX ${LAST_DIR_NAME} FILES ${sources})
+    source_group(pch REGULAR_EXPRESSION "cmake_pch\.(hxx|cxx)")
+endfunction()
+
 # Libraries.
 add_subdirectory(src/common)
 add_subdirectory(src/baked)

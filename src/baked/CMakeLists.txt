@@ -21,3 +21,5 @@ target_include_directories(
     ${CMAKE_SOURCE_DIR}/src
 )
 target_precompile_headers(${NAME} PRIVATE pch.hpp)
+
+fb_setup_visual_studio_directories(${CMAKE_CURRENT_SOURCE_DIR} "${SOURCES}")

@@ -8,3 +8,5 @@ target_include_directories(
     ${CMAKE_SOURCE_DIR}/src
     ${STB_INCLUDE_DIR}
 )
+
+fb_setup_visual_studio_directories(${CMAKE_CURRENT_SOURCE_DIR} "${SOURCES}")

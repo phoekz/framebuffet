@@ -47,3 +47,5 @@ target_include_directories(
     PRIVATE
     ${CMAKE_SOURCE_DIR}/src
 )
+
+fb_setup_visual_studio_directories(${CMAKE_CURRENT_SOURCE_DIR} "${SOURCES}")
