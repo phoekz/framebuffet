@@ -25,19 +25,19 @@ set(SOURCES
     gpu/textures.hpp
     gpu/transfer.cpp
     gpu/transfer.hpp
-    graphics/brdf.hlsli
-    graphics/core.hlsli
-    graphics/debug_draw.cpp
-    graphics/debug_draw.hlsli
-    graphics/debug_draw.hpp
-    graphics/graphics.hpp
-    graphics/gui.cpp
-    graphics/gui.hlsli
-    graphics/gui.hpp
-    graphics/multibuffer.hpp
-    graphics/render_target.cpp
-    graphics/render_target.hpp
-    graphics/spd.hlsli
+    kcn/brdf.hlsli
+    kcn/core.hlsli
+    kcn/debug_draw.cpp
+    kcn/debug_draw.hlsli
+    kcn/debug_draw.hpp
+    kcn/gui.cpp
+    kcn/gui.hlsli
+    kcn/gui.hpp
+    kcn/kcn.hpp
+    kcn/multibuffer.hpp
+    kcn/render_target.cpp
+    kcn/render_target.hpp
+    kcn/spd.hlsli
     utils/camera.cpp
     utils/camera.hpp
     utils/frame.cpp

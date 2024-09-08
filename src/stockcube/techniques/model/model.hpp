@@ -17,7 +17,7 @@ struct Technique {
     GpuDescriptor irr_texture;
     GpuDescriptor rad_texture;
     uint rad_texture_mip_count;
-    Multibuffer<GpuBufferHostCbv<Constants>, FRAME_COUNT> constants;
+    KcnMultibuffer<GpuBufferHostCbv<Constants>, FRAME_COUNT> constants;
     GpuBufferDeviceSrv<baked::Vertex> vertices;
     GpuBufferDeviceIndex<baked::Index> indices;
     GpuPipeline pipeline;
@@ -25,7 +25,7 @@ struct Technique {
 };
 
 struct CreateDesc {
-    const RenderTargetView& render_target_view;
+    const KcnRenderTargetView& render_target_view;
     const Baked& baked;
     GpuDevice& device;
     GpuDescriptor lut_texture;

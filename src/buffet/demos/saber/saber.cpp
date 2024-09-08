@@ -135,7 +135,7 @@ auto create(Demo& demo, const CreateDesc& desc) -> void {
             device,
             {
                 .size = device.swapchain().size(),
-                .colors = {ColorAttachmentDesc {.format = COLOR_ATTACHMENTS[0].format}},
+                .colors = {KcnColorAttachmentDesc {.format = COLOR_ATTACHMENTS[0].format}},
             }
         );
         blit.render_target_view.create(blit.render_target.view_desc());

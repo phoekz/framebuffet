@@ -6,11 +6,11 @@
 namespace fb::demos::tree {
 
 inline constexpr std::string_view NAME = "Tree"sv;
-inline constexpr ColorAttachmentDescs COLOR_ATTACHMENTS = {ColorAttachmentDesc {
+inline constexpr KcnColorAttachmentDescs COLOR_ATTACHMENTS = {KcnColorAttachmentDesc {
     .format = DXGI_FORMAT_R8G8B8A8_UNORM,
     .clear_color = {0.32549f, 0.51373f, 0.56078f, 1.0f},
 }};
-inline constexpr DepthStencilAttachmentDesc DEPTH_STENCIL_ATTACHMENT = {
+inline constexpr KcnDepthStencilAttachmentDesc DEPTH_STENCIL_ATTACHMENT = {
     .format = DXGI_FORMAT_D32_FLOAT,
     .clear_depth = 1.0f,
     .clear_stencil = 0,
@@ -35,10 +35,10 @@ struct Parameters {
 
 struct Demo {
     Parameters parameters;
-    RenderTarget render_target;
-    RenderTargetView render_target_view;
-    DebugDraw debug_draw;
-    Multibuffer<GpuBufferHostCbv<Constants>, FRAME_COUNT> constants;
+    KcnRenderTarget render_target;
+    KcnRenderTargetView render_target_view;
+    KcnDebugDraw debug_draw;
+    KcnMultibuffer<GpuBufferHostCbv<Constants>, FRAME_COUNT> constants;
     GpuBufferDeviceSrv<baked::Vertex> tree_vertices;
     GpuBufferDeviceIndex<baked::Index> tree_indices;
     GpuTextureSrv tree_texture;

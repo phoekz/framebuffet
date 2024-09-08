@@ -1,6 +1,6 @@
 #include <buffet/demos/conras/conras.hlsli>
 #include <kitchen/gpu/samplers.hlsli>
-#include <kitchen/graphics/core.hlsli>
+#include <kitchen/kcn/core.hlsli>
 
 ConstantBuffer<Bindings> g_bindings: register(b0);
 

@@ -10,7 +10,7 @@ auto create(Techniques& techs, const CreateDesc& desc) -> void {
         {
             .size = desc.device.swapchain().size(),
             .sample_count = 4,
-            .colors = {ColorAttachmentDesc {
+            .colors = {KcnColorAttachmentDesc {
                 .format = DXGI_FORMAT_R16G16B16A16_FLOAT,
                 .clear_color = {0.3f, 0.6f, 0.0f, 1.0f},
             }},
@@ -165,7 +165,7 @@ auto update(Techniques& techs, const UpdateDesc& desc) -> void {
     blit::update(techs.blit, desc);
 }
 
-auto render_main(Techniques& techs, RenderTargetView& render_target_view, const RenderDesc& desc)
+auto render_main(Techniques& techs, KcnRenderTargetView& render_target_view, const RenderDesc& desc)
     -> void {
     cfr::render(techs.cfr, desc);
     lut::render(techs.lut, desc);

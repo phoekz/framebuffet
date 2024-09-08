@@ -2,7 +2,7 @@
 
 #include "../gpu/gpu.hpp"
 
-namespace fb::graphics::render_target {
+namespace fb {
 
 //
 // Constants.
@@ -14,34 +14,34 @@ inline constexpr uint MAX_ATTACHMENT_COUNT = D3D12_SIMULTANEOUS_RENDER_TARGET_CO
 // RenderTargetView.
 //
 
-struct ColorAttachment {
+struct KcnColorAttachment {
     GpuTextureRtv* ms_color = nullptr;
     GpuTextureSrvUavRtv* color = nullptr;
     float4 clear_color = {};
 };
 
-using ColorAttachments = std::array<ColorAttachment, MAX_ATTACHMENT_COUNT>;
+using KcnColorAttachments = std::array<KcnColorAttachment, MAX_ATTACHMENT_COUNT>;
 
-struct DepthStencilAttachment {
+struct KcnDepthStencilAttachment {
     GpuTextureDsv* depth_stencil = nullptr;
     float clear_depth = 1.0f;
     uint8_t clear_stencil = 0;
 };
 
-struct RenderTargetViewDesc {
+struct KcnRenderTargetViewDesc {
     uint2 size = {};
     uint sample_count = 1;
-    ColorAttachments colors = {};
-    DepthStencilAttachment depth_stencil = {};
+    KcnColorAttachments colors = {};
+    KcnDepthStencilAttachment depth_stencil = {};
 };
 
-class RenderTargetView {
-    FB_NO_COPY_MOVE(RenderTargetView);
+class KcnRenderTargetView {
+    FB_NO_COPY_MOVE(KcnRenderTargetView);
 
 public:
-    RenderTargetView() = default;
+    KcnRenderTargetView() = default;
 
-    auto create(const RenderTargetViewDesc& desc) -> void;
+    auto create(const KcnRenderTargetViewDesc& desc) -> void;
 
     auto transition_to_render_target(GpuCommandList& cmd) -> void;
     auto clear(GpuCommandList& cmd) -> void;
@@ -64,40 +64,40 @@ public:
     auto sample_desc() const -> DXGI_SAMPLE_DESC { return {.Count = _desc.sample_count}; }
 
 private:
-    RenderTargetViewDesc _desc = {};
+    KcnRenderTargetViewDesc _desc = {};
 };
 
 //
 // RenderTarget.
 //
 
-struct ColorAttachmentDesc {
+struct KcnColorAttachmentDesc {
     DXGI_FORMAT format = {};
     float4 clear_color = float4(0.0f, 0.0f, 0.0f, 1.0f);
 };
 
-using ColorAttachmentDescs = std::array<ColorAttachmentDesc, MAX_ATTACHMENT_COUNT>;
+using KcnColorAttachmentDescs = std::array<KcnColorAttachmentDesc, MAX_ATTACHMENT_COUNT>;
 
-struct DepthStencilAttachmentDesc {
+struct KcnDepthStencilAttachmentDesc {
     DXGI_FORMAT format = {};
     float clear_depth = 1.0f;
     uint8_t clear_stencil = 0;
 };
 
-struct RenderTargetDesc {
+struct KcnRenderTargetDesc {
     uint2 size = {};
     uint sample_count = 1;
-    ColorAttachmentDescs colors = {};
-    DepthStencilAttachmentDesc depth_stencil = {};
+    KcnColorAttachmentDescs colors = {};
+    KcnDepthStencilAttachmentDesc depth_stencil = {};
 };
 
-class RenderTarget {
-    FB_NO_COPY_MOVE(RenderTarget);
+class KcnRenderTarget {
+    FB_NO_COPY_MOVE(KcnRenderTarget);
 
 public:
-    RenderTarget() = default;
+    KcnRenderTarget() = default;
 
-    auto create(GpuDevice& device, const RenderTargetDesc& desc) -> void;
+    auto create(GpuDevice& device, const KcnRenderTargetDesc& desc) -> void;
 
     auto ms_color(uint index) const -> const GpuTextureRtv& { return _ms_colors[index]; }
     auto ms_color(uint index) -> GpuTextureRtv& { return _ms_colors[index]; }
@@ -110,13 +110,13 @@ public:
     auto depth_format() const -> DXGI_FORMAT { return _desc.depth_stencil.format; }
     auto sample_desc() const -> DXGI_SAMPLE_DESC { return {.Count = _desc.sample_count}; }
 
-    auto view_desc() -> RenderTargetViewDesc;
+    auto view_desc() -> KcnRenderTargetViewDesc;
 
 private:
-    RenderTargetDesc _desc = {};
+    KcnRenderTargetDesc _desc = {};
     std::array<GpuTextureRtv, MAX_ATTACHMENT_COUNT> _ms_colors = {};
     std::array<GpuTextureSrvUavRtv, MAX_ATTACHMENT_COUNT> _colors = {};
     GpuTextureDsv _depth_stencil = {};
 };
 
-} // namespace fb::graphics::render_target
+} // namespace fb

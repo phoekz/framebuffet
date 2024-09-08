@@ -18,7 +18,7 @@ struct Buffet {
     Window window;
     GpuDevice device;
     Demos demos;
-    Gui gui;
+    KcnGui gui;
     Frame frame;
     std::vector<std::byte> archive_buf;
     double time_since_last_archive = 0.0;

@@ -6,11 +6,11 @@
 namespace fb::demos::anim {
 
 inline constexpr std::string_view NAME = "Anim"sv;
-inline constexpr ColorAttachmentDescs COLOR_ATTACHMENTS = {ColorAttachmentDesc {
+inline constexpr KcnColorAttachmentDescs COLOR_ATTACHMENTS = {KcnColorAttachmentDesc {
     .format = DXGI_FORMAT_R8G8B8A8_UNORM,
     .clear_color = {0.0f, 0.0f, 0.0f, 1.0f},
 }};
-inline constexpr DepthStencilAttachmentDesc DEPTH_STENCIL_ATTACHMENT = {
+inline constexpr KcnDepthStencilAttachmentDesc DEPTH_STENCIL_ATTACHMENT = {
     .format = DXGI_FORMAT_D32_FLOAT,
     .clear_depth = 1.0f,
     .clear_stencil = 0,
@@ -58,8 +58,8 @@ struct OwnedAnimationMesh {
 };
 
 struct Model {
-    Multibuffer<GpuBufferHostCbv<Constants>, FRAME_COUNT> constants;
-    Multibuffer<GpuBufferHostSrv<float4x4>, FRAME_COUNT> skinning_matrices;
+    KcnMultibuffer<GpuBufferHostCbv<Constants>, FRAME_COUNT> constants;
+    KcnMultibuffer<GpuBufferHostSrv<float4x4>, FRAME_COUNT> skinning_matrices;
     GpuBufferDeviceSrv<baked::SkinningVertex> vertices;
     GpuBufferDeviceIndex<baked::Index> indices;
     float animation_time = 0.0f;
@@ -75,7 +75,7 @@ struct Anim {
 };
 
 struct Ground {
-    Multibuffer<GpuBufferHostCbv<Constants>, FRAME_COUNT> constants;
+    KcnMultibuffer<GpuBufferHostCbv<Constants>, FRAME_COUNT> constants;
     GpuBufferDeviceSrv<baked::Vertex> vertices;
     GpuBufferDeviceIndex<baked::Index> indices;
     GpuTextureSrv texture;
@@ -85,9 +85,9 @@ struct Ground {
 
 struct Demo {
     Parameters parameters;
-    RenderTarget render_target;
-    RenderTargetView render_target_view;
-    DebugDraw debug_draw;
+    KcnRenderTarget render_target;
+    KcnRenderTargetView render_target_view;
+    KcnDebugDraw debug_draw;
 
     Ground ground;
     Anim anim;

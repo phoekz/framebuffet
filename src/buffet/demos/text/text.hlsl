@@ -1,6 +1,6 @@
 #include <buffet/demos/text/text.hlsli>
 #include <kitchen/gpu/samplers.hlsli>
-#include <kitchen/graphics/core.hlsli>
+#include <kitchen/kcn/core.hlsli>
 
 ConstantBuffer<BackgroundBindings> g_background_bindings: register(b0);
 ConstantBuffer<GlyphBindings> g_glyph_bindings: register(b0);

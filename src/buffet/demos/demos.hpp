@@ -40,8 +40,8 @@ enum class Demo : uint {
 };
 
 struct DemoRenderTargetViews {
-    RenderTargetView* pre = nullptr;
-    RenderTargetView* post = nullptr;
+    KcnRenderTargetView* pre = nullptr;
+    KcnRenderTargetView* post = nullptr;
 };
 
 struct Demos {

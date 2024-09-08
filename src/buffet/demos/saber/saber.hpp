@@ -6,11 +6,11 @@
 namespace fb::demos::saber {
 
 inline constexpr std::string_view NAME = "Saber"sv;
-inline constexpr ColorAttachmentDescs COLOR_ATTACHMENTS = {ColorAttachmentDesc {
+inline constexpr KcnColorAttachmentDescs COLOR_ATTACHMENTS = {KcnColorAttachmentDesc {
     .format = DXGI_FORMAT_R11G11B10_FLOAT,
     .clear_color = {0.0f, 0.0f, 0.0f, 1.0f},
 }};
-inline constexpr DepthStencilAttachmentDesc DEPTH_STENCIL_ATTACHMENT = {
+inline constexpr KcnDepthStencilAttachmentDesc DEPTH_STENCIL_ATTACHMENT = {
     .format = DXGI_FORMAT_D32_FLOAT,
     .clear_depth = 1.0f,
     .clear_stencil = 0,
@@ -31,12 +31,12 @@ struct Parameters {
 
 struct Demo {
     Parameters parameters;
-    Multibuffer<GpuBufferHostCbv<Constants>, FRAME_COUNT> constants;
+    KcnMultibuffer<GpuBufferHostCbv<Constants>, FRAME_COUNT> constants;
 
     struct {
-        RenderTarget render_target;
-        RenderTargetView render_target_view;
-        DebugDraw debug_draw;
+        KcnRenderTarget render_target;
+        KcnRenderTargetView render_target_view;
+        KcnDebugDraw debug_draw;
         GpuPipeline pipeline;
         GpuBufferDeviceSrv<baked::Vertex> vertices;
         GpuBufferDeviceIndex<baked::Index> indices;
@@ -52,8 +52,8 @@ struct Demo {
     } compute;
 
     struct {
-        RenderTarget render_target;
-        RenderTargetView render_target_view;
+        KcnRenderTarget render_target;
+        KcnRenderTargetView render_target_view;
         GpuPipeline pipeline;
     } blit;
 };

@@ -120,11 +120,11 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {{
 namespace fb::demos::{lower_name} {{
 
 inline constexpr std::string_view NAME = "{upper_name}"sv;
-inline constexpr ColorAttachmentDescs COLOR_ATTACHMENTS = {{ColorAttachmentDesc {{
+inline constexpr KcnColorAttachmentDescs COLOR_ATTACHMENTS = {{KcnColorAttachmentDesc {{
     .format = DXGI_FORMAT_R8G8B8A8_UNORM,
     .clear_color = {{0.0f, 0.0f, 0.0f, 1.0f}},
 }}}};
-inline constexpr DepthStencilAttachmentDesc DEPTH_STENCIL_ATTACHMENT = {{
+inline constexpr KcnDepthStencilAttachmentDesc DEPTH_STENCIL_ATTACHMENT = {{
     .format = DXGI_FORMAT_D32_FLOAT,
     .clear_depth = 1.0f,
     .clear_stencil = 0,
@@ -141,10 +141,10 @@ struct Parameters {{
 
 struct Demo {{
     Parameters parameters;
-    RenderTarget render_target;
-    RenderTargetView render_target_view;
-    DebugDraw debug_draw;
-    Multibuffer<GpuBufferHostCbv<Constants>, FRAME_COUNT> constants;
+    KcnRenderTarget render_target;
+    KcnRenderTargetView render_target_view;
+    KcnDebugDraw debug_draw;
+    KcnMultibuffer<GpuBufferHostCbv<Constants>, FRAME_COUNT> constants;
 }};
 
 struct CreateDesc {{
@@ -169,7 +169,7 @@ auto archive(Demo& demo, A& arc) -> void {{
     #
     "hlsl": """#include <buffet/demos/{lower_name}/{lower_name}.hlsli>
 #include <kitchen/gpu/samplers.hlsli>
-#include <kitchen/graphics/core.hlsli>
+#include <kitchen/kcn/core.hlsli>
 
 ConstantBuffer<Bindings> g_bindings: register(b0);
 

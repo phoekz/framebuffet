@@ -2,7 +2,7 @@
 
 #include <kitchen/gpu/hlsl_cpp.hlsli>
 
-FB_NAMESPACE_BEGIN(fb::demos::spd)
+FB_NAMESPACE_BEGIN(fb::kcn::spd)
 
 struct Bindings {
     uint constants;
@@ -23,4 +23,4 @@ struct Atomics {
     uint counter[6];
 };
 
-FB_NAMESPACE_END(fb::demos::spd)
+FB_NAMESPACE_END(fb::kcn::spd)

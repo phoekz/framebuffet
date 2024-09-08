@@ -3,7 +3,7 @@
 
 #include <buffet/demos/saber/saber.hlsli>
 #include <kitchen/gpu/samplers.hlsli>
-#include <kitchen/graphics/core.hlsli>
+#include <kitchen/kcn/core.hlsli>
 
 //
 // Scene pass.

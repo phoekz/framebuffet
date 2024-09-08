@@ -1,7 +1,7 @@
 #include <stockcube/techniques/lut/lut.hlsli>
 #include <kitchen/gpu/samplers.hlsli>
-#include <kitchen/graphics/core.hlsli>
-#include <kitchen/graphics/brdf.hlsli>
+#include <kitchen/kcn/core.hlsli>
+#include <kitchen/kcn/brdf.hlsli>
 
 ConstantBuffer<Bindings> g_bindings: register(b0);
 

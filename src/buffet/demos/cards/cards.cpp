@@ -161,14 +161,14 @@ auto create(Demo& demo, const CreateDesc& desc) -> void {
 
         // Constants.
         demo.spd_constants.create(device, 1, spd_debug.with_name("Constants"));
-        demo.spd_constants.ref() = spd::Constants {
+        demo.spd_constants.ref() = kcn::spd::Constants {
             .mip_count = mip_count,
             .threadgroup_count = threadgroup_count,
             .inv_texture_size = inv_texture_size,
         };
 
         // Atomics.
-        spd::Atomics atomics = {};
+        kcn::spd::Atomics atomics = {};
         demo.spd_atomics.create_and_transfer(
             device,
             std::span(&atomics, 1),
@@ -273,7 +273,7 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
         cmd.set_pipeline(demo.spd_pipeline);
         for (uint i = 0; i < CARD_COUNT; i++) {
             const auto& card = demo.card_descriptors[i];
-            cmd.set_constants(spd::Bindings {
+            cmd.set_constants(kcn::spd::Bindings {
                 .constants = demo.spd_constants.cbv_descriptor().index(),
                 .atomics = demo.spd_atomics.uav_descriptor().index(),
                 .texture_src = card.src,

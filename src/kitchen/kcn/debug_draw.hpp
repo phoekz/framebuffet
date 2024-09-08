@@ -6,20 +6,20 @@
 #include "render_target.hpp"
 #include "debug_draw.hlsli"
 
-namespace fb::graphics::debug_draw {
+namespace fb {
 
-class DebugDraw {
-    FB_NO_COPY_MOVE(DebugDraw);
+class KcnDebugDraw {
+    FB_NO_COPY_MOVE(KcnDebugDraw);
 
 public:
     static constexpr size_t MAX_LINE_COUNT = 1 << 16;
 
-    DebugDraw() = default;
+    KcnDebugDraw() = default;
 
     auto create(
         GpuDevice& device,
         const baked::kitchen::Shaders& shaders,
-        const render_target::RenderTargetView& render_target_view
+        const KcnRenderTargetView& render_target_view
     ) -> void;
     auto begin(uint frame_index) -> void;
     auto transform(const float4x4& transform) -> void;
@@ -54,4 +54,4 @@ private:
     std::array<Frame, FRAME_COUNT> _frames;
 };
 
-} // namespace fb::graphics::debug_draw
+} // namespace fb

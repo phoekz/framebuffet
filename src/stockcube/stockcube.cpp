@@ -23,7 +23,7 @@ struct Stockcube {
 
     Window window;
     GpuDevice device;
-    Gui gui;
+    KcnGui gui;
     Techniques techniques;
     Frame frame;
     Camera camera;

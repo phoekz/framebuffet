@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include <kitchen/graphics/core.hlsli>
+#include <kitchen/kcn/core.hlsli>
 
 static const float MIN_DIELECTRICS_F0 = 0.04f;
 

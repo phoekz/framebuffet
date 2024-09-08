@@ -1,6 +1,6 @@
 #include <buffet/demos/cards/cards.hlsli>
 #include <kitchen/gpu/samplers.hlsli>
-#include <kitchen/graphics/core.hlsli>
+#include <kitchen/kcn/core.hlsli>
 
 //
 // Background

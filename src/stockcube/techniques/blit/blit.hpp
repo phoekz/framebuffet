@@ -21,7 +21,7 @@ struct Technique {
 };
 
 struct CreateDesc {
-    const RenderTargetView& render_target_view;
+    const KcnRenderTargetView& render_target_view;
     const Baked& baked;
     GpuDevice& device;
 };

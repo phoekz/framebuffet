@@ -1,16 +1,16 @@
 #include "render_target.hpp"
 
-namespace fb::graphics::render_target {
+namespace fb {
 
 //
 // RenderTargetView.
 //
 
-auto RenderTargetView::create(const RenderTargetViewDesc& desc) -> void {
+auto KcnRenderTargetView::create(const KcnRenderTargetViewDesc& desc) -> void {
     _desc = desc;
 }
 
-auto RenderTargetView::transition_to_render_target(GpuCommandList& cmd) -> void {
+auto KcnRenderTargetView::transition_to_render_target(GpuCommandList& cmd) -> void {
     if (_desc.sample_count > 1) {
         for (auto& attachment : _desc.colors) {
             if (attachment.ms_color) {
@@ -36,7 +36,7 @@ auto RenderTargetView::transition_to_render_target(GpuCommandList& cmd) -> void 
     }
 }
 
-auto RenderTargetView::clear(GpuCommandList& cmd) -> void {
+auto KcnRenderTargetView::clear(GpuCommandList& cmd) -> void {
     if (_desc.sample_count > 1) {
         for (const auto& attachment : _desc.colors) {
             if (attachment.ms_color) {
@@ -60,7 +60,7 @@ auto RenderTargetView::clear(GpuCommandList& cmd) -> void {
     }
 }
 
-auto RenderTargetView::transition_to_resolve(GpuCommandList& cmd) -> void {
+auto KcnRenderTargetView::transition_to_resolve(GpuCommandList& cmd) -> void {
     if (_desc.sample_count > 1) {
         for (auto& attachment : _desc.colors) {
             if (attachment.ms_color) {
@@ -83,7 +83,7 @@ auto RenderTargetView::transition_to_resolve(GpuCommandList& cmd) -> void {
     }
 }
 
-auto RenderTargetView::resolve(GpuCommandList& cmd) -> void {
+auto KcnRenderTargetView::resolve(GpuCommandList& cmd) -> void {
     if (_desc.sample_count > 1) {
         for (const auto& attachment : _desc.colors) {
             if (attachment.ms_color && attachment.color) {
@@ -97,7 +97,7 @@ auto RenderTargetView::resolve(GpuCommandList& cmd) -> void {
     }
 }
 
-auto RenderTargetView::transition_to_shader_resource(GpuCommandList& cmd) -> void {
+auto KcnRenderTargetView::transition_to_shader_resource(GpuCommandList& cmd) -> void {
     for (auto& attachment : _desc.colors) {
         if (attachment.color) {
             attachment.color->transition(
@@ -110,7 +110,7 @@ auto RenderTargetView::transition_to_shader_resource(GpuCommandList& cmd) -> voi
     }
 }
 
-auto RenderTargetView::set_graphics(GpuGraphicsCommandList& cmd) -> void {
+auto KcnRenderTargetView::set_graphics(GpuGraphicsCommandList& cmd) -> void {
     cmd.set_viewport(0, 0, _desc.size.x, _desc.size.y);
     cmd.set_scissor(0, 0, _desc.size.x, _desc.size.y);
 
@@ -154,7 +154,7 @@ static auto make_clear_ds(DXGI_FORMAT format, float depth, uint8_t stencil) -> D
     };
 }
 
-auto RenderTarget::create(GpuDevice& device, const RenderTargetDesc& desc) -> void {
+auto KcnRenderTarget::create(GpuDevice& device, const KcnRenderTargetDesc& desc) -> void {
     ZoneScoped;
     DebugScope debug("Render Target");
 
@@ -236,8 +236,8 @@ auto RenderTarget::create(GpuDevice& device, const RenderTargetDesc& desc) -> vo
     }
 }
 
-auto RenderTarget::view_desc() -> RenderTargetViewDesc {
-    RenderTargetViewDesc view_desc = {};
+auto KcnRenderTarget::view_desc() -> KcnRenderTargetViewDesc {
+    KcnRenderTargetViewDesc view_desc = {};
     view_desc.size = _desc.size;
     view_desc.sample_count = _desc.sample_count;
     for (uint i = 0; i < MAX_ATTACHMENT_COUNT; ++i) {
@@ -260,4 +260,4 @@ auto RenderTarget::view_desc() -> RenderTargetViewDesc {
     return view_desc;
 }
 
-} // namespace fb::graphics::render_target
+} // namespace fb

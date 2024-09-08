@@ -7,20 +7,18 @@
 #include "gui.hlsli"
 
 namespace fb {
-class Window;
-}
 
-namespace fb::graphics::gui {
+class Window;
 
 inline constexpr uint MAX_VERTEX_COUNT = 1024 * 1024;
 inline constexpr uint MAX_INDEX_COUNT = 1024 * 1024;
 
-class Gui {
-    FB_NO_COPY_MOVE(Gui);
+class KcnGui {
+    FB_NO_COPY_MOVE(KcnGui);
 
 public:
-    Gui() = default;
-    ~Gui();
+    KcnGui() = default;
+    ~KcnGui();
 
     auto create(
         const Window& window,
@@ -35,7 +33,7 @@ public:
 private:
     ImGuiContext* _imgui_ctx = nullptr;
     GpuPipeline _pipeline;
-    GpuBufferHostCbv<Constants> _constants;
+    GpuBufferHostCbv<fb::kcn::gui::Constants> _constants;
     struct Geometry {
         GpuBufferHostSrv<ImDrawVert> vertices;
         GpuBufferHostIndex<ImDrawIdx> indices;
@@ -44,4 +42,4 @@ private:
     GpuTextureSrv _texture;
 };
 
-} // namespace fb::graphics::gui
+} // namespace fb

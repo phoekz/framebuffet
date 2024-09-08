@@ -1,7 +1,7 @@
 #include <stockcube/techniques/irr/irr.hlsli>
 #include <kitchen/gpu/samplers.hlsli>
-#include <kitchen/graphics/core.hlsli>
-#include <kitchen/graphics/brdf.hlsli>
+#include <kitchen/kcn/core.hlsli>
+#include <kitchen/kcn/brdf.hlsli>
 
 ConstantBuffer<AccBindings> g_acc_bindings: register(b0);
 ConstantBuffer<DivBindings> g_div_bindings: register(b0);

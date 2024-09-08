@@ -14,9 +14,9 @@ static auto KITCHEN_ASSET_TASKS = std::to_array<AssetTask>({
 });
 
 static auto KITCHEN_SHADER_TASKS = std::to_array<ShaderTask>({
-    {"kitchen/graphics/gui.hlsl", "gui", {"draw_vs", "draw_ps"}},
-    {"kitchen/graphics/debug_draw.hlsl", "debug_draw", {"draw_vs", "draw_ps"}},
-    {"kitchen/graphics/spd.hlsl", "spd", {"downsample_cs"}},
+    {"kitchen/kcn/gui.hlsl", "gui", {"draw_vs", "draw_ps"}},
+    {"kitchen/kcn/debug_draw.hlsl", "debug_draw", {"draw_vs", "draw_ps"}},
+    {"kitchen/kcn/spd.hlsl", "spd", {"downsample_cs"}},
 });
 
 static auto BUFFET_ASSET_TASKS = std::to_array<AssetTask>({

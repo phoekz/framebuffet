@@ -2,7 +2,7 @@
 
 #include "../common.hpp"
 #include "cards.hlsli"
-#include <kitchen/graphics/spd.hlsli>
+#include <kitchen/kcn/spd.hlsli>
 
 namespace fb::demos::cards {
 
@@ -27,22 +27,22 @@ struct Demo {
     Parameters parameters;
     GpuPipeline background_pipeline;
     GpuPipeline draw_pipeline;
-    Multibuffer<GpuBufferHostCbv<Constants>, FRAME_COUNT> constants;
-    Multibuffer<GpuBufferHostSrv<Card>, FRAME_COUNT> cards;
+    KcnMultibuffer<GpuBufferHostCbv<Constants>, FRAME_COUNT> constants;
+    KcnMultibuffer<GpuBufferHostSrv<Card>, FRAME_COUNT> cards;
     GpuBufferDeviceSrv<Vertex> vertices;
     GpuBufferDeviceIndex<uint16_t> indices;
     std::array<std::string_view, CARD_COUNT> card_names;
     std::array<CardDescriptors, CARD_COUNT> card_descriptors;
 
-    GpuBufferHostCbv<spd::Constants> spd_constants;
-    GpuBufferDeviceUav<spd::Atomics> spd_atomics;
+    GpuBufferHostCbv<kcn::spd::Constants> spd_constants;
+    GpuBufferDeviceUav<kcn::spd::Atomics> spd_atomics;
     GpuPipeline spd_pipeline;
     uint3 spd_dispatch;
 };
 
 struct CardDesc {
     std::string_view name;
-    ConstRef<RenderTargetView> render_target_view;
+    ConstRef<KcnRenderTargetView> render_target_view;
 };
 
 struct CreateDesc {

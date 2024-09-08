@@ -3,10 +3,10 @@
 #include "../pch.hpp"
 #include "../gpu/gpu.hpp"
 
-namespace fb::graphics::multibuffer {
+namespace fb {
 
 template<typename Buffer, uint BUFFER_COUNT>
-class Multibuffer {
+class KcnMultibuffer {
 public:
     auto create(GpuDevice& device, uint element_count, std::string_view name) -> void {
         for (uint index = 0; auto& buffer : _buffers) {
@@ -24,4 +24,4 @@ private:
     std::array<Buffer, BUFFER_COUNT> _buffers;
 };
 
-} // namespace fb::graphics::multibuffer
+} // namespace fb

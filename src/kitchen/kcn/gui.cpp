@@ -1,15 +1,15 @@
 #include "gui.hpp"
 
-namespace fb::graphics::gui {
+namespace fb {
 
-Gui::~Gui() {
+KcnGui::~KcnGui() {
     if (_imgui_ctx) {
         ImGui_ImplWin32_Shutdown();
         ImGui::DestroyContext(_imgui_ctx);
     }
 }
 
-auto Gui::create(
+auto KcnGui::create(
     const Window& window,
     GpuDevice& device,
     const baked::kitchen::Assets& assets,
@@ -99,7 +99,7 @@ auto Gui::create(
     // Geometry.
     for (uint i = 0; i < FRAME_COUNT; i++) {
         DebugScope frame_debug(std::format("{}", i));
-        Gui::Geometry& geometry = _geometries[i];
+        Geometry& geometry = _geometries[i];
         geometry.vertices.create(device, MAX_VERTEX_COUNT, frame_debug.with_name("Vertices"));
         geometry.indices.create(device, MAX_INDEX_COUNT, frame_debug.with_name("Indices"));
     }
@@ -108,16 +108,16 @@ auto Gui::create(
     ImGui_ImplWin32_Init(window.hwnd());
 }
 
-auto Gui::begin_frame() -> void {
+auto KcnGui::begin_frame() -> void {
     ImGui_ImplWin32_NewFrame();
     ImGui::NewFrame();
 }
 
-auto Gui::end_frame() -> void {
+auto KcnGui::end_frame() -> void {
     ImGui::Render();
 }
 
-auto Gui::render(const GpuDevice& device, GpuCommandList& cmd) -> void {
+auto KcnGui::render(const GpuDevice& device, GpuCommandList& cmd) -> void {
     auto* draw_data = ImGui::GetDrawData();
 
     // Avoid rendering when minimized.
@@ -185,7 +185,7 @@ auto Gui::render(const GpuDevice& device, GpuCommandList& cmd) -> void {
                         (uint)(pcmd->ClipRect.z - clip_off.x),
                         (uint)(pcmd->ClipRect.w - clip_off.y)
                     );
-                    gcmd.set_constants(Bindings {
+                    gcmd.set_constants(fb::kcn::gui::Bindings {
                         .constants = _constants.cbv_descriptor().index(),
                         .vertices = geometry.vertices.srv_descriptor().index(),
                         .base_vertex = (pcmd->VtxOffset + (uint)global_vtx_offset),
@@ -207,4 +207,4 @@ auto Gui::render(const GpuDevice& device, GpuCommandList& cmd) -> void {
     });
 }
 
-} // namespace fb::graphics::gui
+} // namespace fb

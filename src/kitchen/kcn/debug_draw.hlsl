@@ -1,5 +1,5 @@
-#include <kitchen/graphics/core.hlsli>
-#include <kitchen/graphics/debug_draw.hlsli>
+#include <kitchen/kcn/core.hlsli>
+#include <kitchen/kcn/debug_draw.hlsli>
 
 struct Constants {
     float4x4 transform;

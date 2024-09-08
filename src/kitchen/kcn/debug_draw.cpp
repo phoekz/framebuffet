@@ -1,11 +1,11 @@
 #include "debug_draw.hpp"
 
-namespace fb::graphics::debug_draw {
+namespace fb {
 
-auto DebugDraw::create(
+auto KcnDebugDraw::create(
     GpuDevice& device,
     const baked::kitchen::Shaders& shaders,
-    const render_target::RenderTargetView& render_target_view
+    const KcnRenderTargetView& render_target_view
 ) -> void {
     ZoneScoped;
     DebugScope debug("Debug Draw");
@@ -44,33 +44,33 @@ auto DebugDraw::create(
     }
 }
 
-auto DebugDraw::begin(uint frame_index) -> void {
+auto KcnDebugDraw::begin(uint frame_index) -> void {
     _frame_index = frame_index;
     _lines.clear();
 }
 
-auto DebugDraw::transform(const float4x4& transform) -> void {
+auto KcnDebugDraw::transform(const float4x4& transform) -> void {
     _constants.transform = transform;
 }
 
-auto DebugDraw::line(const float3& a, const float3& b, RgbaByte color) -> void {
+auto KcnDebugDraw::line(const float3& a, const float3& b, RgbaByte color) -> void {
     FB_ASSERT(_lines.size() < MAX_LINE_COUNT);
     _lines.push_back({a, color});
     _lines.push_back({b, color});
 }
 
-auto DebugDraw::axes() -> void {
+auto KcnDebugDraw::axes() -> void {
     scaled_axes(1.0f);
 }
 
-auto DebugDraw::scaled_axes(float scale) -> void {
+auto KcnDebugDraw::scaled_axes(float scale) -> void {
     const auto s = scale;
     line(float3(0.0f, 0.0f, 0.0f), float3(s, 0.0f, 0.0f), COLOR_RED);
     line(float3(0.0f, 0.0f, 0.0f), float3(0.0f, s, 0.0f), COLOR_GREEN);
     line(float3(0.0f, 0.0f, 0.0f), float3(0.0f, 0.0f, s), COLOR_BLUE);
 }
 
-auto DebugDraw::grid(uint size) -> void {
+auto KcnDebugDraw::grid(uint size) -> void {
     const auto half_size = (int)(size / 2);
     const auto h = (float)half_size;
     for (int i = -half_size; i <= half_size; i++) {
@@ -80,13 +80,14 @@ auto DebugDraw::grid(uint size) -> void {
     }
 }
 
-auto DebugDraw::end() -> void {
+auto KcnDebugDraw::end() -> void {
     auto& frame = _frames[_frame_index];
     frame._constants.ref() = _constants;
     memcpy(frame._lines.span().data(), _lines.data(), _lines.size() * sizeof(Vertex));
 }
 
-auto DebugDraw::render(GpuGraphicsCommandList& cmd) -> void {
+auto KcnDebugDraw::render(GpuGraphicsCommandList& cmd) -> void {
+    using namespace fb::kcn::debug_draw;
     const auto& frame = _frames[_frame_index];
     cmd.pix_begin("Debug Draw");
     cmd.set_constants(Bindings {
@@ -99,4 +100,4 @@ auto DebugDraw::render(GpuGraphicsCommandList& cmd) -> void {
     cmd.pix_end();
 }
 
-} // namespace fb::graphics::debug_draw
+} // namespace fb
