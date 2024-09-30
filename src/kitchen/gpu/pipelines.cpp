@@ -252,7 +252,7 @@ auto GpuPipelineBuilder::build(GpuDevice& device, GpuPipeline& pipeline, std::st
         };
 
         // Conversions.
-        auto d3d12_from_gpu_blend = [](GpuBlend blend) {
+        const auto d3d12_from_gpu_blend = [](GpuBlend blend) {
             using enum GpuBlend;
             switch (blend) {
                 case Zero: return D3D12_BLEND_ZERO;
@@ -268,7 +268,7 @@ auto GpuPipelineBuilder::build(GpuDevice& device, GpuPipeline& pipeline, std::st
                 default: FB_FATAL();
             }
         };
-        auto d3d12_from_gpu_blend_op = [](GpuBlendOp blend_op) {
+        const auto d3d12_from_gpu_blend_op = [](GpuBlendOp blend_op) {
             using enum GpuBlendOp;
             switch (blend_op) {
                 case Add: return D3D12_BLEND_OP_ADD;
@@ -279,7 +279,7 @@ auto GpuPipelineBuilder::build(GpuDevice& device, GpuPipeline& pipeline, std::st
                 default: FB_FATAL();
             }
         };
-        auto d3d12_from_gpu_logic_op = [](GpuLogicOp logic_op) {
+        const auto d3d12_from_gpu_logic_op = [](GpuLogicOp logic_op) {
             using enum GpuLogicOp;
             switch (logic_op) {
                 case Clear: return D3D12_LOGIC_OP_CLEAR;
