@@ -86,6 +86,7 @@ public:
     auto rain_sim_cs() const -> std::span<const std::byte>;
     auto rain_draw_vs() const -> std::span<const std::byte>;
     auto rain_draw_ps() const -> std::span<const std::byte>;
+    auto anim_shadow_vs() const -> std::span<const std::byte>;
     auto anim_ground_vs() const -> std::span<const std::byte>;
     auto anim_ground_ps() const -> std::span<const std::byte>;
     auto anim_anim_vs() const -> std::span<const std::byte>;

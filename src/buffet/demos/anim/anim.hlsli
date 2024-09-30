@@ -11,11 +11,13 @@ struct Bindings {
     uint color;
     uint texture;
     float texture_scroll;
+    uint shadow_texture;
 };
 
 struct Constants {
     float4x4 transform;
-    float pad[48];
+    float4x4 light_transform;
+    float pad[32];
 };
 
 struct Instance {

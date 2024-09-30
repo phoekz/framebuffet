@@ -17,8 +17,21 @@ inline constexpr KcnDepthStencilAttachmentDesc DEPTH_STENCIL_ATTACHMENT = {
 };
 inline constexpr uint SAMPLE_COUNT = 4;
 
+inline constexpr uint SHADOW_MAP_SIZE = 1024;
+
 struct Parameters {
+    // Lighting.
+    float light_projection_size = 5.0f;
+    float light_longitude = rad_from_deg(125.0f);
+    float light_latitude = rad_from_deg(45.0f);
+    float light_distance = 15.0f;
+    float shadow_near_plane = 0.1f;
+    float shadow_far_plane = 50.0f;
+
+    // Animation.
     float time_scale = 1.0f;
+
+    // Camera.
     float camera_distance = 3.5f;
     float camera_height_offset = 0.5f;
     float camera_fov = rad_from_deg(50.0f);
@@ -26,6 +39,8 @@ struct Parameters {
     float camera_longitude = rad_from_deg(120.0f);
     float camera_rotation_speed = 0.0f;
     float2 camera_clip_planes = float2(0.1f, 300.0f);
+
+    // Scene.
     std::array<float4, 2> colors = {
         float4(0.173f, 0.173f, 0.173f, 1.000f),
         float4(0.905f, 0.167f, 0.167f, 1.000f),
@@ -68,6 +83,11 @@ struct Model {
     OwnedAnimationMesh animation_mesh;
 };
 
+struct Shadow {
+    GpuPipeline pipeline;
+    GpuTextureSrvDsv texture;
+};
+
 struct Anim {
     GpuPipeline pipeline;
     Model female;
@@ -89,8 +109,9 @@ struct Demo {
     KcnRenderTargetView render_target_view;
     KcnDebugDraw debug_draw;
 
-    Ground ground;
+    Shadow shadow;
     Anim anim;
+    Ground ground;
 };
 
 struct CreateDesc {

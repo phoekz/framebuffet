@@ -66,6 +66,39 @@ auto create(Demo& demo, const CreateDesc& desc) -> void {
     // Debug draw.
     demo.debug_draw.create(device, kitchen_shaders, demo.render_target_view);
 
+    // Shadow.
+    {
+        auto& shadow = demo.shadow;
+
+        // Depth.
+        constexpr DXGI_FORMAT DEPTH_RAW_FORMAT = DXGI_FORMAT_R32_TYPELESS;
+        constexpr DXGI_FORMAT DEPTH_SRV_FORMAT = DXGI_FORMAT_R32_FLOAT;
+        constexpr DXGI_FORMAT DEPTH_DSV_FORMAT = DXGI_FORMAT_D32_FLOAT;
+        shadow.texture.create(
+            device,
+            GpuTextureDesc {
+                .format = DEPTH_RAW_FORMAT,
+                .width = SHADOW_MAP_SIZE,
+                .height = SHADOW_MAP_SIZE,
+                .clear_value =
+                    D3D12_CLEAR_VALUE {
+                        .Format = DEPTH_DSV_FORMAT,
+                        .DepthStencil = {1.0f, 0},
+                    },
+                .srv_format = DEPTH_SRV_FORMAT,
+                .dsv_format = DEPTH_DSV_FORMAT,
+            },
+            debug.with_name("Shadow Depth")
+        );
+
+        // Pipeline.
+        GpuPipelineBuilder()
+            .primitive_topology(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)
+            .vertex_shader(shaders.anim_shadow_vs())
+            .depth_stencil_format(DEPTH_DSV_FORMAT)
+            .build(device, shadow.pipeline, debug.with_name("Shadow Pipeline"));
+    }
+
     // Anim.
     {
         DebugScope scope("Anim");
@@ -200,6 +233,15 @@ auto gui(Demo& demo, const GuiDesc&) -> void {
     PIXScopedEvent(PIX_COLOR_DEFAULT, "%s - Gui", NAME.data());
     auto& params = demo.parameters;
     auto& anim = demo.anim;
+    if (ImGui::Button("Defaults")) {
+        params = {};
+    }
+    ImGui::SliderFloat("Light Projection Size", &params.light_projection_size, 1.0f, 5.0f);
+    ImGui::SliderAngle("Light Longitude", &params.light_longitude, 0.0f, 360.0f);
+    ImGui::SliderAngle("Light Latitude", &params.light_latitude, 0.0f, 180.0f);
+    ImGui::SliderFloat("Light Distance", &params.light_distance, 1.0f, 200.0f);
+    ImGui::SliderFloat("Shadow Near Plane", &params.shadow_near_plane, 0.0f, 10.0f);
+    ImGui::SliderFloat("Shadow Far Plane", &params.shadow_far_plane, 1.0f, 100.0f);
     ImGui::SliderFloat("Time Scale", &params.time_scale, 0.0f, 1.0f);
     ImGui::SliderFloat("Scroll Speed", &params.texture_scroll_speed, 0.0f, 4.0f);
     ImGui::SliderFloat(
@@ -378,6 +420,25 @@ auto update(Demo& demo, const UpdateDesc& desc) -> void {
         camera_transform = projection * view;
     }
 
+    // Update light.
+    float4x4 light_transform;
+    {
+        const auto light_direction =
+            float3_from_lonlat(params.light_longitude, params.light_latitude);
+        const auto projection = float4x4_orthographic(
+            -0.5f * params.light_projection_size,
+            0.5f * params.light_projection_size,
+            -0.5f * params.light_projection_size,
+            0.5f * params.light_projection_size,
+            params.shadow_near_plane,
+            params.shadow_far_plane
+        );
+        const auto eye = params.light_distance * light_direction;
+        const auto view = float4x4_lookat(eye, FLOAT3_ZERO, FLOAT3_UP);
+
+        light_transform = projection * view;
+    }
+
     // Update ground.
     {
         ground.texture_scroll += params.texture_scroll_speed * desc.delta_time;
@@ -390,17 +451,20 @@ auto update(Demo& demo, const UpdateDesc& desc) -> void {
     {
         ground.constants.buffer(desc.frame_index).ref() = Constants {
             .transform = camera_transform,
+            .light_transform = light_transform,
         };
     }
     {
         using ConstantDesc = std::tuple<uint, Model&>;
-        for (auto& [model_index, model] :
-             {ConstantDesc(0, anim.female), ConstantDesc(1, anim.male)}) {
+        for (auto& [model_index, model] : {
+                 ConstantDesc(0, anim.female),
+                 ConstantDesc(1, anim.male),
+             }) {
             const auto& root_transform = model.animation_mesh.transform;
             const auto translation = float4x4_translation(demo.parameters.positions[model_index]);
-            const auto transform = camera_transform * translation * root_transform;
             model.constants.buffer(desc.frame_index).ref() = Constants {
-                .transform = transform,
+                .transform = camera_transform * translation * root_transform,
+                .light_transform = light_transform * translation * root_transform,
             };
         }
     }
@@ -416,60 +480,118 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
     ZoneScoped;
     auto& [cmd, device, frame_index] = desc;
     cmd.graphics_scope([&demo, frame_index](GpuGraphicsCommandList& cmd) {
+        using ModelDesc = std::tuple<uint, Model&>;
+
+        auto& shadow = demo.shadow;
         auto& ground = demo.ground;
         auto& anim = demo.anim;
 
         cmd.pix_begin("%s - Render", NAME.data());
 
+        {
+            cmd.pix_begin("Shadow");
+            shadow.texture.transition(
+                cmd,
+                D3D12_BARRIER_SYNC_DEPTH_STENCIL,
+                D3D12_BARRIER_ACCESS_DEPTH_STENCIL_WRITE,
+                D3D12_BARRIER_LAYOUT_DEPTH_STENCIL_WRITE
+            );
+            cmd.flush_barriers();
+            cmd.set_viewport(0, 0, SHADOW_MAP_SIZE, SHADOW_MAP_SIZE);
+            cmd.set_scissor(0, 0, SHADOW_MAP_SIZE, SHADOW_MAP_SIZE);
+            cmd.set_rtvs_dsv({}, shadow.texture.dsv_descriptor());
+            cmd.clear_dsv(shadow.texture.dsv_descriptor(), 1.0f, 0);
+            cmd.set_pipeline(shadow.pipeline);
+            cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+            for (const auto& [model_index, model] : {
+                     ModelDesc(0, anim.female),
+                     ModelDesc(1, anim.male),
+                 }) {
+                const auto& mesh = model.animation_mesh;
+                cmd.set_index_buffer(model.indices.index_buffer_view());
+                for (uint i = 0; i < mesh.submeshes.size(); i++) {
+                    const auto& submesh = mesh.submeshes[i];
+                    cmd.set_constants(Bindings {
+                        .constants = model.constants.buffer(frame_index).cbv_descriptor().index(),
+                        .vertices = model.vertices.srv_descriptor().index(),
+                        .skinning_matrices =
+                            model.skinning_matrices.buffer(frame_index).srv_descriptor().index(),
+                    });
+                    cmd.draw_indexed_instanced(
+                        submesh.index_count,
+                        1,
+                        submesh.start_index,
+                        submesh.base_vertex,
+                        0
+                    );
+                }
+            }
+            shadow.texture.transition(
+                cmd,
+                D3D12_BARRIER_SYNC_DEPTH_STENCIL,
+                D3D12_BARRIER_ACCESS_DEPTH_STENCIL_READ,
+                D3D12_BARRIER_LAYOUT_DEPTH_STENCIL_READ
+            );
+            cmd.flush_barriers();
+            cmd.pix_end();
+        }
+
         demo.render_target_view.set_graphics(cmd);
         demo.debug_draw.render(cmd);
 
-        cmd.pix_begin("Ground");
-        cmd.set_pipeline(ground.pipeline);
-        cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-        cmd.set_index_buffer(ground.indices.index_buffer_view());
-        cmd.set_constants(Bindings {
-            .constants = ground.constants.buffer(frame_index).cbv_descriptor().index(),
-            .vertices = ground.vertices.srv_descriptor().index(),
-            .texture = ground.texture.srv_descriptor().index(),
-            .texture_scroll = ground.texture_scroll,
-        });
-        cmd.draw_indexed_instanced(6, 1, 0, 0, 0);
-        cmd.pix_end();
-
-        cmd.pix_begin("Animation");
-        cmd.set_pipeline(anim.pipeline);
-        cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-        using Desc = std::tuple<uint, Model&>;
-        for (const auto& [model_index, model] : {Desc(0, anim.female), Desc(1, anim.male)}) {
-            const auto& mesh = model.animation_mesh;
-            cmd.set_index_buffer(model.indices.index_buffer_view());
-            for (uint i = 0; i < mesh.submeshes.size(); i++) {
-                const auto& submesh = mesh.submeshes[i];
-                const uint r = (uint)(demo.parameters.colors[i].x * 255.0f);
-                const uint g = (uint)(demo.parameters.colors[i].y * 255.0f);
-                const uint b = (uint)(demo.parameters.colors[i].z * 255.0f);
-                const uint a = (uint)(demo.parameters.colors[i].w * 255.0f);
-                const uint color = (a << 24) | (b << 16) | (g << 8) | r;
-                cmd.set_constants(Bindings {
-                    .constants = model.constants.buffer(frame_index).cbv_descriptor().index(),
-                    .vertices = model.vertices.srv_descriptor().index(),
-                    .skinning_matrices =
-                        model.skinning_matrices.buffer(frame_index).srv_descriptor().index(),
-                    .color = color,
-                });
-                cmd.draw_indexed_instanced(
-                    submesh.index_count,
-                    1,
-                    submesh.start_index,
-                    submesh.base_vertex,
-                    0
-                );
-            }
+        {
+            cmd.pix_begin("Ground");
+            cmd.set_pipeline(ground.pipeline);
+            cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+            cmd.set_index_buffer(ground.indices.index_buffer_view());
+            cmd.set_constants(Bindings {
+                .constants = ground.constants.buffer(frame_index).cbv_descriptor().index(),
+                .vertices = ground.vertices.srv_descriptor().index(),
+                .texture = ground.texture.srv_descriptor().index(),
+                .texture_scroll = ground.texture_scroll,
+                .shadow_texture = shadow.texture.srv_descriptor().index(),
+            });
+            cmd.draw_indexed_instanced(6, 1, 0, 0, 0);
+            cmd.pix_end();
         }
 
-        cmd.pix_end();
+        {
+            cmd.pix_begin("Animation");
+            cmd.set_pipeline(anim.pipeline);
+            cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+            for (const auto& [model_index, model] : {
+                     ModelDesc(0, anim.female),
+                     ModelDesc(1, anim.male),
+                 }) {
+                const auto& mesh = model.animation_mesh;
+                cmd.set_index_buffer(model.indices.index_buffer_view());
+                for (uint i = 0; i < mesh.submeshes.size(); i++) {
+                    const auto& submesh = mesh.submeshes[i];
+                    const uint r = (uint)(demo.parameters.colors[i].x * 255.0f);
+                    const uint g = (uint)(demo.parameters.colors[i].y * 255.0f);
+                    const uint b = (uint)(demo.parameters.colors[i].z * 255.0f);
+                    const uint a = (uint)(demo.parameters.colors[i].w * 255.0f);
+                    const uint color = (a << 24) | (b << 16) | (g << 8) | r;
+                    cmd.set_constants(Bindings {
+                        .constants = model.constants.buffer(frame_index).cbv_descriptor().index(),
+                        .vertices = model.vertices.srv_descriptor().index(),
+                        .skinning_matrices =
+                            model.skinning_matrices.buffer(frame_index).srv_descriptor().index(),
+                        .color = color,
+                        .shadow_texture = shadow.texture.srv_descriptor().index(),
+                    });
+                    cmd.draw_indexed_instanced(
+                        submesh.index_count,
+                        1,
+                        submesh.start_index,
+                        submesh.base_vertex,
+                        0
+                    );
+                }
+            }
+            cmd.pix_end();
+        }
 
         cmd.pix_end();
     });

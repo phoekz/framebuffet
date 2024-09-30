@@ -129,6 +129,7 @@ static auto BUFFET_SHADER_TASKS = std::to_array<ShaderTask>({
         "buffet/demos/anim/anim.hlsl",
         "anim",
         {
+            "shadow_vs",
             "ground_vs",
             "ground_ps",
             "anim_vs",
