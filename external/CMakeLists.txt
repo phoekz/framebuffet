@@ -260,6 +260,7 @@ target_compile_definitions(
     ext_glm
     INTERFACE
     GLM_FORCE_CXX20
+    GLM_FORCE_INLINE
     GLM_FORCE_DEPTH_ZERO_TO_ONE
     GLM_FORCE_RIGHT_HANDED # Doesn't exist, just to communicate handedness.
     GLM_FORCE_EXPLICIT_CTOR

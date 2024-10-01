@@ -39,15 +39,15 @@ inline constexpr RgbaByte COLOR_BLACK = {(uint8_t)0, 0, 0, 255};
 // Scalar functions.
 //
 
-inline constexpr auto rad_from_deg(float deg) -> float {
+FB_INLINE constexpr auto rad_from_deg(float deg) -> float {
     return deg * FLOAT_PI / 180.0f;
 }
 
-inline constexpr auto deg_from_rad(float rad) -> float {
+FB_INLINE constexpr auto deg_from_rad(float rad) -> float {
     return rad * 180.0f / FLOAT_PI;
 }
 
-inline constexpr auto mip_count_from_size(uint width, uint height) -> uint {
+FB_INLINE constexpr auto mip_count_from_size(uint width, uint height) -> uint {
     uint mip_count = 1;
     while (width > 1 || height > 1) {
         width = std::max(1u, width / 2);
@@ -57,7 +57,7 @@ inline constexpr auto mip_count_from_size(uint width, uint height) -> uint {
     return mip_count;
 }
 
-inline constexpr auto mip_count_from_size(uint2 size) -> uint {
+FB_INLINE constexpr auto mip_count_from_size(uint2 size) -> uint {
     return mip_count_from_size(size.x, size.y);
 }
 
@@ -65,23 +65,23 @@ inline constexpr auto mip_count_from_size(uint2 size) -> uint {
 // Vector functions.
 //
 
-inline auto float3_normalize(const float3& v) -> float3 {
+FB_INLINE auto float3_normalize(const float3& v) -> float3 {
     return glm::normalize<3, float, glm::highp>(v);
 }
 
-inline auto float3_cross(const float3& a, const float3& b) -> float3 {
+FB_INLINE auto float3_cross(const float3& a, const float3& b) -> float3 {
     return glm::cross<float, glm::highp>(a, b);
 }
 
-inline auto float3_lerp(const float3& a, const float3& b, float t) -> float3 {
+FB_INLINE auto float3_lerp(const float3& a, const float3& b, float t) -> float3 {
     return glm::lerp<float, glm::highp>(a, b, t);
 }
 
-inline auto float3_distance(const float3& a, const float3& b) -> float {
+FB_INLINE auto float3_distance(const float3& a, const float3& b) -> float {
     return glm::distance<3, float, glm::highp>(a, b);
 }
 
-inline constexpr auto float3_from_lonlat(float lon, float lat) -> float3 {
+FB_INLINE constexpr auto float3_from_lonlat(float lon, float lat) -> float3 {
     return {
         std::cos(lat) * std::cos(lon),
         std::sin(lat),
@@ -93,53 +93,56 @@ inline constexpr auto float3_from_lonlat(float lon, float lat) -> float3 {
 // Matrix functions.
 //
 
-inline auto float4x4_inverse(const float4x4& m) -> float4x4 {
+FB_INLINE auto float4x4_inverse(const float4x4& m) -> float4x4 {
     return glm::inverse<4, 4, float, glm::highp>(m);
 }
 
-inline auto float4x4_translation(float x, float y, float z) -> float4x4 {
+FB_INLINE auto float4x4_translation(float x, float y, float z) -> float4x4 {
     return glm::translate<float, glm::highp>(float4x4(1.0f), {x, y, z});
 }
 
-inline auto float4x4_translation(const float3& t) -> float4x4 {
+FB_INLINE auto float4x4_translation(const float3& t) -> float4x4 {
     return glm::translate<float>(float4x4(1.0f), t);
 }
 
-inline auto float4x4_rotation_x(float angle) -> float4x4 {
+FB_INLINE auto float4x4_rotation_x(float angle) -> float4x4 {
     return glm::rotate<float, glm::highp>(float4x4(1.0f), angle, FLOAT3_X);
 }
 
-inline auto float4x4_rotation_y(float angle) -> float4x4 {
+FB_INLINE auto float4x4_rotation_y(float angle) -> float4x4 {
     return glm::rotate<float, glm::highp>(float4x4(1.0f), angle, FLOAT3_Y);
 }
 
-inline auto float4x4_rotation_z(float angle) -> float4x4 {
+FB_INLINE auto float4x4_rotation_z(float angle) -> float4x4 {
     return glm::rotate<float, glm::highp>(float4x4(1.0f), angle, FLOAT3_Z);
 }
 
-inline auto float4x4_scaling(float x, float y, float z) -> float4x4 {
+FB_INLINE auto float4x4_scaling(float x, float y, float z) -> float4x4 {
     return glm::scale<float, glm::highp>(float4x4(1.0f), {x, y, z});
 }
 
-inline auto float4x4_scaling(const float3& s) -> float4x4 {
+FB_INLINE auto float4x4_scaling(const float3& s) -> float4x4 {
     return glm::scale<float, glm::highp>(float4x4(1.0f), s);
 }
 
-inline auto float4x4_lookat(const float3& eye, const float3& center, const float3& up) -> float4x4 {
+FB_INLINE auto
+float4x4_lookat(const float3& eye, const float3& center, const float3& up) -> float4x4 {
     return glm::lookAt<float, glm::highp>(eye, center, up);
 }
 
-inline auto
+FB_INLINE auto
 float4x4_orthographic(float left, float right, float bottom, float top, float z_near, float z_far)
     -> float4x4 {
     return glm::ortho<float>(left, right, bottom, top, z_near, z_far);
 }
 
-inline auto float4x4_perspective(float fovy, float aspect, float z_near, float z_far) -> float4x4 {
+FB_INLINE auto
+float4x4_perspective(float fovy, float aspect, float z_near, float z_far) -> float4x4 {
     return glm::perspective<float>(fovy, aspect, z_near, z_far);
 }
 
-inline auto float4x4_from_trs(const float3& t, const float_quat& r, const float3& s) -> float4x4 {
+FB_INLINE auto
+float4x4_from_trs(const float3& t, const float_quat& r, const float3& s) -> float4x4 {
     // Note: inlined quaternion-float3x3 conversion.
     float4x4 m;
     float rxx = r.x * r.x;
@@ -168,7 +171,7 @@ inline auto float4x4_from_trs(const float3& t, const float_quat& r, const float3
 // Quaternion functions.
 //
 
-inline auto float_quat_slerp(const float_quat& a, const float_quat& b, float t) -> float_quat {
+FB_INLINE auto float_quat_slerp(const float_quat& a, const float_quat& b, float t) -> float_quat {
     return glm::slerp(a, b, t);
 }
 
@@ -176,7 +179,7 @@ inline auto float_quat_slerp(const float_quat& a, const float_quat& b, float t) 
 // Color functions.
 //
 
-inline auto rgb_from_hsv(float3 hsv) -> float3 {
+FB_INLINE auto rgb_from_hsv(float3 hsv) -> float3 {
     float h = hsv.x;
     float s = hsv.y;
     float v = hsv.z;
@@ -211,19 +214,19 @@ struct float_rect {
         , max(x + w, y + h) {}
 };
 
-inline auto float_rect_center(const float_rect& r) -> float2 {
+FB_INLINE auto float_rect_center(const float_rect& r) -> float2 {
     return (r.min + r.max) * 0.5f;
 }
 
-inline auto float_rect_size(const float_rect& r) -> float2 {
+FB_INLINE auto float_rect_size(const float_rect& r) -> float2 {
     return r.max - r.min;
 }
 
-inline auto float_rect_contains(const float_rect& r, float x, float y) -> bool {
+FB_INLINE auto float_rect_contains(const float_rect& r, float x, float y) -> bool {
     return x >= r.min.x && x <= r.max.x && y >= r.min.y && y <= r.max.y;
 }
 
-inline auto float_rect_contains(const float_rect& r, float2 p) -> bool {
+FB_INLINE auto float_rect_contains(const float_rect& r, float2 p) -> bool {
     return p.x >= r.min.x && p.x <= r.max.x && p.y >= r.min.y && p.y <= r.max.y;
 }
 
