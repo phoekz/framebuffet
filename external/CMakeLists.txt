@@ -42,6 +42,9 @@ if(NOT FETCH_CONTENT_HAS_BEEN_RUN)
     set(TINYEXR_SOURCE_DIR ${tinyexr_SOURCE_DIR} CACHE INTERNAL "tinyexr Source Directory")
 
     message(STATUS "Fetching fp16...")
+    set(FP16_BUILD_TESTS OFF CACHE INTERNAL "")
+    set(FP16_BUILD_BENCHMARKS OFF CACHE INTERNAL "")
+    set(FP16_BUILD_COMPARATIVE_BENCHMARKS OFF CACHE INTERNAL "")
     FetchContent_MakeAvailable(fp16)
     set(FP16_SOURCE_DIR ${fp16_SOURCE_DIR} CACHE INTERNAL "fp16 Source Directory")
 
