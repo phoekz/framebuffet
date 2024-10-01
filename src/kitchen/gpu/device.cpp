@@ -165,7 +165,7 @@ auto GpuDevice::create(const Window& window) -> void {
         FB_ASSERT(support.MeshShaderPipelineStatsSupported() == TRUE);
         FB_ASSERT(support.EnhancedBarriersSupported() == TRUE);
         FB_ASSERT(support.WorkGraphsTier() == D3D12_WORK_GRAPHS_TIER_1_0);
-        // clang-format off
+        // clang-format on
     }
 
     // Command queue.
