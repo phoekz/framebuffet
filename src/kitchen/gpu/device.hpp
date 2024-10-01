@@ -33,6 +33,7 @@ public:
     auto flush_transfers() -> void;
     auto begin_frame() -> GpuCommandList;
     auto end_frame(GpuCommandList&& cmd) -> void;
+    auto present() -> void;
     auto wait() -> void;
 
     // Wrappers.

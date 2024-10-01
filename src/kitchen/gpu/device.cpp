@@ -284,12 +284,20 @@ auto GpuDevice::end_frame(GpuCommandList&&) -> void {
     // Execute command list.
     const auto command_lists = std::to_array({(ID3D12CommandList*)_command_list.get()});
     _command_queue->ExecuteCommandLists((uint)command_lists.size(), command_lists.data());
+}
+
+auto GpuDevice::present() -> void {
+    ZoneScopedN("Present");
+    PIXScopedEvent(PIX_COLOR_DEFAULT, "Present");
 
     // Present.
-    _swapchain.present();
+    {
+        ZoneScopedN("Swapchain");
+        _swapchain.present();
+    }
 
     // Schedule a Signal command in the queue.
-    uint64_t current_fence_value = _fence_values[_frame_index];
+    const uint64_t current_fence_value = _fence_values[_frame_index];
     FB_ASSERT_HR(_command_queue->Signal(_fence.get(), _fence_values[_frame_index]));
 
     // Update the frame index.

@@ -44,6 +44,8 @@ auto create(Demos& demos, const CreateDesc& desc) -> void {
 }
 
 auto gui(Demos& demos, const GuiDesc& desc) -> void {
+    ZoneScoped;
+
     // Cards.
     {
         const auto flags = ImGuiTreeNodeFlags_None;
@@ -71,6 +73,7 @@ auto gui(Demos& demos, const GuiDesc& desc) -> void {
 }
 
 auto update(Demos& demos, const UpdateDesc& desc) -> void {
+    ZoneScoped;
 #define X(name, _) name::update(demos.name, desc);
     DEMO_LIST(X);
 #undef X

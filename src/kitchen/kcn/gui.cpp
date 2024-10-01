@@ -109,15 +109,18 @@ auto KcnGui::create(
 }
 
 auto KcnGui::begin_frame() -> void {
+    ZoneScoped;
     ImGui_ImplWin32_NewFrame();
     ImGui::NewFrame();
 }
 
 auto KcnGui::end_frame() -> void {
+    ZoneScoped;
     ImGui::Render();
 }
 
 auto KcnGui::render(const GpuDevice& device, GpuCommandList& cmd) -> void {
+    ZoneScoped;
     auto* draw_data = ImGui::GetDrawData();
 
     // Avoid rendering when minimized.

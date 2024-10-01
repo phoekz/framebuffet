@@ -310,6 +310,13 @@ auto buffet_run(Buffet& bf) -> void {
             bf.device.end_frame(std::move(cmd));
         }
 
+        // Present.
+        {
+            ZoneScopedN("Present");
+            PIXScopedEvent(PIX_COLOR_DEFAULT, "Present");
+            bf.device.present();
+        }
+
         // Update frame.
         bf.frame.update();
     }

@@ -321,6 +321,8 @@ auto update(Demo& demo, const UpdateDesc& desc) -> void {
              TransformDesc(female_time_scale, anim.female),
              TransformDesc(male_time_scale, anim.male),
          }) {
+        ZoneScopedN("Update Transforms");
+
         // Unpack.
         auto* global_transforms = model.animation_global_transforms.data();
 

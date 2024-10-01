@@ -227,6 +227,12 @@ auto stockcube_run(Stockcube& sc) -> void {
             PIXEndEvent();
         }
 
+        // Present.
+        {
+            PIXScopedEvent(PIX_COLOR_DEFAULT, "Present");
+            sc.device.present();
+        }
+
         // Update frame.
         sc.frame.update();
     }
