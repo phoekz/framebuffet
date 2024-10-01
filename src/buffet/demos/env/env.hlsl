@@ -13,14 +13,15 @@ struct BackgroundVertexOutput {
     float3 direction: ATTRIBUTE2;
 };
 
-ConstantBuffer<BackgroundBindings> g_background_bindings: register(b0);
+const ConstantBuffer<BackgroundBindings> g_background_bindings: register(b0);
 
 BackgroundVertexOutput background_vs(fb::VertexInput input) {
-    ConstantBuffer<BackgroundConstants> constants =
+    const ConstantBuffer<BackgroundConstants> constants =
         ResourceDescriptorHeap[g_background_bindings.constants];
-    StructuredBuffer<fb::Vertex> vertices = ResourceDescriptorHeap[g_background_bindings.vertices];
-    fb::Vertex vertex = vertices[input.vertex_id];
-    float3 direction = vertex.position;
+    const StructuredBuffer<fb::Vertex> vertices =
+        ResourceDescriptorHeap[g_background_bindings.vertices];
+    const fb::Vertex vertex = vertices[input.vertex_id];
+    const float3 direction = vertex.position;
 
     BackgroundVertexOutput output;
     output.position = mul(constants.transform, float4(vertex.position, 1.0f));
@@ -32,20 +33,18 @@ BackgroundVertexOutput background_vs(fb::VertexInput input) {
 }
 
 fb::PixelOutput<1> background_ps(BackgroundVertexOutput input) {
-    ConstantBuffer<BackgroundConstants> constants =
+    const ConstantBuffer<BackgroundConstants> constants =
         ResourceDescriptorHeap[g_background_bindings.constants];
-    TextureCube<float4> texture = ResourceDescriptorHeap[g_background_bindings.texture];
-    SamplerState sampler = SamplerDescriptorHeap[(uint)GpuSampler::LinearWrap];
-
+    const TextureCube<float4> texture = ResourceDescriptorHeap[g_background_bindings.texture];
+    const SamplerState sampler = SamplerDescriptorHeap[(uint)GpuSampler::LinearWrap];
     const float roughness = constants.roughness;
     const uint mip_count = constants.mip_count;
     const float mip_level = roughness * float(mip_count - 1);
-    float3 color = texture.SampleLevel(sampler, input.direction, mip_level).rgb;
 
+    float3 color = texture.SampleLevel(sampler, input.direction, mip_level).rgb;
     if (constants.tonemap) {
         color = fb::tonemap_aces(color);
     }
-
     color *= constants.exposure;
 
     fb::PixelOutput<1> output;
@@ -66,9 +65,10 @@ struct ModelVertexOutput {
 ConstantBuffer<ModelBindings> g_model_bindings: register(b0);
 
 ModelVertexOutput model_vs(fb::VertexInput input) {
-    ConstantBuffer<ModelConstants> constants = ResourceDescriptorHeap[g_model_bindings.constants];
-    StructuredBuffer<fb::Vertex> vertices = ResourceDescriptorHeap[g_model_bindings.vertices];
-    fb::Vertex vertex = vertices[input.vertex_id];
+    const ConstantBuffer<ModelConstants> constants =
+        ResourceDescriptorHeap[g_model_bindings.constants];
+    const StructuredBuffer<fb::Vertex> vertices = ResourceDescriptorHeap[g_model_bindings.vertices];
+    const fb::Vertex vertex = vertices[input.vertex_id];
 
     ModelVertexOutput output;
     output.position = mul(constants.transform, float4(vertex.position, 1.0f));
@@ -78,11 +78,12 @@ ModelVertexOutput model_vs(fb::VertexInput input) {
 }
 
 fb::PixelOutput<1> model_ps(ModelVertexOutput input) {
-    ConstantBuffer<ModelConstants> constants = ResourceDescriptorHeap[g_model_bindings.constants];
-    Texture2D<float2> lut_texture = ResourceDescriptorHeap[g_model_bindings.lut_texture];
-    TextureCube<float3> irr_texture = ResourceDescriptorHeap[g_model_bindings.irr_texture];
-    TextureCube<float3> rad_texture = ResourceDescriptorHeap[g_model_bindings.rad_texture];
-    SamplerState sampler = SamplerDescriptorHeap[(uint)GpuSampler::LinearClamp];
+    const ConstantBuffer<ModelConstants> constants =
+        ResourceDescriptorHeap[g_model_bindings.constants];
+    const Texture2D<float2> lut_texture = ResourceDescriptorHeap[g_model_bindings.lut_texture];
+    const TextureCube<float3> irr_texture = ResourceDescriptorHeap[g_model_bindings.irr_texture];
+    const TextureCube<float3> rad_texture = ResourceDescriptorHeap[g_model_bindings.rad_texture];
+    const SamplerState sampler = SamplerDescriptorHeap[(uint)GpuSampler::LinearClamp];
 
     const float3 n = normalize(input.normal);
     const float3 v = normalize(constants.camera_position - input.world_position);
@@ -103,8 +104,8 @@ fb::PixelOutput<1> model_ps(ModelVertexOutput input) {
 
     const float3 diffuse = irradiance * base_color;
     const float3 specular = radiance * (specular_f0 * f0_scale + f0_bias);
-    float3 color = diffuse + specular;
 
+    float3 color = diffuse + specular;
     if (constants.tonemap) {
         color = fb::tonemap_aces(color);
     }

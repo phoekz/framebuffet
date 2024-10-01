@@ -9,16 +9,17 @@
 // Scene pass.
 //
 
-ConstantBuffer<SceneBindings> g_scene_bindings: register(b0);
+const ConstantBuffer<SceneBindings> g_scene_bindings: register(b0);
 
 struct SceneVertexOutput {
     float4 position: SV_Position;
 };
 
 SceneVertexOutput scene_vs(fb::VertexInput input) {
-    ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_scene_bindings.constants];
-    StructuredBuffer<fb::Vertex> vertices = ResourceDescriptorHeap[g_scene_bindings.vertices];
-    StructuredBuffer<SceneInstance> instances = ResourceDescriptorHeap[g_scene_bindings.instances];
+    const ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_scene_bindings.constants];
+    const StructuredBuffer<fb::Vertex> vertices = ResourceDescriptorHeap[g_scene_bindings.vertices];
+    const StructuredBuffer<SceneInstance> instances =
+        ResourceDescriptorHeap[g_scene_bindings.instances];
     const fb::Vertex vertex = vertices[input.vertex_id];
     const float4x4 transform = instances[input.instance_id].transform;
 
@@ -28,7 +29,7 @@ SceneVertexOutput scene_vs(fb::VertexInput input) {
 }
 
 fb::PixelOutput<1> scene_ps(SceneVertexOutput /*input*/) {
-    ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_scene_bindings.constants];
+    const ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_scene_bindings.constants];
 
     const float3 saber_color = constants.saber_color_and_intensity.rgb;
     const float saber_intensity = constants.saber_color_and_intensity.a;
@@ -56,9 +57,9 @@ void threshold_cs(fb::ComputeInput input) {
     const uint downsample_texture_id = g_threshold_bindings.downsample_texture;
     const float texture_width = float(g_threshold_bindings.texture_width);
     const float texture_height = float(g_threshold_bindings.texture_height);
-    Texture2D<float4> scene_texture = ResourceDescriptorHeap[scene_texture_id];
-    RWTexture2D<float4> downsample_texture = ResourceDescriptorHeap[downsample_texture_id];
-    SamplerState sampler = SamplerDescriptorHeap[(uint)GpuSampler::LinearClamp];
+    const Texture2D<float4> scene_texture = ResourceDescriptorHeap[scene_texture_id];
+    const RWTexture2D<float4> downsample_texture = ResourceDescriptorHeap[downsample_texture_id];
+    const SamplerState sampler = SamplerDescriptorHeap[(uint)GpuSampler::LinearClamp];
 
     const float2 dst_id_uv = 0.5f + float2(dst_id);
     const float2 dst_texel_size = 1.0f / float2(texture_width, texture_height);
@@ -90,9 +91,10 @@ void downsample_cs(fb::ComputeInput input) {
     const uint dst_texture_level = g_downsample_bindings.dst_texture_level;
     const uint dst_texture_width = g_downsample_bindings.dst_texture_width;
     const uint dst_texture_height = g_downsample_bindings.dst_texture_height;
-    Texture2D<float4> src_texture = ResourceDescriptorHeap[src_texture_id];
-    RWTexture2D<float4> dst_texture = ResourceDescriptorHeap[dst_texture_id + dst_texture_level];
-    SamplerState sampler = SamplerDescriptorHeap[(uint)GpuSampler::LinearClamp];
+    const Texture2D<float4> src_texture = ResourceDescriptorHeap[src_texture_id];
+    const RWTexture2D<float4> dst_texture =
+        ResourceDescriptorHeap[dst_texture_id + dst_texture_level];
+    const SamplerState sampler = SamplerDescriptorHeap[(uint)GpuSampler::LinearClamp];
 
     const float2 dst_id_uv = 0.5f + float2(dst_id);
     const float2 dst_texel_size = 1.0f / float2(dst_texture_width, dst_texture_height);
@@ -156,10 +158,11 @@ void upsample_cs(fb::ComputeInput input) {
     const uint dst_texture_level = g_upsample_bindings.dst_texture_level;
     const uint dst_texture_width = g_upsample_bindings.dst_texture_width;
     const uint dst_texture_height = g_upsample_bindings.dst_texture_height;
-    Texture2D<float4> src_dn_texture = ResourceDescriptorHeap[src_dn_texture_id];
-    Texture2D<float4> src_up_texture = ResourceDescriptorHeap[src_up_texture_id];
-    RWTexture2D<float4> dst_texture = ResourceDescriptorHeap[dst_texture_id + dst_texture_level];
-    SamplerState sampler = SamplerDescriptorHeap[(uint)GpuSampler::LinearClamp];
+    const Texture2D<float4> src_dn_texture = ResourceDescriptorHeap[src_dn_texture_id];
+    const Texture2D<float4> src_up_texture = ResourceDescriptorHeap[src_up_texture_id];
+    const RWTexture2D<float4> dst_texture =
+        ResourceDescriptorHeap[dst_texture_id + dst_texture_level];
+    const SamplerState sampler = SamplerDescriptorHeap[(uint)GpuSampler::LinearClamp];
 
     const float2 dst_id_uv = 0.5f + float2(dst_id);
     const float2 dst_texel_size = 1.0f / float2(dst_texture_width, dst_texture_height);
@@ -202,10 +205,10 @@ BlitVertexOutput blit_vs(fb::VertexInput input) {
 }
 
 fb::PixelOutput<1> blit_ps(BlitVertexOutput input) {
-    ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_blit_bindings.constants];
-    Texture2D scene_texture = ResourceDescriptorHeap[g_blit_bindings.scene_texture];
-    Texture2D bloom_texture = ResourceDescriptorHeap[g_blit_bindings.bloom_texture];
-    SamplerState sampler = SamplerDescriptorHeap[(uint)GpuSampler::LinearClamp];
+    const ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_blit_bindings.constants];
+    const Texture2D scene_texture = ResourceDescriptorHeap[g_blit_bindings.scene_texture];
+    const Texture2D bloom_texture = ResourceDescriptorHeap[g_blit_bindings.bloom_texture];
+    const SamplerState sampler = SamplerDescriptorHeap[(uint)GpuSampler::LinearClamp];
     const bool tonemap = constants.tonemap != 0u;
 
     const float3 scene_color = scene_texture.Sample(sampler, input.texcoord).rgb;

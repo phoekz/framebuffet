@@ -16,12 +16,12 @@ struct VertexOutput {
     float4 color: ATTRIBUTE0;
 };
 
-ConstantBuffer<Bindings> g_bindings: register(b0);
+const ConstantBuffer<Bindings> g_bindings: register(b0);
 
 VertexOutput draw_vs(fb::VertexInput input) {
-    ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
-    StructuredBuffer<Vertex> vertices = ResourceDescriptorHeap[g_bindings.vertices];
-    Vertex vertex = vertices[input.vertex_id];
+    const ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
+    const StructuredBuffer<Vertex> vertices = ResourceDescriptorHeap[g_bindings.vertices];
+    const Vertex vertex = vertices[input.vertex_id];
 
     VertexOutput output;
     output.position = mul(constants.transform, float4(vertex.position, 1.0f));

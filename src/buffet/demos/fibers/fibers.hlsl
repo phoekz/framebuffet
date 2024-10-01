@@ -2,15 +2,16 @@
 #include <kitchen/gpu/samplers.hlsli>
 #include <kitchen/kcn/core.hlsli>
 
-ConstantBuffer<Bindings> g_bindings: register(b0);
+const ConstantBuffer<Bindings> g_bindings: register(b0);
 
 FB_ATTRIBUTE(numthreads, SIM_DISPATCH_X, SIM_DISPATCH_Y, SIM_DISPATCH_Z)
 void sim_cs(fb::ComputeInput input) {
-    ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
-    RWStructuredBuffer<Light> lights = ResourceDescriptorHeap[g_bindings.lights];
+    const ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
+    const RWStructuredBuffer<Light> lights = ResourceDescriptorHeap[g_bindings.lights];
 
-    uint id = input.dispatch_thread_id.x;
+    const uint id = input.dispatch_thread_id.x;
     Light light = lights[id];
+
     float3 velocity = float3(1.0f, 0.0f, 0.0f);
     velocity *= light.speed_variation;
     velocity *= constants.light_speed;
@@ -19,12 +20,13 @@ void sim_cs(fb::ComputeInput input) {
     if (light.position.x > PLANE_RADIUS_X) {
         light.position.x = -PLANE_RADIUS_X;
     }
+
     lights[id] = light;
 }
 
 FB_ATTRIBUTE(numthreads, 1, 1, 1)
 void reset_cs(fb::ComputeInput /*input*/) {
-    RWStructuredBuffer<uint> light_indices_count =
+    const RWStructuredBuffer<uint> light_indices_count =
         ResourceDescriptorHeap[g_bindings.light_indices_count];
     light_indices_count[0] = 0;
 }
@@ -42,14 +44,14 @@ float3 view_point_from_clip(float4x4 view_from_clip, float clip_x, float clip_y)
 
 FB_ATTRIBUTE(numthreads, CULL_DISPATCH_X, CULL_DISPATCH_Y, CULL_DISPATCH_Z)
 void cull_cs(fb::ComputeInput input) {
-    ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
-    StructuredBuffer<Light> lights = ResourceDescriptorHeap[g_bindings.lights];
-    RWTexture2D<uint> light_counts_texture =
+    const ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
+    const StructuredBuffer<Light> lights = ResourceDescriptorHeap[g_bindings.lights];
+    const RWTexture2D<uint> light_counts_texture =
         ResourceDescriptorHeap[g_bindings.light_counts_texture];
-    RWTexture2D<uint> light_offsets_texture =
+    const RWTexture2D<uint> light_offsets_texture =
         ResourceDescriptorHeap[g_bindings.light_offsets_texture];
-    RWStructuredBuffer<uint> light_indices = ResourceDescriptorHeap[g_bindings.light_indices];
-    RWStructuredBuffer<uint> light_indices_count =
+    const RWStructuredBuffer<uint> light_indices = ResourceDescriptorHeap[g_bindings.light_indices];
+    const RWStructuredBuffer<uint> light_indices_count =
         ResourceDescriptorHeap[g_bindings.light_indices_count];
 
     // Compute frustum planes.
@@ -132,14 +134,12 @@ struct LightVertexOutput {
 };
 
 LightVertexOutput light_vs(fb::VertexInput input) {
-    ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
-    StructuredBuffer<Light> lights = ResourceDescriptorHeap[g_bindings.lights];
-    StructuredBuffer<fb::Vertex> vertices = ResourceDescriptorHeap[g_bindings.vertices];
-
-    Light light = lights[input.instance_id];
-    fb::Vertex vertex = vertices[input.vertex_id];
-
-    float3 position = vertex.position * constants.light_range + light.position;
+    const ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
+    const StructuredBuffer<Light> lights = ResourceDescriptorHeap[g_bindings.lights];
+    const StructuredBuffer<fb::Vertex> vertices = ResourceDescriptorHeap[g_bindings.vertices];
+    const Light light = lights[input.instance_id];
+    const fb::Vertex vertex = vertices[input.vertex_id];
+    const float3 position = vertex.position * constants.light_range + light.position;
 
     LightVertexOutput output;
     output.position = mul(constants.clip_from_world, float4(position, 1.0f));
@@ -164,10 +164,9 @@ struct PlaneVertexOutput {
 };
 
 PlaneVertexOutput plane_vs(fb::VertexInput input) {
-    ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
-    StructuredBuffer<fb::Vertex> vertices = ResourceDescriptorHeap[g_bindings.vertices];
-
-    fb::Vertex vertex = vertices[input.vertex_id];
+    const ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
+    const StructuredBuffer<fb::Vertex> vertices = ResourceDescriptorHeap[g_bindings.vertices];
+    const fb::Vertex vertex = vertices[input.vertex_id];
 
     PlaneVertexOutput output;
     output.position = mul(constants.clip_from_world, float4(vertex.position, 1.0f));
@@ -179,12 +178,13 @@ PlaneVertexOutput plane_vs(fb::VertexInput input) {
 }
 
 fb::PixelOutput<1> plane_ps(PlaneVertexOutput input) {
-    ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
-    StructuredBuffer<Light> lights = ResourceDescriptorHeap[g_bindings.lights];
-    Texture2D<uint> light_counts_texture = ResourceDescriptorHeap[g_bindings.light_counts_texture];
-    Texture2D<uint> light_offsets_texture =
+    const ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
+    const StructuredBuffer<Light> lights = ResourceDescriptorHeap[g_bindings.lights];
+    const Texture2D<uint> light_counts_texture =
+        ResourceDescriptorHeap[g_bindings.light_counts_texture];
+    const Texture2D<uint> light_offsets_texture =
         ResourceDescriptorHeap[g_bindings.light_offsets_texture];
-    StructuredBuffer<uint> light_indices = ResourceDescriptorHeap[g_bindings.light_indices];
+    const StructuredBuffer<uint> light_indices = ResourceDescriptorHeap[g_bindings.light_indices];
 
     float3 color = float3(0.02f, 0.02f, 0.02f);
 
@@ -224,19 +224,19 @@ DebugVertexOutput debug_vs(fb::VertexInput input) {
 }
 
 fb::PixelOutput<1> debug_ps(DebugVertexOutput input) {
-    ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
-    RWTexture2D<uint> light_counts_texture =
+    const ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
+    const RWTexture2D<uint> light_counts_texture =
         ResourceDescriptorHeap[g_bindings.light_counts_texture];
-    Texture2D<float3> heatmap_texture = ResourceDescriptorHeap[g_bindings.heatmap_texture];
-    SamplerState heatmap_sampler = SamplerDescriptorHeap[(uint)GpuSampler::LinearClamp];
+    const Texture2D<float3> heatmap_texture = ResourceDescriptorHeap[g_bindings.heatmap_texture];
+    const SamplerState heatmap_sampler = SamplerDescriptorHeap[(uint)GpuSampler::LinearClamp];
 
     const float2 window_size = constants.window_size;
     const float2 tile_size = (float2)CULL_TILE_SIZE;
     const float2 tile_pixel = input.texcoord * window_size / tile_size;
     const uint2 tile_index = floor(tile_pixel);
-    uint light_count = light_counts_texture[tile_index];
-    float shade = saturate((float)light_count / 5.0f);
-    float3 color = heatmap_texture.Sample(heatmap_sampler, float2(shade, 0.5f));
+    const uint light_count = light_counts_texture[tile_index];
+    const float shade = saturate((float)light_count / 5.0f);
+    const float3 color = heatmap_texture.Sample(heatmap_sampler, float2(shade, 0.5f));
 
     fb::PixelOutput<1> output;
     output.color = float4(color, constants.heatmap_opacity);

@@ -3,16 +3,16 @@
 #include <kitchen/kcn/core.hlsli>
 #include <kitchen/kcn/brdf.hlsli>
 
-ConstantBuffer<AccBindings> g_acc_bindings: register(b0);
-ConstantBuffer<DivBindings> g_div_bindings: register(b0);
+const ConstantBuffer<AccBindings> g_acc_bindings: register(b0);
+const ConstantBuffer<DivBindings> g_div_bindings: register(b0);
 
 FB_ATTRIBUTE(numthreads, DISPATCH_X, DISPATCH_Y, DISPATCH_Z)
 void acc_cs(fb::ComputeInput input) {
     // Global resources.
-    ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_acc_bindings.constants];
-    TextureCube<float3> cube_texture = ResourceDescriptorHeap[g_acc_bindings.cube_texture];
-    SamplerState cube_sampler = SamplerDescriptorHeap[g_acc_bindings.cube_sampler];
-    RWTexture2DArray<float4> rad_texture =
+    const ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_acc_bindings.constants];
+    const TextureCube<float3> cube_texture = ResourceDescriptorHeap[g_acc_bindings.cube_texture];
+    const SamplerState cube_sampler = SamplerDescriptorHeap[g_acc_bindings.cube_sampler];
+    const RWTexture2DArray<float4> rad_texture =
         ResourceDescriptorHeap[g_acc_bindings.rad_texture + g_acc_bindings.rad_texture_mip_id];
     const uint2 rad_texture_size = constants.rad_texture_size;
     const uint rad_texture_mip_count = constants.rad_texture_mip_count;
@@ -79,10 +79,10 @@ void acc_cs(fb::ComputeInput input) {
 FB_ATTRIBUTE(numthreads, DISPATCH_X, DISPATCH_Y, DISPATCH_Z)
 void div_cs(fb::ComputeInput input) {
     // Global resources.
-    ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_div_bindings.constants];
-    RWTexture2DArray<float4> acc_texture =
+    const ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_div_bindings.constants];
+    const RWTexture2DArray<float4> acc_texture =
         ResourceDescriptorHeap[g_div_bindings.acc_texture + g_div_bindings.mip_id];
-    RWTexture2DArray<float4> div_texture =
+    const RWTexture2DArray<float4> div_texture =
         ResourceDescriptorHeap[g_div_bindings.div_texture + g_div_bindings.mip_id];
     const uint dispatch_id = g_div_bindings.dispatch_id;
     const uint rad_sample_count_per_dispatch = constants.rad_sample_count_per_dispatch;

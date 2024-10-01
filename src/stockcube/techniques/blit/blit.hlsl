@@ -2,7 +2,7 @@
 #include <kitchen/gpu/samplers.hlsli>
 #include <kitchen/kcn/core.hlsli>
 
-ConstantBuffer<Bindings> g_bindings: register(b0);
+const ConstantBuffer<Bindings> g_bindings: register(b0);
 
 struct VertexOutput {
     float4 position: SV_Position;
@@ -16,9 +16,9 @@ VertexOutput vs(fb::VertexInput input) {
 }
 
 fb::PixelOutput<1> ps(VertexOutput input) {
-    ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
-    Texture2D texture = ResourceDescriptorHeap[g_bindings.texture];
-    SamplerState texture_sampler = SamplerDescriptorHeap[(uint)GpuSampler::LinearClamp];
+    const ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
+    const Texture2D texture = ResourceDescriptorHeap[g_bindings.texture];
+    const SamplerState texture_sampler = SamplerDescriptorHeap[(uint)GpuSampler::LinearClamp];
 
     float3 color = texture.Sample(texture_sampler, input.texcoord).rgb;
     if (constants.tonemap) {

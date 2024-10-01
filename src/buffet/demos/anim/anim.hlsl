@@ -2,7 +2,7 @@
 #include <kitchen/gpu/samplers.hlsli>
 #include <kitchen/kcn/core.hlsli>
 
-ConstantBuffer<Bindings> g_bindings: register(b0);
+const ConstantBuffer<Bindings> g_bindings: register(b0);
 
 //
 // Shadow
@@ -13,9 +13,10 @@ struct ShadowVertexOutput {
 };
 
 ShadowVertexOutput shadow_vs(fb::VertexInput input) {
-    ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
-    StructuredBuffer<fb::SkinningVertex> vertices = ResourceDescriptorHeap[g_bindings.vertices];
-    StructuredBuffer<float4x4> skinning_matrices =
+    const ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
+    const StructuredBuffer<fb::SkinningVertex> vertices =
+        ResourceDescriptorHeap[g_bindings.vertices];
+    const StructuredBuffer<float4x4> skinning_matrices =
         ResourceDescriptorHeap[g_bindings.skinning_matrices];
 
     const fb::SkinningVertex vertex = vertices[input.vertex_id];
@@ -44,8 +45,8 @@ struct GroundVertexOutput {
 };
 
 GroundVertexOutput ground_vs(fb::VertexInput input) {
-    ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
-    StructuredBuffer<fb::Vertex> vertices = ResourceDescriptorHeap[g_bindings.vertices];
+    const ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
+    const StructuredBuffer<fb::Vertex> vertices = ResourceDescriptorHeap[g_bindings.vertices];
     const fb::Vertex vertex = vertices[input.vertex_id];
 
     GroundVertexOutput output;
@@ -99,9 +100,10 @@ struct AnimVertexOutput {
 };
 
 AnimVertexOutput anim_vs(fb::VertexInput input) {
-    ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
-    StructuredBuffer<fb::SkinningVertex> vertices = ResourceDescriptorHeap[g_bindings.vertices];
-    StructuredBuffer<float4x4> skinning_matrices =
+    const ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
+    const StructuredBuffer<fb::SkinningVertex> vertices =
+        ResourceDescriptorHeap[g_bindings.vertices];
+    const StructuredBuffer<float4x4> skinning_matrices =
         ResourceDescriptorHeap[g_bindings.skinning_matrices];
 
     const fb::SkinningVertex vertex = vertices[input.vertex_id];

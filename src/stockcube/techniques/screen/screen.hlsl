@@ -2,7 +2,7 @@
 #include <kitchen/gpu/samplers.hlsli>
 #include <kitchen/kcn/core.hlsli>
 
-ConstantBuffer<Bindings> g_bindings: register(b0);
+const ConstantBuffer<Bindings> g_bindings: register(b0);
 
 struct VertexOutput {
     float4 position: SV_Position;
@@ -14,9 +14,9 @@ struct VertexOutput {
 };
 
 VertexOutput vs(fb::VertexInput input) {
-    ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
-    StructuredBuffer<Vertex> vertices = ResourceDescriptorHeap[g_bindings.vertices];
-    StructuredBuffer<Instance> instances = ResourceDescriptorHeap[g_bindings.instances];
+    const ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
+    const StructuredBuffer<Vertex> vertices = ResourceDescriptorHeap[g_bindings.vertices];
+    const StructuredBuffer<Instance> instances = ResourceDescriptorHeap[g_bindings.instances];
     const Vertex vertex = vertices[input.vertex_id];
     const Instance instance = instances[input.instance_id];
 
@@ -33,8 +33,8 @@ VertexOutput vs(fb::VertexInput input) {
 }
 
 fb::PixelOutput<1> ps(VertexOutput input) {
-    Texture2DArray<float3> texture = ResourceDescriptorHeap[input.texture];
-    SamplerState texture_sampler = SamplerDescriptorHeap[input.sampler];
+    const Texture2DArray<float3> texture = ResourceDescriptorHeap[input.texture];
+    const SamplerState texture_sampler = SamplerDescriptorHeap[input.sampler];
 
     const float3 color = texture.SampleLevel(
         texture_sampler,

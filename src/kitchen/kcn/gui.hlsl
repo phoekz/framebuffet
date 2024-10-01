@@ -14,12 +14,12 @@ struct VertexOutput {
     float2 texcoord: ATTRIBUTE1;
 };
 
-ConstantBuffer<Bindings> g_bindings: register(b0);
+const ConstantBuffer<Bindings> g_bindings: register(b0);
 
 VertexOutput draw_vs(fb::VertexInput input) {
-    ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
-    StructuredBuffer<Vertex> vertices = ResourceDescriptorHeap[g_bindings.vertices];
-    Vertex vertex = vertices[g_bindings.base_vertex + input.vertex_id];
+    const ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
+    const StructuredBuffer<Vertex> vertices = ResourceDescriptorHeap[g_bindings.vertices];
+    const Vertex vertex = vertices[g_bindings.base_vertex + input.vertex_id];
 
     VertexOutput output;
     output.position = mul(constants.transform, float4(vertex.position, 0.0f, 1.0f));
@@ -31,8 +31,8 @@ VertexOutput draw_vs(fb::VertexInput input) {
 }
 
 fb::PixelOutput<1> draw_ps(VertexOutput input) {
-    Texture2D texture = ResourceDescriptorHeap[g_bindings.texture];
-    SamplerState sampler = SamplerDescriptorHeap[(uint)GpuSampler::LinearWrap];
+    const Texture2D texture = ResourceDescriptorHeap[g_bindings.texture];
+    const SamplerState sampler = SamplerDescriptorHeap[(uint)GpuSampler::LinearWrap];
 
     fb::PixelOutput<1> output;
     output.color = input.color * texture.Sample(sampler, input.texcoord);

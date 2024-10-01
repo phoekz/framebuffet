@@ -12,10 +12,10 @@ struct VertexOutput {
 };
 
 VertexOutput vs(fb::VertexInput input) {
-    ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
-    StructuredBuffer<fb::Vertex> vertices = ResourceDescriptorHeap[g_bindings.vertices];
-    fb::Vertex vertex = vertices[input.vertex_id];
-    float3 direction = vertex.position;
+    const ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
+    const StructuredBuffer<fb::Vertex> vertices = ResourceDescriptorHeap[g_bindings.vertices];
+    const fb::Vertex vertex = vertices[input.vertex_id];
+    const float3 direction = vertex.position;
 
     VertexOutput output;
     output.position = mul(constants.transform, float4(vertex.position, 1.0f));
@@ -27,9 +27,9 @@ VertexOutput vs(fb::VertexInput input) {
 }
 
 fb::PixelOutput<1> ps(VertexOutput input) {
-    ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
-    TextureCube<float4> texture = ResourceDescriptorHeap[g_bindings.texture];
-    SamplerState texture_sampler = SamplerDescriptorHeap[g_bindings.sampler];
+    const ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
+    const TextureCube<float4> texture = ResourceDescriptorHeap[g_bindings.texture];
+    const SamplerState texture_sampler = SamplerDescriptorHeap[g_bindings.sampler];
 
     const float roughness = constants.roughness;
     const uint mip_count = constants.mip_count;

@@ -3,13 +3,13 @@
 #include <kitchen/kcn/core.hlsli>
 #include <kitchen/kcn/brdf.hlsli>
 
-ConstantBuffer<Bindings> g_bindings: register(b0);
+const ConstantBuffer<Bindings> g_bindings: register(b0);
 
 FB_ATTRIBUTE(numthreads, DISPATCH_X, DISPATCH_Y, DISPATCH_Z)
 void cs(fb::ComputeInput input) {
     // Global resources.
-    ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
-    RWTexture2D<float2> lut_texture = ResourceDescriptorHeap[g_bindings.lut_texture];
+    const ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
+    const RWTexture2D<float2> lut_texture = ResourceDescriptorHeap[g_bindings.lut_texture];
     const uint2 lut_texture_size = constants.lut_texture_size;
     const uint lut_sample_count = constants.lut_sample_count;
 

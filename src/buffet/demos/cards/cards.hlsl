@@ -6,7 +6,7 @@
 // Background
 //
 
-ConstantBuffer<BackgroundBindings> g_background_bindings: register(b0);
+const ConstantBuffer<BackgroundBindings> g_background_bindings: register(b0);
 
 struct BackgroundVertexOutput {
     float4 position: SV_Position;
@@ -20,9 +20,10 @@ BackgroundVertexOutput background_vs(fb::VertexInput input) {
 }
 
 fb::PixelOutput<1> background_ps(BackgroundVertexOutput input) {
-    ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_background_bindings.constants];
-    Texture2D texture = ResourceDescriptorHeap[g_background_bindings.texture];
-    SamplerState sampler = SamplerDescriptorHeap[(uint)GpuSampler::LinearClamp];
+    const ConstantBuffer<Constants> constants =
+        ResourceDescriptorHeap[g_background_bindings.constants];
+    const Texture2D texture = ResourceDescriptorHeap[g_background_bindings.texture];
+    const SamplerState sampler = SamplerDescriptorHeap[(uint)GpuSampler::LinearClamp];
 
     const float zoom = constants.zoom_factor;
     const float2 zoom_begin = zoom.xx;
@@ -47,13 +48,13 @@ struct DrawVertexOutput {
 };
 
 DrawVertexOutput draw_vs(fb::VertexInput input) {
-    ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_draw_bindings.constants];
-    StructuredBuffer<Card> cards = ResourceDescriptorHeap[g_draw_bindings.cards];
-    Card card = cards[g_draw_bindings.card_index];
-    StructuredBuffer<Vertex> vertices = ResourceDescriptorHeap[g_draw_bindings.vertices];
-    Vertex vertex = vertices[input.vertex_id];
+    const ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_draw_bindings.constants];
+    const StructuredBuffer<Card> cards = ResourceDescriptorHeap[g_draw_bindings.cards];
+    const Card card = cards[g_draw_bindings.card_index];
+    const StructuredBuffer<Vertex> vertices = ResourceDescriptorHeap[g_draw_bindings.vertices];
+    const Vertex vertex = vertices[input.vertex_id];
 
-    float2 position = vertex.position * card.size + card.position;
+    const float2 position = vertex.position * card.size + card.position;
     DrawVertexOutput output;
     output.position = mul(constants.transform, float4(position, 0.0f, 1.0f));
     output.texcoord = vertex.texcoord;
@@ -61,8 +62,8 @@ DrawVertexOutput draw_vs(fb::VertexInput input) {
 }
 
 fb::PixelOutput<1> draw_ps(DrawVertexOutput input) {
-    Texture2D texture = ResourceDescriptorHeap[g_draw_bindings.texture];
-    SamplerState sampler = SamplerDescriptorHeap[(uint)GpuSampler::LinearClamp];
+    const Texture2D texture = ResourceDescriptorHeap[g_draw_bindings.texture];
+    const SamplerState sampler = SamplerDescriptorHeap[(uint)GpuSampler::LinearClamp];
 
     fb::PixelOutput<1> output;
     output.color = texture.Sample(sampler, input.texcoord);

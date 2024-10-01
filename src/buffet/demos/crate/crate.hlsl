@@ -3,7 +3,7 @@
 #include <kitchen/kcn/core.hlsli>
 #include <kitchen/kcn/brdf.hlsli>
 
-ConstantBuffer<Bindings> g_bindings: register(b0);
+const ConstantBuffer<Bindings> g_bindings: register(b0);
 
 struct VertexOutput {
     float4 position: SV_Position;
@@ -15,11 +15,11 @@ struct VertexOutput {
 };
 
 VertexOutput draw_vs(fb::VertexInput input) {
-    ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
-    StructuredBuffer<fb::Vertex> vertices = ResourceDescriptorHeap[g_bindings.vertices];
-    fb::Vertex vertex = vertices[input.vertex_id];
+    const ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
+    const StructuredBuffer<fb::Vertex> vertices = ResourceDescriptorHeap[g_bindings.vertices];
+    const fb::Vertex vertex = vertices[input.vertex_id];
 
-    float3 bitangent = vertex.tangent.w * cross(vertex.normal, vertex.tangent.xyz);
+    const float3 bitangent = vertex.tangent.w * cross(vertex.normal, vertex.tangent.xyz);
 
     VertexOutput output;
     output.position = mul(constants.transform, float4(vertex.position, 1.0f));
@@ -39,15 +39,16 @@ float compute_lighting(Constants constants, float ndotl) {
 
 fb::PixelOutput<1> draw_ps(VertexOutput input) {
     // Global resources.
-    ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
-    Texture2D<float4> base_color_texture = ResourceDescriptorHeap[g_bindings.base_color_texture];
-    Texture2D<float4> normal_texture = ResourceDescriptorHeap[g_bindings.normal_texture];
-    Texture2D<float4> metallic_roughness_texture =
+    const ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
+    const Texture2D<float4> base_color_texture =
+        ResourceDescriptorHeap[g_bindings.base_color_texture];
+    const Texture2D<float4> normal_texture = ResourceDescriptorHeap[g_bindings.normal_texture];
+    const Texture2D<float4> metallic_roughness_texture =
         ResourceDescriptorHeap[g_bindings.metallic_roughness_texture];
-    SamplerState sampler = SamplerDescriptorHeap[g_bindings.sampler];
-    Texture2D<float2> lut_texture = ResourceDescriptorHeap[g_bindings.lut_texture];
-    TextureCube<float3> irr_texture = ResourceDescriptorHeap[g_bindings.irr_texture];
-    TextureCube<float3> rad_texture = ResourceDescriptorHeap[g_bindings.rad_texture];
+    const SamplerState sampler = SamplerDescriptorHeap[g_bindings.sampler];
+    const Texture2D<float2> lut_texture = ResourceDescriptorHeap[g_bindings.lut_texture];
+    const TextureCube<float3> irr_texture = ResourceDescriptorHeap[g_bindings.irr_texture];
+    const TextureCube<float3> rad_texture = ResourceDescriptorHeap[g_bindings.rad_texture];
 
     // Materials.
     const float3 base_color = base_color_texture.Sample(sampler, input.texcoord).rgb;
