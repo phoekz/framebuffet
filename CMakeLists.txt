@@ -26,7 +26,9 @@ add_compile_options(
     /arch:AVX2 # Enable AVX2
     /openmp # Enable OpenMP
     $<$<CONFIG:Debug>:/Zi> # Debug information format for Debug
+    $<$<CONFIG:Debug>:/MTd> # Use static runtime library for Debug
     $<$<CONFIG:Release>:/Z7> # Debug information format for Release (/Zi does not work with precompiled headers)
+    $<$<CONFIG:Release>:/MT> # Use static runtime library for Release
     $<$<CONFIG:Release>:/Oi> # Enable intrinsic functions
     $<$<CONFIG:Release>:/Ot> # Favor fast code
     $<$<CONFIG:Release>:/GS-> # No buffer security checks
