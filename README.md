@@ -6,7 +6,7 @@
 
 - Make the best possible use of PIX. This means labeling every GPU resource, outputting shader PDBs for source-level debugging, and "Edit & Continue" functionality. Also, mark every GPU event with PIX events so that we can correlate NVIDIA's performance counters to draws and dispatches.
 - Ensure that "Edit & Continue" works great in Visual Studio for rapid iteration. For example, ImGui can generally be Edit & Continue'd.
-- Learn from well-established libraries such as DirectXTK12 and replace their functionality as we figure out a better alternative.
+- Learn from well-established libraries and replace their functionality as we figure out a better alternative.
 - This project is intentionally not cross-platform friendly (for example, the Win32 APIs are not hidden or wrapped away). Supporting other platforms and graphics APIs is a non-goal.
 
 ## Building

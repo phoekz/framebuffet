@@ -8,7 +8,7 @@ namespace fb::baked::stockcube {
     }
 
 auto Assets::load() -> void {
-    // hash: 45565735ca3ca6b8d81427b3f48000cd
+    // hash: a8bfa19b27100601f8ed5fdc55a62077
     ZoneScoped;
     _data = read_whole_file("fb_stockcube_assets.bin");
     FB_ASSERT(_data.size() == 134371928);
@@ -113,7 +113,7 @@ auto Assets::sphere_mesh() const -> Mesh {
             0x0p+0f, 0x0p+0f, 0x0p+0f, 0x1p+0f
             // clang-format on
         ),
-        // hash: bdea0aeb8805424705ca957338103a57
+        // hash: 49512cd12fd9ad9fa3a962c2c434f4c4
         .vertices = transmuted_span<Vertex>(134219036, 2145),
         // hash: b69e987626eec7de0864668ffde28fbe
         .indices = transmuted_span<Index>(134321996, 12480),

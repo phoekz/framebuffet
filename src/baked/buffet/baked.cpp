@@ -8,7 +8,7 @@ namespace fb::baked::buffet {
     }
 
 auto Assets::load() -> void {
-    // hash: 7273f4ab0294d3b0760493e342e3b205
+    // hash: 168f91f66a20078465fc9a8ad1a1ec4d
     ZoneScoped;
     _data = read_whole_file("fb_buffet_assets.bin");
     FB_ASSERT(_data.size() == 189046280);
@@ -667,7 +667,7 @@ auto Assets::sphere_mesh() const -> Mesh {
             0x0p+0f, 0x0p+0f, 0x0p+0f, 0x1p+0f
             // clang-format on
         ),
-        // hash: bdea0aeb8805424705ca957338103a57
+        // hash: 49512cd12fd9ad9fa3a962c2c434f4c4
         .vertices = transmuted_span<Vertex>(42186916, 2145),
         // hash: b69e987626eec7de0864668ffde28fbe
         .indices = transmuted_span<Index>(42289876, 12480),

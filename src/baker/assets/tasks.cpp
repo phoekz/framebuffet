@@ -5,7 +5,6 @@
 
 #include <ttf2mesh.h>
 #include <stb_image_resize2.h>
-#include <directxtk12/GeometricPrimitive.h>
 
 namespace fb {
 
@@ -118,6 +117,145 @@ auto mipmapped_texture_asset(
         .mip_count = mip_count,
         .datas = texture_datas,
     };
+}
+
+auto create_box(
+    std::vector<float3>& positions,
+    std::vector<float3>& normals,
+    std::vector<float2>& texcoords,
+    std::vector<uint>& indices,
+    float3 extents,
+    bool rhcoords,
+    bool invertn
+) -> void {
+    // Adapted from DirectXTK12.
+
+    static constexpr uint FACE_COUNT = 6;
+    static constexpr float3 FACE_NORMALS[FACE_COUNT] = {
+        {0.0f, 0.0f, 1.0f},
+        {0.0f, 0.0f, -1.0f},
+        {1.0f, 0.0f, 0.0f},
+        {-1.0f, 0.0f, 0.0f},
+        {0.0f, 1.0f, 0.0f},
+        {0.0f, -1.0f, 0.0f},
+    };
+    static constexpr float2 TEXCOORDS[4] = {
+        {1.0f, 0.0f},
+        {1.0f, 1.0f},
+        {0.0f, 1.0f},
+        {0.0f, 0.0f},
+    };
+    const float3 half_extents = extents / 2.0f;
+    for (uint i = 0; i < FACE_COUNT; i++) {
+        const float3 normal = FACE_NORMALS[i];
+        const float3 basis = i >= 4 ? float3(0.0f, 0.0f, 1.0f) : float3(0.0f, 1.0f, 0.0f);
+        const float3 side1 = float3_cross(normal, basis);
+        const float3 side2 = float3_cross(normal, side1);
+        const uint base_vertex = (uint)positions.size();
+        indices.push_back(base_vertex + 0);
+        indices.push_back(base_vertex + 1);
+        indices.push_back(base_vertex + 2);
+        indices.push_back(base_vertex + 0);
+        indices.push_back(base_vertex + 2);
+        indices.push_back(base_vertex + 3);
+        positions.push_back(half_extents * (normal - side1 - side2));
+        positions.push_back(half_extents * (normal - side1 + side2));
+        positions.push_back(half_extents * (normal + side1 + side2));
+        positions.push_back(half_extents * (normal + side1 - side2));
+        normals.push_back(normal);
+        normals.push_back(normal);
+        normals.push_back(normal);
+        normals.push_back(normal);
+        texcoords.push_back(TEXCOORDS[0]);
+        texcoords.push_back(TEXCOORDS[1]);
+        texcoords.push_back(TEXCOORDS[2]);
+        texcoords.push_back(TEXCOORDS[3]);
+    }
+
+    if (!rhcoords) {
+        FB_ASSERT((indices.size() % 3) == 0);
+        for (uint i = 0; i < indices.size(); i += 3) {
+            std::swap(indices[i + 0], indices[i + 2]);
+        }
+        for (uint i = 0; i < texcoords.size(); i++) {
+            texcoords[i].x = (1.0f - texcoords[i].x);
+        }
+    }
+
+    if (invertn) {
+        for (uint i = 0; i < normals.size(); i++) {
+            normals[i] = -normals[i];
+        }
+    }
+
+    FB_ASSERT(positions.size() == normals.size());
+    FB_ASSERT(positions.size() == texcoords.size());
+}
+
+auto create_sphere(
+    std::vector<float3>& positions,
+    std::vector<float3>& normals,
+    std::vector<float2>& texcoords,
+    std::vector<uint>& indices,
+    float diameter,
+    uint tessellation,
+    bool rhcoords,
+    bool invertn
+) -> void {
+    // Adapted from DirectXTK12.
+
+    const uint vertical_segments = tessellation;
+    const uint horizontal_segments = tessellation * 2;
+    const float radius = diameter / 2.0f;
+    for (uint i = 0; i <= vertical_segments; i++) {
+        const float v = 1.0f - float(i) / float(vertical_segments);
+        const float latitude = (float(i) * FLOAT_PI / float(vertical_segments)) - 0.5f * FLOAT_PI;
+        const float dy = std::sin(latitude);
+        const float dxz = std::cos(latitude);
+        for (uint j = 0; j <= horizontal_segments; j++) {
+            const float u = float(j) / float(horizontal_segments);
+            const float longitude = float(j) * 2.0f * FLOAT_PI / float(horizontal_segments);
+            const float dx = std::sin(longitude);
+            const float dz = std::cos(longitude);
+            const float3 normal = float3(dx * dxz, dy, dz * dxz);
+            const float2 texcoord = float2(u, v);
+            positions.push_back(normal * radius);
+            normals.push_back(normal);
+            texcoords.push_back(texcoord);
+        }
+    }
+
+    const uint stride = horizontal_segments + 1;
+    for (uint i = 0; i < vertical_segments; i++) {
+        for (uint j = 0; j <= horizontal_segments; j++) {
+            const uint next_i = i + 1;
+            const uint next_j = (j + 1) % stride;
+            indices.push_back(i * stride + j);
+            indices.push_back(next_i * stride + j);
+            indices.push_back(i * stride + next_j);
+            indices.push_back(i * stride + next_j);
+            indices.push_back(next_i * stride + j);
+            indices.push_back(next_i * stride + next_j);
+        }
+    }
+
+    if (!rhcoords) {
+        for (uint i = 0; i < indices.size(); i += 3) {
+            std::swap(indices[i + 0], indices[i + 2]);
+        }
+        for (uint i = 0; i < texcoords.size(); i++) {
+            texcoords[i].x = 1.0f - texcoords[i].x;
+        }
+    }
+
+    if (invertn) {
+        for (uint i = 0; i < normals.size(); i++) {
+            normals[i] = -normals[i];
+        }
+    }
+
+    FB_ASSERT(positions.size() == normals.size());
+    FB_ASSERT(positions.size() == texcoords.size());
 }
 
 auto bake_assets(std::string_view assets_dir, std::span<const AssetTask> asset_tasks)
@@ -320,40 +458,22 @@ auto bake_assets(std::string_view assets_dir, std::span<const AssetTask> asset_t
                 },
                 [&](const AssetTaskProceduralCube& task) {
                     // Generate.
-                    using namespace DirectX::DX12;
-                    using Vertices = GeometricPrimitive::VertexCollection;
-                    using Indices = GeometricPrimitive::IndexCollection;
-                    Vertices dxtk_vertices;
-                    Indices dxtk_indices;
-                    GeometricPrimitive::CreateBox(
-                        dxtk_vertices,
-                        dxtk_indices,
+                    auto vertex_positions = std::vector<float3>();
+                    auto vertex_normals = std::vector<float3>();
+                    auto vertex_texcoords = std::vector<float2>();
+                    auto indices = std::vector<uint>();
+                    create_box(
+                        vertex_positions,
+                        vertex_normals,
+                        vertex_texcoords,
+                        indices,
                         {task.extents, task.extents, task.extents},
                         task.inverted,
                         task.inverted
                     );
 
-                    // Flatten vertex attributes.
-                    auto vertex_positions = std::vector<float3>(dxtk_vertices.size());
-                    auto vertex_normals = std::vector<float3>(dxtk_vertices.size());
-                    auto vertex_texcoords = std::vector<float2>(dxtk_vertices.size());
-                    for (size_t i = 0; i < dxtk_vertices.size(); ++i) {
-                        const DirectX::XMFLOAT3 position = dxtk_vertices[i].position;
-                        const DirectX::XMFLOAT3 normal = dxtk_vertices[i].normal;
-                        const DirectX::XMFLOAT2 texcoord = dxtk_vertices[i].textureCoordinate;
-                        vertex_positions[i] = float3(position.x, position.y, position.z);
-                        vertex_normals[i] = float3(normal.x, normal.y, normal.z);
-                        vertex_texcoords[i] = float2(texcoord.x, texcoord.y);
-                    }
-
-                    // Convert indices.
-                    auto indices = std::vector<uint>(dxtk_indices.size());
-                    for (size_t i = 0; i < dxtk_indices.size(); ++i) {
-                        indices[i] = (uint)dxtk_indices[i];
-                    }
-
                     // Compute tangents.
-                    auto vertex_tangents = std::vector<float4>(dxtk_vertices.size());
+                    auto vertex_tangents = std::vector<float4>(vertex_positions.size());
                     generate_tangents(GenerateTangentsDesc {
                         .positions = vertex_positions,
                         .normals = vertex_normals,
@@ -363,7 +483,7 @@ auto bake_assets(std::string_view assets_dir, std::span<const AssetTask> asset_t
                     });
 
                     // Convert.
-                    auto vertices = std::vector<AssetVertex>(dxtk_vertices.size());
+                    auto vertices = std::vector<AssetVertex>(vertex_positions.size());
                     for (size_t i = 0; i < vertices.size(); ++i) {
                         vertices[i] = AssetVertex {
                             .position = vertex_positions[i],
@@ -397,41 +517,23 @@ auto bake_assets(std::string_view assets_dir, std::span<const AssetTask> asset_t
                 },
                 [&](const AssetTaskProceduralSphere& task) {
                     // Generate.
-                    using namespace DirectX::DX12;
-                    using Vertices = GeometricPrimitive::VertexCollection;
-                    using Indices = GeometricPrimitive::IndexCollection;
-                    Vertices dxtk_vertices;
-                    Indices dxtk_indices;
-                    GeometricPrimitive::CreateSphere(
-                        dxtk_vertices,
-                        dxtk_indices,
+                    auto vertex_positions = std::vector<float3>();
+                    auto vertex_normals = std::vector<float3>();
+                    auto vertex_texcoords = std::vector<float2>();
+                    auto indices = std::vector<uint>();
+                    create_sphere(
+                        vertex_positions,
+                        vertex_normals,
+                        vertex_texcoords,
+                        indices,
                         2.0f * task.radius,
                         task.tesselation,
                         task.inverted,
                         task.inverted
                     );
 
-                    // Flatten vertex attributes.
-                    auto vertex_positions = std::vector<float3>(dxtk_vertices.size());
-                    auto vertex_normals = std::vector<float3>(dxtk_vertices.size());
-                    auto vertex_texcoords = std::vector<float2>(dxtk_vertices.size());
-                    for (size_t i = 0; i < dxtk_vertices.size(); ++i) {
-                        const DirectX::XMFLOAT3 position = dxtk_vertices[i].position;
-                        const DirectX::XMFLOAT3 normal = dxtk_vertices[i].normal;
-                        const DirectX::XMFLOAT2 texcoord = dxtk_vertices[i].textureCoordinate;
-                        vertex_positions[i] = float3(position.x, position.y, position.z);
-                        vertex_normals[i] = float3(normal.x, normal.y, normal.z);
-                        vertex_texcoords[i] = float2(texcoord.x, texcoord.y);
-                    }
-
-                    // Convert indices.
-                    auto indices = std::vector<uint>(dxtk_indices.size());
-                    for (size_t i = 0; i < dxtk_indices.size(); ++i) {
-                        indices[i] = (uint)dxtk_indices[i];
-                    }
-
                     // Compute tangents.
-                    auto vertex_tangents = std::vector<float4>(dxtk_vertices.size());
+                    auto vertex_tangents = std::vector<float4>(vertex_positions.size());
                     generate_tangents(GenerateTangentsDesc {
                         .positions = vertex_positions,
                         .normals = vertex_normals,
@@ -441,7 +543,7 @@ auto bake_assets(std::string_view assets_dir, std::span<const AssetTask> asset_t
                     });
 
                     // Convert.
-                    auto vertices = std::vector<AssetVertex>(dxtk_vertices.size());
+                    auto vertices = std::vector<AssetVertex>(vertex_positions.size());
                     for (size_t i = 0; i < vertices.size(); ++i) {
                         vertices[i] = AssetVertex {
                             .position = vertex_positions[i],

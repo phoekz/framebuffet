@@ -40,7 +40,7 @@ struct AssetTaskProceduralCube {
 struct AssetTaskProceduralSphere {
     std::string_view name;
     float radius;
-    size_t tesselation;
+    uint tesselation;
     bool inverted;
 };
 

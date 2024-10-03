@@ -32,7 +32,6 @@ target_link_libraries(
     ${TTF2MESH_LIBRARY}
     ${DXCOMPILER_LINK_DIR}/dxcompiler.lib
     d3d12.lib
-    ${DIRECTXTK12_LIBRARY}
 )
 target_include_directories(
     ${NAME} PRIVATE
@@ -40,7 +39,6 @@ target_include_directories(
     ${STB_INCLUDE_DIR}
     ${TINYEXR_INCLUDE_DIR}
     ${CGLTF_INCLUDE_DIR}
-    ${DIRECTXTK12_INCLUDE_DIR}
     ${DXCOMPILER_INCLUDE_DIR}
 )
 
