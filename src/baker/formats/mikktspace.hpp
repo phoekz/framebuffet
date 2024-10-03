@@ -1,6 +1,5 @@
 #pragma once
 
-#include "../pch.hpp"
 #include "gltf.hpp"
 
 namespace fb {

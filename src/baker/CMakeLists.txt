@@ -20,23 +20,11 @@ set(SOURCES
     utils/names.hpp
 )
 add_executable(${NAME} ${SOURCES})
+target_precompile_headers(${NAME} REUSE_FROM fb_common)
 target_link_libraries(
     ${NAME} PRIVATE
     fb_common
     ${MIKKTSPACE_LIBRARY}
-)
-target_precompile_headers(${NAME} PRIVATE pch.hpp)
-target_include_directories(
-    ${NAME} PRIVATE
-    ${CMAKE_SOURCE_DIR}/src
-    ${STB_INCLUDE_DIR}
-    ${TINYEXR_INCLUDE_DIR}
-    ${CGLTF_INCLUDE_DIR}
-    ${DIRECTXTK12_INCLUDE_DIR}
-    ${DXCOMPILER_INCLUDE_DIR}
-)
-target_link_libraries(
-    ${NAME} PRIVATE
     ${STB_LIBRARY}
     ${CGLTF_LIBRARY}
     ${TINYEXR_LIBRARY}
@@ -46,12 +34,14 @@ target_link_libraries(
     d3d12.lib
     ${DIRECTXTK12_LIBRARY}
 )
-target_compile_definitions(
+target_include_directories(
     ${NAME} PRIVATE
-    FB_BAKER_SOURCE_DIR="${PROJECT_SOURCE_DIR}"
-    FB_BAKER_SOURCE_DIR_WIDE=L"${PROJECT_SOURCE_DIR}"
-    FB_BAKER_BUFFET_OUTPUT_DIR="$<TARGET_FILE_DIR:fb_buffet>"
-    FB_BAKER_STOCKCUBE_OUTPUT_DIR="$<TARGET_FILE_DIR:fb_stockcube>"
+    ${CMAKE_SOURCE_DIR}/src
+    ${STB_INCLUDE_DIR}
+    ${TINYEXR_INCLUDE_DIR}
+    ${CGLTF_INCLUDE_DIR}
+    ${DIRECTXTK12_INCLUDE_DIR}
+    ${DXCOMPILER_INCLUDE_DIR}
 )
 
 set_target_properties(${NAME} PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY $<TARGET_FILE_DIR:${NAME}>)

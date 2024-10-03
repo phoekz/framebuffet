@@ -43,8 +43,8 @@ set(SOURCES
     demos/tree/tree.hpp
 )
 add_executable(${NAME} ${SOURCES})
+target_precompile_headers(${NAME} REUSE_FROM fb_common)
 target_link_libraries(${NAME} PRIVATE fb_kitchen)
-target_precompile_headers(${NAME} PRIVATE pch.hpp)
 target_include_directories(
     ${NAME} PRIVATE
     ${CMAKE_SOURCE_DIR}/src

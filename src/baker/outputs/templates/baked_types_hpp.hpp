@@ -1,6 +1,6 @@
 inline constexpr std::string_view BAKED_TYPES_HPP = R"(#pragma once
 
-    #include "pch.hpp"
+    #include <common/common.hpp>
 
     namespace fb::baked {
 

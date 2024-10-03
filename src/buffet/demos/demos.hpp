@@ -1,6 +1,5 @@
 #pragma once
 
-#include "../pch.hpp"
 #include "common.hpp"
 #include "anim/anim.hpp"
 #include "conras/conras.hpp"

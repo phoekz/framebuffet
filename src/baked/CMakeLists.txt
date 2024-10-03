@@ -9,6 +9,7 @@ set(SOURCES
     "stockcube/baked.hpp"
 )
 add_library(${NAME} STATIC ${SOURCES})
+target_precompile_headers(${NAME} REUSE_FROM fb_common)
 target_link_libraries(
     ${NAME}
     PUBLIC
@@ -20,6 +21,5 @@ target_include_directories(
     PUBLIC
     ${CMAKE_SOURCE_DIR}/src
 )
-target_precompile_headers(${NAME} PRIVATE pch.hpp)
 
 fb_setup_visual_studio_directories(${CMAKE_CURRENT_SOURCE_DIR} "${SOURCES}")

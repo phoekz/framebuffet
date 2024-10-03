@@ -13,10 +13,24 @@
 #include <glm/gtx/compatibility.hpp>
 
 // DirectX.
+#include <d3d12.h>
+#include <dxgi1_6.h>
+#include <dxgidebug.h>
 #include <dxgiformat.h>
+
+// PIX.
+#define USE_PIX
+#include <WinPixEventRuntime/pix3.h>
 
 // Tracy.
 #include <tracy/Tracy.hpp>
+
+// ImGui.
+#include <imgui.h>
+#include <backends/imgui_impl_win32.h>
+
+// Nlohmann.
+#include <nlohmann/json.hpp>
 
 // Standard library.
 #include <algorithm>
@@ -33,7 +47,7 @@
 // Literals.
 using namespace std::literals;
 
-// Defines.
+// Aliases.
 namespace fb {
 
 template<typename T>
@@ -59,5 +73,8 @@ using uint = uint32_t;
 using uint2 = glm::vec<2, uint, glm::highp>;
 using uint3 = glm::vec<3, uint, glm::highp>;
 using uint4 = glm::vec<4, uint, glm::highp>;
+
+using json = nlohmann::json;
+using ord_json = nlohmann::ordered_json;
 
 } // namespace fb

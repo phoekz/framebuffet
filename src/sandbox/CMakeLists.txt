@@ -1,6 +1,7 @@
 set(NAME fb_sandbox)
 set(SOURCES sandbox.cpp)
 add_executable(${NAME} ${SOURCES})
+target_precompile_headers(${NAME} REUSE_FROM fb_common)
 target_link_libraries(${NAME} fb_common)
 target_include_directories(
     ${NAME}

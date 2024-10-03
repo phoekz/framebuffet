@@ -1,6 +1,5 @@
 #pragma once
 
-#include "../pch.hpp"
 #include "image.hpp"
 
 namespace fb {

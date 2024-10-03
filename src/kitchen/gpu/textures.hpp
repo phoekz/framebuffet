@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../pch.hpp"
+#include <common/common.hpp>
 #include "device.hpp"
 #include "formats.hpp"
 #include <baked/baked_types.hpp>

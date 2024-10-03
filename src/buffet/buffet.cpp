@@ -1,4 +1,3 @@
-#include "pch.hpp"
 #include "demos/demos.hpp"
 
 namespace fb {

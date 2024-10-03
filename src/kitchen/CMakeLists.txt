@@ -46,44 +46,17 @@ set(SOURCES
     win32/window.hpp
 )
 add_library(${NAME} STATIC ${SOURCES})
-target_precompile_headers(${NAME} PRIVATE pch.hpp)
+target_precompile_headers(${NAME} REUSE_FROM fb_common)
 target_link_libraries(
     ${NAME}
     PUBLIC
     fb_common
     fb_baked
-    d3d12.lib
-    dxgi.lib
-    dxguid.lib
-    ${DEARIMGUI_LIBRARY}
-    ${DXAGILITYSDK_LIBRARY}
-    ${WINPIXEVENTRUNTIME_LIBRARY}
 )
 target_include_directories(
     ${NAME}
     PUBLIC
     ${CMAKE_SOURCE_DIR}/src
-    ${WINPIXEVENTRUNTIME_INCLUDE_DIR}
-)
-target_compile_definitions(
-    ${NAME}
-    PUBLIC
-    FB_KITCHEN_PIX_GPU_CAPTURER_NAME="WinPixGpuCapturer.dll"
-    FB_KITCHEN_PIX_GPU_CAPTURER_DLL_PATH="C:/Program Files/Microsoft PIX/2409.23/WinPixGpuCapturer.dll"
-    FB_KITCHEN_PIX_GPU_CAPTURE_FILE_NAME=L"framebuffet_gpu.wpix"
-    FB_KITCHEN_PIX_TIMING_CAPTURER_NAME="WinPixTimingCapturer.dll"
-    FB_KITCHEN_PIX_TIMING_CAPTURER_DLL_PATH="C:/Program Files/Microsoft PIX/2409.23/WinPixTimingCapturer.dll"
-    FB_KITCHEN_PIX_TIMING_CAPTURE_FILE_NAME=L"framebuffet_timing.wpix"
 )
 
 fb_setup_visual_studio_directories(${CMAKE_CURRENT_SOURCE_DIR} "${SOURCES}")
-
-set(TARGET_DIRECTORY $<TARGET_FILE_DIR:${NAME}>)
-add_custom_command(
-    TARGET ${NAME} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy ${DXAGILITYSDK_SOURCE_DIR}/bin/x64/D3D12Core.dll ${TARGET_DIRECTORY}
-    COMMAND ${CMAKE_COMMAND} -E copy ${DXAGILITYSDK_SOURCE_DIR}/bin/x64/D3D12Core.pdb ${TARGET_DIRECTORY}
-    COMMAND ${CMAKE_COMMAND} -E copy ${DXAGILITYSDK_SOURCE_DIR}/bin/x64/d3d12SDKLayers.dll ${TARGET_DIRECTORY}
-    COMMAND ${CMAKE_COMMAND} -E copy ${DXAGILITYSDK_SOURCE_DIR}/bin/x64/d3d12SDKLayers.pdb ${TARGET_DIRECTORY}
-    COMMAND ${CMAKE_COMMAND} -E copy ${WINPIXEVENTRUNTIME_BIN_DIR}/WinPixEventRuntime.dll ${TARGET_DIRECTORY}
-)

@@ -1,6 +1,7 @@
 #pragma once
 
-#include "pch.hpp"
+#include <common/common.hpp>
+
 #include "gpu/gpu.hpp"
 #include "kcn/kcn.hpp"
 #include "utils/camera.hpp"

@@ -3,7 +3,6 @@
 #include <kitchen/kitchen.hpp>
 
 #include "common.hpp"
-
 #include "cfr/cfr.hpp"
 #include "lut/lut.hpp"
 #include "irr/irr.hpp"

@@ -22,10 +22,10 @@ add_compile_options(
     /GR- # No RTTI
     /fp:except- # No floating point exceptions
     /arch:AVX2 # Enable AVX2
-    $<$<CONFIG:Debug>:/Zi> # Debug information format
+    $<$<CONFIG:Debug>:/Zi> # Debug information format for Debug
+    $<$<CONFIG:Release>:/Z7> # Debug information format for Release (/Zi does not work with precompiled headers)
     $<$<CONFIG:Release>:/Oi> # Enable intrinsic functions
     $<$<CONFIG:Release>:/Ot> # Favor fast code
-    $<$<CONFIG:Release>:/Zi> # Debug information format
     $<$<CONFIG:Release>:/GS-> # No buffer security checks
 )
 add_compile_definitions(
@@ -54,6 +54,21 @@ function(fb_setup_visual_studio_directories current_source_dir sources)
     source_group(TREE ${current_source_dir} PREFIX ${LAST_DIR_NAME} FILES ${sources})
     source_group(pch REGULAR_EXPRESSION "cmake_pch\.(hxx|cxx)")
 endfunction()
+
+# Definitions.
+add_compile_definitions(
+    FB_BAKER_SOURCE_DIR="${PROJECT_SOURCE_DIR}"
+    FB_BAKER_SOURCE_DIR_WIDE=L"${PROJECT_SOURCE_DIR}"
+    FB_BAKER_BUFFET_OUTPUT_DIR="$<TARGET_FILE_DIR:fb_buffet>"
+    FB_BAKER_STOCKCUBE_OUTPUT_DIR="$<TARGET_FILE_DIR:fb_stockcube>"
+    FB_KITCHEN_PIX_GPU_CAPTURER_NAME="WinPixGpuCapturer.dll"
+    FB_KITCHEN_PIX_GPU_CAPTURER_DLL_PATH="C:/Program Files/Microsoft PIX/2409.23/WinPixGpuCapturer.dll"
+    FB_KITCHEN_PIX_GPU_CAPTURE_FILE_NAME=L"framebuffet_gpu.wpix"
+    FB_KITCHEN_PIX_TIMING_CAPTURER_NAME="WinPixTimingCapturer.dll"
+    FB_KITCHEN_PIX_TIMING_CAPTURER_DLL_PATH="C:/Program Files/Microsoft PIX/2409.23/WinPixTimingCapturer.dll"
+    FB_KITCHEN_PIX_TIMING_CAPTURE_FILE_NAME=L"framebuffet_timing.wpix"
+    FB_STOCKCUBE_INTERMEDIATE_DIR="${CMAKE_SOURCE_DIR}/src/assets/intermediate/stockcube"
+)
 
 # Libraries.
 add_subdirectory(src/common)

@@ -1,6 +1,5 @@
 #pragma once
 
-#include "../pch.hpp"
 #include "../assets/tasks.hpp"
 #include "../assets/types.hpp"
 #include "../shaders/shaders.hpp"

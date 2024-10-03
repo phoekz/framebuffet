@@ -6,9 +6,6 @@
 #include <ttf2mesh.h>
 #include <stb_image_resize2.h>
 #include <directxtk12/GeometricPrimitive.h>
-#include <nlohmann/json.hpp>
-using json = nlohmann::json;
-using ord_json = nlohmann::ordered_json;
 
 namespace fb {
 

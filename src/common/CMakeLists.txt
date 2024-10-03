@@ -18,6 +18,8 @@ set(SOURCES
     math.hpp
     pcg.cpp
     pcg.hpp
+    pch.cpp
+    pch.hpp
     perf.cpp
     perf.hpp
     string.cpp
@@ -29,12 +31,18 @@ set(SOURCES
     trap.hpp
 )
 add_library(${NAME} STATIC ${SOURCES})
-target_precompile_headers(${NAME} PRIVATE pch.hpp)
 target_link_libraries(
     ${NAME}
     PUBLIC
     ${GLM_LIBRARY}
     ${TRACY_LIBRARY}
+    d3d12.lib
+    dxgi.lib
+    dxguid.lib
+    ${DEARIMGUI_LIBRARY}
+    ${DXAGILITYSDK_LIBRARY}
+    ${WINPIXEVENTRUNTIME_LIBRARY}
+    ${NLOHMANN_JSON_LIBRARY}
     PRIVATE
     ${FP16_LIBRARY}
     ${XXHASH_LIBRARY}
@@ -44,8 +52,10 @@ target_include_directories(
     PUBLIC
     ${GLM_INCLUDE_DIR}
     ${TRACY_INCLUDE_DIR}
+    ${WINPIXEVENTRUNTIME_INCLUDE_DIR}
     PRIVATE
     ${CMAKE_SOURCE_DIR}/src
 )
+target_precompile_headers(${NAME} PRIVATE pch.hpp)
 
 fb_setup_visual_studio_directories(${CMAKE_CURRENT_SOURCE_DIR} "${SOURCES}")

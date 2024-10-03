@@ -4,7 +4,7 @@
 // Includes.
 //
 
-#include "../pch.hpp"
+#include <common/common.hpp>
 #include "debug_draw.hpp"
 #include "gui.hpp"
 #include "multibuffer.hpp"

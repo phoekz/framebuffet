@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../pch.hpp"
+#include <common/common.hpp>
 
 #include <dxcapi.h>
 

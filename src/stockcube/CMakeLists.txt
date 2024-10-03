@@ -31,15 +31,11 @@ set(SOURCES
     techniques/blit/blit.hlsli
 )
 add_executable(${NAME} ${SOURCES})
-target_link_libraries(${NAME} PRIVATE fb_kitchen ${NLOHMANN_JSON_LIBRARY})
-target_precompile_headers(${NAME} PRIVATE pch.hpp)
+target_precompile_headers(${NAME} REUSE_FROM fb_common)
+target_link_libraries(${NAME} PRIVATE fb_kitchen)
 target_include_directories(
     ${NAME} PRIVATE
     ${CMAKE_SOURCE_DIR}/src
-)
-target_compile_definitions(
-    ${NAME} PRIVATE
-    FB_STOCKCUBE_INTERMEDIATE_DIR="${CMAKE_SOURCE_DIR}/src/assets/intermediate/stockcube"
 )
 
 set_target_properties(${NAME} PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY $<TARGET_FILE_DIR:${NAME}>)

@@ -1,6 +1,5 @@
 #pragma once
 
-#include "../pch.hpp"
 #include "descriptors.hpp"
 #include "samplers.hlsli"
 

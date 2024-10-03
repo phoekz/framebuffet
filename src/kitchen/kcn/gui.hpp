@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../pch.hpp"
+#include <common/common.hpp>
 #include "../gpu/gpu.hpp"
 #include "../win32/window.hpp"
 #include <baked/kitchen/baked.hpp>

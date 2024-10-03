@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../pch.hpp"
+#include <common/common.hpp>
 #include "debug.hpp"
 #include "samplers.hpp"
 #include "transfer.hpp"

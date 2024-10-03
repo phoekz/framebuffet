@@ -1,6 +1,7 @@
 #pragma once
 
-#include "../pch.hpp"
+#include <common/common.hpp>
+#include <kitchen/kitchen.hpp>
 #include <baked/kitchen/baked.hpp>
 #include <baked/buffet/baked.hpp>
 
