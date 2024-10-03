@@ -23,6 +23,8 @@ add_compile_options(
     /fp:except- # No floating point exceptions
     /arch:AVX2 # Enable AVX2
     $<$<CONFIG:Debug>:/Zi> # Debug information format
+    $<$<CONFIG:Debug>:/Od> # Disable optimizations
+    $<$<CONFIG:Release>:/O2> # Maximize speed
     $<$<CONFIG:Release>:/Ob3> # Inline function expansion
     $<$<CONFIG:Release>:/Oi> # Enable intrinsic functions
     $<$<CONFIG:Release>:/Ot> # Favor fast code
@@ -37,6 +39,7 @@ add_compile_definitions(
     $<$<CONFIG:Release>:NDEBUG>
 )
 add_link_options(
+    /WX
     /entry:mainCRTStartup
     /SUBSYSTEM:WINDOWS
     $<$<CONFIG:Release>:/DEBUG>
