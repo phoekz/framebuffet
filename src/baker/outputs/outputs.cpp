@@ -37,14 +37,14 @@ auto bake_app_datas(
     FB_LOG_INFO("Baking app datas: {}", app_name);
 
     // Paths.
-    const auto source_dir = std::format("{}/src", FB_SOURCE_DIR);
-    const auto baked_dir = std::format("{}/src/baked", FB_SOURCE_DIR);
+    const auto source_dir = std::format("{}/src", FB_BAKER_SOURCE_DIR);
+    const auto baked_dir = std::format("{}/src/baked", FB_BAKER_SOURCE_DIR);
     const auto baked_app_dir = std::format("{}/{}", baked_dir, app_name);
-    const auto assets_dir = std::format("{}/src/assets", FB_SOURCE_DIR);
+    const auto assets_dir = std::format("{}/src/assets", FB_BAKER_SOURCE_DIR);
     const auto baked_types_hpp_path = std::format("{}/baked_types.hpp", baked_dir);
     const auto baked_hpp_path = std::format("{}/baked.hpp", baked_app_dir);
     const auto baked_cpp_path = std::format("{}/baked.cpp", baked_app_dir);
-    const auto clangformat = std::format("{}/external/clang-format.exe", FB_SOURCE_DIR);
+    const auto clangformat = std::format("{}/external/clang-format.exe", FB_BAKER_SOURCE_DIR);
 
     // Bake.
     const auto compiled_shaders = bake_shaders(source_dir, app_shader_tasks);

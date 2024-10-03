@@ -26,15 +26,17 @@ auto GpuDevice::create(const Window& window) -> void {
 
     // Load PIX GPU Capturer.
     {
-        HMODULE module = GetModuleHandleA(FB_PIX_GPU_CAPTURER_NAME);
+#if defined(USE_PIX)
+        HMODULE module = GetModuleHandleA(FB_KITCHEN_PIX_GPU_CAPTURER_NAME);
         if (!module) {
-            module = LoadLibraryA(FB_PIX_GPU_CAPTURER_DLL_PATH);
+            module = LoadLibraryA(FB_KITCHEN_PIX_GPU_CAPTURER_DLL_PATH);
         }
         _pix_gpu_capturer = module;
         FB_LOG_INFO(
-            FB_PIX_GPU_CAPTURER_NAME ": {}",
+            FB_KITCHEN_PIX_GPU_CAPTURER_NAME ": {}",
             _pix_gpu_capturer != nullptr ? "Loaded" : "Not loaded"
         );
+#endif
     }
 
     // Debug layer.
@@ -568,9 +570,16 @@ auto GpuDevice::video_memory_info() -> GpuVideoMemoryInfo {
 }
 
 auto GpuDevice::pix_capture() -> void {
-#ifdef USE_PIX
-    FB_ASSERT_HR(PIXGpuCaptureNextFrames(FB_PIX_GPU_CAPTURE_FILE_NAME, 1));
-    ShellExecuteW(nullptr, L"open", FB_PIX_GPU_CAPTURE_FILE_NAME, nullptr, nullptr, SW_SHOW);
+#if defined(USE_PIX)
+    FB_ASSERT_HR(PIXGpuCaptureNextFrames(FB_KITCHEN_PIX_GPU_CAPTURE_FILE_NAME, 1));
+    ShellExecuteW(
+        nullptr,
+        L"open",
+        FB_KITCHEN_PIX_GPU_CAPTURE_FILE_NAME,
+        nullptr,
+        nullptr,
+        SW_SHOW
+    );
 #endif
 }
 

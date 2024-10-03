@@ -23,9 +23,6 @@ add_compile_options(
     /fp:except- # No floating point exceptions
     /arch:AVX2 # Enable AVX2
     $<$<CONFIG:Debug>:/Zi> # Debug information format
-    $<$<CONFIG:Debug>:/Od> # Disable optimizations
-    $<$<CONFIG:Release>:/O2> # Maximize speed
-    $<$<CONFIG:Release>:/Ob3> # Inline function expansion
     $<$<CONFIG:Release>:/Oi> # Enable intrinsic functions
     $<$<CONFIG:Release>:/Ot> # Favor fast code
     $<$<CONFIG:Release>:/Zi> # Debug information format
@@ -36,7 +33,6 @@ add_compile_definitions(
     WIN32_LEAN_AND_MEAN
     NOMINMAX
     _CRT_SECURE_NO_WARNINGS
-    $<$<CONFIG:Release>:NDEBUG>
 )
 add_link_options(
     /WX
@@ -47,7 +43,10 @@ add_link_options(
     $<$<CONFIG:Release>:/OPT:ICF>
 )
 string(REGEX REPLACE "/EH[a-z]+" "" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
-string(REGEX REPLACE "/Ob2" "" CMAKE_CXX_FLAGS_RELEASE ${CMAKE_CXX_FLAGS_RELEASE})
+string(REGEX REPLACE "/Ob2" "/Ob3" CMAKE_CXX_FLAGS_RELEASE ${CMAKE_CXX_FLAGS_RELEASE})
+message(STATUS "CMAKE_CXX_FLAGS: ${CMAKE_CXX_FLAGS}")
+message(STATUS "CMAKE_CXX_FLAGS_DEBUG: ${CMAKE_CXX_FLAGS_DEBUG}")
+message(STATUS "CMAKE_CXX_FLAGS_RELEASE: ${CMAKE_CXX_FLAGS_RELEASE}")
 
 # Helper functions.
 function(fb_setup_visual_studio_directories current_source_dir sources)

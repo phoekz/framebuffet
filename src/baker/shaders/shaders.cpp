@@ -157,7 +157,7 @@ auto ShaderCompiler::compile(
         L"-Wdouble-promotion",
         L"-all-resources-bound",          // Enable aggressive flattening.
         L"-enable-16bit-types",           // Enable 16-bit types and disable min precision types.
-        L"-I", FB_SOURCE_DIR_WIDE "/src",
+        L"-I", FB_BAKER_SOURCE_DIR_WIDE "/src",
         // clang-format on
     });
 
