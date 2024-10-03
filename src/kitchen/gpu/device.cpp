@@ -526,7 +526,6 @@ auto GpuDevice::get_copyable_footprints(
     D3D12_PLACED_SUBRESOURCE_FOOTPRINT* subresource_footprints,
     uint* subresource_row_counts,
     uint64_t* subresource_row_byte_counts
-
 ) const -> void {
     uint64_t dummy_byte_count;
     _device->GetCopyableFootprints1(
