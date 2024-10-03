@@ -24,6 +24,7 @@ add_compile_options(
     /GR- # No RTTI
     /fp:except- # No floating point exceptions
     /arch:AVX2 # Enable AVX2
+    /openmp # Enable OpenMP
     $<$<CONFIG:Debug>:/Zi> # Debug information format for Debug
     $<$<CONFIG:Release>:/Z7> # Debug information format for Release (/Zi does not work with precompiled headers)
     $<$<CONFIG:Release>:/Oi> # Enable intrinsic functions
