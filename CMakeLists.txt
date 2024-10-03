@@ -47,7 +47,7 @@ add_link_options(
     $<$<CONFIG:Release>:/OPT:ICF>
 )
 string(REGEX REPLACE "/EH[a-z]+" "" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
-string(REGEX REPLACE "/Ob2" "" CMAKE_CXX_FLAGS_RELEASE ${CMAKE_CXX_FLAGS})
+string(REGEX REPLACE "/Ob2" "" CMAKE_CXX_FLAGS_RELEASE ${CMAKE_CXX_FLAGS_RELEASE})
 
 # Helper functions.
 function(fb_setup_visual_studio_directories current_source_dir sources)
