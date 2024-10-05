@@ -53,8 +53,8 @@ class GpuCommandList {
 
 public:
     // Move constructor and assignment operator.
-    GpuCommandList(GpuCommandList&& o) { *this = std::move(o); }
-    GpuCommandList& operator=(GpuCommandList&& o) {
+    GpuCommandList(GpuCommandList&& o) noexcept { *this = std::move(o); }
+    GpuCommandList& operator=(GpuCommandList&& o) noexcept {
         _cmd = std::exchange(o._cmd, nullptr);
         _engine = std::exchange(o._engine, GpuCommandEngine::Generic);
         _prev_engine = std::exchange(o._prev_engine, GpuCommandEngine::Generic);
@@ -179,9 +179,9 @@ protected:
     GpuDescriptors* _descriptors = nullptr;
 
     static constexpr size_t MAX_PENDING_BARRIERS = 32;
-    std::array<D3D12_GLOBAL_BARRIER, MAX_PENDING_BARRIERS> _pending_global_barriers;
-    std::array<D3D12_BUFFER_BARRIER, MAX_PENDING_BARRIERS> _pending_buffer_barriers;
-    std::array<D3D12_TEXTURE_BARRIER, MAX_PENDING_BARRIERS> _pending_texture_barriers;
+    std::array<D3D12_GLOBAL_BARRIER, MAX_PENDING_BARRIERS> _pending_global_barriers = {};
+    std::array<D3D12_BUFFER_BARRIER, MAX_PENDING_BARRIERS> _pending_buffer_barriers = {};
+    std::array<D3D12_TEXTURE_BARRIER, MAX_PENDING_BARRIERS> _pending_texture_barriers = {};
     size_t _pending_global_barrier_count = 0;
     size_t _pending_buffer_barrier_count = 0;
     size_t _pending_texture_barrier_count = 0;
