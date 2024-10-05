@@ -28,7 +28,7 @@ public:
         requires std::is_convertible_v<U*, T*>
     ComPtr(const ComPtr<U>& other)
         : ComPtr(other.get()) {}
-    ComPtr(ComPtr&& other)
+    ComPtr(ComPtr&& other) noexcept
         : _ptr(other.detach()) {}
     template<typename U>
         requires std::is_convertible_v<U*, T*>
@@ -64,7 +64,7 @@ public:
     ComPtr& operator=(const ComPtr<U>& other) {
         return operator=(static_cast<T*>(other.get()));
     }
-    ComPtr& operator=(ComPtr&& other) {
+    ComPtr& operator=(ComPtr&& other) noexcept {
         attach(other.detach());
         return *this;
     }
