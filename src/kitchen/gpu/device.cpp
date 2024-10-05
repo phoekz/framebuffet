@@ -78,6 +78,37 @@ auto GpuDevice::create(const Window& window) -> void {
     DXGI_ADAPTER_DESC3 adapter_desc;
     FB_ASSERT_HR(_adapter->GetDesc3(&adapter_desc));
     FB_LOG_INFO("Using adapter {}", fb::from_wstr(adapter_desc.Description));
+    FB_LOG_INFO("Vendor ID: 0x{:X}", adapter_desc.VendorId);
+    FB_LOG_INFO("Device ID: 0x{:X}", adapter_desc.DeviceId);
+    FB_LOG_INFO("SubSys ID: 0x{:X}", adapter_desc.SubSysId);
+    FB_LOG_INFO("Revision: {}", adapter_desc.Revision);
+    FB_LOG_INFO("Dedicated Video Memory: {} MB", adapter_desc.DedicatedVideoMemory / 1024 / 1024);
+    FB_LOG_INFO("Dedicated System Memory: {} MB", adapter_desc.DedicatedSystemMemory / 1024 / 1024);
+    FB_LOG_INFO("Shared System Memory: {} MB", adapter_desc.SharedSystemMemory / 1024 / 1024);
+    FB_LOG_INFO(
+        "Adapter LUID: 0x{:X}:{:X}",
+        adapter_desc.AdapterLuid.HighPart,
+        adapter_desc.AdapterLuid.LowPart
+    );
+    FB_LOG_INFO("Flags: 0b{:b}", (uint)adapter_desc.Flags);
+    // clang-format off
+    switch (adapter_desc.GraphicsPreemptionGranularity) {
+        case DXGI_GRAPHICS_PREEMPTION_DMA_BUFFER_BOUNDARY: FB_LOG_INFO("Graphics Preemption Granularity: DMA Buffer Boundary"); break;
+        case DXGI_GRAPHICS_PREEMPTION_PRIMITIVE_BOUNDARY: FB_LOG_INFO("Graphics Preemption Granularity: Primitive Boundary"); break;
+        case DXGI_GRAPHICS_PREEMPTION_TRIANGLE_BOUNDARY: FB_LOG_INFO("Graphics Preemption Granularity: Triangle Boundary"); break;
+        case DXGI_GRAPHICS_PREEMPTION_PIXEL_BOUNDARY: FB_LOG_INFO("Graphics Preemption Granularity: Pixel Boundary"); break;
+        case DXGI_GRAPHICS_PREEMPTION_INSTRUCTION_BOUNDARY: FB_LOG_INFO("Graphics Preemption Granularity: Instruction Boundary"); break;
+        default: FB_ASSERT_MSG(false, "Invalid graphics preemption granularity."); break;
+    }
+    switch (adapter_desc.ComputePreemptionGranularity) {
+        case DXGI_COMPUTE_PREEMPTION_DMA_BUFFER_BOUNDARY: FB_LOG_INFO("Compute Preemption Granularity: DMA Buffer Boundary"); break;
+        case DXGI_COMPUTE_PREEMPTION_DISPATCH_BOUNDARY: FB_LOG_INFO("Compute Preemption Granularity: Dispatch Boundary"); break;
+        case DXGI_COMPUTE_PREEMPTION_THREAD_GROUP_BOUNDARY: FB_LOG_INFO("Compute Preemption Granularity: Thread Group Boundary"); break;
+        case DXGI_COMPUTE_PREEMPTION_THREAD_BOUNDARY: FB_LOG_INFO("Compute Preemption Granularity: Thread Boundary"); break;
+        case DXGI_COMPUTE_PREEMPTION_INSTRUCTION_BOUNDARY: FB_LOG_INFO("Compute Preemption Granularity: Instruction Boundary"); break;
+        default: FB_ASSERT_MSG(false, "Invalid compute preemption granularity."); break;
+    }
+    // clang-format on
 
     // Output.
     {
