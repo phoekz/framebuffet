@@ -1,5 +1,8 @@
 #pragma once
 
+// Disable warnings for external headers.
+#pragma warning(push, 0)
+
 // Windows.
 #include <Windows.h>
 #include <Unknwn.h>
@@ -43,6 +46,9 @@
 #include <unordered_set>
 #include <variant>
 #include <vector>
+
+// Restore warnings.
+#pragma warning(pop)
 
 // Literals.
 using namespace std::literals;

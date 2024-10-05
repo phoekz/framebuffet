@@ -43,12 +43,18 @@ message(STATUS "CMAKE_CXX_FLAGS_DEBUG: ${CMAKE_CXX_FLAGS_DEBUG}")
 message(STATUS "CMAKE_CXX_FLAGS_RELEASE: ${CMAKE_CXX_FLAGS_RELEASE}")
 
 # External dependencies.
+add_compile_options(
+    /W0 # Disable warnings for external dependencies
+    /analyze:external- # Disable code analysis for external headers
+)
+include_directories(SYSTEM build external)
 add_subdirectory(external)
 
 # Framebuffet - Options.
 add_compile_options(
     /W4 # Warning level 4
     /WX # Treat warnings as errors
+    /analyze # Code analysis
 )
 add_link_options(
     /WX # Treat warnings as errors
