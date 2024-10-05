@@ -51,10 +51,16 @@ auto GpuDevice::create(const Window& window) -> void {
 
         ComPtr<IDXGIInfoQueue> info_queue;
         FB_ASSERT_HR(DXGIGetDebugInterface1(0, IID_PPV_ARGS(&info_queue)));
-        info_queue
-            ->SetBreakOnSeverity(DXGI_DEBUG_ALL, DXGI_INFO_QUEUE_MESSAGE_SEVERITY_ERROR, true);
-        info_queue
-            ->SetBreakOnSeverity(DXGI_DEBUG_ALL, DXGI_INFO_QUEUE_MESSAGE_SEVERITY_CORRUPTION, true);
+        FB_ASSERT_HR(info_queue->SetBreakOnSeverity(
+            DXGI_DEBUG_ALL,
+            DXGI_INFO_QUEUE_MESSAGE_SEVERITY_ERROR,
+            true
+        ));
+        FB_ASSERT_HR(info_queue->SetBreakOnSeverity(
+            DXGI_DEBUG_ALL,
+            DXGI_INFO_QUEUE_MESSAGE_SEVERITY_CORRUPTION,
+            true
+        ));
 
 #endif
     }
@@ -70,7 +76,7 @@ auto GpuDevice::create(const Window& window) -> void {
         IID_PPV_ARGS(&_adapter)
     ));
     DXGI_ADAPTER_DESC3 adapter_desc;
-    _adapter->GetDesc3(&adapter_desc);
+    FB_ASSERT_HR(_adapter->GetDesc3(&adapter_desc));
     FB_LOG_INFO("Using adapter {}", fb::from_wstr(adapter_desc.Description));
 
     // Output.
@@ -79,10 +85,10 @@ auto GpuDevice::create(const Window& window) -> void {
         ComPtr<IDXGIOutput> output;
         while (_adapter->EnumOutputs(i, &output) != DXGI_ERROR_NOT_FOUND) {
             ComPtr<IDXGIOutput6> output6;
-            output.query_to(&output6);
+            FB_ASSERT_HR(output.query_to(&output6));
 
             DXGI_OUTPUT_DESC1 desc;
-            output6->GetDesc1(&desc);
+            FB_ASSERT_HR(output6->GetDesc1(&desc));
 
             const long left = desc.DesktopCoordinates.left;
             const long top = desc.DesktopCoordinates.top;
@@ -108,17 +114,17 @@ auto GpuDevice::create(const Window& window) -> void {
     dx_set_name(_device, "Device");
 
     // Debug device.
-    _device->QueryInterface(IID_PPV_ARGS(&_leak_tracker.debug_device));
+    FB_ASSERT_HR(_device->QueryInterface(IID_PPV_ARGS(&_leak_tracker.debug_device)));
 
     {
 #if defined(_DEBUG)
         ComPtr<ID3D12InfoQueue1> info_queue;
         FB_ASSERT_HR(_device->QueryInterface(IID_PPV_ARGS(&info_queue)));
-        // info_queue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, true);
-        info_queue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, true);
-        info_queue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_CORRUPTION, true);
+        FB_ASSERT_HR(info_queue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, true));
+        FB_ASSERT_HR(info_queue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, true));
+        FB_ASSERT_HR(info_queue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_CORRUPTION, true));
         DWORD callback_cookie;
-        info_queue->RegisterMessageCallback(
+        FB_ASSERT_HR(info_queue->RegisterMessageCallback(
             [](D3D12_MESSAGE_CATEGORY,
                D3D12_MESSAGE_SEVERITY severity,
                D3D12_MESSAGE_ID,
@@ -137,7 +143,7 @@ auto GpuDevice::create(const Window& window) -> void {
             D3D12_MESSAGE_CALLBACK_FLAG_NONE,
             nullptr,
             &callback_cookie
-        );
+        ));
 #endif
     }
 
@@ -267,8 +273,8 @@ auto GpuDevice::begin_frame() -> GpuCommandList {
 
     // Reset command list and allocator.
     auto* cmd_alloc = _command_allocators[_frame_index].get();
-    cmd_alloc->Reset();
-    _command_list->Reset(cmd_alloc, nullptr);
+    FB_ASSERT_HR(cmd_alloc->Reset());
+    FB_ASSERT_HR(_command_list->Reset(cmd_alloc, nullptr));
     return GpuCommandList {
         _command_list.get(),
         _root_signature.get(),
@@ -281,7 +287,7 @@ auto GpuDevice::end_frame(GpuCommandList&&) -> void {
     PIXScopedEvent(PIX_COLOR_DEFAULT, "End Frame");
 
     // Close.
-    _command_list->Close();
+    FB_ASSERT_HR(_command_list->Close());
 
     // Execute command list.
     const auto command_lists = std::to_array({(ID3D12CommandList*)_command_list.get()});
