@@ -208,6 +208,11 @@
                     "FB_CLEAN_ARCHIVE": "1"
                 }
             }
+        },
+        {
+            "label": "Start Visual Studio",
+            "type": "shell",
+            "command": "start \"\" \"C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/devenv.exe\" \"${workspaceFolder}/build/framebuffet.sln\""
         }
     ]
 }
