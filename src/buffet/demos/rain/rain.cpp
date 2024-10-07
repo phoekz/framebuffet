@@ -3,8 +3,7 @@
 namespace fb::demos::rain {
 
 auto create(Demo& demo, const CreateDesc& desc) -> void {
-    ZoneScoped;
-    PIXScopedEvent(PIX_COLOR_DEFAULT, "%s - Create", NAME.data());
+    FB_PERF_FUNC();
     DebugScope debug(NAME);
 
     // Unpack.
@@ -106,8 +105,7 @@ auto create(Demo& demo, const CreateDesc& desc) -> void {
 }
 
 auto gui(Demo& demo, const GuiDesc&) -> void {
-    ZoneScoped;
-    PIXScopedEvent(PIX_COLOR_DEFAULT, "%s - Gui", NAME.data());
+    FB_PERF_FUNC();
     auto& params = demo.parameters;
     ImGui::SliderFloat("Rain Speed", &params.speed, 0.0f, 2.0f);
     ImGui::SliderFloat("Camera Distance", &params.camera_distance, 1.0f, 10.0f);
@@ -120,8 +118,7 @@ auto gui(Demo& demo, const GuiDesc&) -> void {
 }
 
 auto update(Demo& demo, const UpdateDesc& desc) -> void {
-    ZoneScoped;
-    PIXScopedEvent(PIX_COLOR_DEFAULT, "%s - Update", NAME.data());
+    FB_PERF_FUNC();
     auto& params = demo.parameters;
 
     // Update camera.
@@ -158,7 +155,7 @@ auto update(Demo& demo, const UpdateDesc& desc) -> void {
 }
 
 auto render(Demo& demo, const RenderDesc& desc) -> void {
-    ZoneScoped;
+    FB_PERF_FUNC();
     auto& [cmd, device, frame_index] = desc;
     cmd.pix_begin("%s - Render", NAME.data());
 

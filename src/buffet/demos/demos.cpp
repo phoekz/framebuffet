@@ -44,7 +44,7 @@ auto create(Demos& demos, const CreateDesc& desc) -> void {
 }
 
 auto gui(Demos& demos, const GuiDesc& desc) -> void {
-    ZoneScoped;
+    FB_PERF_FUNC();
 
     // Cards.
     {
@@ -73,7 +73,7 @@ auto gui(Demos& demos, const GuiDesc& desc) -> void {
 }
 
 auto update(Demos& demos, const UpdateDesc& desc) -> void {
-    ZoneScoped;
+    FB_PERF_FUNC();
 #define X(name, _) name::update(demos.name, desc);
     DEMO_LIST(X);
 #undef X
@@ -82,7 +82,7 @@ auto update(Demos& demos, const UpdateDesc& desc) -> void {
 }
 
 auto transition_to_render_target(Demos& demos, const RenderDesc& desc) -> void {
-    ZoneScoped;
+    FB_PERF_FUNC();
 #define X(_, name) \
     demos.render_target_views[(uint)Demo::name].pre->transition_to_render_target(desc.cmd);
     DEMO_LIST(X);
@@ -90,7 +90,7 @@ auto transition_to_render_target(Demos& demos, const RenderDesc& desc) -> void {
 }
 
 auto clear_render_targets(Demos& demos, const RenderDesc& desc) -> void {
-    ZoneScoped;
+    FB_PERF_FUNC();
 #define X(lower_name, upper_name)                                               \
     {                                                                           \
         desc.cmd.pix_begin("Clear - %s", #upper_name);                          \
@@ -102,14 +102,14 @@ auto clear_render_targets(Demos& demos, const RenderDesc& desc) -> void {
 }
 
 auto render_demos(Demos& demos, const RenderDesc& desc) -> void {
-    ZoneScoped;
+    FB_PERF_FUNC();
 #define X(name, _) name::render(demos.name, desc);
     DEMO_LIST(X);
 #undef X
 }
 
 auto transition_to_resolve(Demos& demos, const RenderDesc& desc) -> void {
-    ZoneScoped;
+    FB_PERF_FUNC();
 #define X(_, name) \
     demos.render_target_views[(uint)Demo::name].post->transition_to_resolve(desc.cmd);
     DEMO_LIST(X);
@@ -117,14 +117,14 @@ auto transition_to_resolve(Demos& demos, const RenderDesc& desc) -> void {
 }
 
 auto resolve_render_targets(Demos& demos, const RenderDesc& desc) -> void {
-    ZoneScoped;
+    FB_PERF_FUNC();
 #define X(_, name) demos.render_target_views[(uint)Demo::name].post->resolve(desc.cmd);
     DEMO_LIST(X);
 #undef X
 }
 
 auto transition_to_shader_resource(Demos& demos, const RenderDesc& desc) -> void {
-    ZoneScoped;
+    FB_PERF_FUNC();
 #define X(_, name) \
     demos.render_target_views[(uint)Demo::name].post->transition_to_shader_resource(desc.cmd);
     DEMO_LIST(X);
@@ -132,7 +132,7 @@ auto transition_to_shader_resource(Demos& demos, const RenderDesc& desc) -> void
 }
 
 auto render_compose(Demos& demos, const RenderDesc& desc) -> void {
-    ZoneScoped;
+    FB_PERF_FUNC();
     cards::render(demos.cards, desc);
 }
 

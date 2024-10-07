@@ -15,6 +15,7 @@ auto KcnGui::create(
     const baked::kitchen::Assets& assets,
     const baked::kitchen::Shaders& shaders
 ) -> void {
+    FB_PERF_FUNC();
     DebugScope debug("Gui");
 
     // ImGui.
@@ -109,18 +110,18 @@ auto KcnGui::create(
 }
 
 auto KcnGui::begin_frame() -> void {
-    ZoneScoped;
+    FB_PERF_FUNC();
     ImGui_ImplWin32_NewFrame();
     ImGui::NewFrame();
 }
 
 auto KcnGui::end_frame() -> void {
-    ZoneScoped;
+    FB_PERF_FUNC();
     ImGui::Render();
 }
 
 auto KcnGui::render(const GpuDevice& device, GpuCommandList& cmd) -> void {
-    ZoneScoped;
+    FB_PERF_FUNC();
     auto* draw_data = ImGui::GetDrawData();
 
     // Avoid rendering when minimized.

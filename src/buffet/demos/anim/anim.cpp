@@ -41,8 +41,7 @@ auto copy_animation_mesh(OwnedAnimationMesh& dst, const baked::AnimationMesh& sr
 }
 
 auto create(Demo& demo, const CreateDesc& desc) -> void {
-    ZoneScoped;
-    PIXScopedEvent(PIX_COLOR_DEFAULT, "%s - Create", NAME.data());
+    FB_PERF_FUNC();
     DebugScope debug(NAME);
 
     // Unpack.
@@ -229,8 +228,7 @@ auto create(Demo& demo, const CreateDesc& desc) -> void {
 }
 
 auto gui(Demo& demo, const GuiDesc&) -> void {
-    ZoneScoped;
-    PIXScopedEvent(PIX_COLOR_DEFAULT, "%s - Gui", NAME.data());
+    FB_PERF_FUNC();
     auto& params = demo.parameters;
     auto& anim = demo.anim;
     if (ImGui::Button("Defaults")) {
@@ -304,8 +302,7 @@ static auto keyframe_interpolation(
 }
 
 auto update(Demo& demo, const UpdateDesc& desc) -> void {
-    ZoneScoped;
-    PIXScopedEvent(PIX_COLOR_DEFAULT, "%s - Update", NAME.data());
+    FB_PERF_FUNC();
     auto& params = demo.parameters;
     auto& ground = demo.ground;
     auto& anim = demo.anim;
@@ -321,7 +318,7 @@ auto update(Demo& demo, const UpdateDesc& desc) -> void {
              TransformDesc(female_time_scale, anim.female),
              TransformDesc(male_time_scale, anim.male),
          }) {
-        ZoneScopedN("Update Transforms");
+        FB_PERF_SCOPE("Update Transforms");
 
         // Unpack.
         auto* global_transforms = model.animation_global_transforms.data();
@@ -479,7 +476,7 @@ auto update(Demo& demo, const UpdateDesc& desc) -> void {
 }
 
 auto render(Demo& demo, const RenderDesc& desc) -> void {
-    ZoneScoped;
+    FB_PERF_FUNC();
     auto& [cmd, device, frame_index] = desc;
     cmd.graphics_scope([&demo, frame_index](GpuGraphicsCommandList& cmd) {
         using ModelDesc = std::tuple<uint, Model&>;

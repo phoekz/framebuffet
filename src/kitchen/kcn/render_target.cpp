@@ -155,7 +155,7 @@ static auto make_clear_ds(DXGI_FORMAT format, float depth, uint8_t stencil) -> D
 }
 
 auto KcnRenderTarget::create(GpuDevice& device, const KcnRenderTargetDesc& desc) -> void {
-    ZoneScoped;
+    FB_PERF_FUNC();
     DebugScope debug("Render Target");
 
     // Store.

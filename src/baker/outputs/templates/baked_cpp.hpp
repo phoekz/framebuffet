@@ -6,7 +6,7 @@ inline constexpr std::string_view BAKED_CPP = R"(#include "baked.hpp"
 
     auto Assets::load() -> void {
         // hash: {{assets_bin_hash}}
-        ZoneScoped;
+        FB_PERF_FUNC();
         _data = read_whole_file("fb_{{app_name}}_assets.bin");
         FB_ASSERT(_data.size() == {{assets_byte_count}});
     }
@@ -15,7 +15,7 @@ inline constexpr std::string_view BAKED_CPP = R"(#include "baked.hpp"
 
     auto Shaders::load() -> void {
         // hash: {{shaders_bin_hash}}
-        ZoneScoped;
+        FB_PERF_FUNC();
         _data = read_whole_file("fb_{{app_name}}_shaders.bin");
         FB_ASSERT(_data.size() == {{shaders_byte_count}});
     }

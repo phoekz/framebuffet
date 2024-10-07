@@ -35,8 +35,7 @@ auto buffet_run(Buffet& bf) -> void {
 
     // Init.
     {
-        ZoneScopedN("Init");
-        PIXScopedEvent(PIX_COLOR_DEFAULT, "Init");
+        FB_PERF_SCOPE("Init");
 
         const auto timer = Instant();
         DebugScope debug("Buffet");
@@ -44,8 +43,7 @@ auto buffet_run(Buffet& bf) -> void {
         demos::Baked baked;
 
         {
-            ZoneScopedN("Baked");
-            PIXScopedEvent(PIX_COLOR_DEFAULT, "Baked");
+            FB_PERF_SCOPE("Baked");
             baked.kitchen.assets.load();
             baked.kitchen.shaders.load();
             baked.buffet.assets.load();
@@ -53,37 +51,32 @@ auto buffet_run(Buffet& bf) -> void {
         }
 
         {
-            ZoneScopedN("Window");
+            FB_PERF_SCOPE("Window");
             char temp[64] = {};
             snprintf(temp, sizeof(temp), "Width: %d", WINDOW_WIDTH);
             ZoneText(temp, strlen(temp));
             snprintf(temp, sizeof(temp), "Height: %d", WINDOW_HEIGHT);
             ZoneText(temp, strlen(temp));
-            PIXScopedEvent(PIX_COLOR_DEFAULT, "Window");
             bf.window.create(Window::Desc {WINDOW_TITLE, WINDOW_WIDTH, WINDOW_HEIGHT});
         }
 
         {
-            ZoneScopedN("Device");
-            PIXScopedEvent(PIX_COLOR_DEFAULT, "Device");
+            FB_PERF_SCOPE("Device");
             bf.device.create(bf.window);
         }
 
         {
-            ZoneScopedN("Demos");
-            PIXScopedEvent(PIX_COLOR_DEFAULT, "Demos");
+            FB_PERF_SCOPE("Demos");
             demos::create(bf.demos, {.baked = baked, .device = bf.device});
         }
 
         {
-            ZoneScopedN("Gui");
-            PIXScopedEvent(PIX_COLOR_DEFAULT, "Gui");
+            FB_PERF_SCOPE("Gui");
             bf.gui.create(bf.window, bf.device, baked.kitchen.assets, baked.kitchen.shaders);
         }
 
         {
-            ZoneScopedN("Transfer");
-            PIXScopedEvent(PIX_COLOR_DEFAULT, "Transfer");
+            FB_PERF_SCOPE("Transfer");
             bf.device.flush_transfers();
         }
 
@@ -95,9 +88,7 @@ auto buffet_run(Buffet& bf) -> void {
 
     // Archive.
     if (file_exists(ARCHIVE_FILE_NAME)) {
-        ZoneScopedN("Archive Load");
-        PIXScopedEvent(PIX_COLOR_DEFAULT, "Archive Load");
-
+        FB_PERF_SCOPE("Archive Load");
         auto buf = read_whole_file(ARCHIVE_FILE_NAME);
         FB_LOG_INFO("Archive size: {} bytes", buf.size());
         auto archive = DeserializingArchive(buf);
@@ -109,13 +100,11 @@ auto buffet_run(Buffet& bf) -> void {
     bool running = true;
     FRAME_ALLOCATION_TRAP = true;
     while (running) {
-        FrameMark;
-        PIXScopedEvent(PIX_COLOR_DEFAULT, "Frame %zu", bf.frame.count());
+        FB_PERF_FRAME(bf.frame.count());
 
         // Handle window messages.
         {
-            ZoneScopedN("Events");
-            PIXScopedEvent(PIX_COLOR_DEFAULT, "Events");
+            FB_PERF_SCOPE("Events");
 
             MSG msg = {};
             if (PeekMessageA(&msg, nullptr, 0, 0, PM_REMOVE)) {
@@ -130,9 +119,7 @@ auto buffet_run(Buffet& bf) -> void {
         // Update archive.
         bf.time_since_last_archive += bf.frame.last_delta_time();
         if (bf.time_since_last_archive > 1.0) {
-            ZoneScopedN("Archive");
-            PIXScopedEvent(PIX_COLOR_DEFAULT, "Archive Load");
-
+            FB_PERF_SCOPE("Archive Load");
             bf.time_since_last_archive = 0.0;
             auto archive = SerializingArchive(bf.archive_buf);
             demos::archive(bf.demos, archive);
@@ -146,8 +133,7 @@ auto buffet_run(Buffet& bf) -> void {
         // Update gui.
         bool gui_wants_the_mouse = false;
         {
-            ZoneScopedN("Gui");
-            PIXScopedEvent(PIX_COLOR_DEFAULT, "Gui");
+            FB_PERF_SCOPE("Gui");
 
             // Build gui.
             bf.gui.begin_frame();
@@ -225,8 +211,7 @@ auto buffet_run(Buffet& bf) -> void {
 
         // Update demos.
         {
-            ZoneScopedN("Update");
-            PIXScopedEvent(PIX_COLOR_DEFAULT, "Update");
+            FB_PERF_SCOPE("Demos");
 
             demos::update(
                 bf.demos,
@@ -247,8 +232,7 @@ auto buffet_run(Buffet& bf) -> void {
             auto& swapchain = bf.device.swapchain();
             const auto frame_index = bf.device.frame_index();
 
-            ZoneScopedN("Rendering");
-            PIXScopedEvent(PIX_COLOR_DEFAULT, "Rendering");
+            FB_PERF_SCOPE("Rendering");
 
             auto cmd = bf.device.begin_frame();
 
@@ -311,8 +295,7 @@ auto buffet_run(Buffet& bf) -> void {
 
         // Present.
         {
-            ZoneScopedN("Present");
-            PIXScopedEvent(PIX_COLOR_DEFAULT, "Present");
+            FB_PERF_SCOPE("Present");
             bf.device.present();
         }
 

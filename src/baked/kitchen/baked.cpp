@@ -9,7 +9,7 @@ namespace fb::baked::kitchen {
 
 auto Assets::load() -> void {
     // hash: 799fc360204416196536a93c9eff68ae
-    ZoneScoped;
+    FB_PERF_FUNC();
     _data = read_whole_file("fb_kitchen_assets.bin");
     FB_ASSERT(_data.size() == 162588);
 }
@@ -23,7 +23,7 @@ auto Assets::imgui_font() const -> Copy {
 
 auto Shaders::load() -> void {
     // hash: 5c1fcb0f3e68fd4dca87af13e32834c2
-    ZoneScoped;
+    FB_PERF_FUNC();
     _data = read_whole_file("fb_kitchen_shaders.bin");
     FB_ASSERT(_data.size() == 32068);
 }

@@ -40,8 +40,7 @@ auto stockcube_run(Stockcube& sc) -> void {
 
     // Init.
     {
-        ZoneScopedN("Init");
-        PIXScopedEvent(PIX_COLOR_DEFAULT, "Init");
+        FB_PERF_SCOPE("Init");
 
         DebugScope debug("Stockcube");
         techniques::Baked baked;
@@ -66,13 +65,11 @@ auto stockcube_run(Stockcube& sc) -> void {
     // Main loop.
     bool running = true;
     while (running) {
-        FrameMark;
-        PIXScopedEvent(PIX_COLOR_DEFAULT, "Frame %zu", sc.frame.count());
+        FB_PERF_FRAME(sc.frame.count());
 
         // Handle window messages.
         {
-            ZoneScopedN("Events");
-            PIXScopedEvent(PIX_COLOR_DEFAULT, "Events");
+            FB_PERF_SCOPE("Events");
 
             MSG msg = {};
             if (PeekMessageA(&msg, nullptr, 0, 0, PM_REMOVE)) {
@@ -90,7 +87,7 @@ auto stockcube_run(Stockcube& sc) -> void {
         // Update gui.
         bool gui_wants_the_mouse = false;
         {
-            PIXScopedEvent(PIX_COLOR_DEFAULT, "Gui");
+            FB_PERF_SCOPE("Gui");
 
             // Build gui.
             sc.gui.begin_frame();
@@ -116,7 +113,7 @@ auto stockcube_run(Stockcube& sc) -> void {
 
         // Update techniques.
         {
-            PIXScopedEvent(PIX_COLOR_DEFAULT, "Update");
+            FB_PERF_SCOPE("Update");
 
             const auto& inputs = sc.window.inputs();
             sc.camera.update({
@@ -148,13 +145,10 @@ auto stockcube_run(Stockcube& sc) -> void {
 
         // Rendering.
         {
-            PIXBeginEvent(PIX_COLOR_DEFAULT, "Rendering");
+            FB_PERF_SCOPE("Rendering");
 
-            PIXBeginEvent(PIX_COLOR_DEFAULT, "Prepare");
             auto cmd = sc.device.begin_frame();
-            PIXEndEvent();
 
-            PIXBeginEvent(PIX_COLOR_DEFAULT, "Commands");
             {
                 auto& swapchain = sc.device.swapchain();
                 const auto frame_index = sc.device.frame_index();
@@ -217,18 +211,13 @@ auto stockcube_run(Stockcube& sc) -> void {
 
                 cmd.pix_end();
             }
-            PIXEndEvent();
 
-            PIXBeginEvent(PIX_COLOR_DEFAULT, "Present");
             sc.device.end_frame(std::move(cmd));
-            PIXEndEvent();
-
-            PIXEndEvent();
         }
 
         // Present.
         {
-            PIXScopedEvent(PIX_COLOR_DEFAULT, "Present");
+            FB_PERF_SCOPE("Present");
             sc.device.present();
         }
 

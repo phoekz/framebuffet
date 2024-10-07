@@ -9,7 +9,7 @@ namespace fb::baked::buffet {
 
 auto Assets::load() -> void {
     // hash: 168f91f66a20078465fc9a8ad1a1ec4d
-    ZoneScoped;
+    FB_PERF_FUNC();
     _data = read_whole_file("fb_buffet_assets.bin");
     FB_ASSERT(_data.size() == 189046280);
 }
@@ -1061,7 +1061,7 @@ auto Assets::grass_material() const -> Material {
 
 auto Shaders::load() -> void {
     // hash: 906fe2976c775c95b94666b68f7def3d
-    ZoneScoped;
+    FB_PERF_FUNC();
     _data = read_whole_file("fb_buffet_shaders.bin");
     FB_ASSERT(_data.size() == 244660);
 }

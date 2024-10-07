@@ -3,7 +3,7 @@
 namespace fb::techniques::cfr {
 
 auto create(Technique& tech, const CreateDesc& desc) -> void {
-    PIXScopedEvent(PIX_COLOR_DEFAULT, "%s - Create", NAME.data());
+    FB_PERF_FUNC();
     DebugScope debug(NAME);
 
     const auto& shaders = desc.baked.stockcube.shaders;
@@ -30,14 +30,15 @@ auto create(Technique& tech, const CreateDesc& desc) -> void {
 }
 
 auto gui(Technique&, const GuiDesc&) -> void {
-    PIXScopedEvent(PIX_COLOR_DEFAULT, "%s - Gui", NAME.data());
+    FB_PERF_FUNC();
 }
 
 auto update(Technique&, const UpdateDesc&) -> void {
-    PIXScopedEvent(PIX_COLOR_DEFAULT, "%s - Update", NAME.data());
+    FB_PERF_FUNC();
 }
 
 auto render(Technique& tech, const RenderDesc& desc) -> void {
+    FB_PERF_FUNC();
     auto& [cmd, device, _] = desc;
 
     if (tech.done) {

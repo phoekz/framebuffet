@@ -117,7 +117,7 @@ auto GpuPipelineBuilder::sample_desc(DXGI_SAMPLE_DESC desc) -> GpuPipelineBuilde
 
 auto GpuPipelineBuilder::build(GpuDevice& device, GpuPipeline& pipeline, std::string_view name)
     -> void {
-    ZoneScoped;
+    FB_PERF_FUNC();
 
     // Add global root signature.
     {

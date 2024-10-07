@@ -3,8 +3,7 @@
 namespace fb::demos::env {
 
 auto create(Demo& demo, const CreateDesc& desc) -> void {
-    ZoneScoped;
-    PIXScopedEvent(PIX_COLOR_DEFAULT, "%s - Create", NAME.data());
+    FB_PERF_FUNC();
     DebugScope debug(NAME);
 
     // Unpack.
@@ -144,8 +143,7 @@ auto create(Demo& demo, const CreateDesc& desc) -> void {
 }
 
 auto gui(Demo& demo, const GuiDesc&) -> void {
-    ZoneScoped;
-    PIXScopedEvent(PIX_COLOR_DEFAULT, "%s - Gui", NAME.data());
+    FB_PERF_FUNC();
     auto& params = demo.parameters;
     ImGui::SliderFloat("Model Metallic", &params.model_metallic, 0.0f, 1.0f);
     ImGui::SliderFloat("Model Roughness", &params.model_roughness, 0.0f, 1.0f);
@@ -160,8 +158,7 @@ auto gui(Demo& demo, const GuiDesc&) -> void {
 }
 
 auto update(Demo& demo, const UpdateDesc& desc) -> void {
-    ZoneScoped;
-    PIXScopedEvent(PIX_COLOR_DEFAULT, "%s - Update", NAME.data());
+    FB_PERF_FUNC();
     auto& params = demo.parameters;
 
     // Update camera rotation.
@@ -223,7 +220,7 @@ auto update(Demo& demo, const UpdateDesc& desc) -> void {
 }
 
 auto render(Demo& demo, const RenderDesc& desc) -> void {
-    ZoneScoped;
+    FB_PERF_FUNC();
     auto& [cmd, device, frame_index] = desc;
     cmd.graphics_scope([&demo, frame_index](GpuGraphicsCommandList& cmd) {
         cmd.pix_begin("%s - Render", NAME.data());

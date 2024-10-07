@@ -7,7 +7,7 @@ auto KcnDebugDraw::create(
     const baked::kitchen::Shaders& shaders,
     const KcnRenderTargetView& render_target_view
 ) -> void {
-    ZoneScoped;
+    FB_PERF_FUNC();
     DebugScope debug("Debug Draw");
 
     // Reserve.
@@ -45,6 +45,7 @@ auto KcnDebugDraw::create(
 }
 
 auto KcnDebugDraw::begin(uint frame_index) -> void {
+    FB_PERF_FUNC();
     _frame_index = frame_index;
     _lines.clear();
 }
@@ -81,12 +82,14 @@ auto KcnDebugDraw::grid(uint size) -> void {
 }
 
 auto KcnDebugDraw::end() -> void {
+    FB_PERF_FUNC();
     auto& frame = _frames[_frame_index];
     frame._constants.ref() = _constants;
     memcpy(frame._lines.span().data(), _lines.data(), _lines.size() * sizeof(Vertex));
 }
 
 auto KcnDebugDraw::render(GpuGraphicsCommandList& cmd) -> void {
+    FB_PERF_FUNC();
     using namespace fb::kcn::debug_draw;
     const auto& frame = _frames[_frame_index];
     cmd.pix_begin("Debug Draw");

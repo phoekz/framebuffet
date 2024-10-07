@@ -3,7 +3,7 @@
 namespace fb::techniques::blit {
 
 auto create(Technique& tech, const CreateDesc& desc) -> void {
-    PIXScopedEvent(PIX_COLOR_DEFAULT, "%s - Create", NAME.data());
+    FB_PERF_FUNC();
     DebugScope debug(NAME);
 
     const auto& shaders = desc.baked.stockcube.shaders;
@@ -25,7 +25,7 @@ auto create(Technique& tech, const CreateDesc& desc) -> void {
 }
 
 auto gui(Technique& tech, const GuiDesc&) -> void {
-    PIXScopedEvent(PIX_COLOR_DEFAULT, "%s - Gui", NAME.data());
+    FB_PERF_FUNC();
 
     auto& params = tech.parameters;
     ImGui::Checkbox("Tonemap", (bool*)&params.tonemap);
@@ -33,7 +33,7 @@ auto gui(Technique& tech, const GuiDesc&) -> void {
 }
 
 auto update(Technique& tech, const UpdateDesc&) -> void {
-    PIXScopedEvent(PIX_COLOR_DEFAULT, "%s - Update", NAME.data());
+    FB_PERF_FUNC();
 
     const auto& params = tech.parameters;
     const auto exposure = std::pow(2.0f, -params.exposure_lg2);
@@ -45,6 +45,7 @@ auto update(Technique& tech, const UpdateDesc&) -> void {
 }
 
 auto render(Technique& tech, const RenderDesc& desc) -> void {
+    FB_PERF_FUNC();
     auto& [cmd, device, _] = desc;
     cmd.graphics_scope([&tech](GpuGraphicsCommandList& cmd) {
         cmd.pix_begin("%s - Render", NAME.data());

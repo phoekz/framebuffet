@@ -165,7 +165,7 @@ auto GpuTransfer::resource(
     Option<D3D12_BARRIER_LAYOUT> layout_before,
     Option<D3D12_BARRIER_LAYOUT> layout_after
 ) -> void {
-    ZoneScoped;
+    FB_PERF_FUNC();
 
     // Validation.
     FB_ASSERT(sync_before == D3D12_BARRIER_SYNC_NONE);
@@ -207,8 +207,8 @@ auto GpuTransfer::resource(
     {
         auto dst_offset = subresource_data_offset;
         for (const auto& data : datas) {
-            ZoneScopedN("Copy Subresource Data");
-            ZoneValue(data.SlicePitch);
+            FB_PERF_SCOPE("Copy Subresource Data");
+            FB_PERF_VALUE(data.SlicePitch);
             memcpy(_impl->subresource_data_buffer + dst_offset, data.pData, data.SlicePitch);
             _impl->subresource_datas.push_back(GpuTransferImpl::SubresourceData {
                 .offset = dst_offset,
@@ -228,6 +228,7 @@ auto GpuTransfer::resource(
 }
 
 auto GpuTransfer::flush(const GpuDevice& device) -> void {
+    FB_PERF_FUNC();
     DebugScope debug("Transfer");
 
     // Gather required metadata for all subresources.

@@ -9,7 +9,7 @@ namespace fb::baked::stockcube {
 
 auto Assets::load() -> void {
     // hash: a8bfa19b27100601f8ed5fdc55a62077
-    ZoneScoped;
+    FB_PERF_FUNC();
     _data = read_whole_file("fb_stockcube_assets.bin");
     FB_ASSERT(_data.size() == 134371928);
 }
@@ -124,7 +124,7 @@ auto Assets::sphere_mesh() const -> Mesh {
 
 auto Shaders::load() -> void {
     // hash: 699e912417e545f451701483643a70a7
-    ZoneScoped;
+    FB_PERF_FUNC();
     _data = read_whole_file("fb_stockcube_shaders.bin");
     FB_ASSERT(_data.size() == 65832);
 }

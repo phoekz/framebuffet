@@ -34,8 +34,7 @@ auto raydiance_run(Raydiance& rd) -> void {
 
     // Init.
     {
-        ZoneScopedN("Init");
-        PIXScopedEvent(PIX_COLOR_DEFAULT, "Init");
+        FB_PERF_SCOPE("Init");
 
         DebugScope debug("Raydiance");
         baked::kitchen::Assets kitchen_assets;
@@ -53,13 +52,11 @@ auto raydiance_run(Raydiance& rd) -> void {
     // Main loop.
     bool running = true;
     while (running) {
-        FrameMark;
-        PIXScopedEvent(PIX_COLOR_DEFAULT, "Frame %zu", rd.frame.count());
+        FB_PERF_FRAME(rd.frame.count());
 
         // Handle window messages.
         {
-            ZoneScopedN("Events");
-            PIXScopedEvent(PIX_COLOR_DEFAULT, "Events");
+            FB_PERF_SCOPE("Events");
 
             MSG msg = {};
             if (PeekMessageA(&msg, nullptr, 0, 0, PM_REMOVE)) {
@@ -77,12 +74,28 @@ auto raydiance_run(Raydiance& rd) -> void {
         // Update gui.
         bool gui_wants_the_mouse = false;
         {
-            PIXScopedEvent(PIX_COLOR_DEFAULT, "Gui");
+            FB_PERF_SCOPE("Gui");
 
             // Build gui.
             rd.gui.begin_frame();
             ImGui::SetNextWindowSize({300, 300}, ImGuiCond_FirstUseEver);
-            if (ImGui::Begin("Raydiance")) {}
+            if (ImGui::Begin("Raydiance")) {
+                ImGui::Text(
+                    "Frame time: %.2f ms (%.2f fps)",
+                    1e3f * rd.frame.last_delta_time(),
+                    rd.frame.last_fps()
+                );
+
+                ImGui::Text("Capture:");
+                ImGui::SameLine();
+                if (ImGui::Button("PIX")) {
+                    rd.device.pix_capture();
+                }
+                ImGui::SameLine();
+                if (ImGui::Button("Tracy")) {
+                    fb::tracy_capture();
+                }
+            }
             ImGui::End();
             rd.gui.end_frame();
 
@@ -92,13 +105,10 @@ auto raydiance_run(Raydiance& rd) -> void {
 
         // Rendering.
         {
-            PIXBeginEvent(PIX_COLOR_DEFAULT, "Rendering");
+            FB_PERF_SCOPE("Rendering");
 
-            PIXBeginEvent(PIX_COLOR_DEFAULT, "Prepare");
             auto cmd = rd.device.begin_frame();
-            PIXEndEvent();
 
-            PIXBeginEvent(PIX_COLOR_DEFAULT, "Commands");
             auto& swapchain = rd.device.swapchain();
             const auto frame_index = rd.device.frame_index();
             swapchain.transition_to_render_target(cmd, frame_index);
@@ -110,18 +120,13 @@ auto raydiance_run(Raydiance& rd) -> void {
             rd.gui.render(rd.device, cmd);
             swapchain.transition_to_present(cmd, frame_index);
             cmd.flush_barriers();
-            PIXEndEvent();
 
-            PIXBeginEvent(PIX_COLOR_DEFAULT, "Present");
             rd.device.end_frame(std::move(cmd));
-            PIXEndEvent();
-
-            PIXEndEvent();
         }
 
         // Present.
         {
-            PIXScopedEvent(PIX_COLOR_DEFAULT, "Present");
+            FB_PERF_SCOPE("Present");
             rd.device.present();
         }
 

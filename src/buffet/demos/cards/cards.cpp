@@ -60,8 +60,7 @@ static auto layout_exclusive(std::span<Card> cards, uint2 window_size) -> void {
 }
 
 auto create(Demo& demo, const CreateDesc& desc) -> void {
-    ZoneScoped;
-    PIXScopedEvent(PIX_COLOR_DEFAULT, "%s - Create", NAME.data());
+    FB_PERF_FUNC();
     DebugScope debug(NAME);
 
     // Unpack.
@@ -185,8 +184,7 @@ auto create(Demo& demo, const CreateDesc& desc) -> void {
 }
 
 auto gui(Demo& demo, const GuiDesc& desc) -> void {
-    ZoneScoped;
-    PIXScopedEvent(PIX_COLOR_DEFAULT, "%s - Gui", NAME.data());
+    FB_PERF_FUNC();
 
     ImGui::SliderFloat("Zoom Factor", &demo.parameters.zoom_factor, 0.0f, 1.0f);
     ImGui::SliderFloat("LOD Bias", &demo.parameters.lod_bias, 0.0f, 8.0f);
@@ -221,8 +219,7 @@ auto gui(Demo& demo, const GuiDesc& desc) -> void {
 }
 
 auto update(Demo& demo, const UpdateDesc& desc) -> void {
-    ZoneScoped;
-    PIXScopedEvent(PIX_COLOR_DEFAULT, "%s - Update", NAME.data());
+    FB_PERF_FUNC();
 
     // Projection.
     const auto width = (float)desc.window_size.x;
@@ -263,7 +260,7 @@ auto update(Demo& demo, const UpdateDesc& desc) -> void {
 }
 
 auto render(Demo& demo, const RenderDesc& desc) -> void {
-    ZoneScoped;
+    FB_PERF_FUNC();
 
     auto& [cmd, device, frame_index] = desc;
 

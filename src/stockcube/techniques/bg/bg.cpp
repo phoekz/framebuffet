@@ -3,7 +3,7 @@
 namespace fb::techniques::bg {
 
 auto create(Technique& tech, const CreateDesc& desc) -> void {
-    PIXScopedEvent(PIX_COLOR_DEFAULT, "%s - Create", NAME.data());
+    FB_PERF_FUNC();
     DebugScope debug(NAME);
 
     const auto& assets = desc.baked.stockcube.assets;
@@ -45,14 +45,14 @@ auto create(Technique& tech, const CreateDesc& desc) -> void {
 }
 
 auto gui(Technique& tech, const GuiDesc&) -> void {
-    PIXScopedEvent(PIX_COLOR_DEFAULT, "%s - Gui", NAME.data());
+    FB_PERF_FUNC();
 
     auto& params = tech.parameters;
     ImGui::SliderFloat("Roughness", &params.roughness, 0.0f, 1.0f);
 }
 
 auto update(Technique& tech, const UpdateDesc& desc) -> void {
-    PIXScopedEvent(PIX_COLOR_DEFAULT, "%s - Update", NAME.data());
+    FB_PERF_FUNC();
 
     auto env_view = desc.camera_view;
     env_view[3][0] = 0.0f;
@@ -71,6 +71,7 @@ auto update(Technique& tech, const UpdateDesc& desc) -> void {
 }
 
 auto render(Technique& tech, const RenderDesc& desc) -> void {
+    FB_PERF_FUNC();
     auto& [cmd, device, frame_index] = desc;
     cmd.graphics_scope([&tech, frame_index](GpuGraphicsCommandList& cmd) {
         cmd.pix_begin("%s - Render", NAME.data());

@@ -299,8 +299,7 @@ auto GpuDevice::flush_transfers() -> void {
 }
 
 auto GpuDevice::begin_frame() -> GpuCommandList {
-    ZoneScopedN("Begin Frame");
-    PIXScopedEvent(PIX_COLOR_DEFAULT, "Begin Frame");
+    FB_PERF_FUNC();
 
     // Reset command list and allocator.
     auto* cmd_alloc = _command_allocators[_frame_index].get();
@@ -314,8 +313,7 @@ auto GpuDevice::begin_frame() -> GpuCommandList {
 }
 
 auto GpuDevice::end_frame(GpuCommandList&&) -> void {
-    ZoneScopedN("End Frame");
-    PIXScopedEvent(PIX_COLOR_DEFAULT, "End Frame");
+    FB_PERF_FUNC();
 
     // Close.
     FB_ASSERT_HR(_command_list->Close());
@@ -326,12 +324,11 @@ auto GpuDevice::end_frame(GpuCommandList&&) -> void {
 }
 
 auto GpuDevice::present() -> void {
-    ZoneScopedN("Present");
-    PIXScopedEvent(PIX_COLOR_DEFAULT, "Present");
+    FB_PERF_FUNC();
 
     // Present.
     {
-        ZoneScopedN("Swapchain");
+        FB_PERF_SCOPE("Swapchain");
         _swapchain.present();
     }
 
@@ -345,7 +342,7 @@ auto GpuDevice::present() -> void {
 
     // If the next frame is not ready to be rendered yet, wait until it is ready.
     if (_fence->GetCompletedValue() < *fence_value) {
-        ZoneScopedN("Wait for Fence");
+        FB_PERF_SCOPE("Wait for Fence");
         FB_ASSERT_HR(_fence->SetEventOnCompletion(*fence_value, _fence_event));
         WaitForSingleObjectEx(_fence_event, INFINITE, FALSE);
     }
