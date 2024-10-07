@@ -76,6 +76,7 @@ add_compile_definitions(
     FB_BAKER_SOURCE_DIR_WIDE=L"${PROJECT_SOURCE_DIR}"
     FB_BAKER_BUFFET_OUTPUT_DIR="$<TARGET_FILE_DIR:fb_buffet>"
     FB_BAKER_STOCKCUBE_OUTPUT_DIR="$<TARGET_FILE_DIR:fb_stockcube>"
+    FB_BAKER_RAYDIANCE_OUTPUT_DIR="$<TARGET_FILE_DIR:fb_raydiance>"
     FB_KITCHEN_PIX_GPU_CAPTURER_NAME="WinPixGpuCapturer.dll"
     FB_KITCHEN_PIX_GPU_CAPTURER_DLL_PATH="C:/Program Files/Microsoft PIX/2409.23/WinPixGpuCapturer.dll"
     FB_KITCHEN_PIX_GPU_CAPTURE_FILE_NAME=L"framebuffet_gpu.wpix"
@@ -93,5 +94,6 @@ add_subdirectory(src/kitchen)
 # Framebuffet - Executables.
 add_subdirectory(src/baker)
 add_subdirectory(src/stockcube)
+add_subdirectory(src/raydiance)
 add_subdirectory(src/buffet)
 add_subdirectory(src/sandbox)

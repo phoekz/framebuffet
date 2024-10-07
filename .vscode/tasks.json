@@ -51,6 +51,21 @@
             }
         },
         {
+            "label": "Debug - Bake - Raydiance",
+            "type": "shell",
+            "command": "./scripts/bake_n_run.sh",
+            "problemMatcher": [
+                "$msCompile"
+            ],
+            "options": {
+                "env": {
+                    "FB_VARIANT": "Debug",
+                    "FB_BAKE": "1",
+                    "FB_RUN": "raydiance"
+                }
+            }
+        },
+        {
             "label": "Debug - Only Bake",
             "type": "shell",
             "command": "./scripts/bake_n_run.sh",
@@ -89,6 +104,20 @@
                 "env": {
                     "FB_VARIANT": "Debug",
                     "FB_RUN": "stockcube"
+                }
+            }
+        },
+        {
+            "label": "Debug - Only Raydiance",
+            "type": "shell",
+            "command": "./scripts/bake_n_run.sh",
+            "problemMatcher": [
+                "$msCompile"
+            ],
+            "options": {
+                "env": {
+                    "FB_VARIANT": "Debug",
+                    "FB_RUN": "raydiance"
                 }
             }
         },
@@ -154,6 +183,21 @@
             }
         },
         {
+            "label": "Release - Bake - Raydiance",
+            "type": "shell",
+            "command": "./scripts/bake_n_run.sh",
+            "problemMatcher": [
+                "$msCompile"
+            ],
+            "options": {
+                "env": {
+                    "FB_VARIANT": "Release",
+                    "FB_BAKE": "1",
+                    "FB_RUN": "raydiance"
+                }
+            }
+        },
+        {
             "label": "Release - Only Bake",
             "type": "shell",
             "command": "./scripts/bake_n_run.sh",
@@ -192,6 +236,20 @@
                 "env": {
                     "FB_VARIANT": "Release",
                     "FB_RUN": "stockcube"
+                }
+            }
+        },
+        {
+            "label": "Release - Only Raydiance",
+            "type": "shell",
+            "command": "./scripts/bake_n_run.sh",
+            "problemMatcher": [
+                "$msCompile"
+            ],
+            "options": {
+                "env": {
+                    "FB_VARIANT": "Release",
+                    "FB_RUN": "raydiance"
                 }
             }
         },

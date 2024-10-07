@@ -104,7 +104,8 @@
 			"queue": "cpp",
 			"typeindex": "cpp",
 			"csignal": "cpp",
-			"valarray": "cpp"
+			"valarray": "cpp",
+			"execution": "cpp"
 		},
 		"C_Cpp.clang_format_path": "${workspaceRoot}/external/clang-format.exe",
 		"C_Cpp.inlayHints.autoDeclarationTypes.enabled": true,

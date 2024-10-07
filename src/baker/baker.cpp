@@ -234,9 +234,11 @@ auto main() -> int {
     FB_LOG_INFO("Output directories:");
     FB_LOG_INFO("  {}", sv(FB_BAKER_BUFFET_OUTPUT_DIR));
     FB_LOG_INFO("  {}", sv(FB_BAKER_STOCKCUBE_OUTPUT_DIR));
+    FB_LOG_INFO("  {}", sv(FB_BAKER_RAYDIANCE_OUTPUT_DIR));
     const auto kitchen_outputs = std::to_array({
         sv(FB_BAKER_BUFFET_OUTPUT_DIR),
         sv(FB_BAKER_STOCKCUBE_OUTPUT_DIR),
+        sv(FB_BAKER_RAYDIANCE_OUTPUT_DIR),
     });
     const auto buffet_outputs = std::to_array({sv(FB_BAKER_BUFFET_OUTPUT_DIR)});
     const auto stockcube_outputs = std::to_array({sv(FB_BAKER_STOCKCUBE_OUTPUT_DIR)});
