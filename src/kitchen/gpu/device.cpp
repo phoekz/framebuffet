@@ -145,10 +145,10 @@ auto GpuDevice::create(const Window& window) -> void {
     dx_set_name(_device, "Device");
 
     // Debug device.
-    FB_ASSERT_HR(_device->QueryInterface(IID_PPV_ARGS(&_leak_tracker.debug_device)));
-
     {
 #if defined(_DEBUG)
+        FB_ASSERT_HR(_device->QueryInterface(IID_PPV_ARGS(&_leak_tracker.debug_device)));
+
         ComPtr<ID3D12InfoQueue1> info_queue;
         FB_ASSERT_HR(_device->QueryInterface(IID_PPV_ARGS(&info_queue)));
         FB_ASSERT_HR(info_queue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, true));
