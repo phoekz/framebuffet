@@ -2,9 +2,9 @@
 
 #include <common/common.hpp>
 
-namespace fb::camera {
+namespace fb {
 
-struct CreateDesc {
+struct KcnCameraCreateDesc {
     float aspect_ratio = 1.0f;
     float fov = rad_from_deg(60.0f);
     float near_clip = 0.1f;
@@ -12,20 +12,20 @@ struct CreateDesc {
     float distance_from_origin = 2.5f;
 };
 
-struct GuiDesc {};
+struct KcnCameraGuiDesc {};
 
-struct UpdateDesc {
+struct KcnCameraUpdateDesc {
     float delta_time;
     float2 cursor_position;
     bool mouse_left;
     float mouse_wheel_y;
 };
 
-class Camera {
+class KcnCamera {
 public:
-    auto create(const CreateDesc& desc) -> void;
-    auto gui(const GuiDesc& desc) -> void;
-    auto update(const UpdateDesc& desc) -> void;
+    auto create(const KcnCameraCreateDesc& desc) -> void;
+    auto gui(const KcnCameraGuiDesc& desc) -> void;
+    auto update(const KcnCameraUpdateDesc& desc) -> void;
 
     auto aspect_ratio() const -> float { return _aspect_ratio; }
     auto fov() const -> float { return _fov; }
@@ -54,4 +54,4 @@ private:
     float2 _prev_cursor_position;
 };
 
-} // namespace fb::camera
+} // namespace fb

@@ -19,14 +19,13 @@ inline constexpr int WINDOW_HEIGHT = 832;
 
 struct Stockcube {
     using Techniques = techniques::Techniques;
-    using Camera = camera::Camera;
 
     Window window;
     GpuDevice device;
     KcnGui gui;
     Techniques techniques;
     Frame frame;
-    Camera camera;
+    KcnCamera camera;
 };
 
 auto stockcube_run(Stockcube& sc) -> void {

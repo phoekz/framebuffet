@@ -61,6 +61,14 @@ FB_INLINE constexpr auto mip_count_from_size(uint2 size) -> uint {
     return mip_count_from_size(size.x, size.y);
 }
 
+FB_INLINE constexpr auto float_lerp(float a, float b, float t) -> float {
+    return a * (1.0f - t) + b * t;
+}
+
+FB_INLINE constexpr auto float_explerp(float a, float b, float rate, float dt) -> float {
+    return float_lerp(b, a, std::exp2(-rate * dt));
+}
+
 //
 // Vector functions.
 //

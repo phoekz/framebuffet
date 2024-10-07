@@ -1,8 +1,8 @@
 #include "camera.hpp"
 
-namespace fb::camera {
+namespace fb {
 
-auto Camera::create(const CreateDesc& desc) -> void {
+auto KcnCamera::create(const KcnCameraCreateDesc& desc) -> void {
     _aspect_ratio = desc.aspect_ratio;
     _fov = desc.fov;
     _near_clip = desc.near_clip;
@@ -20,13 +20,9 @@ auto Camera::create(const CreateDesc& desc) -> void {
     _prev_cursor_position = float2(0.0f);
 }
 
-auto Camera::gui(const GuiDesc&) -> void {}
+auto KcnCamera::gui(const KcnCameraGuiDesc&) -> void {}
 
-static auto exponential_lerp(float a, float b, float rate, float dt) -> float {
-    return std::lerp(b, a, std::exp2(-rate * dt));
-}
-
-auto Camera::update(const UpdateDesc& desc) -> void {
+auto KcnCamera::update(const KcnCameraUpdateDesc& desc) -> void {
     // Unpack.
     const auto delta_time = desc.delta_time;
     const auto cursor_position = desc.cursor_position;
@@ -59,30 +55,30 @@ auto Camera::update(const UpdateDesc& desc) -> void {
     // Animation.
     auto* sph = (float*)&_spherical;
     auto* org = (float*)&_origin;
-    auto* target_sph = (float*)&_target_spherical;
-    auto* target_org = (float*)&_target_origin;
+    const auto* target_sph = (const float*)&_target_spherical;
+    const auto* target_org = (const float*)&_target_origin;
     for (size_t i = 0; i < 3; ++i) {
-        sph[i] = exponential_lerp(sph[i], target_sph[i], _target_spherical_rate, delta_time);
-        org[i] = exponential_lerp(org[i], target_org[i], _target_origin_rate, delta_time);
+        sph[i] = float_explerp(sph[i], target_sph[i], _target_spherical_rate, delta_time);
+        org[i] = float_explerp(org[i], target_org[i], _target_origin_rate, delta_time);
     }
 
     // Next frame.
     _prev_cursor_position = cursor_position;
 }
 
-auto Camera::clip_from_view() const -> float4x4 {
+auto KcnCamera::clip_from_view() const -> float4x4 {
     return float4x4_perspective(_fov, _aspect_ratio, _near_clip, _far_clip);
 }
 
-auto Camera::view_from_world() const -> float4x4 {
+auto KcnCamera::view_from_world() const -> float4x4 {
     return float4x4_lookat(position(), FLOAT3_ZERO, _up);
 }
 
-auto Camera::clip_from_world() const -> float4x4 {
+auto KcnCamera::clip_from_world() const -> float4x4 {
     return view_from_world() * clip_from_view();
 }
 
-auto Camera::position() const -> float3 {
+auto KcnCamera::position() const -> float3 {
     float3 cartesian;
     cartesian.x = _spherical.z * std::sin(_spherical.y) * std::sin(_spherical.x);
     cartesian.y = _spherical.z * std::cos(_spherical.y);
@@ -90,4 +86,4 @@ auto Camera::position() const -> float3 {
     return cartesian;
 }
 
-} // namespace fb::camera
+} // namespace fb

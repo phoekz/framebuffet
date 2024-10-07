@@ -26,6 +26,8 @@ set(SOURCES
     gpu/transfer.cpp
     gpu/transfer.hpp
     kcn/brdf.hlsli
+    kcn/camera.cpp
+    kcn/camera.hpp
     kcn/core.hlsli
     kcn/debug_draw.cpp
     kcn/debug_draw.hlsli
@@ -38,8 +40,6 @@ set(SOURCES
     kcn/render_target.cpp
     kcn/render_target.hpp
     kcn/spd.hlsli
-    utils/camera.cpp
-    utils/camera.hpp
     utils/frame.cpp
     utils/frame.hpp
     win32/window.cpp
