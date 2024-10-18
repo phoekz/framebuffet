@@ -16,6 +16,7 @@ if(NOT FETCH_CONTENT_HAS_BEEN_RUN)
     FetchContent_Declare(ttf2mesh GIT_REPOSITORY "https://github.com/fetisov/ttf2mesh" GIT_TAG b767f3e1026c979c6f2d6099576f206702065234) # Nov 3, 2023
     FetchContent_Declare(tracy GIT_REPOSITORY "https://github.com/wolfpld/tracy" GIT_TAG 5d542dc09f3d9378d005092a4ad446bd405f819a) # v0.11.1
     FetchContent_Declare(glm GIT_REPOSITORY "https://github.com/g-truc/glm.git" GIT_TAG 0af55ccecd98d4e5a8d1fad7de25ba429d60e863) # v1.0.1
+    FetchContent_Declare(catch2 GIT_REPOSITORY "https://github.com/catchorg/Catch2/" GIT_TAG fa43b77429ba76c462b1898d6cd2f2d7a9416b14) # v3.7.1
     FetchContent_Declare(dxagilitysdk URL "https://globalcdn.nuget.org/packages/microsoft.direct3d.d3d12.1.614.0.nupkg" URL_MD5 65654a2bc55ed1afd8c3ea5b06d34fb1)
     FetchContent_Declare(dxcompiler URL "https://globalcdn.nuget.org/packages/microsoft.direct3d.dxc.1.8.2407.12.nupkg" URL_MD5 ec1b2df8c67e4dd22d9616dd13b32e72)
     FetchContent_Declare(directxmath URL "https://globalcdn.nuget.org/packages/directxmath.2024.2.15.1.nupkg" URL_MD5 c9e372349ee8958b3599e88b89756715)
@@ -74,6 +75,10 @@ if(NOT FETCH_CONTENT_HAS_BEEN_RUN)
     message(STATUS "Fetching GLM...")
     FetchContent_MakeAvailable(glm)
     set(GLM_SOURCE_DIR ${glm_SOURCE_DIR} CACHE INTERNAL "GLM Source Directory")
+
+    message(STATUS "Fetching catch2...")
+    FetchContent_MakeAvailable(catch2)
+    set(CATCH2_SOURCE_DIR ${catch2_SOURCE_DIR} CACHE INTERNAL "CATCH2 Source Directory")
 
     message(STATUS "Fetching DirectX Agility SDK...")
     FetchContent_MakeAvailable(dxagilitysdk)
@@ -271,6 +276,13 @@ target_compile_definitions(
 )
 set(GLM_INCLUDE_DIR ${GLM_SOURCE_DIR} CACHE INTERNAL "GLM Include Directory")
 set(GLM_LIBRARY ext_glm CACHE INTERNAL "GLM Library")
+
+# catch2.
+add_library(ext_catch2 STATIC
+    ${CATCH2_SOURCE_DIR}/extras/catch_amalgamated.cpp
+)
+target_include_directories(ext_catch2 PUBLIC ${CATCH2_SOURCE_DIR}/extras)
+set(CATCH2_LIBRARY ext_catch2 CACHE INTERNAL "Catch2 Library")
 
 # D3D12 Memory Allocator.
 add_library(
