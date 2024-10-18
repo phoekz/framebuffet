@@ -73,6 +73,14 @@ FB_INLINE constexpr auto float_explerp(float a, float b, float rate, float dt) -
 // Vector functions.
 //
 
+FB_INLINE auto float3_abs(const float3& v) -> float3 {
+    return float3(std::abs(v.x), std::abs(v.y), std::abs(v.z));
+}
+
+FB_INLINE auto float3_argmax(const float3& v) -> uint {
+    return v.z > v.y ? (v.z > v.x ? 2u : 0u) : (v.y > v.x ? 1u : 0u);
+}
+
 FB_INLINE auto float3_normalize(const float3& v) -> float3 {
     return glm::normalize<3, float, glm::highp>(v);
 }
