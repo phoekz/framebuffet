@@ -218,6 +218,13 @@ static auto STOCKCUBE_SHADER_TASKS = std::to_array<ShaderTask>({
     {"stockcube/techniques/blit/blit.hlsl", "blit", {"vs", "ps"}},
 });
 
+static auto RAYDIANCE_ASSET_TASKS = std::to_array<AssetTask>({
+    AssetTaskProceduralCube {"cube", 2.0f, false},
+    AssetTaskProceduralSphere {"sphere", 1.0f, 32, false},
+});
+
+static auto RAYDIANCE_SHADER_TASKS = std::array<ShaderTask, 0>();
+
 } // namespace fb
 
 auto main() -> int {
@@ -242,9 +249,11 @@ auto main() -> int {
     });
     const auto buffet_outputs = std::to_array({sv(FB_BAKER_BUFFET_OUTPUT_DIR)});
     const auto stockcube_outputs = std::to_array({sv(FB_BAKER_STOCKCUBE_OUTPUT_DIR)});
+    const auto raydiance_outputs = std::to_array({sv(FB_BAKER_RAYDIANCE_OUTPUT_DIR)});
     bake_app_datas(kitchen_outputs, "kitchen", KITCHEN_ASSET_TASKS, KITCHEN_SHADER_TASKS);
     bake_app_datas(buffet_outputs, "buffet", BUFFET_ASSET_TASKS, BUFFET_SHADER_TASKS);
     bake_app_datas(stockcube_outputs, "stockcube", STOCKCUBE_ASSET_TASKS, STOCKCUBE_SHADER_TASKS);
+    bake_app_datas(raydiance_outputs, "raydiance", RAYDIANCE_ASSET_TASKS, RAYDIANCE_SHADER_TASKS);
 
     // Timing.
     FB_LOG_INFO("Bake time: {} s", timer.elapsed_time());

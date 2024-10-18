@@ -7,6 +7,8 @@ set(SOURCES
     "kitchen/baked.hpp"
     "stockcube/baked.cpp"
     "stockcube/baked.hpp"
+    "raydiance/baked.cpp"
+    "raydiance/baked.hpp"
 )
 add_library(${NAME} STATIC ${SOURCES})
 target_precompile_headers(${NAME} REUSE_FROM fb_common)
