@@ -97,3 +97,6 @@ add_subdirectory(src/stockcube)
 add_subdirectory(src/raydiance)
 add_subdirectory(src/buffet)
 add_subdirectory(src/sandbox)
+
+# Framebuffet - Tests.
+add_subdirectory(src/tests)

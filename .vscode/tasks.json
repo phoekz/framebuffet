@@ -122,6 +122,20 @@
             }
         },
         {
+            "label": "Debug - Only Tests",
+            "type": "shell",
+            "command": "./scripts/bake_n_run.sh",
+            "problemMatcher": [
+                "$msCompile"
+            ],
+            "options": {
+                "env": {
+                    "FB_VARIANT": "Debug",
+                    "FB_RUN": "tests"
+                }
+            }
+        },
+        {
             "label": "Debug - Clear Archive",
             "type": "shell",
             "command": "./scripts/bake_n_run.sh",

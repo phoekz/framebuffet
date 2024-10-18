@@ -282,6 +282,7 @@ add_library(ext_catch2 STATIC
     ${CATCH2_SOURCE_DIR}/extras/catch_amalgamated.cpp
 )
 target_include_directories(ext_catch2 PUBLIC ${CATCH2_SOURCE_DIR}/extras)
+target_compile_definitions(ext_catch2 PUBLIC CATCH_AMALGAMATED_CUSTOM_MAIN)
 set(CATCH2_LIBRARY ext_catch2 CACHE INTERNAL "Catch2 Library")
 
 # D3D12 Memory Allocator.
