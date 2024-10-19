@@ -3,6 +3,7 @@
 #include "macros.hpp"
 
 #include "archive.hpp"
+#include "color.hpp"
 #include "com.hpp"
 #include "error.hpp"
 #include "file.hpp"

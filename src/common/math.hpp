@@ -5,13 +5,6 @@
 namespace fb {
 
 //
-// Types.
-//
-
-using RgbaFloat = float4;
-using RgbaByte = ubyte4;
-
-//
 // Constants.
 //
 
@@ -25,15 +18,6 @@ inline constexpr float3 FLOAT3_Z = {0.0f, 0.0f, 1.0f};
 inline constexpr float3 FLOAT3_UP = {0.0f, 1.0f, 0.0f};
 
 inline constexpr float_quat FLOAT_QUAT_IDENTITY = glm::identity<float_quat>();
-
-inline constexpr RgbaByte COLOR_RED = {(uint8_t)255, 0, 0, 255};
-inline constexpr RgbaByte COLOR_GREEN = {(uint8_t)0, 255, 0, 255};
-inline constexpr RgbaByte COLOR_BLUE = {(uint8_t)0, 0, 255, 255};
-inline constexpr RgbaByte COLOR_YELLOW = {(uint8_t)255, 255, 0, 255};
-inline constexpr RgbaByte COLOR_MAGENTA = {(uint8_t)255, 0, 255, 255};
-inline constexpr RgbaByte COLOR_CYAN = {(uint8_t)0, 255, 255, 255};
-inline constexpr RgbaByte COLOR_WHITE = {(uint8_t)255, 255, 255, 255};
-inline constexpr RgbaByte COLOR_BLACK = {(uint8_t)0, 0, 0, 255};
 
 //
 // Scalar functions.
