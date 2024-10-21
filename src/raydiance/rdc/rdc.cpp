@@ -63,46 +63,91 @@ auto rdc_render(const baked::raydiance::Assets& assets, const baked::raydiance::
         std::vector<RdcBvhNode> nodes;
         rdc_bvh_create(nodes, triangles);
 
-        const auto image_scale = 25;
-        const auto image_size = uint2(16 * image_scale, 10 * image_scale);
+        const auto sample_count = 32u;
+        const auto bounce_count = 4u;
+        const auto image_scale = 25u;
+        const auto image_size = uint2(16u * image_scale, 10u * image_scale);
         const auto image_aspect = (float)image_size.x / (float)image_size.y;
         const auto camera_fovy = rad_from_deg(60.0f);
-        const auto camera_position = 2.0f * FLOAT3_ONE;
+        const auto camera_position = float3(1.5f, 1.25f, 1.5f);
         const auto view_from_world =
             float4x4_lookat(camera_position, float3(0.0f), float3(0.0f, 1.0f, 0.0f));
         const auto clip_from_view = float4x4_perspective(camera_fovy, image_aspect, 0.1f, 100.0f);
         const auto clip_from_world = clip_from_view * view_from_world;
         const auto world_from_clip = float4x4_inverse(clip_from_world);
+        auto rng = Pcg();
         auto image = std::vector<RgbaByte>(image_size.x * image_size.y);
         auto hit_count = 0u;
         auto ray_count = 0u;
-        for (uint pixel_y = 0; pixel_y < image_size.y; pixel_y++) {
-            for (uint pixel_x = 0; pixel_x < image_size.x; pixel_x++) {
-                const RdcRay ray = rdc_ray_from_sensor(
-                    image_size,
-                    {pixel_x, pixel_y},
-                    camera_position,
-                    world_from_clip,
-                    0.5f,
-                    0.5f
-                );
-
-                float out_t;
-                float3 out_uvw;
-                uint out_triangle_idx;
-                if (rdc_bvh_hit(ray, nodes, triangles, out_t, out_uvw, out_triangle_idx)) {
-                    // Hit.
-                    const auto& triangle = triangles[out_triangle_idx];
-                    // const auto texcoord = out_uvw.x * triangle.texcoords[0] + //
-                    //     out_uvw.y * triangle.texcoords[1] +                   //
-                    //     out_uvw.z * triangle.texcoords[2];
-                    const auto normal = float3_normalize(
-                        out_uvw.x * triangle.normals[0] + //
-                        out_uvw.y * triangle.normals[1] + //
-                        out_uvw.z * triangle.normals[2]
+        for (uint pixel_y = 0u; pixel_y < image_size.y; pixel_y++) {
+            for (uint pixel_x = 0u; pixel_x < image_size.x; pixel_x++) {
+                float3 sum_radiance = FLOAT3_ZERO;
+                for (uint sample_idx = 0u; sample_idx < sample_count; sample_idx++) {
+                    // Primary ray.
+                    const RdcRay primary_ray = rdc_ray_from_sensor(
+                        image_size,
+                        {pixel_x, pixel_y},
+                        camera_position,
+                        world_from_clip,
+                        rng.random_float(),
+                        rng.random_float()
                     );
-                    const auto linear_color = float3(0.5f) + 0.5f * normal;
-                    // const auto linear_color = float3(texcoord.x, texcoord.y, 0.0f);
+
+                    RdcRay ray = primary_ray;
+                    float3 radiance = FLOAT3_ZERO;
+                    float3 throughput = FLOAT3_ONE;
+                    for (uint bounce_idx = 0u; bounce_idx < bounce_count; bounce_idx++) {
+                        // BVH test.
+                        float out_t;
+                        float3 out_uvw;
+                        uint out_triangle_idx;
+                        ray_count++;
+                        if (rdc_bvh_hit(ray, nodes, triangles, out_t, out_uvw, out_triangle_idx)) {
+                            // Unpack attributes.
+                            const auto& triangle = triangles[out_triangle_idx];
+                            const auto normal = float3_normalize(
+                                out_uvw.x * triangle.normals[0] + //
+                                out_uvw.y * triangle.normals[1] + //
+                                out_uvw.z * triangle.normals[2]
+                            );
+
+                            // Sample next direction.
+                            const auto onb = rdc_orthonormal_basis_from_normal(normal);
+                            const auto sample = rdc_hemisphere_uniform_sample(
+                                rng.random_float(),
+                                rng.random_float()
+                            );
+                            const auto wi_local = sample.wi;
+                            const auto wi_world = float3_normalize(onb.world_from_local * wi_local);
+                            const auto wo_world = -ray.dir;
+                            ray.origin += 0.999f * out_t * ray.dir;
+                            ray.dir = wi_world;
+
+                            // Shading.
+                            const auto cos_theta = std::abs(float3_dot(wo_world, normal));
+                            throughput *= sample.r * cos_theta / sample.pdf;
+
+                            hit_count++;
+                        } else {
+                            // Todo: Evaluate skylight model.
+                            radiance += throughput;
+                            break;
+                        }
+                    }
+                    FB_ASSERT(float_isfinite(radiance.x));
+                    FB_ASSERT(float_isfinite(radiance.y));
+                    FB_ASSERT(float_isfinite(radiance.z));
+                    sum_radiance += radiance;
+                }
+                sum_radiance /= (float)sample_count;
+
+                // Update pixel.
+                {
+                    const auto linear_color = float3(
+                        tonemap_aces(sum_radiance.x),
+                        tonemap_aces(sum_radiance.y),
+                        tonemap_aces(sum_radiance.z)
+                    );
                     const auto srgb_color = float3(
                         srgb_from_linear(linear_color.x),
                         srgb_from_linear(linear_color.y),
@@ -114,22 +159,11 @@ auto rdc_render(const baked::raydiance::Assets& assets, const baked::raydiance::
                         (uint8_t)(255.0f * srgb_color.z),
                         255,
                     };
-
                     const uint px = pixel_x;
                     const uint py = image_size.y - pixel_y - 1;
                     const uint pixel_idx = py * image_size.x + px;
                     image[pixel_idx] = color;
-
-                    hit_count++;
-                } else {
-                    // Miss.
-                    const uint px = pixel_x;
-                    const uint py = image_size.y - pixel_y - 1;
-                    const uint pixel_idx = py * image_size.x + px;
-                    image[pixel_idx] = RgbaByte(32, 32, 32, 255);
                 }
-
-                ray_count++;
             }
         }
         stbi_write_png("rdc_render.png", image_size.x, image_size.y, 4, image.data(), 0);

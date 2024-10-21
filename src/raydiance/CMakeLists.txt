@@ -6,6 +6,8 @@ set(SOURCES
     rdc/geometry.hpp
     rdc/rdc.cpp
     rdc/rdc.hpp
+    rdc/sampling.cpp
+    rdc/sampling.hpp
 )
 add_executable(${NAME} ${SOURCES})
 target_precompile_headers(${NAME} REUSE_FROM fb_common)
