@@ -36,4 +36,13 @@ FB_INLINE auto srgb_from_linear(float linear) -> float {
     }
 }
 
+FB_INLINE auto tonemap_aces(float x) -> float {
+    const float a = 2.51f;
+    const float b = 0.03f;
+    const float c = 2.43f;
+    const float d = 0.59f;
+    const float e = 0.14f;
+    return std::clamp((x * (a * x + b)) / (x * (c * x + d) + e), 0.0f, 1.0f);
+}
+
 } // namespace fb
