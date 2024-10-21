@@ -66,6 +66,7 @@ using ConstRef = std::reference_wrapper<const T>;
 using float2 = glm::vec<2, float, glm::highp>;
 using float3 = glm::vec<3, float, glm::highp>;
 using float4 = glm::vec<4, float, glm::highp>;
+using float3x3 = glm::mat<3, 3, float, glm::highp>;
 using float4x4 = glm::mat<4, 4, float, glm::highp>;
 using float_quat = glm::qua<float, glm::highp>;
 

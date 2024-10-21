@@ -103,6 +103,10 @@ FB_INLINE constexpr auto float3_from_lonlat(float lon, float lat) -> float3 {
 // Matrix functions.
 //
 
+FB_INLINE auto float3x3_transpose(const float3x3& m) -> float3x3 {
+    return glm::transpose<3, 3, float, glm::highp>(m);
+}
+
 FB_INLINE auto float4x4_inverse(const float4x4& m) -> float4x4 {
     return glm::inverse<4, 4, float, glm::highp>(m);
 }
