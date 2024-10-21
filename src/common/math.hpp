@@ -55,6 +55,10 @@ FB_INLINE constexpr auto float_explerp(float a, float b, float rate, float dt) -
     return float_lerp(b, a, std::exp2(-rate * dt));
 }
 
+FB_INLINE auto float_isfinite(float v) -> bool {
+    return std::isfinite(v);
+}
+
 //
 // Vector functions.
 //
@@ -69,6 +73,10 @@ FB_INLINE auto float3_argmax(const float3& v) -> uint {
 
 FB_INLINE auto float3_normalize(const float3& v) -> float3 {
     return glm::normalize<3, float, glm::highp>(v);
+}
+
+FB_INLINE auto float3_dot(const float3& a, const float3& b) -> float {
+    return glm::dot<3, float, glm::highp>(a, b);
 }
 
 FB_INLINE auto float3_cross(const float3& a, const float3& b) -> float3 {
