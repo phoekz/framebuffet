@@ -17,6 +17,8 @@ inline constexpr float3 FLOAT3_Y = {0.0f, 1.0f, 0.0f};
 inline constexpr float3 FLOAT3_Z = {0.0f, 0.0f, 1.0f};
 inline constexpr float3 FLOAT3_UP = {0.0f, 1.0f, 0.0f};
 
+inline constexpr float4x4 FLOAT4X4_IDENTITY = glm::identity<float4x4>();
+
 inline constexpr float_quat FLOAT_QUAT_IDENTITY = glm::identity<float_quat>();
 
 //
@@ -165,6 +167,14 @@ float4x4_from_trs(const float3& t, const float_quat& r, const float3& s) -> floa
     m[3][2] = t.z;
     m[3][3] = 1.0f;
     return m;
+}
+
+FB_INLINE constexpr auto float4x4_transform_point(const float4x4& t, const float3& p) -> float3 {
+    return float3(t * float4(p, 1.0f));
+}
+
+FB_INLINE constexpr auto float4x4_transform_vector(const float4x4& t, const float3& v) -> float3 {
+    return float3(t * float4(v, 0.0f));
 }
 
 //
