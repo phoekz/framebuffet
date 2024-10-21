@@ -608,6 +608,22 @@ auto rdc_ray_aabb_intersector_hit(
     return (mn_tx < best_t) && (mx_tx > 0.0f);
 }
 
+auto rdc_orthonormal_basis_from_normal(const float3& n) -> RdcOrthonormalBasis {
+    // Implementation based on "Building an Orthonormal Basis, Revisited".
+    // https://graphics.pixar.com/library/OrthonormalB/paper.pdf
+    const auto sign = std::copysign(1.0f, n.z);
+    const auto a = -1.0f / (sign + n.z);
+    const auto b0 = n.x * n.y * a;
+    const auto t = float3_normalize(float3(1.0f + sign * n.x * n.x * a, sign * b0, -sign * n.x));
+    const auto b = float3_normalize(float3(b0, sign + n.y * n.y * a, -n.y));
+    const auto world_from_local = float3x3(t, n, b);
+    const auto local_from_world = float3x3_transpose(world_from_local);
+    return RdcOrthonormalBasis {
+        .world_from_local = world_from_local,
+        .local_from_world = local_from_world,
+    };
+}
+
 auto rdc_bruteforce_hit(
     const RdcRay& ray,
     std::span<const RdcTriangle> triangles,

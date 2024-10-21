@@ -161,6 +161,17 @@ auto rdc_ray_aabb_intersector_hit(
 ) -> bool;
 
 //
+// Basis.
+//
+
+struct RdcOrthonormalBasis {
+    float3x3 world_from_local;
+    float3x3 local_from_world;
+};
+
+auto rdc_orthonormal_basis_from_normal(const float3& normal) -> RdcOrthonormalBasis;
+
+//
 // Debug.
 //
 
