@@ -1,5 +1,4 @@
-#include <common/common.hpp>
-#include <kitchen/kitchen.hpp>
+#include "rdc/rdc.hpp"
 
 namespace fb {
 
@@ -45,8 +44,13 @@ auto raydiance_run(Raydiance& rd) -> void {
         DebugScope debug("Raydiance");
         baked::kitchen::Assets kitchen_assets;
         baked::kitchen::Shaders kitchen_shaders;
+        baked::raydiance::Assets raydiance_assets;
+        baked::raydiance::Shaders raydiance_shaders;
         kitchen_assets.load();
         kitchen_shaders.load();
+        raydiance_assets.load();
+        raydiance_shaders.load();
+        rdc_render(raydiance_assets, raydiance_shaders); // Todo: remove.
         rd.window.create(Window::Desc {WINDOW_TITLE, WINDOW_WIDTH, WINDOW_HEIGHT});
         rd.device.create(rd.window);
         rd.gui.create(rd.window, rd.device, kitchen_assets, kitchen_shaders);

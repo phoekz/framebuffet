@@ -2,13 +2,18 @@ set(NAME fb_raydiance)
 set(SOURCES
     raydiance.cpp
     raydiance.manifest
+    rdc/geometry.cpp
+    rdc/geometry.hpp
+    rdc/rdc.cpp
+    rdc/rdc.hpp
 )
 add_executable(${NAME} ${SOURCES})
 target_precompile_headers(${NAME} REUSE_FROM fb_common)
-target_link_libraries(${NAME} PRIVATE fb_kitchen)
+target_link_libraries(${NAME} PRIVATE fb_kitchen ext_stb)
 target_include_directories(
     ${NAME} PRIVATE
     ${CMAKE_SOURCE_DIR}/src
+    ${STB_INCLUDE_DIR}
 )
 
 set_target_properties(${NAME} PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY $<TARGET_FILE_DIR:${NAME}>)
