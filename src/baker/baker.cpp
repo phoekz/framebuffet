@@ -221,6 +221,7 @@ static auto STOCKCUBE_SHADER_TASKS = std::to_array<ShaderTask>({
 static auto RAYDIANCE_ASSET_TASKS = std::to_array<AssetTask>({
     AssetTaskProceduralCube {"cube", 2.0f, false},
     AssetTaskProceduralSphere {"sphere", 1.0f, 32, false},
+    AssetTaskGltf {"rounded_cube", "models/rounded_cube.glb"},
 });
 
 static auto RAYDIANCE_SHADER_TASKS = std::array<ShaderTask, 0>();

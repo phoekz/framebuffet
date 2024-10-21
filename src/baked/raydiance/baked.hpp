@@ -10,6 +10,9 @@ public:
 
     auto cube_mesh() const -> Mesh;
     auto sphere_mesh() const -> Mesh;
+    auto rounded_cube_mesh() const -> Mesh;
+    auto rounded_cube_base_color_texture() const -> Texture;
+    auto rounded_cube_material() const -> Material;
 
 private:
     template<typename T>
