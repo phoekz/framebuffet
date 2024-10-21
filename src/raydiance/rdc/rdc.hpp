@@ -5,6 +5,7 @@
 #include <baked/raydiance/baked.hpp>
 
 #include "geometry.hpp"
+#include "sampling.hpp"
 
 namespace fb {
 
