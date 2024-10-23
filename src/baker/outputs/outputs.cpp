@@ -44,7 +44,8 @@ auto bake_app_datas(
     const auto baked_types_hpp_path = std::format("{}/baked_types.hpp", baked_dir);
     const auto baked_hpp_path = std::format("{}/baked.hpp", baked_app_dir);
     const auto baked_cpp_path = std::format("{}/baked.cpp", baked_app_dir);
-    const auto clangformat = std::format("{}/external/clang-format.exe", FB_BAKER_SOURCE_DIR);
+    const auto clangformat_exe = std::format("{}/external/clang-format.exe", FB_BAKER_SOURCE_DIR);
+    const auto clangformat_file = std::format("{}/.clang-format", FB_BAKER_SOURCE_DIR);
 
     // Bake.
     const auto compiled_shaders = bake_shaders(source_dir, app_shader_tasks);
@@ -400,21 +401,42 @@ auto bake_app_datas(
     baked_cpp = str_replace(baked_cpp, "{{shaders_byte_count}}", std::to_string(shaders_bin.size()));
     // clang-format on
 
-    // Write source files.
+    // Write temp source files.
+    auto baked_types_hpp_bytes = std::as_bytes(std::span(baked_types_hpp));
+    auto baked_hpp_bytes = std::as_bytes(std::span(baked_hpp));
+    auto baked_cpp_bytes = std::as_bytes(std::span(baked_cpp));
     create_directories(baked_app_dir);
-    write_whole_file(baked_types_hpp_path, std::as_bytes(std::span(baked_types_hpp)));
-    write_whole_file(baked_hpp_path, std::as_bytes(std::span(baked_hpp)));
-    write_whole_file(baked_cpp_path, std::as_bytes(std::span(baked_cpp)));
+    auto baked_types_hpp_temp_path = create_temp_path();
+    auto baked_hpp_temp_path = create_temp_path();
+    auto baked_cpp_temp_path = create_temp_path();
+    write_whole_file(baked_types_hpp_temp_path, baked_types_hpp_bytes);
+    write_whole_file(baked_hpp_temp_path, baked_hpp_bytes);
+    write_whole_file(baked_cpp_temp_path, baked_cpp_bytes);
 
     // Format source files.
     const auto clangformat_cmd = std::format(
-        "{} -i {} -i {} -i {}",
-        clangformat,
-        baked_types_hpp_path,
-        baked_hpp_path,
-        baked_cpp_path
+        "{} -style=file:{} -i {} -i {} -i {}",
+        clangformat_exe,
+        clangformat_file,
+        baked_types_hpp_temp_path,
+        baked_hpp_temp_path,
+        baked_cpp_temp_path
     );
-    std::system(clangformat_cmd.c_str());
+    const auto clangformat_result = std::system(clangformat_cmd.c_str());
+    FB_ASSERT_MSG(clangformat_result == 0, "Failed to format source files");
+
+    // Move source files and cleanup.
+    const auto baked_types_hpp_moved =
+        move_file_if_different(baked_types_hpp_path, baked_types_hpp_temp_path);
+    const auto baked_hpp_moved = move_file_if_different(baked_hpp_path, baked_hpp_temp_path);
+    const auto baked_cpp_moved = move_file_if_different(baked_cpp_path, baked_cpp_temp_path);
+    FB_LOG_INFO("Moved: ");
+    FB_LOG_INFO("  {} - {}", baked_types_hpp_path, baked_types_hpp_moved);
+    FB_LOG_INFO("  {} - {}", baked_hpp_path, baked_hpp_moved);
+    FB_LOG_INFO("  {} - {}", baked_cpp_path, baked_cpp_moved);
+    delete_file(baked_types_hpp_temp_path);
+    delete_file(baked_hpp_temp_path);
+    delete_file(baked_cpp_temp_path);
 
     // Write binary files.
     for (const auto& output_dir : output_dirs) {

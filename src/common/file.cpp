@@ -58,8 +58,33 @@ auto write_whole_file(std::string_view path, std::span<const std::byte> data) ->
     CloseHandle(file);
 }
 
+auto move_file_if_different(std::string_view dst_path, std::string_view src_path) -> bool {
+    if (file_exists(dst_path)) {
+        const auto dst_data = read_whole_file(dst_path);
+        const auto src_data = read_whole_file(src_path);
+        if (dst_data == src_data) {
+            return false;
+        }
+    }
+    MoveFileExA(src_path.data(), dst_path.data(), MOVEFILE_REPLACE_EXISTING);
+    return true;
+}
+
+auto delete_file(std::string_view path) -> void {
+    DeleteFileA(path.data());
+}
+
 auto file_exists(std::string_view path) -> bool {
-    return std::filesystem::exists(path);
+    DWORD attributes = GetFileAttributesA(path.data());
+    return attributes != INVALID_FILE_ATTRIBUTES;
+}
+
+auto create_temp_path() -> std::string {
+    char temp_dir[MAX_PATH] = {};
+    char temp_path[MAX_PATH] = {};
+    GetTempPath2A(MAX_PATH, temp_dir);
+    GetTempFileNameA(temp_dir, "fb", 0, temp_path);
+    return std::string(temp_path);
 }
 
 auto create_directory(std::string_view path) -> void {
