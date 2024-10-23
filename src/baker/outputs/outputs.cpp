@@ -431,6 +431,20 @@ auto bake_app_datas(
             const auto pdb_file_path = std::format("{}/{}.pdb", shaders_dir, shader.hash);
             write_whole_file(pdb_file_path, shader.pdb);
         }
+
+        FB_LOG_INFO("Baked:");
+        FB_LOG_INFO(
+            "  {} - {:.2f} MiB ({})",
+            assets_bin_file,
+            (double)assets_bin.size() / 1024.0 / 1024.0,
+            assets_bin.size()
+        );
+        FB_LOG_INFO(
+            "  {} - {:.2f} MiB ({})",
+            shaders_bin_file,
+            (double)shaders_bin.size() / 1024.0 / 1024.0,
+            shaders_bin.size()
+        );
     }
 }
 
