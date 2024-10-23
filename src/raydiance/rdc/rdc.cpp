@@ -63,6 +63,27 @@ auto rdc_render(const baked::raydiance::Assets& assets, const baked::raydiance::
         std::vector<RdcBvhNode> nodes;
         rdc_bvh_create(nodes, triangles);
 
+        const auto sun_azimuth = 0.0f;                  // [0, 360].
+        const auto sun_elevation = rad_from_deg(30.0f); // [0, 90].
+        RdcSkyState sky;
+        RdcSkyParams sky_params;
+        sky_params.elevation = sun_elevation;
+        sky_params.turbidity = 1;
+        sky_params.albedo[0] = 1.0f;
+        sky_params.albedo[1] = 1.0f;
+        sky_params.albedo[2] = 1.0f;
+        RdcSkyStateResult sky_result = rdc_sky_create(sky, sky_params);
+        FB_ASSERT(sky_result == RdcSkyStateResult::Success);
+        const auto sun_angle_xz = sun_azimuth;
+        const auto sun_angle_y = 0.5f * FLOAT_PI - sun_elevation;
+        const auto sun_dir = float3(
+            std::sin(sun_angle_y) * std::cos(sun_angle_xz),
+            std::cos(sun_angle_y),
+            std::sin(sun_angle_y) * std::sin(sun_angle_xz)
+        );
+
+        const auto exposure = exposure_from_stops(4.0f);
+
         const auto sample_count = 32u;
         const auto bounce_count = 4u;
         const auto image_scale = 25u;
@@ -75,8 +96,9 @@ auto rdc_render(const baked::raydiance::Assets& assets, const baked::raydiance::
         const auto clip_from_view = float4x4_perspective(camera_fovy, image_aspect, 0.1f, 100.0f);
         const auto clip_from_world = clip_from_view * view_from_world;
         const auto world_from_clip = float4x4_inverse(clip_from_world);
-        auto rng = Pcg();
         auto image = std::vector<RgbaByte>(image_size.x * image_size.y);
+
+        auto rng = Pcg();
         auto hit_count = 0u;
         auto ray_count = 0u;
         for (uint pixel_y = 0u; pixel_y < image_size.y; pixel_y++) {
@@ -129,8 +151,17 @@ auto rdc_render(const baked::raydiance::Assets& assets, const baked::raydiance::
 
                             hit_count++;
                         } else {
-                            // Todo: Evaluate skylight model.
-                            radiance += throughput;
+                            // Skylight model.
+                            const auto theta = std::acos(ray.dir.y);
+                            const auto cos_gamma =
+                                std::clamp(float3_dot(ray.dir, sun_dir), -1.0f, 1.0f);
+                            const auto gamma = std::acos(cos_gamma);
+                            const auto sky_radiance = float3(
+                                rdc_sky_radiance(sky, theta, gamma, RdcSkyChannel::R),
+                                rdc_sky_radiance(sky, theta, gamma, RdcSkyChannel::G),
+                                rdc_sky_radiance(sky, theta, gamma, RdcSkyChannel::B)
+                            );
+                            radiance += throughput * sky_radiance;
                             break;
                         }
                     }
@@ -144,9 +175,9 @@ auto rdc_render(const baked::raydiance::Assets& assets, const baked::raydiance::
                 // Update pixel.
                 {
                     const auto linear_color = float3(
-                        tonemap_aces(sum_radiance.x),
-                        tonemap_aces(sum_radiance.y),
-                        tonemap_aces(sum_radiance.z)
+                        tonemap_aces(exposure * sum_radiance.x),
+                        tonemap_aces(exposure * sum_radiance.y),
+                        tonemap_aces(exposure * sum_radiance.z)
                     );
                     const auto srgb_color = float3(
                         srgb_from_linear(linear_color.x),
