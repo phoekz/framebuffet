@@ -90,7 +90,7 @@ auto Image<std::byte>::from_constant(uint width, uint height, const std::array<s
     image._width = width;
     image._height = height;
     image._channel_count = CHANNEL_COUNT;
-    image._element_byte_count = (uint)(dst_data.size() * sizeof(std::byte));
+    image._element_byte_count = CHANNEL_COUNT * sizeof(std::byte);
     image._format = DXGI_FORMAT_R8G8B8A8_UNORM;
     image._data = std::move(dst_data);
     return image;
@@ -111,7 +111,7 @@ auto Image<float>::from_constant(uint width, uint height, const std::array<float
     image._width = width;
     image._height = height;
     image._channel_count = CHANNEL_COUNT;
-    image._element_byte_count = (uint)(dst_data.size() * sizeof(float));
+    image._element_byte_count = CHANNEL_COUNT * sizeof(float);
     image._format = DXGI_FORMAT_R32G32B32A32_FLOAT;
     image._data = std::move(dst_data);
     return image;

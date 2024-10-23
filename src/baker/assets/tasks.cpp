@@ -52,7 +52,8 @@ auto mipmapped_texture_asset(
     // First mip can simply be copied.
     dst_width = texture.width();
     dst_height = texture.height();
-    dst_buffer.assign(texture.data().begin(), texture.data().end());
+    auto texture_data = texture.data();
+    dst_buffer.assign(texture_data.begin(), texture_data.end());
     texture_datas[texture_data_count++] = AssetTextureData {
         .row_pitch = dst_width * texture.channel_count(),
         .slice_pitch = dst_width * dst_height * texture.channel_count(),
