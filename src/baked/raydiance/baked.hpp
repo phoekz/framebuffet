@@ -13,6 +13,8 @@ public:
     auto rounded_cube_mesh() const -> Mesh;
     auto rounded_cube_base_color_texture() const -> Texture;
     auto rounded_cube_material() const -> Material;
+    auto plane_mesh() const -> Mesh;
+    auto plane_texture() const -> Texture;
 
 private:
     template<typename T>

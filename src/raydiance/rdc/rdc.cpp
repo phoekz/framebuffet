@@ -20,6 +20,7 @@ auto rdc_render(const baked::raydiance::Assets& assets, const baked::raydiance::
     // [ ] Materials, BxDFs, sampling, orthonormal basis, skylight model.
     //    [x] Camera rays
     // [ ] Textures, mipmaps, bilinear filtering.
+    //    [x] Texture sampling
     // [ ] Improved scene loading, maybe USD?
     //    [ ] Material index
     //    [ ] Texture index
@@ -34,7 +35,8 @@ auto rdc_render(const baked::raydiance::Assets& assets, const baked::raydiance::
         std::vector<RdcTriangle> triangles;
         // const auto& mesh = assets.cube_mesh();
         // const auto& mesh = assets.sphere_mesh();
-        const auto& mesh = assets.rounded_cube_mesh();
+        // const auto& mesh = assets.rounded_cube_mesh();
+        const auto& mesh = assets.plane_mesh();
         for (const auto& submesh : mesh.submeshes) {
             const auto vertices = mesh.vertices;
             const auto indices = mesh.indices;
@@ -63,6 +65,8 @@ auto rdc_render(const baked::raydiance::Assets& assets, const baked::raydiance::
         std::vector<RdcBvhNode> nodes;
         rdc_bvh_create(nodes, triangles);
 
+        auto texture = assets.plane_texture();
+
         const auto sun_azimuth = 0.0f;                  // [0, 360].
         const auto sun_elevation = rad_from_deg(30.0f); // [0, 90].
         RdcSkyState sky;
@@ -90,7 +94,7 @@ auto rdc_render(const baked::raydiance::Assets& assets, const baked::raydiance::
         const auto image_size = uint2(16u * image_scale, 10u * image_scale);
         const auto image_aspect = (float)image_size.x / (float)image_size.y;
         const auto camera_fovy = rad_from_deg(60.0f);
-        const auto camera_position = float3(1.5f, 1.25f, 1.5f);
+        const auto camera_position = float3(1.5f, 1.0f, 1.5f);
         const auto view_from_world =
             float4x4_lookat(camera_position, float3(0.0f), float3(0.0f, 1.0f, 0.0f));
         const auto clip_from_view = float4x4_perspective(camera_fovy, image_aspect, 0.1f, 100.0f);
@@ -127,15 +131,24 @@ auto rdc_render(const baked::raydiance::Assets& assets, const baked::raydiance::
                         if (rdc_bvh_hit(ray, nodes, triangles, out_t, out_uvw, out_triangle_idx)) {
                             // Unpack attributes.
                             const auto& triangle = triangles[out_triangle_idx];
+                            const auto texcoord =                   //
+                                out_uvw.x * triangle.texcoords[0] + //
+                                out_uvw.y * triangle.texcoords[1] + //
+                                out_uvw.z * triangle.texcoords[2];
                             const auto normal = float3_normalize(
                                 out_uvw.x * triangle.normals[0] + //
                                 out_uvw.y * triangle.normals[1] + //
                                 out_uvw.z * triangle.normals[2]
                             );
 
+                            // Sample texture.
+                            const auto texel = rdc_texture_sample(texture, texcoord);
+                            const auto texel_rgb = float3(texel.x, texel.y, texel.z);
+
                             // Sample next direction.
                             const auto onb = rdc_orthonormal_basis_from_normal(normal);
                             const auto sample = rdc_hemisphere_uniform_sample(
+                                texel_rgb,
                                 rng.random_float(),
                                 rng.random_float()
                             );
