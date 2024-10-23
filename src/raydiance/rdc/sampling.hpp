@@ -25,7 +25,7 @@ FB_INLINE auto rdc_hemisphere_uniform_pdf() -> float {
 
 FB_INLINE auto rdc_hemisphere_uniform_sample(float s, float t) -> RdcSample {
     const auto wi = rdc_hemisphere_uniform_wi(s, t);
-    const auto r = float3(0.1f, 0.2f, 0.3f);
+    const auto r = float3(0.2f, 0.2f, 0.2f);
     const auto pdf = rdc_hemisphere_uniform_pdf();
     return RdcSample {
         .wi = wi,

@@ -6,6 +6,7 @@
 
 #include "geometry.hpp"
 #include "sampling.hpp"
+#include "sky.hpp"
 
 namespace fb {
 
