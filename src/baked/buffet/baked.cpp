@@ -31,6 +31,7 @@ auto Assets::heatmap_magma_texture() const -> Texture {
         .format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB,
         .width = 256,
         .height = 1,
+        .channel_count = 4,
         .mip_count = 9,
         .datas = datas,
     };
@@ -53,6 +54,7 @@ auto Assets::heatmap_viridis_texture() const -> Texture {
         .format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB,
         .width = 256,
         .height = 1,
+        .channel_count = 4,
         .mip_count = 9,
         .datas = datas,
     };
@@ -103,6 +105,7 @@ auto Assets::sci_fi_case_base_color_texture() const -> Texture {
         .format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB,
         .width = 1024,
         .height = 1024,
+        .channel_count = 4,
         .mip_count = 11,
         .datas = datas,
     };
@@ -127,6 +130,7 @@ auto Assets::sci_fi_case_normal_texture() const -> Texture {
         .format = DXGI_FORMAT_R8G8B8A8_UNORM,
         .width = 1024,
         .height = 1024,
+        .channel_count = 4,
         .mip_count = 11,
         .datas = datas,
     };
@@ -151,6 +155,7 @@ auto Assets::sci_fi_case_metallic_roughness_texture() const -> Texture {
         .format = DXGI_FORMAT_R8G8B8A8_UNORM,
         .width = 1024,
         .height = 1024,
+        .channel_count = 4,
         .mip_count = 11,
         .datas = datas,
     };
@@ -208,6 +213,7 @@ auto Assets::metal_plane_base_color_texture() const -> Texture {
         .format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB,
         .width = 1024,
         .height = 1024,
+        .channel_count = 4,
         .mip_count = 11,
         .datas = datas,
     };
@@ -232,6 +238,7 @@ auto Assets::metal_plane_normal_texture() const -> Texture {
         .format = DXGI_FORMAT_R8G8B8A8_UNORM,
         .width = 1024,
         .height = 1024,
+        .channel_count = 4,
         .mip_count = 11,
         .datas = datas,
     };
@@ -256,6 +263,7 @@ auto Assets::metal_plane_metallic_roughness_texture() const -> Texture {
         .format = DXGI_FORMAT_R8G8B8A8_UNORM,
         .width = 1024,
         .height = 1024,
+        .channel_count = 4,
         .mip_count = 11,
         .datas = datas,
     };
@@ -312,6 +320,7 @@ auto Assets::coconut_tree_base_color_texture() const -> Texture {
         .format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB,
         .width = 512,
         .height = 512,
+        .channel_count = 4,
         .mip_count = 10,
         .datas = datas,
     };
@@ -339,6 +348,7 @@ auto Assets::sand_texture() const -> Texture {
         .format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB,
         .width = 64,
         .height = 64,
+        .channel_count = 4,
         .mip_count = 7,
         .datas = datas,
     };
@@ -430,6 +440,7 @@ auto Assets::raccoon_base_color_texture() const -> Texture {
         .format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB,
         .width = 4,
         .height = 4,
+        .channel_count = 4,
         .mip_count = 3,
         .datas = datas,
     };
@@ -446,6 +457,7 @@ auto Assets::raccoon_metallic_roughness_texture() const -> Texture {
         .format = DXGI_FORMAT_R8G8B8A8_UNORM,
         .width = 4,
         .height = 4,
+        .channel_count = 4,
         .mip_count = 3,
         .datas = datas,
     };
@@ -516,6 +528,7 @@ auto Assets::mixamo_run_female_base_color_texture() const -> Texture {
         .format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB,
         .width = 1,
         .height = 1,
+        .channel_count = 4,
         .mip_count = 1,
         .datas = datas,
     };
@@ -586,6 +599,7 @@ auto Assets::mixamo_run_male_base_color_texture() const -> Texture {
         .format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB,
         .width = 1,
         .height = 1,
+        .channel_count = 4,
         .mip_count = 1,
         .datas = datas,
     };
@@ -685,6 +699,7 @@ auto Assets::winter_evening_lut() const -> Texture {
         .format = DXGI_FORMAT_R16G16_FLOAT,
         .width = 512,
         .height = 512,
+        .channel_count = 2,
         .mip_count = 1,
         .datas = datas,
     };
@@ -704,6 +719,7 @@ auto Assets::winter_evening_irr() const -> CubeTexture {
         .format = DXGI_FORMAT_R16G16B16A16_FLOAT,
         .width = 128,
         .height = 128,
+        .channel_count = 4,
         .mip_count = 1,
         .datas = datas,
     };
@@ -783,6 +799,7 @@ auto Assets::winter_evening_rad() const -> CubeTexture {
         .format = DXGI_FORMAT_R16G16B16A16_FLOAT,
         .width = 1024,
         .height = 1024,
+        .channel_count = 4,
         .mip_count = 11,
         .datas = datas,
     };
@@ -797,6 +814,7 @@ auto Assets::shanghai_bund_lut() const -> Texture {
         .format = DXGI_FORMAT_R16G16_FLOAT,
         .width = 512,
         .height = 512,
+        .channel_count = 2,
         .mip_count = 1,
         .datas = datas,
     };
@@ -816,6 +834,7 @@ auto Assets::shanghai_bund_irr() const -> CubeTexture {
         .format = DXGI_FORMAT_R16G16B16A16_FLOAT,
         .width = 128,
         .height = 128,
+        .channel_count = 4,
         .mip_count = 1,
         .datas = datas,
     };
@@ -895,6 +914,7 @@ auto Assets::shanghai_bund_rad() const -> CubeTexture {
         .format = DXGI_FORMAT_R16G16B16A16_FLOAT,
         .width = 1024,
         .height = 1024,
+        .channel_count = 4,
         .mip_count = 11,
         .datas = datas,
     };
@@ -914,6 +934,7 @@ auto Assets::industrial_sunset_02_puresky_irr() const -> CubeTexture {
         .format = DXGI_FORMAT_R16G16B16A16_FLOAT,
         .width = 128,
         .height = 128,
+        .channel_count = 4,
         .mip_count = 1,
         .datas = datas,
     };
@@ -990,6 +1011,7 @@ auto Assets::lightsaber_base_color_texture() const -> Texture {
         .format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB,
         .width = 1,
         .height = 1,
+        .channel_count = 4,
         .mip_count = 1,
         .datas = datas,
     };
@@ -1047,6 +1069,7 @@ auto Assets::grass_base_color_texture() const -> Texture {
         .format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB,
         .width = 1024,
         .height = 1024,
+        .channel_count = 4,
         .mip_count = 11,
         .datas = datas,
     };

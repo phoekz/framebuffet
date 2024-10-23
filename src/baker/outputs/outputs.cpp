@@ -140,6 +140,12 @@ auto bake_app_datas(
                     );
                 },
                 [&](const AssetTexture& asset) {
+                    FB_ASSERT(asset.format != DXGI_FORMAT_UNKNOWN);
+                    FB_ASSERT(asset.width > 0);
+                    FB_ASSERT(asset.height > 0);
+                    FB_ASSERT(asset.channel_count > 0);
+                    FB_ASSERT(asset.mip_count > 0);
+
                     assets_decls << std::format("auto {}() const -> Texture;", asset.name);
 
                     std::ostringstream texture_datas;
@@ -176,6 +182,7 @@ auto bake_app_datas(
                                 .format = {},
                                 .width = {},
                                 .height = {},
+                                .channel_count = {},
                                 .mip_count = {},
                                 .datas = datas,
                             }};
@@ -185,10 +192,17 @@ auto bake_app_datas(
                         asset.format,
                         asset.width,
                         asset.height,
+                        asset.channel_count,
                         asset.mip_count
                     );
                 },
                 [&](const AssetCubeTexture& asset) {
+                    FB_ASSERT(asset.format != DXGI_FORMAT_UNKNOWN);
+                    FB_ASSERT(asset.width > 0);
+                    FB_ASSERT(asset.height > 0);
+                    FB_ASSERT(asset.channel_count > 0);
+                    FB_ASSERT(asset.mip_count > 0);
+
                     assets_decls << std::format("auto {}() const -> CubeTexture;", asset.name);
 
                     std::ostringstream texture_datas;
@@ -229,6 +243,7 @@ auto bake_app_datas(
                                 .format = {},
                                 .width = {},
                                 .height = {},
+                                .channel_count = {},
                                 .mip_count = {},
                                 .datas = datas,
                             }};
@@ -238,6 +253,7 @@ auto bake_app_datas(
                         asset.format,
                         asset.width,
                         asset.height,
+                        asset.channel_count,
                         asset.mip_count
                     );
                 },

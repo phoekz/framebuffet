@@ -69,6 +69,7 @@ struct CubeTexture {
     DXGI_FORMAT format;
     uint width;
     uint height;
+    uint channel_count;
     uint mip_count;
     std::array<std::array<TextureData, MAX_MIP_COUNT>, 6> datas;
 };

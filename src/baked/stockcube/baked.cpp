@@ -23,6 +23,7 @@ auto Assets::farm_field_hdr_texture() const -> Texture {
         .format = DXGI_FORMAT_R32G32B32A32_FLOAT,
         .width = 2048,
         .height = 1024,
+        .channel_count = 4,
         .mip_count = 1,
         .datas = datas,
     };
@@ -37,6 +38,7 @@ auto Assets::winter_evening_hdr_texture() const -> Texture {
         .format = DXGI_FORMAT_R32G32B32A32_FLOAT,
         .width = 2048,
         .height = 1024,
+        .channel_count = 4,
         .mip_count = 1,
         .datas = datas,
     };
@@ -51,6 +53,7 @@ auto Assets::shanghai_bund_hdr_texture() const -> Texture {
         .format = DXGI_FORMAT_R32G32B32A32_FLOAT,
         .width = 2048,
         .height = 1024,
+        .channel_count = 4,
         .mip_count = 1,
         .datas = datas,
     };
@@ -65,6 +68,7 @@ auto Assets::industrial_sunset_02_puresky_hdr_texture() const -> Texture {
         .format = DXGI_FORMAT_R32G32B32A32_FLOAT,
         .width = 2048,
         .height = 1024,
+        .channel_count = 4,
         .mip_count = 1,
         .datas = datas,
     };

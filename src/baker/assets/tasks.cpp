@@ -115,6 +115,7 @@ auto mipmapped_texture_asset(
         .format = texture_format,
         .width = texture.width(),
         .height = texture.height(),
+        .channel_count = texture.channel_count(),
         .mip_count = mip_count,
         .datas = texture_datas,
     };
@@ -307,6 +308,7 @@ auto bake_assets(std::string_view assets_dir, std::span<const AssetTask> asset_t
                         .format = image.format(),
                         .width = image.width(),
                         .height = image.height(),
+                        .channel_count = image.channel_count(),
                         .mip_count = 1,
                         .datas = {AssetTextureData {
                             .row_pitch = image.row_pitch(),
@@ -732,10 +734,22 @@ auto bake_assets(std::string_view assets_dir, std::span<const AssetTask> asset_t
                     const auto json_bytes = read_whole_file(json_path);
                     const auto json = json::parse(json_bytes);
                     const auto format = (DXGI_FORMAT)json["format"].template get<uint>();
+                    FB_ASSERT(
+                        format == DXGI_FORMAT_R16G16_FLOAT
+                        || format == DXGI_FORMAT_R16G16B16A16_FLOAT
+                    );
                     const auto unit_byte_count = json["unit_byte_count"].template get<uint>();
                     const auto width = json["width"].template get<uint>();
                     const auto height = json["height"].template get<uint>();
                     const auto depth = json["depth"].template get<uint>();
+                    auto channel_count = 0u;
+                    if (format == DXGI_FORMAT_R16G16_FLOAT) {
+                        channel_count = 2u;
+                    } else if (format == DXGI_FORMAT_R16G16B16A16_FLOAT) {
+                        channel_count = 4u;
+                    } else {
+                        FB_FATAL();
+                    }
                     const auto mip_count = json["mip_count"].template get<uint>();
                     FB_ASSERT(mip_count <= MAX_MIP_COUNT);
 
@@ -767,6 +781,7 @@ auto bake_assets(std::string_view assets_dir, std::span<const AssetTask> asset_t
                             .format = format,
                             .width = width,
                             .height = height,
+                            .channel_count = channel_count,
                             .mip_count = mip_count,
                             .datas = texture_datas,
                         });
@@ -778,6 +793,7 @@ auto bake_assets(std::string_view assets_dir, std::span<const AssetTask> asset_t
                             .format = format,
                             .width = width,
                             .height = height,
+                            .channel_count = channel_count,
                             .mip_count = mip_count,
                             .datas = {AssetTextureData {
                                 .row_pitch = row_pitch,

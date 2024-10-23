@@ -106,6 +106,7 @@ auto Assets::rounded_cube_base_color_texture() const -> Texture {
         .format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB,
         .width = 32,
         .height = 32,
+        .channel_count = 4,
         .mip_count = 6,
         .datas = datas,
     };
