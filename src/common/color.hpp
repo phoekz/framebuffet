@@ -45,4 +45,12 @@ FB_INLINE auto tonemap_aces(float x) -> float {
     return std::clamp((x * (a * x + b)) / (x * (c * x + d) + e), 0.0f, 1.0f);
 }
 
+//
+// Exposure.
+//
+
+FB_INLINE auto exposure_from_stops(float stops) -> float {
+    return 1.0f / std::pow(2.0f, stops);
+}
+
 } // namespace fb
