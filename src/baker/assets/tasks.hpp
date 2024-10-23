@@ -52,6 +52,14 @@ struct AssetTaskProceduralLowPolyGround {
     float height_variation;
 };
 
+struct AssetTaskProceduralTexturedPlane {
+    std::string_view name;
+    uint texture_resolution;
+    float side_length;
+    RgbaFloat color_a;
+    RgbaFloat color_b;
+};
+
 struct AssetTaskStockcubeOutput {
     std::string_view name;
     std::string_view bin_path;
@@ -64,28 +72,35 @@ struct AssetTaskTtf {
     float depth = 1.0f / 8.0f;
 };
 
-using AssetTask = std::variant<
-    AssetTaskCopy,
-    AssetTaskTexture,
-    AssetTaskHdrTexture,
-    AssetTaskGltf,
-    AssetTaskProceduralCube,
-    AssetTaskProceduralSphere,
-    AssetTaskProceduralLowPolyGround,
-    AssetTaskStockcubeOutput,
-    AssetTaskTtf>;
+// clang-format off
+#define ASSET_TASK_LIST(x) \
+    x(Copy) \
+    x(Texture) \
+    x(HdrTexture) \
+    x(Gltf) \
+    x(ProceduralCube) \
+    x(ProceduralSphere) \
+    x(ProceduralLowPolyGround) \
+    x(ProceduralTexturedPlane) \
+    x(StockcubeOutput) \
+    x(Ttf)
+// clang-format on
 
-inline constexpr auto asset_task_name(size_t variant) -> std::string_view {
-    switch (variant) {
-        case 0: return "AssetTaskCopy";
-        case 1: return "AssetTaskTexture";
-        case 2: return "AssetTaskHdrTexture";
-        case 3: return "AssetTaskGltf";
-        case 4: return "AssetTaskProceduralCube";
-        case 5: return "AssetTaskProceduralSphere";
-        case 6: return "AssetTaskProceduralLowPolyGround";
-        case 7: return "AssetTaskStockcubeOutput";
-        case 8: return "AssetTaskTtf";
+#define ASSET_TASK_VARIANT_DEFINE(name) AssetTask##name,
+#define ASSET_TASK_TYPE_ENUM_DEFINE(name) name,
+#define ASSET_TASK_NAME_CASE_DEFINE(name) \
+    case AssetTaskType::name: return "AssetTask" #name;
+
+struct AssetTaskNull {};
+using AssetTask = std::variant<ASSET_TASK_LIST(ASSET_TASK_VARIANT_DEFINE) AssetTaskNull>;
+
+enum class AssetTaskType {
+    ASSET_TASK_LIST(ASSET_TASK_TYPE_ENUM_DEFINE)
+};
+
+FB_INLINE constexpr auto asset_task_name(size_t variant) -> std::string_view {
+    switch ((AssetTaskType)variant) {
+        ASSET_TASK_LIST(ASSET_TASK_NAME_CASE_DEFINE)
         default: FB_FATAL();
     }
 }

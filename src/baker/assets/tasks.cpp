@@ -725,6 +725,113 @@ auto bake_assets(std::string_view assets_dir, std::span<const AssetTask> asset_t
                         ),
                     });
                 },
+                [&](const AssetTaskProceduralTexturedPlane& task) {
+                    // Generate.
+                    const auto half_extents = task.side_length / 2.0f;
+                    const auto normal = float3(0.0f, 1.0f, 0.0f);
+                    const auto tangent = float4(1.0f, 0.0f, 0.0f, 1.0f);
+                    auto vertices = std::vector<AssetVertex>();
+                    auto indices = std::vector<uint>();
+                    vertices.push_back(AssetVertex {
+                        .position = float3(-half_extents, 0.0f, -half_extents),
+                        .normal = normal,
+                        .texcoord = float2(0.0f, 0.0f),
+                        .tangent = tangent,
+                    });
+                    vertices.push_back(AssetVertex {
+                        .position = float3(-half_extents, 0.0f, half_extents),
+                        .normal = normal,
+                        .texcoord = float2(0.0f, 1.0f),
+                        .tangent = tangent,
+                    });
+                    vertices.push_back(AssetVertex {
+                        .position = float3(half_extents, 0.0f, half_extents),
+                        .normal = normal,
+                        .texcoord = float2(1.0f, 1.0f),
+                        .tangent = tangent,
+                    });
+                    vertices.push_back(AssetVertex {
+                        .position = float3(half_extents, 0.0f, -half_extents),
+                        .normal = normal,
+                        .texcoord = float2(1.0f, 0.0f),
+                        .tangent = tangent,
+                    });
+                    indices.push_back(0);
+                    indices.push_back(1);
+                    indices.push_back(2);
+                    indices.push_back(0);
+                    indices.push_back(2);
+                    indices.push_back(3);
+
+                    // Submesh.
+                    const auto submeshes = std::vector<AssetSubmesh> {
+                        AssetSubmesh {
+                            .index_count = (uint)indices.size(),
+                            .start_index = 0,
+                            .base_vertex = 0,
+                        },
+                    };
+
+                    // Mesh.
+                    assets.emplace_back(AssetMesh {
+                        .name = names.unique(std::format("{}_mesh", task.name)),
+                        .vertices =
+                            assets_writer.write("Vertex", std::span<const AssetVertex>(vertices)),
+                        .indices =
+                            assets_writer.write("Index", std::span<const AssetIndex>(indices)),
+                        .submeshes = assets_writer.write(
+                            "Submesh",
+                            std::span<const AssetSubmesh>(submeshes)
+                        ),
+                    });
+
+                    // Texture.
+                    const auto color_a = RgbaByte(
+                        (uint8_t)(srgb_from_linear(task.color_a.x) * 255.0f),
+                        (uint8_t)(srgb_from_linear(task.color_a.y) * 255.0f),
+                        (uint8_t)(srgb_from_linear(task.color_a.z) * 255.0f),
+                        (uint8_t)(task.color_a.w * 255.0f)
+                    );
+                    const auto color_b = RgbaByte(
+                        (uint8_t)(srgb_from_linear(task.color_b.x) * 255.0f),
+                        (uint8_t)(srgb_from_linear(task.color_b.y) * 255.0f),
+                        (uint8_t)(srgb_from_linear(task.color_b.z) * 255.0f),
+                        (uint8_t)(task.color_b.w * 255.0f)
+                    );
+                    auto image = LdrImage::from_constant(
+                        task.texture_resolution,
+                        task.texture_resolution,
+                        std::array<std::byte, 4> {
+                            (std::byte)(0),
+                            (std::byte)(0),
+                            (std::byte)(0),
+                            (std::byte)(255),
+                        }
+                    );
+                    image = image.map(
+                        [&](uint x, uint y, std::byte& r, std::byte& g, std::byte& b, std::byte& a
+                        ) {
+                            if (((x + y) & 1) == 0) {
+                                r = (std::byte)color_a.x;
+                                g = (std::byte)color_a.y;
+                                b = (std::byte)color_a.z;
+                                a = (std::byte)255;
+                            } else {
+                                r = (std::byte)color_b.x;
+                                g = (std::byte)color_b.y;
+                                b = (std::byte)color_b.z;
+                                a = (std::byte)255;
+                            }
+                        }
+                    );
+                    assets.push_back(mipmapped_texture_asset(
+                        assets_writer,
+                        names.unique(std::format("{}_texture", task.name)),
+                        image,
+                        image.format(),
+                        AssetColorSpace::Srgb
+                    ));
+                },
                 [&](const AssetTaskStockcubeOutput& task) {
                     const auto bin_path = std::format("{}/{}", assets_dir, task.bin_path);
                     const auto bin_bytes = read_whole_file(bin_path);
@@ -918,7 +1025,8 @@ auto bake_assets(std::string_view assets_dir, std::span<const AssetTask> asset_t
 
                     // Cleanup.
                     ttf_free(ttf);
-                }
+                },
+                [&](const AssetTaskNull&) {}
             },
             asset_task
         );
