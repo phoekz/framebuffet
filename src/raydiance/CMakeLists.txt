@@ -8,6 +8,14 @@ set(SOURCES
     rdc/rdc.hpp
     rdc/sampling.cpp
     rdc/sampling.hpp
+    rdc/sky.cpp
+    rdc/sky.hpp
+    rdc/sky/params_b.hpp
+    rdc/sky/params_g.hpp
+    rdc/sky/params_r.hpp
+    rdc/sky/radiances_b.hpp
+    rdc/sky/radiances_g.hpp
+    rdc/sky/radiances_r.hpp
 )
 add_executable(${NAME} ${SOURCES})
 target_precompile_headers(${NAME} REUSE_FROM fb_common)
