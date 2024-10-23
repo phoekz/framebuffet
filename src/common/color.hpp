@@ -36,6 +36,14 @@ FB_INLINE auto srgb_from_linear(float linear) -> float {
     }
 }
 
+FB_INLINE auto linear_from_srgb(float srgb) -> float {
+    if (srgb <= 0.04045f) {
+        return srgb / 12.92f;
+    } else {
+        return std::pow((srgb + 0.055f) / 1.055f, 2.4f);
+    }
+}
+
 FB_INLINE auto tonemap_aces(float x) -> float {
     const float a = 2.51f;
     const float b = 0.03f;
