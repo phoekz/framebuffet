@@ -224,8 +224,8 @@ static auto RAYDIANCE_ASSET_TASKS = std::to_array<AssetTask>({
     AssetTaskGltf {"rounded_cube", "models/rounded_cube.glb"},
     AssetTaskProceduralTexturedPlane {
         "plane",
-        32,
-        4.0f,
+        64,
+        32.0f,
         RgbaFloat(0.125f, 0.125f, 0.125f, 1.0f),
         RgbaFloat(1.0f, 1.0f, 1.0f, 1.0f),
     },
