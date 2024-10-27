@@ -12,5 +12,6 @@ auto file_exists(std::string_view path) -> bool;
 auto create_temp_path() -> std::string;
 auto create_directory(std::string_view path) -> void;
 auto create_directories(std::string_view path) -> void;
+auto make_absolute_path(std::string_view path) -> std::string;
 
 } // namespace fb

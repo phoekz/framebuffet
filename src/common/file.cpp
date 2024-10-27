@@ -95,4 +95,8 @@ auto create_directories(std::string_view path) -> void {
     std::filesystem::create_directories(path);
 }
 
+auto make_absolute_path(std::string_view path) -> std::string {
+    return std::filesystem::absolute(path).string();
+}
+
 } // namespace fb
