@@ -58,7 +58,7 @@ FB_INLINE auto tonemap_aces(float x) -> float {
 //
 
 FB_INLINE auto exposure_from_stops(float stops) -> float {
-    return 1.0f / std::pow(2.0f, stops);
+    return std::exp2(-stops);
 }
 
 } // namespace fb
