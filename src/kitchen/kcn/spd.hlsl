@@ -3,7 +3,7 @@
 //
 // The original source was ran through the preprocessor and dead code
 // elimination. This version uses wave intrinsics, linear sampling of mip 0,
-// SM6.6 dynamic resources, and half precision floats. ALl original comments are
+// SM6.6 dynamic resources, and half precision floats. All original comments are
 // replaced with our own notes.
 
 #include <kitchen/gpu/samplers.hlsli>
