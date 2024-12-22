@@ -101,8 +101,8 @@ auto rdc_render(const baked::raydiance::Assets& assets, const baked::raydiance::
 
         const auto exposure = exposure_from_stops(5.0f);
 
-        const auto sample_count = 16u;
-        const auto bounce_count = 5u;
+        const auto sample_count = 256u;
+        const auto bounce_count = 16u;
         const auto image_scale = 25u;
         const auto image_size = uint2(16u * image_scale, 10u * image_scale);
         const auto image_aspect = (float)image_size.x / (float)image_size.y;
@@ -119,11 +119,21 @@ auto rdc_render(const baked::raydiance::Assets& assets, const baked::raydiance::
         const auto clip_from_view = float4x4_perspective(camera_fovy, image_aspect, 0.1f, 100.0f);
         const auto clip_from_world = clip_from_view * view_from_world;
         const auto world_from_clip = float4x4_inverse(clip_from_world);
-        auto image = std::vector<RgbaByte>(image_size.x * image_size.y);
+
+        auto rendered_image = std::vector<RgbaByte>(image_size.x * image_size.y, COLOR_BLACK);
+        auto texcoord_image = std::vector<RgbaByte>(image_size.x * image_size.y, COLOR_BLACK);
+        auto normal_image = std::vector<RgbaByte>(image_size.x * image_size.y, COLOR_BLACK);
+        auto bounce_image = std::vector<RgbaByte>(image_size.x * image_size.y, COLOR_BLACK);
+
+        constexpr uint MAX_BOUNCE_COUNT = 16;
+        struct Stats {
+            uint hit_count = 0u;
+            uint ray_count = 0u;
+            std::array<uint, MAX_BOUNCE_COUNT> bounce_histogram = {};
+        };
+        auto stats = Stats {};
 
         auto rng = Pcg();
-        auto hit_count = 0u;
-        auto ray_count = 0u;
         for (uint pixel_y = 0u; pixel_y < image_size.y; pixel_y++) {
             for (uint pixel_x = 0u; pixel_x < image_size.x; pixel_x++) {
                 // Estimate radiance.
@@ -142,12 +152,13 @@ auto rdc_render(const baked::raydiance::Assets& assets, const baked::raydiance::
                     RdcRay ray = primary_ray;
                     float3 radiance = FLOAT3_ZERO;
                     float3 throughput = FLOAT3_ONE;
-                    for (uint bounce_idx = 0u; bounce_idx < bounce_count; bounce_idx++) {
+                    uint bounce_idx = 0u;
+                    for (; bounce_idx < bounce_count; bounce_idx++) {
                         // BVH test.
                         float out_t;
                         float3 out_uvw;
                         uint out_triangle_idx;
-                        ray_count++;
+                        stats.ray_count++;
                         if (rdc_bvh_hit(ray, nodes, triangles, out_t, out_uvw, out_triangle_idx)) {
                             // Unpack attributes.
                             const auto& triangle = triangles[out_triangle_idx];
@@ -183,7 +194,25 @@ auto rdc_render(const baked::raydiance::Assets& assets, const baked::raydiance::
                             const auto cos_theta = std::abs(float3_dot(wi_world, normal));
                             throughput *= sample.r * cos_theta / sample.pdf;
 
-                            hit_count++;
+                            // Debug.
+                            stats.hit_count++;
+                            if (sample_idx == 0u && bounce_idx == 0u) {
+                                const uint px = pixel_x;
+                                const uint py = image_size.y - pixel_y - 1;
+                                const uint pixel_idx = px + py * image_size.x;
+                                texcoord_image[pixel_idx] = RgbaByte {
+                                    (uint8_t)(255.0f * srgb_from_linear(texcoord.x)),
+                                    (uint8_t)(255.0f * srgb_from_linear(texcoord.y)),
+                                    0,
+                                    255,
+                                };
+                                normal_image[pixel_idx] = RgbaByte {
+                                    (uint8_t)(255.0f * srgb_from_linear(0.5f * normal.x + 0.5f)),
+                                    (uint8_t)(255.0f * srgb_from_linear(0.5f * normal.y + 0.5f)),
+                                    (uint8_t)(255.0f * srgb_from_linear(0.5f * normal.z + 0.5f)),
+                                    255,
+                                };
+                            }
                         } else {
                             // Skylight model.
                             const auto theta = std::acos(ray.dir.y);
@@ -203,6 +232,22 @@ auto rdc_render(const baked::raydiance::Assets& assets, const baked::raydiance::
                     FB_ASSERT(float_isfinite(radiance.y));
                     FB_ASSERT(float_isfinite(radiance.z));
                     sum_radiance += radiance;
+
+                    // Debug.
+                    FB_ASSERT(bounce_idx <= MAX_BOUNCE_COUNT);
+                    stats.bounce_histogram[bounce_idx - 1]++;
+                    if (sample_idx == 0u) {
+                        const uint px = pixel_x;
+                        const uint py = image_size.y - pixel_y - 1;
+                        const uint pixel_idx = px + py * image_size.x;
+                        const float normalized_bounce_idx = (float)bounce_idx / (float)bounce_count;
+                        bounce_image[pixel_idx] = RgbaByte {
+                            (uint8_t)(255.0f * srgb_from_linear(normalized_bounce_idx)),
+                            (uint8_t)(255.0f * srgb_from_linear(normalized_bounce_idx)),
+                            (uint8_t)(255.0f * srgb_from_linear(normalized_bounce_idx)),
+                            255,
+                        };
+                    }
                 }
                 sum_radiance /= (float)sample_count;
 
@@ -224,7 +269,7 @@ auto rdc_render(const baked::raydiance::Assets& assets, const baked::raydiance::
                     FB_ASSERT(srgb_color.x >= 0.0f && srgb_color.x <= 1.0f);
                     FB_ASSERT(srgb_color.y >= 0.0f && srgb_color.y <= 1.0f);
                     FB_ASSERT(srgb_color.z >= 0.0f && srgb_color.z <= 1.0f);
-                    const RgbaByte color = {
+                    const RgbaByte final_color = {
                         (uint8_t)(255.0f * srgb_color.x),
                         (uint8_t)(255.0f * srgb_color.y),
                         (uint8_t)(255.0f * srgb_color.z),
@@ -233,21 +278,61 @@ auto rdc_render(const baked::raydiance::Assets& assets, const baked::raydiance::
                     const uint px = pixel_x;
                     const uint py = image_size.y - pixel_y - 1;
                     const uint pixel_idx = px + py * image_size.x;
-                    image[pixel_idx] = color;
+                    rendered_image[pixel_idx] = final_color;
                 }
             }
         }
 
-        const auto image_path = make_absolute_path("rdc_render.png");
+        const auto rendered_image_path = make_absolute_path("rdc_render.png");
+        const auto texcoord_image_path = make_absolute_path("rdc_texcoord.png");
+        const auto normal_image_path = make_absolute_path("rdc_normal.png");
+        const auto bounce_image_path = make_absolute_path("rdc_bounce.png");
         stbi_write_png(
-            image_path.c_str(),
+            rendered_image_path.c_str(),
             image_size.x,
             image_size.y,
             4,
-            image.data(),
-            4 * image_size.x
+            rendered_image.data(),
+            0
         );
-        FB_LOG_INFO("path={}, hit_count={}, ray_count={}", image_path, hit_count, ray_count);
+        stbi_write_png(
+            texcoord_image_path.c_str(),
+            image_size.x,
+            image_size.y,
+            4,
+            texcoord_image.data(),
+            0
+        );
+        stbi_write_png(
+            normal_image_path.c_str(),
+            image_size.x,
+            image_size.y,
+            4,
+            normal_image.data(),
+            0
+        );
+        stbi_write_png(
+            bounce_image_path.c_str(),
+            image_size.x,
+            image_size.y,
+            4,
+            bounce_image.data(),
+            0
+        );
+        FB_LOG_INFO(
+            "path={}, hit_count={}, ray_count={}",
+            rendered_image_path,
+            stats.hit_count,
+            stats.ray_count
+        );
+        for (uint i = 0; i < 16; i++) {
+            FB_LOG_INFO(
+                "bounce_histogram[{}]={} ({:.3f}%)",
+                i,
+                stats.bounce_histogram[i],
+                100.0f * (float)stats.bounce_histogram[i] / (float)stats.ray_count
+            );
+        }
 
         if (1) {
             exit(0);
