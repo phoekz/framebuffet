@@ -4,16 +4,6 @@
 
 namespace fb {
 
-LeakTracker::~LeakTracker() {
-#if defined(_DEBUG)
-    if (debug_device) {
-        debug_device->ReportLiveDeviceObjects(
-            D3D12_RLDO_SUMMARY | D3D12_RLDO_DETAIL | D3D12_RLDO_IGNORE_INTERNAL
-        );
-    }
-#endif
-}
-
 auto dx_set_name(ID3D12Object* object, std::string_view name) -> void {
 #if defined(_DEBUG)
     std::wstring wname = fb::to_wstr(name);

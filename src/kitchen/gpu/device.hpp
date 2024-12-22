@@ -21,6 +21,11 @@ struct GpuVideoMemoryInfo {
     } local, non_local;
 };
 
+struct GpuLeakDetector {
+    ~GpuLeakDetector();
+    ComPtr<ID3D12DebugDevice2> debug_device;
+};
+
 class GpuDevice {
     FB_NO_COPY_MOVE(GpuDevice);
 
@@ -112,7 +117,7 @@ public:
     auto pix_capture() -> void;
 
 private:
-    LeakTracker _leak_tracker;
+    GpuLeakDetector _leak_detector;
     HMODULE _pix_gpu_capturer = nullptr;
     ComPtr<IDXGIAdapter4> _adapter;
     ComPtr<ID3D12Device12> _device;

@@ -12,7 +12,39 @@ extern "C" {
     __declspec(dllexport) extern const char* D3D12SDKPath = ".\\";
 }
 
+static void dx_message_callback(
+    D3D12_MESSAGE_CATEGORY category,
+    D3D12_MESSAGE_SEVERITY severity,
+    D3D12_MESSAGE_ID /*id*/,
+    LPCSTR pDescription,
+    void* /*pContext*/
+) {
+    using namespace fb;
+    FRAME_ALLOCATION_TRAP = false;
+    switch (severity) {
+        case D3D12_MESSAGE_SEVERITY_CORRUPTION: FB_LOG_ERROR("{}", pDescription); break;
+        case D3D12_MESSAGE_SEVERITY_ERROR: FB_LOG_ERROR("{}", pDescription); break;
+        case D3D12_MESSAGE_SEVERITY_WARNING: FB_LOG_WARN("{}", pDescription); break;
+        case D3D12_MESSAGE_SEVERITY_INFO: FB_LOG_INFO("{}", pDescription); break;
+        case D3D12_MESSAGE_SEVERITY_MESSAGE: FB_LOG_INFO("{}", pDescription); break;
+        default: break;
+    }
+    FRAME_ALLOCATION_TRAP = true;
+}
+
 namespace fb {
+
+GpuLeakDetector::~GpuLeakDetector() {
+#if defined(_DEBUG)
+    if (debug_device) {
+        // Note: The device itself will always report as a live object because
+        // we need a device to report live objects.
+        FB_ASSERT_HR(debug_device->ReportLiveDeviceObjects(
+            D3D12_RLDO_SUMMARY | D3D12_RLDO_DETAIL | D3D12_RLDO_IGNORE_INTERNAL
+        ));
+    }
+#endif
+}
 
 GpuDevice::~GpuDevice() {
     CloseHandle(_fence_event);
@@ -146,34 +178,22 @@ auto GpuDevice::create(const Window& window) -> void {
     // Debug device.
     {
 #if defined(_DEBUG)
-        FB_ASSERT_HR(_device->QueryInterface(IID_PPV_ARGS(&_leak_tracker.debug_device)));
+        FB_ASSERT_HR(_device->QueryInterface(IID_PPV_ARGS(&_leak_detector.debug_device)));
 
         ComPtr<ID3D12InfoQueue1> info_queue;
         FB_ASSERT_HR(_device->QueryInterface(IID_PPV_ARGS(&info_queue)));
-        FB_ASSERT_HR(info_queue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, true));
-        FB_ASSERT_HR(info_queue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, true));
-        FB_ASSERT_HR(info_queue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_CORRUPTION, true));
         DWORD callback_cookie;
         FB_ASSERT_HR(info_queue->RegisterMessageCallback(
-            [](D3D12_MESSAGE_CATEGORY,
-               D3D12_MESSAGE_SEVERITY severity,
-               D3D12_MESSAGE_ID,
-               const char* description,
-               void*) {
-                FRAME_ALLOCATION_TRAP = false;
-                switch (severity) {
-                    case D3D12_MESSAGE_SEVERITY_CORRUPTION: FB_LOG_ERROR("{}", description); break;
-                    case D3D12_MESSAGE_SEVERITY_ERROR: FB_LOG_ERROR("{}", description); break;
-                    case D3D12_MESSAGE_SEVERITY_WARNING: FB_LOG_WARN("{}", description); break;
-                    case D3D12_MESSAGE_SEVERITY_INFO: FB_LOG_INFO("{}", description); break;
-                    default: break;
-                }
-                FRAME_ALLOCATION_TRAP = true;
-            },
+            dx_message_callback,
             D3D12_MESSAGE_CALLBACK_FLAG_NONE,
             nullptr,
             &callback_cookie
         ));
+        FB_ASSERT_HR(info_queue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_CORRUPTION, true));
+        FB_ASSERT_HR(info_queue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, true));
+        FB_ASSERT_HR(info_queue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, false));
+        FB_ASSERT_HR(info_queue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_INFO, false));
+        FB_ASSERT_HR(info_queue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_MESSAGE, false));
 #endif
     }
 
