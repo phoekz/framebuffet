@@ -5,6 +5,7 @@
 
 #include <ttf2mesh.h>
 #include <stb_image_resize2.h>
+#include <nlohmann/json.hpp>
 
 namespace fb {
 

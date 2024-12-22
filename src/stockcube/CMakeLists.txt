@@ -2,6 +2,7 @@ set(NAME fb_stockcube)
 set(SOURCES
     stockcube.cpp
     stockcube.manifest
+    techniques/common.cpp
     techniques/common.hpp
     techniques/techniques.cpp
     techniques/techniques.hpp

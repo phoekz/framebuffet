@@ -33,7 +33,7 @@
 #include <backends/imgui_impl_win32.h>
 
 // Nlohmann.
-#include <nlohmann/json.hpp>
+#include <nlohmann/json_fwd.hpp>
 
 // Standard library.
 #include <algorithm>
