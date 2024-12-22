@@ -7,7 +7,7 @@
 //
 
 #define FB_PERF_FRAME(index) \
-    FrameMark; \
+    FrameMark;               \
     PIXScopedEvent(PIX_COLOR_DEFAULT, "Frame %zu", index);
 
 #define FB_PERF_FUNC() \
@@ -18,15 +18,15 @@
     ZoneScopedN(name);      \
     PIXScopedEvent(PIX_COLOR_DEFAULT, name);
 
-#define FB_PERF_VALUE(value) \
-    ZoneValue(value);
+#define FB_PERF_VALUE(value) ZoneValue(value);
 
 //
-// Tracy.
+// Functions.
 //
 
 namespace fb {
 
+auto get_time_since_process_start() -> double;
 auto tracy_capture() -> void;
 
 } // namespace fb

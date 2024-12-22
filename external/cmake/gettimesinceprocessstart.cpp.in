@@ -1,0 +1,2 @@
+#define GTSPS_IMPLEMENTATION
+#include "GetTimeSinceProcessStart.h"

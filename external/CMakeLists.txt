@@ -17,6 +17,7 @@ if(NOT FETCH_CONTENT_HAS_BEEN_RUN)
     FetchContent_Declare(tracy GIT_REPOSITORY "https://github.com/wolfpld/tracy" GIT_TAG 5d542dc09f3d9378d005092a4ad446bd405f819a) # v0.11.1
     FetchContent_Declare(glm GIT_REPOSITORY "https://github.com/g-truc/glm.git" GIT_TAG 0af55ccecd98d4e5a8d1fad7de25ba429d60e863) # v1.0.1
     FetchContent_Declare(catch2 GIT_REPOSITORY "https://github.com/catchorg/Catch2/" GIT_TAG fa43b77429ba76c462b1898d6cd2f2d7a9416b14) # v3.7.1
+    FetchContent_Declare(gettimesinceprocessstart GIT_REPOSITORY "https://github.com/maxliani/GetTimeSinceProcessStart" GIT_TAG b2fa1a71f1da91d3b009430a7c49f35f5fb8c7c5) # v1.0.0
     FetchContent_Declare(dxagilitysdk URL "https://globalcdn.nuget.org/packages/microsoft.direct3d.d3d12.1.614.0.nupkg" URL_MD5 65654a2bc55ed1afd8c3ea5b06d34fb1)
     FetchContent_Declare(dxcompiler URL "https://globalcdn.nuget.org/packages/microsoft.direct3d.dxc.1.8.2407.12.nupkg" URL_MD5 ec1b2df8c67e4dd22d9616dd13b32e72)
     FetchContent_Declare(directxmath URL "https://globalcdn.nuget.org/packages/directxmath.2024.2.15.1.nupkg" URL_MD5 c9e372349ee8958b3599e88b89756715)
@@ -79,6 +80,10 @@ if(NOT FETCH_CONTENT_HAS_BEEN_RUN)
     message(STATUS "Fetching catch2...")
     FetchContent_MakeAvailable(catch2)
     set(CATCH2_SOURCE_DIR ${catch2_SOURCE_DIR} CACHE INTERNAL "CATCH2 Source Directory")
+
+    message(STATUS "Fetching GetTimeSinceProcessStart...")
+    FetchContent_MakeAvailable(gettimesinceprocessstart)
+    set(GETTIMESINCEPROCESSSTART_SOURCE_DIR ${gettimesinceprocessstart_SOURCE_DIR} CACHE INTERNAL "GetTimeSinceProcessStart Source Directory")
 
     message(STATUS "Fetching DirectX Agility SDK...")
     FetchContent_MakeAvailable(dxagilitysdk)
@@ -284,6 +289,17 @@ add_library(ext_catch2 STATIC
 target_include_directories(ext_catch2 PUBLIC ${CATCH2_SOURCE_DIR}/extras)
 target_compile_definitions(ext_catch2 PUBLIC CATCH_AMALGAMATED_CUSTOM_MAIN)
 set(CATCH2_LIBRARY ext_catch2 CACHE INTERNAL "Catch2 Library")
+
+# GetTimeSinceProcessStart.
+configure_file(cmake/gettimesinceprocessstart.cpp.in ${GETTIMESINCEPROCESSSTART_SOURCE_DIR}/GetTimeSinceProcessStart.cpp COPYONLY)
+add_library(ext_gettimesinceprocessstart STATIC ${GETTIMESINCEPROCESSSTART_SOURCE_DIR}/GetTimeSinceProcessStart.cpp)
+target_include_directories(
+    ext_gettimesinceprocessstart
+    PUBLIC
+    ${GETTIMESINCEPROCESSSTART_SOURCE_DIR}
+)
+set(GETTIMESINCEPROCESSSTART_LIBRARY ext_gettimesinceprocessstart CACHE INTERNAL "GetTimeSinceProcessStart Library")
+set(GETTIMESINCEPROCESSSTART_INCLUDE_DIR ${GETTIMESINCEPROCESSSTART_SOURCE_DIR} CACHE INTERNAL "GetTimeSinceProcessStart Include Directory")
 
 # D3D12 Memory Allocator.
 add_library(

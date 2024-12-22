@@ -1,8 +1,13 @@
 #include "perf.hpp"
 
+#include "GetTimeSinceProcessStart.h"
 #include <shellapi.h>
 
 namespace fb {
+
+auto get_time_since_process_start() -> double {
+    return GetTimeSinceProcessStart();
+}
 
 auto tracy_capture() -> void {
     const wchar_t* path = L"tracy-profiler.exe";

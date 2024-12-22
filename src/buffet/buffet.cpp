@@ -24,8 +24,14 @@ struct Buffet {
 };
 
 auto buffet_run(Buffet& bf) -> void {
+    // Time since process start.
+    const auto time_since_process_start = fb::get_time_since_process_start();
+
     // Console.
     attach_console();
+
+    // Log time since process start.
+    FB_LOG_INFO("Time since process start: {} s", time_since_process_start);
 
     // Main thread.
     FB_ASSERT_HR(SetThreadDescription(GetCurrentThread(), L"Main Thread"));
