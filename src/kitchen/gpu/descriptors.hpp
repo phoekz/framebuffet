@@ -7,9 +7,19 @@ namespace fb {
 class GpuDevice;
 
 class GpuDescriptor {
-    friend class GpuDescriptorHeap;
-
 public:
+    GpuDescriptor() = default;
+    GpuDescriptor(
+        D3D12_DESCRIPTOR_HEAP_TYPE type,
+        uint index,
+        D3D12_CPU_DESCRIPTOR_HANDLE cpu_handle,
+        D3D12_GPU_DESCRIPTOR_HANDLE gpu_handle
+    )
+        : _type(type)
+        , _index(index)
+        , _cpu_handle(cpu_handle)
+        , _gpu_handle(gpu_handle) {}
+
     auto type() const -> D3D12_DESCRIPTOR_HEAP_TYPE { return _type; }
     auto index() const -> uint { return _index; }
     auto cpu() const -> D3D12_CPU_DESCRIPTOR_HANDLE { return _cpu_handle; }

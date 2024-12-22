@@ -96,10 +96,10 @@ struct GpuBlendDesc {
 class GpuPipeline {
     FB_NO_COPY_MOVE(GpuPipeline);
 
-    friend class GpuPipelineBuilder;
-
 public:
-    GpuPipeline() = default;
+    explicit GpuPipeline() = default;
+    explicit GpuPipeline(ComPtr<ID3D12PipelineState> state)
+        : _state(state) {}
 
     auto get() const -> ID3D12PipelineState* { return _state.get(); }
 

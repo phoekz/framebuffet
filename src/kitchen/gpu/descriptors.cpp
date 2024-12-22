@@ -41,16 +41,17 @@ auto GpuDescriptorHeap::create(GpuDevice& device, D3D12_DESCRIPTOR_HEAP_TYPE typ
 
 auto GpuDescriptorHeap::alloc() -> GpuDescriptor {
     FB_ASSERT(_count < _capacity);
-    GpuDescriptor handle;
-    handle._type = _type;
-    handle._index = _count++;
-    handle._cpu_handle = _cpu_heap_start;
-    handle._cpu_handle.ptr += handle._index * _descriptor_size;
-    if (is_shader_visible(_type)) {
-        handle._gpu_handle = _gpu_heap_start;
-        handle._gpu_handle.ptr += handle._index * _descriptor_size;
+
+    const D3D12_DESCRIPTOR_HEAP_TYPE type = _type;
+    const uint index = _count++;
+    D3D12_CPU_DESCRIPTOR_HANDLE cpu_handle = _cpu_heap_start;
+    cpu_handle.ptr += index * _descriptor_size;
+    D3D12_GPU_DESCRIPTOR_HANDLE gpu_handle = {};
+    if (is_shader_visible(type)) {
+        gpu_handle = _gpu_heap_start;
+        gpu_handle.ptr += index * _descriptor_size;
     }
-    return handle;
+    return GpuDescriptor(type, index, cpu_handle, gpu_handle);
 }
 
 auto GpuDescriptors::create(GpuDevice& device) -> void {

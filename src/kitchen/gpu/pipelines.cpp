@@ -346,13 +346,13 @@ auto GpuPipelineBuilder::build(GpuDevice& device, GpuPipeline& pipeline, std::st
     }
 
     // Create pipeline state.
-    pipeline._state = device.create_pipeline_state(
+    new (&pipeline) GpuPipeline(device.create_pipeline_state(
         D3D12_PIPELINE_STATE_STREAM_DESC {
             .SizeInBytes = _buffet_offset,
             .pPipelineStateSubobjectStream = _buffer,
         },
         name
-    );
+    ));
 }
 
 } // namespace fb

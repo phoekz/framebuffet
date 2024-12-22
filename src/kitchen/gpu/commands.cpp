@@ -8,6 +8,15 @@ namespace fb {
 // GpuCommandList.
 //
 
+GpuCommandList::GpuCommandList(
+    ID3D12GraphicsCommandList9* cmd,
+    ID3D12RootSignature* root_signature,
+    GpuDescriptors* descriptors
+)
+    : _cmd(cmd)
+    , _root_signature(root_signature)
+    , _descriptors(descriptors) {}
+
 auto GpuCommandList::clear_rtv(const GpuDescriptor& rtv, float4 color) const -> void {
     _cmd->ClearRenderTargetView(rtv.cpu(), (const float*)&color, 0, nullptr);
 }

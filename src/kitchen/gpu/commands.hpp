@@ -52,6 +52,13 @@ class GpuCommandList {
     FB_NO_COPY(GpuCommandList);
 
 public:
+    // Constructor.
+    GpuCommandList(
+        ID3D12GraphicsCommandList9* cmd,
+        ID3D12RootSignature* root_signature,
+        GpuDescriptors* descriptors
+    );
+
     // Move constructor and assignment operator.
     GpuCommandList(GpuCommandList&& o) noexcept { *this = std::move(o); }
     GpuCommandList& operator=(GpuCommandList&& o) noexcept {
@@ -185,18 +192,6 @@ protected:
     size_t _pending_global_barrier_count = 0;
     size_t _pending_buffer_barrier_count = 0;
     size_t _pending_texture_barrier_count = 0;
-
-private:
-    // GpuDevice is the only class that can create GpuCommandList.
-    friend class GpuDevice;
-    GpuCommandList(
-        ID3D12GraphicsCommandList9* cmd,
-        ID3D12RootSignature* root_signature,
-        GpuDescriptors* descriptors
-    )
-        : _cmd(cmd)
-        , _root_signature(root_signature)
-        , _descriptors(descriptors) {}
 };
 
 //
