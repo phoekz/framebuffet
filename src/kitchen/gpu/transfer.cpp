@@ -340,9 +340,8 @@ auto GpuTransfer::flush(const GpuDevice& device) -> void {
     FB_ASSERT_HR(_impl->command_list->Reset(_impl->command_allocator.get(), nullptr));
 
     // Begin commands.
-    PIXBeginEvent(
+    FB_PERF_PIX_CMD_BEGIN_EVENT(
         _impl->command_list.get(),
-        PIX_COLOR_DEFAULT,
         "Upload - %.3f MB",
         total_byte_count / 1e6f
     );
@@ -435,9 +434,8 @@ auto GpuTransfer::flush(const GpuDevice& device) -> void {
         const auto dst_resource = resource_data.resource.get();
         const auto src_resource = upload_buffer.get();
 
-        PIXBeginEvent(
+        FB_PERF_PIX_CMD_BEGIN_EVENT(
             _impl->command_list.get(),
-            PIX_COLOR_DEFAULT,
             "Resource %d - Subresources %d",
             resource_id,
             subresource_count
@@ -477,7 +475,7 @@ auto GpuTransfer::flush(const GpuDevice& device) -> void {
             }
             default: FB_FATAL();
         }
-        PIXEndEvent(_impl->command_list.get());
+        FB_PERF_PIX_CMD_END_EVENT(_impl->command_list.get());
     }
 
     // Transition all resources from COPY_DEST to after_* states.
@@ -538,7 +536,7 @@ auto GpuTransfer::flush(const GpuDevice& device) -> void {
     );
 
     // Close command list.
-    PIXEndEvent(_impl->command_list.get());
+    FB_PERF_PIX_CMD_END_EVENT(_impl->command_list.get());
     FB_ASSERT_HR(_impl->command_list->Close());
 
     // Execute command list.

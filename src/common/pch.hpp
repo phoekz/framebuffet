@@ -23,7 +23,9 @@
 
 // PIX.
 #define USE_PIX
-#include <WinPixEventRuntime/pix3.h>
+#if defined(USE_PIX)
+    #include <WinPixEventRuntime/pix3.h>
+#endif
 
 // Tracy.
 #include <tracy/Tracy.hpp>

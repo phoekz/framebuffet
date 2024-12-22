@@ -61,7 +61,6 @@ auto GpuDevice::create(const Window& window) -> void {
             DXGI_INFO_QUEUE_MESSAGE_SEVERITY_CORRUPTION,
             true
         ));
-
 #endif
     }
 

@@ -242,7 +242,7 @@ auto buffet_run(Buffet& bf) -> void {
 
             auto cmd = bf.device.begin_frame();
 
-            PIXBeginEvent(PIX_COLOR_DEFAULT, "Frame");
+            FB_PERF_PIX_BEGIN_EVENT("Frame");
             cmd.pix_begin("Frame %zu", bf.frame.count());
 
             const auto render_desc = demos::RenderDesc {
@@ -294,7 +294,7 @@ auto buffet_run(Buffet& bf) -> void {
             cmd.pix_end();
 
             cmd.pix_end();
-            PIXEndEvent();
+            FB_PERF_PIX_END_EVENT();
 
             bf.device.end_frame(std::move(cmd));
         }

@@ -103,6 +103,7 @@ public:
     // PIX.
     //
 
+#if defined(USE_PIX)
     template<typename... Args>
     FB_INLINE auto pix_begin(const char* fmt, Args... args) const -> void {
         PIXBeginEvent(_cmd, PIX_COLOR_DEFAULT, fmt, args...);
@@ -114,6 +115,13 @@ public:
     FB_INLINE auto pix_marker(const char* fmt, Args... args) const -> void {
         PIXSetMarker(_cmd, PIX_COLOR_DEFAULT, fmt, args...);
     }
+#else
+    template<typename... Args>
+    FB_INLINE auto pix_begin(const char*, Args...) const -> void {}
+    FB_INLINE auto pix_end() const -> void {}
+    template<typename... Args>
+    FB_INLINE auto pix_marker(const char*, Args...) const -> void {}
+#endif
 
     //
     // Command list functions.
