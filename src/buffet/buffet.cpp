@@ -37,7 +37,7 @@ auto buffet_run(Buffet& bf) -> void {
     FB_ASSERT_HR(SetThreadDescription(GetCurrentThread(), L"Main Thread"));
 
     // Tracy configuration.
-    TracySetProgramName("framebuffet");
+    FB_PERF_TRACY_SET_PROGRAM_NAME("framebuffet");
 
     // Init.
     {
@@ -60,9 +60,9 @@ auto buffet_run(Buffet& bf) -> void {
             FB_PERF_SCOPE("Window");
             char temp[64] = {};
             snprintf(temp, sizeof(temp), "Width: %d", WINDOW_WIDTH);
-            ZoneText(temp, strlen(temp));
+            FB_PERF_TRACY_ZONE_TEXT(temp, strlen(temp));
             snprintf(temp, sizeof(temp), "Height: %d", WINDOW_HEIGHT);
-            ZoneText(temp, strlen(temp));
+            FB_PERF_TRACY_ZONE_TEXT(temp, strlen(temp));
             bf.window.create(Window::Desc {WINDOW_TITLE, WINDOW_WIDTH, WINDOW_HEIGHT});
         }
 

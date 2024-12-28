@@ -6,6 +6,26 @@
 // Macros.
 //
 
+#if defined(TRACY_ENABLE)
+    #define FB_PERF_TRACY_SET_PROGRAM_NAME(name) TracySetProgramName(name)
+    #define FB_PERF_TRACY_FRAME_MARK() FrameMark
+    #define FB_PERF_TRACY_ZONE_SCOPED() ZoneScoped
+    #define FB_PERF_TRACY_ZONE_SCOPED_N(name) ZoneScopedN(name)
+    #define FB_PERF_TRACY_ZONE_VALUE(value) ZoneValue(value)
+    #define FB_PERF_TRACY_ZONE_TEXT(name, text) ZoneText(name, text)
+    #define FB_PERF_TRACY_ALLOC(ptr, size) TracyAlloc(ptr, size)
+    #define FB_PERF_TRACY_FREE(ptr) TracyFree(ptr)
+#else
+    #define FB_PERF_TRACY_SET_PROGRAM_NAME(name)
+    #define FB_PERF_TRACY_FRAME_MARK()
+    #define FB_PERF_TRACY_ZONE_SCOPED()
+    #define FB_PERF_TRACY_ZONE_SCOPED_N(name)
+    #define FB_PERF_TRACY_ZONE_VALUE(value)
+    #define FB_PERF_TRACY_ZONE_TEXT(name, text)
+    #define FB_PERF_TRACY_ALLOC(ptr, size)
+    #define FB_PERF_TRACY_FREE(ptr)
+#endif
+
 #if defined(USE_PIX)
     #define FB_PERF_PIX_FRAME(index) PIXScopedEvent(PIX_COLOR_DEFAULT, "Frame %zu", index)
     #define FB_PERF_PIX_FUNC() PIXScopedEvent(PIX_COLOR_DEFAULT, __FUNCTION__)
@@ -25,19 +45,19 @@
     #define FB_PERF_PIX_CMD_END_EVENT(cmd)
 #endif
 
-#define FB_PERF_FRAME(index) \
-    FrameMark;               \
+#define FB_PERF_FRAME(index)    \
+    FB_PERF_TRACY_FRAME_MARK(); \
     FB_PERF_PIX_FRAME(index);
 
-#define FB_PERF_FUNC() \
-    ZoneScoped;        \
+#define FB_PERF_FUNC()           \
+    FB_PERF_TRACY_ZONE_SCOPED(); \
     FB_PERF_PIX_FUNC();
 
-#define FB_PERF_SCOPE(name) \
-    ZoneScopedN(name);      \
+#define FB_PERF_SCOPE(name)            \
+    FB_PERF_TRACY_ZONE_SCOPED_N(name); \
     FB_PERF_PIX_SCOPE(name);
 
-#define FB_PERF_VALUE(value) ZoneValue(value);
+#define FB_PERF_VALUE(value) FB_PERF_TRACY_ZONE_VALUE(value);
 
 //
 // Functions.

@@ -42,7 +42,7 @@ auto stockcube_run(Stockcube& sc) -> void {
     FB_ASSERT_HR(SetThreadDescription(GetCurrentThread(), L"Main Thread"));
 
     // Tracy configuration.
-    TracySetProgramName("stockcube");
+    FB_PERF_TRACY_SET_PROGRAM_NAME("stockcube");
 
     // Init.
     {

@@ -28,7 +28,9 @@
 #endif
 
 // Tracy.
-#include <tracy/Tracy.hpp>
+#if defined(TRACY_ENABLE)
+    #include <tracy/Tracy.hpp>
+#endif
 
 // ImGui.
 #include <imgui.h>

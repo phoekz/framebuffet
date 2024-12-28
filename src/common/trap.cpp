@@ -1,4 +1,5 @@
 #include "trap.hpp"
+#include "perf.hpp"
 
 namespace fb {
 
@@ -14,11 +15,11 @@ auto operator new(std::size_t count) -> void* {
         std::quick_exit(1);
     }
     void* ptr = malloc(count);
-    TracyAlloc(ptr, count);
+    FB_PERF_TRACY_ALLOC(ptr, count);
     return ptr;
 }
 
 auto operator delete(void* ptr) noexcept -> void {
-    TracyFree(ptr);
+    FB_PERF_TRACY_FREE(ptr);
     free(ptr);
 }

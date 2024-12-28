@@ -36,7 +36,7 @@ auto raydiance_run(Raydiance& rd) -> void {
     FB_ASSERT_HR(SetThreadDescription(GetCurrentThread(), L"Main Thread"));
 
     // Tracy configuration.
-    TracySetProgramName("raydiance");
+    FB_PERF_TRACY_SET_PROGRAM_NAME("raydiance");
 
     // Init.
     {
