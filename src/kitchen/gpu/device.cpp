@@ -93,6 +93,8 @@ auto GpuDevice::create(const Window& window) -> void {
             DXGI_INFO_QUEUE_MESSAGE_SEVERITY_CORRUPTION,
             true
         ));
+
+        FB_LOG_INFO("Debug layer enabled");
 #endif
     }
 
