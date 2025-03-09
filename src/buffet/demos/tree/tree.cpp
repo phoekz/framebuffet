@@ -227,9 +227,9 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
             cmd.draw_indexed_instanced(demo.tree_indices.element_count(), 1, 0, 0, 0);
             demo.shadow_depth.transition(
                 cmd,
-                D3D12_BARRIER_SYNC_DEPTH_STENCIL,
-                D3D12_BARRIER_ACCESS_DEPTH_STENCIL_READ,
-                D3D12_BARRIER_LAYOUT_DEPTH_STENCIL_READ
+                D3D12_BARRIER_SYNC_PIXEL_SHADING,
+                D3D12_BARRIER_ACCESS_SHADER_RESOURCE,
+                D3D12_BARRIER_LAYOUT_SHADER_RESOURCE
             );
             cmd.flush_barriers();
             cmd.pix_end();
