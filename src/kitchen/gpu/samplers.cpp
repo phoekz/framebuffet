@@ -117,7 +117,7 @@ auto GpuSamplers::create(GpuDevice& device, GpuDescriptors& descriptors) -> void
                 .AddressW = D3D12_TEXTURE_ADDRESS_MODE_BORDER,
                 .MipLODBias = 0.0f,
                 .MaxAnisotropy = 0,
-                .ComparisonFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL,
+                .ComparisonFunc = D3D12_COMPARISON_FUNC_LESS,
                 .FloatBorderColor = {1.0f, 1.0f, 1.0f, 1.0f},
                 .MinLOD = 0.0f,
                 .MaxLOD = D3D12_FLOAT32_MAX,
