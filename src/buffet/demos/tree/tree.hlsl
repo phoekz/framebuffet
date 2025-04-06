@@ -48,21 +48,21 @@ DrawVertexOutput draw_vs(fb::VertexInput input) {
 
 fb::PixelOutput<1> draw_ps(DrawVertexOutput input) {
     const ConstantBuffer<Constants> constants = ResourceDescriptorHeap[g_bindings.constants];
-    const Texture2D texture = ResourceDescriptorHeap[g_bindings.texture];
-    const Texture2D shadow_texture = ResourceDescriptorHeap[g_bindings.shadow_texture];
+    const Texture2D<float3> texture = ResourceDescriptorHeap[g_bindings.texture];
+    const Texture2D<float> shadow_texture = ResourceDescriptorHeap[g_bindings.shadow_texture];
     const SamplerState sampler = SamplerDescriptorHeap[(uint)GpuSampler::LinearClamp];
     const SamplerComparisonState shadow_sampler = SamplerDescriptorHeap[(uint)GpuSampler::Shadow];
 
     const float3 shadow_coord = input.shadow_coord.xyz / input.shadow_coord.w;
     const float2 shadow_texcoord = shadow_coord.xy * float2(0.5f, -0.5f) + 0.5f;
     const float shadow_bias = 0.001f;
-    const float shadow = (float)shadow_texture.SampleCmpLevelZero(
+    const float shadow = shadow_texture.SampleCmpLevelZero(
         shadow_sampler,
         shadow_texcoord.xy,
         shadow_coord.z - shadow_bias
     );
 
-    const float3 color = texture.Sample(sampler, input.texcoord).rgb;
+    const float3 color = texture.Sample(sampler, input.texcoord);
     const float n_dot_l = shadow * saturate(dot(input.normal, constants.light_direction));
     const float lighting = constants.ambient_light + (1.0 - constants.ambient_light) * n_dot_l;
 

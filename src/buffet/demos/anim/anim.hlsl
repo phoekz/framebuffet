@@ -59,16 +59,16 @@ GroundVertexOutput ground_vs(fb::VertexInput input) {
 }
 
 fb::PixelOutput<1> ground_ps(GroundVertexOutput input) {
-    const Texture2D<float4> texture = ResourceDescriptorHeap[g_bindings.texture];
+    const Texture2D<float3> texture = ResourceDescriptorHeap[g_bindings.texture];
     const SamplerState sampler = SamplerDescriptorHeap[(uint)GpuSampler::PointWrap];
-    const Texture2D shadow_texture = ResourceDescriptorHeap[g_bindings.shadow_texture];
+    const Texture2D<float> shadow_texture = ResourceDescriptorHeap[g_bindings.shadow_texture];
     const SamplerComparisonState shadow_sampler = SamplerDescriptorHeap[(uint)GpuSampler::Shadow];
     const float texture_scroll = g_bindings.texture_scroll;
 
     const float3 shadow_coord = input.shadow_coord.xyz / input.shadow_coord.w;
     const float2 shadow_texcoord = shadow_coord.xy * float2(0.5f, -0.5f) + 0.5f;
     const float shadow_bias = 0.001f;
-    const float shadow = (float)shadow_texture.SampleCmpLevelZero(
+    const float shadow = shadow_texture.SampleCmpLevelZero(
         shadow_sampler,
         shadow_texcoord.xy,
         shadow_coord.z - shadow_bias
@@ -77,7 +77,7 @@ fb::PixelOutput<1> ground_ps(GroundVertexOutput input) {
     const float3 light = normalize(float3(-1.0f, 1.0f, 1.0f));
     const float lighting = 0.5 + 0.5 * saturate(shadow * dot(input.normal, light));
 
-    const float3 color = texture.Sample(sampler, input.texcoord + float2(0.0f, texture_scroll)).rgb;
+    const float3 color = texture.Sample(sampler, input.texcoord + float2(0.0f, texture_scroll));
 
     const float3 world_position = input.world_position;
     const float distance_to_origin = saturate(length(world_position) / 8.0f);

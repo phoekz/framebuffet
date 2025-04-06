@@ -1083,10 +1083,10 @@ auto Assets::grass_material() const -> Material {
 }
 
 auto Shaders::load() -> void {
-    // hash: 906fe2976c775c95b94666b68f7def3d
+    // hash: 7aa66f62547f4b45bde24038f2555689
     FB_PERF_FUNC();
     _data = read_whole_file("fb_buffet_shaders.bin");
-    FB_ASSERT(_data.size() == 244660);
+    FB_ASSERT(_data.size() == 244676);
 }
 
 // shader_hash: 423ee856efa0e0a8792a80bab1b2ba7c
@@ -4473,7 +4473,7 @@ auto Shaders::tree_draw_vs() const -> std::span<const std::byte> {
     return std::span(_data).subspan(62760, 5472);
 }
 
-// shader_hash: 8636b0831a03e273527383b05470fcb2
+// shader_hash: d87d3f32f2c14414cc215f71b06f4d52
 // constant_buffers: 1
 // bound_resources: 1
 // input_parameters: 4
@@ -4505,8 +4505,8 @@ auto Shaders::tree_draw_vs() const -> std::span<const std::byte> {
 ; -------------------- ----- ------ -------- -------- ------- ------
 ; SV_Target                0   xyzw        0   TARGET   float   xyzw
 ;
-; shader debug name: 8636b0831a03e273527383b05470fcb2.pdb
-; shader hash: 8636b0831a03e273527383b05470fcb2
+; shader debug name: d87d3f32f2c14414cc215f71b06f4d52.pdb
+; shader hash: d87d3f32f2c14414cc215f71b06f4d52
 ;
 ; Pipeline Runtime Information: 
 ;
@@ -4600,10 +4600,10 @@ define void @draw_ps() {
   %15 = call %dx.types.Handle @dx.op.annotateHandle(i32 216, %dx.types.Handle %14, %dx.types.ResourceProperties { i32 13, i32 580 })  ; AnnotateHandle(res,props)  resource: CBuffer
   %16 = extractvalue %dx.types.CBufRet.i32 %12, 2
   %17 = call %dx.types.Handle @dx.op.createHandleFromHeap(i32 218, i32 %16, i1 false, i1 false)  ; CreateHandleFromHeap(index,samplerHeap,nonUniformIndex)
-  %18 = call %dx.types.Handle @dx.op.annotateHandle(i32 216, %dx.types.Handle %17, %dx.types.ResourceProperties { i32 2, i32 1033 })  ; AnnotateHandle(res,props)  resource: Texture2D<4xF32>
+  %18 = call %dx.types.Handle @dx.op.annotateHandle(i32 216, %dx.types.Handle %17, %dx.types.ResourceProperties { i32 2, i32 777 })  ; AnnotateHandle(res,props)  resource: Texture2D<3xF32>
   %19 = extractvalue %dx.types.CBufRet.i32 %12, 3
   %20 = call %dx.types.Handle @dx.op.createHandleFromHeap(i32 218, i32 %19, i1 false, i1 false)  ; CreateHandleFromHeap(index,samplerHeap,nonUniformIndex)
-  %21 = call %dx.types.Handle @dx.op.annotateHandle(i32 216, %dx.types.Handle %20, %dx.types.ResourceProperties { i32 2, i32 1033 })  ; AnnotateHandle(res,props)  resource: Texture2D<4xF32>
+  %21 = call %dx.types.Handle @dx.op.annotateHandle(i32 216, %dx.types.Handle %20, %dx.types.ResourceProperties { i32 2, i32 265 })  ; AnnotateHandle(res,props)  resource: Texture2D<F32>
   %22 = call %dx.types.Handle @dx.op.createHandleFromHeap(i32 218, i32 0, i1 true, i1 false)  ; CreateHandleFromHeap(index,samplerHeap,nonUniformIndex)
   %23 = call %dx.types.Handle @dx.op.annotateHandle(i32 216, %dx.types.Handle %22, %dx.types.ResourceProperties { i32 14, i32 0 })  ; AnnotateHandle(res,props)  resource: SamplerState
   %24 = call %dx.types.Handle @dx.op.createHandleFromHeap(i32 218, i32 6, i1 true, i1 false)  ; CreateHandleFromHeap(index,samplerHeap,nonUniformIndex)
@@ -4713,7 +4713,7 @@ attributes #2 = { nounwind readonly }
 !22 = !{i32 0, i64 3229614336}
 */
 auto Shaders::tree_draw_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(68232, 5232);
+    return std::span(_data).subspan(68232, 5240);
 }
 
 // shader_hash: d34199bd948318570c2d8ca22b2c64a2
@@ -4862,7 +4862,7 @@ attributes #2 = { nounwind }
 !8 = !{i32 128, i32 1, i32 1}
 */
 auto Shaders::rain_sim_cs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(73464, 3752);
+    return std::span(_data).subspan(73472, 3752);
 }
 
 // shader_hash: e175ea1ec9ff3e0c9a45c0391ce3c5cd
@@ -5127,7 +5127,7 @@ attributes #2 = { nounwind readonly }
 !19 = !{i32 0, i64 1082130688}
 */
 auto Shaders::rain_draw_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(77216, 5076);
+    return std::span(_data).subspan(77224, 5076);
 }
 
 // shader_hash: f365d6b10844949d5b27ce6e274b75fc
@@ -5255,7 +5255,7 @@ attributes #1 = { nounwind }
 !14 = !{i32 0, i64 8388864}
 */
 auto Shaders::rain_draw_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(82292, 3244);
+    return std::span(_data).subspan(82300, 3244);
 }
 
 // shader_hash: 24ddbacdbdbe6fc13f424e354c5d609b
@@ -5706,7 +5706,7 @@ attributes #2 = { nounwind readonly }
 !17 = !{i32 0, i64 1082130688}
 */
 auto Shaders::anim_shadow_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(85536, 6156);
+    return std::span(_data).subspan(85544, 6156);
 }
 
 // shader_hash: 9ac0bd457310a580babfaf58e40a30e7
@@ -6016,10 +6016,10 @@ attributes #2 = { nounwind readonly }
 !26 = !{i32 0, i64 1082130688}
 */
 auto Shaders::anim_ground_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(91692, 5732);
+    return std::span(_data).subspan(91700, 5732);
 }
 
-// shader_hash: 44eabfcb46e45d15ad977d053fb6205a
+// shader_hash: 66e4670a314e155b30260f81c051f9cc
 // constant_buffers: 1
 // bound_resources: 1
 // input_parameters: 5
@@ -6052,8 +6052,8 @@ auto Shaders::anim_ground_vs() const -> std::span<const std::byte> {
 ; -------------------- ----- ------ -------- -------- ------- ------
 ; SV_Target                0   xyzw        0   TARGET   float   xyzw
 ;
-; shader debug name: 44eabfcb46e45d15ad977d053fb6205a.pdb
-; shader hash: 44eabfcb46e45d15ad977d053fb6205a
+; shader debug name: 66e4670a314e155b30260f81c051f9cc.pdb
+; shader hash: 66e4670a314e155b30260f81c051f9cc
 ;
 ; Pipeline Runtime Information: 
 ;
@@ -6151,12 +6151,12 @@ define void @ground_ps() {
   %15 = call %dx.types.CBufRet.i32 @dx.op.cbufferLoadLegacy.i32(i32 59, %dx.types.Handle %2, i32 1)  ; CBufferLoadLegacy(handle,regIndex)
   %16 = extractvalue %dx.types.CBufRet.i32 %15, 0
   %17 = call %dx.types.Handle @dx.op.createHandleFromHeap(i32 218, i32 %16, i1 false, i1 false)  ; CreateHandleFromHeap(index,samplerHeap,nonUniformIndex)
-  %18 = call %dx.types.Handle @dx.op.annotateHandle(i32 216, %dx.types.Handle %17, %dx.types.ResourceProperties { i32 2, i32 1033 })  ; AnnotateHandle(res,props)  resource: Texture2D<4xF32>
+  %18 = call %dx.types.Handle @dx.op.annotateHandle(i32 216, %dx.types.Handle %17, %dx.types.ResourceProperties { i32 2, i32 777 })  ; AnnotateHandle(res,props)  resource: Texture2D<3xF32>
   %19 = call %dx.types.Handle @dx.op.createHandleFromHeap(i32 218, i32 5, i1 true, i1 false)  ; CreateHandleFromHeap(index,samplerHeap,nonUniformIndex)
   %20 = call %dx.types.Handle @dx.op.annotateHandle(i32 216, %dx.types.Handle %19, %dx.types.ResourceProperties { i32 14, i32 0 })  ; AnnotateHandle(res,props)  resource: SamplerState
   %21 = extractvalue %dx.types.CBufRet.i32 %15, 2
   %22 = call %dx.types.Handle @dx.op.createHandleFromHeap(i32 218, i32 %21, i1 false, i1 false)  ; CreateHandleFromHeap(index,samplerHeap,nonUniformIndex)
-  %23 = call %dx.types.Handle @dx.op.annotateHandle(i32 216, %dx.types.Handle %22, %dx.types.ResourceProperties { i32 2, i32 1033 })  ; AnnotateHandle(res,props)  resource: Texture2D<4xF32>
+  %23 = call %dx.types.Handle @dx.op.annotateHandle(i32 216, %dx.types.Handle %22, %dx.types.ResourceProperties { i32 2, i32 265 })  ; AnnotateHandle(res,props)  resource: Texture2D<F32>
   %24 = call %dx.types.Handle @dx.op.createHandleFromHeap(i32 218, i32 6, i1 true, i1 false)  ; CreateHandleFromHeap(index,samplerHeap,nonUniformIndex)
   %25 = call %dx.types.Handle @dx.op.annotateHandle(i32 216, %dx.types.Handle %24, %dx.types.ResourceProperties { i32 32782, i32 0 })  ; AnnotateHandle(res,props)  resource: SamplerComparisonState
   %26 = call %dx.types.CBufRet.f32 @dx.op.cbufferLoadLegacy.f32(i32 59, %dx.types.Handle %2, i32 1)  ; CBufferLoadLegacy(handle,regIndex)
@@ -6280,7 +6280,7 @@ attributes #2 = { nounwind readonly }
 !24 = !{i32 0, i64 3229614336}
 */
 auto Shaders::anim_ground_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(97424, 5568);
+    return std::span(_data).subspan(97432, 5576);
 }
 
 // shader_hash: 279ec64f1836bd92410857a29709eb68
@@ -6853,7 +6853,7 @@ attributes #2 = { nounwind readonly }
 !26 = !{i32 0, i64 1082130688}
 */
 auto Shaders::anim_anim_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(102992, 7584);
+    return std::span(_data).subspan(103008, 7584);
 }
 
 // shader_hash: da6c982602ef71b2f762441e0ef683b4
@@ -7087,7 +7087,7 @@ attributes #2 = { nounwind readonly }
 !23 = !{i32 0, i64 3229614336}
 */
 auto Shaders::anim_anim_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(110576, 5224);
+    return std::span(_data).subspan(110592, 5224);
 }
 
 // shader_hash: 5a6edd86d2a8ab7f3d207acfa78a86b2
@@ -7250,7 +7250,7 @@ attributes #2 = { nounwind }
 !8 = !{i32 32, i32 1, i32 1}
 */
 auto Shaders::fibers_sim_cs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(115800, 4012);
+    return std::span(_data).subspan(115816, 4012);
 }
 
 // shader_hash: 7073ad7f4f48d7d970aba1c9d7e9c5d2
@@ -7376,7 +7376,7 @@ attributes #2 = { nounwind readonly }
 !8 = !{i32 1, i32 1, i32 1}
 */
 auto Shaders::fibers_reset_cs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(119812, 3436);
+    return std::span(_data).subspan(119828, 3436);
 }
 
 // shader_hash: 47c3a2e61f938304324985124d1ad1a0
@@ -7899,7 +7899,7 @@ attributes #3 = { nounwind }
 !12 = !{!"Simple C/C++ TBAA"}
 */
 auto Shaders::fibers_cull_cs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(123248, 7340);
+    return std::span(_data).subspan(123264, 7340);
 }
 
 // shader_hash: 3a1415121d9cb850e21d009368ba56bc
@@ -8182,7 +8182,7 @@ attributes #2 = { nounwind readonly }
 !24 = !{i32 0, i64 1082130688}
 */
 auto Shaders::fibers_light_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(130588, 5504);
+    return std::span(_data).subspan(130604, 5504);
 }
 
 // shader_hash: 736f9f1feb31a56780fe3953e8413756
@@ -8290,7 +8290,7 @@ attributes #0 = { nounwind }
 !17 = !{i32 0, i64 8388864}
 */
 auto Shaders::fibers_light_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(136092, 3156);
+    return std::span(_data).subspan(136108, 3156);
 }
 
 // shader_hash: 433f95b228369d7ad0d9c941cf32f14f
@@ -8565,7 +8565,7 @@ attributes #2 = { nounwind readonly }
 !26 = !{i32 0, i64 1082130688}
 */
 auto Shaders::fibers_plane_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(139248, 5528);
+    return std::span(_data).subspan(139264, 5528);
 }
 
 // shader_hash: a5c6d4b72cf64cf131a781411be9d420
@@ -8873,7 +8873,7 @@ attributes #2 = { nounwind readonly }
 !24 = !{i32 0, i64 1082130688}
 */
 auto Shaders::fibers_plane_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(144776, 5936);
+    return std::span(_data).subspan(144792, 5936);
 }
 
 // shader_hash: 89df82fc059b84abe2a6bc7637689ea7
@@ -8999,7 +8999,7 @@ attributes #1 = { nounwind }
 !16 = !{i32 0, i64 8388864}
 */
 auto Shaders::fibers_debug_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(150712, 3268);
+    return std::span(_data).subspan(150728, 3268);
 }
 
 // shader_hash: 9f4ebce6510849709e58481d11a27f36
@@ -9221,7 +9221,7 @@ attributes #2 = { nounwind readonly }
 !17 = !{i32 0, i64 11819548928}
 */
 auto Shaders::fibers_debug_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(153980, 4956);
+    return std::span(_data).subspan(153996, 4956);
 }
 
 // shader_hash: ffbc9c74a0f370b9b8aa8360e16cc9ab
@@ -9471,7 +9471,7 @@ attributes #2 = { nounwind readonly }
 !24 = !{i32 0, i64 1082130688}
 */
 auto Shaders::env_background_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(158936, 5196);
+    return std::span(_data).subspan(158952, 5196);
 }
 
 // shader_hash: d3a90d5a560c9d93ceb8f1716a171aa7
@@ -9721,7 +9721,7 @@ attributes #2 = { nounwind readonly }
 !21 = !{i32 0, i64 3229614336}
 */
 auto Shaders::env_background_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(164132, 5100);
+    return std::span(_data).subspan(164148, 5100);
 }
 
 // shader_hash: ab4a922abe0c2874bba54f917d3e9a80
@@ -9969,7 +9969,7 @@ attributes #2 = { nounwind readonly }
 !21 = !{i32 0, i64 1082130688}
 */
 auto Shaders::env_model_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(169232, 5100);
+    return std::span(_data).subspan(169248, 5100);
 }
 
 // shader_hash: 1e6d94b8efaae2115d64371127d4f805
@@ -10279,7 +10279,7 @@ attributes #2 = { nounwind readonly }
 !19 = !{i32 0, i64 3229614336}
 */
 auto Shaders::env_model_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(174332, 5608);
+    return std::span(_data).subspan(174348, 5608);
 }
 
 // shader_hash: 9949ddea9ae010cbf73b45e4242e26ff
@@ -10530,7 +10530,7 @@ attributes #2 = { nounwind readonly }
 !24 = !{i32 0, i64 1082130688}
 */
 auto Shaders::text_background_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(179940, 5220);
+    return std::span(_data).subspan(179956, 5220);
 }
 
 // shader_hash: c59be777646d538a4546b860a83b8cf7
@@ -10732,7 +10732,7 @@ attributes #2 = { nounwind readonly }
 !21 = !{i32 0, i64 3229614336}
 */
 auto Shaders::text_background_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(185160, 4760);
+    return std::span(_data).subspan(185176, 4760);
 }
 
 // shader_hash: dace6d509a34d5301023713cf0080127
@@ -11008,7 +11008,7 @@ attributes #2 = { nounwind readonly }
 !19 = !{i32 0, i64 1082130688}
 */
 auto Shaders::text_glyph_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(189920, 5256);
+    return std::span(_data).subspan(189936, 5256);
 }
 
 // shader_hash: 80113b3cc4f5de0c882b1efbb836e36c
@@ -11220,7 +11220,7 @@ attributes #2 = { nounwind readonly }
 !17 = !{i32 0, i64 3229614336}
 */
 auto Shaders::text_glyph_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(195176, 4748);
+    return std::span(_data).subspan(195192, 4748);
 }
 
 // shader_hash: 36097e642bc6a414ca2427c1354dfc9c
@@ -11482,7 +11482,7 @@ attributes #2 = { nounwind readonly }
 !17 = !{i32 0, i64 1082130688}
 */
 auto Shaders::saber_scene_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(199924, 5020);
+    return std::span(_data).subspan(199940, 5020);
 }
 
 // shader_hash: 2f2d53121c138f5e7ce0c51b06e09f1d
@@ -11656,7 +11656,7 @@ attributes #2 = { nounwind readonly }
 !15 = !{i32 0, i64 1082130688}
 */
 auto Shaders::saber_scene_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(204944, 3916);
+    return std::span(_data).subspan(204960, 3916);
 }
 
 // shader_hash: 6868597ba6bb49bcf835e5d2403f6600
@@ -11835,7 +11835,7 @@ attributes #2 = { nounwind }
 !8 = !{i32 8, i32 8, i32 1}
 */
 auto Shaders::saber_threshold_cs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(208860, 4052);
+    return std::span(_data).subspan(208876, 4052);
 }
 
 // shader_hash: 88b38e45ff54c3993b913b719fca71f9
@@ -12120,7 +12120,7 @@ attributes #2 = { nounwind }
 !8 = !{i32 8, i32 8, i32 1}
 */
 auto Shaders::saber_downsample_cs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(212912, 4764);
+    return std::span(_data).subspan(212928, 4764);
 }
 
 // shader_hash: 819394f7cbe097b8f64e2340747783b6
@@ -12379,7 +12379,7 @@ attributes #2 = { nounwind }
 !8 = !{i32 8, i32 8, i32 1}
 */
 auto Shaders::saber_upsample_cs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(217676, 4628);
+    return std::span(_data).subspan(217692, 4628);
 }
 
 // shader_hash: 85a57ab6a0e4e5c21bb88ad863df96c6
@@ -12505,7 +12505,7 @@ attributes #1 = { nounwind }
 !16 = !{i32 0, i64 8388864}
 */
 auto Shaders::saber_blit_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(222304, 3264);
+    return std::span(_data).subspan(222320, 3264);
 }
 
 // shader_hash: 78dad131659b9ff98ba825606572f04b
@@ -12742,7 +12742,7 @@ attributes #2 = { nounwind readonly }
 !17 = !{i32 0, i64 3229614336}
 */
 auto Shaders::saber_blit_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(225568, 4684);
+    return std::span(_data).subspan(225584, 4684);
 }
 
 // shader_hash: 5d815de99926252b2f6b57dbd5ad97c5
@@ -12990,7 +12990,7 @@ attributes #2 = { nounwind readonly }
 !22 = !{i32 0, i64 1082130688}
 */
 auto Shaders::grass_draw_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(230252, 5028);
+    return std::span(_data).subspan(230268, 5028);
 }
 
 // shader_hash: d32674802d840aa90af0ae62563dabe1
@@ -13191,7 +13191,7 @@ attributes #2 = { nounwind readonly }
 !19 = !{i32 0, i64 3229614336}
 */
 auto Shaders::grass_draw_naive_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(235280, 4620);
+    return std::span(_data).subspan(235296, 4620);
 }
 
 // shader_hash: e3cdcf454894a6d93cddac94f9cfc672
@@ -13401,7 +13401,7 @@ attributes #2 = { nounwind readonly }
 !19 = !{i32 0, i64 3229614336}
 */
 auto Shaders::grass_draw_atoc_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(239900, 4760);
+    return std::span(_data).subspan(239916, 4760);
 }
 
 #undef texture_data
