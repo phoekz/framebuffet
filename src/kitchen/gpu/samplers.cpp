@@ -111,7 +111,7 @@ auto GpuSamplers::create(GpuDevice& device, GpuDescriptors& descriptors) -> void
         {
             GpuSampler::Shadow,
             {
-                .Filter = D3D12_FILTER_COMPARISON_MIN_MAG_MIP_POINT,
+                .Filter = D3D12_FILTER_COMPARISON_MIN_MAG_LINEAR_MIP_POINT,
                 .AddressU = D3D12_TEXTURE_ADDRESS_MODE_BORDER,
                 .AddressV = D3D12_TEXTURE_ADDRESS_MODE_BORDER,
                 .AddressW = D3D12_TEXTURE_ADDRESS_MODE_BORDER,
