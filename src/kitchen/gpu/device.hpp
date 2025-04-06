@@ -103,7 +103,10 @@ public:
     ) const -> void;
 
     // Getters.
-    auto transfer() -> GpuTransfer& { return _transfer; }
+    auto transfer() -> GpuTransfer& {
+        FB_ASSERT(_transfer);
+        return *_transfer;
+    }
     auto swapchain() -> GpuSwapchain& { return _swapchain; }
     auto swapchain() const -> const GpuSwapchain& { return _swapchain; }
     auto frame_index() const -> uint { return _frame_index; }
@@ -134,7 +137,7 @@ private:
     ComPtr<ID3D12RootSignature> _root_signature;
     GpuDescriptors _descriptors;
     GpuSamplers _samplers;
-    GpuTransfer _transfer;
+    std::unique_ptr<GpuTransfer> _transfer;
 };
 
 } // namespace fb

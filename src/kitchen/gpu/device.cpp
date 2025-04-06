@@ -312,11 +312,13 @@ auto GpuDevice::create(const Window& window) -> void {
     _samplers.create(*this, _descriptors);
 
     // Global transfer.
-    _transfer.create(_device);
+    _transfer = std::make_unique<GpuTransfer>();
+    _transfer->create(_device);
 }
 
 auto GpuDevice::flush_transfers() -> void {
-    _transfer.flush(*this);
+    _transfer->flush(*this);
+    _transfer.reset();
 }
 
 auto GpuDevice::begin_frame() -> GpuCommandList {
