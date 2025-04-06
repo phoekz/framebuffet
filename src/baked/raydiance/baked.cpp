@@ -8,10 +8,10 @@ namespace fb::baked::raydiance {
     }
 
 auto Assets::load() -> void {
-    // hash: cd2fb6736ed37e92c641c32a062ecd16
+    // hash: d128ad8e88a6aa70b81966c2c0497d47
     FB_PERF_FUNC();
     _data = read_whole_file("fb_raydiance_assets.bin");
-    FB_ASSERT(_data.size() == 294444);
+    FB_ASSERT(_data.size() == 300132);
 }
 
 auto Assets::cube_mesh() const -> Mesh {
@@ -116,6 +116,52 @@ auto Assets::rounded_cube_material() const -> Material {
     return Material {
         .alpha_cutoff = 0.5f,
         .alpha_mode = AlphaMode::Opaque,
+    };
+}
+
+auto Assets::plane_mesh() const -> Mesh {
+    // vertex_count: 4
+    // face_count: 2
+    // submesh_count: 1
+    return Mesh {
+        .transform = float4x4(
+            // clang-format off
+            // 1.000000f, 0.000000f, 0.000000f, 0.000000f
+            // 0.000000f, 1.000000f, 0.000000f, 0.000000f
+            // 0.000000f, 0.000000f, 1.000000f, 0.000000f
+            // 0.000000f, 0.000000f, 0.000000f, 1.000000f
+            0x1p+0f, 0x0p+0f, 0x0p+0f, 0x0p+0f,
+            0x0p+0f, 0x1p+0f, 0x0p+0f, 0x0p+0f,
+            0x0p+0f, 0x0p+0f, 0x1p+0f, 0x0p+0f,
+            0x0p+0f, 0x0p+0f, 0x0p+0f, 0x1p+0f
+            // clang-format on
+        ),
+        // hash: 06bd69f738d4d2966608ee7af94fb31d
+        .vertices = transmuted_span<Vertex>(294444, 4),
+        // hash: e61613adcfc67d4d78864c88896b5ba0
+        .indices = transmuted_span<Index>(294636, 6),
+        // hash: c98593cf018afad07e4bedad79142b75
+        .submeshes = transmuted_span<Submesh>(294660, 1),
+    };
+}
+
+auto Assets::plane_texture() const -> Texture {
+    decltype(Texture::datas) datas = {};
+    // clang-format off
+    datas[ 0] = texture_data( 128,    4096,    294672,    4096); // hash: 4bcf48d6be3640293c4f4c26a9d64a48, width: 32, height: 32
+    datas[ 1] = texture_data(  64,    1024,    298768,    1024); // hash: 4cb77aebbb465cbcbf17135c3e816787, width: 16, height: 16
+    datas[ 2] = texture_data(  32,     256,    299792,     256); // hash: 91699b3869dc3e30252a841aac190ec4, width: 8, height: 8
+    datas[ 3] = texture_data(  16,      64,    300048,      64); // hash: fa1572b701b6ed624dfe94358604f0eb, width: 4, height: 4
+    datas[ 4] = texture_data(   8,      16,    300112,      16); // hash: a77803af8e3526796b1a201bc1f800ba, width: 2, height: 2
+    datas[ 5] = texture_data(   4,       4,    300128,       4); // hash: 18a31d7b8588932d35a7129091da92d3, width: 1, height: 1
+    // clang-format on
+    return Texture {
+        .format = DXGI_FORMAT_R8G8B8A8_UNORM,
+        .width = 32,
+        .height = 32,
+        .channel_count = 4,
+        .mip_count = 6,
+        .datas = datas,
     };
 }
 
