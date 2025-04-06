@@ -129,6 +129,7 @@ auto gui(Demo& demo, const GuiDesc&) -> void {
     ImGui::SliderAngle("Light Longitude", &params.light_longitude, 0.0f, 360.0f);
     ImGui::SliderAngle("Light Latitude", &params.light_latitude, 0.0f, 180.0f);
     ImGui::SliderFloat("Light Distance", &params.light_distance, 1.0f, 200.0f);
+    ImGui::SliderFloat("Light Speed", &params.light_speed, 0.0f, 1.0f);
     ImGui::SliderFloat("Shadow Near Plane", &params.shadow_near_plane, 0.0f, 10.0f);
     ImGui::SliderFloat("Shadow Far Plane", &params.shadow_far_plane, 1.0f, 100.0f);
     ImGui::SliderFloat("Camera Distance", &params.camera_distance, 0.0f, 10.0f);
@@ -143,7 +144,7 @@ auto update(Demo& demo, const UpdateDesc& desc) -> void {
 
     // Update light angle.
     {
-        params.light_longitude += desc.delta_time;
+        params.light_longitude += params.light_speed * desc.delta_time;
         if (params.light_longitude > FLOAT_PI * 2.0f) {
             params.light_longitude -= FLOAT_PI * 2.0f;
         }

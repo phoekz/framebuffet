@@ -25,6 +25,7 @@ struct Parameters {
     float light_longitude = 0.0f;
     float light_latitude = rad_from_deg(30.0f);
     float light_distance = 15.0f;
+    float light_speed = 0.5f;
     float shadow_near_plane = 0.1f;
     float shadow_far_plane = 100.0f;
     float camera_distance = 10.0f;
