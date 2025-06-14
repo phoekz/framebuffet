@@ -78,10 +78,10 @@ add_compile_definitions(
     FB_BAKER_STOCKCUBE_OUTPUT_DIR="$<TARGET_FILE_DIR:fb_stockcube>"
     FB_BAKER_RAYDIANCE_OUTPUT_DIR="$<TARGET_FILE_DIR:fb_raydiance>"
     FB_KITCHEN_PIX_GPU_CAPTURER_NAME="WinPixGpuCapturer.dll"
-    FB_KITCHEN_PIX_GPU_CAPTURER_DLL_PATH="C:/Program Files/Microsoft PIX/2412.12/WinPixGpuCapturer.dll"
+    FB_KITCHEN_PIX_GPU_CAPTURER_DLL_PATH="C:/Program Files/Microsoft PIX/2505.30/WinPixGpuCapturer.dll"
     FB_KITCHEN_PIX_GPU_CAPTURE_FILE_NAME=L"framebuffet_gpu.wpix"
     FB_KITCHEN_PIX_TIMING_CAPTURER_NAME="WinPixTimingCapturer.dll"
-    FB_KITCHEN_PIX_TIMING_CAPTURER_DLL_PATH="C:/Program Files/Microsoft PIX/2412.12/WinPixTimingCapturer.dll"
+    FB_KITCHEN_PIX_TIMING_CAPTURER_DLL_PATH="C:/Program Files/Microsoft PIX/2505.30/WinPixTimingCapturer.dll"
     FB_KITCHEN_PIX_TIMING_CAPTURE_FILE_NAME=L"framebuffet_timing.wpix"
     FB_STOCKCUBE_INTERMEDIATE_DIR="${CMAKE_SOURCE_DIR}/src/assets/intermediate/stockcube"
 )
