@@ -18,11 +18,11 @@ if(NOT FETCH_CONTENT_HAS_BEEN_RUN)
     FetchContent_Declare(glm GIT_REPOSITORY "https://github.com/g-truc/glm.git" GIT_TAG 0af55ccecd98d4e5a8d1fad7de25ba429d60e863) # v1.0.1
     FetchContent_Declare(catch2 GIT_REPOSITORY "https://github.com/catchorg/Catch2/" GIT_TAG fa43b77429ba76c462b1898d6cd2f2d7a9416b14) # v3.7.1
     FetchContent_Declare(gettimesinceprocessstart GIT_REPOSITORY "https://github.com/maxliani/GetTimeSinceProcessStart" GIT_TAG b2fa1a71f1da91d3b009430a7c49f35f5fb8c7c5) # v1.0.0
-    FetchContent_Declare(dxagilitysdk URL "https://globalcdn.nuget.org/packages/microsoft.direct3d.d3d12.1.614.1.nupkg" URL_MD5 52387a90b03a7e0032abc27060b7ad5d)
-    FetchContent_Declare(dxcompiler URL "https://globalcdn.nuget.org/packages/microsoft.direct3d.dxc.1.8.2407.12.nupkg" URL_MD5 ec1b2df8c67e4dd22d9616dd13b32e72)
-    FetchContent_Declare(directxmath URL "https://globalcdn.nuget.org/packages/directxmath.2024.2.15.1.nupkg" URL_MD5 c9e372349ee8958b3599e88b89756715)
-    FetchContent_Declare(directxmesh URL "https://globalcdn.nuget.org/packages/directxmesh_desktop_win10.2024.6.5.1.nupkg" URL_MD5 c39e9ce826d390a9b42ca6fa12a889bb)
-    FetchContent_Declare(directxtex URL "https://globalcdn.nuget.org/packages/directxtex_desktop_win10.2024.6.5.1.nupkg" URL_MD5 f580390887793e95a4876fd64e587a8b)
+    FetchContent_Declare(dxagilitysdk URL "https://globalcdn.nuget.org/packages/microsoft.direct3d.d3d12.1.616.1.nupkg" URL_MD5 7c7aa4a5a4c71df7892e5fa815b6818c)
+    FetchContent_Declare(dxcompiler URL "https://globalcdn.nuget.org/packages/microsoft.direct3d.dxc.1.8.2505.28.nupkg" URL_MD5 edcbac8d991c33f8bc8001e8c9c98ada)
+    FetchContent_Declare(directxmath URL "https://globalcdn.nuget.org/packages/directxmath.2025.4.3.1.nupkg" URL_MD5 92ae9bd406510205959e62353cbcb610)
+    FetchContent_Declare(directxmesh URL "https://globalcdn.nuget.org/packages/directxmesh_desktop_win10.2025.3.25.2.nupkg" URL_MD5 3566f3a4de68dab6d5cd2becd969533a)
+    FetchContent_Declare(directxtex URL "https://globalcdn.nuget.org/packages/directxtex_desktop_win10.2025.3.25.2.nupkg" URL_MD5 80456c80b55a8b9da84cded77b7abaef)
     FetchContent_Declare(winpixeventruntime URL "https://globalcdn.nuget.org/packages/winpixeventruntime.1.0.240308001.nupkg" URL_MD5 f376b719c0a7d84dd642ea7830b713f8)
 
     # Fetch.
