@@ -35,7 +35,7 @@ auto read_whole_file(std::string_view path) -> std::vector<std::byte> {
     return buffer;
 }
 
-auto write_whole_file(std::string_view path, std::span<const std::byte> data) -> void {
+auto write_whole_file(std::string_view path, Span<const std::byte> data) -> void {
     HANDLE file = CreateFileA(
         path.data(),
         GENERIC_WRITE,

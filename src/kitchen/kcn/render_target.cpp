@@ -136,7 +136,7 @@ auto KcnRenderTargetView::set_graphics(GpuGraphicsCommandList& cmd) -> void {
         dsv_desc = _desc.depth_stencil.depth_stencil->dsv_descriptor();
     }
 
-    cmd.set_rtvs_dsv(std::span(rtv_descs.data(), rtv_count), dsv_desc);
+    cmd.set_rtvs_dsv(Span(rtv_descs.data(), rtv_count), dsv_desc);
 }
 
 //

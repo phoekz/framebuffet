@@ -181,15 +181,14 @@ public:
             );
         }
     }
-    auto
-    create_with_data(GpuDevice& device, std::span<const T> data, std::string_view name) -> void {
+    auto create_with_data(GpuDevice& device, Span<const T> data, std::string_view name) -> void {
         static_assert(ACCESS_MODE == Host);
         create(device, (uint)data.size(), name);
         memcpy(_raw, data.data(), data.size_bytes());
     }
     auto create_and_transfer(
         GpuDevice& device,
-        std::span<const T> data,
+        Span<const T> data,
         D3D12_BARRIER_SYNC sync_after,
         D3D12_BARRIER_ACCESS access_after,
         std::string_view name
@@ -216,7 +215,7 @@ public:
     auto raw() const -> void* { return _raw; }
     auto ptr() const -> T* { return reinterpret_cast<T*>(raw()); }
     auto ref() const -> T& { return *ptr(); }
-    auto span() const -> std::span<T> { return std::span<T>(ptr(), element_count()); }
+    auto span() const -> Span<T> { return Span<T>(ptr(), element_count()); }
     auto index_buffer_view() const -> D3D12_INDEX_BUFFER_VIEW {
         static_assert(gpu_buffer_flags_contains(FLAGS, Index));
         return D3D12_INDEX_BUFFER_VIEW {

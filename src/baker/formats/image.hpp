@@ -10,7 +10,7 @@ concept ImagePixel = std::same_as<T, std::byte> || std::same_as<T, float>;
 template<ImagePixel T>
 class Image {
 public:
-    static auto from_image(std::span<const std::byte> src_image) -> Image<T>;
+    static auto from_image(Span<const std::byte> src_image) -> Image<T>;
     static auto from_constant(uint width, uint height, const std::array<T, 4>& pixel) -> Image<T>;
 
     auto width() const -> uint { return _width; }
@@ -20,8 +20,8 @@ public:
     auto format() const -> DXGI_FORMAT { return _format; }
     auto row_pitch() const -> uint { return _width * _element_byte_count; }
     auto slice_pitch() const -> uint { return _width * _height * _element_byte_count; }
-    auto data() const -> std::span<const std::byte> {
-        return std::span((const std::byte*)_data.data(), slice_pitch());
+    auto data() const -> Span<const std::byte> {
+        return Span((const std::byte*)_data.data(), slice_pitch());
     }
 
     template<typename F>

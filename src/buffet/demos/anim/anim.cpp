@@ -162,14 +162,14 @@ auto create(Demo& demo, const CreateDesc& desc) -> void {
         const auto indices = std::to_array<baked::Index>({0, 1, 2, 0, 2, 3});
         ground.vertices.create_and_transfer(
             device,
-            std::span(vertices.data(), vertices.size()),
+            Span(vertices.data(), vertices.size()),
             D3D12_BARRIER_SYNC_VERTEX_SHADING,
             D3D12_BARRIER_ACCESS_VERTEX_BUFFER,
             scope.with_name("Vertices")
         );
         ground.indices.create_and_transfer(
             device,
-            std::span(indices.data(), indices.size()),
+            Span(indices.data(), indices.size()),
             D3D12_BARRIER_SYNC_INDEX_INPUT,
             D3D12_BARRIER_ACCESS_INDEX_BUFFER,
             scope.with_name("Indices")
@@ -207,7 +207,7 @@ auto create(Demo& demo, const CreateDesc& desc) -> void {
                     .mip_count = 1,
                     .sample_count = 1,
                 },
-                std::span(&transfer_desc, 1),
+                Span(&transfer_desc, 1),
                 D3D12_BARRIER_SYNC_PIXEL_SHADING,
                 D3D12_BARRIER_ACCESS_SHADER_RESOURCE,
                 D3D12_BARRIER_LAYOUT_SHADER_RESOURCE,
@@ -270,8 +270,8 @@ auto gui(Demo& demo, const GuiDesc&) -> void {
 template<typename T, typename F>
 static auto keyframe_interpolation(
     float time,
-    std::span<const float> times,
-    std::span<const T> values,
+    Span<const float> times,
+    Span<const T> values,
     const T default_value,
     F interpolate
 ) -> T {
@@ -331,7 +331,7 @@ auto update(Demo& demo, const UpdateDesc& desc) -> void {
 
         // Helpers.
         const auto span_from = [](const auto& container, size_t offset, size_t count) {
-            return std::span(container.data() + offset, count);
+            return Span(container.data() + offset, count);
         };
 
         // Interpolation & transform hierarchy.

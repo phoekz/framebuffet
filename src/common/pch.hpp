@@ -61,6 +61,8 @@ using namespace std::literals;
 namespace fb {
 
 template<typename T>
+using Span = std::span<T>;
+template<typename T>
 using Option = std::optional<T>;
 template<typename T>
 using MutRef = std::reference_wrapper<T>;

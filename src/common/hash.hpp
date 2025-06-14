@@ -9,7 +9,7 @@ struct Hash128 {
     uint64_t high;
 };
 
-auto hash128(std::span<const std::byte> data) -> Hash128;
+auto hash128(Span<const std::byte> data) -> Hash128;
 
 } // namespace fb
 

@@ -88,7 +88,7 @@ GltfModel::GltfModel(std::string_view gltf_path) {
     _root_transform = maybe_root_transform.value();
 
     // Read and merge meshes.
-    for (const auto& mesh : std::span(data->meshes, data->meshes_count)) {
+    for (const auto& mesh : Span(data->meshes, data->meshes_count)) {
         FB_ASSERT(mesh.primitives_count == 1);
         const auto& primitive = mesh.primitives[0];
         FB_ASSERT(primitive.type == cgltf_primitive_type_triangles);
@@ -136,10 +136,10 @@ GltfModel::GltfModel(std::string_view gltf_path) {
         _vertex_normals.resize(vertex_offset + vertex_count);
         _vertex_texcoords.resize(vertex_offset + vertex_count);
         _indices.resize(index_offset + index_count);
-        auto vertex_positions = std::span(_vertex_positions).subspan(vertex_offset, vertex_count);
-        auto vertex_normals = std::span(_vertex_normals).subspan(vertex_offset, vertex_count);
-        auto vertex_texcoords = std::span(_vertex_texcoords).subspan(vertex_offset, vertex_count);
-        auto indices = std::span(_indices).subspan(index_offset, index_count);
+        auto vertex_positions = Span(_vertex_positions).subspan(vertex_offset, vertex_count);
+        auto vertex_normals = Span(_vertex_normals).subspan(vertex_offset, vertex_count);
+        auto vertex_texcoords = Span(_vertex_texcoords).subspan(vertex_offset, vertex_count);
+        auto indices = Span(_indices).subspan(index_offset, index_count);
         for (size_t i = 0; i < vertex_count; i++) {
             auto& vp = vertex_positions[i];
             auto& vn = vertex_normals[i];
@@ -176,7 +176,7 @@ GltfModel::GltfModel(std::string_view gltf_path) {
         const auto& image = *pbr.base_color_texture.texture->image;
         const auto image_view = image.buffer_view;
         const auto image_data = (const std::byte*)cgltf_buffer_view_data(image_view);
-        const auto image_span = std::span(image_data, image_view->size);
+        const auto image_span = Span(image_data, image_view->size);
         _base_color_texture = LdrImage::from_image(image_span);
     } else {
         FB_ASSERT(pbr.base_color_factor[0] >= 0.0f && pbr.base_color_factor[0] <= 1.0f);
@@ -197,7 +197,7 @@ GltfModel::GltfModel(std::string_view gltf_path) {
         const auto& image = *material.normal_texture.texture->image;
         const auto image_view = image.buffer_view;
         const auto image_data = (const std::byte*)cgltf_buffer_view_data(image_view);
-        const auto image_span = std::span(image_data, image_view->size);
+        const auto image_span = Span(image_data, image_view->size);
         _normal_texture = LdrImage::from_image(image_span);
     }
     if (pbr.metallic_roughness_texture.texture != nullptr) {
@@ -206,7 +206,7 @@ GltfModel::GltfModel(std::string_view gltf_path) {
         const auto& image = *pbr.metallic_roughness_texture.texture->image;
         const auto image_view = image.buffer_view;
         const auto image_data = (const std::byte*)cgltf_buffer_view_data(image_view);
-        const auto image_span = std::span(image_data, image_view->size);
+        const auto image_span = Span(image_data, image_view->size);
         const auto map_fn =
             [](uint, uint, std::byte& r, std::byte& /*g*/, std::byte& /*b*/, std::byte& a) {
                 // Note: GLTF's metallic is defined in the blue channel,
@@ -278,7 +278,7 @@ GltfModel::GltfModel(std::string_view gltf_path) {
                 }
             }
             FB_ASSERT(std::ranges::all_of(
-                std::span(animation.samplers, animation.samplers_count),
+                Span(animation.samplers, animation.samplers_count),
                 [&](const auto& sampler) {
                     return animation.samplers[0].input->max[0] == sampler.input->max[0];
                 }
@@ -286,7 +286,7 @@ GltfModel::GltfModel(std::string_view gltf_path) {
         }
 
         // Animation vertex data.
-        for (const auto& mesh : std::span(data->meshes, data->meshes_count)) {
+        for (const auto& mesh : Span(data->meshes, data->meshes_count)) {
             // Primitive.
             FB_ASSERT(mesh.primitives_count == 1);
             const auto& primitive = mesh.primitives[0];
@@ -321,10 +321,8 @@ GltfModel::GltfModel(std::string_view gltf_path) {
             const auto vertex_offset = _vertex_joints.size();
             _vertex_joints.resize(vertex_offset + vertex_count);
             _vertex_weights.resize(vertex_offset + vertex_count);
-            const auto vertex_joints =
-                std::span(_vertex_joints).subspan(vertex_offset, vertex_count);
-            const auto vertex_weights =
-                std::span(_vertex_weights).subspan(vertex_offset, vertex_count);
+            const auto vertex_joints = Span(_vertex_joints).subspan(vertex_offset, vertex_count);
+            const auto vertex_weights = Span(_vertex_weights).subspan(vertex_offset, vertex_count);
             for (size_t i = 0; i < vertex_count; i++) {
                 auto& vj = vertex_joints[i];
                 auto& vw = vertex_weights[i];

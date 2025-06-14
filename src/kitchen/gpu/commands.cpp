@@ -61,11 +61,11 @@ auto GpuCommandList::set_global_compute_root_signature() const -> void {
     _cmd->SetComputeRootSignature(_root_signature);
 }
 
-auto GpuCommandList::set_graphics_root_constants(std::span<const uint> dwords) const -> void {
+auto GpuCommandList::set_graphics_root_constants(Span<const uint> dwords) const -> void {
     _cmd->SetGraphicsRoot32BitConstants(0, (uint)dwords.size(), dwords.data(), 0);
 }
 
-auto GpuCommandList::set_compute_root_constants(std::span<const uint> dwords) const -> void {
+auto GpuCommandList::set_compute_root_constants(Span<const uint> dwords) const -> void {
     _cmd->SetComputeRoot32BitConstants(0, (uint)dwords.size(), dwords.data(), 0);
 }
 
@@ -230,7 +230,7 @@ auto GpuGraphicsCommandList::set_pipeline(const GpuPipeline& pipeline) const -> 
 }
 
 auto GpuGraphicsCommandList::set_rtvs_dsv(
-    const std::span<const GpuDescriptor>& rtvs,
+    const Span<const GpuDescriptor>& rtvs,
     const Option<GpuDescriptor>& dsv
 ) const -> void {
     FB_ASSERT(rtvs.size() <= D3D12_SIMULTANEOUS_RENDER_TARGET_COUNT);

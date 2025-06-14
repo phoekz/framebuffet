@@ -396,7 +396,7 @@ public:
     auto create_and_transfer(
         GpuDevice& device,
         const GpuTextureDesc& desc,
-        std::span<const GpuTextureTransferDesc> transfer_descs,
+        Span<const GpuTextureTransferDesc> transfer_descs,
         D3D12_BARRIER_SYNC sync_after,
         D3D12_BARRIER_ACCESS access_after,
         D3D12_BARRIER_LAYOUT layout_after,
@@ -434,7 +434,7 @@ public:
         create_and_transfer(
             device,
             desc,
-            std::span<const GpuTextureTransferDesc>(&transfer_desc, 1),
+            Span<const GpuTextureTransferDesc>(&transfer_desc, 1),
             sync_after,
             access_after,
             layout_after,
@@ -469,7 +469,7 @@ public:
         create_and_transfer(
             device,
             desc,
-            std::span(transfer_descs.data(), baked.mip_count),
+            Span(transfer_descs.data(), baked.mip_count),
             sync_after,
             access_after,
             layout_after,
@@ -509,7 +509,7 @@ public:
         create_and_transfer(
             device,
             desc,
-            std::span(transfer_descs.data(), desc_count),
+            Span(transfer_descs.data(), desc_count),
             sync_after,
             access_after,
             layout_after,

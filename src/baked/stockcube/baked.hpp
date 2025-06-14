@@ -17,8 +17,8 @@ public:
 
 private:
     template<typename T>
-    auto transmuted_span(size_t offset, size_t element_count) const -> std::span<const T> {
-        return std::span((const T*)(_data.data() + offset), element_count);
+    auto transmuted_span(size_t offset, size_t element_count) const -> Span<const T> {
+        return Span((const T*)(_data.data() + offset), element_count);
     }
 
     std::vector<std::byte> _data;
@@ -28,20 +28,20 @@ class Shaders {
 public:
     auto load() -> void;
 
-    auto cfr_cs() const -> std::span<const std::byte>;
-    auto lut_cs() const -> std::span<const std::byte>;
-    auto irr_acc_cs() const -> std::span<const std::byte>;
-    auto irr_div_cs() const -> std::span<const std::byte>;
-    auto rad_acc_cs() const -> std::span<const std::byte>;
-    auto rad_div_cs() const -> std::span<const std::byte>;
-    auto bg_vs() const -> std::span<const std::byte>;
-    auto bg_ps() const -> std::span<const std::byte>;
-    auto model_vs() const -> std::span<const std::byte>;
-    auto model_ps() const -> std::span<const std::byte>;
-    auto screen_vs() const -> std::span<const std::byte>;
-    auto screen_ps() const -> std::span<const std::byte>;
-    auto blit_vs() const -> std::span<const std::byte>;
-    auto blit_ps() const -> std::span<const std::byte>;
+    auto cfr_cs() const -> Span<const std::byte>;
+    auto lut_cs() const -> Span<const std::byte>;
+    auto irr_acc_cs() const -> Span<const std::byte>;
+    auto irr_div_cs() const -> Span<const std::byte>;
+    auto rad_acc_cs() const -> Span<const std::byte>;
+    auto rad_div_cs() const -> Span<const std::byte>;
+    auto bg_vs() const -> Span<const std::byte>;
+    auto bg_ps() const -> Span<const std::byte>;
+    auto model_vs() const -> Span<const std::byte>;
+    auto model_ps() const -> Span<const std::byte>;
+    auto screen_vs() const -> Span<const std::byte>;
+    auto screen_ps() const -> Span<const std::byte>;
+    auto blit_vs() const -> Span<const std::byte>;
+    auto blit_ps() const -> Span<const std::byte>;
 
 private:
     std::vector<std::byte> _data;

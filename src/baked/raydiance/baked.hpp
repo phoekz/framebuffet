@@ -18,8 +18,8 @@ public:
 
 private:
     template<typename T>
-    auto transmuted_span(size_t offset, size_t element_count) const -> std::span<const T> {
-        return std::span((const T*)(_data.data() + offset), element_count);
+    auto transmuted_span(size_t offset, size_t element_count) const -> Span<const T> {
+        return Span((const T*)(_data.data() + offset), element_count);
     }
 
     std::vector<std::byte> _data;

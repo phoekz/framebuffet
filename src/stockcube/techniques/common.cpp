@@ -14,7 +14,7 @@ auto write_output_metadata_file(std::string_view path, const OutputMetadata& met
         {"mip_count", meta.mip_count},
     };
     const auto json_str = json.dump(4);
-    const auto json_bytes = std::as_bytes(std::span(json_str));
+    const auto json_bytes = std::as_bytes(Span(json_str));
     write_whole_file(path, json_bytes);
 }
 

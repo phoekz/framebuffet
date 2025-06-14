@@ -121,7 +121,7 @@ auto ShaderCompiler::compile(
     std::string_view name,
     ShaderType type,
     std::string_view entry_point,
-    std::span<const std::byte> source,
+    Span<const std::byte> source,
     bool debug
 ) const -> Shader {
     // Note: remember to set PIX PDB search path correctly for shader debugging to work.
@@ -306,7 +306,7 @@ static auto make_unique_shader_name(std::string_view name, std::string_view entr
     return std::format("{}_{}", name, entry_point);
 }
 
-auto bake_shaders(std::string_view buffet_dir, std::span<const ShaderTask> shader_tasks)
+auto bake_shaders(std::string_view buffet_dir, Span<const ShaderTask> shader_tasks)
     -> std::vector<Shader> {
     const auto compiler = ShaderCompiler();
     auto compiled_shaders = std::vector<Shader>();

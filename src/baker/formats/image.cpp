@@ -8,7 +8,7 @@ namespace fb {
 static constexpr uint CHANNEL_COUNT = 4;
 
 template<>
-auto Image<std::byte>::from_image(std::span<const std::byte> src_image) -> Image<std::byte> {
+auto Image<std::byte>::from_image(Span<const std::byte> src_image) -> Image<std::byte> {
     // Load.
     uint width = 0;
     uint height = 0;
@@ -41,7 +41,7 @@ auto Image<std::byte>::from_image(std::span<const std::byte> src_image) -> Image
 }
 
 template<>
-auto Image<float>::from_image(std::span<const std::byte> src_image) -> Image<float> {
+auto Image<float>::from_image(Span<const std::byte> src_image) -> Image<float> {
     // Load.
     uint width = 0;
     uint height = 0;

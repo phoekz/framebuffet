@@ -15,7 +15,7 @@ public:
         : _data(data) {}
 
     template<typename T>
-    auto write(std::string_view type, std::span<const T> elements) -> AssetSpan {
+    auto write(std::string_view type, Span<const T> elements) -> AssetSpan {
         auto offset = _data.size();
         _data.resize(offset + elements.size_bytes());
         std::memcpy(_data.data() + offset, elements.data(), elements.size_bytes());
@@ -58,7 +58,7 @@ auto mipmapped_texture_asset(
     texture_datas[texture_data_count++] = AssetTextureData {
         .row_pitch = dst_width * texture.channel_count(),
         .slice_pitch = dst_width * dst_height * texture.channel_count(),
-        .data = assets_writer.write("std::byte", std::span<const std::byte>(dst_buffer)),
+        .data = assets_writer.write("std::byte", Span<const std::byte>(dst_buffer)),
     };
 
     // Compute the rest of the mip levels.
@@ -106,7 +106,7 @@ auto mipmapped_texture_asset(
         texture_datas[texture_data_count++] = AssetTextureData {
             .row_pitch = dst_width * texture.channel_count(),
             .slice_pitch = dst_width * dst_height * texture.channel_count(),
-            .data = assets_writer.write("std::byte", std::span<const std::byte>(dst_buffer)),
+            .data = assets_writer.write("std::byte", Span<const std::byte>(dst_buffer)),
         };
     }
 
@@ -261,7 +261,7 @@ auto create_sphere(
     FB_ASSERT(positions.size() == texcoords.size());
 }
 
-auto bake_assets(std::string_view assets_dir, std::span<const AssetTask> asset_tasks)
+auto bake_assets(std::string_view assets_dir, Span<const AssetTask> asset_tasks)
     -> std::tuple<std::vector<Asset>, std::vector<std::byte>> {
     auto assets = std::vector<Asset>();
     auto assets_bin = std::vector<std::byte>();
@@ -286,7 +286,7 @@ auto bake_assets(std::string_view assets_dir, std::span<const AssetTask> asset_t
                     const auto file = read_whole_file(path);
                     assets.emplace_back(AssetCopy {
                         .name = names.unique(std::string(task.name)),
-                        .data = assets_writer.write("std::byte", std::span(file)),
+                        .data = assets_writer.write("std::byte", Span(file)),
                     });
                 },
                 [&](const AssetTaskTexture& task) {
@@ -335,7 +335,7 @@ auto bake_assets(std::string_view assets_dir, std::span<const AssetTask> asset_t
                         .normals = normals,
                         .texcoords = texcoords,
                         .indices = indices,
-                        .tangents = std::span(tangents),
+                        .tangents = Span(tangents),
                     });
 
                     // Submeshes.
@@ -363,14 +363,12 @@ auto bake_assets(std::string_view assets_dir, std::span<const AssetTask> asset_t
                         assets.emplace_back(AssetMesh {
                             .name = names.unique(std::format("{}_mesh", task.name)),
                             .transform = model.root_transform(),
-                            .vertices = assets_writer.write(
-                                "Vertex",
-                                std::span<const AssetVertex>(vertices)
-                            ),
+                            .vertices =
+                                assets_writer.write("Vertex", Span<const AssetVertex>(vertices)),
                             .indices = assets_writer.write("Index", indices),
                             .submeshes = assets_writer.write(
                                 "Submesh",
-                                std::span<const AssetSubmesh>(asset_submeshes)
+                                Span<const AssetSubmesh>(asset_submeshes)
                             ),
                         });
                     } else {
@@ -394,12 +392,12 @@ auto bake_assets(std::string_view assets_dir, std::span<const AssetTask> asset_t
                             .duration = model.animation_duration(),
                             .skinning_vertices = assets_writer.write(
                                 "SkinningVertex",
-                                std::span<const AssetSkinningVertex>(vertices)
+                                Span<const AssetSkinningVertex>(vertices)
                             ),
                             .indices = assets_writer.write("Index", indices),
                             .submeshes = assets_writer.write(
                                 "Submesh",
-                                std::span<const AssetSubmesh>(asset_submeshes)
+                                Span<const AssetSubmesh>(asset_submeshes)
                             ),
                             .joint_nodes = assets_writer.write("uint", model.joint_nodes()),
                             .joint_inverse_binds =
@@ -483,7 +481,7 @@ auto bake_assets(std::string_view assets_dir, std::span<const AssetTask> asset_t
                         .normals = vertex_normals,
                         .texcoords = vertex_texcoords,
                         .indices = indices,
-                        .tangents = std::span(vertex_tangents),
+                        .tangents = Span(vertex_tangents),
                     });
 
                     // Convert.
@@ -510,13 +508,10 @@ auto bake_assets(std::string_view assets_dir, std::span<const AssetTask> asset_t
                     assets.emplace_back(AssetMesh {
                         .name = names.unique(std::format("{}_mesh", task.name)),
                         .vertices =
-                            assets_writer.write("Vertex", std::span<const AssetVertex>(vertices)),
-                        .indices =
-                            assets_writer.write("Index", std::span<const AssetIndex>(indices)),
-                        .submeshes = assets_writer.write(
-                            "Submesh",
-                            std::span<const AssetSubmesh>(submeshes)
-                        ),
+                            assets_writer.write("Vertex", Span<const AssetVertex>(vertices)),
+                        .indices = assets_writer.write("Index", Span<const AssetIndex>(indices)),
+                        .submeshes =
+                            assets_writer.write("Submesh", Span<const AssetSubmesh>(submeshes)),
                     });
                 },
                 [&](const AssetTaskProceduralSphere& task) {
@@ -543,7 +538,7 @@ auto bake_assets(std::string_view assets_dir, std::span<const AssetTask> asset_t
                         .normals = vertex_normals,
                         .texcoords = vertex_texcoords,
                         .indices = indices,
-                        .tangents = std::span(vertex_tangents),
+                        .tangents = Span(vertex_tangents),
                     });
 
                     // Convert.
@@ -570,13 +565,10 @@ auto bake_assets(std::string_view assets_dir, std::span<const AssetTask> asset_t
                     assets.emplace_back(AssetMesh {
                         .name = names.unique(std::format("{}_mesh", task.name)),
                         .vertices =
-                            assets_writer.write("Vertex", std::span<const AssetVertex>(vertices)),
-                        .indices =
-                            assets_writer.write("Index", std::span<const AssetIndex>(indices)),
-                        .submeshes = assets_writer.write(
-                            "Submesh",
-                            std::span<const AssetSubmesh>(submeshes)
-                        ),
+                            assets_writer.write("Vertex", Span<const AssetVertex>(vertices)),
+                        .indices = assets_writer.write("Index", Span<const AssetIndex>(indices)),
+                        .submeshes =
+                            assets_writer.write("Submesh", Span<const AssetSubmesh>(submeshes)),
                     });
                 },
                 [&](const AssetTaskProceduralLowPolyGround& task) {
@@ -717,13 +709,10 @@ auto bake_assets(std::string_view assets_dir, std::span<const AssetTask> asset_t
                     assets.emplace_back(AssetMesh {
                         .name = names.unique(std::format("{}_mesh", task.name)),
                         .vertices =
-                            assets_writer.write("Vertex", std::span<const AssetVertex>(vertices)),
-                        .indices =
-                            assets_writer.write("Index", std::span<const AssetIndex>(indices)),
-                        .submeshes = assets_writer.write(
-                            "Submesh",
-                            std::span<const AssetSubmesh>(submeshes)
-                        ),
+                            assets_writer.write("Vertex", Span<const AssetVertex>(vertices)),
+                        .indices = assets_writer.write("Index", Span<const AssetIndex>(indices)),
+                        .submeshes =
+                            assets_writer.write("Submesh", Span<const AssetSubmesh>(submeshes)),
                     });
                 },
                 [&](const AssetTaskProceduralTexturedPlane& task) {
@@ -777,13 +766,10 @@ auto bake_assets(std::string_view assets_dir, std::span<const AssetTask> asset_t
                     assets.emplace_back(AssetMesh {
                         .name = names.unique(std::format("{}_mesh", task.name)),
                         .vertices =
-                            assets_writer.write("Vertex", std::span<const AssetVertex>(vertices)),
-                        .indices =
-                            assets_writer.write("Index", std::span<const AssetIndex>(indices)),
-                        .submeshes = assets_writer.write(
-                            "Submesh",
-                            std::span<const AssetSubmesh>(submeshes)
-                        ),
+                            assets_writer.write("Vertex", Span<const AssetVertex>(vertices)),
+                        .indices = assets_writer.write("Index", Span<const AssetIndex>(indices)),
+                        .submeshes =
+                            assets_writer.write("Submesh", Span<const AssetSubmesh>(submeshes)),
                     });
 
                     // Texture.
@@ -836,7 +822,7 @@ auto bake_assets(std::string_view assets_dir, std::span<const AssetTask> asset_t
                 [&](const AssetTaskStockcubeOutput& task) {
                     const auto bin_path = std::format("{}/{}", assets_dir, task.bin_path);
                     const auto bin_bytes = read_whole_file(bin_path);
-                    const auto bin_span = std::span<const std::byte>(bin_bytes);
+                    const auto bin_span = Span<const std::byte>(bin_bytes);
 
                     const auto json_path = std::format("{}/{}", assets_dir, task.json_path);
                     const auto json_bytes = read_whole_file(json_path);
@@ -1010,18 +996,15 @@ auto bake_assets(std::string_view assets_dir, std::span<const AssetTask> asset_t
                         .ascender = ttf->hhea.ascender,
                         .descender = ttf->hhea.descender,
                         .space_advance = space_glyph->advance,
-                        .glyphs = assets_writer.write("Glyph", std::span<const AssetGlyph>(glyphs)),
+                        .glyphs = assets_writer.write("Glyph", Span<const AssetGlyph>(glyphs)),
                     });
                     assets.emplace_back(AssetMesh {
                         .name = names.unique(std::format("{}_mesh", task.name)),
                         .vertices =
-                            assets_writer.write("Vertex", std::span<const AssetVertex>(vertices)),
-                        .indices =
-                            assets_writer.write("Index", std::span<const AssetIndex>(indices)),
-                        .submeshes = assets_writer.write(
-                            "Submesh",
-                            std::span<const AssetSubmesh>(submeshes)
-                        ),
+                            assets_writer.write("Vertex", Span<const AssetVertex>(vertices)),
+                        .indices = assets_writer.write("Index", Span<const AssetIndex>(indices)),
+                        .submeshes =
+                            assets_writer.write("Submesh", Span<const AssetSubmesh>(submeshes)),
                     });
 
                     // Cleanup.

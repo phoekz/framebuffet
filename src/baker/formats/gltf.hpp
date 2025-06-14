@@ -46,13 +46,13 @@ public:
     auto root_transform() const -> float4x4 { return _root_transform; }
 
     // clang-format off
-    auto vertex_positions() const -> std::span<const GltfVertexPosition> { return _vertex_positions; }
-    auto vertex_normals() const -> std::span<const GltfVertexNormal> { return _vertex_normals; }
-    auto vertex_texcoords() const -> std::span<const GltfVertexTexcoord> { return _vertex_texcoords; }
-    auto vertex_joints() const -> std::span<const GltfVertexJoint> { return _vertex_joints; }
-    auto vertex_weights() const -> std::span<const GltfVertexWeight> { return _vertex_weights; }
-    auto indices() const -> std::span<const uint> { return _indices; }
-    auto submeshes() const -> std::span<const GltfSubmesh> { return _submeshes; }
+    auto vertex_positions() const -> Span<const GltfVertexPosition> { return _vertex_positions; }
+    auto vertex_normals() const -> Span<const GltfVertexNormal> { return _vertex_normals; }
+    auto vertex_texcoords() const -> Span<const GltfVertexTexcoord> { return _vertex_texcoords; }
+    auto vertex_joints() const -> Span<const GltfVertexJoint> { return _vertex_joints; }
+    auto vertex_weights() const -> Span<const GltfVertexWeight> { return _vertex_weights; }
+    auto indices() const -> Span<const uint> { return _indices; }
+    auto submeshes() const -> Span<const GltfSubmesh> { return _submeshes; }
 
     auto base_color_texture() const -> const LdrImage& { return _base_color_texture; }
     auto normal_texture() const -> const Option<ConstRef<LdrImage>> {
@@ -74,16 +74,16 @@ public:
     auto joint_count() const -> uint { return (uint)_joint_nodes.size(); }
     auto animation_duration() const -> float { return _animation_duration; };
 
-    auto joint_nodes() const -> std::span<const uint> { return _joint_nodes; };
-    auto joint_inverse_binds() const -> std::span<const float4x4> { return _joint_inverse_binds; };
-    auto node_parents() const -> std::span<const uint> { return _node_parents; };
-    auto node_channels() const -> std::span<const GltfChannelHeader> { return _node_channels; };
-    auto node_channels_times_t() const -> std::span<const float> { return _node_channels_times_t; };
-    auto node_channels_times_r() const -> std::span<const float> { return _node_channels_times_r; };
-    auto node_channels_times_s() const -> std::span<const float> { return _node_channels_times_s; };
-    auto node_channels_values_t() const -> std::span<const float3> { return _node_channels_values_t; };
-    auto node_channels_values_r() const -> std::span<const float_quat> { return _node_channels_values_r; };
-    auto node_channels_values_s() const -> std::span<const float3> { return _node_channels_values_s; };
+    auto joint_nodes() const -> Span<const uint> { return _joint_nodes; };
+    auto joint_inverse_binds() const -> Span<const float4x4> { return _joint_inverse_binds; };
+    auto node_parents() const -> Span<const uint> { return _node_parents; };
+    auto node_channels() const -> Span<const GltfChannelHeader> { return _node_channels; };
+    auto node_channels_times_t() const -> Span<const float> { return _node_channels_times_t; };
+    auto node_channels_times_r() const -> Span<const float> { return _node_channels_times_r; };
+    auto node_channels_times_s() const -> Span<const float> { return _node_channels_times_s; };
+    auto node_channels_values_t() const -> Span<const float3> { return _node_channels_values_t; };
+    auto node_channels_values_r() const -> Span<const float_quat> { return _node_channels_values_r; };
+    auto node_channels_values_s() const -> Span<const float3> { return _node_channels_values_s; };
     // clang-format on
 
 private:

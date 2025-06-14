@@ -17,7 +17,7 @@ auto GpuPipelineBuilder::primitive_topology(D3D12_PRIMITIVE_TOPOLOGY_TYPE topolo
     return *this;
 }
 
-auto GpuPipelineBuilder::vertex_shader(std::span<const std::byte> dxil) -> GpuPipelineBuilder& {
+auto GpuPipelineBuilder::vertex_shader(Span<const std::byte> dxil) -> GpuPipelineBuilder& {
     static constexpr uint BIT = (1 << D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_VS);
     FB_ASSERT((_subobject_mask & BIT) == 0);
     new (_buffer + _buffet_offset) CD3DX12_PIPELINE_STATE_STREAM_VS(D3D12_SHADER_BYTECODE {
@@ -29,7 +29,7 @@ auto GpuPipelineBuilder::vertex_shader(std::span<const std::byte> dxil) -> GpuPi
     return *this;
 }
 
-auto GpuPipelineBuilder::pixel_shader(std::span<const std::byte> dxil) -> GpuPipelineBuilder& {
+auto GpuPipelineBuilder::pixel_shader(Span<const std::byte> dxil) -> GpuPipelineBuilder& {
     static constexpr uint BIT = (1 << D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_PS);
     FB_ASSERT((_subobject_mask & BIT) == 0);
     new (_buffer + _buffet_offset) CD3DX12_PIPELINE_STATE_STREAM_PS(D3D12_SHADER_BYTECODE {
@@ -41,7 +41,7 @@ auto GpuPipelineBuilder::pixel_shader(std::span<const std::byte> dxil) -> GpuPip
     return *this;
 }
 
-auto GpuPipelineBuilder::compute_shader(std::span<const std::byte> dxil) -> GpuPipelineBuilder& {
+auto GpuPipelineBuilder::compute_shader(Span<const std::byte> dxil) -> GpuPipelineBuilder& {
     static constexpr uint BIT = (1 << D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_CS);
     FB_ASSERT((_subobject_mask & BIT) == 0);
     new (_buffer + _buffet_offset) CD3DX12_PIPELINE_STATE_STREAM_CS(D3D12_SHADER_BYTECODE {

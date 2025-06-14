@@ -59,7 +59,7 @@ auto create(Demo& demo, const CreateDesc& desc) -> void {
             .Quality = 0,
         })
         .build(device, demo.clear_pipeline, debug.with_name("Clear"));
-    using Desc = std::tuple<uint, bool, std::span<const std::byte>, GpuPipeline&>;
+    using Desc = std::tuple<uint, bool, Span<const std::byte>, GpuPipeline&>;
     for (auto [index, conservative_rasterization, pixel_shader, pipeline] : {
              Desc {0, false, shaders.conras_raster_cr_off_ps(), demo.raster_pipelines[0]},
              Desc {1, true, shaders.conras_raster_cr_on_ps(), demo.raster_pipelines[1]},

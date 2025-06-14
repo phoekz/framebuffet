@@ -56,8 +56,8 @@ public:
 
 private:
     template<typename T>
-    auto transmuted_span(size_t offset, size_t element_count) const -> std::span<const T> {
-        return std::span((const T*)(_data.data() + offset), element_count);
+    auto transmuted_span(size_t offset, size_t element_count) const -> Span<const T> {
+        return Span((const T*)(_data.data() + offset), element_count);
     }
 
     std::vector<std::byte> _data;
@@ -67,57 +67,57 @@ class Shaders {
 public:
     auto load() -> void;
 
-    auto cards_background_vs() const -> std::span<const std::byte>;
-    auto cards_background_ps() const -> std::span<const std::byte>;
-    auto cards_draw_vs() const -> std::span<const std::byte>;
-    auto cards_draw_ps() const -> std::span<const std::byte>;
-    auto conras_clear_vs() const -> std::span<const std::byte>;
-    auto conras_clear_ps() const -> std::span<const std::byte>;
-    auto conras_raster_vs() const -> std::span<const std::byte>;
-    auto conras_raster_cr_off_ps() const -> std::span<const std::byte>;
-    auto conras_raster_cr_on_ps() const -> std::span<const std::byte>;
-    auto conras_display_vs() const -> std::span<const std::byte>;
-    auto conras_display_ps() const -> std::span<const std::byte>;
-    auto crate_draw_vs() const -> std::span<const std::byte>;
-    auto crate_draw_ps() const -> std::span<const std::byte>;
-    auto tree_shadow_vs() const -> std::span<const std::byte>;
-    auto tree_draw_vs() const -> std::span<const std::byte>;
-    auto tree_draw_ps() const -> std::span<const std::byte>;
-    auto rain_sim_cs() const -> std::span<const std::byte>;
-    auto rain_draw_vs() const -> std::span<const std::byte>;
-    auto rain_draw_ps() const -> std::span<const std::byte>;
-    auto anim_shadow_vs() const -> std::span<const std::byte>;
-    auto anim_ground_vs() const -> std::span<const std::byte>;
-    auto anim_ground_ps() const -> std::span<const std::byte>;
-    auto anim_anim_vs() const -> std::span<const std::byte>;
-    auto anim_anim_ps() const -> std::span<const std::byte>;
-    auto fibers_sim_cs() const -> std::span<const std::byte>;
-    auto fibers_reset_cs() const -> std::span<const std::byte>;
-    auto fibers_cull_cs() const -> std::span<const std::byte>;
-    auto fibers_light_vs() const -> std::span<const std::byte>;
-    auto fibers_light_ps() const -> std::span<const std::byte>;
-    auto fibers_plane_vs() const -> std::span<const std::byte>;
-    auto fibers_plane_ps() const -> std::span<const std::byte>;
-    auto fibers_debug_vs() const -> std::span<const std::byte>;
-    auto fibers_debug_ps() const -> std::span<const std::byte>;
-    auto env_background_vs() const -> std::span<const std::byte>;
-    auto env_background_ps() const -> std::span<const std::byte>;
-    auto env_model_vs() const -> std::span<const std::byte>;
-    auto env_model_ps() const -> std::span<const std::byte>;
-    auto text_background_vs() const -> std::span<const std::byte>;
-    auto text_background_ps() const -> std::span<const std::byte>;
-    auto text_glyph_vs() const -> std::span<const std::byte>;
-    auto text_glyph_ps() const -> std::span<const std::byte>;
-    auto saber_scene_vs() const -> std::span<const std::byte>;
-    auto saber_scene_ps() const -> std::span<const std::byte>;
-    auto saber_threshold_cs() const -> std::span<const std::byte>;
-    auto saber_downsample_cs() const -> std::span<const std::byte>;
-    auto saber_upsample_cs() const -> std::span<const std::byte>;
-    auto saber_blit_vs() const -> std::span<const std::byte>;
-    auto saber_blit_ps() const -> std::span<const std::byte>;
-    auto grass_draw_vs() const -> std::span<const std::byte>;
-    auto grass_draw_naive_ps() const -> std::span<const std::byte>;
-    auto grass_draw_atoc_ps() const -> std::span<const std::byte>;
+    auto cards_background_vs() const -> Span<const std::byte>;
+    auto cards_background_ps() const -> Span<const std::byte>;
+    auto cards_draw_vs() const -> Span<const std::byte>;
+    auto cards_draw_ps() const -> Span<const std::byte>;
+    auto conras_clear_vs() const -> Span<const std::byte>;
+    auto conras_clear_ps() const -> Span<const std::byte>;
+    auto conras_raster_vs() const -> Span<const std::byte>;
+    auto conras_raster_cr_off_ps() const -> Span<const std::byte>;
+    auto conras_raster_cr_on_ps() const -> Span<const std::byte>;
+    auto conras_display_vs() const -> Span<const std::byte>;
+    auto conras_display_ps() const -> Span<const std::byte>;
+    auto crate_draw_vs() const -> Span<const std::byte>;
+    auto crate_draw_ps() const -> Span<const std::byte>;
+    auto tree_shadow_vs() const -> Span<const std::byte>;
+    auto tree_draw_vs() const -> Span<const std::byte>;
+    auto tree_draw_ps() const -> Span<const std::byte>;
+    auto rain_sim_cs() const -> Span<const std::byte>;
+    auto rain_draw_vs() const -> Span<const std::byte>;
+    auto rain_draw_ps() const -> Span<const std::byte>;
+    auto anim_shadow_vs() const -> Span<const std::byte>;
+    auto anim_ground_vs() const -> Span<const std::byte>;
+    auto anim_ground_ps() const -> Span<const std::byte>;
+    auto anim_anim_vs() const -> Span<const std::byte>;
+    auto anim_anim_ps() const -> Span<const std::byte>;
+    auto fibers_sim_cs() const -> Span<const std::byte>;
+    auto fibers_reset_cs() const -> Span<const std::byte>;
+    auto fibers_cull_cs() const -> Span<const std::byte>;
+    auto fibers_light_vs() const -> Span<const std::byte>;
+    auto fibers_light_ps() const -> Span<const std::byte>;
+    auto fibers_plane_vs() const -> Span<const std::byte>;
+    auto fibers_plane_ps() const -> Span<const std::byte>;
+    auto fibers_debug_vs() const -> Span<const std::byte>;
+    auto fibers_debug_ps() const -> Span<const std::byte>;
+    auto env_background_vs() const -> Span<const std::byte>;
+    auto env_background_ps() const -> Span<const std::byte>;
+    auto env_model_vs() const -> Span<const std::byte>;
+    auto env_model_ps() const -> Span<const std::byte>;
+    auto text_background_vs() const -> Span<const std::byte>;
+    auto text_background_ps() const -> Span<const std::byte>;
+    auto text_glyph_vs() const -> Span<const std::byte>;
+    auto text_glyph_ps() const -> Span<const std::byte>;
+    auto saber_scene_vs() const -> Span<const std::byte>;
+    auto saber_scene_ps() const -> Span<const std::byte>;
+    auto saber_threshold_cs() const -> Span<const std::byte>;
+    auto saber_downsample_cs() const -> Span<const std::byte>;
+    auto saber_upsample_cs() const -> Span<const std::byte>;
+    auto saber_blit_vs() const -> Span<const std::byte>;
+    auto saber_blit_ps() const -> Span<const std::byte>;
+    auto grass_draw_vs() const -> Span<const std::byte>;
+    auto grass_draw_naive_ps() const -> Span<const std::byte>;
+    auto grass_draw_atoc_ps() const -> Span<const std::byte>;
 
 private:
     std::vector<std::byte> _data;

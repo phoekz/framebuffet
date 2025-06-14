@@ -26,7 +26,7 @@ public:
     ) -> void;
     auto resource(
         const ComPtr<ID3D12Resource2>& resource,
-        std::span<const D3D12_SUBRESOURCE_DATA> datas,
+        Span<const D3D12_SUBRESOURCE_DATA> datas,
         D3D12_BARRIER_SYNC sync_before,
         D3D12_BARRIER_SYNC sync_after,
         D3D12_BARRIER_ACCESS access_before,

@@ -116,9 +116,9 @@ public:
     GpuPipelineBuilder() = default;
 
     auto primitive_topology(D3D12_PRIMITIVE_TOPOLOGY_TYPE topology) -> GpuPipelineBuilder&;
-    auto vertex_shader(std::span<const std::byte> dxil) -> GpuPipelineBuilder&;
-    auto pixel_shader(std::span<const std::byte> dxil) -> GpuPipelineBuilder&;
-    auto compute_shader(std::span<const std::byte> dxil) -> GpuPipelineBuilder&;
+    auto vertex_shader(Span<const std::byte> dxil) -> GpuPipelineBuilder&;
+    auto pixel_shader(Span<const std::byte> dxil) -> GpuPipelineBuilder&;
+    auto compute_shader(Span<const std::byte> dxil) -> GpuPipelineBuilder&;
     auto blend(GpuBlendDesc desc) -> GpuPipelineBuilder&;
     auto depth_stencil(GpuDepthStencilDesc desc) -> GpuPipelineBuilder&;
     auto rasterizer(GpuRasterizerDesc desc) -> GpuPipelineBuilder&;

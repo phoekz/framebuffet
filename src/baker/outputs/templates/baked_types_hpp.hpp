@@ -5,7 +5,7 @@ inline constexpr std::string_view BAKED_TYPES_HPP = R"(#pragma once
     namespace fb::baked {
 
     struct Copy {
-        std::span<const std::byte> data;
+        Span<const std::byte> data;
     };
 
     struct Vertex {
@@ -34,9 +34,9 @@ inline constexpr std::string_view BAKED_TYPES_HPP = R"(#pragma once
 
     struct Mesh {
         float4x4 transform;
-        std::span<const Vertex> vertices;
-        std::span<const Index> indices;
-        std::span<const Submesh> submeshes;
+        Span<const Vertex> vertices;
+        Span<const Index> indices;
+        Span<const Submesh> submeshes;
     };
 
     inline constexpr uint MAX_MIP_COUNT = {{max_mip_count}};
@@ -44,7 +44,7 @@ inline constexpr std::string_view BAKED_TYPES_HPP = R"(#pragma once
     struct TextureData {
         uint row_pitch;
         uint slice_pitch;
-        std::span<const std::byte> data;
+        Span<const std::byte> data;
     };
 
     struct Texture {
@@ -98,19 +98,19 @@ inline constexpr std::string_view BAKED_TYPES_HPP = R"(#pragma once
         uint node_count;
         uint joint_count;
         float duration;
-        std::span<const SkinningVertex> skinning_vertices;
-        std::span<const Index> indices;
-        std::span<const Submesh> submeshes;
-        std::span<const uint> joint_nodes;
-        std::span<const float4x4> joint_inverse_binds;
-        std::span<const uint> node_parents;
-        std::span<const AnimationChannel> node_channels;
-        std::span<const float> node_channels_times_t;
-        std::span<const float> node_channels_times_r;
-        std::span<const float> node_channels_times_s;
-        std::span<const float3> node_channels_values_t;
-        std::span<const float_quat> node_channels_values_r;
-        std::span<const float3> node_channels_values_s;
+        Span<const SkinningVertex> skinning_vertices;
+        Span<const Index> indices;
+        Span<const Submesh> submeshes;
+        Span<const uint> joint_nodes;
+        Span<const float4x4> joint_inverse_binds;
+        Span<const uint> node_parents;
+        Span<const AnimationChannel> node_channels;
+        Span<const float> node_channels_times_t;
+        Span<const float> node_channels_times_r;
+        Span<const float> node_channels_times_s;
+        Span<const float3> node_channels_values_t;
+        Span<const float_quat> node_channels_values_r;
+        Span<const float3> node_channels_values_s;
     };
 
     struct Glyph {
@@ -126,7 +126,7 @@ inline constexpr std::string_view BAKED_TYPES_HPP = R"(#pragma once
         float ascender;
         float descender;
         float space_advance;
-        std::span<const Glyph> glyphs;
+        Span<const Glyph> glyphs;
     };
 
     } // namespace fb::baked

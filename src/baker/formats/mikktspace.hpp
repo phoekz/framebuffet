@@ -5,11 +5,11 @@
 namespace fb {
 
 struct GenerateTangentsDesc {
-    std::span<const GltfVertexPosition> positions;
-    std::span<const GltfVertexNormal> normals;
-    std::span<const GltfVertexTexcoord> texcoords;
-    std::span<const GltfIndex> indices;
-    std::span<float4> tangents;
+    Span<const GltfVertexPosition> positions;
+    Span<const GltfVertexNormal> normals;
+    Span<const GltfVertexTexcoord> texcoords;
+    Span<const GltfIndex> indices;
+    Span<float4> tangents;
 };
 
 auto generate_tangents(const GenerateTangentsDesc& desc) -> void;

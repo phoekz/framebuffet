@@ -5,7 +5,7 @@
 namespace fb {
 
 auto read_whole_file(std::string_view path) -> std::vector<std::byte>;
-auto write_whole_file(std::string_view path, std::span<const std::byte> data) -> void;
+auto write_whole_file(std::string_view path, Span<const std::byte> data) -> void;
 auto move_file_if_different(std::string_view dst_path, std::string_view src_path) -> bool;
 auto delete_file(std::string_view path) -> void;
 auto file_exists(std::string_view path) -> bool;

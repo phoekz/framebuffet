@@ -28,10 +28,10 @@ struct std::formatter<DXGI_FORMAT>: std::formatter<char> {
 namespace fb {
 
 auto bake_app_datas(
-    std::span<const std::string_view> output_dirs,
+    Span<const std::string_view> output_dirs,
     std::string_view app_name,
-    std::span<const AssetTask> app_asset_tasks,
-    std::span<const ShaderTask> app_shader_tasks
+    Span<const AssetTask> app_asset_tasks,
+    Span<const ShaderTask> app_shader_tasks
 ) -> void {
     // Log.
     FB_LOG_INFO("Baking app datas: {}", app_name);
@@ -86,7 +86,7 @@ auto bake_app_datas(
     };
     const auto format_named_asset_span =
         [&assets_bin](std::string_view name, AssetSpan span) -> std::string {
-        const auto bytes = std::span(assets_bin.data() + span.offset, span.byte_count);
+        const auto bytes = Span(assets_bin.data() + span.offset, span.byte_count);
         const auto hash = hash128(bytes);
         return std::format(
             "// hash: {}\n .{} = transmuted_span<{}>({}, {})",
@@ -153,8 +153,7 @@ auto bake_app_datas(
                         const auto mip_width = std::max(1u, asset.width >> mip);
                         const auto mip_height = std::max(1u, asset.height >> mip);
                         const auto span = asset.datas[mip].data;
-                        const auto bytes =
-                            std::span(assets_bin.data() + span.offset, span.byte_count);
+                        const auto bytes = Span(assets_bin.data() + span.offset, span.byte_count);
                         const auto hash = hash128(bytes);
                         if (mip > 0) {
                             texture_datas << "\n";
@@ -213,7 +212,7 @@ auto bake_app_datas(
                             const auto mip_height = std::max(1u, asset.height >> mip);
                             const auto span = slice_datas[mip].data;
                             const auto bytes =
-                                std::span(assets_bin.data() + span.offset, span.byte_count);
+                                Span(assets_bin.data() + span.offset, span.byte_count);
                             const auto hash = hash128(bytes);
                             if (slice > 0 || mip > 0) {
                                 texture_datas << "\n";
@@ -375,14 +374,14 @@ auto bake_app_datas(
     std::ostringstream shader_defns;
     std::vector<std::byte> shaders_bin;
     for (const auto& shader : compiled_shaders) {
-        shader_decls << std::format("auto {}() const -> std::span<const std::byte>;", shader.name);
+        shader_decls << std::format("auto {}() const -> Span<const std::byte>;", shader.name);
         shader_defns << std::format(
             R"(
                 // shader_hash: {}
                 {}
                 /* disassembly:{}{}*/
-                auto Shaders::{}() const -> std::span<const std::byte> {{
-                    return std::span(_data).subspan({}, {});
+                auto Shaders::{}() const -> Span<const std::byte> {{
+                    return Span(_data).subspan({}, {});
                 }}
             )",
             shader.hash,
@@ -418,9 +417,9 @@ auto bake_app_datas(
     // clang-format on
 
     // Write temp source files.
-    auto baked_types_hpp_bytes = std::as_bytes(std::span(baked_types_hpp));
-    auto baked_hpp_bytes = std::as_bytes(std::span(baked_hpp));
-    auto baked_cpp_bytes = std::as_bytes(std::span(baked_cpp));
+    auto baked_types_hpp_bytes = std::as_bytes(Span(baked_types_hpp));
+    auto baked_hpp_bytes = std::as_bytes(Span(baked_hpp));
+    auto baked_cpp_bytes = std::as_bytes(Span(baked_cpp));
     create_directories(baked_app_dir);
     auto baked_types_hpp_temp_path = create_temp_path();
     auto baked_hpp_temp_path = create_temp_path();

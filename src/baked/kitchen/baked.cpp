@@ -301,8 +301,8 @@ attributes #2 = { nounwind readonly }
 !20 = !{i32 3, i32 3}
 !21 = !{i32 0, i64 1082130688}
 */
-auto Shaders::gui_draw_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(0, 5364);
+auto Shaders::gui_draw_vs() const -> Span<const std::byte> {
+    return Span(_data).subspan(0, 5364);
 }
 
 // shader_hash: 1c14709bc74f6a3302945799741f3777
@@ -496,8 +496,8 @@ attributes #2 = { nounwind readonly }
 !18 = !{i32 0, !"SV_Target", i8 9, i8 16, !11, i8 0, i32 1, i8 4, i32 0, i8 0, !13}
 !19 = !{i32 0, i64 3229614336}
 */
-auto Shaders::gui_draw_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(5364, 4428);
+auto Shaders::gui_draw_ps() const -> Span<const std::byte> {
+    return Span(_data).subspan(5364, 4428);
 }
 
 // shader_hash: cb1199f8880950b8d9c0da52b5009da0
@@ -751,8 +751,8 @@ attributes #2 = { nounwind readonly }
 !17 = !{i32 1, !"ATTRIBUTE", i8 9, i8 0, !11, i8 2, i32 1, i8 4, i32 1, i8 0, !16}
 !18 = !{i32 0, i64 1082130688}
 */
-auto Shaders::debug_draw_draw_vs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(9792, 5128);
+auto Shaders::debug_draw_draw_vs() const -> Span<const std::byte> {
+    return Span(_data).subspan(9792, 5128);
 }
 
 // shader_hash: fbe5f57464d4b02a60afdfab97c43f1a
@@ -863,8 +863,8 @@ attributes #1 = { nounwind }
 !12 = !{i32 0, !"SV_Target", i8 9, i8 16, !8, i8 0, i32 1, i8 4, i32 0, i8 0, !10}
 !13 = !{i32 0, i64 8388864}
 */
-auto Shaders::debug_draw_draw_ps() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(14920, 3068);
+auto Shaders::debug_draw_draw_ps() const -> Span<const std::byte> {
+    return Span(_data).subspan(14920, 3068);
 }
 
 // shader_hash: a1dcc597e997b635f78cc6e2d532990a
@@ -2645,8 +2645,8 @@ attributes #3 = { nounwind }
 !11 = !{!"omnipotent char", !12, i64 0}
 !12 = !{!"Simple C/C++ TBAA"}
 */
-auto Shaders::spd_downsample_cs() const -> std::span<const std::byte> {
-    return std::span(_data).subspan(17988, 14080);
+auto Shaders::spd_downsample_cs() const -> Span<const std::byte> {
+    return Span(_data).subspan(17988, 14080);
 }
 
 #undef texture_data

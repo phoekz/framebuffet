@@ -183,8 +183,8 @@ protected:
     auto set_global_descriptor_heap() const -> void;
     auto set_global_graphics_root_signature() const -> void;
     auto set_global_compute_root_signature() const -> void;
-    auto set_graphics_root_constants(std::span<const uint> dwords) const -> void;
-    auto set_compute_root_constants(std::span<const uint> dwords) const -> void;
+    auto set_graphics_root_constants(Span<const uint> dwords) const -> void;
+    auto set_compute_root_constants(Span<const uint> dwords) const -> void;
 
 protected:
     ID3D12GraphicsCommandList9* _cmd = nullptr;
@@ -214,8 +214,8 @@ class GpuGraphicsCommandList final: public GpuCommandList {
 public:
     auto set_pipeline(const GpuPipeline& pipeline) const -> void;
 
-    auto set_rtvs_dsv(const std::span<const GpuDescriptor>& rtvs, const Option<GpuDescriptor>& dsv)
-        const -> void;
+    auto set_rtvs_dsv(const Span<const GpuDescriptor>& rtvs, const Option<GpuDescriptor>& dsv) const
+        -> void;
 
     auto set_viewport(
         uint left,

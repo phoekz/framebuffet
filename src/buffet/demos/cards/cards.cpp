@@ -2,7 +2,7 @@
 
 namespace fb::demos::cards {
 
-static auto layout_grid(std::span<Card> cards, uint2 window_size, uint columns) -> void {
+static auto layout_grid(Span<Card> cards, uint2 window_size, uint columns) -> void {
     const auto card_count = (uint)cards.size();
     const auto window_w = (float)window_size.x;
     const auto window_h = (float)window_size.y;
@@ -16,7 +16,7 @@ static auto layout_grid(std::span<Card> cards, uint2 window_size, uint columns) 
     }
 }
 
-static auto layout_hmosaic(std::span<Card> cards, uint2 window_size) -> void {
+static auto layout_hmosaic(Span<Card> cards, uint2 window_size) -> void {
     const auto card_count = (uint)cards.size();
     const auto window_w = (float)window_size.x;
     const auto window_h = (float)window_size.y;
@@ -34,7 +34,7 @@ static auto layout_hmosaic(std::span<Card> cards, uint2 window_size) -> void {
     cards[card_count - 1].size = float2 {hero_w, hero_h};
 }
 
-static auto layout_vmosaic(std::span<Card> cards, uint2 window_size) -> void {
+static auto layout_vmosaic(Span<Card> cards, uint2 window_size) -> void {
     const auto card_count = (uint)cards.size();
     const auto window_w = (float)window_size.x;
     const auto window_h = (float)window_size.y;
@@ -52,7 +52,7 @@ static auto layout_vmosaic(std::span<Card> cards, uint2 window_size) -> void {
     cards[card_count - 1].size = float2 {hero_w, hero_h};
 }
 
-static auto layout_exclusive(std::span<Card> cards, uint2 window_size) -> void {
+static auto layout_exclusive(Span<Card> cards, uint2 window_size) -> void {
     for (auto& card : cards) {
         card.position = float2 {0.0f, 0.0f};
         card.size = float2 {(float)window_size.x, (float)window_size.y};
@@ -170,7 +170,7 @@ auto create(Demo& demo, const CreateDesc& desc) -> void {
         kcn::spd::Atomics atomics = {};
         demo.spd_atomics.create_and_transfer(
             device,
-            std::span(&atomics, 1),
+            Span(&atomics, 1),
             D3D12_BARRIER_SYNC_COMPUTE_SHADING,
             D3D12_BARRIER_ACCESS_UNORDERED_ACCESS,
             spd_debug.with_name("Slice Atomics")

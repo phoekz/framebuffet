@@ -145,7 +145,7 @@ auto GpuTransfer::resource(
     FB_ASSERT(layout_before.has_value() == layout_after.has_value());
     this->resource(
         resource,
-        std::span(&data, 1),
+        Span(&data, 1),
         sync_before,
         sync_after,
         access_before,
@@ -157,7 +157,7 @@ auto GpuTransfer::resource(
 
 auto GpuTransfer::resource(
     const ComPtr<ID3D12Resource2>& resource,
-    std::span<const D3D12_SUBRESOURCE_DATA> datas,
+    Span<const D3D12_SUBRESOURCE_DATA> datas,
     D3D12_BARRIER_SYNC sync_before,
     D3D12_BARRIER_SYNC sync_after,
     D3D12_BARRIER_ACCESS access_before,
@@ -258,8 +258,7 @@ auto GpuTransfer::flush(const GpuDevice& device) -> void {
             resource_dimensions[resource_offset] = desc.Dimension;
 
             // (Aligned) byte count.
-            for (const auto& subresource_footprint :
-                 std::span<const D3D12_PLACED_SUBRESOURCE_FOOTPRINT>(
+            for (const auto& subresource_footprint : Span<const D3D12_PLACED_SUBRESOURCE_FOOTPRINT>(
                      subresource_footprints.data() + subresource_offset,
                      subresource_count
                  )) {

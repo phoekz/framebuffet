@@ -105,7 +105,7 @@ FB_INLINE constexpr auto asset_task_name(size_t variant) -> std::string_view {
     }
 }
 
-auto bake_assets(std::string_view assets_dir, std::span<const AssetTask> asset_tasks)
+auto bake_assets(std::string_view assets_dir, Span<const AssetTask> asset_tasks)
     -> std::tuple<std::vector<Asset>, std::vector<std::byte>>;
 
 } // namespace fb

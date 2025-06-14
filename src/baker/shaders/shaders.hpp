@@ -56,7 +56,7 @@ public:
         std::string_view name,
         ShaderType type,
         std::string_view entry_point,
-        std::span<const std::byte> source,
+        Span<const std::byte> source,
         bool debug = false
     ) const -> Shader;
 
@@ -72,7 +72,7 @@ struct ShaderTask {
     std::vector<std::string_view> entry_points;
 };
 
-auto bake_shaders(std::string_view buffet_dir, std::span<const ShaderTask> shader_tasks)
+auto bake_shaders(std::string_view buffet_dir, Span<const ShaderTask> shader_tasks)
     -> std::vector<Shader>;
 
 } // namespace fb

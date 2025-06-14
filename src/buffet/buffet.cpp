@@ -153,7 +153,7 @@ auto buffet_run(Buffet& bf) -> void {
 
                 {
                     struct PlotData {
-                        std::span<const float> data;
+                        Span<const float> data;
                         uint32_t offset;
                     };
                     const auto plot_data = PlotData {
