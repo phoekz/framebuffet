@@ -1,19 +1,19 @@
 include(FetchContent)
 
 # Declarations.
-FetchContent_Declare(dearimgui GIT_REPOSITORY "https://github.com/ocornut/imgui" GIT_TAG 8199457a7d9e453f8d3d9cadc14683fb54a858b5) # v1.91.0
-FetchContent_Declare(cgltf GIT_REPOSITORY "https://github.com/jkuhlmann/cgltf" GIT_TAG 52c23814dbb60c2fbb54750ddf41d342d432a498) # v1.14
-FetchContent_Declare(stb GIT_REPOSITORY "https://github.com/nothings/stb" GIT_TAG f75e8d1cad7d90d72ef7a4661f1b994ef78b4e31) # Jul 29, 2024
-FetchContent_Declare(tinyexr GIT_REPOSITORY "https://github.com/syoyo/tinyexr" GIT_TAG 5fcb4dcb6e3abf96214b67e5c54db1ceec6a455c) # v1.0.9
+FetchContent_Declare(dearimgui GIT_REPOSITORY "https://github.com/ocornut/imgui" GIT_TAG f5befd2d29e66809cd1110a152e375a7f1981f06) # v1.91.9b
+FetchContent_Declare(cgltf GIT_REPOSITORY "https://github.com/jkuhlmann/cgltf" GIT_TAG 360db1a95480fe102ae9c69b27c5d101167ff5ba) # v1.15
+FetchContent_Declare(stb GIT_REPOSITORY "https://github.com/nothings/stb" GIT_TAG f58f558c120e9b32c217290b80bad1a0729fbb2c) # May 26, 2025
+FetchContent_Declare(tinyexr GIT_REPOSITORY "https://github.com/syoyo/tinyexr" GIT_TAG 735ff73ce5959cf005eb99ce517c9bcecab89dfb) # v1.0.12
 FetchContent_Declare(fp16 GIT_REPOSITORY "https://github.com/Maratyszcza/FP16" GIT_TAG 98b0a46bce017382a6351a19577ec43a715b6835) # Jun 20, 2024
-FetchContent_Declare(xxhash GIT_REPOSITORY "https://github.com/Cyan4973/xxHash" GIT_TAG bbb27a5efb85b92a0486cf361a8635715a53f6ba) # v0.8.2
+FetchContent_Declare(xxhash GIT_REPOSITORY "https://github.com/Cyan4973/xxHash" GIT_TAG e626a72bc2321cd320e953a0ccf1584cad60f363) # v0.8.3
 FetchContent_Declare(mikktspace GIT_REPOSITORY "https://github.com/mmikk/MikkTSpace" GIT_TAG 3e895b49d05ea07e4c2133156cfa94369e19e409) # Mar 25, 2020
-FetchContent_Declare(nlohmann_json GIT_REPOSITORY "https://github.com/nlohmann/json" GIT_TAG 9cca280a4d0ccf0c08f47a99aa71d1b0e52f8d03) # v3.11.3
-FetchContent_Declare(d3d12memalloc GIT_REPOSITORY "https://github.com/GPUOpen-LibrariesAndSDKs/D3D12MemoryAllocator" GIT_TAG 2b7c0d4e31dac5d893722573b0b2654270f907df) # Jun 17, 2024
+FetchContent_Declare(nlohmann_json GIT_REPOSITORY "https://github.com/nlohmann/json" GIT_TAG 55f93686c01528224f448c19128836e7df245f72) # v3.12.0
+FetchContent_Declare(d3d12memalloc GIT_REPOSITORY "https://github.com/GPUOpen-LibrariesAndSDKs/D3D12MemoryAllocator" GIT_TAG 9ef66bc14edd10dee0de3a545b98578363552f66) # v3.0.1
 FetchContent_Declare(ttf2mesh GIT_REPOSITORY "https://github.com/fetisov/ttf2mesh" GIT_TAG b767f3e1026c979c6f2d6099576f206702065234) # Nov 3, 2023
-FetchContent_Declare(tracy GIT_REPOSITORY "https://github.com/wolfpld/tracy" GIT_TAG 5d542dc09f3d9378d005092a4ad446bd405f819a) # v0.11.1
+FetchContent_Declare(tracy GIT_REPOSITORY "https://github.com/wolfpld/tracy" GIT_TAG 650c98ece70da9e155e7ba1c2b3ee16004aae118) # v0.12.1
 FetchContent_Declare(glm GIT_REPOSITORY "https://github.com/g-truc/glm.git" GIT_TAG 0af55ccecd98d4e5a8d1fad7de25ba429d60e863) # v1.0.1
-FetchContent_Declare(catch2 GIT_REPOSITORY "https://github.com/catchorg/Catch2/" GIT_TAG fa43b77429ba76c462b1898d6cd2f2d7a9416b14) # v3.7.1
+FetchContent_Declare(catch2 GIT_REPOSITORY "https://github.com/catchorg/Catch2/" GIT_TAG 2b60af89e23d28eefc081bc930831ee9d45ea58b) # v3.8.1
 FetchContent_Declare(gettimesinceprocessstart GIT_REPOSITORY "https://github.com/maxliani/GetTimeSinceProcessStart" GIT_TAG b2fa1a71f1da91d3b009430a7c49f35f5fb8c7c5) # v1.0.0
 FetchContent_Declare(dxagilitysdk URL "https://globalcdn.nuget.org/packages/microsoft.direct3d.d3d12.1.616.1.nupkg" URL_MD5 7c7aa4a5a4c71df7892e5fa815b6818c)
 FetchContent_Declare(dxcompiler URL "https://globalcdn.nuget.org/packages/microsoft.direct3d.dxc.1.8.2505.28.nupkg" URL_MD5 edcbac8d991c33f8bc8001e8c9c98ada)
