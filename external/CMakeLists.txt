@@ -1,117 +1,110 @@
 include(FetchContent)
 
-# Note: Start by fetching and exposing external dependencies. This takes a long
-# time to run, so we want to reuse the results in our subsequent runs.
-if(NOT FETCH_CONTENT_HAS_BEEN_RUN)
-    # Declarations.
-    FetchContent_Declare(dearimgui GIT_REPOSITORY "https://github.com/ocornut/imgui" GIT_TAG 8199457a7d9e453f8d3d9cadc14683fb54a858b5) # v1.91.0
-    FetchContent_Declare(cgltf GIT_REPOSITORY "https://github.com/jkuhlmann/cgltf" GIT_TAG 52c23814dbb60c2fbb54750ddf41d342d432a498) # v1.14
-    FetchContent_Declare(stb GIT_REPOSITORY "https://github.com/nothings/stb" GIT_TAG f75e8d1cad7d90d72ef7a4661f1b994ef78b4e31) # Jul 29, 2024
-    FetchContent_Declare(tinyexr GIT_REPOSITORY "https://github.com/syoyo/tinyexr" GIT_TAG 5fcb4dcb6e3abf96214b67e5c54db1ceec6a455c) # v1.0.9
-    FetchContent_Declare(fp16 GIT_REPOSITORY "https://github.com/Maratyszcza/FP16" GIT_TAG 98b0a46bce017382a6351a19577ec43a715b6835) # Jun 20, 2024
-    FetchContent_Declare(xxhash GIT_REPOSITORY "https://github.com/Cyan4973/xxHash" GIT_TAG bbb27a5efb85b92a0486cf361a8635715a53f6ba) # v0.8.2
-    FetchContent_Declare(mikktspace GIT_REPOSITORY "https://github.com/mmikk/MikkTSpace" GIT_TAG 3e895b49d05ea07e4c2133156cfa94369e19e409) # Mar 25, 2020
-    FetchContent_Declare(nlohmann_json GIT_REPOSITORY "https://github.com/nlohmann/json" GIT_TAG 9cca280a4d0ccf0c08f47a99aa71d1b0e52f8d03) # v3.11.3
-    FetchContent_Declare(d3d12memalloc GIT_REPOSITORY "https://github.com/GPUOpen-LibrariesAndSDKs/D3D12MemoryAllocator" GIT_TAG 2b7c0d4e31dac5d893722573b0b2654270f907df) # Jun 17, 2024
-    FetchContent_Declare(ttf2mesh GIT_REPOSITORY "https://github.com/fetisov/ttf2mesh" GIT_TAG b767f3e1026c979c6f2d6099576f206702065234) # Nov 3, 2023
-    FetchContent_Declare(tracy GIT_REPOSITORY "https://github.com/wolfpld/tracy" GIT_TAG 5d542dc09f3d9378d005092a4ad446bd405f819a) # v0.11.1
-    FetchContent_Declare(glm GIT_REPOSITORY "https://github.com/g-truc/glm.git" GIT_TAG 0af55ccecd98d4e5a8d1fad7de25ba429d60e863) # v1.0.1
-    FetchContent_Declare(catch2 GIT_REPOSITORY "https://github.com/catchorg/Catch2/" GIT_TAG fa43b77429ba76c462b1898d6cd2f2d7a9416b14) # v3.7.1
-    FetchContent_Declare(gettimesinceprocessstart GIT_REPOSITORY "https://github.com/maxliani/GetTimeSinceProcessStart" GIT_TAG b2fa1a71f1da91d3b009430a7c49f35f5fb8c7c5) # v1.0.0
-    FetchContent_Declare(dxagilitysdk URL "https://globalcdn.nuget.org/packages/microsoft.direct3d.d3d12.1.616.1.nupkg" URL_MD5 7c7aa4a5a4c71df7892e5fa815b6818c)
-    FetchContent_Declare(dxcompiler URL "https://globalcdn.nuget.org/packages/microsoft.direct3d.dxc.1.8.2505.28.nupkg" URL_MD5 edcbac8d991c33f8bc8001e8c9c98ada)
-    FetchContent_Declare(directxmath URL "https://globalcdn.nuget.org/packages/directxmath.2025.4.3.1.nupkg" URL_MD5 92ae9bd406510205959e62353cbcb610)
-    FetchContent_Declare(directxmesh URL "https://globalcdn.nuget.org/packages/directxmesh_desktop_win10.2025.3.25.2.nupkg" URL_MD5 3566f3a4de68dab6d5cd2becd969533a)
-    FetchContent_Declare(directxtex URL "https://globalcdn.nuget.org/packages/directxtex_desktop_win10.2025.3.25.2.nupkg" URL_MD5 80456c80b55a8b9da84cded77b7abaef)
-    FetchContent_Declare(winpixeventruntime URL "https://globalcdn.nuget.org/packages/winpixeventruntime.1.0.240308001.nupkg" URL_MD5 f376b719c0a7d84dd642ea7830b713f8)
+# Declarations.
+FetchContent_Declare(dearimgui GIT_REPOSITORY "https://github.com/ocornut/imgui" GIT_TAG 8199457a7d9e453f8d3d9cadc14683fb54a858b5) # v1.91.0
+FetchContent_Declare(cgltf GIT_REPOSITORY "https://github.com/jkuhlmann/cgltf" GIT_TAG 52c23814dbb60c2fbb54750ddf41d342d432a498) # v1.14
+FetchContent_Declare(stb GIT_REPOSITORY "https://github.com/nothings/stb" GIT_TAG f75e8d1cad7d90d72ef7a4661f1b994ef78b4e31) # Jul 29, 2024
+FetchContent_Declare(tinyexr GIT_REPOSITORY "https://github.com/syoyo/tinyexr" GIT_TAG 5fcb4dcb6e3abf96214b67e5c54db1ceec6a455c) # v1.0.9
+FetchContent_Declare(fp16 GIT_REPOSITORY "https://github.com/Maratyszcza/FP16" GIT_TAG 98b0a46bce017382a6351a19577ec43a715b6835) # Jun 20, 2024
+FetchContent_Declare(xxhash GIT_REPOSITORY "https://github.com/Cyan4973/xxHash" GIT_TAG bbb27a5efb85b92a0486cf361a8635715a53f6ba) # v0.8.2
+FetchContent_Declare(mikktspace GIT_REPOSITORY "https://github.com/mmikk/MikkTSpace" GIT_TAG 3e895b49d05ea07e4c2133156cfa94369e19e409) # Mar 25, 2020
+FetchContent_Declare(nlohmann_json GIT_REPOSITORY "https://github.com/nlohmann/json" GIT_TAG 9cca280a4d0ccf0c08f47a99aa71d1b0e52f8d03) # v3.11.3
+FetchContent_Declare(d3d12memalloc GIT_REPOSITORY "https://github.com/GPUOpen-LibrariesAndSDKs/D3D12MemoryAllocator" GIT_TAG 2b7c0d4e31dac5d893722573b0b2654270f907df) # Jun 17, 2024
+FetchContent_Declare(ttf2mesh GIT_REPOSITORY "https://github.com/fetisov/ttf2mesh" GIT_TAG b767f3e1026c979c6f2d6099576f206702065234) # Nov 3, 2023
+FetchContent_Declare(tracy GIT_REPOSITORY "https://github.com/wolfpld/tracy" GIT_TAG 5d542dc09f3d9378d005092a4ad446bd405f819a) # v0.11.1
+FetchContent_Declare(glm GIT_REPOSITORY "https://github.com/g-truc/glm.git" GIT_TAG 0af55ccecd98d4e5a8d1fad7de25ba429d60e863) # v1.0.1
+FetchContent_Declare(catch2 GIT_REPOSITORY "https://github.com/catchorg/Catch2/" GIT_TAG fa43b77429ba76c462b1898d6cd2f2d7a9416b14) # v3.7.1
+FetchContent_Declare(gettimesinceprocessstart GIT_REPOSITORY "https://github.com/maxliani/GetTimeSinceProcessStart" GIT_TAG b2fa1a71f1da91d3b009430a7c49f35f5fb8c7c5) # v1.0.0
+FetchContent_Declare(dxagilitysdk URL "https://globalcdn.nuget.org/packages/microsoft.direct3d.d3d12.1.616.1.nupkg" URL_MD5 7c7aa4a5a4c71df7892e5fa815b6818c)
+FetchContent_Declare(dxcompiler URL "https://globalcdn.nuget.org/packages/microsoft.direct3d.dxc.1.8.2505.28.nupkg" URL_MD5 edcbac8d991c33f8bc8001e8c9c98ada)
+FetchContent_Declare(directxmath URL "https://globalcdn.nuget.org/packages/directxmath.2025.4.3.1.nupkg" URL_MD5 92ae9bd406510205959e62353cbcb610)
+FetchContent_Declare(directxmesh URL "https://globalcdn.nuget.org/packages/directxmesh_desktop_win10.2025.3.25.2.nupkg" URL_MD5 3566f3a4de68dab6d5cd2becd969533a)
+FetchContent_Declare(directxtex URL "https://globalcdn.nuget.org/packages/directxtex_desktop_win10.2025.3.25.2.nupkg" URL_MD5 80456c80b55a8b9da84cded77b7abaef)
+FetchContent_Declare(winpixeventruntime URL "https://globalcdn.nuget.org/packages/winpixeventruntime.1.0.240308001.nupkg" URL_MD5 f376b719c0a7d84dd642ea7830b713f8)
 
-    # Fetch.
-    message(STATUS "Fetching Dear ImGui...")
-    FetchContent_MakeAvailable(dearimgui)
-    set(DEARIMGUI_SOURCE_DIR ${dearimgui_SOURCE_DIR} CACHE INTERNAL "Dear ImGui Source Directory")
+# Fetch.
+message(STATUS "Fetching Dear ImGui...")
+FetchContent_MakeAvailable(dearimgui)
+set(DEARIMGUI_SOURCE_DIR ${dearimgui_SOURCE_DIR} CACHE INTERNAL "Dear ImGui Source Directory")
 
-    message(STATUS "Fetching cgltf...")
-    FetchContent_MakeAvailable(cgltf)
-    set(CGLTF_SOURCE_DIR ${cgltf_SOURCE_DIR} CACHE INTERNAL "cgltf Source Directory")
+message(STATUS "Fetching cgltf...")
+FetchContent_MakeAvailable(cgltf)
+set(CGLTF_SOURCE_DIR ${cgltf_SOURCE_DIR} CACHE INTERNAL "cgltf Source Directory")
 
-    message(STATUS "Fetching stb...")
-    FetchContent_MakeAvailable(stb)
-    set(STB_SOURCE_DIR ${stb_SOURCE_DIR} CACHE INTERNAL "stb Source Directory")
+message(STATUS "Fetching stb...")
+FetchContent_MakeAvailable(stb)
+set(STB_SOURCE_DIR ${stb_SOURCE_DIR} CACHE INTERNAL "stb Source Directory")
 
-    message(STATUS "Fetching tinyexr...")
-    FetchContent_MakeAvailable(tinyexr)
-    set(TINYEXR_SOURCE_DIR ${tinyexr_SOURCE_DIR} CACHE INTERNAL "tinyexr Source Directory")
+message(STATUS "Fetching tinyexr...")
+FetchContent_MakeAvailable(tinyexr)
+set(TINYEXR_SOURCE_DIR ${tinyexr_SOURCE_DIR} CACHE INTERNAL "tinyexr Source Directory")
 
-    message(STATUS "Fetching fp16...")
-    set(FP16_BUILD_TESTS OFF CACHE INTERNAL "")
-    set(FP16_BUILD_BENCHMARKS OFF CACHE INTERNAL "")
-    set(FP16_BUILD_COMPARATIVE_BENCHMARKS OFF CACHE INTERNAL "")
-    FetchContent_MakeAvailable(fp16)
-    set(FP16_SOURCE_DIR ${fp16_SOURCE_DIR} CACHE INTERNAL "fp16 Source Directory")
+message(STATUS "Fetching fp16...")
+set(FP16_BUILD_TESTS OFF CACHE INTERNAL "")
+set(FP16_BUILD_BENCHMARKS OFF CACHE INTERNAL "")
+set(FP16_BUILD_COMPARATIVE_BENCHMARKS OFF CACHE INTERNAL "")
+FetchContent_MakeAvailable(fp16)
+set(FP16_SOURCE_DIR ${fp16_SOURCE_DIR} CACHE INTERNAL "fp16 Source Directory")
 
-    message(STATUS "Fetching xxHash...")
-    FetchContent_MakeAvailable(xxhash)
-    set(XXHASH_SOURCE_DIR ${xxhash_SOURCE_DIR} CACHE INTERNAL "xxHash Source Directory")
+message(STATUS "Fetching xxHash...")
+FetchContent_MakeAvailable(xxhash)
+set(XXHASH_SOURCE_DIR ${xxhash_SOURCE_DIR} CACHE INTERNAL "xxHash Source Directory")
 
-    message(STATUS "Fetching mikktspace...")
-    FetchContent_MakeAvailable(mikktspace)
-    set(MIKKTSPACE_SOURCE_DIR ${mikktspace_SOURCE_DIR} CACHE INTERNAL "mikktspace Source Directory")
+message(STATUS "Fetching mikktspace...")
+FetchContent_MakeAvailable(mikktspace)
+set(MIKKTSPACE_SOURCE_DIR ${mikktspace_SOURCE_DIR} CACHE INTERNAL "mikktspace Source Directory")
 
-    message(STATUS "Fetching nlohmann_json...")
-    FetchContent_MakeAvailable(nlohmann_json)
-    set(NLOHMANN_JSON_SOURCE_DIR ${nlohmann_json_SOURCE_DIR} CACHE INTERNAL "nlohmann_json Source Directory")
+message(STATUS "Fetching nlohmann_json...")
+FetchContent_MakeAvailable(nlohmann_json)
+set(NLOHMANN_JSON_SOURCE_DIR ${nlohmann_json_SOURCE_DIR} CACHE INTERNAL "nlohmann_json Source Directory")
 
-    message(STATUS "Fetching D3D12MemoryAllocator...")
-    FetchContent_MakeAvailable(d3d12memalloc)
-    set(D3D12MEMALLOC_SOURCE_DIR ${d3d12memalloc_SOURCE_DIR} CACHE INTERNAL "D3D12 Memory Allocator Source Directory")
+message(STATUS "Fetching D3D12MemoryAllocator...")
+FetchContent_MakeAvailable(d3d12memalloc)
+set(D3D12MEMALLOC_SOURCE_DIR ${d3d12memalloc_SOURCE_DIR} CACHE INTERNAL "D3D12 Memory Allocator Source Directory")
 
-    message(STATUS "Fetching ttf2mesh...")
-    FetchContent_MakeAvailable(ttf2mesh)
-    set(TTF2MESH_SOURCE_DIR ${ttf2mesh_SOURCE_DIR} CACHE INTERNAL "ttf2mesh Source Directory")
+message(STATUS "Fetching ttf2mesh...")
+FetchContent_MakeAvailable(ttf2mesh)
+set(TTF2MESH_SOURCE_DIR ${ttf2mesh_SOURCE_DIR} CACHE INTERNAL "ttf2mesh Source Directory")
 
-    message(STATUS "Fetching Tracy...")
-    FetchContent_MakeAvailable(tracy)
-    set(TRACY_SOURCE_DIR ${tracy_SOURCE_DIR} CACHE INTERNAL "Tracy Source Directory")
+message(STATUS "Fetching Tracy...")
+FetchContent_MakeAvailable(tracy)
+set(TRACY_SOURCE_DIR ${tracy_SOURCE_DIR} CACHE INTERNAL "Tracy Source Directory")
 
-    message(STATUS "Fetching GLM...")
-    FetchContent_MakeAvailable(glm)
-    set(GLM_SOURCE_DIR ${glm_SOURCE_DIR} CACHE INTERNAL "GLM Source Directory")
+message(STATUS "Fetching GLM...")
+FetchContent_MakeAvailable(glm)
+set(GLM_SOURCE_DIR ${glm_SOURCE_DIR} CACHE INTERNAL "GLM Source Directory")
 
-    message(STATUS "Fetching catch2...")
-    FetchContent_MakeAvailable(catch2)
-    set(CATCH2_SOURCE_DIR ${catch2_SOURCE_DIR} CACHE INTERNAL "CATCH2 Source Directory")
+message(STATUS "Fetching catch2...")
+FetchContent_MakeAvailable(catch2)
+set(CATCH2_SOURCE_DIR ${catch2_SOURCE_DIR} CACHE INTERNAL "CATCH2 Source Directory")
 
-    message(STATUS "Fetching GetTimeSinceProcessStart...")
-    FetchContent_MakeAvailable(gettimesinceprocessstart)
-    set(GETTIMESINCEPROCESSSTART_SOURCE_DIR ${gettimesinceprocessstart_SOURCE_DIR} CACHE INTERNAL "GetTimeSinceProcessStart Source Directory")
+message(STATUS "Fetching GetTimeSinceProcessStart...")
+FetchContent_MakeAvailable(gettimesinceprocessstart)
+set(GETTIMESINCEPROCESSSTART_SOURCE_DIR ${gettimesinceprocessstart_SOURCE_DIR} CACHE INTERNAL "GetTimeSinceProcessStart Source Directory")
 
-    message(STATUS "Fetching DirectX Agility SDK...")
-    FetchContent_MakeAvailable(dxagilitysdk)
-    set(DXAGILITYSDK_SOURCE_DIR ${FETCHCONTENT_BASE_DIR}/dxagilitysdk-src/build/native CACHE INTERNAL "DirectX Agility SDK Source Directory")
+message(STATUS "Fetching DirectX Agility SDK...")
+FetchContent_MakeAvailable(dxagilitysdk)
+set(DXAGILITYSDK_SOURCE_DIR ${FETCHCONTENT_BASE_DIR}/dxagilitysdk-src/build/native CACHE INTERNAL "DirectX Agility SDK Source Directory")
 
-    message(STATUS "Fetching DirectX Shader Compiler...")
-    FetchContent_MakeAvailable(dxcompiler)
-    set(DXCOMPILER_SOURCE_DIR ${FETCHCONTENT_BASE_DIR}/dxcompiler-src/build/native CACHE INTERNAL "DirectX Shader Compiler Source Directory")
+message(STATUS "Fetching DirectX Shader Compiler...")
+FetchContent_MakeAvailable(dxcompiler)
+set(DXCOMPILER_SOURCE_DIR ${FETCHCONTENT_BASE_DIR}/dxcompiler-src/build/native CACHE INTERNAL "DirectX Shader Compiler Source Directory")
 
-    message(STATUS "Fetching DirectXMath...")
-    FetchContent_MakeAvailable(directxmath)
-    set(DIRECTXMATH_SOURCE_DIR ${FETCHCONTENT_BASE_DIR}/directxmath-src CACHE INTERNAL "DirectXMath Source Directory")
+message(STATUS "Fetching DirectXMath...")
+FetchContent_MakeAvailable(directxmath)
+set(DIRECTXMATH_SOURCE_DIR ${FETCHCONTENT_BASE_DIR}/directxmath-src CACHE INTERNAL "DirectXMath Source Directory")
 
-    message(STATUS "Fetching DirectXMesh...")
-    FetchContent_MakeAvailable(directxmesh)
-    set(DIRECTXMESH_SOURCE_DIR ${FETCHCONTENT_BASE_DIR}/directxmesh-src CACHE INTERNAL "DirectXMesh Source Directory")
+message(STATUS "Fetching DirectXMesh...")
+FetchContent_MakeAvailable(directxmesh)
+set(DIRECTXMESH_SOURCE_DIR ${FETCHCONTENT_BASE_DIR}/directxmesh-src CACHE INTERNAL "DirectXMesh Source Directory")
 
-    message(STATUS "Fetching DirectXTex...")
-    FetchContent_MakeAvailable(directxtex)
-    set(DIRECTXTEX_SOURCE_DIR ${FETCHCONTENT_BASE_DIR}/directxtex-src CACHE INTERNAL "DirectXTex Source Directory")
+message(STATUS "Fetching DirectXTex...")
+FetchContent_MakeAvailable(directxtex)
+set(DIRECTXTEX_SOURCE_DIR ${FETCHCONTENT_BASE_DIR}/directxtex-src CACHE INTERNAL "DirectXTex Source Directory")
 
-    message(STATUS "Fetching WinPixEventRuntime...")
-    FetchContent_MakeAvailable(winpixeventruntime)
-    set(WINPIXEVENTRUNTIME_SOURCE_DIR ${FETCHCONTENT_BASE_DIR}/winpixeventruntime-src CACHE INTERNAL "WinPixEventRuntime Source Directory")
-endif()
-
-# Note: Now every dependency is guaranteed to be available, proceed with
-# configuring them.
+message(STATUS "Fetching WinPixEventRuntime...")
+FetchContent_MakeAvailable(winpixeventruntime)
+set(WINPIXEVENTRUNTIME_SOURCE_DIR ${FETCHCONTENT_BASE_DIR}/winpixeventruntime-src CACHE INTERNAL "WinPixEventRuntime Source Directory")
 
 # Ignore clang-tidy for external dependencies.
 configure_file(cmake/clang-tidy.in ${CMAKE_BINARY_DIR}/.clang-tidy COPYONLY)
@@ -360,7 +353,3 @@ set(WINPIXEVENTRUNTIME_INCLUDE_DIR ${WINPIXEVENTRUNTIME_SOURCE_DIR}/Include CACH
 set(WINPIXEVENTRUNTIME_BIN_DIR ${WINPIXEVENTRUNTIME_SOURCE_DIR}/bin/x64 CACHE INTERNAL "WinPixEventRuntime Binary Directory")
 set(WINPIXEVENTRUNTIME_LINK_DIR ${WINPIXEVENTRUNTIME_SOURCE_DIR}/bin/x64 CACHE INTERNAL "WinPixEventRuntime Link Directory")
 set(WINPIXEVENTRUNTIME_LIBRARY ${WINPIXEVENTRUNTIME_LINK_DIR}/WinPixEventRuntime.lib CACHE INTERNAL "WinPixEventRuntime Library")
-
-# Set a flag to indicate that FetchContent has been run, so that we can avoid
-# running it again.
-set(FETCH_CONTENT_HAS_BEEN_RUN ON CACHE INTERNAL "Fetch Content Has Been Run")
