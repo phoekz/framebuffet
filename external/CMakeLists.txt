@@ -36,6 +36,7 @@ FetchContent_MakeAvailable(stb)
 set(STB_SOURCE_DIR ${stb_SOURCE_DIR} CACHE INTERNAL "stb Source Directory")
 
 message(STATUS "Fetching tinyexr...")
+set(TINYEXR_BUILD_SAMPLE OFF CACHE INTERNAL "")
 FetchContent_MakeAvailable(tinyexr)
 set(TINYEXR_SOURCE_DIR ${tinyexr_SOURCE_DIR} CACHE INTERNAL "tinyexr Source Directory")
 
