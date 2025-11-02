@@ -224,7 +224,8 @@ auto render(Technique& tech, const RenderDesc& desc) -> void {
                     subresource_index,
                     tech.div_texture.format(),
                     mip_width,
-                    mip_height
+                    mip_height,
+                    mip_width * dxgi_format_unit_byte_count(tech.div_texture.format())
                 );
                 offset += mip_width * mip_height * tech.div_texture.unit_byte_count();
             }

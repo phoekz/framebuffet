@@ -76,9 +76,9 @@ auto GpuCommandList::copy_texture_to_buffer(
     uint src_texture_subresource_index,
     DXGI_FORMAT src_texture_format,
     uint src_texture_width,
-    uint src_texture_height
+    uint src_texture_height,
+    uint src_texture_row_pitch
 ) const -> void {
-    const auto unit_byte_count = dxgi_format_unit_byte_count(src_texture_format);
     D3D12_PLACED_SUBRESOURCE_FOOTPRINT dst_footprint = {
         .Offset = dst_buffer_offset,
         .Footprint =
@@ -87,7 +87,7 @@ auto GpuCommandList::copy_texture_to_buffer(
                 .Width = src_texture_width,
                 .Height = src_texture_height,
                 .Depth = 1,
-                .RowPitch = src_texture_width * unit_byte_count,
+                .RowPitch = src_texture_row_pitch,
             },
     };
     D3D12_TEXTURE_COPY_LOCATION dst_location = {

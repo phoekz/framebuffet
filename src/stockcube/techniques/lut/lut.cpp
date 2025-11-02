@@ -131,7 +131,8 @@ auto render(Technique& tech, const RenderDesc& desc) -> void {
             0,
             tech.lut_texture.format(),
             tech.lut_texture.width(),
-            tech.lut_texture.height()
+            tech.lut_texture.height(),
+            tech.lut_texture.width() * dxgi_format_unit_byte_count(tech.lut_texture.format())
         );
         tech.lut_texture.transition(
             cmd,

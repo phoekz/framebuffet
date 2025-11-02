@@ -138,7 +138,8 @@ public:
         uint src_texture_subresource_index,
         DXGI_FORMAT src_texture_format,
         uint src_texture_width,
-        uint src_texture_height
+        uint src_texture_height,
+        uint src_texture_row_pitch
     ) const -> void;
 
     auto resolve_resource(

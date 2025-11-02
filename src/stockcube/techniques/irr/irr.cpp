@@ -189,7 +189,8 @@ auto render(Technique& tech, const RenderDesc& desc) -> void {
                 mip_slice,
                 tech.div_texture.format(),
                 tech.div_texture.width(),
-                tech.div_texture.height()
+                tech.div_texture.height(),
+                tech.div_texture.width() * dxgi_format_unit_byte_count(tech.div_texture.format())
             );
             offset += tech.div_texture.slice_pitch();
         }
