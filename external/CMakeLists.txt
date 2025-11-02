@@ -15,7 +15,7 @@ FetchContent_Declare(tracy GIT_REPOSITORY "https://github.com/wolfpld/tracy" GIT
 FetchContent_Declare(glm GIT_REPOSITORY "https://github.com/g-truc/glm.git" GIT_TAG 0af55ccecd98d4e5a8d1fad7de25ba429d60e863) # v1.0.1
 FetchContent_Declare(catch2 GIT_REPOSITORY "https://github.com/catchorg/Catch2/" GIT_TAG 2b60af89e23d28eefc081bc930831ee9d45ea58b) # v3.8.1
 FetchContent_Declare(gettimesinceprocessstart GIT_REPOSITORY "https://github.com/maxliani/GetTimeSinceProcessStart" GIT_TAG b2fa1a71f1da91d3b009430a7c49f35f5fb8c7c5) # v1.0.0
-FetchContent_Declare(dxagilitysdk URL "https://globalcdn.nuget.org/packages/microsoft.direct3d.d3d12.1.616.1.nupkg" URL_MD5 7c7aa4a5a4c71df7892e5fa815b6818c)
+FetchContent_Declare(dxagilitysdk URL "https://globalcdn.nuget.org/packages/microsoft.direct3d.d3d12.1.618.2.nupkg" URL_MD5 363c2015399deeb92ef72feb873a6c9d)
 FetchContent_Declare(dxcompiler URL "https://globalcdn.nuget.org/packages/microsoft.direct3d.dxc.1.8.2505.28.nupkg" URL_MD5 edcbac8d991c33f8bc8001e8c9c98ada)
 FetchContent_Declare(directxmath URL "https://globalcdn.nuget.org/packages/directxmath.2025.4.3.1.nupkg" URL_MD5 92ae9bd406510205959e62353cbcb610)
 FetchContent_Declare(directxmesh URL "https://globalcdn.nuget.org/packages/directxmesh_desktop_win10.2025.3.25.2.nupkg" URL_MD5 3566f3a4de68dab6d5cd2becd969533a)
