@@ -5,10 +5,10 @@
 ConstantBuffer<Bindings> g_bindings: register(b0);
 
 struct VertexOutput {
-    float4 position: SV_Position;
-    float3 normal: ATTRIBUTE0;
-    float2 texcoord: ATTRIBUTE1;
-    float3 direction: ATTRIBUTE2;
+    float4 position : SV_Position;
+    float3 normal : ATTRIBUTE0;
+    float2 texcoord : ATTRIBUTE1;
+    float3 direction : ATTRIBUTE2;
 };
 
 VertexOutput vs(fb::VertexInput input) {

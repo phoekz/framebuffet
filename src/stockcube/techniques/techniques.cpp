@@ -14,12 +14,11 @@ auto create(Techniques& techs, const CreateDesc& desc) -> void {
                 .format = DXGI_FORMAT_R16G16B16A16_FLOAT,
                 .clear_color = {0.3f, 0.6f, 0.0f, 1.0f},
             }},
-            .depth_stencil =
-                {
-                    .format = DXGI_FORMAT_D32_FLOAT,
-                    .clear_depth = 1.0f,
-                    .clear_stencil = 0,
-                },
+            .depth_stencil = {
+                .format = DXGI_FORMAT_D32_FLOAT,
+                .clear_depth = 1.0f,
+                .clear_stencil = 0,
+            },
         }
     );
     techs.render_target_view.create(techs.render_target.view_desc());

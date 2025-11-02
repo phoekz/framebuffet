@@ -54,10 +54,12 @@ auto create(Demo& demo, const CreateDesc& desc) -> void {
         .pixel_shader(shaders.conras_clear_ps())
         .depth_stencil({.depth_read = false, .depth_write = false})
         .rasterizer({.conservative_rasterization = false})
-        .sample_desc(DXGI_SAMPLE_DESC {
-            .Count = 1,
-            .Quality = 0,
-        })
+        .sample_desc(
+            DXGI_SAMPLE_DESC {
+                .Count = 1,
+                .Quality = 0,
+            }
+        )
         .build(device, demo.clear_pipeline, debug.with_name("Clear"));
     using Desc = std::tuple<uint, bool, Span<const std::byte>, GpuPipeline&>;
     for (auto [index, conservative_rasterization, pixel_shader, pipeline] : {
@@ -70,10 +72,12 @@ auto create(Demo& demo, const CreateDesc& desc) -> void {
             .pixel_shader(pixel_shader)
             .depth_stencil({.depth_read = false, .depth_write = false})
             .rasterizer({.conservative_rasterization = conservative_rasterization})
-            .sample_desc(DXGI_SAMPLE_DESC {
-                .Count = 1,
-                .Quality = 0,
-            })
+            .sample_desc(
+                DXGI_SAMPLE_DESC {
+                    .Count = 1,
+                    .Quality = 0,
+                }
+            )
             .build(device, pipeline, debug.with_name(std::format("Raster {}", index)));
     }
     GpuPipelineBuilder()
@@ -165,11 +169,13 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
         // Clear.
         cmd.pix_begin("Clear");
         cmd.set_pipeline(demo.clear_pipeline);
-        cmd.set_constants(Bindings {
-            .constants = demo.constants.buffer(frame_index).cbv_descriptor().index(),
-            .raster_buffer = demo.raster_buffer.uav_descriptor().index(),
-            .conservative_rasterization = ConservativeRasterization::Off,
-        });
+        cmd.set_constants(
+            Bindings {
+                .constants = demo.constants.buffer(frame_index).cbv_descriptor().index(),
+                .raster_buffer = demo.raster_buffer.uav_descriptor().index(),
+                .conservative_rasterization = ConservativeRasterization::Off,
+            }
+        );
         cmd.draw_instanced(3, 1, 0, 0);
         cmd.pix_end();
 
@@ -184,11 +190,13 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
         const uint pipeline_index =
             demo.parameters.conservative_rasterization == ConservativeRasterization::Off ? 0 : 1;
         cmd.set_pipeline(demo.raster_pipelines[pipeline_index]);
-        cmd.set_constants(Bindings {
-            .constants = demo.constants.buffer(frame_index).cbv_descriptor().index(),
-            .raster_buffer = demo.raster_buffer.uav_descriptor().index(),
-            .conservative_rasterization = demo.parameters.conservative_rasterization,
-        });
+        cmd.set_constants(
+            Bindings {
+                .constants = demo.constants.buffer(frame_index).cbv_descriptor().index(),
+                .raster_buffer = demo.raster_buffer.uav_descriptor().index(),
+                .conservative_rasterization = demo.parameters.conservative_rasterization,
+            }
+        );
         cmd.set_index_buffer(demo.star_indices.index_buffer_view());
         cmd.draw_indexed_instanced(demo.star_indices.element_count(), 1, 0, 0, 0);
         cmd.pix_end();
@@ -202,11 +210,13 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
             D3D12_BARRIER_ACCESS_SHADER_RESOURCE
         );
         cmd.flush_barriers();
-        cmd.set_constants(Bindings {
-            .constants = demo.constants.buffer(frame_index).cbv_descriptor().index(),
-            .raster_buffer = demo.raster_buffer.srv_descriptor().index(),
-            .conservative_rasterization = demo.parameters.conservative_rasterization,
-        });
+        cmd.set_constants(
+            Bindings {
+                .constants = demo.constants.buffer(frame_index).cbv_descriptor().index(),
+                .raster_buffer = demo.raster_buffer.srv_descriptor().index(),
+                .conservative_rasterization = demo.parameters.conservative_rasterization,
+            }
+        );
         cmd.set_pipeline(demo.display_pipeline);
         cmd.draw_instanced(3, 1, 0, 0);
         cmd.pix_end();

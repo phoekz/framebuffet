@@ -12,7 +12,7 @@
 const ConstantBuffer<SceneBindings> g_scene_bindings: register(b0);
 
 struct SceneVertexOutput {
-    float4 position: SV_Position;
+    float4 position : SV_Position;
 };
 
 SceneVertexOutput scene_vs(fb::VertexInput input) {
@@ -194,8 +194,8 @@ void upsample_cs(fb::ComputeInput input) {
 ConstantBuffer<BlitBindings> g_blit_bindings: register(b0);
 
 struct BlitVertexOutput {
-    float4 position: SV_Position;
-    float2 texcoord: ATTRIBUTE0;
+    float4 position : SV_Position;
+    float2 texcoord : ATTRIBUTE0;
 };
 
 BlitVertexOutput blit_vs(fb::VertexInput input) {

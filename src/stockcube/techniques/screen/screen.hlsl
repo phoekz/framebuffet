@@ -5,12 +5,12 @@
 const ConstantBuffer<Bindings> g_bindings: register(b0);
 
 struct VertexOutput {
-    float4 position: SV_Position;
-    float2 texcoord: ATTRIBUTE0;
-    nointerpolation uint texture: ATTRIBUTE1;
-    nointerpolation uint texture_face_id: ATTRIBUTE2;
-    nointerpolation uint texture_mip_id: ATTRIBUTE3;
-    nointerpolation uint sampler: ATTRIBUTE4;
+    float4 position : SV_Position;
+    float2 texcoord : ATTRIBUTE0;
+    nointerpolation uint texture : ATTRIBUTE1;
+    nointerpolation uint texture_face_id : ATTRIBUTE2;
+    nointerpolation uint texture_mip_id : ATTRIBUTE3;
+    nointerpolation uint sampler : ATTRIBUTE4;
 };
 
 VertexOutput vs(fb::VertexInput input) {

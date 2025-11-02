@@ -21,8 +21,8 @@ static const float FB_ONE_OVER_PI = 0.318309886f;
 namespace fb {
 
 struct VertexInput {
-    uint vertex_id: SV_VertexID;
-    uint instance_id: SV_InstanceID;
+    uint vertex_id : SV_VertexID;
+    uint instance_id : SV_InstanceID;
 };
 
 template<uint TargetCount>
@@ -30,35 +30,35 @@ struct PixelOutput {};
 
 template<>
 struct PixelOutput<1> {
-    float4 color: SV_Target;
+    float4 color : SV_Target;
 };
 
 template<>
 struct PixelOutput<2> {
-    float4 color_0: SV_Target0;
-    float4 color_1: SV_Target1;
+    float4 color_0 : SV_Target0;
+    float4 color_1 : SV_Target1;
 };
 
 template<>
 struct PixelOutput<3> {
-    float4 color_0: SV_Target0;
-    float4 color_1: SV_Target1;
-    float4 color_2: SV_Target2;
+    float4 color_0 : SV_Target0;
+    float4 color_1 : SV_Target1;
+    float4 color_2 : SV_Target2;
 };
 
 template<>
 struct PixelOutput<4> {
-    float4 color_0: SV_Target0;
-    float4 color_1: SV_Target1;
-    float4 color_2: SV_Target2;
-    float4 color_3: SV_Target3;
+    float4 color_0 : SV_Target0;
+    float4 color_1 : SV_Target1;
+    float4 color_2 : SV_Target2;
+    float4 color_3 : SV_Target3;
 };
 
 struct ComputeInput {
-    uint3 group_thread_id: SV_GroupThreadID;
-    uint3 group_id: SV_GroupID;
-    uint3 dispatch_thread_id: SV_DispatchThreadID;
-    uint group_index: SV_GroupIndex;
+    uint3 group_thread_id : SV_GroupThreadID;
+    uint3 group_id : SV_GroupID;
+    uint3 dispatch_thread_id : SV_DispatchThreadID;
+    uint group_index : SV_GroupIndex;
 };
 
 //
@@ -125,7 +125,7 @@ float3 linear_from_srgb(float3 srgb) {
 float3 cube_direction_from_dispatch_input(uint2 src_id, uint face_id, uint2 face_size) {
     // Note: Y is flipped.
     const float2 p = float2(
-        (2.0f * ((src_id.x + 0.5f) / face_size.x) - 1.0f),
+        2.0f * ((src_id.x + 0.5f) / face_size.x) - 1.0f,
         -(2.0f * ((src_id.y + 0.5f) / face_size.y) - 1.0f)
     );
 

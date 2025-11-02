@@ -132,14 +132,16 @@ auto render(Technique& tech, const RenderDesc& desc) -> void {
             // Accumulate pass.
             cmd.set_pipeline(tech.acc_pipeline);
             for (uint mip = 0; mip < tech.acc_texture.mip_count(); mip++) {
-                cmd.set_constants(AccBindings {
-                    .dispatch_id = tech.dispatch_id,
-                    .constants = tech.constants.cbv_descriptor().index(),
-                    .cube_texture = tech.cube_texture.index(),
-                    .cube_sampler = (uint)GpuSampler::LinearClamp,
-                    .rad_texture = tech.acc_texture.uav_descriptor().index(),
-                    .rad_texture_mip_id = mip,
-                });
+                cmd.set_constants(
+                    AccBindings {
+                        .dispatch_id = tech.dispatch_id,
+                        .constants = tech.constants.cbv_descriptor().index(),
+                        .cube_texture = tech.cube_texture.index(),
+                        .cube_sampler = (uint)GpuSampler::LinearClamp,
+                        .rad_texture = tech.acc_texture.uav_descriptor().index(),
+                        .rad_texture_mip_id = mip,
+                    }
+                );
                 const auto top_width = tech.acc_texture.size().x;
                 const auto top_height = tech.acc_texture.size().y;
                 const auto mip_width = std::max(1u, top_width >> mip);
@@ -163,13 +165,15 @@ auto render(Technique& tech, const RenderDesc& desc) -> void {
             // Division pass.
             cmd.set_pipeline(tech.div_pipeline);
             for (uint mip = 0; mip < tech.acc_texture.mip_count(); mip++) {
-                cmd.set_constants(DivBindings {
-                    .dispatch_id = tech.dispatch_id,
-                    .mip_id = mip,
-                    .constants = tech.constants.cbv_descriptor().index(),
-                    .acc_texture = tech.acc_texture.uav_descriptor().index(),
-                    .div_texture = tech.div_texture.uav_descriptor().index(),
-                });
+                cmd.set_constants(
+                    DivBindings {
+                        .dispatch_id = tech.dispatch_id,
+                        .mip_id = mip,
+                        .constants = tech.constants.cbv_descriptor().index(),
+                        .acc_texture = tech.acc_texture.uav_descriptor().index(),
+                        .div_texture = tech.div_texture.uav_descriptor().index(),
+                    }
+                );
                 const auto top_width = tech.acc_texture.size().x;
                 const auto top_height = tech.acc_texture.size().y;
                 const auto mip_width = std::max(1u, top_width >> mip);

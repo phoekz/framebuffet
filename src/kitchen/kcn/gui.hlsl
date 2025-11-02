@@ -9,9 +9,9 @@ struct Vertex {
 };
 
 struct VertexOutput {
-    float4 position: SV_Position;
-    float4 color: ATTRIBUTE0;
-    float2 texcoord: ATTRIBUTE1;
+    float4 position : SV_Position;
+    float4 color : ATTRIBUTE0;
+    float2 texcoord : ATTRIBUTE1;
 };
 
 const ConstantBuffer<Bindings> g_bindings: register(b0);

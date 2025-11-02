@@ -23,8 +23,8 @@ enum class GpuTextureFlags : uint {
     SrvUavRtv = Srv | Uav | Rtv,
 };
 
-inline constexpr auto
-gpu_texture_flags_contains(GpuTextureFlags flags, GpuTextureFlags flag) -> bool {
+inline constexpr auto gpu_texture_flags_contains(GpuTextureFlags flags, GpuTextureFlags flag)
+    -> bool {
     return ((uint)flags & (uint)flag) == (uint)flag;
 }
 

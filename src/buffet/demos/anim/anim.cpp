@@ -510,12 +510,16 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
                 cmd.set_index_buffer(model.indices.index_buffer_view());
                 for (uint i = 0; i < mesh.submeshes.size(); i++) {
                     const auto& submesh = mesh.submeshes[i];
-                    cmd.set_constants(Bindings {
-                        .constants = model.constants.buffer(frame_index).cbv_descriptor().index(),
-                        .vertices = model.vertices.srv_descriptor().index(),
-                        .skinning_matrices =
-                            model.skinning_matrices.buffer(frame_index).srv_descriptor().index(),
-                    });
+                    cmd.set_constants(
+                        Bindings {
+                            .constants =
+                                model.constants.buffer(frame_index).cbv_descriptor().index(),
+                            .vertices = model.vertices.srv_descriptor().index(),
+                            .skinning_matrices = model.skinning_matrices.buffer(frame_index)
+                                                     .srv_descriptor()
+                                                     .index(),
+                        }
+                    );
                     cmd.draw_indexed_instanced(
                         submesh.index_count,
                         1,
@@ -543,13 +547,15 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
             cmd.set_pipeline(ground.pipeline);
             cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
             cmd.set_index_buffer(ground.indices.index_buffer_view());
-            cmd.set_constants(Bindings {
-                .constants = ground.constants.buffer(frame_index).cbv_descriptor().index(),
-                .vertices = ground.vertices.srv_descriptor().index(),
-                .texture = ground.texture.srv_descriptor().index(),
-                .texture_scroll = ground.texture_scroll,
-                .shadow_texture = shadow.texture.srv_descriptor().index(),
-            });
+            cmd.set_constants(
+                Bindings {
+                    .constants = ground.constants.buffer(frame_index).cbv_descriptor().index(),
+                    .vertices = ground.vertices.srv_descriptor().index(),
+                    .texture = ground.texture.srv_descriptor().index(),
+                    .texture_scroll = ground.texture_scroll,
+                    .shadow_texture = shadow.texture.srv_descriptor().index(),
+                }
+            );
             cmd.draw_indexed_instanced(6, 1, 0, 0, 0);
             cmd.pix_end();
         }
@@ -572,14 +578,18 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
                     const uint b = (uint)(demo.parameters.colors[i].z * 255.0f);
                     const uint a = (uint)(demo.parameters.colors[i].w * 255.0f);
                     const uint color = (a << 24) | (b << 16) | (g << 8) | r;
-                    cmd.set_constants(Bindings {
-                        .constants = model.constants.buffer(frame_index).cbv_descriptor().index(),
-                        .vertices = model.vertices.srv_descriptor().index(),
-                        .skinning_matrices =
-                            model.skinning_matrices.buffer(frame_index).srv_descriptor().index(),
-                        .color = color,
-                        .shadow_texture = shadow.texture.srv_descriptor().index(),
-                    });
+                    cmd.set_constants(
+                        Bindings {
+                            .constants =
+                                model.constants.buffer(frame_index).cbv_descriptor().index(),
+                            .vertices = model.vertices.srv_descriptor().index(),
+                            .skinning_matrices = model.skinning_matrices.buffer(frame_index)
+                                                     .srv_descriptor()
+                                                     .index(),
+                            .color = color,
+                            .shadow_texture = shadow.texture.srv_descriptor().index(),
+                        }
+                    );
                     cmd.draw_indexed_instanced(
                         submesh.index_count,
                         1,

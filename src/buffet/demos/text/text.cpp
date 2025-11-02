@@ -131,11 +131,13 @@ auto create(Demo& demo, const CreateDesc& desc) -> void {
             .primitive_topology(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)
             .vertex_shader(shaders.text_background_vs())
             .pixel_shader(shaders.text_background_ps())
-            .depth_stencil(GpuDepthStencilDesc {
-                .depth_read = true,
-                .depth_write = true,
-                .depth_func = GpuComparisonFunc::LessEqual,
-            })
+            .depth_stencil(
+                GpuDepthStencilDesc {
+                    .depth_read = true,
+                    .depth_write = true,
+                    .depth_func = GpuComparisonFunc::LessEqual,
+                }
+            )
             .render_target_formats({demo.render_target.color_format(0)})
             .depth_stencil_format(demo.render_target.depth_format())
             .sample_desc(demo.render_target.sample_desc())
@@ -211,14 +213,13 @@ auto update(Demo& demo, const UpdateDesc& desc) -> void {
                             .base_vertex = pass.submeshes[glyph_index].base_vertex,
                             .instance_id = pass.glyph_submesh_count,
                         },
-                    .draw_indexed =
-                        D3D12_DRAW_INDEXED_ARGUMENTS {
-                            .IndexCountPerInstance = pass.submeshes[glyph_index].index_count,
-                            .InstanceCount = 1,
-                            .StartIndexLocation = pass.submeshes[glyph_index].start_index,
-                            .BaseVertexLocation = 0,
-                            .StartInstanceLocation = 0,
-                        },
+                    .draw_indexed = D3D12_DRAW_INDEXED_ARGUMENTS {
+                        .IndexCountPerInstance = pass.submeshes[glyph_index].index_count,
+                        .InstanceCount = 1,
+                        .StartIndexLocation = pass.submeshes[glyph_index].start_index,
+                        .BaseVertexLocation = 0,
+                        .StartInstanceLocation = 0,
+                    },
                 };
                 pass.glyph_submesh_count++;
                 x_offset += pass.glyphs[glyph_index].advance;
@@ -275,11 +276,13 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
         {
             cmd.pix_begin("Background");
             const auto& pass = demo.bg;
-            cmd.set_constants(BackgroundBindings {
-                .constants = pass.constants.buffer(frame_index).cbv_descriptor().index(),
-                .vertices = pass.vertices.srv_descriptor().index(),
-                .irr_texture = demo.pbr.irr.srv_descriptor().index(),
-            });
+            cmd.set_constants(
+                BackgroundBindings {
+                    .constants = pass.constants.buffer(frame_index).cbv_descriptor().index(),
+                    .vertices = pass.vertices.srv_descriptor().index(),
+                    .irr_texture = demo.pbr.irr.srv_descriptor().index(),
+                }
+            );
             cmd.set_pipeline(pass.pipeline);
             cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
             cmd.set_index_buffer(pass.indices.index_buffer_view());

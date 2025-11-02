@@ -284,10 +284,12 @@ auto bake_assets(std::string_view assets_dir, Span<const AssetTask> asset_tasks)
                 [&](const AssetTaskCopy& task) {
                     const auto path = std::format("{}/{}", assets_dir, task.path);
                     const auto file = read_whole_file(path);
-                    assets.emplace_back(AssetCopy {
-                        .name = names.unique(std::string(task.name)),
-                        .data = assets_writer.write("std::byte", Span(file)),
-                    });
+                    assets.emplace_back(
+                        AssetCopy {
+                            .name = names.unique(std::string(task.name)),
+                            .data = assets_writer.write("std::byte", Span(file)),
+                        }
+                    );
                 },
                 [&](const AssetTaskTexture& task) {
                     const auto path = std::format("{}/{}", assets_dir, task.path);
@@ -304,19 +306,21 @@ auto bake_assets(std::string_view assets_dir, Span<const AssetTask> asset_tasks)
                 [&](const AssetTaskHdrTexture& task) {
                     const auto file = read_whole_file(std::format("{}/{}", assets_dir, task.path));
                     const auto image = HdrImage::from_image(file);
-                    assets.emplace_back(AssetTexture {
-                        .name = names.unique(std::format("{}_hdr_texture", task.name)),
-                        .format = image.format(),
-                        .width = image.width(),
-                        .height = image.height(),
-                        .channel_count = image.channel_count(),
-                        .mip_count = 1,
-                        .datas = {AssetTextureData {
-                            .row_pitch = image.row_pitch(),
-                            .slice_pitch = image.slice_pitch(),
-                            .data = assets_writer.write("std::byte", image.data()),
-                        }},
-                    });
+                    assets.emplace_back(
+                        AssetTexture {
+                            .name = names.unique(std::format("{}_hdr_texture", task.name)),
+                            .format = image.format(),
+                            .width = image.width(),
+                            .height = image.height(),
+                            .channel_count = image.channel_count(),
+                            .mip_count = 1,
+                            .datas = {AssetTextureData {
+                                .row_pitch = image.row_pitch(),
+                                .slice_pitch = image.slice_pitch(),
+                                .data = assets_writer.write("std::byte", image.data()),
+                            }},
+                        }
+                    );
                 },
                 [&](const AssetTaskGltf& task) {
                     // Load GLTF.
@@ -330,22 +334,26 @@ auto bake_assets(std::string_view assets_dir, Span<const AssetTask> asset_tasks)
                     const auto indices = model.indices();
                     const auto submeshes = model.submeshes();
                     auto tangents = std::vector<float4>(positions.size());
-                    generate_tangents(GenerateTangentsDesc {
-                        .positions = positions,
-                        .normals = normals,
-                        .texcoords = texcoords,
-                        .indices = indices,
-                        .tangents = Span(tangents),
-                    });
+                    generate_tangents(
+                        GenerateTangentsDesc {
+                            .positions = positions,
+                            .normals = normals,
+                            .texcoords = texcoords,
+                            .indices = indices,
+                            .tangents = Span(tangents),
+                        }
+                    );
 
                     // Submeshes.
                     auto asset_submeshes = std::vector<AssetSubmesh>();
                     for (const auto& submesh : submeshes) {
-                        asset_submeshes.push_back(AssetSubmesh {
-                            .index_count = submesh.index_count,
-                            .start_index = submesh.start_index,
-                            .base_vertex = 0,
-                        });
+                        asset_submeshes.push_back(
+                            AssetSubmesh {
+                                .index_count = submesh.index_count,
+                                .start_index = submesh.start_index,
+                                .base_vertex = 0,
+                            }
+                        );
                     }
 
                     // Animated vs non-animated.
@@ -360,17 +368,19 @@ auto bake_assets(std::string_view assets_dir, Span<const AssetTask> asset_tasks)
                             };
                         }
 
-                        assets.emplace_back(AssetMesh {
-                            .name = names.unique(std::format("{}_mesh", task.name)),
-                            .transform = model.root_transform(),
-                            .vertices =
-                                assets_writer.write("Vertex", Span<const AssetVertex>(vertices)),
-                            .indices = assets_writer.write("Index", indices),
-                            .submeshes = assets_writer.write(
-                                "Submesh",
-                                Span<const AssetSubmesh>(asset_submeshes)
-                            ),
-                        });
+                        assets.emplace_back(
+                            AssetMesh {
+                                .name = names.unique(std::format("{}_mesh", task.name)),
+                                .transform = model.root_transform(),
+                                .vertices = assets_writer
+                                                .write("Vertex", Span<const AssetVertex>(vertices)),
+                                .indices = assets_writer.write("Index", indices),
+                                .submeshes = assets_writer.write(
+                                    "Submesh",
+                                    Span<const AssetSubmesh>(asset_submeshes)
+                                ),
+                            }
+                        );
                     } else {
                         auto vertices = std::vector<AssetSkinningVertex>(positions.size());
                         for (size_t i = 0; i < vertices.size(); ++i) {
@@ -384,40 +394,44 @@ auto bake_assets(std::string_view assets_dir, Span<const AssetTask> asset_tasks)
                             };
                         }
 
-                        assets.emplace_back(AssetAnimationMesh {
-                            .name = names.unique(std::format("{}_animation_mesh", task.name)),
-                            .transform = model.root_transform(),
-                            .node_count = model.node_count(),
-                            .joint_count = model.joint_count(),
-                            .duration = model.animation_duration(),
-                            .skinning_vertices = assets_writer.write(
-                                "SkinningVertex",
-                                Span<const AssetSkinningVertex>(vertices)
-                            ),
-                            .indices = assets_writer.write("Index", indices),
-                            .submeshes = assets_writer.write(
-                                "Submesh",
-                                Span<const AssetSubmesh>(asset_submeshes)
-                            ),
-                            .joint_nodes = assets_writer.write("uint", model.joint_nodes()),
-                            .joint_inverse_binds =
-                                assets_writer.write("float4x4", model.joint_inverse_binds()),
-                            .node_parents = assets_writer.write("uint", model.node_parents()),
-                            .node_channels =
-                                assets_writer.write("AnimationChannel", model.node_channels()),
-                            .node_channels_times_t =
-                                assets_writer.write("float", model.node_channels_times_t()),
-                            .node_channels_times_r =
-                                assets_writer.write("float", model.node_channels_times_r()),
-                            .node_channels_times_s =
-                                assets_writer.write("float", model.node_channels_times_s()),
-                            .node_channels_values_t =
-                                assets_writer.write("float3", model.node_channels_values_t()),
-                            .node_channels_values_r =
-                                assets_writer.write("float_quat", model.node_channels_values_r()),
-                            .node_channels_values_s =
-                                assets_writer.write("float3", model.node_channels_values_s()),
-                        });
+                        assets.emplace_back(
+                            AssetAnimationMesh {
+                                .name = names.unique(std::format("{}_animation_mesh", task.name)),
+                                .transform = model.root_transform(),
+                                .node_count = model.node_count(),
+                                .joint_count = model.joint_count(),
+                                .duration = model.animation_duration(),
+                                .skinning_vertices = assets_writer.write(
+                                    "SkinningVertex",
+                                    Span<const AssetSkinningVertex>(vertices)
+                                ),
+                                .indices = assets_writer.write("Index", indices),
+                                .submeshes = assets_writer.write(
+                                    "Submesh",
+                                    Span<const AssetSubmesh>(asset_submeshes)
+                                ),
+                                .joint_nodes = assets_writer.write("uint", model.joint_nodes()),
+                                .joint_inverse_binds =
+                                    assets_writer.write("float4x4", model.joint_inverse_binds()),
+                                .node_parents = assets_writer.write("uint", model.node_parents()),
+                                .node_channels =
+                                    assets_writer.write("AnimationChannel", model.node_channels()),
+                                .node_channels_times_t =
+                                    assets_writer.write("float", model.node_channels_times_t()),
+                                .node_channels_times_r =
+                                    assets_writer.write("float", model.node_channels_times_r()),
+                                .node_channels_times_s =
+                                    assets_writer.write("float", model.node_channels_times_s()),
+                                .node_channels_values_t =
+                                    assets_writer.write("float3", model.node_channels_values_t()),
+                                .node_channels_values_r = assets_writer.write(
+                                    "float_quat",
+                                    model.node_channels_values_r()
+                                ),
+                                .node_channels_values_s =
+                                    assets_writer.write("float3", model.node_channels_values_s()),
+                            }
+                        );
                     }
 
                     // Textures.
@@ -451,11 +465,13 @@ auto bake_assets(std::string_view assets_dir, Span<const AssetTask> asset_tasks)
 
                     // Materials.
                     {
-                        assets.emplace_back(AssetMaterial {
-                            .name = names.unique(std::format("{}_material", task.name)),
-                            .alpha_cutoff = model.alpha_cutoff(),
-                            .alpha_mode = (AssetAlphaMode)model.alpha_mode(),
-                        });
+                        assets.emplace_back(
+                            AssetMaterial {
+                                .name = names.unique(std::format("{}_material", task.name)),
+                                .alpha_cutoff = model.alpha_cutoff(),
+                                .alpha_mode = (AssetAlphaMode)model.alpha_mode(),
+                            }
+                        );
                     }
                 },
                 [&](const AssetTaskProceduralCube& task) {
@@ -476,13 +492,15 @@ auto bake_assets(std::string_view assets_dir, Span<const AssetTask> asset_tasks)
 
                     // Compute tangents.
                     auto vertex_tangents = std::vector<float4>(vertex_positions.size());
-                    generate_tangents(GenerateTangentsDesc {
-                        .positions = vertex_positions,
-                        .normals = vertex_normals,
-                        .texcoords = vertex_texcoords,
-                        .indices = indices,
-                        .tangents = Span(vertex_tangents),
-                    });
+                    generate_tangents(
+                        GenerateTangentsDesc {
+                            .positions = vertex_positions,
+                            .normals = vertex_normals,
+                            .texcoords = vertex_texcoords,
+                            .indices = indices,
+                            .tangents = Span(vertex_tangents),
+                        }
+                    );
 
                     // Convert.
                     auto vertices = std::vector<AssetVertex>(vertex_positions.size());
@@ -505,14 +523,17 @@ auto bake_assets(std::string_view assets_dir, Span<const AssetTask> asset_tasks)
                     };
 
                     // Mesh.
-                    assets.emplace_back(AssetMesh {
-                        .name = names.unique(std::format("{}_mesh", task.name)),
-                        .vertices =
-                            assets_writer.write("Vertex", Span<const AssetVertex>(vertices)),
-                        .indices = assets_writer.write("Index", Span<const AssetIndex>(indices)),
-                        .submeshes =
-                            assets_writer.write("Submesh", Span<const AssetSubmesh>(submeshes)),
-                    });
+                    assets.emplace_back(
+                        AssetMesh {
+                            .name = names.unique(std::format("{}_mesh", task.name)),
+                            .vertices =
+                                assets_writer.write("Vertex", Span<const AssetVertex>(vertices)),
+                            .indices =
+                                assets_writer.write("Index", Span<const AssetIndex>(indices)),
+                            .submeshes =
+                                assets_writer.write("Submesh", Span<const AssetSubmesh>(submeshes)),
+                        }
+                    );
                 },
                 [&](const AssetTaskProceduralSphere& task) {
                     // Generate.
@@ -533,13 +554,15 @@ auto bake_assets(std::string_view assets_dir, Span<const AssetTask> asset_tasks)
 
                     // Compute tangents.
                     auto vertex_tangents = std::vector<float4>(vertex_positions.size());
-                    generate_tangents(GenerateTangentsDesc {
-                        .positions = vertex_positions,
-                        .normals = vertex_normals,
-                        .texcoords = vertex_texcoords,
-                        .indices = indices,
-                        .tangents = Span(vertex_tangents),
-                    });
+                    generate_tangents(
+                        GenerateTangentsDesc {
+                            .positions = vertex_positions,
+                            .normals = vertex_normals,
+                            .texcoords = vertex_texcoords,
+                            .indices = indices,
+                            .tangents = Span(vertex_tangents),
+                        }
+                    );
 
                     // Convert.
                     auto vertices = std::vector<AssetVertex>(vertex_positions.size());
@@ -562,14 +585,17 @@ auto bake_assets(std::string_view assets_dir, Span<const AssetTask> asset_tasks)
                     };
 
                     // Mesh.
-                    assets.emplace_back(AssetMesh {
-                        .name = names.unique(std::format("{}_mesh", task.name)),
-                        .vertices =
-                            assets_writer.write("Vertex", Span<const AssetVertex>(vertices)),
-                        .indices = assets_writer.write("Index", Span<const AssetIndex>(indices)),
-                        .submeshes =
-                            assets_writer.write("Submesh", Span<const AssetSubmesh>(submeshes)),
-                    });
+                    assets.emplace_back(
+                        AssetMesh {
+                            .name = names.unique(std::format("{}_mesh", task.name)),
+                            .vertices =
+                                assets_writer.write("Vertex", Span<const AssetVertex>(vertices)),
+                            .indices =
+                                assets_writer.write("Index", Span<const AssetIndex>(indices)),
+                            .submeshes =
+                                assets_writer.write("Submesh", Span<const AssetSubmesh>(submeshes)),
+                        }
+                    );
                 },
                 [&](const AssetTaskProceduralLowPolyGround& task) {
                     // Generate vertices.
@@ -706,14 +732,17 @@ auto bake_assets(std::string_view assets_dir, Span<const AssetTask> asset_tasks)
                     };
 
                     // Mesh.
-                    assets.emplace_back(AssetMesh {
-                        .name = names.unique(std::format("{}_mesh", task.name)),
-                        .vertices =
-                            assets_writer.write("Vertex", Span<const AssetVertex>(vertices)),
-                        .indices = assets_writer.write("Index", Span<const AssetIndex>(indices)),
-                        .submeshes =
-                            assets_writer.write("Submesh", Span<const AssetSubmesh>(submeshes)),
-                    });
+                    assets.emplace_back(
+                        AssetMesh {
+                            .name = names.unique(std::format("{}_mesh", task.name)),
+                            .vertices =
+                                assets_writer.write("Vertex", Span<const AssetVertex>(vertices)),
+                            .indices =
+                                assets_writer.write("Index", Span<const AssetIndex>(indices)),
+                            .submeshes =
+                                assets_writer.write("Submesh", Span<const AssetSubmesh>(submeshes)),
+                        }
+                    );
                 },
                 [&](const AssetTaskProceduralTexturedPlane& task) {
                     // Generate.
@@ -722,30 +751,38 @@ auto bake_assets(std::string_view assets_dir, Span<const AssetTask> asset_tasks)
                     const auto tangent = float4(1.0f, 0.0f, 0.0f, 1.0f);
                     auto vertices = std::vector<AssetVertex>();
                     auto indices = std::vector<uint>();
-                    vertices.push_back(AssetVertex {
-                        .position = float3(-half_extents, 0.0f, -half_extents),
-                        .normal = normal,
-                        .texcoord = float2(0.0f, 0.0f),
-                        .tangent = tangent,
-                    });
-                    vertices.push_back(AssetVertex {
-                        .position = float3(-half_extents, 0.0f, half_extents),
-                        .normal = normal,
-                        .texcoord = float2(0.0f, 1.0f),
-                        .tangent = tangent,
-                    });
-                    vertices.push_back(AssetVertex {
-                        .position = float3(half_extents, 0.0f, half_extents),
-                        .normal = normal,
-                        .texcoord = float2(1.0f, 1.0f),
-                        .tangent = tangent,
-                    });
-                    vertices.push_back(AssetVertex {
-                        .position = float3(half_extents, 0.0f, -half_extents),
-                        .normal = normal,
-                        .texcoord = float2(1.0f, 0.0f),
-                        .tangent = tangent,
-                    });
+                    vertices.push_back(
+                        AssetVertex {
+                            .position = float3(-half_extents, 0.0f, -half_extents),
+                            .normal = normal,
+                            .texcoord = float2(0.0f, 0.0f),
+                            .tangent = tangent,
+                        }
+                    );
+                    vertices.push_back(
+                        AssetVertex {
+                            .position = float3(-half_extents, 0.0f, half_extents),
+                            .normal = normal,
+                            .texcoord = float2(0.0f, 1.0f),
+                            .tangent = tangent,
+                        }
+                    );
+                    vertices.push_back(
+                        AssetVertex {
+                            .position = float3(half_extents, 0.0f, half_extents),
+                            .normal = normal,
+                            .texcoord = float2(1.0f, 1.0f),
+                            .tangent = tangent,
+                        }
+                    );
+                    vertices.push_back(
+                        AssetVertex {
+                            .position = float3(half_extents, 0.0f, -half_extents),
+                            .normal = normal,
+                            .texcoord = float2(1.0f, 0.0f),
+                            .tangent = tangent,
+                        }
+                    );
                     indices.push_back(0);
                     indices.push_back(1);
                     indices.push_back(2);
@@ -763,14 +800,17 @@ auto bake_assets(std::string_view assets_dir, Span<const AssetTask> asset_tasks)
                     };
 
                     // Mesh.
-                    assets.emplace_back(AssetMesh {
-                        .name = names.unique(std::format("{}_mesh", task.name)),
-                        .vertices =
-                            assets_writer.write("Vertex", Span<const AssetVertex>(vertices)),
-                        .indices = assets_writer.write("Index", Span<const AssetIndex>(indices)),
-                        .submeshes =
-                            assets_writer.write("Submesh", Span<const AssetSubmesh>(submeshes)),
-                    });
+                    assets.emplace_back(
+                        AssetMesh {
+                            .name = names.unique(std::format("{}_mesh", task.name)),
+                            .vertices =
+                                assets_writer.write("Vertex", Span<const AssetVertex>(vertices)),
+                            .indices =
+                                assets_writer.write("Index", Span<const AssetIndex>(indices)),
+                            .submeshes =
+                                assets_writer.write("Submesh", Span<const AssetSubmesh>(submeshes)),
+                        }
+                    );
 
                     // Texture.
                     const auto color_a = RgbaByte(
@@ -795,22 +835,24 @@ auto bake_assets(std::string_view assets_dir, Span<const AssetTask> asset_tasks)
                             (std::byte)(255),
                         }
                     );
-                    image = image.map(
-                        [&](uint x, uint y, std::byte& r, std::byte& g, std::byte& b, std::byte& a
-                        ) {
-                            if (((x + y) & 1) == 0) {
-                                r = (std::byte)color_a.x;
-                                g = (std::byte)color_a.y;
-                                b = (std::byte)color_a.z;
-                                a = (std::byte)255;
-                            } else {
-                                r = (std::byte)color_b.x;
-                                g = (std::byte)color_b.y;
-                                b = (std::byte)color_b.z;
-                                a = (std::byte)255;
-                            }
+                    image = image.map([&](uint x,
+                                          uint y,
+                                          std::byte& r,
+                                          std::byte& g,
+                                          std::byte& b,
+                                          std::byte& a) {
+                        if (((x + y) & 1) == 0) {
+                            r = (std::byte)color_a.x;
+                            g = (std::byte)color_a.y;
+                            b = (std::byte)color_a.z;
+                            a = (std::byte)255;
+                        } else {
+                            r = (std::byte)color_b.x;
+                            g = (std::byte)color_b.y;
+                            b = (std::byte)color_b.z;
+                            a = (std::byte)255;
                         }
-                    );
+                    });
                     assets.push_back(mipmapped_texture_asset(
                         assets_writer,
                         names.unique(std::format("{}_texture", task.name)),
@@ -848,8 +890,8 @@ auto bake_assets(std::string_view assets_dir, Span<const AssetTask> asset_tasks)
                     FB_ASSERT(mip_count <= MAX_MIP_COUNT);
 
                     if (depth == 6) {
-                        std::array<std::array<AssetTextureData, MAX_MIP_COUNT>, 6> texture_datas = {
-                        };
+                        std::array<std::array<AssetTextureData, MAX_MIP_COUNT>, 6> texture_datas =
+                            {};
                         uint64_t offset = 0;
                         for (uint slice = 0; slice < depth; slice++) {
                             auto& slice_datas = texture_datas[slice];
@@ -870,31 +912,35 @@ auto bake_assets(std::string_view assets_dir, Span<const AssetTask> asset_tasks)
                             }
                         }
 
-                        assets.emplace_back(AssetCubeTexture {
-                            .name = names.unique(std::string(task.name)),
-                            .format = format,
-                            .width = width,
-                            .height = height,
-                            .channel_count = channel_count,
-                            .mip_count = mip_count,
-                            .datas = texture_datas,
-                        });
+                        assets.emplace_back(
+                            AssetCubeTexture {
+                                .name = names.unique(std::string(task.name)),
+                                .format = format,
+                                .width = width,
+                                .height = height,
+                                .channel_count = channel_count,
+                                .mip_count = mip_count,
+                                .datas = texture_datas,
+                            }
+                        );
                     } else {
                         const auto row_pitch = width * unit_byte_count;
                         const auto slice_pitch = row_pitch * height;
-                        assets.emplace_back(AssetTexture {
-                            .name = std::string(task.name),
-                            .format = format,
-                            .width = width,
-                            .height = height,
-                            .channel_count = channel_count,
-                            .mip_count = mip_count,
-                            .datas = {AssetTextureData {
-                                .row_pitch = row_pitch,
-                                .slice_pitch = slice_pitch,
-                                .data = assets_writer.write("std::byte", bin_span),
-                            }},
-                        });
+                        assets.emplace_back(
+                            AssetTexture {
+                                .name = std::string(task.name),
+                                .format = format,
+                                .width = width,
+                                .height = height,
+                                .channel_count = channel_count,
+                                .mip_count = mip_count,
+                                .datas = {AssetTextureData {
+                                    .row_pitch = row_pitch,
+                                    .slice_pitch = slice_pitch,
+                                    .data = assets_writer.write("std::byte", bin_span),
+                                }},
+                            }
+                        );
                     }
                 },
                 [&](const AssetTaskTtf& task) {
@@ -929,14 +975,16 @@ auto bake_assets(std::string_view assets_dir, Span<const AssetTask> asset_tasks)
                         const auto glyph = &ttf->glyphs[glyph_id];
 
                         // Push glyph info.
-                        glyphs.push_back(AssetGlyph {
-                            .character = (uint)c,
-                            .xbounds = float2(glyph->xbounds[0], glyph->xbounds[1]),
-                            .ybounds = float2(glyph->ybounds[0], glyph->ybounds[1]),
-                            .advance = glyph->advance,
-                            .lbearing = glyph->lbearing,
-                            .rbearing = glyph->rbearing,
-                        });
+                        glyphs.push_back(
+                            AssetGlyph {
+                                .character = (uint)c,
+                                .xbounds = float2(glyph->xbounds[0], glyph->xbounds[1]),
+                                .ybounds = float2(glyph->ybounds[0], glyph->ybounds[1]),
+                                .advance = glyph->advance,
+                                .lbearing = glyph->lbearing,
+                                .rbearing = glyph->rbearing,
+                            }
+                        );
 
                         // Generate mesh.
                         const auto quality = TTF_QUALITY_HIGH;
@@ -975,11 +1023,13 @@ auto bake_assets(std::string_view assets_dir, Span<const AssetTask> asset_tasks)
                         }
 
                         // Submesh.
-                        submeshes.push_back(AssetSubmesh {
-                            .index_count = (uint)glyph_mesh->nfaces * 3,
-                            .start_index = start_index,
-                            .base_vertex = base_vertex,
-                        });
+                        submeshes.push_back(
+                            AssetSubmesh {
+                                .index_count = (uint)glyph_mesh->nfaces * 3,
+                                .start_index = start_index,
+                                .base_vertex = base_vertex,
+                            }
+                        );
 
                         // Free mesh.
                         ttf_free_mesh3d(glyph_mesh);
@@ -991,21 +1041,26 @@ auto bake_assets(std::string_view assets_dir, Span<const AssetTask> asset_tasks)
                     const auto space_glyph = &ttf->glyphs[space_glyph_id];
 
                     // Push assets.
-                    assets.emplace_back(AssetFont {
-                        .name = names.unique(std::format("{}_font", task.name)),
-                        .ascender = ttf->hhea.ascender,
-                        .descender = ttf->hhea.descender,
-                        .space_advance = space_glyph->advance,
-                        .glyphs = assets_writer.write("Glyph", Span<const AssetGlyph>(glyphs)),
-                    });
-                    assets.emplace_back(AssetMesh {
-                        .name = names.unique(std::format("{}_mesh", task.name)),
-                        .vertices =
-                            assets_writer.write("Vertex", Span<const AssetVertex>(vertices)),
-                        .indices = assets_writer.write("Index", Span<const AssetIndex>(indices)),
-                        .submeshes =
-                            assets_writer.write("Submesh", Span<const AssetSubmesh>(submeshes)),
-                    });
+                    assets.emplace_back(
+                        AssetFont {
+                            .name = names.unique(std::format("{}_font", task.name)),
+                            .ascender = ttf->hhea.ascender,
+                            .descender = ttf->hhea.descender,
+                            .space_advance = space_glyph->advance,
+                            .glyphs = assets_writer.write("Glyph", Span<const AssetGlyph>(glyphs)),
+                        }
+                    );
+                    assets.emplace_back(
+                        AssetMesh {
+                            .name = names.unique(std::format("{}_mesh", task.name)),
+                            .vertices =
+                                assets_writer.write("Vertex", Span<const AssetVertex>(vertices)),
+                            .indices =
+                                assets_writer.write("Index", Span<const AssetIndex>(indices)),
+                            .submeshes =
+                                assets_writer.write("Submesh", Span<const AssetSubmesh>(submeshes)),
+                        }
+                    );
 
                     // Cleanup.
                     ttf_free(ttf);

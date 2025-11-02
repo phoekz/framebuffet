@@ -86,20 +86,24 @@ auto create(Demo& demo, const CreateDesc& desc) -> void {
         .pixel_shader(shaders.cards_background_ps())
         .primitive_topology(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)
         .render_target_formats({device.swapchain().format()})
-        .depth_stencil(GpuDepthStencilDesc {
-            .depth_read = false,
-            .depth_write = false,
-        })
+        .depth_stencil(
+            GpuDepthStencilDesc {
+                .depth_read = false,
+                .depth_write = false,
+            }
+        )
         .build(device, demo.background_pipeline, debug.with_name("Background Pipeline"));
     GpuPipelineBuilder()
         .vertex_shader(shaders.cards_draw_vs())
         .pixel_shader(shaders.cards_draw_ps())
         .primitive_topology(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)
         .render_target_formats({device.swapchain().format()})
-        .depth_stencil(GpuDepthStencilDesc {
-            .depth_read = false,
-            .depth_write = false,
-        })
+        .depth_stencil(
+            GpuDepthStencilDesc {
+                .depth_read = false,
+                .depth_write = false,
+            }
+        )
         .build(device, demo.draw_pipeline, debug.with_name("Draw Pipeline"));
 
     // Constants.
@@ -270,13 +274,15 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
         cmd.set_pipeline(demo.spd_pipeline);
         for (uint i = 0; i < CARD_COUNT; i++) {
             const auto& card = demo.card_descriptors[i];
-            cmd.set_constants(kcn::spd::Bindings {
-                .constants = demo.spd_constants.cbv_descriptor().index(),
-                .atomics = demo.spd_atomics.uav_descriptor().index(),
-                .texture_src = card.src,
-                .texture_mid = card.mid,
-                .texture_dst_begin = card.dst_begin,
-            });
+            cmd.set_constants(
+                kcn::spd::Bindings {
+                    .constants = demo.spd_constants.cbv_descriptor().index(),
+                    .atomics = demo.spd_atomics.uav_descriptor().index(),
+                    .texture_src = card.src,
+                    .texture_mid = card.mid,
+                    .texture_dst_begin = card.dst_begin,
+                }
+            );
             cmd.dispatch(demo.spd_dispatch.x, demo.spd_dispatch.y, demo.spd_dispatch.z);
         }
         cmd.pix_end();
@@ -288,23 +294,27 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
         cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
         cmd.set_pipeline(demo.background_pipeline);
-        cmd.set_constants(BackgroundBindings {
-            .constants = demo.constants.buffer(frame_index).cbv_descriptor().index(),
-            .texture = demo.card_descriptors[params.card_indirect_indices.back()].src,
-        });
+        cmd.set_constants(
+            BackgroundBindings {
+                .constants = demo.constants.buffer(frame_index).cbv_descriptor().index(),
+                .texture = demo.card_descriptors[params.card_indirect_indices.back()].src,
+            }
+        );
         cmd.draw_instanced(3, 1, 0, 0);
 
         cmd.set_pipeline(demo.draw_pipeline);
         cmd.set_index_buffer(demo.indices.index_buffer_view());
         for (uint i = 0; i < CARD_COUNT; ++i) {
             const auto card_indirect = params.card_indirect_indices[i];
-            cmd.set_constants(DrawBindings {
-                .card_index = i,
-                .constants = demo.constants.buffer(frame_index).cbv_descriptor().index(),
-                .cards = demo.cards.buffer(frame_index).srv_descriptor().index(),
-                .vertices = demo.vertices.srv_descriptor().index(),
-                .texture = demo.card_descriptors[card_indirect].src,
-            });
+            cmd.set_constants(
+                DrawBindings {
+                    .card_index = i,
+                    .constants = demo.constants.buffer(frame_index).cbv_descriptor().index(),
+                    .cards = demo.cards.buffer(frame_index).srv_descriptor().index(),
+                    .vertices = demo.vertices.srv_descriptor().index(),
+                    .texture = demo.card_descriptors[card_indirect].src,
+                }
+            );
             cmd.draw_indexed_instanced(demo.indices.element_count(), 1, 0, 0, 0);
         }
 

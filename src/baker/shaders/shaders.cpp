@@ -225,9 +225,11 @@ auto ShaderCompiler::compile(
         ComPtr<IDxcResult> disassemble_result;
         FB_ASSERT_HR(_compiler->Disassemble(&dxil_buffer, IID_PPV_ARGS(&disassemble_result)));
         ComPtr<IDxcBlobUtf8> disassemble_blob;
-        FB_ASSERT_HR(disassemble_result
-                         ->GetOutput(DXC_OUT_DISASSEMBLY, IID_PPV_ARGS(&disassemble_blob), nullptr)
-        );
+        FB_ASSERT_HR(disassemble_result->GetOutput(
+            DXC_OUT_DISASSEMBLY,
+            IID_PPV_ARGS(&disassemble_blob),
+            nullptr
+        ));
         const size_t string_length = disassemble_blob->GetStringLength();
         const char* string = disassemble_blob->GetStringPointer();
         disassembly.resize(string_length + 1, '\0');

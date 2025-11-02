@@ -12,8 +12,8 @@ struct Vertex {
 };
 
 struct VertexOutput {
-    float4 position: SV_Position;
-    float4 color: ATTRIBUTE0;
+    float4 position : SV_Position;
+    float4 color : ATTRIBUTE0;
 };
 
 const ConstantBuffer<Bindings> g_bindings: register(b0);

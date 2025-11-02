@@ -19,8 +19,8 @@ void sim_cs(fb::ComputeInput input) {
 }
 
 struct VertexOutput {
-    float4 position: SV_Position;
-    float2 texcoord: ATTRIBUTE0;
+    float4 position : SV_Position;
+    float2 texcoord : ATTRIBUTE0;
 };
 
 VertexOutput draw_vs(fb::VertexInput input) {

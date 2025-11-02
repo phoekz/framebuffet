@@ -16,10 +16,12 @@ auto create(Technique& tech, const CreateDesc& desc) -> void {
         .vertex_shader(shaders.blit_vs())
         .pixel_shader(shaders.blit_ps())
         .primitive_topology(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)
-        .depth_stencil(GpuDepthStencilDesc {
-            .depth_read = false,
-            .depth_write = false,
-        })
+        .depth_stencil(
+            GpuDepthStencilDesc {
+                .depth_read = false,
+                .depth_write = false,
+            }
+        )
         .render_target_formats({device.swapchain().format()})
         .build(device, tech.pipeline, debug.with_name("Pipeline"));
 }
@@ -53,10 +55,12 @@ auto render(Technique& tech, const RenderDesc& desc) -> void {
         cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
         cmd.set_viewport(0, 0, tech.size.x, tech.size.y);
         cmd.set_scissor(0, 0, tech.size.x, tech.size.y);
-        cmd.set_constants(Bindings {
-            .constants = tech.constants.cbv_descriptor().index(),
-            .texture = tech.render_target.index(),
-        });
+        cmd.set_constants(
+            Bindings {
+                .constants = tech.constants.cbv_descriptor().index(),
+                .texture = tech.render_target.index(),
+            }
+        );
         cmd.draw_instanced(3, 1, 0, 0);
         cmd.pix_end();
     });

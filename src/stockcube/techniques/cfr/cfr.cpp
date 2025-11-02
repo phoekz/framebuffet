@@ -55,12 +55,14 @@ auto render(Technique& tech, const RenderDesc& desc) -> void {
         );
         cmd.flush_barriers();
         cmd.set_pipeline(tech.pipeline);
-        cmd.set_constants(Bindings {
-            .constants = tech.constants.cbv_descriptor().index(),
-            .rect_texture = tech.rect_texture.index(),
-            .rect_sampler = (uint)GpuSampler::LinearClamp,
-            .cube_texture = tech.cube_texture.uav_descriptor().index(),
-        });
+        cmd.set_constants(
+            Bindings {
+                .constants = tech.constants.cbv_descriptor().index(),
+                .rect_texture = tech.rect_texture.index(),
+                .rect_sampler = (uint)GpuSampler::LinearClamp,
+                .cube_texture = tech.cube_texture.uav_descriptor().index(),
+            }
+        );
         cmd.dispatch(
             tech.cube_texture.width() / DISPATCH_X,
             tech.cube_texture.height() / DISPATCH_Y,

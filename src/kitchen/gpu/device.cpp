@@ -383,8 +383,10 @@ auto GpuDevice::wait() -> void {
     WaitForSingleObjectEx(_fence_event, INFINITE, FALSE);
 }
 
-auto GpuDevice::create_root_signature(const ComPtr<ID3DBlob>& signature, std::string_view name)
-    const -> ComPtr<ID3D12RootSignature> {
+auto GpuDevice::create_root_signature(
+    const ComPtr<ID3DBlob>& signature,
+    std::string_view name
+) const -> ComPtr<ID3D12RootSignature> {
     ComPtr<ID3D12RootSignature> result;
     FB_ASSERT_HR(_device->CreateRootSignature(
         0,
@@ -606,7 +608,8 @@ auto GpuDevice::log_stats() -> void {
 auto GpuDevice::video_memory_info() -> GpuVideoMemoryInfo {
     DXGI_QUERY_VIDEO_MEMORY_INFO local, non_local;
     FB_ASSERT_HR(_adapter->QueryVideoMemoryInfo(0, DXGI_MEMORY_SEGMENT_GROUP_LOCAL, &local));
-    FB_ASSERT_HR(_adapter->QueryVideoMemoryInfo(0, DXGI_MEMORY_SEGMENT_GROUP_NON_LOCAL, &non_local)
+    FB_ASSERT_HR(
+        _adapter->QueryVideoMemoryInfo(0, DXGI_MEMORY_SEGMENT_GROUP_NON_LOCAL, &non_local)
     );
     return GpuVideoMemoryInfo {
         .local =
@@ -616,13 +619,12 @@ auto GpuDevice::video_memory_info() -> GpuVideoMemoryInfo {
                 .available_for_reservation = local.AvailableForReservation,
                 .current_reservation = local.CurrentReservation,
             },
-        .non_local =
-            {
-                .budget = non_local.Budget,
-                .current_usage = non_local.CurrentUsage,
-                .available_for_reservation = non_local.AvailableForReservation,
-                .current_reservation = non_local.CurrentReservation,
-            },
+        .non_local = {
+            .budget = non_local.Budget,
+            .current_usage = non_local.CurrentUsage,
+            .available_for_reservation = non_local.AvailableForReservation,
+            .current_reservation = non_local.CurrentReservation,
+        },
     };
 }
 

@@ -9,8 +9,8 @@
 const ConstantBuffer<BackgroundBindings> g_background_bindings: register(b0);
 
 struct BackgroundVertexOutput {
-    float4 position: SV_Position;
-    float2 texcoord: ATTRIBUTE0;
+    float4 position : SV_Position;
+    float2 texcoord : ATTRIBUTE0;
 };
 
 BackgroundVertexOutput background_vs(fb::VertexInput input) {
@@ -43,8 +43,8 @@ fb::PixelOutput<1> background_ps(BackgroundVertexOutput input) {
 ConstantBuffer<DrawBindings> g_draw_bindings: register(b0);
 
 struct DrawVertexOutput {
-    float4 position: SV_Position;
-    float2 texcoord: ATTRIBUTE0;
+    float4 position : SV_Position;
+    float2 texcoord : ATTRIBUTE0;
 };
 
 DrawVertexOutput draw_vs(fb::VertexInput input) {

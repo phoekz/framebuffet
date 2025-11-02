@@ -65,10 +65,12 @@ auto create(Demo& demo, const CreateDesc& desc) -> void {
         .primitive_topology(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)
         .vertex_shader(shaders.grass_draw_vs())
         .pixel_shader(shaders.grass_draw_naive_ps())
-        .rasterizer(GpuRasterizerDesc {
-            .fill_mode = GpuFillMode::Solid,
-            .cull_mode = GpuCullMode::None,
-        })
+        .rasterizer(
+            GpuRasterizerDesc {
+                .fill_mode = GpuFillMode::Solid,
+                .cull_mode = GpuCullMode::None,
+            }
+        )
         .render_target_formats({demo.render_target.color_format(0)})
         .depth_stencil_format(demo.render_target.depth_format())
         .sample_desc(demo.render_target.sample_desc())
@@ -77,13 +79,17 @@ auto create(Demo& demo, const CreateDesc& desc) -> void {
         .primitive_topology(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)
         .vertex_shader(shaders.grass_draw_vs())
         .pixel_shader(shaders.grass_draw_atoc_ps())
-        .blend(GpuBlendDesc {
-            .alpha_to_coverage_enable = true,
-        })
-        .rasterizer(GpuRasterizerDesc {
-            .fill_mode = GpuFillMode::Solid,
-            .cull_mode = GpuCullMode::None,
-        })
+        .blend(
+            GpuBlendDesc {
+                .alpha_to_coverage_enable = true,
+            }
+        )
+        .rasterizer(
+            GpuRasterizerDesc {
+                .fill_mode = GpuFillMode::Solid,
+                .cull_mode = GpuCullMode::None,
+            }
+        )
         .render_target_formats({demo.render_target.color_format(0)})
         .depth_stencil_format(demo.render_target.depth_format())
         .sample_desc(demo.render_target.sample_desc())
@@ -149,11 +155,13 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
         cmd.pix_begin("Draw");
         cmd.set_pipeline(pipeline);
         cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-        cmd.set_constants(Bindings {
-            demo.constants.buffer(frame_index).cbv_descriptor().index(),
-            demo.vertices.srv_descriptor().index(),
-            demo.texture.srv_descriptor().index(),
-        });
+        cmd.set_constants(
+            Bindings {
+                demo.constants.buffer(frame_index).cbv_descriptor().index(),
+                demo.vertices.srv_descriptor().index(),
+                demo.texture.srv_descriptor().index(),
+            }
+        );
         cmd.set_index_buffer(demo.indices.index_buffer_view());
         cmd.draw_indexed_instanced(demo.indices.element_count(), 1, 0, 0, 0);
         cmd.pix_end();

@@ -9,7 +9,7 @@ const ConstantBuffer<Bindings> g_bindings: register(b0);
 //
 
 struct ShadowVertexOutput {
-    float4 position: SV_Position;
+    float4 position : SV_Position;
 };
 
 ShadowVertexOutput shadow_vs(fb::VertexInput input) {
@@ -37,11 +37,11 @@ ShadowVertexOutput shadow_vs(fb::VertexInput input) {
 //
 
 struct GroundVertexOutput {
-    float4 position: SV_Position;
-    float3 normal: ATTRIBUTE0;
-    float2 texcoord: ATTRIBUTE1;
-    float3 world_position: ATTRIBUTE2;
-    float4 shadow_coord: ATTRIBUTE3;
+    float4 position : SV_Position;
+    float3 normal : ATTRIBUTE0;
+    float2 texcoord : ATTRIBUTE1;
+    float3 world_position : ATTRIBUTE2;
+    float4 shadow_coord : ATTRIBUTE3;
 };
 
 GroundVertexOutput ground_vs(fb::VertexInput input) {
@@ -92,11 +92,11 @@ fb::PixelOutput<1> ground_ps(GroundVertexOutput input) {
 //
 
 struct AnimVertexOutput {
-    float4 position: SV_Position;
-    float3 normal: ATTRIBUTE0;
-    float2 texcoord: ATTRIBUTE1;
-    float3 tangent: ATTRIBUTE2;
-    float4 shadow_coord: ATTRIBUTE3;
+    float4 position : SV_Position;
+    float3 normal : ATTRIBUTE0;
+    float2 texcoord : ATTRIBUTE1;
+    float3 tangent : ATTRIBUTE2;
+    float4 shadow_coord : ATTRIBUTE3;
 };
 
 AnimVertexOutput anim_vs(fb::VertexInput input) {

@@ -144,10 +144,12 @@ auto create(Demo& demo, const CreateDesc& desc) -> void {
             .vertex_shader(shaders.saber_blit_vs())
             .pixel_shader(shaders.saber_blit_ps())
             .primitive_topology(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)
-            .depth_stencil(GpuDepthStencilDesc {
-                .depth_read = false,
-                .depth_write = false,
-            })
+            .depth_stencil(
+                GpuDepthStencilDesc {
+                    .depth_read = false,
+                    .depth_write = false,
+                }
+            )
             .render_target_formats({blit.render_target.color_format(0)})
             .build(device, blit.pipeline, debug.with_name("Pipeline"));
     }
@@ -225,11 +227,13 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
         cmd.set_pipeline(scene.pipeline);
         cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
         cmd.set_index_buffer(scene.indices.index_buffer_view());
-        cmd.set_constants(SceneBindings {
-            .constants = demo.constants.buffer(frame_index).cbv_descriptor().index(),
-            .vertices = scene.vertices.srv_descriptor().index(),
-            .instances = scene.instances.srv_descriptor().index(),
-        });
+        cmd.set_constants(
+            SceneBindings {
+                .constants = demo.constants.buffer(frame_index).cbv_descriptor().index(),
+                .vertices = scene.vertices.srv_descriptor().index(),
+                .instances = scene.instances.srv_descriptor().index(),
+            }
+        );
         cmd.draw_indexed_instanced(scene.indices.element_count(), 2, 0, 0, 0);
 
         scene.render_target_view.transition_to_resolve(cmd);
@@ -271,13 +275,15 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
         // Thresholding.
         cmd.pix_begin("Thresholding");
         cmd.set_pipeline(compute.threshold_pipeline);
-        cmd.set_constants(ThresholdBindings {
-            .constants = demo.constants.buffer(frame_index).cbv_descriptor().index(),
-            .scene_texture = scene.render_target.color(0).srv_descriptor().index(),
-            .downsample_texture = compute.downsample.uav_descriptor().index(),
-            .texture_width = size.x,
-            .texture_height = size.y,
-        });
+        cmd.set_constants(
+            ThresholdBindings {
+                .constants = demo.constants.buffer(frame_index).cbv_descriptor().index(),
+                .scene_texture = scene.render_target.color(0).srv_descriptor().index(),
+                .downsample_texture = compute.downsample.uav_descriptor().index(),
+                .texture_width = size.x,
+                .texture_height = size.y,
+            }
+        );
         cmd.dispatch(
             (size.x + (DISPATCH_X - 1)) / DISPATCH_X,
             (size.y + (DISPATCH_Y - 1)) / DISPATCH_Y,
@@ -295,17 +301,19 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
             const auto dst_level = mip + 1;
             const auto dst_width = std::max(1u, size.x >> dst_level);
             const auto dst_height = std::max(1u, size.y >> dst_level);
-            cmd.set_constants(DownsampleBindings {
-                .constants = demo.constants.buffer(frame_index).cbv_descriptor().index(),
-                .src_texture = compute.downsample.srv_descriptor().index(),
-                .src_texture_level = src_level,
-                .src_texture_width = src_width,
-                .src_texture_height = src_height,
-                .dst_texture = compute.downsample.uav_descriptor().index(),
-                .dst_texture_level = dst_level,
-                .dst_texture_width = dst_width,
-                .dst_texture_height = dst_height,
-            });
+            cmd.set_constants(
+                DownsampleBindings {
+                    .constants = demo.constants.buffer(frame_index).cbv_descriptor().index(),
+                    .src_texture = compute.downsample.srv_descriptor().index(),
+                    .src_texture_level = src_level,
+                    .src_texture_width = src_width,
+                    .src_texture_height = src_height,
+                    .dst_texture = compute.downsample.uav_descriptor().index(),
+                    .dst_texture_level = dst_level,
+                    .dst_texture_width = dst_width,
+                    .dst_texture_height = dst_height,
+                }
+            );
             cmd.dispatch(
                 (dst_width + (DISPATCH_X - 1)) / DISPATCH_X,
                 (dst_height + (DISPATCH_Y - 1)) / DISPATCH_Y,
@@ -325,18 +333,20 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
             const auto dst_level = mip - 1;
             const auto dst_width = std::max(1u, size.x >> dst_level);
             const auto dst_height = std::max(1u, size.y >> dst_level);
-            cmd.set_constants(UpsampleBindings {
-                .constants = demo.constants.buffer(frame_index).cbv_descriptor().index(),
-                .src_dn_texture = compute.downsample.srv_descriptor().index(),
-                .src_up_texture = compute.upsample.srv_descriptor().index(),
-                .src_texture_level = src_level,
-                .src_texture_width = src_width,
-                .src_texture_height = src_height,
-                .dst_texture = compute.upsample.uav_descriptor().index(),
-                .dst_texture_level = dst_level,
-                .dst_texture_width = dst_width,
-                .dst_texture_height = dst_height,
-            });
+            cmd.set_constants(
+                UpsampleBindings {
+                    .constants = demo.constants.buffer(frame_index).cbv_descriptor().index(),
+                    .src_dn_texture = compute.downsample.srv_descriptor().index(),
+                    .src_up_texture = compute.upsample.srv_descriptor().index(),
+                    .src_texture_level = src_level,
+                    .src_texture_width = src_width,
+                    .src_texture_height = src_height,
+                    .dst_texture = compute.upsample.uav_descriptor().index(),
+                    .dst_texture_level = dst_level,
+                    .dst_texture_width = dst_width,
+                    .dst_texture_height = dst_height,
+                }
+            );
             cmd.dispatch(
                 (dst_width + (DISPATCH_X - 1)) / DISPATCH_X,
                 (dst_height + (DISPATCH_Y - 1)) / DISPATCH_Y,
@@ -368,11 +378,13 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
         blit.render_target_view.set_graphics(cmd);
         cmd.set_pipeline(blit.pipeline);
         cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-        cmd.set_constants(BlitBindings {
-            .constants = demo.constants.buffer(frame_index).cbv_descriptor().index(),
-            .scene_texture = scene.render_target.color(0).srv_descriptor().index(),
-            .bloom_texture = compute.upsample.srv_descriptor().index(),
-        });
+        cmd.set_constants(
+            BlitBindings {
+                .constants = demo.constants.buffer(frame_index).cbv_descriptor().index(),
+                .scene_texture = scene.render_target.color(0).srv_descriptor().index(),
+                .bloom_texture = compute.upsample.srv_descriptor().index(),
+            }
+        );
         cmd.draw_instanced(3, 1, 0, 0);
 
         cmd.pix_end();

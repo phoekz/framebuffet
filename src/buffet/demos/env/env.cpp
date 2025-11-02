@@ -89,11 +89,13 @@ auto create(Demo& demo, const CreateDesc& desc) -> void {
             .primitive_topology(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)
             .vertex_shader(shaders.env_background_vs())
             .pixel_shader(shaders.env_background_ps())
-            .depth_stencil(GpuDepthStencilDesc {
-                .depth_read = true,
-                .depth_write = true,
-                .depth_func = GpuComparisonFunc::LessEqual,
-            })
+            .depth_stencil(
+                GpuDepthStencilDesc {
+                    .depth_read = true,
+                    .depth_write = true,
+                    .depth_func = GpuComparisonFunc::LessEqual,
+                }
+            )
             .render_target_formats({demo.render_target.color_format(0)})
             .depth_stencil_format(demo.render_target.depth_format())
             .sample_desc(demo.render_target.sample_desc())
@@ -130,11 +132,13 @@ auto create(Demo& demo, const CreateDesc& desc) -> void {
             .primitive_topology(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)
             .vertex_shader(shaders.env_model_vs())
             .pixel_shader(shaders.env_model_ps())
-            .depth_stencil(GpuDepthStencilDesc {
-                .depth_read = true,
-                .depth_write = true,
-                .depth_func = GpuComparisonFunc::LessEqual,
-            })
+            .depth_stencil(
+                GpuDepthStencilDesc {
+                    .depth_read = true,
+                    .depth_write = true,
+                    .depth_func = GpuComparisonFunc::LessEqual,
+                }
+            )
             .render_target_formats({demo.render_target.color_format(0)})
             .depth_stencil_format(demo.render_target.depth_format())
             .sample_desc(demo.render_target.sample_desc())
@@ -236,11 +240,13 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
             const auto& pbr = demo.pbr;
             const auto& pass = demo.background;
             cmd.pix_begin("Background");
-            cmd.set_constants(BackgroundBindings {
-                .constants = pass.constants.buffer(frame_index).cbv_descriptor().index(),
-                .vertices = pass.vertices.srv_descriptor().index(),
-                .texture = pbr.rad.srv_descriptor().index(),
-            });
+            cmd.set_constants(
+                BackgroundBindings {
+                    .constants = pass.constants.buffer(frame_index).cbv_descriptor().index(),
+                    .vertices = pass.vertices.srv_descriptor().index(),
+                    .texture = pbr.rad.srv_descriptor().index(),
+                }
+            );
             cmd.set_pipeline(pass.pipeline);
             cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
             cmd.set_index_buffer(pass.indices.index_buffer_view());
@@ -253,13 +259,15 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
             const auto& pbr = demo.pbr;
             const auto& pass = demo.model;
             cmd.pix_begin("Model");
-            cmd.set_constants(ModelBindings {
-                .constants = pass.constants.buffer(frame_index).cbv_descriptor().index(),
-                .vertices = pass.vertices.srv_descriptor().index(),
-                .lut_texture = pbr.lut.srv_descriptor().index(),
-                .irr_texture = pbr.irr.srv_descriptor().index(),
-                .rad_texture = pbr.rad.srv_descriptor().index(),
-            });
+            cmd.set_constants(
+                ModelBindings {
+                    .constants = pass.constants.buffer(frame_index).cbv_descriptor().index(),
+                    .vertices = pass.vertices.srv_descriptor().index(),
+                    .lut_texture = pbr.lut.srv_descriptor().index(),
+                    .irr_texture = pbr.irr.srv_descriptor().index(),
+                    .rad_texture = pbr.rad.srv_descriptor().index(),
+                }
+            );
             cmd.set_pipeline(pass.pipeline);
             cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
             cmd.set_index_buffer(pass.indices.index_buffer_view());

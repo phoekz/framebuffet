@@ -10,10 +10,10 @@ ConstantBuffer<GlyphBindings> g_glyph_bindings: register(b0);
 //
 
 struct BackgroundVertexOutput {
-    float4 position: SV_Position;
-    float3 normal: ATTRIBUTE0;
-    float2 texcoord: ATTRIBUTE1;
-    float3 direction: ATTRIBUTE2;
+    float4 position : SV_Position;
+    float3 normal : ATTRIBUTE0;
+    float2 texcoord : ATTRIBUTE1;
+    float3 direction : ATTRIBUTE2;
 };
 
 BackgroundVertexOutput background_vs(fb::VertexInput input) {
@@ -51,8 +51,8 @@ fb::PixelOutput<1> background_ps(BackgroundVertexOutput input) {
 //
 
 struct GlyphVertexOutput {
-    float4 position: SV_Position;
-    float3 direction: ATTRIBUTE0;
+    float4 position : SV_Position;
+    float3 direction : ATTRIBUTE0;
 };
 
 GlyphVertexOutput glyph_vs(fb::VertexInput input) {

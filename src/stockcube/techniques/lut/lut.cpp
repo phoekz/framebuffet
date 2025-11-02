@@ -91,10 +91,12 @@ auto render(Technique& tech, const RenderDesc& desc) -> void {
             );
             cmd.flush_barriers();
             cmd.set_pipeline(tech.pipeline);
-            cmd.set_constants(Bindings {
-                .constants = tech.constants.cbv_descriptor().index(),
-                .lut_texture = tech.lut_texture.uav_descriptor().index(),
-            });
+            cmd.set_constants(
+                Bindings {
+                    .constants = tech.constants.cbv_descriptor().index(),
+                    .lut_texture = tech.lut_texture.uav_descriptor().index(),
+                }
+            );
             cmd.dispatch(
                 tech.lut_texture.width() / DISPATCH_X,
                 tech.lut_texture.height() / DISPATCH_Y,

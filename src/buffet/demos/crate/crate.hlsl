@@ -6,12 +6,12 @@
 const ConstantBuffer<Bindings> g_bindings: register(b0);
 
 struct VertexOutput {
-    float4 position: SV_Position;
-    float3 normal: ATTRIBUTE0;
-    float2 texcoord: ATTRIBUTE1;
-    float4 tangent: ATTRIBUTE2;
-    float3 bitangent: ATTRIBUTE3;
-    float3 world_position: ATTRIBUTE4;
+    float4 position : SV_Position;
+    float3 normal : ATTRIBUTE0;
+    float2 texcoord : ATTRIBUTE1;
+    float4 tangent : ATTRIBUTE2;
+    float3 bitangent : ATTRIBUTE3;
+    float3 world_position : ATTRIBUTE4;
 };
 
 VertexOutput draw_vs(fb::VertexInput input) {

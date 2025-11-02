@@ -241,9 +241,12 @@ public:
         set_graphics_root_constants(dwords);
     }
 
-    auto
-    draw_instanced(uint vertex_count, uint instance_count, uint start_vertex, uint start_instance)
-        const -> void;
+    auto draw_instanced(
+        uint vertex_count,
+        uint instance_count,
+        uint start_vertex,
+        uint start_instance
+    ) const -> void;
 
     auto draw_indexed_instanced(
         uint index_count,

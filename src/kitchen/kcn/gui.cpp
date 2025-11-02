@@ -44,23 +44,29 @@ auto KcnGui::create(
         .primitive_topology(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)
         .vertex_shader(shaders.gui_draw_vs())
         .pixel_shader(shaders.gui_draw_ps())
-        .blend(GpuBlendDesc {
-            .blend_enable = true,
-            .rgb_blend_src = GpuBlend::SrcAlpha,
-            .rgb_blend_dst = GpuBlend::InvSrcAlpha,
-            .rgb_blend_op = GpuBlendOp::Add,
-            .alpha_blend_src = GpuBlend::One,
-            .alpha_blend_dst = GpuBlend::InvSrcAlpha,
-            .alpha_blend_op = GpuBlendOp::Add,
-        })
-        .depth_stencil(GpuDepthStencilDesc {
-            .depth_read = false,
-            .depth_write = false,
-        })
+        .blend(
+            GpuBlendDesc {
+                .blend_enable = true,
+                .rgb_blend_src = GpuBlend::SrcAlpha,
+                .rgb_blend_dst = GpuBlend::InvSrcAlpha,
+                .rgb_blend_op = GpuBlendOp::Add,
+                .alpha_blend_src = GpuBlend::One,
+                .alpha_blend_dst = GpuBlend::InvSrcAlpha,
+                .alpha_blend_op = GpuBlendOp::Add,
+            }
+        )
+        .depth_stencil(
+            GpuDepthStencilDesc {
+                .depth_read = false,
+                .depth_write = false,
+            }
+        )
         .render_target_formats({device.swapchain().format()})
-        .rasterizer(GpuRasterizerDesc {
-            .cull_mode = GpuCullMode::None,
-        })
+        .rasterizer(
+            GpuRasterizerDesc {
+                .cull_mode = GpuCullMode::None,
+            }
+        )
         .build(device, _pipeline, debug.with_name("Pipeline"));
 
     // Constants.
@@ -189,12 +195,14 @@ auto KcnGui::render(const GpuDevice& device, GpuCommandList& cmd) -> void {
                         (uint)(pcmd->ClipRect.z - clip_off.x),
                         (uint)(pcmd->ClipRect.w - clip_off.y)
                     );
-                    gcmd.set_constants(fb::kcn::gui::Bindings {
-                        .constants = _constants.cbv_descriptor().index(),
-                        .vertices = geometry.vertices.srv_descriptor().index(),
-                        .base_vertex = (pcmd->VtxOffset + (uint)global_vtx_offset),
-                        .texture = _texture.srv_descriptor().index(),
-                    });
+                    gcmd.set_constants(
+                        fb::kcn::gui::Bindings {
+                            .constants = _constants.cbv_descriptor().index(),
+                            .vertices = geometry.vertices.srv_descriptor().index(),
+                            .base_vertex = (pcmd->VtxOffset + (uint)global_vtx_offset),
+                            .texture = _texture.srv_descriptor().index(),
+                        }
+                    );
                     gcmd.draw_indexed_instanced(
                         pcmd->ElemCount,
                         1,

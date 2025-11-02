@@ -5,9 +5,9 @@
 const ConstantBuffer<Bindings> g_bindings: register(b0);
 
 struct VertexOutput {
-    float4 position: SV_Position;
-    float3 normal: ATTRIBUTE0;
-    float3 world_position: ATTRIBUTE1;
+    float4 position : SV_Position;
+    float3 normal : ATTRIBUTE0;
+    float3 world_position : ATTRIBUTE1;
 };
 
 VertexOutput vs(fb::VertexInput input) {

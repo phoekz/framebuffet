@@ -139,8 +139,8 @@ FB_INLINE auto float4x4_scaling(const float3& s) -> float4x4 {
     return glm::scale<float, glm::highp>(float4x4(1.0f), s);
 }
 
-FB_INLINE auto
-float4x4_lookat(const float3& eye, const float3& center, const float3& up) -> float4x4 {
+FB_INLINE auto float4x4_lookat(const float3& eye, const float3& center, const float3& up)
+    -> float4x4 {
     return glm::lookAt<float, glm::highp>(eye, center, up);
 }
 
@@ -150,13 +150,13 @@ float4x4_orthographic(float left, float right, float bottom, float top, float z_
     return glm::ortho<float>(left, right, bottom, top, z_near, z_far);
 }
 
-FB_INLINE auto
-float4x4_perspective(float fovy, float aspect, float z_near, float z_far) -> float4x4 {
+FB_INLINE auto float4x4_perspective(float fovy, float aspect, float z_near, float z_far)
+    -> float4x4 {
     return glm::perspective<float>(fovy, aspect, z_near, z_far);
 }
 
-FB_INLINE auto
-float4x4_from_trs(const float3& t, const float_quat& r, const float3& s) -> float4x4 {
+FB_INLINE auto float4x4_from_trs(const float3& t, const float_quat& r, const float3& s)
+    -> float4x4 {
     // Note: inlined quaternion-float3x3 conversion.
     float4x4 m;
     float rxx = r.x * r.x;

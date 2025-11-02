@@ -58,8 +58,8 @@ public:
         const Option<D3D12_CLEAR_VALUE>& optimized_clear_value,
         std::string_view name
     ) const -> ComPtr<ID3D12Resource2>;
-    [[nodiscard]] auto
-    create_fence(uint64_t initial_value, std::string_view name) const -> ComPtr<ID3D12Fence1>;
+    [[nodiscard]] auto create_fence(uint64_t initial_value, std::string_view name) const
+        -> ComPtr<ID3D12Fence1>;
     [[nodiscard]] auto create_command_signature(
         uint constant_count,
         D3D12_INDIRECT_ARGUMENT_TYPE argument_type,
@@ -90,8 +90,9 @@ public:
         const Option<D3D12_DEPTH_STENCIL_VIEW_DESC>& desc,
         D3D12_CPU_DESCRIPTOR_HANDLE descriptor
     ) const -> void;
-    auto create_sampler(const D3D12_SAMPLER_DESC2& desc, D3D12_CPU_DESCRIPTOR_HANDLE descriptor)
-        const -> void;
+    auto
+    create_sampler(const D3D12_SAMPLER_DESC2& desc, D3D12_CPU_DESCRIPTOR_HANDLE descriptor) const
+        -> void;
     auto descriptor_size(D3D12_DESCRIPTOR_HEAP_TYPE heap_type) const -> uint;
     auto get_copyable_footprints(
         const D3D12_RESOURCE_DESC1& desc,

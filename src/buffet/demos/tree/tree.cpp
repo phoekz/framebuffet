@@ -111,10 +111,12 @@ auto create(Demo& demo, const CreateDesc& desc) -> void {
         .primitive_topology(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)
         .vertex_shader(shaders.tree_draw_vs())
         .pixel_shader(shaders.tree_draw_ps())
-        .rasterizer(GpuRasterizerDesc {
-            .fill_mode = GpuFillMode::Solid,
-            .cull_mode = GpuCullMode::Back,
-        })
+        .rasterizer(
+            GpuRasterizerDesc {
+                .fill_mode = GpuFillMode::Solid,
+                .cull_mode = GpuCullMode::Back,
+            }
+        )
         .render_target_formats({demo.render_target.color_format(0)})
         .depth_stencil_format(demo.render_target.depth_format())
         .sample_desc(demo.render_target.sample_desc())
@@ -218,10 +220,12 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
             cmd.set_scissor(0, 0, SHADOW_MAP_SIZE, SHADOW_MAP_SIZE);
             cmd.set_rtvs_dsv({}, demo.shadow_depth.dsv_descriptor());
             cmd.clear_dsv(demo.shadow_depth.dsv_descriptor(), 1.0f, 0);
-            cmd.set_constants(Bindings {
-                demo.constants.buffer(frame_index).cbv_descriptor().index(),
-                demo.tree_vertices.srv_descriptor().index(),
-            });
+            cmd.set_constants(
+                Bindings {
+                    demo.constants.buffer(frame_index).cbv_descriptor().index(),
+                    demo.tree_vertices.srv_descriptor().index(),
+                }
+            );
             cmd.set_pipeline(demo.shadow_pipeline);
             cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
             cmd.set_index_buffer(demo.tree_indices.index_buffer_view());
@@ -243,21 +247,25 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
             cmd.set_pipeline(demo.draw_pipeline);
             cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-            cmd.set_constants(Bindings {
-                demo.constants.buffer(frame_index).cbv_descriptor().index(),
-                demo.tree_vertices.srv_descriptor().index(),
-                demo.tree_texture.srv_descriptor().index(),
-                demo.shadow_depth.srv_descriptor().index(),
-            });
+            cmd.set_constants(
+                Bindings {
+                    demo.constants.buffer(frame_index).cbv_descriptor().index(),
+                    demo.tree_vertices.srv_descriptor().index(),
+                    demo.tree_texture.srv_descriptor().index(),
+                    demo.shadow_depth.srv_descriptor().index(),
+                }
+            );
             cmd.set_index_buffer(demo.tree_indices.index_buffer_view());
             cmd.draw_indexed_instanced(demo.tree_indices.element_count(), 1, 0, 0, 0);
 
-            cmd.set_constants(Bindings {
-                demo.constants.buffer(frame_index).cbv_descriptor().index(),
-                demo.sand_vertices.srv_descriptor().index(),
-                demo.sand_texture.srv_descriptor().index(),
-                demo.shadow_depth.srv_descriptor().index(),
-            });
+            cmd.set_constants(
+                Bindings {
+                    demo.constants.buffer(frame_index).cbv_descriptor().index(),
+                    demo.sand_vertices.srv_descriptor().index(),
+                    demo.sand_texture.srv_descriptor().index(),
+                    demo.shadow_depth.srv_descriptor().index(),
+                }
+            );
             cmd.set_index_buffer(demo.sand_indices.index_buffer_view());
             cmd.draw_indexed_instanced(demo.sand_indices.element_count(), 1, 0, 0, 0);
 

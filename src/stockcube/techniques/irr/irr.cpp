@@ -114,13 +114,15 @@ auto render(Technique& tech, const RenderDesc& desc) -> void {
 
             // Accumulate pass.
             cmd.set_pipeline(tech.acc_pipeline);
-            cmd.set_constants(AccBindings {
-                .dispatch_id = tech.dispatch_id,
-                .constants = tech.constants.cbv_descriptor().index(),
-                .cube_texture = tech.cube_texture.index(),
-                .cube_sampler = (uint)GpuSampler::LinearClamp,
-                .irr_texture = tech.acc_texture.uav_descriptor().index(),
-            });
+            cmd.set_constants(
+                AccBindings {
+                    .dispatch_id = tech.dispatch_id,
+                    .constants = tech.constants.cbv_descriptor().index(),
+                    .cube_texture = tech.cube_texture.index(),
+                    .cube_sampler = (uint)GpuSampler::LinearClamp,
+                    .irr_texture = tech.acc_texture.uav_descriptor().index(),
+                }
+            );
             cmd.dispatch(
                 tech.acc_texture.width() / DISPATCH_X,
                 tech.acc_texture.height() / DISPATCH_Y,
@@ -138,12 +140,14 @@ auto render(Technique& tech, const RenderDesc& desc) -> void {
 
             // Division pass.
             cmd.set_pipeline(tech.div_pipeline);
-            cmd.set_constants(DivBindings {
-                .dispatch_id = tech.dispatch_id,
-                .constants = tech.constants.cbv_descriptor().index(),
-                .acc_texture = tech.acc_texture.uav_descriptor().index(),
-                .div_texture = tech.div_texture.uav_descriptor().index(),
-            });
+            cmd.set_constants(
+                DivBindings {
+                    .dispatch_id = tech.dispatch_id,
+                    .constants = tech.constants.cbv_descriptor().index(),
+                    .acc_texture = tech.acc_texture.uav_descriptor().index(),
+                    .div_texture = tech.div_texture.uav_descriptor().index(),
+                }
+            );
             cmd.dispatch(
                 tech.div_texture.width() / DISPATCH_X,
                 tech.div_texture.height() / DISPATCH_Y,

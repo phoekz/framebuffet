@@ -176,17 +176,19 @@ auto GpuTransfer::resource(
     }
 
     // Add resource data.
-    _impl->resource_datas.push_back(GpuTransferImpl::ResourceData {
-        .resource = resource,
-        .subresource_offset = _impl->subresource_datas.size(),
-        .subresource_count = (uint64_t)datas.size(),
-        .sync_before = sync_before,
-        .sync_after = sync_after,
-        .access_before = access_before,
-        .access_after = access_after,
-        .layout_before = layout_before,
-        .layout_after = layout_after,
-    });
+    _impl->resource_datas.push_back(
+        GpuTransferImpl::ResourceData {
+            .resource = resource,
+            .subresource_offset = _impl->subresource_datas.size(),
+            .subresource_count = (uint64_t)datas.size(),
+            .sync_before = sync_before,
+            .sync_after = sync_after,
+            .access_before = access_before,
+            .access_after = access_after,
+            .layout_before = layout_before,
+            .layout_after = layout_after,
+        }
+    );
 
     // Avoid calling `resize` once per subresource by calculating the total byte
     // count and resizing once.
@@ -210,11 +212,13 @@ auto GpuTransfer::resource(
             FB_PERF_SCOPE("Copy Subresource Data");
             FB_PERF_VALUE(data.SlicePitch);
             memcpy(_impl->subresource_data_buffer + dst_offset, data.pData, data.SlicePitch);
-            _impl->subresource_datas.push_back(GpuTransferImpl::SubresourceData {
-                .offset = dst_offset,
-                .row_pitch = (uint64_t)data.RowPitch,
-                .slice_pitch = (uint64_t)data.SlicePitch,
-            });
+            _impl->subresource_datas.push_back(
+                GpuTransferImpl::SubresourceData {
+                    .offset = dst_offset,
+                    .row_pitch = (uint64_t)data.RowPitch,
+                    .slice_pitch = (uint64_t)data.SlicePitch,
+                }
+            );
             dst_offset += data.SlicePitch;
         }
     }
@@ -359,48 +363,56 @@ auto GpuTransfer::flush(const GpuDevice& device) -> void {
     for (uint resource_id = 0; resource_id < total_resource_count; resource_id++) {
         const auto& resource_data = _impl->resource_datas[resource_id];
         if (resource_data.is_texture()) {
-            texture_barriers.push_back(D3D12_TEXTURE_BARRIER {
-                .SyncBefore = resource_data.sync_before,
-                .SyncAfter = D3D12_BARRIER_SYNC_COPY,
-                .AccessBefore = resource_data.access_before,
-                .AccessAfter = D3D12_BARRIER_ACCESS_COPY_DEST,
-                .LayoutBefore = resource_data.layout_before.value(),
-                .LayoutAfter = D3D12_BARRIER_LAYOUT_COPY_DEST,
-                .pResource = resource_data.resource.get(),
-                .Subresources =
-                    D3D12_BARRIER_SUBRESOURCE_RANGE {.IndexOrFirstMipLevel = 0xffffffffu},
-                .Flags = D3D12_TEXTURE_BARRIER_FLAG_NONE,
-            });
+            texture_barriers.push_back(
+                D3D12_TEXTURE_BARRIER {
+                    .SyncBefore = resource_data.sync_before,
+                    .SyncAfter = D3D12_BARRIER_SYNC_COPY,
+                    .AccessBefore = resource_data.access_before,
+                    .AccessAfter = D3D12_BARRIER_ACCESS_COPY_DEST,
+                    .LayoutBefore = resource_data.layout_before.value(),
+                    .LayoutAfter = D3D12_BARRIER_LAYOUT_COPY_DEST,
+                    .pResource = resource_data.resource.get(),
+                    .Subresources =
+                        D3D12_BARRIER_SUBRESOURCE_RANGE {.IndexOrFirstMipLevel = 0xffffffffu},
+                    .Flags = D3D12_TEXTURE_BARRIER_FLAG_NONE,
+                }
+            );
         } else {
-            buffer_barriers.push_back(D3D12_BUFFER_BARRIER {
-                .SyncBefore = resource_data.sync_before,
-                .SyncAfter = D3D12_BARRIER_SYNC_COPY,
-                .AccessBefore = resource_data.access_before,
-                .AccessAfter = D3D12_BARRIER_ACCESS_COPY_DEST,
-                .pResource = resource_data.resource.get(),
-                .Offset = 0,
-                .Size = UINT64_MAX,
-            });
+            buffer_barriers.push_back(
+                D3D12_BUFFER_BARRIER {
+                    .SyncBefore = resource_data.sync_before,
+                    .SyncAfter = D3D12_BARRIER_SYNC_COPY,
+                    .AccessBefore = resource_data.access_before,
+                    .AccessAfter = D3D12_BARRIER_ACCESS_COPY_DEST,
+                    .pResource = resource_data.resource.get(),
+                    .Offset = 0,
+                    .Size = UINT64_MAX,
+                }
+            );
         }
     }
-    buffer_barriers.push_back(D3D12_BUFFER_BARRIER {
-        .SyncBefore = D3D12_BARRIER_SYNC_NONE,
-        .SyncAfter = D3D12_BARRIER_SYNC_COPY,
-        .AccessBefore = D3D12_BARRIER_ACCESS_NO_ACCESS,
-        .AccessAfter = D3D12_BARRIER_ACCESS_COPY_SOURCE,
-        .pResource = upload_buffer.get(),
-        .Offset = 0,
-        .Size = UINT64_MAX,
-    });
-    buffer_barriers.push_back(D3D12_BUFFER_BARRIER {
-        .SyncBefore = D3D12_BARRIER_SYNC_NONE,
-        .SyncAfter = D3D12_BARRIER_SYNC_COPY,
-        .AccessBefore = D3D12_BARRIER_ACCESS_NO_ACCESS,
-        .AccessAfter = D3D12_BARRIER_ACCESS_COPY_DEST,
-        .pResource = _impl->query_buffer.get(),
-        .Offset = 0,
-        .Size = UINT64_MAX,
-    });
+    buffer_barriers.push_back(
+        D3D12_BUFFER_BARRIER {
+            .SyncBefore = D3D12_BARRIER_SYNC_NONE,
+            .SyncAfter = D3D12_BARRIER_SYNC_COPY,
+            .AccessBefore = D3D12_BARRIER_ACCESS_NO_ACCESS,
+            .AccessAfter = D3D12_BARRIER_ACCESS_COPY_SOURCE,
+            .pResource = upload_buffer.get(),
+            .Offset = 0,
+            .Size = UINT64_MAX,
+        }
+    );
+    buffer_barriers.push_back(
+        D3D12_BUFFER_BARRIER {
+            .SyncBefore = D3D12_BARRIER_SYNC_NONE,
+            .SyncAfter = D3D12_BARRIER_SYNC_COPY,
+            .AccessBefore = D3D12_BARRIER_ACCESS_NO_ACCESS,
+            .AccessAfter = D3D12_BARRIER_ACCESS_COPY_DEST,
+            .pResource = _impl->query_buffer.get(),
+            .Offset = 0,
+            .Size = UINT64_MAX,
+        }
+    );
     std::array<D3D12_BARRIER_GROUP, 2> barrier_groups = {};
     uint barrier_group_count = 0;
     if (buffer_barriers.size() > 0) {
@@ -461,12 +473,11 @@ auto GpuTransfer::flush(const GpuDevice& device) -> void {
                     const auto src = D3D12_TEXTURE_COPY_LOCATION {
                         .pResource = src_resource,
                         .Type = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT,
-                        .PlacedFootprint =
-                            D3D12_PLACED_SUBRESOURCE_FOOTPRINT {
-                                .Offset =
-                                    dst_offsets[resource_data.subresource_offset + subresource_id],
-                                .Footprint = footprint.Footprint,
-                            },
+                        .PlacedFootprint = D3D12_PLACED_SUBRESOURCE_FOOTPRINT {
+                            .Offset =
+                                dst_offsets[resource_data.subresource_offset + subresource_id],
+                            .Footprint = footprint.Footprint,
+                        },
                     };
                     _impl->command_list->CopyTextureRegion(&dst, 0, 0, 0, &src, nullptr);
                 }
@@ -481,28 +492,32 @@ auto GpuTransfer::flush(const GpuDevice& device) -> void {
     for (uint resource_id = 0; resource_id < total_resource_count; resource_id++) {
         const auto& resource_data = _impl->resource_datas[resource_id];
         if (resource_data.is_texture()) {
-            texture_barriers.push_back(D3D12_TEXTURE_BARRIER {
-                .SyncBefore = D3D12_BARRIER_SYNC_COPY,
-                .SyncAfter = resource_data.sync_after,
-                .AccessBefore = D3D12_BARRIER_ACCESS_COPY_DEST,
-                .AccessAfter = resource_data.access_after,
-                .LayoutBefore = D3D12_BARRIER_LAYOUT_COPY_DEST,
-                .LayoutAfter = resource_data.layout_after.value(),
-                .pResource = resource_data.resource.get(),
-                .Subresources =
-                    D3D12_BARRIER_SUBRESOURCE_RANGE {.IndexOrFirstMipLevel = 0xffffffffu},
-                .Flags = D3D12_TEXTURE_BARRIER_FLAG_NONE,
-            });
+            texture_barriers.push_back(
+                D3D12_TEXTURE_BARRIER {
+                    .SyncBefore = D3D12_BARRIER_SYNC_COPY,
+                    .SyncAfter = resource_data.sync_after,
+                    .AccessBefore = D3D12_BARRIER_ACCESS_COPY_DEST,
+                    .AccessAfter = resource_data.access_after,
+                    .LayoutBefore = D3D12_BARRIER_LAYOUT_COPY_DEST,
+                    .LayoutAfter = resource_data.layout_after.value(),
+                    .pResource = resource_data.resource.get(),
+                    .Subresources =
+                        D3D12_BARRIER_SUBRESOURCE_RANGE {.IndexOrFirstMipLevel = 0xffffffffu},
+                    .Flags = D3D12_TEXTURE_BARRIER_FLAG_NONE,
+                }
+            );
         } else {
-            buffer_barriers.push_back(D3D12_BUFFER_BARRIER {
-                .SyncBefore = D3D12_BARRIER_SYNC_COPY,
-                .SyncAfter = resource_data.sync_after,
-                .AccessBefore = D3D12_BARRIER_ACCESS_COPY_DEST,
-                .AccessAfter = resource_data.access_after,
-                .pResource = resource_data.resource.get(),
-                .Offset = 0,
-                .Size = UINT64_MAX,
-            });
+            buffer_barriers.push_back(
+                D3D12_BUFFER_BARRIER {
+                    .SyncBefore = D3D12_BARRIER_SYNC_COPY,
+                    .SyncAfter = resource_data.sync_after,
+                    .AccessBefore = D3D12_BARRIER_ACCESS_COPY_DEST,
+                    .AccessAfter = resource_data.access_after,
+                    .pResource = resource_data.resource.get(),
+                    .Offset = 0,
+                    .Size = UINT64_MAX,
+                }
+            );
         }
     }
     if (buffer_barriers.size() > 0) {

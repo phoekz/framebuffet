@@ -18,18 +18,22 @@ auto KcnDebugDraw::create(
         .primitive_topology(D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE)
         .vertex_shader(shaders.debug_draw_draw_vs())
         .pixel_shader(shaders.debug_draw_draw_ps())
-        .blend(GpuBlendDesc {
-            .blend_enable = true,
-            .rgb_blend_src = GpuBlend::SrcAlpha,
-            .rgb_blend_dst = GpuBlend::InvSrcAlpha,
-            .rgb_blend_op = GpuBlendOp::Add,
-            .alpha_blend_src = GpuBlend::One,
-            .alpha_blend_dst = GpuBlend::InvSrcAlpha,
-            .alpha_blend_op = GpuBlendOp::Add,
-        })
-        .rasterizer(GpuRasterizerDesc {
-            .cull_mode = GpuCullMode::None,
-        })
+        .blend(
+            GpuBlendDesc {
+                .blend_enable = true,
+                .rgb_blend_src = GpuBlend::SrcAlpha,
+                .rgb_blend_dst = GpuBlend::InvSrcAlpha,
+                .rgb_blend_op = GpuBlendOp::Add,
+                .alpha_blend_src = GpuBlend::One,
+                .alpha_blend_dst = GpuBlend::InvSrcAlpha,
+                .alpha_blend_op = GpuBlendOp::Add,
+            }
+        )
+        .rasterizer(
+            GpuRasterizerDesc {
+                .cull_mode = GpuCullMode::None,
+            }
+        )
         .render_target_formats({render_target_view.color_format(0)})
         .depth_stencil_format(render_target_view.depth_format())
         .sample_desc(render_target_view.sample_desc())
@@ -93,10 +97,12 @@ auto KcnDebugDraw::render(GpuGraphicsCommandList& cmd) -> void {
     using namespace fb::kcn::debug_draw;
     const auto& frame = _frames[_frame_index];
     cmd.pix_begin("Debug Draw");
-    cmd.set_constants(Bindings {
-        .constants = frame._constants.cbv_descriptor().index(),
-        .vertices = frame._lines.srv_descriptor().index(),
-    });
+    cmd.set_constants(
+        Bindings {
+            .constants = frame._constants.cbv_descriptor().index(),
+            .vertices = frame._lines.srv_descriptor().index(),
+        }
+    );
     cmd.set_pipeline(_pipeline);
     cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
     cmd.draw_instanced((uint)_lines.size(), 1, 0, 0);

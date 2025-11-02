@@ -9,7 +9,7 @@ ConstantBuffer<Bindings> g_bindings: register(b0);
 //
 
 struct ShadowVertexOutput {
-    float4 position: SV_Position;
+    float4 position : SV_Position;
 };
 
 ShadowVertexOutput shadow_vs(fb::VertexInput input) {
@@ -27,10 +27,10 @@ ShadowVertexOutput shadow_vs(fb::VertexInput input) {
 //
 
 struct DrawVertexOutput {
-    float4 position: SV_Position;
-    float3 normal: ATTRIBUTE0;
-    float2 texcoord: ATTRIBUTE1;
-    float4 shadow_coord: ATTRIBUTE2;
+    float4 position : SV_Position;
+    float3 normal : ATTRIBUTE0;
+    float2 texcoord : ATTRIBUTE1;
+    float4 shadow_coord : ATTRIBUTE2;
 };
 
 DrawVertexOutput draw_vs(fb::VertexInput input) {

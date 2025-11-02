@@ -236,17 +236,19 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
         for (const auto& [model, sampler] :
              {std::make_tuple(std::cref(demo.sci_fi_crate), GpuSampler::AnisotropicLinearClamp),
               std::make_tuple(std::cref(demo.metal_plane), GpuSampler::AnisotropicLinearWrap)}) {
-            cmd.set_constants(Bindings {
-                .constants = demo.constants.buffer(frame_index).cbv_descriptor().index(),
-                .vertices = model.vertices.srv_descriptor().index(),
-                .base_color_texture = model.base_color.srv_descriptor().index(),
-                .normal_texture = model.normal.srv_descriptor().index(),
-                .metallic_roughness_texture = model.metallic_roughness.srv_descriptor().index(),
-                .sampler = (uint)sampler,
-                .lut_texture = demo.pbr_lut.srv_descriptor().index(),
-                .irr_texture = demo.pbr_irr.srv_descriptor().index(),
-                .rad_texture = demo.pbr_rad.srv_descriptor().index(),
-            });
+            cmd.set_constants(
+                Bindings {
+                    .constants = demo.constants.buffer(frame_index).cbv_descriptor().index(),
+                    .vertices = model.vertices.srv_descriptor().index(),
+                    .base_color_texture = model.base_color.srv_descriptor().index(),
+                    .normal_texture = model.normal.srv_descriptor().index(),
+                    .metallic_roughness_texture = model.metallic_roughness.srv_descriptor().index(),
+                    .sampler = (uint)sampler,
+                    .lut_texture = demo.pbr_lut.srv_descriptor().index(),
+                    .irr_texture = demo.pbr_irr.srv_descriptor().index(),
+                    .rad_texture = demo.pbr_rad.srv_descriptor().index(),
+                }
+            );
             cmd.set_index_buffer(model.indices.index_buffer_view());
             cmd.draw_indexed_instanced(model.indices.element_count(), 1, 0, 0, 0);
         }

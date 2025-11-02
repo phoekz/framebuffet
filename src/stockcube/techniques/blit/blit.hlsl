@@ -5,8 +5,8 @@
 const ConstantBuffer<Bindings> g_bindings: register(b0);
 
 struct VertexOutput {
-    float4 position: SV_Position;
-    float2 texcoord: ATTRIBUTE0;
+    float4 position : SV_Position;
+    float2 texcoord : ATTRIBUTE0;
 };
 
 VertexOutput vs(fb::VertexInput input) {

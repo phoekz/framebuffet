@@ -49,6 +49,7 @@ Cpp11BracedListStyle: true
 DerivePointerAlignment: false
 EmptyLineAfterAccessModifier: Never
 EmptyLineBeforeAccessModifier: Always
+EnumTrailingComma: Leave
 FixNamespaceComments: true
 IncludeBlocks: Preserve
 IncludeCategories:
@@ -85,11 +86,14 @@ IntegerLiteralSeparator:
   Binary: 0
   Decimal: 0
   Hex: 0
-KeepEmptyLinesAtEOF: false
-KeepEmptyLinesAtTheStartOfBlocks: false
+KeepEmptyLines:
+  AtEndOfFile: false
+  AtStartOfBlock: false
+  AtStartOfFile: false
 LambdaBodyIndentation: Signature
 MaxEmptyLinesToKeep: 1
 NamespaceIndentation: Inner
+# NumericLiteralCase: revisit on v22
 PackConstructorInitializers: Never
 PointerAlignment: Left
 QualifierAlignment: Left

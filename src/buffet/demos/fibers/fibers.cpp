@@ -45,9 +45,11 @@ auto create(Demo& demo, const CreateDesc& desc) -> void {
             .primitive_topology(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)
             .vertex_shader(shaders.fibers_light_vs())
             .pixel_shader(shaders.fibers_light_ps())
-            .rasterizer(GpuRasterizerDesc {
-                .fill_mode = GpuFillMode::Wireframe,
-            })
+            .rasterizer(
+                GpuRasterizerDesc {
+                    .fill_mode = GpuFillMode::Wireframe,
+                }
+            )
             .render_target_formats({demo.render_target.color_format(0)})
             .depth_stencil_format(demo.render_target.depth_format())
             .build(device, demo.light_pipeline, debug.with_name("Light Pipeline"));
@@ -64,19 +66,23 @@ auto create(Demo& demo, const CreateDesc& desc) -> void {
             .primitive_topology(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)
             .vertex_shader(shaders.fibers_debug_vs())
             .pixel_shader(shaders.fibers_debug_ps())
-            .blend(GpuBlendDesc {
-                .blend_enable = true,
-                .rgb_blend_src = GpuBlend::SrcAlpha,
-                .rgb_blend_dst = GpuBlend::InvSrcAlpha,
-                .rgb_blend_op = GpuBlendOp::Add,
-                .alpha_blend_src = GpuBlend::One,
-                .alpha_blend_dst = GpuBlend::InvSrcAlpha,
-                .alpha_blend_op = GpuBlendOp::Add,
-            })
-            .depth_stencil(GpuDepthStencilDesc {
-                .depth_read = false,
-                .depth_write = false,
-            })
+            .blend(
+                GpuBlendDesc {
+                    .blend_enable = true,
+                    .rgb_blend_src = GpuBlend::SrcAlpha,
+                    .rgb_blend_dst = GpuBlend::InvSrcAlpha,
+                    .rgb_blend_op = GpuBlendOp::Add,
+                    .alpha_blend_src = GpuBlend::One,
+                    .alpha_blend_dst = GpuBlend::InvSrcAlpha,
+                    .alpha_blend_op = GpuBlendOp::Add,
+                }
+            )
+            .depth_stencil(
+                GpuDepthStencilDesc {
+                    .depth_read = false,
+                    .depth_write = false,
+                }
+            )
             .render_target_formats({demo.render_target.color_format(0)})
             .build(device, demo.debug_pipeline, debug.with_name("Debug Pipeline"));
     }
@@ -327,10 +333,12 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
 
         // Sim.
         cmd.set_pipeline(demo.sim_pipeline);
-        cmd.set_constants(Bindings {
-            .constants = demo.constants.buffer(frame_index).cbv_descriptor().index(),
-            .lights = demo.lights.uav_descriptor().index(),
-        });
+        cmd.set_constants(
+            Bindings {
+                .constants = demo.constants.buffer(frame_index).cbv_descriptor().index(),
+                .lights = demo.lights.uav_descriptor().index(),
+            }
+        );
         cmd.dispatch(demo.sim_dispatch_count_x, 1, 1);
         demo.lights.transition(
             cmd,
@@ -341,9 +349,11 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
 
         // Reset.
         cmd.set_pipeline(demo.reset_pipeline);
-        cmd.set_constants(Bindings {
-            .light_indices_count = demo.light_indices_count.uav_descriptor().index(),
-        });
+        cmd.set_constants(
+            Bindings {
+                .light_indices_count = demo.light_indices_count.uav_descriptor().index(),
+            }
+        );
         cmd.dispatch(1, 1, 1);
         demo.light_indices_count.transition(
             cmd,
@@ -354,14 +364,16 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
 
         // Cull.
         cmd.set_pipeline(demo.cull_pipeline);
-        cmd.set_constants(Bindings {
-            .constants = demo.constants.buffer(frame_index).cbv_descriptor().index(),
-            .lights = demo.lights.uav_descriptor().index(),
-            .light_counts_texture = demo.light_counts_texture.uav_descriptor().index(),
-            .light_offsets_texture = demo.light_offsets_texture.uav_descriptor().index(),
-            .light_indices = demo.light_indices.uav_descriptor().index(),
-            .light_indices_count = demo.light_indices_count.uav_descriptor().index(),
-        });
+        cmd.set_constants(
+            Bindings {
+                .constants = demo.constants.buffer(frame_index).cbv_descriptor().index(),
+                .lights = demo.lights.uav_descriptor().index(),
+                .light_counts_texture = demo.light_counts_texture.uav_descriptor().index(),
+                .light_offsets_texture = demo.light_offsets_texture.uav_descriptor().index(),
+                .light_indices = demo.light_indices.uav_descriptor().index(),
+                .light_indices_count = demo.light_indices_count.uav_descriptor().index(),
+            }
+        );
         cmd.dispatch(demo.cull_dispatch_count_x, demo.cull_dispatch_count_y, 1);
 
         // Transition to graphics.
@@ -403,11 +415,13 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
 
         // Light.
         if (params.show_light_bounds) {
-            cmd.set_constants(Bindings {
-                .constants = demo.constants.buffer(frame_index).cbv_descriptor().index(),
-                .lights = demo.lights.srv_descriptor().index(),
-                .vertices = demo.light_mesh.vertices.srv_descriptor().index(),
-            });
+            cmd.set_constants(
+                Bindings {
+                    .constants = demo.constants.buffer(frame_index).cbv_descriptor().index(),
+                    .lights = demo.lights.srv_descriptor().index(),
+                    .vertices = demo.light_mesh.vertices.srv_descriptor().index(),
+                }
+            );
             cmd.set_pipeline(demo.light_pipeline);
             cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
             cmd.set_index_buffer(demo.light_mesh.indices.index_buffer_view());
@@ -421,14 +435,16 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
         }
 
         // Plane.
-        cmd.set_constants(Bindings {
-            .constants = demo.constants.buffer(frame_index).cbv_descriptor().index(),
-            .lights = demo.lights.srv_descriptor().index(),
-            .vertices = demo.plane_mesh.vertices.srv_descriptor().index(),
-            .light_counts_texture = demo.light_counts_texture.srv_descriptor().index(),
-            .light_offsets_texture = demo.light_offsets_texture.srv_descriptor().index(),
-            .light_indices = demo.light_indices.srv_descriptor().index(),
-        });
+        cmd.set_constants(
+            Bindings {
+                .constants = demo.constants.buffer(frame_index).cbv_descriptor().index(),
+                .lights = demo.lights.srv_descriptor().index(),
+                .vertices = demo.plane_mesh.vertices.srv_descriptor().index(),
+                .light_counts_texture = demo.light_counts_texture.srv_descriptor().index(),
+                .light_offsets_texture = demo.light_offsets_texture.srv_descriptor().index(),
+                .light_indices = demo.light_indices.srv_descriptor().index(),
+            }
+        );
         cmd.set_pipeline(demo.plane_pipeline);
         cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
         cmd.set_index_buffer(demo.plane_mesh.indices.index_buffer_view());
@@ -442,11 +458,13 @@ auto render(Demo& demo, const RenderDesc& desc) -> void {
                 heatmap_index = demo.viridis_texture.srv_descriptor().index();
                 break;
         }
-        cmd.set_constants(Bindings {
-            .constants = demo.constants.buffer(frame_index).cbv_descriptor().index(),
-            .heatmap_texture = heatmap_index,
-            .light_counts_texture = demo.light_counts_texture.srv_descriptor().index(),
-        });
+        cmd.set_constants(
+            Bindings {
+                .constants = demo.constants.buffer(frame_index).cbv_descriptor().index(),
+                .heatmap_texture = heatmap_index,
+                .light_counts_texture = demo.light_counts_texture.srv_descriptor().index(),
+            }
+        );
         cmd.set_pipeline(demo.debug_pipeline);
         cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
         cmd.draw_instanced(3, 1, 0, 0);

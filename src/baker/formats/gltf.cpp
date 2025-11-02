@@ -277,12 +277,14 @@ GltfModel::GltfModel(std::string_view gltf_path) {
                     default: break;
                 }
             }
-            FB_ASSERT(std::ranges::all_of(
-                Span(animation.samplers, animation.samplers_count),
-                [&](const auto& sampler) {
-                    return animation.samplers[0].input->max[0] == sampler.input->max[0];
-                }
-            ));
+            FB_ASSERT(
+                std::ranges::all_of(
+                    Span(animation.samplers, animation.samplers_count),
+                    [&](const auto& sampler) {
+                        return animation.samplers[0].input->max[0] == sampler.input->max[0];
+                    }
+                )
+            );
         }
 
         // Animation vertex data.

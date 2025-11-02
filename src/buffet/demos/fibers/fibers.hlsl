@@ -127,10 +127,10 @@ void cull_cs(fb::ComputeInput input) {
 }
 
 struct LightVertexOutput {
-    float4 position: SV_Position;
-    float3 normal: ATTRIBUTE0;
-    float2 texcoord: ATTRIBUTE1;
-    float3 color: ATTRIBUTE2;
+    float4 position : SV_Position;
+    float3 normal : ATTRIBUTE0;
+    float2 texcoord : ATTRIBUTE1;
+    float3 color : ATTRIBUTE2;
 };
 
 LightVertexOutput light_vs(fb::VertexInput input) {
@@ -156,11 +156,11 @@ fb::PixelOutput<1> light_ps(LightVertexOutput /*input*/) {
 }
 
 struct PlaneVertexOutput {
-    float4 position: SV_Position;
-    float3 normal: ATTRIBUTE0;
-    float2 texcoord: ATTRIBUTE1;
-    float3 world_position: ATTRIBUTE2;
-    float4 ndc_position: ATTRIBUTE3;
+    float4 position : SV_Position;
+    float3 normal : ATTRIBUTE0;
+    float2 texcoord : ATTRIBUTE1;
+    float3 world_position : ATTRIBUTE2;
+    float4 ndc_position : ATTRIBUTE3;
 };
 
 PlaneVertexOutput plane_vs(fb::VertexInput input) {
@@ -213,8 +213,8 @@ fb::PixelOutput<1> plane_ps(PlaneVertexOutput input) {
 }
 
 struct DebugVertexOutput {
-    float4 position: SV_Position;
-    float2 texcoord: ATTRIBUTE0;
+    float4 position : SV_Position;
+    float2 texcoord : ATTRIBUTE0;
 };
 
 DebugVertexOutput debug_vs(fb::VertexInput input) {

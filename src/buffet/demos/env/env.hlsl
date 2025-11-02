@@ -7,10 +7,10 @@
 //
 
 struct BackgroundVertexOutput {
-    float4 position: SV_Position;
-    float3 normal: ATTRIBUTE0;
-    float2 texcoord: ATTRIBUTE1;
-    float3 direction: ATTRIBUTE2;
+    float4 position : SV_Position;
+    float3 normal : ATTRIBUTE0;
+    float2 texcoord : ATTRIBUTE1;
+    float3 direction : ATTRIBUTE2;
 };
 
 const ConstantBuffer<BackgroundBindings> g_background_bindings: register(b0);
@@ -57,9 +57,9 @@ fb::PixelOutput<1> background_ps(BackgroundVertexOutput input) {
 //
 
 struct ModelVertexOutput {
-    float4 position: SV_Position;
-    float3 normal: ATTRIBUTE0;
-    float3 world_position: ATTRIBUTE1;
+    float4 position : SV_Position;
+    float3 normal : ATTRIBUTE0;
+    float3 world_position : ATTRIBUTE1;
 };
 
 ConstantBuffer<ModelBindings> g_model_bindings: register(b0);

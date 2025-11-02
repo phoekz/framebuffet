@@ -81,14 +81,13 @@ auto GpuCommandList::copy_texture_to_buffer(
 ) const -> void {
     D3D12_PLACED_SUBRESOURCE_FOOTPRINT dst_footprint = {
         .Offset = dst_buffer_offset,
-        .Footprint =
-            D3D12_SUBRESOURCE_FOOTPRINT {
-                .Format = src_texture_format,
-                .Width = src_texture_width,
-                .Height = src_texture_height,
-                .Depth = 1,
-                .RowPitch = src_texture_row_pitch,
-            },
+        .Footprint = D3D12_SUBRESOURCE_FOOTPRINT {
+            .Format = src_texture_format,
+            .Width = src_texture_width,
+            .Height = src_texture_height,
+            .Depth = 1,
+            .RowPitch = src_texture_row_pitch,
+        },
     };
     D3D12_TEXTURE_COPY_LOCATION dst_location = {
         .pResource = dst_buffer.get(),

@@ -9,8 +9,8 @@ const ConstantBuffer<Bindings> g_bindings: register(b0);
 //
 
 struct ClearVertexOutput {
-    float4 position: SV_Position;
-    float2 texcoord: ATTRIBUTE0;
+    float4 position : SV_Position;
+    float2 texcoord : ATTRIBUTE0;
 };
 
 ClearVertexOutput clear_vs(fb::VertexInput input) {
@@ -35,7 +35,7 @@ void clear_ps(ClearVertexOutput vs_output) {
 //
 
 struct RasterVertexOutput {
-    float4 position: SV_Position;
+    float4 position : SV_Position;
 };
 
 RasterVertexOutput raster_vs(fb::VertexInput input) {
@@ -47,7 +47,7 @@ RasterVertexOutput raster_vs(fb::VertexInput input) {
 }
 
 struct RasterPixelInput {
-    uint inner_coverage: SV_InnerCoverage;
+    uint inner_coverage : SV_InnerCoverage;
 };
 
 void raster_cr_off_ps(RasterVertexOutput vs_output) {
@@ -74,8 +74,8 @@ void raster_cr_on_ps(RasterVertexOutput vs_output, RasterPixelInput ps_input) {
 //
 
 struct DisplayVertexOutput {
-    float4 position: SV_Position;
-    float2 texcoord: ATTRIBUTE0;
+    float4 position : SV_Position;
+    float2 texcoord : ATTRIBUTE0;
 };
 
 DisplayVertexOutput display_vs(fb::VertexInput input) {

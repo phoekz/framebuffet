@@ -33,11 +33,13 @@ auto create(Technique& tech, const CreateDesc& desc) -> void {
         .primitive_topology(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE)
         .vertex_shader(shaders.bg_vs())
         .pixel_shader(shaders.bg_ps())
-        .depth_stencil(GpuDepthStencilDesc {
-            .depth_read = true,
-            .depth_write = true,
-            .depth_func = GpuComparisonFunc::LessEqual,
-        })
+        .depth_stencil(
+            GpuDepthStencilDesc {
+                .depth_read = true,
+                .depth_write = true,
+                .depth_func = GpuComparisonFunc::LessEqual,
+            }
+        )
         .render_target_formats({render_target_view.color_format(0)})
         .depth_stencil_format(render_target_view.depth_format())
         .sample_desc(render_target_view.sample_desc())
@@ -75,11 +77,13 @@ auto render(Technique& tech, const RenderDesc& desc) -> void {
     auto& [cmd, device, frame_index] = desc;
     cmd.graphics_scope([&tech, frame_index](GpuGraphicsCommandList& cmd) {
         cmd.pix_begin("%s - Render", NAME.data());
-        cmd.set_constants(Bindings {
-            .constants = tech.constants.buffer(frame_index).cbv_descriptor().index(),
-            .vertices = tech.vertices.srv_descriptor().index(),
-            .texture = tech.rad_texture.index(),
-        });
+        cmd.set_constants(
+            Bindings {
+                .constants = tech.constants.buffer(frame_index).cbv_descriptor().index(),
+                .vertices = tech.vertices.srv_descriptor().index(),
+                .texture = tech.rad_texture.index(),
+            }
+        );
         cmd.set_pipeline(tech.pipeline);
         cmd.set_topology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
         cmd.set_index_buffer(tech.indices.index_buffer_view());
