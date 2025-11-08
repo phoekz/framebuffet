@@ -76,12 +76,13 @@ add_compile_definitions(
     FB_BAKER_SOURCE_DIR_WIDE=L"${PROJECT_SOURCE_DIR}"
     FB_BAKER_BUFFET_OUTPUT_DIR="$<TARGET_FILE_DIR:fb_buffet>"
     FB_BAKER_STOCKCUBE_OUTPUT_DIR="$<TARGET_FILE_DIR:fb_stockcube>"
+    FB_BAKER_GRIDDLE_OUTPUT_DIR="$<TARGET_FILE_DIR:fb_griddle>"
     FB_BAKER_RAYDIANCE_OUTPUT_DIR="$<TARGET_FILE_DIR:fb_raydiance>"
     FB_KITCHEN_PIX_GPU_CAPTURER_NAME="WinPixGpuCapturer.dll"
-    FB_KITCHEN_PIX_GPU_CAPTURER_DLL_PATH="C:/Program Files/Microsoft PIX/2505.30/WinPixGpuCapturer.dll"
+    FB_KITCHEN_PIX_GPU_CAPTURER_DLL_PATH="C:/Program Files/Microsoft PIX/2509.25/WinPixGpuCapturer.dll"
     FB_KITCHEN_PIX_GPU_CAPTURE_FILE_NAME=L"framebuffet_gpu.wpix"
     FB_KITCHEN_PIX_TIMING_CAPTURER_NAME="WinPixTimingCapturer.dll"
-    FB_KITCHEN_PIX_TIMING_CAPTURER_DLL_PATH="C:/Program Files/Microsoft PIX/2505.30/WinPixTimingCapturer.dll"
+    FB_KITCHEN_PIX_TIMING_CAPTURER_DLL_PATH="C:/Program Files/Microsoft PIX/2509.25/WinPixTimingCapturer.dll"
     FB_KITCHEN_PIX_TIMING_CAPTURE_FILE_NAME=L"framebuffet_timing.wpix"
     FB_STOCKCUBE_INTERMEDIATE_DIR="${CMAKE_SOURCE_DIR}/src/assets/intermediate/stockcube"
 )
@@ -96,6 +97,7 @@ add_subdirectory(src/baker)
 add_subdirectory(src/stockcube)
 add_subdirectory(src/raydiance)
 add_subdirectory(src/buffet)
+add_subdirectory(src/griddle)
 add_subdirectory(src/sandbox)
 
 # Framebuffet - Tests.

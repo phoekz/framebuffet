@@ -7,6 +7,8 @@ set(SOURCES
     "kitchen/baked.hpp"
     "stockcube/baked.cpp"
     "stockcube/baked.hpp"
+    "griddle/baked.cpp"
+    "griddle/baked.hpp"
     "raydiance/baked.cpp"
     "raydiance/baked.hpp"
 )
