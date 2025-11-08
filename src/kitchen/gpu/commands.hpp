@@ -131,6 +131,17 @@ public:
 
     auto clear_dsv(const GpuDescriptor& dsv, float depth, uint8_t stencil) const -> void;
 
+    auto copy_buffer_to_texture(
+        const ComPtr<ID3D12Resource2>& dst_texture,
+        uint dst_texture_subresource_index,
+        DXGI_FORMAT dst_texture_format,
+        uint dst_texture_width,
+        uint dst_texture_height,
+        uint dst_texture_row_pitch,
+        const ComPtr<ID3D12Resource2>& src_buffer,
+        uint src_buffer_offset
+    ) const -> void;
+
     auto copy_texture_to_buffer(
         const ComPtr<ID3D12Resource2>& dst_buffer,
         uint64_t dst_buffer_offset,

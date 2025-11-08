@@ -283,6 +283,8 @@ using GpuBufferHostUav = GpuBuffer<T, GpuBufferAccessMode::Host, GpuBufferFlags:
 template<typename T>
 using GpuBufferHostIndex = GpuBuffer<T, GpuBufferAccessMode::Host, GpuBufferFlags::Index>;
 template<typename T>
+using GpuBufferHostUpload = GpuBuffer<T, GpuBufferAccessMode::Host, GpuBufferFlags::None>;
+template<typename T>
 using GpuBufferHostReadback = GpuBuffer<T, GpuBufferAccessMode::Host, GpuBufferFlags::Readback>;
 
 template<typename T>

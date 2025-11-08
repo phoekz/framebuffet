@@ -69,6 +69,39 @@ auto GpuCommandList::set_compute_root_constants(Span<const uint> dwords) const -
     _cmd->SetComputeRoot32BitConstants(0, (uint)dwords.size(), dwords.data(), 0);
 }
 
+auto GpuCommandList::copy_buffer_to_texture(
+    const ComPtr<ID3D12Resource2>& dst_texture,
+    uint dst_texture_subresource_index,
+    DXGI_FORMAT dst_texture_format,
+    uint dst_texture_width,
+    uint dst_texture_height,
+    uint dst_texture_row_pitch,
+    const ComPtr<ID3D12Resource2>& src_buffer,
+    uint src_buffer_offset
+) const -> void {
+    D3D12_TEXTURE_COPY_LOCATION dst_location = {
+        .pResource = dst_texture.get(),
+        .Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX,
+        .SubresourceIndex = dst_texture_subresource_index,
+    };
+    D3D12_PLACED_SUBRESOURCE_FOOTPRINT src_footprint = {
+        .Offset = src_buffer_offset,
+        .Footprint = D3D12_SUBRESOURCE_FOOTPRINT {
+            .Format = dst_texture_format,
+            .Width = dst_texture_width,
+            .Height = dst_texture_height,
+            .Depth = 1,
+            .RowPitch = dst_texture_row_pitch,
+        },
+    };
+    D3D12_TEXTURE_COPY_LOCATION src_location = {
+        .pResource = src_buffer.get(),
+        .Type = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT,
+        .PlacedFootprint = src_footprint,
+    };
+    _cmd->CopyTextureRegion(&dst_location, 0, 0, 0, &src_location, nullptr);
+}
+
 auto GpuCommandList::copy_texture_to_buffer(
     const ComPtr<ID3D12Resource2>& dst_buffer,
     uint64_t dst_buffer_offset,
