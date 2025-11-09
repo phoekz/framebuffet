@@ -10,8 +10,8 @@ namespace fb::baked::raydiance {
 auto Assets::load() -> void {
     // hash: d128ad8e88a6aa70b81966c2c0497d47
     FB_PERF_FUNC();
-    _data = read_whole_file("fb_raydiance_assets.bin");
-    FB_ASSERT(_data.size() == 300132);
+    _file = FileBuffer::from_path("fb_raydiance_assets.bin");
+    FB_ASSERT(_file.byte_count() == 300132);
 }
 
 auto Assets::cube_mesh() const -> Mesh {
@@ -168,8 +168,8 @@ auto Assets::plane_texture() const -> Texture {
 auto Shaders::load() -> void {
     // hash: 99aa06d3014798d86001c324468d497f
     FB_PERF_FUNC();
-    _data = read_whole_file("fb_raydiance_shaders.bin");
-    FB_ASSERT(_data.size() == 0);
+    _file = FileBuffer::from_path("fb_raydiance_shaders.bin");
+    FB_ASSERT(_file.byte_count() == 0);
 }
 
 #undef texture_data

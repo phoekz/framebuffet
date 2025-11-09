@@ -5,7 +5,7 @@
 
 namespace fb {
 
-auto read_whole_file(std::string_view path) -> std::vector<std::byte> {
+auto FileBuffer::from_path(std::string_view path) -> FileBuffer {
     HANDLE file = CreateFileA(
         path.data(),
         GENERIC_READ,
@@ -20,10 +20,13 @@ auto read_whole_file(std::string_view path) -> std::vector<std::byte> {
     LARGE_INTEGER file_size;
     FB_ASSERT_MSG(GetFileSizeEx(file, &file_size), "Failed to get file size: {}", path);
 
-    std::vector<std::byte> buffer(file_size.QuadPart);
+    FileBuffer buffer;
+    buffer._byte_count = (uint)file_size.QuadPart;
+    buffer._bytes = (std::byte*)
+        VirtualAlloc(nullptr, buffer._byte_count, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
     DWORD bytes_read;
     FB_ASSERT_MSG(
-        ReadFile(file, buffer.data(), (DWORD)buffer.size(), &bytes_read, nullptr),
+        ReadFile(file, buffer._bytes, (DWORD)buffer._byte_count, &bytes_read, nullptr),
         "Failed to read file: {}",
         path
     );
@@ -33,6 +36,29 @@ auto read_whole_file(std::string_view path) -> std::vector<std::byte> {
     CloseHandle(file);
 
     return buffer;
+}
+
+FileBuffer::FileBuffer(FileBuffer&& other) noexcept
+    : _bytes(std::exchange(other._bytes, nullptr))
+    , _byte_count(std::exchange(other._byte_count, 0)) {}
+
+FileBuffer& FileBuffer::operator=(FileBuffer&& other) noexcept {
+    if (this != &other) {
+        if (_bytes != nullptr) {
+            VirtualFree(_bytes, 0, MEM_RELEASE);
+            _bytes = nullptr;
+        }
+        _bytes = std::exchange(other._bytes, nullptr);
+        _byte_count = std::exchange(other._byte_count, 0);
+    }
+    return *this;
+}
+
+FileBuffer::~FileBuffer() {
+    if (_bytes != nullptr) {
+        VirtualFree(_bytes, 0, MEM_RELEASE);
+        _bytes = nullptr;
+    }
 }
 
 auto write_whole_file(std::string_view path, Span<const std::byte> data) -> void {
@@ -60,10 +86,12 @@ auto write_whole_file(std::string_view path, Span<const std::byte> data) -> void
 
 auto move_file_if_different(std::string_view dst_path, std::string_view src_path) -> bool {
     if (file_exists(dst_path)) {
-        const auto dst_data = read_whole_file(dst_path);
-        const auto src_data = read_whole_file(src_path);
-        if (dst_data == src_data) {
-            return false;
+        const auto dst_data = FileBuffer::from_path(dst_path);
+        const auto src_data = FileBuffer::from_path(src_path);
+        if (dst_data.byte_count() == src_data.byte_count()) {
+            if (std::memcmp(dst_data.bytes(), src_data.bytes(), dst_data.byte_count()) == 0) {
+                return false;
+            }
         }
     }
     MoveFileExA(src_path.data(), dst_path.data(), MOVEFILE_REPLACE_EXISTING);

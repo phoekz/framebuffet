@@ -10,8 +10,8 @@ namespace fb::baked::kitchen {
 auto Assets::load() -> void {
     // hash: 799fc360204416196536a93c9eff68ae
     FB_PERF_FUNC();
-    _data = read_whole_file("fb_kitchen_assets.bin");
-    FB_ASSERT(_data.size() == 162588);
+    _file = FileBuffer::from_path("fb_kitchen_assets.bin");
+    FB_ASSERT(_file.byte_count() == 162588);
 }
 
 auto Assets::imgui_font() const -> Copy {
@@ -24,8 +24,8 @@ auto Assets::imgui_font() const -> Copy {
 auto Shaders::load() -> void {
     // hash: cf2aafc34d6f4a3a6e9a3bcad4a16c9f
     FB_PERF_FUNC();
-    _data = read_whole_file("fb_kitchen_shaders.bin");
-    FB_ASSERT(_data.size() == 32120);
+    _file = FileBuffer::from_path("fb_kitchen_shaders.bin");
+    FB_ASSERT(_file.byte_count() == 32120);
 }
 
 // shader_hash: b30f87c51686f31e176ccf33ecfe56b2
@@ -316,7 +316,7 @@ attributes #2 = { nounwind readonly }
 !22 = !{i32 0, i64 1082130688}
 */
 auto Shaders::gui_draw_vs() const -> Span<const std::byte> {
-    return Span(_data).subspan(0, 5376);
+    return _file.as_span().subspan(0, 5376);
 }
 
 // shader_hash: 411004431d5b335e070b1c07edcdc886
@@ -525,7 +525,7 @@ attributes #2 = { nounwind readonly }
 !20 = !{i32 0, i64 3229614336}
 */
 auto Shaders::gui_draw_ps() const -> Span<const std::byte> {
-    return Span(_data).subspan(5376, 4436);
+    return _file.as_span().subspan(5376, 4436);
 }
 
 // shader_hash: 91294c83f148d8a96249c6fec01a3d4c
@@ -794,7 +794,7 @@ attributes #2 = { nounwind readonly }
 !19 = !{i32 0, i64 1082130688}
 */
 auto Shaders::debug_draw_draw_vs() const -> Span<const std::byte> {
-    return Span(_data).subspan(9812, 5140);
+    return _file.as_span().subspan(9812, 5140);
 }
 
 // shader_hash: 9d99d1df71bb7a888f93ce86663ea365
@@ -920,7 +920,7 @@ attributes #1 = { nounwind }
 !14 = !{i32 0, i64 8388864}
 */
 auto Shaders::debug_draw_draw_ps() const -> Span<const std::byte> {
-    return Span(_data).subspan(14952, 3076);
+    return _file.as_span().subspan(14952, 3076);
 }
 
 // shader_hash: e31d3b0e2e21f76fb4a920f0fd95f5e3
@@ -2716,7 +2716,7 @@ attributes #3 = { nounwind }
 !13 = !{!"Simple C/C++ TBAA"}
 */
 auto Shaders::spd_downsample_cs() const -> Span<const std::byte> {
-    return Span(_data).subspan(18028, 14092);
+    return _file.as_span().subspan(18028, 14092);
 }
 
 #undef texture_data

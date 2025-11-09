@@ -10,8 +10,8 @@ namespace fb::baked::buffet {
 auto Assets::load() -> void {
     // hash: 168f91f66a20078465fc9a8ad1a1ec4d
     FB_PERF_FUNC();
-    _data = read_whole_file("fb_buffet_assets.bin");
-    FB_ASSERT(_data.size() == 189046280);
+    _file = FileBuffer::from_path("fb_buffet_assets.bin");
+    FB_ASSERT(_file.byte_count() == 189046280);
 }
 
 auto Assets::heatmap_magma_texture() const -> Texture {
@@ -1085,8 +1085,8 @@ auto Assets::grass_material() const -> Material {
 auto Shaders::load() -> void {
     // hash: e8066c7ba4c963e4879096d4086286c1
     FB_PERF_FUNC();
-    _data = read_whole_file("fb_buffet_shaders.bin");
-    FB_ASSERT(_data.size() == 245296);
+    _file = FileBuffer::from_path("fb_buffet_shaders.bin");
+    FB_ASSERT(_file.byte_count() == 245296);
 }
 
 // shader_hash: f2106722fd7272cb016f276df84f205c
@@ -1226,7 +1226,7 @@ attributes #1 = { nounwind }
 !17 = !{i32 0, i64 8388864}
 */
 auto Shaders::cards_background_vs() const -> Span<const std::byte> {
-    return Span(_data).subspan(0, 3304);
+    return _file.as_span().subspan(0, 3304);
 }
 
 // shader_hash: c0d2add246e7290ffbed1f063a9e72ac
@@ -1438,7 +1438,7 @@ attributes #2 = { nounwind readonly }
 !18 = !{i32 0, i64 3229614336}
 */
 auto Shaders::cards_background_ps() const -> Span<const std::byte> {
-    return Span(_data).subspan(3304, 4488);
+    return _file.as_span().subspan(3304, 4488);
 }
 
 // shader_hash: f23700a03b424febac429fd87909b2e0
@@ -1691,7 +1691,7 @@ attributes #2 = { nounwind readonly }
 !20 = !{i32 0, i64 1082130688}
 */
 auto Shaders::cards_draw_vs() const -> Span<const std::byte> {
-    return Span(_data).subspan(7792, 4908);
+    return _file.as_span().subspan(7792, 4908);
 }
 
 // shader_hash: 37e876790c248f81819ad971255c2b68
@@ -1888,7 +1888,7 @@ attributes #2 = { nounwind readonly }
 !18 = !{i32 0, i64 3229614336}
 */
 auto Shaders::cards_draw_ps() const -> Span<const std::byte> {
-    return Span(_data).subspan(12700, 4264);
+    return _file.as_span().subspan(12700, 4264);
 }
 
 // shader_hash: 19067547ad384ac90597f2a0ef34bb31
@@ -2028,7 +2028,7 @@ attributes #1 = { nounwind }
 !17 = !{i32 0, i64 8388864}
 */
 auto Shaders::conras_clear_vs() const -> Span<const std::byte> {
-    return Span(_data).subspan(16964, 3280);
+    return _file.as_span().subspan(16964, 3280);
 }
 
 // shader_hash: 92036410b084a2c99977d22352d47937
@@ -2206,7 +2206,7 @@ attributes #2 = { nounwind }
 !15 = !{i32 0, i64 9672065280}
 */
 auto Shaders::conras_clear_ps() const -> Span<const std::byte> {
-    return Span(_data).subspan(20244, 3900);
+    return _file.as_span().subspan(20244, 3900);
 }
 
 // shader_hash: 58c0c8f3050aef732cc91114eb9a32a8
@@ -2445,7 +2445,7 @@ attributes #2 = { nounwind readonly }
 !18 = !{i32 0, i64 1082130688}
 */
 auto Shaders::conras_raster_vs() const -> Span<const std::byte> {
-    return Span(_data).subspan(24144, 4808);
+    return _file.as_span().subspan(24144, 4808);
 }
 
 // shader_hash: 3247dff7386f62372fff26be01e40723
@@ -2618,7 +2618,7 @@ attributes #2 = { nounwind }
 !14 = !{i32 0, i64 9672065280}
 */
 auto Shaders::conras_raster_cr_off_ps() const -> Span<const std::byte> {
-    return Span(_data).subspan(28952, 3764);
+    return _file.as_span().subspan(28952, 3764);
 }
 
 // shader_hash: 9370ea9074f9185d1e0505a432622fb5
@@ -2799,7 +2799,7 @@ attributes #2 = { nounwind }
 !14 = !{i32 0, i64 9672066304}
 */
 auto Shaders::conras_raster_cr_on_ps() const -> Span<const std::byte> {
-    return Span(_data).subspan(32716, 3896);
+    return _file.as_span().subspan(32716, 3896);
 }
 
 // shader_hash: 7faea55763376708d937d385ad58db09
@@ -2939,7 +2939,7 @@ attributes #1 = { nounwind }
 !17 = !{i32 0, i64 8388864}
 */
 auto Shaders::conras_display_vs() const -> Span<const std::byte> {
-    return Span(_data).subspan(36612, 3292);
+    return _file.as_span().subspan(36612, 3292);
 }
 
 // shader_hash: b978b90406b1cc0443ef1cc93f8ee593
@@ -3180,7 +3180,7 @@ attributes #2 = { nounwind readonly }
 !18 = !{i32 0, i64 1082130688}
 */
 auto Shaders::conras_display_ps() const -> Span<const std::byte> {
-    return Span(_data).subspan(39904, 4524);
+    return _file.as_span().subspan(39904, 4524);
 }
 
 // shader_hash: fc70179be3d48884aed6be97fe3d177f
@@ -3497,7 +3497,7 @@ attributes #2 = { nounwind readonly }
 !29 = !{i32 0, i64 1082130688}
 */
 auto Shaders::crate_draw_vs() const -> Span<const std::byte> {
-    return Span(_data).subspan(44428, 5800);
+    return _file.as_span().subspan(44428, 5800);
 }
 
 // shader_hash: 50c4d3bc719ee9eab59da0ead9d38f8f
@@ -4132,7 +4132,7 @@ attributes #2 = { nounwind readonly }
 !27 = !{i32 0, i64 3229614336}
 */
 auto Shaders::crate_draw_ps() const -> Span<const std::byte> {
-    return Span(_data).subspan(50228, 8016);
+    return _file.as_span().subspan(50228, 8016);
 }
 
 // shader_hash: 19954e001df3cc000c0bd18444e329d0
@@ -4369,7 +4369,7 @@ attributes #2 = { nounwind readonly }
 !18 = !{i32 0, i64 1082130688}
 */
 auto Shaders::tree_shadow_vs() const -> Span<const std::byte> {
-    return Span(_data).subspan(58244, 4680);
+    return _file.as_span().subspan(58244, 4680);
 }
 
 // shader_hash: 14d308f570b18272e0cc914a20ac7bb3
@@ -4680,7 +4680,7 @@ attributes #2 = { nounwind readonly }
 !25 = !{i32 0, i64 1082130688}
 */
 auto Shaders::tree_draw_vs() const -> Span<const std::byte> {
-    return Span(_data).subspan(62924, 5484);
+    return _file.as_span().subspan(62924, 5484);
 }
 
 // shader_hash: 852d48e2ad4b34359bdeca69c9bb3c09
@@ -4937,7 +4937,7 @@ attributes #2 = { nounwind readonly }
 !23 = !{i32 0, i64 3229614336}
 */
 auto Shaders::tree_draw_ps() const -> Span<const std::byte> {
-    return Span(_data).subspan(68408, 5252);
+    return _file.as_span().subspan(68408, 5252);
 }
 
 // shader_hash: 344782a46efab3edf4492e45948f2755
@@ -5100,7 +5100,7 @@ attributes #2 = { nounwind }
 !9 = !{i32 128, i32 1, i32 1}
 */
 auto Shaders::rain_sim_cs() const -> Span<const std::byte> {
-    return Span(_data).subspan(73660, 3760);
+    return _file.as_span().subspan(73660, 3760);
 }
 
 // shader_hash: 56fee5fa4a1599d1bbf39405ad31815e
@@ -5379,7 +5379,7 @@ attributes #2 = { nounwind readonly }
 !20 = !{i32 0, i64 1082130688}
 */
 auto Shaders::rain_draw_vs() const -> Span<const std::byte> {
-    return Span(_data).subspan(77420, 5088);
+    return _file.as_span().subspan(77420, 5088);
 }
 
 // shader_hash: 544664eed15b8f76699f7e94abd4b33c
@@ -5521,7 +5521,7 @@ attributes #1 = { nounwind }
 !15 = !{i32 0, i64 8388864}
 */
 auto Shaders::rain_draw_ps() const -> Span<const std::byte> {
-    return Span(_data).subspan(82508, 3256);
+    return _file.as_span().subspan(82508, 3256);
 }
 
 // shader_hash: ae2a1e5716d043f5043964df002d7670
@@ -5986,7 +5986,7 @@ attributes #2 = { nounwind readonly }
 !18 = !{i32 0, i64 1082130688}
 */
 auto Shaders::anim_shadow_vs() const -> Span<const std::byte> {
-    return Span(_data).subspan(85764, 6168);
+    return _file.as_span().subspan(85764, 6168);
 }
 
 // shader_hash: cd4af585617b74c6d868cd659c6325be
@@ -6310,7 +6310,7 @@ attributes #2 = { nounwind readonly }
 !27 = !{i32 0, i64 1082130688}
 */
 auto Shaders::anim_ground_vs() const -> Span<const std::byte> {
-    return Span(_data).subspan(91932, 5744);
+    return _file.as_span().subspan(91932, 5744);
 }
 
 // shader_hash: b22e04ff9c7f5ab766311c689f2c4a8a
@@ -6588,7 +6588,7 @@ attributes #2 = { nounwind readonly }
 !25 = !{i32 0, i64 3229614336}
 */
 auto Shaders::anim_ground_ps() const -> Span<const std::byte> {
-    return Span(_data).subspan(97676, 5588);
+    return _file.as_span().subspan(97676, 5588);
 }
 
 // shader_hash: 4344613de3de4dd91bf10c9fbebe57f9
@@ -7175,7 +7175,7 @@ attributes #2 = { nounwind readonly }
 !27 = !{i32 0, i64 1082130688}
 */
 auto Shaders::anim_anim_vs() const -> Span<const std::byte> {
-    return Span(_data).subspan(103264, 7596);
+    return _file.as_span().subspan(103264, 7596);
 }
 
 // shader_hash: 06494f61f8927e69c0b67ad59d8a03c9
@@ -7423,7 +7423,7 @@ attributes #2 = { nounwind readonly }
 !24 = !{i32 0, i64 3229614336}
 */
 auto Shaders::anim_anim_ps() const -> Span<const std::byte> {
-    return Span(_data).subspan(110860, 5236);
+    return _file.as_span().subspan(110860, 5236);
 }
 
 // shader_hash: b517f52e325073cc310d22e53564a156
@@ -7600,7 +7600,7 @@ attributes #2 = { nounwind }
 !9 = !{i32 32, i32 1, i32 1}
 */
 auto Shaders::fibers_sim_cs() const -> Span<const std::byte> {
-    return Span(_data).subspan(116096, 4020);
+    return _file.as_span().subspan(116096, 4020);
 }
 
 // shader_hash: cfa2d13a5ba0ef4287be99c39160ee1b
@@ -7740,7 +7740,7 @@ attributes #2 = { nounwind readonly }
 !9 = !{i32 1, i32 1, i32 1}
 */
 auto Shaders::fibers_reset_cs() const -> Span<const std::byte> {
-    return Span(_data).subspan(120116, 3448);
+    return _file.as_span().subspan(120116, 3448);
 }
 
 // shader_hash: 42e7037905d6f1e87ec98d2b4837d5a5
@@ -8277,7 +8277,7 @@ attributes #3 = { nounwind }
 !13 = !{!"Simple C/C++ TBAA"}
 */
 auto Shaders::fibers_cull_cs() const -> Span<const std::byte> {
-    return Span(_data).subspan(123564, 7364);
+    return _file.as_span().subspan(123564, 7364);
 }
 
 // shader_hash: cf690c8952a5722222562c28a20ebf7c
@@ -8574,7 +8574,7 @@ attributes #2 = { nounwind readonly }
 !25 = !{i32 0, i64 1082130688}
 */
 auto Shaders::fibers_light_vs() const -> Span<const std::byte> {
-    return Span(_data).subspan(130928, 5520);
+    return _file.as_span().subspan(130928, 5520);
 }
 
 // shader_hash: 4117305d32293572b2b9ffbab2e45044
@@ -8696,7 +8696,7 @@ attributes #0 = { nounwind }
 !18 = !{i32 0, i64 8388864}
 */
 auto Shaders::fibers_light_ps() const -> Span<const std::byte> {
-    return Span(_data).subspan(136448, 3168);
+    return _file.as_span().subspan(136448, 3168);
 }
 
 // shader_hash: 50856fe9d858a95bc456891bb16deb0a
@@ -8985,7 +8985,7 @@ attributes #2 = { nounwind readonly }
 !27 = !{i32 0, i64 1082130688}
 */
 auto Shaders::fibers_plane_vs() const -> Span<const std::byte> {
-    return Span(_data).subspan(139616, 5536);
+    return _file.as_span().subspan(139616, 5536);
 }
 
 // shader_hash: 559d1a1e7491759bd43f17737d0fec28
@@ -9307,7 +9307,7 @@ attributes #2 = { nounwind readonly }
 !25 = !{i32 0, i64 1082130688}
 */
 auto Shaders::fibers_plane_ps() const -> Span<const std::byte> {
-    return Span(_data).subspan(145152, 5948);
+    return _file.as_span().subspan(145152, 5948);
 }
 
 // shader_hash: 2a5a99fcf8d6cd88629916139ce870c3
@@ -9447,7 +9447,7 @@ attributes #1 = { nounwind }
 !17 = !{i32 0, i64 8388864}
 */
 auto Shaders::fibers_debug_vs() const -> Span<const std::byte> {
-    return Span(_data).subspan(151100, 3280);
+    return _file.as_span().subspan(151100, 3280);
 }
 
 // shader_hash: c37c21774eee13d6ff33d451529df86f
@@ -9683,7 +9683,7 @@ attributes #2 = { nounwind readonly }
 !18 = !{i32 0, i64 11819548928}
 */
 auto Shaders::fibers_debug_ps() const -> Span<const std::byte> {
-    return Span(_data).subspan(154380, 4968);
+    return _file.as_span().subspan(154380, 4968);
 }
 
 // shader_hash: 4321a5ccd8ca25e4ecb3d8414aa70f89
@@ -9947,7 +9947,7 @@ attributes #2 = { nounwind readonly }
 !25 = !{i32 0, i64 1082130688}
 */
 auto Shaders::env_background_vs() const -> Span<const std::byte> {
-    return Span(_data).subspan(159348, 5208);
+    return _file.as_span().subspan(159348, 5208);
 }
 
 // shader_hash: b68d2d739473b058eb3c5898c88ba4e3
@@ -10211,7 +10211,7 @@ attributes #2 = { nounwind readonly }
 !22 = !{i32 0, i64 3229614336}
 */
 auto Shaders::env_background_ps() const -> Span<const std::byte> {
-    return Span(_data).subspan(164556, 5120);
+    return _file.as_span().subspan(164556, 5120);
 }
 
 // shader_hash: 30e5f745ec8d7eb578d393fd0bfd45a5
@@ -10473,7 +10473,7 @@ attributes #2 = { nounwind readonly }
 !22 = !{i32 0, i64 1082130688}
 */
 auto Shaders::env_model_vs() const -> Span<const std::byte> {
-    return Span(_data).subspan(169676, 5112);
+    return _file.as_span().subspan(169676, 5112);
 }
 
 // shader_hash: aebfd2f74a4c206017fe279608c56a35
@@ -10797,7 +10797,7 @@ attributes #2 = { nounwind readonly }
 !20 = !{i32 0, i64 3229614336}
 */
 auto Shaders::env_model_ps() const -> Span<const std::byte> {
-    return Span(_data).subspan(174788, 5620);
+    return _file.as_span().subspan(174788, 5620);
 }
 
 // shader_hash: 569d0a55b65c13e419d24823346088bc
@@ -11062,7 +11062,7 @@ attributes #2 = { nounwind readonly }
 !25 = !{i32 0, i64 1082130688}
 */
 auto Shaders::text_background_vs() const -> Span<const std::byte> {
-    return Span(_data).subspan(180408, 5236);
+    return _file.as_span().subspan(180408, 5236);
 }
 
 // shader_hash: 7211fe322eb35c8f7e82f4f4e3ae1cb5
@@ -11278,7 +11278,7 @@ attributes #2 = { nounwind readonly }
 !22 = !{i32 0, i64 3229614336}
 */
 auto Shaders::text_background_ps() const -> Span<const std::byte> {
-    return Span(_data).subspan(185644, 4776);
+    return _file.as_span().subspan(185644, 4776);
 }
 
 // shader_hash: 89349018f110b2984b52f01a0ba17917
@@ -11568,7 +11568,7 @@ attributes #2 = { nounwind readonly }
 !20 = !{i32 0, i64 1082130688}
 */
 auto Shaders::text_glyph_vs() const -> Span<const std::byte> {
-    return Span(_data).subspan(190420, 5268);
+    return _file.as_span().subspan(190420, 5268);
 }
 
 // shader_hash: ba6b87bc389419c5447a92424fa854d9
@@ -11794,7 +11794,7 @@ attributes #2 = { nounwind readonly }
 !18 = !{i32 0, i64 3229614336}
 */
 auto Shaders::text_glyph_ps() const -> Span<const std::byte> {
-    return Span(_data).subspan(195688, 4764);
+    return _file.as_span().subspan(195688, 4764);
 }
 
 // shader_hash: 4d7b6d02a60d703acc5bb75403d6420d
@@ -12070,7 +12070,7 @@ attributes #2 = { nounwind readonly }
 !18 = !{i32 0, i64 1082130688}
 */
 auto Shaders::saber_scene_vs() const -> Span<const std::byte> {
-    return Span(_data).subspan(200452, 5028);
+    return _file.as_span().subspan(200452, 5028);
 }
 
 // shader_hash: 5712f46ad11e732d8eb8d8654c03f25b
@@ -12258,7 +12258,7 @@ attributes #2 = { nounwind readonly }
 !16 = !{i32 0, i64 1082130688}
 */
 auto Shaders::saber_scene_ps() const -> Span<const std::byte> {
-    return Span(_data).subspan(205480, 3928);
+    return _file.as_span().subspan(205480, 3928);
 }
 
 // shader_hash: cabf7c99226e4c395a6b59783c19fc73
@@ -12451,7 +12451,7 @@ attributes #2 = { nounwind }
 !9 = !{i32 8, i32 8, i32 1}
 */
 auto Shaders::saber_threshold_cs() const -> Span<const std::byte> {
-    return Span(_data).subspan(209408, 4064);
+    return _file.as_span().subspan(209408, 4064);
 }
 
 // shader_hash: b319384db2f68bf6f3f24ceb7a4a882d
@@ -12750,7 +12750,7 @@ attributes #2 = { nounwind }
 !9 = !{i32 8, i32 8, i32 1}
 */
 auto Shaders::saber_downsample_cs() const -> Span<const std::byte> {
-    return Span(_data).subspan(213472, 4772);
+    return _file.as_span().subspan(213472, 4772);
 }
 
 // shader_hash: def827f4a28aa1d36709bff8640f9a39
@@ -13023,7 +13023,7 @@ attributes #2 = { nounwind }
 !9 = !{i32 8, i32 8, i32 1}
 */
 auto Shaders::saber_upsample_cs() const -> Span<const std::byte> {
-    return Span(_data).subspan(218244, 4636);
+    return _file.as_span().subspan(218244, 4636);
 }
 
 // shader_hash: 44fafd42b584981f27cf2ab6d299537e
@@ -13163,7 +13163,7 @@ attributes #1 = { nounwind }
 !17 = !{i32 0, i64 8388864}
 */
 auto Shaders::saber_blit_vs() const -> Span<const std::byte> {
-    return Span(_data).subspan(222880, 3276);
+    return _file.as_span().subspan(222880, 3276);
 }
 
 // shader_hash: 5d2a216e7e1af0ee2afc2df8298d463d
@@ -13414,7 +13414,7 @@ attributes #2 = { nounwind readonly }
 !18 = !{i32 0, i64 3229614336}
 */
 auto Shaders::saber_blit_ps() const -> Span<const std::byte> {
-    return Span(_data).subspan(226156, 4700);
+    return _file.as_span().subspan(226156, 4700);
 }
 
 // shader_hash: c88d65e8566323e928ff282348a29aad
@@ -13676,7 +13676,7 @@ attributes #2 = { nounwind readonly }
 !23 = !{i32 0, i64 1082130688}
 */
 auto Shaders::grass_draw_vs() const -> Span<const std::byte> {
-    return Span(_data).subspan(230856, 5044);
+    return _file.as_span().subspan(230856, 5044);
 }
 
 // shader_hash: 80cce6d614f3464d556d703772d211d9
@@ -13891,7 +13891,7 @@ attributes #2 = { nounwind readonly }
 !20 = !{i32 0, i64 3229614336}
 */
 auto Shaders::grass_draw_naive_ps() const -> Span<const std::byte> {
-    return Span(_data).subspan(235900, 4628);
+    return _file.as_span().subspan(235900, 4628);
 }
 
 // shader_hash: cc771476d2889f502af56298f2f457ce
@@ -14115,7 +14115,7 @@ attributes #2 = { nounwind readonly }
 !20 = !{i32 0, i64 3229614336}
 */
 auto Shaders::grass_draw_atoc_ps() const -> Span<const std::byte> {
-    return Span(_data).subspan(240528, 4768);
+    return _file.as_span().subspan(240528, 4768);
 }
 
 #undef texture_data

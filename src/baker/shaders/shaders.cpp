@@ -328,7 +328,7 @@ auto bake_shaders(std::string_view buffet_dir, Span<const ShaderTask> shader_tas
     );
     for (const auto& shader_task : shader_tasks) {
         const auto hlsl_path = std::format("{}/{}", buffet_dir, shader_task.path);
-        const auto hlsl_file = read_whole_file(hlsl_path);
+        const auto hlsl_file = FileBuffer::from_path(hlsl_path);
 
         for (const auto& entry_point : shader_task.entry_points) {
             // Ensure unique shader names.
@@ -339,7 +339,7 @@ auto bake_shaders(std::string_view buffet_dir, Span<const ShaderTask> shader_tas
             FB_ASSERT(type != ShaderType::Unknown);
 
             // Compile shader.
-            auto shader = compiler.compile(name, type, entry_point, hlsl_file, false);
+            auto shader = compiler.compile(name, type, entry_point, hlsl_file.as_span(), false);
 
             // Log.
             FB_LOG_INFO(

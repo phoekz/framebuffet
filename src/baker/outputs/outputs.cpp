@@ -381,7 +381,7 @@ auto bake_app_datas(
                 {}
                 /* disassembly:{}{}*/
                 auto Shaders::{}() const -> Span<const std::byte> {{
-                    return Span(_data).subspan({}, {});
+                    return _file.as_span().subspan({}, {});
                 }}
             )",
             shader.hash,

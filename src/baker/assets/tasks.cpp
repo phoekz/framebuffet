@@ -283,18 +283,18 @@ auto bake_assets(std::string_view assets_dir, Span<const AssetTask> asset_tasks)
             overloaded {
                 [&](const AssetTaskCopy& task) {
                     const auto path = std::format("{}/{}", assets_dir, task.path);
-                    const auto file = read_whole_file(path);
+                    const auto file = FileBuffer::from_path(path);
                     assets.emplace_back(
                         AssetCopy {
                             .name = names.unique(std::string(task.name)),
-                            .data = assets_writer.write("std::byte", Span(file)),
+                            .data = assets_writer.write("std::byte", file.as_span()),
                         }
                     );
                 },
                 [&](const AssetTaskTexture& task) {
                     const auto path = std::format("{}/{}", assets_dir, task.path);
-                    const auto file = read_whole_file(path);
-                    const auto image = LdrImage::from_image(file);
+                    const auto file = FileBuffer::from_path(path);
+                    const auto image = LdrImage::from_image(file.as_span());
                     assets.push_back(mipmapped_texture_asset(
                         assets_writer,
                         names.unique(std::format("{}_texture", task.name)),
@@ -304,8 +304,8 @@ auto bake_assets(std::string_view assets_dir, Span<const AssetTask> asset_tasks)
                     ));
                 },
                 [&](const AssetTaskHdrTexture& task) {
-                    const auto file = read_whole_file(std::format("{}/{}", assets_dir, task.path));
-                    const auto image = HdrImage::from_image(file);
+                    const auto file = FileBuffer::from_path(std::format("{}/{}", assets_dir, task.path));
+                    const auto image = HdrImage::from_image(file.as_span());
                     assets.emplace_back(
                         AssetTexture {
                             .name = names.unique(std::format("{}_hdr_texture", task.name)),
@@ -863,12 +863,12 @@ auto bake_assets(std::string_view assets_dir, Span<const AssetTask> asset_tasks)
                 },
                 [&](const AssetTaskStockcubeOutput& task) {
                     const auto bin_path = std::format("{}/{}", assets_dir, task.bin_path);
-                    const auto bin_bytes = read_whole_file(bin_path);
-                    const auto bin_span = Span<const std::byte>(bin_bytes);
+                    const auto bin_bytes = FileBuffer::from_path(bin_path);
+                    const auto bin_span = bin_bytes.as_span();
 
                     const auto json_path = std::format("{}/{}", assets_dir, task.json_path);
-                    const auto json_bytes = read_whole_file(json_path);
-                    const auto json = json::parse(json_bytes);
+                    const auto json_bytes = FileBuffer::from_path(json_path);
+                    const auto json = json::parse(json_bytes.as_span());
                     const auto format = (DXGI_FORMAT)json["format"].template get<uint>();
                     FB_ASSERT(
                         format == DXGI_FORMAT_R16G16_FLOAT
@@ -945,13 +945,13 @@ auto bake_assets(std::string_view assets_dir, Span<const AssetTask> asset_tasks)
                 },
                 [&](const AssetTaskTtf& task) {
                     const auto path = std::format("{}/{}", assets_dir, task.path);
-                    const auto file = read_whole_file(path);
+                    const auto file = FileBuffer::from_path(path);
 
                     int ttf_result;
                     ttf_t* ttf = nullptr;
                     ttf_result = ttf_load_from_mem(
-                        (const uint8_t*)file.data(),
-                        (int)file.size(),
+                        (const uint8_t*)file.bytes(),
+                        (int)file.byte_count(),
                         &ttf,
                         false
                     );

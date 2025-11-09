@@ -19,10 +19,10 @@ public:
 private:
     template<typename T>
     auto transmuted_span(size_t offset, size_t element_count) const -> Span<const T> {
-        return Span((const T*)(_data.data() + offset), element_count);
+        return Span<const T>((const T*)(_file.bytes() + offset), element_count);
     }
 
-    std::vector<std::byte> _data;
+    FileBuffer _file;
 };
 
 class Shaders {
@@ -30,7 +30,7 @@ public:
     auto load() -> void;
 
 private:
-    std::vector<std::byte> _data;
+    FileBuffer _file;
 };
 
 } // namespace fb::baked::raydiance

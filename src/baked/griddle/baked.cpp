@@ -10,15 +10,15 @@ namespace fb::baked::griddle {
 auto Assets::load() -> void {
     // hash: 99aa06d3014798d86001c324468d497f
     FB_PERF_FUNC();
-    _data = read_whole_file("fb_griddle_assets.bin");
-    FB_ASSERT(_data.size() == 0);
+    _file = FileBuffer::from_path("fb_griddle_assets.bin");
+    FB_ASSERT(_file.byte_count() == 0);
 }
 
 auto Shaders::load() -> void {
     // hash: 427fa0605bcbeda9ede702fe091204b7
     FB_PERF_FUNC();
-    _data = read_whole_file("fb_griddle_shaders.bin");
-    FB_ASSERT(_data.size() == 8940);
+    _file = FileBuffer::from_path("fb_griddle_shaders.bin");
+    FB_ASSERT(_file.byte_count() == 8940);
 }
 
 // shader_hash: 75e50b1298a142b9447a9479a35ac223
@@ -256,7 +256,7 @@ attributes #2 = { nounwind readonly }
 !20 = !{i32 0, i64 1082130688}
 */
 auto Shaders::griddle_vs() const -> Span<const std::byte> {
-    return Span(_data).subspan(0, 4740);
+    return _file.as_span().subspan(0, 4740);
 }
 
 // shader_hash: d0ef76026eb0143c831f968ba60f9bcc
@@ -451,7 +451,7 @@ attributes #2 = { nounwind readonly }
 !18 = !{i32 0, i64 3229614336}
 */
 auto Shaders::griddle_ps() const -> Span<const std::byte> {
-    return Span(_data).subspan(4740, 4200);
+    return _file.as_span().subspan(4740, 4200);
 }
 
 #undef texture_data

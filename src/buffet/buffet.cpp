@@ -95,9 +95,9 @@ auto buffet_run(Buffet& bf) -> void {
     // Archive.
     if (file_exists(ARCHIVE_FILE_NAME)) {
         FB_PERF_SCOPE("Archive Load");
-        auto buf = read_whole_file(ARCHIVE_FILE_NAME);
-        FB_LOG_INFO("Archive size: {} bytes", buf.size());
-        auto archive = DeserializingArchive(buf);
+        auto buf = FileBuffer::from_path(ARCHIVE_FILE_NAME);
+        FB_LOG_INFO("Archive size: {} bytes", buf.byte_count());
+        auto archive = DeserializingArchive(buf.as_span());
         demos::archive(bf.demos, archive);
         FB_ASSERT(archive.fully_consumed());
     }
