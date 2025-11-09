@@ -7,7 +7,7 @@ function(fb_setup_visual_studio_directories current_source_dir sources)
     source_group(pch REGULAR_EXPRESSION "cmake_pch\.(hxx|cxx)")
 endfunction()
 
-# Configurations.
+# Build configuration.
 set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "Configurations" FORCE)
 
 # Project.
@@ -15,6 +15,10 @@ project(framebuffet)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
+
+# Framebuffet configuration.
+set(FB_ENABLE_TRACY OFF)
+set(FB_ENABLE_PIX OFF)
 
 # Global options.
 # Note: Tracy does not work if /ZI is enabled. Therefore we must use /Zi.

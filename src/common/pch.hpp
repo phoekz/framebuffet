@@ -22,7 +22,6 @@
 #include <dxgiformat.h>
 
 // PIX.
-#define USE_PIX
 #if defined(USE_PIX)
     #include <WinPixEventRuntime/pix3.h>
 #endif

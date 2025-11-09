@@ -231,28 +231,29 @@ target_include_directories(
 set(TTF2MESH_LIBRARY ext_ttf2mesh CACHE INTERNAL "ttf2mesh Library")
 
 # Tracy.
-add_library(
-    ext_tracy STATIC
-    ${TRACY_SOURCE_DIR}/public/TracyClient.cpp
-)
-target_include_directories(
-    ext_tracy
-    PUBLIC
-    ${TRACY_SOURCE_DIR}/public
-)
-target_compile_definitions(
-    ext_tracy
-    PUBLIC
-    TRACY_ENABLE
-    TRACY_ON_DEMAND
-    TRACY_NO_BROADCAST
-    TRACY_ONLY_LOCALHOST
-    TRACY_NO_SAMPLING
-    TRACY_NO_CONTEXT_SWITCH
-    TRACY_NO_FRAME_IMAGE
-)
-set(TRACY_INCLUDE_DIR ${TRACY_SOURCE_DIR}/public CACHE INTERNAL "Tracy Include Directory")
-set(TRACY_LIBRARY ext_tracy CACHE INTERNAL "Tracy Library")
+if(FB_ENABLE_TRACY)
+    add_library(
+        ext_tracy STATIC
+        ${TRACY_SOURCE_DIR}/public/TracyClient.cpp
+    )
+    target_include_directories(
+        ext_tracy
+        PUBLIC
+        ${TRACY_SOURCE_DIR}/public
+    )
+    target_compile_definitions(
+        ext_tracy
+        PUBLIC
+        TRACY_ENABLE
+        TRACY_ON_DEMAND
+        TRACY_NO_BROADCAST
+        TRACY_ONLY_LOCALHOST
+        TRACY_NO_SAMPLING
+        TRACY_NO_CONTEXT_SWITCH
+        TRACY_NO_FRAME_IMAGE
+    )
+    set(TRACY_LIBRARY ext_tracy CACHE INTERNAL "Tracy Library")
+endif()
 
 # glm.
 add_library(ext_glm INTERFACE)
@@ -350,7 +351,17 @@ set(DIRECTXTEX_DEBUG_LINK_DIR ${DIRECTXTEX_SOURCE_DIR}/native/lib/x64/Debug CACH
 set(DIRECTXTEX_RELEASE_LINK_DIR ${DIRECTXTEX_SOURCE_DIR}/native/lib/x64/Release CACHE INTERNAL "DirectXTex Release Link Directory")
 
 # WinPixEventRuntime.
-set(WINPIXEVENTRUNTIME_INCLUDE_DIR ${WINPIXEVENTRUNTIME_SOURCE_DIR}/Include CACHE INTERNAL "WinPixEventRuntime Include Directory")
-set(WINPIXEVENTRUNTIME_BIN_DIR ${WINPIXEVENTRUNTIME_SOURCE_DIR}/bin/x64 CACHE INTERNAL "WinPixEventRuntime Binary Directory")
-set(WINPIXEVENTRUNTIME_LINK_DIR ${WINPIXEVENTRUNTIME_SOURCE_DIR}/bin/x64 CACHE INTERNAL "WinPixEventRuntime Link Directory")
-set(WINPIXEVENTRUNTIME_LIBRARY ${WINPIXEVENTRUNTIME_LINK_DIR}/WinPixEventRuntime.lib CACHE INTERNAL "WinPixEventRuntime Library")
+if(FB_ENABLE_PIX)
+    add_library(ext_pix INTERFACE)
+    target_include_directories(ext_pix INTERFACE ${WINPIXEVENTRUNTIME_SOURCE_DIR}/Include)
+    target_compile_definitions(ext_pix INTERFACE USE_PIX)
+    target_link_libraries(ext_pix INTERFACE ${WINPIXEVENTRUNTIME_SOURCE_DIR}/bin/x64/WinPixEventRuntime.lib)
+    set(WINPIXEVENTRUNTIME_LIBRARY ext_pix CACHE INTERNAL "WinPixEventRuntime Library")
+
+    function(fb_pix_dependency target)
+        add_custom_command(
+            TARGET ${target} POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy ${WINPIXEVENTRUNTIME_SOURCE_DIR}/bin/x64/WinPixEventRuntime.dll $<TARGET_FILE_DIR:${target}>
+        )
+    endfunction()
+endif()
