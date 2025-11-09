@@ -1,11 +1,14 @@
 #include "file.hpp"
 #include "error.hpp"
+#include "time.hpp"
 
 #include <filesystem>
 
 namespace fb {
 
 auto FileBuffer::from_path(std::string_view path) -> FileBuffer {
+    const auto timer = Instant();
+
     HANDLE file = CreateFileA(
         path.data(),
         GENERIC_READ,
@@ -31,7 +34,14 @@ auto FileBuffer::from_path(std::string_view path) -> FileBuffer {
         path
     );
 
-    FB_LOG_TRACE("Read {} bytes from file: {}", bytes_read, path);
+    const double elapsed_time = timer.elapsed_time();
+    FB_LOG_INFO(
+        "Read file {}: {} bytes, {:.3f} ms, {:.3f} MB/s, ",
+        path,
+        bytes_read,
+        elapsed_time * 1e3,
+        (bytes_read / 1e6) / elapsed_time
+    );
 
     CloseHandle(file);
 
