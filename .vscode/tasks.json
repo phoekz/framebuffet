@@ -284,7 +284,7 @@
         {
             "label": "Start Visual Studio",
             "type": "shell",
-            "command": "start \"\" \"C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/devenv.exe\" \"${workspaceFolder}/build/framebuffet.sln\""
+            "command": "start \"\" \"C:/Program Files/Microsoft Visual Studio/18/Community/Common7/IDE/devenv.exe\" \"${workspaceFolder}/build/framebuffet.sln\""
         }
     ]
 }

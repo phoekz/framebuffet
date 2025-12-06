@@ -14,7 +14,7 @@ if [ -z "$FB_CONFIGURE" ]; then
     echo "Skipping configure..."
 else
     echo "Configuring..."
-    cmake -S . -B build -G "Visual Studio 17 2022" -T host=x64 -A x64
+    cmake -S . -B build -G "Visual Studio 18 2026" -T host=x64 -A x64
 fi
 
 

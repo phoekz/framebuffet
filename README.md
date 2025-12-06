@@ -16,5 +16,5 @@ To build and run the project, you need a Windows 10+ machine with a GPU that sup
 Example:
 
 ```
-cmake -S . -B build -G "Visual Studio 17 2022" -T host=x64 -A x64
+cmake -S . -B build -G "Visual Studio 18 2026" -T host=x64 -A x64
 ```
